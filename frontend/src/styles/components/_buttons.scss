@@ -1,0 +1,85 @@
+@use '../abstracts/variables' as *;
+
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  font-family: $font-outfit;
+  font-weight: 400;
+  font-size: 16px;
+  min-width: 140px;
+  cursor: pointer;
+  background-color: transparent;
+  border-radius: 8px 22px 8px 8px;
+  overflow: hidden;
+  border: none;
+  transition: box-shadow 0.8s ease-in-out;
+
+  .btn__content {
+    position: relative;
+    z-index: 10;
+    color: $text-light;
+  }
+
+  &.white-true {
+    .btn__content {
+      color: $text-dark !important;
+    }
+  }
+
+  &.white-false {
+    .btn__content {
+      color: $text-light !important;
+    }
+  }
+
+  svg {
+    position: absolute;
+    top: 0;
+    height: 44px;
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  svg:nth-of-type(1) {
+    left: 0;
+    width: 21px;
+  }
+
+  svg:nth-of-type(2) {
+    left: 21px;
+    right: 21px;
+    width: auto;
+    height: 44px;
+  }
+
+  svg:nth-of-type(3) {
+    right: 0;
+    width: 21px;
+  }
+
+  &:hover {
+    color: $accent-color;
+    box-shadow: 0 0 10px rgba(138, 255, 234, 0.3),
+                0 0 20px rgba(250, 203, 123, 0.2),
+                0 0 30px rgba(216, 124, 238, 0.1);
+  }
+
+  &.white-true:hover {
+    color: $text-dark;
+  }
+
+  &.white-true:active {
+    color: $text-dark;
+  }
+
+  &.white-true:disabled {
+    color: $text-light;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+}

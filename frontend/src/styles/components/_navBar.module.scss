@@ -1,0 +1,114 @@
+@keyframes starBlink {
+  0%, 100% {
+    opacity: 1;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.6);
+  }
+  50% {
+    opacity: 0.5;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+  }
+}
+
+.navbar {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 1rem;
+  position: relative;
+  z-index: 10;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    gap: 1rem;
+    text-align: center;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: $text-light;
+    padding: 0.5rem 2rem;
+    border-radius: 0 0 1.5rem 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease-in-out;
+
+    &:hover {
+      cursor: pointer;
+      transform: scale(1.03);
+    }
+
+    img {
+      height: 40px;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+  }
+
+  .navLinks {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    list-style: none;
+    font-family: $font-orbitron;
+    gap: 1.5rem;
+    padding: 0;
+
+    li {
+      a {
+        text-decoration: none;
+        color: $accent-color;
+        font-weight: 400; 
+        transition: color 0.3s ease;
+
+        &:hover {
+          color: #0070f3;
+        }
+
+        &.blinking {
+          animation: starBlink 3s infinite ease-in-out;
+        }
+      }
+
+      // For lang-select and button alignment
+      .lang-select,
+      .button {
+        display: flex;
+        align-items: center;
+      }
+    }
+  }
+
+  .lang-select {
+    position: relative;
+
+    select {
+      background: white;
+      border: 1px solid $accent-color;
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-family: $font-orbitron;
+      font-size: 0.9rem;
+      color: $accent-color;
+      appearance: none;
+      cursor: pointer;
+      transition: border-color 0.2s ease;
+
+      &:focus {
+        outline: none;
+        border-color: darken($accent-color, 10%);
+      }
+
+      // Custom arrow (optional)
+      background-image: url("data:image/svg+xml;utf8,<svg fill='%23333' height='16' viewBox='0 0 24 24' width='16' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      background-size: 1rem;
+    }
+  }
+}

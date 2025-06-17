@@ -1,0 +1,74 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&family=Outfit:wght@100..900&display=swap');
+
+// ----------------------
+// 🎨 Color Palette
+// ----------------------
+$primary-color: #0f172a;       // Dark background
+$secondary-color: #1e293b;     // Dark secondary
+$accent-color: #38bdf8;        // Sky blue
+$accent-color-light: #7dd3fc;  // Lighter accent variant
+$accent-color-dark: #0ea5e9;   // Darker accent variant
+
+$text-color: #e2e8f0;          // Default light text
+$text-light: #ffffff;          // Pure white
+$text-dark: #1a1a1a;           // Dark for light themes
+
+$bg-light: #f8fafc;            // For light surfaces
+$dark-bg: #0f172a;             // Background dark
+$border-color: #334155;        // Border neutral gray
+
+// Gradients (used in SVG or backgrounds)
+$gradient-1: linear-gradient(90deg, #89F9E8 0%, #FACB7B 100%);
+$gradient-2: linear-gradient(90deg, #D87CEE 0%, #FACB7B 100%);
+$gradient-3: linear-gradient(90deg, #9099FC 0%, #89F9E8 100%);
+$gradient-4: linear-gradient(180deg, #9099FC 0%, #D87CEE 100%);
+
+// ----------------------
+// 🖋 Typography
+// ----------------------
+$font-outfit: 'Outfit', sans-serif;
+$font-orbitron: 'Orbitron', sans-serif;
+
+$font-size-xs: 0.75rem;   // 12px
+$font-size-sm: 0.875rem;  // 14px
+$font-size-base: 1rem;    // 16px
+$font-size-lg: 1.125rem;  // 18px
+$font-size-xl: 1.25rem;   // 20px
+$font-size-2xl: 1.5rem;   // 24px
+$font-size-3xl: 1.875rem; // 30px
+
+// ----------------------
+// 📏 Spacing System
+// ----------------------
+$spacer: 1rem;
+
+$spacing-xs: 0.25rem;   // 4px
+$spacing-sm: 0.5rem;    // 8px
+$spacing-md: 1rem;      // 16px
+$spacing-lg: 1.5rem;    // 24px
+$spacing-xl: 2rem;      // 32px
+$spacing-2xl: 3rem;     // 48px
+
+// ----------------------
+// 🧩 Border Radius
+// ----------------------
+$radius-sm: 0.25rem;   // 4px
+$radius-md: 0.5rem;    // 8px
+$radius-lg: 1rem;      // 16px
+$radius-xl: 1.5rem;    // 24px
+$radius-full: 9999px;  // Circular
+
+// ----------------------
+// ⚡️ Transitions
+// ----------------------
+$transition-fast: 0.2s ease-in-out;
+$transition-medium: 0.3s ease-in-out;
+$transition-slow: 0.5s ease-in-out;
+
+
+$theme1: #040C24;
+$theme2: #0A205A;
+$theme3: #108CFF;
+$theme4: #9DA5BD;
+$theme5: #E6F9FF;

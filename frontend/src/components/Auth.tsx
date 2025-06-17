@@ -1,34 +1,17 @@
-import React, { useState } from 'react';
 import '../styles/components/_auth.scss';
 import Button from './Button';
-
+import { useNavigate } from 'react-router-dom';
 const Auth = () => {
-    // Fake user state to simulate login/logout
-    const [user, setUser] = useState(null);
-
-    const handleLogin = () => {
-        // Simulate a logged-in user
-        setUser({
-            name: 'Nimna',
-            profileImage: 'https://i.pravatar.cc/150?img=3', // Placeholder avatar
-        });
-    };
-
-    const handleLogout = () => {
-        setUser(null);
+    const navigate = useNavigate();
+    const handleSignupClick = () => {
+        navigate('/signup'); // navigates to /dashboard/signup if Dashboard is a nested route
     };
 
     return (
         <div className="auth-container">
-            {!user ? (
-                <Button variant='primary' className="auth-button" onClick={handleLogin} white={false}>
-                    SignUp
-                </Button>
-            ) : (
-                <div className="profile-wrapper" onClick={handleLogout}>
-                    <img src={user.profileImage} alt="Profile" />
-                </div>
-            )}
+            <Button variant='primary' className="auth-button" onClick={handleSignupClick} white={false}>
+                SignUp
+            </Button>
         </div>
     );
 };

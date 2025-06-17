@@ -5,6 +5,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import About from './pages/About';
 import Dashboard from './pages/Dashboard';
+import Signup from './pages/Signup';
 
 const App: React.FC = () => {
   return (
@@ -15,6 +16,7 @@ const App: React.FC = () => {
 
         {/* ✅ Allow nested routes like /dashboard/profile */}
         <Route path="/dashboard/*" element={<Dashboard />} />
+        <Route path='/signup' element={<Signup />}  />
       </Routes>
     </BrowserRouter>
   );

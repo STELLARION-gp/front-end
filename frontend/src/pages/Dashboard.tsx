@@ -20,7 +20,6 @@ const Dashboard: React.FC = () => {
         <Routes>
           <Route path="profile" element={<Profile />} />
           <Route path="settings" element={<Settings />} />
-          <Route path="signup" element={<div>Signup Page</div>} />
           <Route path="login" element={<div>Login Page</div>} />
           <Route path="profile" element={<Profile />} />
           <Route path="overview" element={<Preview />} />

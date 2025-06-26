@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth, type UserRole } from '../AuthContext';
+import { useAuth } from '../hooks/useAuth';
+import type { UserRole } from '../AuthContext';
 import Button from '../components/Button';
 import '../styles/components/_auth.scss';
 

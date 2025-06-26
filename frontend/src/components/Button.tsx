@@ -8,7 +8,14 @@ interface ButtonProps {
   children: React.ReactNode;
   px?: string;
   white?: boolean;
-  variant?: "primary" | "secondary";
+  variant?: "primary" | "secondary" | "success" | "danger" | "ghost";
+  size?: "small" | "medium" | "large";
+  type?: "button" | "submit" | "reset";
+  disabled?: boolean;
+  loading?: boolean;
+  icon?: React.ReactElement;
+  iconPosition?: "left" | "right";
+  fullWidth?: boolean;
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -19,19 +26,45 @@ const Button: React.FC<ButtonProps> = ({
   px = "",
   white = false,
   variant = "primary",
+  size = "medium",
+  type = "button",
+  disabled = false,
+  loading = false,
+  icon,
+  iconPosition = "left",
+  fullWidth = false,
 }) => {
-  const classes = `btn btn--${variant} ${className} ${px}`.trim();
+  const sizeClass = size ? `btn--${size}` : "";
+  const fullWidthClass = fullWidth ? "btn--full-width" : "";
+  const disabledClass = disabled ? "btn--disabled" : "";
+  const loadingClass = loading ? "btn--loading" : "";
+
+  const classes = `btn btn--${variant} ${sizeClass} ${fullWidthClass} ${disabledClass} ${loadingClass} ${className} ${px}`.trim();
+
+  const renderContent = () => (
+    <>
+      {loading ? (
+        <span className="btn__spinner">⟳</span>
+      ) : (
+        <>
+          {icon && iconPosition === "left" && <span className="btn__icon btn__icon--left">{icon}</span>}
+          <span className={`btn__content ${white ? "white-true" : "white-false"}`}>{children}</span>
+          {icon && iconPosition === "right" && <span className="btn__icon btn__icon--right">{icon}</span>}
+        </>
+      )}
+    </>
+  );
 
   const renderButton = () => (
-    <button type="button" className={classes} onClick={onClick}>
-      <span className={`btn__content ${white ? "white-true" : "white-false"}`}>{children}</span>
+    <button type={type} className={classes} onClick={onClick} disabled={disabled || loading}>
+      {renderContent()}
       <ButtonSvg white={white} />
     </button>
   );
 
   const renderLink = () => (
     <a href={href} className={classes}>
-      <span className={`btn__content ${white ? "white-true" : "white-false"}`}>{children}</span>
+      {renderContent()}
       <ButtonSvg white={white} />
     </a>
   );

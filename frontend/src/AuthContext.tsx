@@ -1,4 +1,5 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { AuthContext } from "./contexts/AuthContext";
 import { auth } from "./firebase";
 import {
   createUserWithEmailAndPassword,
@@ -44,17 +45,8 @@ interface AuthContextType {
   updateUserProfile: (data: Partial<UserProfile['profileData']>) => Promise<void>;
 }
 
-// Create context with default undefined
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-// Custom hook to use AuthContext
-export const useAuth = (): AuthContextType => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
-};
+// Export AuthContextType for use in other files
+export type { AuthContextType };
 
 // Props type for AuthProvider
 interface AuthProviderProps {

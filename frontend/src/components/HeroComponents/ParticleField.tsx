@@ -4,19 +4,38 @@ import * as THREE from 'three';
 
 const ParticleField: React.FC = () => {
   const mesh = useRef<THREE.Points>(null);
-
-  const colorPalette = [
-    new THREE.Color('#8B5CF6'), // Purple
-    new THREE.Color('#3B82F6'), // Blue
-    new THREE.Color('#06B6D4'), // Cyan
-    new THREE.Color('#FFFFFF'), // White
-    new THREE.Color('#F59E0B'), // Amber
-    new THREE.Color('#EC4899'), // Pink
-  ];
-
   const PARTICLE_COUNT = 1000;
 
+  // Create circular texture for particles
+  const circleTexture = useMemo(() => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 64;
+    canvas.height = 64;
+    const context = canvas.getContext('2d')!;
+
+    // Create circular gradient
+    const gradient = context.createRadialGradient(32, 32, 0, 32, 32, 32);
+    gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+    gradient.addColorStop(0.3, 'rgba(255, 255, 255, 0.8)');
+    gradient.addColorStop(0.6, 'rgba(255, 255, 255, 0.4)');
+    gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, 64, 64);
+
+    return new THREE.CanvasTexture(canvas);
+  }, []);
+
   const [positions, colors, sizes] = useMemo(() => {
+    const colorPalette = [
+      new THREE.Color('#8B5CF6'), // Purple
+      new THREE.Color('#3B82F6'), // Blue
+      new THREE.Color('#06B6D4'), // Cyan
+      new THREE.Color('#FFFFFF'), // White
+      new THREE.Color('#F59E0B'), // Amber
+      new THREE.Color('#EC4899'), // Pink
+    ];
+
     const positions = new Float32Array(PARTICLE_COUNT * 3);
     const colors = new Float32Array(PARTICLE_COUNT * 3);
     const sizes = new Float32Array(PARTICLE_COUNT);
@@ -68,18 +87,21 @@ const ParticleField: React.FC = () => {
     <points ref={mesh}>
       <bufferGeometry>
         <bufferAttribute
+          args={[positions, 3]}
           attach="attributes-position"
           array={positions}
           count={positions.length / 3}
           itemSize={3}
         />
         <bufferAttribute
+          args={[colors, 3]}
           attach="attributes-color"
           array={colors}
           count={colors.length / 3}
           itemSize={3}
         />
         <bufferAttribute
+          args={[sizesRef.current, 1]}
           attach="attributes-size"
           array={sizesRef.current}
           count={sizesRef.current.length}
@@ -94,6 +116,8 @@ const ParticleField: React.FC = () => {
         sizeAttenuation={true}
         blending={THREE.AdditiveBlending}
         depthWrite={false}
+        map={circleTexture}
+        alphaTest={0.001}
       />
     </points>
   );

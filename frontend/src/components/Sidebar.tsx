@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '../AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import { getMenuItemsForRole } from '../utils/rolePermissions';
 import '../styles/components/_sidebar.scss';
 import logo from '../assets/logo-light.png';

@@ -1,50 +1,53 @@
 import { type UserRole } from '../AuthContext';
 
+// Define permission types
+export type Permission = 'read' | 'write' | 'delete' | 'admin' | 'moderate' | 'mentor' | 'guide' | 'influence' | 'all';
+
 // Define permission levels for different roles
 export const ROLE_PERMISSIONS = {
     admin: {
         level: 7,
-        permissions: ['read', 'write', 'delete', 'admin', 'moderate', 'mentor', 'all']
+        permissions: ['read', 'write', 'delete', 'admin', 'moderate', 'mentor', 'all'] as Permission[]
     },
     moderator: {
         level: 6,
-        permissions: ['read', 'write', 'moderate', 'mentor']
+        permissions: ['read', 'write', 'moderate', 'mentor'] as Permission[]
     },
     mentor: {
         level: 5,
-        permissions: ['read', 'write', 'mentor']
+        permissions: ['read', 'write', 'mentor'] as Permission[]
     },
     guide: {
         level: 4,
-        permissions: ['read', 'write', 'guide']
+        permissions: ['read', 'write', 'guide'] as Permission[]
     },
     influencer: {
         level: 3,
-        permissions: ['read', 'write', 'influence']
+        permissions: ['read', 'write', 'influence'] as Permission[]
     },
     enthusiast: {
         level: 2,
-        permissions: ['read', 'write']
+        permissions: ['read', 'write'] as Permission[]
     },
     learner: {
         level: 1,
-        permissions: ['read']
+        permissions: ['read'] as Permission[]
     }
-} as const;
+};
 
 // Define what roles can access which pages/features
 export const PAGE_ACCESS_CONTROL = {
-    '/dashboard/overview': ['learner', 'enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin'],
-    '/dashboard/profile': ['learner', 'enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin'],
-    '/dashboard/settings': ['learner', 'enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin'],
-    '/dashboard/blogs': ['enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin'],
-    '/dashboard/mentor': ['mentor', 'moderator', 'admin'],
-    '/dashboard/events': ['guide', 'mentor', 'moderator', 'admin'],
-    '/dashboard/chat': ['learner', 'enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin'],
-    '/dashboard/sessions': ['mentor', 'moderator', 'admin'],
-    '/dashboard/admin': ['admin'],
-    '/dashboard/moderation': ['moderator', 'admin']
-} as const;
+    '/dashboard/overview': ['learner', 'enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin'] as UserRole[],
+    '/dashboard/profile': ['learner', 'enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin'] as UserRole[],
+    '/dashboard/settings': ['learner', 'enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin'] as UserRole[],
+    '/dashboard/blogs': ['enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin'] as UserRole[],
+    '/dashboard/mentor': ['mentor', 'moderator', 'admin'] as UserRole[],
+    '/dashboard/events': ['guide', 'mentor', 'moderator', 'admin'] as UserRole[],
+    '/dashboard/chat': ['learner', 'enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin'] as UserRole[],
+    '/dashboard/sessions': ['mentor', 'moderator', 'admin'] as UserRole[],
+    '/dashboard/admin': ['admin'] as UserRole[],
+    '/dashboard/moderation': ['moderator', 'admin'] as UserRole[]
+};
 
 // Sidebar menu items with role-based visibility
 export const ROLE_BASED_MENU_ITEMS = {
@@ -114,13 +117,13 @@ export const ROLE_BASED_MENU_ITEMS = {
 // Check if user has access to a specific page
 export const hasPageAccess = (userRole: UserRole, path: string): boolean => {
     const allowedRoles = PAGE_ACCESS_CONTROL[path as keyof typeof PAGE_ACCESS_CONTROL];
-    return allowedRoles?.includes(userRole as any) || false;
+    return allowedRoles?.includes(userRole) || false;
 };
 
 // Check if user has a specific permission
-export const hasPermission = (userRole: UserRole, permission: string): boolean => {
+export const hasPermission = (userRole: UserRole, permission: Permission): boolean => {
     const rolePermissions = ROLE_PERMISSIONS[userRole];
-    return rolePermissions?.permissions.includes(permission as any) || false;
+    return rolePermissions?.permissions.includes(permission) || false;
 };
 
 // Check if user role has sufficient level

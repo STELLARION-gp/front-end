@@ -4,8 +4,8 @@ import './../../styles/pages/Hero.scss';
 
 
 const GalaxyHero: React.FC = () => {
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [currentSlide] = useState(0);
+  const [isTransitioning] = useState(false);
 
   return (
     <div className="hero-canvas">

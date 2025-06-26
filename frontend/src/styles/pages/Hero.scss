@@ -32,7 +32,7 @@
   font-weight: 800;
   letter-spacing: -1px;
   margin-bottom: 1.2rem;
-  text-shadow: 0 4px 24px rgba(0,0,0,0.32);
+  text-shadow: 0 4px 24px rgba(0, 0, 0, 0.32);
 }
 
 .hero-content p {
@@ -40,5 +40,11 @@
   max-width: 600px;
   margin: 0 auto;
   color: #e0e7ff;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.18);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+}
+
+.hero-cta-btn {
+  pointer-events: auto;
+  margin-top: 2rem;
+  display: inline-block;
 }

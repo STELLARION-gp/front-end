@@ -1,0 +1,12 @@
+[
+  {
+    "title": "Welcome to Stellarion",
+    "subtitle": "Explore the wonders of the universe",
+    "planet": "/models/mars.glb"
+  },
+  {
+    "title": "Discover New Worlds",
+    "subtitle": "Scroll through galaxies and mysteries",
+    "planet": "/models/jupiter.glb"
+  }
+]

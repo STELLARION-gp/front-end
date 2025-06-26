@@ -1,0 +1,75 @@
+{
+    "navbar": {
+        "home": "Home",
+        "about": "About",
+        "contact": "Contact",
+        "profile": "Profile",
+        "settings": "Settings"
+    },
+    "welcome": "Welcome to our website!",
+    "hero": {
+        "title": "Stellarion: Explore the Universe",
+        "subtitle": "Explore the wonders of the universe",
+        "description": "Discover, learn, and interact with the cosmos in a visually stunning 3D environment. Start your journey now.",
+        "getStarted": "Get Started",
+        "scrollToExplore": "Scroll to explore"
+    },
+    "auth": {
+        "signIn": "Sign In",
+        "signUp": "Sign Up",
+        "email": "Email",
+        "password": "Password",
+        "confirmPassword": "Confirm Password",
+        "forgotPassword": "Forgot Password?",
+        "alreadyHaveAccount": "Already have an account?",
+        "dontHaveAccount": "Don't have an account?",
+        "signOut": "Sign Out"
+    },
+    "pages": {
+        "about": {
+            "title": "About Us",
+            "description": "Stellarion is an innovative platform that provides an immersive universe exploration experience"
+        },
+        "dashboard": {
+            "title": "Dashboard",
+            "welcome": "Welcome"
+        },
+        "profile": {
+            "title": "Profile",
+            "editProfile": "Edit Profile"
+        },
+        "settings": {
+            "title": "Settings",
+            "language": "Language",
+            "theme": "Theme",
+            "notifications": "Notifications"
+        }
+    },
+    "common": {
+        "loading": "Loading...",
+        "error": "Error",
+        "success": "Success",
+        "cancel": "Cancel",
+        "save": "Save",
+        "edit": "Edit",
+        "delete": "Delete",
+        "confirm": "Confirm",
+        "back": "Back",
+        "next": "Next",
+        "search": "Search"
+    },
+    "features": {
+        "exploration": {
+            "title": "3D Universe Exploration",
+            "description": "Explore galaxies in an interactive 3D environment"
+        },
+        "learning": {
+            "title": "Astronomy Learning",
+            "description": "Learn astronomical concepts and discover new worlds"
+        },
+        "community": {
+            "title": "Community",
+            "description": "Connect with fellow astronomy enthusiasts"
+        }
+    }
+}

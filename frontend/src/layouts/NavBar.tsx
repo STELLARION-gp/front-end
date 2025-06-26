@@ -1,8 +1,9 @@
 import React from "react";
 import styles from "../styles/components/_navBar.module.scss";
 import { useNavigate } from "react-router-dom";
-import { useTranslation } from "react-i18next";
+import { useI18n } from "../i18n/useI18n";
 import Button from "../components/Button";
+import LanguageSwitcher from "../components/LanguageSwitcher";
 
 type NavItem = {
     label: string; // label should be the i18n key
@@ -17,14 +18,10 @@ type NavbarProps = {
 
 const Navbar: React.FC<NavbarProps> = ({ logo, navItemsR, navItemsL }) => {
     const navigate = useNavigate();
-    const { t, i18n } = useTranslation();
+    const { t } = useI18n();
 
     const handleLogoClick = () => {
         navigate("/");
-    };
-
-    const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        i18n.changeLanguage(e.target.value);
     };
 
     return (
@@ -48,15 +45,17 @@ const Navbar: React.FC<NavbarProps> = ({ logo, navItemsR, navItemsL }) => {
                     </li>
                 ))}
                 <li>
-                    <div className={styles.langSelect}>
-                        <select onChange={handleLanguageChange} value={i18n.language} name="language">
-                            <option value="en">EN</option>
-                            <option value="sin">සිං</option>
-                        </select>
-                    </div>
+                    <LanguageSwitcher variant="dropdown" />
                 </li>
                 <li>
-                    <Button className="hidden" white={true}>Sign In</Button>
+                    <Button
+                        className="hidden"
+                        white={true}
+                        variant="primary"
+                        size="medium"
+                    >
+                        {t('auth.signIn')}
+                    </Button>
                 </li>
             </ul>
 

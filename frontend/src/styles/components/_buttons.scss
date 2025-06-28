@@ -1,6 +1,6 @@
 @use '../abstracts/variables' as *;
 
-// Keyframes for spinner animation
+// Keyframes for loading spinner
 @keyframes spin {
   0% {
     transform: rotate(0deg);
@@ -17,44 +17,36 @@
   align-items: center;
   justify-content: center;
   font-family: $font-outfit;
-  font-weight: 500;
+  font-weight: 600;
+  text-transform: uppercase;
   cursor: pointer;
-  background-color: transparent;
-  border-radius: 12px 0 12px 12px;
-  /* Asymmetric radius - sharp top-right */
-  overflow: hidden;
-  border: none;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid;
+  border-radius: $radius-md;
   text-decoration: none;
-  isolation: isolate;
-  box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.1),
-    0 1px 2px rgba(0, 0, 0, 0.06),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  background-size: 300%;
+  transition: all 0.6s ease;
+  overflow: hidden;
 
   // Size variants
   &.btn--small {
     height: 36px;
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
-    font-size: 14px;
-    min-width: 100px;
+    padding: 0 16px;
+    font-size: $font-size-sm;
+    min-width: 80px;
   }
 
   &.btn--medium {
-    height: 44px;
-    padding-left: 1rem;
-    padding-right: 1rem;
-    font-size: 16px;
-    min-width: 140px;
+    height: 48px;
+    padding: 0 24px;
+    font-size: $font-size-base;
+    min-width: 120px;
   }
 
   &.btn--large {
-    height: 52px;
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-    font-size: 18px;
-    min-width: 180px;
+    height: 56px;
+    padding: 0 32px;
+    font-size: $font-size-lg;
+    min-width: 160px;
   }
 
   &.btn--full-width {
@@ -65,12 +57,14 @@
   .btn__content {
     position: relative;
     z-index: 10;
-    color: $text-light;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-weight: 500;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    font-weight: 600;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .btn__icon {
@@ -80,11 +74,11 @@
     align-items: center;
 
     &.btn__icon--left {
-      margin-right: 0.5rem;
+      margin-right: 8px;
     }
 
     &.btn__icon--right {
-      margin-left: 0.5rem;
+      margin-left: 8px;
     }
   }
 
@@ -97,164 +91,189 @@
     border-top: 2px solid currentColor;
     border-radius: 50%;
     animation: spin 1s linear infinite;
-    margin-right: 0.5rem;
+    margin-right: 8px;
   }
 
-  &.white-true {
-    .btn__content {
-      color: $text-dark !important;
-    }
-
-    .btn__icon {
-      color: $text-dark !important;
-    }
-
-    .btn__spinner {
-      border-top-color: $text-dark;
-    }
-  }
-
-  &.white-false {
-    .btn__content {
-      color: $text-light !important;
-    }
-
-    .btn__icon {
-      color: $text-light !important;
-    }
-
-    .btn__spinner {
-      border-top-color: $text-light;
-    }
-  }
-
-  svg {
-    position: absolute;
-    top: 0;
-    pointer-events: none;
-    z-index: 1;
-  }
-
-  .btn-svg-background {
-    z-index: 1;
-  }
-
-  .btn-svg-left,
-  .btn-svg-right {
-    z-index: 2;
-  }
-
-  .btn-svg-middle {
-    z-index: 1;
-
-    &[data-left-width="18"] {
-      left: 16px;
-      width: calc(100% - 36px);
-    }
-
-    &[data-left-width="22"] {
-      left: 20px;
-      width: calc(100% - 44px);
-    }
-
-    &[data-left-width="26"] {
-      left: 24px;
-      width: calc(100% - 52px);
-    }
-  }
-
-  // Variant styles with modern effects
+  // Button variants with sliding gradient effects
   &.btn--primary {
+    color: $text-light;
+    border-color: $text-light;
+    background-color: transparent;
+    background-image: linear-gradient(120deg, transparent 50%, $theme3 50%);
+
+    .btn__circle {
+      position: absolute;
+      width: 0;
+      height: 0;
+      background-color: $text-light;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      transition: width 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+        height 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      z-index: 1;
+      pointer-events: none;
+      --circle-size: 0px;
+      will-change: width, height;
+
+      &.circle-expand {
+        width: var(--circle-size);
+        height: var(--circle-size);
+      }
+
+      &.circle-shrink {
+        width: 0;
+        height: 0;
+        transition: width 0.25s cubic-bezier(0.55, 0.06, 0.68, 0.19),
+          height 0.25s cubic-bezier(0.55, 0.06, 0.68, 0.19);
+      }
+    }
+
     &:hover:not(:disabled):not(.btn--disabled) {
-      transform: translateY(-3px) scale(1.02);
-      filter: brightness(1.15) saturate(1.2);
-      box-shadow:
-        0 10px 30px rgba(59, 130, 246, 0.4),
-        0 5px 15px rgba(0, 0, 0, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+
+      .btn__content,
+      .btn__icon,
+      .btn__spinner {
+        color: $theme1;
+        transition: color 0.25s ease 0.1s;
+        z-index: 2;
+        position: relative;
+      }
+    }
+
+    &:not(:hover) {
+
+      .btn__content,
+      .btn__icon,
+      .btn__spinner {
+        color: $text-light;
+        transition: color 0.15s ease;
+        z-index: 2;
+        position: relative;
+      }
     }
 
     &:active:not(:disabled):not(.btn--disabled) {
-      transform: translateY(-1px) scale(1.01);
-      transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow:
-        0 5px 15px rgba(59, 130, 246, 0.3),
-        0 2px 8px rgba(0, 0, 0, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      transform: translate(0.1rem, 0.1rem);
+      box-shadow: 0px 5px 15px -10px rgba($theme3, 0.6);
+
+      .btn__circle {
+        transform: translate(-50%, -50%) scale(0.98);
+        transition: transform 0.1s ease;
+      }
     }
   }
 
   &.btn--secondary {
+    color: $theme2;
+    border-color: $theme2;
+    background-image: linear-gradient(160deg, $text-light 50%, $theme2 50%);
+
     &:hover:not(:disabled):not(.btn--disabled) {
-      transform: translateY(-3px) scale(1.02);
-      filter: brightness(1.15) saturate(1.2);
-      box-shadow:
-        0 10px 30px rgba(107, 114, 128, 0.4),
-        0 5px 15px rgba(0, 0, 0, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      color: $text-light;
+      background-position: 100%;
+      transform: translateX(0.5rem);
     }
 
     &:active:not(:disabled):not(.btn--disabled) {
-      transform: translateY(-1px) scale(1.01);
-      transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow:
-        0 5px 15px rgba(107, 114, 128, 0.3),
-        0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-  }
-
-  &.btn--ghost {
-    &:hover:not(:disabled):not(.btn--disabled) {
-      transform: translateY(-2px) scale(1.01);
-      background: rgba(255, 255, 255, 0.08);
-      box-shadow:
-        0 8px 20px rgba(255, 255, 255, 0.1),
-        0 4px 10px rgba(0, 0, 0, 0.05),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    }
-
-    &:active:not(:disabled):not(.btn--disabled) {
-      transform: translateY(-1px);
-      background: rgba(255, 255, 255, 0.05);
-      transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-  }
-
-  &.btn--danger {
-    &:hover:not(:disabled):not(.btn--disabled) {
-      transform: translateY(-3px) scale(1.02);
-      filter: brightness(1.15) saturate(1.2);
-      box-shadow:
-        0 10px 30px rgba(239, 68, 68, 0.4),
-        0 5px 15px rgba(0, 0, 0, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    }
-
-    &:active:not(:disabled):not(.btn--disabled) {
-      transform: translateY(-1px) scale(1.01);
-      transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow:
-        0 5px 15px rgba(239, 68, 68, 0.3),
-        0 2px 8px rgba(0, 0, 0, 0.1);
+      transform: translate(0.5rem, 0.5rem);
+      box-shadow: 0px 10px 20px -15px rgba($theme2, 0.75);
     }
   }
 
   &.btn--success {
+    color: #10b981;
+    border-color: #10b981;
+    background-image: linear-gradient(120deg, $text-light 50%, #10b981 50%);
+
     &:hover:not(:disabled):not(.btn--disabled) {
-      transform: translateY(-3px) scale(1.02);
-      filter: brightness(1.15) saturate(1.2);
-      box-shadow:
-        0 10px 30px rgba(16, 185, 129, 0.4),
-        0 5px 15px rgba(0, 0, 0, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      color: $text-light;
+      background-position: 100%;
+      transform: translateX(0.5rem);
     }
 
     &:active:not(:disabled):not(.btn--disabled) {
-      transform: translateY(-1px) scale(1.01);
-      transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow:
-        0 5px 15px rgba(16, 185, 129, 0.3),
-        0 2px 8px rgba(0, 0, 0, 0.1);
+      transform: translate(0.5rem, 0.5rem);
+      box-shadow: 0px 10px 20px -15px rgba(#10b981, 0.75);
+    }
+  }
+
+  &.btn--warning {
+    color: #f59e0b;
+    border-color: #f59e0b;
+    background-image: linear-gradient(160deg, $text-light 50%, #f59e0b 50%);
+
+    &:hover:not(:disabled):not(.btn--disabled) {
+      color: $text-light;
+      background-position: 100%;
+      transform: translateX(0.5rem);
+    }
+
+    &:active:not(:disabled):not(.btn--disabled) {
+      transform: translate(0.5rem, 0.5rem);
+      box-shadow: 0px 10px 20px -15px rgba(#f59e0b, 0.75);
+    }
+  }
+
+  &.btn--danger {
+    color: #ef4444;
+    border-color: #ef4444;
+    background-image: linear-gradient(120deg, $text-light 50%, #ef4444 50%);
+
+    &:hover:not(:disabled):not(.btn--disabled) {
+      color: $text-light;
+      background-position: 100%;
+      transform: translateX(0.5rem);
+    }
+
+    &:active:not(:disabled):not(.btn--disabled) {
+      transform: translate(0.5rem, 0.5rem);
+      box-shadow: 0px 10px 20px -15px rgba(#ef4444, 0.75);
+    }
+  }
+
+  &.btn--border {
+    color: $theme4;
+    border-color: $theme4;
+    background-image: linear-gradient(160deg, transparent 50%, rgba($theme4, 0.1) 50%);
+
+    &:hover:not(:disabled):not(.btn--disabled) {
+      color: $theme3;
+      border-color: $theme3;
+      background-position: 100%;
+      transform: translateX(0.5rem);
+    }
+
+    &:active:not(:disabled):not(.btn--disabled) {
+      transform: translate(0.5rem, 0.5rem);
+      box-shadow: 0px 10px 20px -15px rgba($theme4, 0.4);
+    }
+  }
+
+  // White variant (for dark backgrounds)
+  &.white-true {
+    color: $theme1;
+    border-color: $text-light;
+    background-image: linear-gradient(120deg, $theme1 50%, $text-light 50%);
+
+    &:hover:not(:disabled):not(.btn--disabled) {
+      color: $theme1;
+      background-position: 100%;
+      transform: translateX(0.5rem);
+    }
+
+    &:active:not(:disabled):not(.btn--disabled) {
+      transform: translate(0.5rem, 0.5rem);
+      box-shadow: 0px 10px 20px -15px rgba($text-light, 0.5);
+    }
+
+    .btn__content,
+    .btn__icon,
+    .btn__spinner {
+      color: inherit;
+    }
+
+    .btn__spinner {
+      border-top-color: currentColor;
     }
   }
 
@@ -263,12 +282,19 @@
   &.btn--disabled {
     opacity: 0.5;
     cursor: not-allowed;
-    box-shadow: none;
+    transform: none !important;
+    box-shadow: none !important;
+    background-position: 0% !important;
 
     &:hover {
       box-shadow: none;
       transform: none;
-      filter: none;
+      background-position: 0%;
+    }
+
+    &:active {
+      transform: none;
+      box-shadow: none;
     }
   }
 

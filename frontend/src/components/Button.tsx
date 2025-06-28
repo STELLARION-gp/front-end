@@ -1,5 +1,4 @@
-import React from "react";
-import ButtonSvg from "../assets/svg/ButtonSvg";
+import React, { useRef, useCallback } from "react";
 import LoadingSpinner from "./LoadingSpinner";
 
 interface ButtonProps {
@@ -9,7 +8,7 @@ interface ButtonProps {
   children: React.ReactNode;
   px?: string;
   white?: boolean;
-  variant?: "primary" | "secondary" | "success" | "danger" | "ghost";
+  variant?: "primary" | "secondary" | "success" | "warning" | "danger" | "border";
   size?: "small" | "medium" | "large";
   type?: "button" | "submit" | "reset";
   disabled?: boolean;
@@ -35,6 +34,76 @@ const Button: React.FC<ButtonProps> = ({
   iconPosition = "left",
   fullWidth = false,
 }) => {
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const linkRef = useRef<HTMLAnchorElement>(null);
+  const circleRef = useRef<HTMLSpanElement>(null);
+  const lastPositionRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+
+  const handleMouseEnter = useCallback((e: React.MouseEvent) => {
+    if (disabled || loading || variant !== "primary") return;
+
+    const target = e.currentTarget as HTMLElement;
+    const circle = circleRef.current;
+    if (!circle) return;
+
+    const rect = target.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    // Update position tracking
+    lastPositionRef.current = { x, y };
+
+    // Calculate the maximum distance to cover the entire button
+    const maxDistance = Math.sqrt(
+      Math.pow(Math.max(x, rect.width - x), 2) +
+      Math.pow(Math.max(y, rect.height - y), 2)
+    ) * 2;
+
+    circle.style.left = `${x}px`;
+    circle.style.top = `${y}px`;
+    circle.style.setProperty('--circle-size', `${maxDistance}px`);
+    circle.classList.remove('circle-shrink');
+    circle.classList.add('circle-expand');
+  }, [disabled, loading, variant]);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (disabled || loading || variant !== "primary") return;
+
+    const target = e.currentTarget as HTMLElement;
+    const circle = circleRef.current;
+    if (!circle || !circle.classList.contains('circle-expand')) return;
+
+    const rect = target.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    // Only update if the position has changed significantly (performance optimization)
+    const lastPos = lastPositionRef.current;
+    if (Math.abs(x - lastPos.x) < 2 && Math.abs(y - lastPos.y) < 2) return;
+
+    lastPositionRef.current = { x, y };
+
+    // Calculate the maximum distance to cover the entire button from current position
+    const maxDistance = Math.sqrt(
+      Math.pow(Math.max(x, rect.width - x), 2) +
+      Math.pow(Math.max(y, rect.height - y), 2)
+    ) * 2;
+
+    circle.style.left = `${x}px`;
+    circle.style.top = `${y}px`;
+    circle.style.setProperty('--circle-size', `${maxDistance}px`);
+  }, [disabled, loading, variant]);
+
+  const handleMouseLeave = useCallback(() => {
+    if (disabled || loading || variant !== "primary") return;
+
+    const circle = circleRef.current;
+    if (!circle) return;
+
+    circle.classList.remove('circle-expand');
+    circle.classList.add('circle-shrink');
+  }, [disabled, loading, variant]);
+
   const sizeClass = size ? `btn--${size}` : "";
   const fullWidthClass = fullWidth ? "btn--full-width" : "";
   const disabledClass = disabled ? "btn--disabled" : "";
@@ -59,20 +128,35 @@ const Button: React.FC<ButtonProps> = ({
           {icon && iconPosition === "right" && <span className="btn__icon btn__icon--right">{icon}</span>}
         </>
       )}
+      {variant === "primary" && <span ref={circleRef} className="btn__circle"></span>}
     </>
   );
 
   const renderButton = () => (
-    <button type={type} className={classes} onClick={onClick} disabled={disabled || loading}>
+    <button
+      type={type}
+      className={classes}
+      onClick={onClick}
+      disabled={disabled || loading}
+      onMouseEnter={handleMouseEnter}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      ref={buttonRef}
+    >
       {renderContent()}
-      <ButtonSvg white={white} />
     </button>
   );
 
   const renderLink = () => (
-    <a href={href} className={classes}>
+    <a
+      href={href}
+      className={classes}
+      onMouseEnter={handleMouseEnter}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      ref={linkRef}
+    >
       {renderContent()}
-      <ButtonSvg white={white} />
     </a>
   );
 

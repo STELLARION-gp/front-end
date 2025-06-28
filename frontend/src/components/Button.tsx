@@ -1,5 +1,6 @@
 import React from "react";
 import ButtonSvg from "../assets/svg/ButtonSvg";
+import LoadingSpinner from "./LoadingSpinner";
 
 interface ButtonProps {
   className?: string;
@@ -44,7 +45,13 @@ const Button: React.FC<ButtonProps> = ({
   const renderContent = () => (
     <>
       {loading ? (
-        <span className="btn__spinner">⟳</span>
+        <span className="btn__spinner">
+          <LoadingSpinner
+            size="small"
+            useLottie={true}
+            variant={white ? "white" : "primary"}
+          />
+        </span>
       ) : (
         <>
           {icon && iconPosition === "left" && <span className="btn__icon btn__icon--left">{icon}</span>}

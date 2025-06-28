@@ -125,7 +125,10 @@ body {
 .hero-cta-btn {
   pointer-events: auto;
   margin-top: 2rem;
-  display: inline-block;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
 }
 
 // NewHome component styles - Global Galaxy3D interaction

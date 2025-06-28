@@ -19,10 +19,9 @@ const Hero = () => {
                 <p className='mt-4'>{t('hero.description')}</p>
                 <Button
                     href="#features"
-                    className="signup-btn mt-8 hero-cta-btn"
+                    className="mt-8 hero-cta-btn"
                     variant="primary"
                     size="large"
-                    white={false}
                 >
                     {t('hero.getStarted')}
                 </Button>

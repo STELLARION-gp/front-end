@@ -78,8 +78,9 @@ const ExampleI18nPage: React.FC = () => {
                         <Button variant="primary" size="medium">Primary</Button>
                         <Button variant="secondary" size="medium">Secondary</Button>
                         <Button variant="success" size="medium">Success</Button>
+                        <Button variant="warning" size="medium">Warning</Button>
                         <Button variant="danger" size="medium">Danger</Button>
-                        <Button variant="ghost" size="medium">Ghost</Button>
+                        <Button variant="border" size="medium">Border</Button>
                     </div>
                     <div>
                         <h3>With Icons:</h3>
@@ -119,7 +120,7 @@ const ExampleI18nPage: React.FC = () => {
                         <Button variant="success" size="small">{t('common.save')}</Button>
                         <Button variant="secondary" size="small">{t('common.edit')}</Button>
                         <Button variant="danger" size="small">{t('common.delete')}</Button>
-                        <Button variant="ghost" size="small">{t('common.cancel')}</Button>
+                        <Button variant="border" size="small">{t('common.cancel')}</Button>
                     </div>
                 </section>
 

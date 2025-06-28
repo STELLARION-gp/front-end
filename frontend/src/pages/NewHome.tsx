@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import Hero from '../components/Hero';
-import Stats from '../components/HomeComponents/Stats';
 import FullScreenLoader from '../components/FullScreenLoader';
+import GalaxyHero from '../components/HeroComponents/GalaxyHero';
 import { useLoading } from '../hooks/useLoading';
 import { preloadHomeAssets } from '../utils/assetPreloader';
 import './../styles/pages/Hero.scss';
+import Team from '../components/HomeComponents/Team';
+import Stats from '../components/HomeComponents/Stats';
 
 const NewHome = () => {
   const { isLoading, withLoading } = useLoading(true); // Start with loading true
@@ -54,12 +56,19 @@ const NewHome = () => {
 
       {/* Main content - only render when loaded */}
       {componentsLoaded && (
-        <div className="new-home">
-          <Hero />
-          <div className="stats-section">
-            <Stats />
+        <>
+          {/* Fixed 3D Galaxy Background for entire homepage - Interactive */}
+          <div className='fixed top-0 left-0 w-full h-full z-10'>
+            <GalaxyHero />
           </div>
-        </div>
+
+          {/* Scrollable content on top of galaxy background */}
+          <div className="new-home">
+            <Hero />
+            <Stats />
+            <Team />
+          </div>
+        </>
       )}
     </>
   );

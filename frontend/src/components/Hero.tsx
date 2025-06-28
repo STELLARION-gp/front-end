@@ -1,4 +1,3 @@
-import GalaxyHero from './HeroComponents/GalaxyHero';
 import './../styles/pages/Hero.scss';
 import NavBarComponent from '../layouts/NavBarComponent';
 import { useI18n } from '../i18n/useI18n';
@@ -8,16 +7,14 @@ const Hero = () => {
     const { t } = useI18n();
 
     return (
-        <div className='relative w-full h-screen overflow-hidden'>
-            <NavBarComponent />
-
-            {/* GalaxyHero in background */}
-            <div className='absolute top-0 left-0 w-full h-full z-10 pointer-events-none'>
-                <GalaxyHero />
+        <section className='hero-section relative w-full'>
+            {/* NavBar positioned at top */}
+            <div className='hero-navbar absolute top-0 left-0 w-full z-50'>
+                <NavBarComponent />
             </div>
 
-            {/* Content above GalaxyHero */}
-            <div className='hero-content z-30'>
+            {/* Content centered in hero section only */}
+            <div className='hero-content'>
                 <h1>{t('hero.title')}</h1>
                 <p className='mt-4'>{t('hero.description')}</p>
                 <Button
@@ -30,7 +27,7 @@ const Hero = () => {
                     {t('hero.getStarted')}
                 </Button>
             </div>
-        </div>
+        </section>
     );
 };
 

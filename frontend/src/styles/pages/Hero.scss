@@ -3,28 +3,107 @@
   top: 0;
   left: 0;
   height: 100vh;
-  width: 100%;
+  width: 100vw;
   overflow: hidden;
-  z-index: 10;
-  border: 2px solid #fff;
-  border-radius: 5px;
+  z-index: 1;
+  border: none;
+  border-radius: 0;
+
+  // Black overlay for better content readability
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.15);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  // Smoke effect overlay for entire Galaxy3D background
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background:
+      radial-gradient(circle at 10% 30%, rgba(255, 255, 255, 0.01) 0%, transparent 60%),
+      radial-gradient(circle at 50% 60%, rgba(100, 100, 255, 0.03) 0%, transparent 20%),
+      radial-gradient(circle at 80% 20%, rgba(255, 0, 0, 0.03) 0%, transparent 40%),
+      radial-gradient(circle at 30% 10%, rgba(0, 0, 255, 0.04) 0%, transparent 60%),
+      radial-gradient(circle at 40% 30%, rgba(255, 255, 255, 0.02) 0%, transparent 80%);
+    pointer-events: none;
+    z-index: 2;
+  }
+}
+
+// Ensure body and html have proper height setup
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+#root {
+  height: 100%;
+  min-height: 100vh;
+}
+
+.hero-section {
+  pointer-events: none;
+  z-index: 15;
+  height: 100vh !important;
+  min-height: 100vh !important;
+  max-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+
+  .hero-navbar {
+    pointer-events: auto;
+    z-index: 50;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+  }
 }
 
 .hero-content {
-  position: absolute;
-  top: 0;
-  left: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  height: 100%;
+  width: 90%;
+  max-width: 800px;
   color: #fff;
   text-align: center;
-  z-index: 30;
-  padding: 0 1rem;
+  z-index: 20;
+  padding: 2rem;
   pointer-events: none;
+
+  /* Allow pointer events only on interactive elements */
+  h1,
+  p {
+    pointer-events: none;
+  }
+
+  button,
+  a,
+  .hero-cta-btn {
+    pointer-events: auto;
+  }
 }
 
 .hero-content h1 {
@@ -49,15 +128,39 @@
   display: inline-block;
 }
 
-// NewHome component styles
+// NewHome component styles - Global Galaxy3D interaction
 .new-home {
-  min-height: 100vh;
   position: relative;
-  overflow: hidden;
+  z-index: 1;
+  pointer-events: none; // Allow click-through to Galaxy3D by default
+
+  // Ensure sections can take full height
+  &>section {
+    width: 100%;
+  }
+
+  // Enable pointer events only on interactive elements globally
+  button,
+  a,
+  input,
+  select,
+  textarea,
+  .team-member,
+  .hero-cta-btn,
+  .navbar-item,
+  .nav-link,
+  .stats-item,
+  .stats-button {
+    pointer-events: auto !important;
+  }
 
   .stats-section {
-    margin-top: calc(100vh - 72px);
     position: relative;
-    z-index: 20;
+    z-index: 2;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none; // Allow click-through to Galaxy3D
   }
 }

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { useLoading } from '../hooks/useLoading';
 import Button from '../components/Button';
 import '../styles/components/_auth.scss';
 
@@ -8,7 +9,7 @@ const Login: React.FC = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
-    const [loading, setLoading] = useState(false);
+    const { isLoading, withLoading } = useLoading();
 
     const { login } = useAuth();
     const navigate = useNavigate();
@@ -21,20 +22,22 @@ const Login: React.FC = () => {
             return;
         }
 
-        try {
-            setError('');
-            setLoading(true);
-            await login(email, password);
-            navigate('/dashboard/overview');
-        } catch (error: unknown) {
-            if (error instanceof Error) {
-                setError(error.message);
-            } else {
-                setError('Failed to log in');
+        await withLoading(async () => {
+            try {
+                setError('');
+                await login(email, password);
+                navigate('/dashboard/overview');
+            } catch (error: unknown) {
+                if (error instanceof Error) {
+                    setError(error.message);
+                } else {
+                    setError('Failed to log in');
+                }
+                throw error; // Re-throw to handle in withLoading
             }
-        } finally {
-            setLoading(false);
-        }
+        }).catch(() => {
+            // Error already handled above
+        });
     };
 
     return (
@@ -74,13 +77,13 @@ const Login: React.FC = () => {
 
                     <Button
                         type="submit"
-                        disabled={loading}
-                        loading={loading}
+                        disabled={isLoading}
+                        loading={isLoading}
                         variant="primary"
                         fullWidth
                         size="medium"
                     >
-                        {loading ? 'Signing In...' : 'Sign In'}
+                        {isLoading ? 'Signing In...' : 'Sign In'}
                     </Button>
                 </form>
 

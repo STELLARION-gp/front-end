@@ -2,6 +2,7 @@ import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import type { UserRole } from '../AuthContext';
+import LoadingSpinner from './LoadingSpinner';
 
 interface ProtectedRouteProps {
     children: React.ReactNode;
@@ -21,7 +22,13 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     if (loading) {
         return (
             <div className="loading-container">
-                <div className="loading-spinner">Loading...</div>
+                <LoadingSpinner
+                    size="large"
+                    variant="white"
+                    showMessage={true}
+                    message="Authenticating..."
+                    useLottie={true}
+                />
             </div>
         );
     }

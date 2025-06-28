@@ -48,3 +48,16 @@
   margin-top: 2rem;
   display: inline-block;
 }
+
+// NewHome component styles
+.new-home {
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+
+  .stats-section {
+    margin-top: calc(100vh - 72px);
+    position: relative;
+    z-index: 20;
+  }
+}

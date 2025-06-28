@@ -1,0 +1,343 @@
+@use '../abstracts/variables' as *;
+
+// Keyframes for CSS fallback spinner
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+@keyframes smoothGlow {
+    0% {
+        opacity: 0.7;
+        transform: scale(1) translateY(0);
+    }
+
+    25% {
+        opacity: 0.9;
+        transform: scale(1.01) translateY(-2px);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.02) translateY(-3px);
+    }
+
+    75% {
+        opacity: 0.9;
+        transform: scale(1.01) translateY(-2px);
+    }
+
+    100% {
+        opacity: 0.7;
+        transform: scale(1) translateY(0);
+    }
+}
+
+// Loading spinner base styles
+.loading-spinner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+    &--centered {
+        // Don't use absolute positioning when inside fullscreen-loader
+        // The parent container (fullscreen-loader) handles centering
+        position: relative;
+        z-index: 100;
+    }
+
+    .loading-spinner-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+    }
+}
+
+// Lottie spinner container sizing
+.lottie-spinner-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .lottie-spinner {
+        width: 100%;
+        height: 100%;
+    }
+
+    // Size variants
+    &[data-width="24"][data-height="24"] .lottie-spinner {
+        width: 24px;
+        height: 24px;
+    }
+
+    &[data-width="48"][data-height="48"] .lottie-spinner {
+        width: 48px;
+        height: 48px;
+    }
+
+    &[data-width="80"][data-height="80"] .lottie-spinner {
+        width: 80px;
+        height: 80px;
+    }
+
+    &[data-width="120"][data-height="120"] .lottie-spinner {
+        width: 120px;
+        height: 120px;
+    }
+}
+
+// CSS fallback spinner
+.css-spinner {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .css-spinner-inner {
+        width: 100%;
+        height: 100%;
+        border: 2px solid transparent;
+        border-top: 2px solid currentColor;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    // Size variants
+    &[data-width="24"][data-height="24"] {
+        width: 24px;
+        height: 24px;
+    }
+
+    &[data-width="48"][data-height="48"] {
+        width: 48px;
+        height: 48px;
+    }
+
+    &[data-width="80"][data-height="80"] {
+        width: 80px;
+        height: 80px;
+    }
+
+    &[data-width="120"][data-height="120"] {
+        width: 120px;
+        height: 120px;
+    }
+}
+
+// Loading messages
+.loading-message {
+    font-family: $font-outfit;
+    font-weight: 500;
+    text-align: center;
+    animation: pulse 2s ease-in-out infinite;
+    transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &--smooth {
+        animation: smoothGlow 4s ease-in-out infinite;
+
+        &.loading-message--hidden {
+            opacity: 0;
+            transform: translateY(15px) scale(0.95);
+        }
+
+        &.loading-message--visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    &--primary {
+        color: $accent-color; // Using theme accent color (#38bdf8)
+    }
+
+    &--secondary {
+        color: $theme4; // Using theme4 color (#9DA5BD)
+    }
+
+    &--white {
+        color: $text-light; // Using pure white variable
+    }
+
+    &--dark {
+        color: $text-dark; // Using dark text variable
+    }
+}
+
+// Size-specific styles
+.loading-spinner--small {
+    .loading-message {
+        font-size: 0.75rem;
+    }
+}
+
+.loading-spinner--medium {
+    .loading-message {
+        font-size: 0.875rem;
+    }
+}
+
+.loading-spinner--large {
+    .loading-message {
+        font-size: 1rem;
+    }
+}
+
+.loading-spinner--fullscreen {
+    // Don't use fixed positioning here since FullScreenLoader handles it
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    .loading-message {
+        font-size: 1.125rem;
+        color: $text-light; // Using white variable
+        margin-top: 1rem;
+    }
+}
+
+// Variant-specific styles
+.loading-spinner--primary {
+    .css-spinner {
+        color: $accent-color; // Using theme accent color
+    }
+}
+
+.loading-spinner--secondary {
+    .css-spinner {
+        color: $theme4; // Using theme4 color
+    }
+}
+
+.loading-spinner--white {
+    .css-spinner {
+        color: $text-light; // Using pure white variable
+    }
+}
+
+.loading-spinner--dark {
+    .css-spinner {
+        color: $text-dark; // Using dark text variable
+    }
+}
+
+// Integration with existing styles
+.loading-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: $primary-color; // Using theme primary dark background
+
+    .loading-spinner {
+        .loading-message {
+            color: $text-light; // Using white variable
+            font-size: 1.2rem;
+        }
+    }
+}
+
+// Button loading spinner override
+.btn__spinner {
+    position: relative;
+    z-index: 10;
+    width: 16px;
+    height: 16px;
+
+    .lottie-spinner {
+        width: 16px !important;
+        height: 16px !important;
+    }
+
+    .css-spinner {
+        width: 16px;
+        height: 16px;
+
+        .css-spinner-inner {
+            border-width: 1px;
+        }
+    }
+}
+
+// Full screen loader
+.fullscreen-loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100vh;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    // Enhanced background with theme colors and smooth transitions
+    background: rgba($primary-color, 0.8);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    transition: opacity 0.3s ease-in-out, backdrop-filter 0.3s ease-in-out;
+
+    // Opacity variants using data attributes with theme color
+    &[data-opacity="0.3"] {
+        background: rgba($primary-color, 0.3);
+        -webkit-backdrop-filter: blur(2px);
+        backdrop-filter: blur(2px);
+    }
+
+    &[data-opacity="0.5"] {
+        background: rgba($primary-color, 0.5);
+        -webkit-backdrop-filter: blur(4px);
+        backdrop-filter: blur(4px);
+    }
+
+    &[data-opacity="0.7"] {
+        background: rgba($primary-color, 0.7);
+        -webkit-backdrop-filter: blur(6px);
+        backdrop-filter: blur(6px);
+    }
+
+    &[data-opacity="0.8"] {
+        background: rgba($primary-color, 0.8);
+        -webkit-backdrop-filter: blur(8px);
+        backdrop-filter: blur(8px);
+    }
+
+    &[data-opacity="0.9"] {
+        background: rgba($primary-color, 0.9);
+        -webkit-backdrop-filter: blur(10px);
+        backdrop-filter: blur(10px);
+    }
+
+    // Enhanced loading message for fullscreen
+    .loading-spinner {
+        .loading-message {
+            color: $text-light;
+            font-size: 1.25rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+    }
+}

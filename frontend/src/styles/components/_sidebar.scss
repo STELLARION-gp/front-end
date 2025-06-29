@@ -1,14 +1,15 @@
 .sidebar {
     font-family: $font-outfit;
     position: fixed;
-    top: 0;
+    top: 80px; // Position below navbar (navbar height is 80px)
     left: 10px;
     width: 100px;
     padding: 10px;
-    height: 100vh;
+    height: calc(100vh - 80px); // Full height minus navbar
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    z-index: 10; // Lower than navbar but above content
 
     transition: width 0.3s ease-in-out;
 
@@ -155,6 +156,28 @@
                     background-color: $theme4;
                 }
             }
+
+            // Logout item specific styles
+            &.logout-item {
+                cursor: pointer;
+
+                .logout-link {
+                    display: flex;
+                    align-items: center;
+                    width: 100%;
+                    text-decoration: none;
+                    color: inherit;
+                }
+
+                &:hover {
+                    color: #fca5a5;
+
+                    &::after {
+                        background-color: #ef4444;
+                        height: 80%;
+                    }
+                }
+            }
         }
     }
 
@@ -236,20 +259,17 @@
             white-space: nowrap;
         }
     }
-}
 
-
-.logo {
-    img {
-        width: 280px;
-        height: auto;
-        cursor: pointer;
-        margin-left: 5px;
-        padding-left: 10px;
-        transition: transform 0.3s ease-in-out;
-
+    // Main content area
+    .sidebar-main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        padding-top: 2rem;
     }
 }
+
 
 // Keyframes remain the same
 @keyframes glowPulse {

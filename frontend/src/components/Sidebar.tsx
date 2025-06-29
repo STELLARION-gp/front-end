@@ -2,9 +2,7 @@ import React, { useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { getMenuItemsForRole } from '../utils/rolePermissions';
-import Button from './Button';
 import '../styles/components/_sidebar.scss';
-import logo from '../assets/logo-light.png';
 import {
   HomeIcon,
   Cog6ToothIcon,
@@ -17,7 +15,6 @@ import {
   UsersIcon,
   ShieldCheckIcon,
   KeyIcon,
-  ArrowLeftOnRectangleIcon,
 } from '@heroicons/react/24/outline';
 
 const iconMap = {
@@ -77,13 +74,7 @@ const Sidebar: React.FC = () => {
 
   return (
     <div className="sidebar">
-      <div className="logo">
-        <Link to="/">
-          <img src={logo} alt="Logo" />
-        </Link>
-      </div>
-
-      <div className="center">
+      <div className="center sidebar-main">
         <ul className="sidebar-menu">
           {menuItems.map((item, i) => (
             <li
@@ -124,17 +115,12 @@ const Sidebar: React.FC = () => {
             ref={(el) => { itemsRef.current[menuItems.length + LinkItems.length] = el; }}
             onMouseEnter={() => handleMouseEnter(menuItems.length + LinkItems.length)}
             onMouseLeave={handleMouseLeave}
+            className="logout-item"
+            onClick={handleLogout}
           >
-            <Button
-              onClick={handleLogout}
-              variant="danger"
-              size="medium"
-              fullWidth
-              icon={<ArrowLeftOnRectangleIcon className="w-5 h-5" />}
-              iconPosition="left"
-            >
-              Logout
-            </Button>
+            <div className="logout-link">
+              <span className="label">Logout</span>
+            </div>
           </li>
         </ul>
       </div>

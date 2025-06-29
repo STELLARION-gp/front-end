@@ -1,171 +1,171 @@
 @use '../abstracts/variables' as *;
 
 .footer {
-  background-color: $primary-color;
-  border-top: 1px solid $border-color;
-  margin-top: auto;
-  position: relative;
-  z-index: 100; // Higher than 3D background (z-index: 1)
-
-  .footer-container {
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 0 1rem;
-    position: relative;
-    z-index: 101; // Even higher to ensure content is clickable
-
-    @media (min-width: 640px) {
-      padding: 0 1.5rem;
-    }
-
-    @media (min-width: 1024px) {
-      padding: 0 2rem;
-    }
-  }
-
-  .footer-content {
-    padding: 3rem 0;
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 2rem;
-
-    @media (min-width: 768px) {
-      grid-template-columns: repeat(4, 1fr);
-    }
-  }
-
-  .footer-brand {
-    @media (min-width: 768px) {
-      grid-column: span 2;
-    }
-
-    .brand-header {
-      display: flex;
-      align-items: center;
-      margin-bottom: 1rem;
-
-      .brand-logo {
-        height: 2rem;
-        width: auto;
-        margin-right: 0.75rem;
-      }
-
-      .brand-name {
-        font-size: 1.25rem;
-        font-weight: 700;
-        font-family: 'Orbitron', sans-serif;
-        color: $text-light;
-      }
-    }
-
-    .brand-description {
-      color: #9DA5BD; // theme4 equivalent
-      font-size: 0.875rem;
-      line-height: 1.625;
-      max-width: 28rem;
-    }
-
-    .social-links {
-      display: flex;
-      gap: 1rem;
-      margin-top: 1.5rem;
-
-      a {
-        color: #9DA5BD; // theme4 equivalent
-        transition: color 0.2s ease-in-out;
-        position: relative;
-        z-index: 102;
-        pointer-events: auto;
-
-        &:hover {
-          color: #108CFF; // theme3 equivalent
-        }
-
-        svg {
-          width: 1.25rem;
-          height: 1.25rem;
-        }
-      }
-    }
-  }
-
-  .footer-section {
-    h3 {
-      color: $text-light;
-      font-weight: 600;
-      margin-bottom: 1rem;
-      position: relative;
-      z-index: 102;
-    }
-
-    ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-
-      li {
-        margin-bottom: 0.5rem;
-
-        a {
-          color: #9DA5BD; // theme4 equivalent
-          text-decoration: none;
-          transition: color 0.2s ease-in-out;
-          position: relative;
-          z-index: 102;
-          pointer-events: auto;
-          display: inline-block; // Ensure proper click area
-
-          &:hover {
-            color: #108CFF; // theme3 equivalent
-          }
-        }
-      }
-    }
-  }
-
-  .footer-bottom {
+    background-color: $primary-color;
     border-top: 1px solid $border-color;
-    padding: 1.5rem 0;
+    margin-top: auto;
+    position: relative;
+    z-index: 100; // Higher than 3D background (z-index: 1)
 
-    .bottom-content {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      align-items: center;
+    .footer-container {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 1rem;
+        position: relative;
+        z-index: 101; // Even higher to ensure content is clickable
 
-      @media (min-width: 768px) {
-        flex-direction: row;
-      }
+        @media (min-width: 640px) {
+            padding: 0 1.5rem;
+        }
 
-      .copyright {
-        color: #9DA5BD; // theme4 equivalent
-        font-size: 0.875rem;
-      }
+        @media (min-width: 1024px) {
+            padding: 0 2rem;
+        }
+    }
 
-      .legal-links {
-        display: flex;
-        gap: 1.5rem;
-        margin-top: 1rem;
+    .footer-content {
+        padding: 3rem 0;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2rem;
 
         @media (min-width: 768px) {
-          margin-top: 0;
+            grid-template-columns: repeat(4, 1fr);
         }
-
-        a {
-          color: #9DA5BD; // theme4 equivalent
-          font-size: 0.875rem;
-          text-decoration: none;
-          transition: color 0.2s ease-in-out;
-          position: relative;
-          z-index: 102;
-          pointer-events: auto;
-          display: inline-block; // Ensure proper click area
-
-          &:hover {
-            color: #108CFF; // theme3 equivalent
-          }
-        }
-      }
     }
-  }
+
+    .footer-brand {
+        @media (min-width: 768px) {
+            grid-column: span 2;
+        }
+
+        .brand-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+
+            .brand-logo {
+                height: 2rem;
+                width: auto;
+                margin-right: 0.75rem;
+            }
+
+            .brand-name {
+                font-size: 1.25rem;
+                font-weight: 700;
+                font-family: 'Orbitron', sans-serif;
+                color: $text-light;
+            }
+        }
+
+        .brand-description {
+            color: #9DA5BD; // theme4 equivalent
+            font-size: 0.875rem;
+            line-height: 1.625;
+            max-width: 28rem;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+
+            a {
+                color: #9DA5BD; // theme4 equivalent
+                transition: color 0.2s ease-in-out;
+                position: relative;
+                z-index: 102;
+                pointer-events: auto;
+
+                &:hover {
+                    color: #108CFF; // theme3 equivalent
+                }
+
+                svg {
+                    width: 1.25rem;
+                    height: 1.25rem;
+                }
+            }
+        }
+    }
+
+    .footer-section {
+        h3 {
+            color: $text-light;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 102;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+
+            li {
+                margin-bottom: 0.5rem;
+
+                a {
+                    color: #9DA5BD; // theme4 equivalent
+                    text-decoration: none;
+                    transition: color 0.2s ease-in-out;
+                    position: relative;
+                    z-index: 102;
+                    pointer-events: auto;
+                    display: inline-block; // Ensure proper click area
+
+                    &:hover {
+                        color: #108CFF; // theme3 equivalent
+                    }
+                }
+            }
+        }
+    }
+
+    .footer-bottom {
+        border-top: 1px solid $border-color;
+        padding: 1.5rem 0;
+
+        .bottom-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+
+            @media (min-width: 768px) {
+                flex-direction: row;
+            }
+
+            .copyright {
+                color: #9DA5BD; // theme4 equivalent
+                font-size: 0.875rem;
+            }
+
+            .legal-links {
+                display: flex;
+                gap: 1.5rem;
+                margin-top: 1rem;
+
+                @media (min-width: 768px) {
+                    margin-top: 0;
+                }
+
+                a {
+                    color: #9DA5BD; // theme4 equivalent
+                    font-size: 0.875rem;
+                    text-decoration: none;
+                    transition: color 0.2s ease-in-out;
+                    position: relative;
+                    z-index: 102;
+                    pointer-events: auto;
+                    display: inline-block; // Ensure proper click area
+
+                    &:hover {
+                        color: #108CFF; // theme3 equivalent
+                    }
+                }
+            }
+        }
+    }
 }

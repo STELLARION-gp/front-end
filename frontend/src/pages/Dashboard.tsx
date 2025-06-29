@@ -9,6 +9,7 @@ import Settings from '../pages/Settings';
 import Button from '../components/Button';
 import '../styles/pages/Dashboard.scss';
 import Chatbot from '../components/Chatbot';
+import DashboardFooter from '../components/DashboardFooter';
 import Preview from './learner/Preview';
 
 // Create placeholder components for different pages
@@ -111,84 +112,83 @@ const Dashboard: React.FC = () => {
     <div className="dashboard">
       <Sidebar />
 
-      <main className="content">
-        <div className="dashboard-header">
-          <h1>Welcome back, {userProfile.displayName}!</h1>
-          <p className="role-badge">Role: {userProfile.role}</p>
+      <main className="dashboard-content">
+        <div className="routes-container">
+          <Routes>
+            <Route path="overview" element={<Preview />} />
+            <Route path="profile" element={<Profile />} />
+            <Route path="settings" element={<Settings />} />
+
+            <Route
+              path="blogs"
+              element={
+                <ProtectedRoute allowedRoles={['enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin']}>
+                  <BlogsPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="mentor"
+              element={
+                <ProtectedRoute allowedRoles={['mentor', 'moderator', 'admin']}>
+                  <MentorPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="events"
+              element={
+                <ProtectedRoute allowedRoles={['guide', 'mentor', 'moderator', 'admin']}>
+                  <EventsPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route path="chat" element={<ChatPage />} />
+
+            <Route
+              path="sessions"
+              element={
+                <ProtectedRoute allowedRoles={['mentor', 'moderator', 'admin']}>
+                  <SessionsPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="moderation"
+              element={
+                <ProtectedRoute allowedRoles={['moderator', 'admin']}>
+                  <ModerationPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="admin"
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <AdminPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Default redirect to overview */}
+            <Route path="" element={<Navigate to="overview" replace />} />
+
+            {/* Catch all route for unauthorized access */}
+            <Route path="*" element={
+              <div className="access-denied">
+                <h2>Page Not Found</h2>
+                <p>The page you're looking for doesn't exist or you don't have access to it.</p>
+              </div>
+            } />
+          </Routes>
         </div>
 
-        <Routes>
-          <Route path="overview" element={<Preview />} />
-          <Route path="profile" element={<Profile />} />
-          <Route path="settings" element={<Settings />} />
-
-          <Route
-            path="blogs"
-            element={
-              <ProtectedRoute allowedRoles={['enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin']}>
-                <BlogsPage />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="mentor"
-            element={
-              <ProtectedRoute allowedRoles={['mentor', 'moderator', 'admin']}>
-                <MentorPage />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="events"
-            element={
-              <ProtectedRoute allowedRoles={['guide', 'mentor', 'moderator', 'admin']}>
-                <EventsPage />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route path="chat" element={<ChatPage />} />
-
-          <Route
-            path="sessions"
-            element={
-              <ProtectedRoute allowedRoles={['mentor', 'moderator', 'admin']}>
-                <SessionsPage />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="moderation"
-            element={
-              <ProtectedRoute allowedRoles={['moderator', 'admin']}>
-                <ModerationPage />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="admin"
-            element={
-              <ProtectedRoute allowedRoles={['admin']}>
-                <AdminPage />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Default redirect to overview */}
-          <Route path="" element={<Navigate to="overview" replace />} />
-
-          {/* Catch all route for unauthorized access */}
-          <Route path="*" element={
-            <div className="access-denied">
-              <h2>Page Not Found</h2>
-              <p>The page you're looking for doesn't exist or you don't have access to it.</p>
-            </div>
-          } />
-        </Routes>
+        <DashboardFooter />
       </main>
 
       <Chatbot />

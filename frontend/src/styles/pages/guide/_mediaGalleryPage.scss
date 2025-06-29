@@ -1,0 +1,19 @@
+@use '../../abstracts/variables' as *;
+
+.media-gallery-page {
+  // Remove default dashboard page styling for full-width media panel
+  margin: -#{$spacing-lg};
+  
+  @media (max-width: 768px) {
+    margin: -#{$spacing-md};
+  }
+  
+  // Ensure the media upload panel takes full available space
+  .media-upload-panel {
+    padding: $spacing-lg;
+    
+    @media (max-width: 768px) {
+      padding: $spacing-md;
+    }
+  }
+}

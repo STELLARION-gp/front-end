@@ -8,30 +8,33 @@
     justify-content: center;
     position: relative;
     overflow: hidden;
-    pointer-events: none;
-    z-index: 15;
-
-    // Team content and interactions
-    .team-container {
-        pointer-events: none; // Allow click-through
-
-        .team-title {
-            pointer-events: none; // Allow click-through
-        }
-
-        .team-grid {
-            pointer-events: none; // Allow click-through
-
-            .team-member {
-                pointer-events: auto; // Enable team member interactions
-            }
-        }
-    }
+    z-index: 5; // Same level as hero-section within new-home
+    pointer-events: none; // Allow click-through in empty areas
 
     .team-container {
         max-width: 1200px;
         width: 100%;
         margin: 0 auto;
+        position: relative;
+        z-index: 6; // Above team-section
+        pointer-events: none; // Allow click-through for container itself
+
+        // Add subtle backdrop for better visibility
+        &::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            left: -50px;
+            right: -50px;
+            bottom: -50px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 25px;
+            -webkit-backdrop-filter: blur(5px);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            pointer-events: none;
+            z-index: -1;
+        }
 
         .team-title {
             text-align: center;
@@ -42,10 +45,13 @@
             text-transform: uppercase;
             letter-spacing: 8px;
             position: relative;
+            z-index: 7; // Above team-container
+            pointer-events: none; // Title doesn't need interactions
             text-shadow:
                 0 0 10px rgba(255, 255, 255, 0.5),
                 0 0 20px rgba(255, 255, 255, 0.3),
-                0 0 30px rgba(255, 255, 255, 0.1);
+                0 0 30px rgba(255, 255, 255, 0.1),
+                2px 2px 8px rgba(0, 0, 0, 0.8); // Strong shadow for visibility
 
             &::after {
                 content: '';
@@ -67,33 +73,80 @@
             gap: 0;
             transition: all 0.5s ease;
             flex-wrap: nowrap;
-            overflow-x: auto;
             padding: 0 20px;
+            position: relative;
+            z-index: 8; // Above team-title
+            pointer-events: auto; // Enable interactions only within the grid area
+            perspective: 1000px; // Enable 3D perspective
+            transform-style: preserve-3d;
+            height: 400px; // Fixed height for 3D layout
 
             &:hover .team-member:not(:hover) {
                 opacity: 0.3;
-                filter: blur(2px) grayscale(1);
-
-                .member-image-wrapper::after {
-                    opacity: 0.8;
-                }
+                filter: blur(3px) grayscale(1) brightness(0.4);
+                transform: scale(0.95);
             }
 
             .team-member {
-                position: relative;
-                //transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+                position: absolute;
+                transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
                 cursor: pointer;
-                flex: 0 0 auto;
+                transform-style: preserve-3d;
+                z-index: 7; // Ensure all team members are above background
+                pointer-events: auto; // Ensure members can be clicked
+
+                // Position each member in 3D space
+                &:nth-child(1) {
+                    // Back left
+                    left: 15%;
+                    z-index: 8;
+                    transform: translateZ(-100px) rotateY(15deg);
+                }
+
+                &:nth-child(2) {
+                    // Back right  
+                    right: 15%;
+                    z-index: 8;
+                    transform: translateZ(-100px) rotateY(-15deg);
+                }
+
+                &:nth-child(3) {
+                    // Middle left
+                    left: 25%;
+                    z-index: 9;
+                    transform: translateZ(-50px) rotateY(10deg);
+                }
+
+                &:nth-child(4) {
+                    // Middle right
+                    right: 25%;
+                    z-index: 9;
+                    transform: translateZ(-50px) rotateY(-10deg);
+                }
+
+                &:nth-child(5) {
+                    // Front left center
+                    left: 35%;
+                    z-index: 10;
+                    transform: translateZ(0px) rotateY(5deg);
+                }
+
+                &:nth-child(6) {
+                    // Front right center
+                    right: 35%;
+                    z-index: 10;
+                    transform: translateZ(0px) rotateY(-5deg);
+                }
 
                 &:hover {
+                    z-index: 50 !important; // Bring to front when hovered, but still below navbar (200)
                     opacity: 1 !important;
-                    z-index: 10;
                     filter: none !important;
+                    transform: translateZ(50px) rotateY(0deg) scale(1.1) !important;
 
                     .member-image-wrapper {
-                        &::after {
-                            opacity: 0 !important;
-                        }
+                        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8);
+                        border-color: rgba(255, 255, 255, 0.5);
                     }
                 }
 
@@ -104,6 +157,10 @@
                     overflow: hidden;
                     transition: all 0.6s ease;
                     flex-shrink: 0;
+                    border-radius: 12px; // Rounded corners
+                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); // Enhanced shadow
+                    border: 2px solid rgba(255, 255, 255, 0.1); // Subtle border
+                    z-index: 11; // Ensure wrapper is above background
 
                     // Dark overlay for non-hovered items
                     &::after {
@@ -124,6 +181,7 @@
                         object-fit: cover;
                         transition: all 0.6s ease;
                         filter: grayscale(0.3) contrast(1.1) brightness(0.9);
+                        border-radius: 12px; // Match wrapper border radius
                     }
 
                     .member-overlay {
@@ -163,6 +221,10 @@
                 }
 
                 &:hover .member-image-wrapper {
+                    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7); // Enhanced shadow on hover
+                    border-color: rgba(255, 255, 255, 0.3); // Brighter border
+                    transform: none; // Remove individual transform since we handle it above
+
                     .member-image {
                         transform: scale(1.05);
                         filter: grayscale(0) contrast(1.2) brightness(1.1);

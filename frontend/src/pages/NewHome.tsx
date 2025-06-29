@@ -7,6 +7,7 @@ import { preloadHomeAssets } from '../utils/assetPreloader';
 import './../styles/pages/Hero.scss';
 import Team from '../components/HomeComponents/Team';
 import Stats from '../components/HomeComponents/Stats';
+import Footer from '../components/Footer';
 
 const NewHome = () => {
   const { isLoading, withLoading } = useLoading(true); // Start with loading true
@@ -58,7 +59,7 @@ const NewHome = () => {
       {componentsLoaded && (
         <>
           {/* Fixed 3D Galaxy Background for entire homepage - Interactive */}
-          <div className='fixed top-0 left-0 w-full h-full z-10'>
+          <div className='fixed top-0 left-0 w-full h-full z-0 pointer-events-auto'>
             <GalaxyHero />
           </div>
 
@@ -70,6 +71,9 @@ const NewHome = () => {
           </div>
         </>
       )}
+
+      {/* Footer */}
+      <Footer />
     </>
   );
 };

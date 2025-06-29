@@ -1,5 +1,4 @@
 import './../styles/pages/Hero.scss';
-import NavBarComponent from '../layouts/NavBarComponent';
 import { useI18n } from '../i18n/useI18n';
 import Button from './Button';
 
@@ -8,11 +7,6 @@ const Hero = () => {
 
     return (
         <section className='hero-section relative w-full'>
-            {/* NavBar positioned at top */}
-            <div className='hero-navbar absolute top-0 left-0 w-full z-50'>
-                <NavBarComponent />
-            </div>
-
             {/* STELLARION Logo with outline animation - Full screen width */}
             <div className='stellarion-logo-container-fullwidth'>
                 <svg

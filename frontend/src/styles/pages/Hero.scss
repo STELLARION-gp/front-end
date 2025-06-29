@@ -5,13 +5,15 @@
   height: 100vh;
   width: 100vw;
   overflow: hidden;
-  z-index: 1;
+  z-index: 1; // Above the container but below content
   border: none;
   border-radius: 0;
 
-  // Allow pointer events to pass through to elements with higher z-index
+  // Allow pointer events for interaction
   canvas {
     pointer-events: auto;
+    position: relative;
+    z-index: 1; // Ensure canvas receives events
   }
 
   // Black overlay for better content readability
@@ -24,7 +26,7 @@
     bottom: 0;
     background: rgba(0, 0, 0, 0.15);
     pointer-events: none;
-    z-index: 1;
+    z-index: 2; // Above canvas but below overlays
   }
 
   // Smoke effect overlay for entire Galaxy3D background
@@ -42,7 +44,7 @@
       radial-gradient(circle at 30% 10%, rgba(0, 0, 255, 0.04) 0%, transparent 60%),
       radial-gradient(circle at 40% 30%, rgba(255, 255, 255, 0.02) 0%, transparent 80%);
     pointer-events: none;
-    z-index: 2;
+    z-index: 3; // Above overlay but below content
   }
 }
 
@@ -61,7 +63,7 @@ body {
 
 .hero-section {
   pointer-events: none;
-  z-index: 15;
+  z-index: 5; // Above 3D background but not blocking navbar
   height: 100vh !important;
   min-height: 100vh !important;
   max-height: 100vh;
@@ -77,7 +79,7 @@ body {
 
   .hero-navbar {
     pointer-events: auto;
-    z-index: 50;
+    z-index: 100; // Highest z-index for navbar
     position: absolute;
     top: 0;
     left: 0;
@@ -94,7 +96,7 @@ body {
   max-width: 900px;
   color: #fff;
   text-align: center;
-  z-index: 30;
+  z-index: 6; // Above hero section
   padding: 2rem;
   pointer-events: none;
 
@@ -140,12 +142,13 @@ body {
 // NewHome component styles - Global Galaxy3D interaction
 .new-home {
   position: relative;
-  z-index: 1;
+  z-index: 4; // Above 3D background and overlays but below navbar
   pointer-events: none; // Allow click-through to Galaxy3D by default
 
-  // Ensure sections can take full height
+  // Ensure sections can take full height and pass through events in empty areas
   &>section {
     width: 100%;
+    pointer-events: none; // Allow sections to pass through events by default
   }
 
   // Enable pointer events only on interactive elements globally
@@ -155,12 +158,38 @@ body {
   select,
   textarea,
   .team-member,
+  .team-grid,
+  .member-image-wrapper,
+  .member-image,
+  .member-overlay,
   .hero-cta-btn,
   .navbar-item,
   .nav-link,
+  .nav-logo,
+  .signup-btn,
   .stats-item,
-  .stats-button {
+  .stats-button,
+  nav,
+  .navbar-blur,
+  .navbar-inner {
     pointer-events: auto !important;
+  }
+
+  // Special handling for team section - enable events on interactive parts only
+  .team-section {
+    pointer-events: none; // Allow pass-through in empty areas
+
+    .team-container {
+      pointer-events: none; // Container passes through
+
+      .team-grid {
+        pointer-events: auto; // Grid and its children need events
+      }
+
+      .team-title {
+        pointer-events: none; // Title doesn't need events
+      }
+    }
   }
 
   .stats-section {

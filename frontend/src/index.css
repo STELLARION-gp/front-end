@@ -39,6 +39,7 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  padding-top: 80px; /* Match navbar height */
 }
 
 h1 {
@@ -63,6 +64,11 @@ button:hover {
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
+}
+
+/* Override for pages that manage their own spacing */
+.no-navbar-padding {
+  padding-top: 0 !important;
 }
 
 @media (prefers-color-scheme: light) {

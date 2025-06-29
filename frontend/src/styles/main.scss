@@ -5,7 +5,11 @@
 @use './components/buttons';
 @use './components/languageSwitcher';
 
-// Importing styles for the media upload panel
+// Importing styles for the sidebar component
+@use './components/sidebar';
 
+// Importing styles for the media upload panel
 @use './pages/guide/mediaUploadPanel';
+@use './pages/guide/mediaGalleryPage';
+
 @use './utilities/helpers';

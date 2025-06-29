@@ -1,4 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
+import { flushSync } from 'react-dom';
 import Button from '../../components/Button';
 import Sidebar from '../../components/Sidebar';
 import '../../styles/pages/guide/_mediaUploadPanel.scss';
@@ -78,7 +79,7 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [uploadMode, setUploadMode] = useState<UploadMode>({ type: 'single' });
   const [showAlbumModal, setShowAlbumModal] = useState(false);
-  const [pendingFiles, setPendingFiles] = useState<FileList | null>(null);
+  const [pendingFiles, setPendingFiles] = useState<File[] | null>(null);
   const [albumData, setAlbumData] = useState<AlbumData>({
     name: '',
     description: '',
@@ -86,6 +87,8 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
     location: '',
     tags: []
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const generateId = () => Math.random().toString(36).substr(2, 9);
@@ -126,14 +129,11 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
     });
   }, [maxFileSize, allowedTypes]);
 
-  const handleFiles = async (files: FileList) => {
-    if (files.length > 1 && uploadMode.type === 'single') {
-      // Multiple files selected, offer album mode
-      setPendingFiles(files);
-      setShowAlbumModal(true);
-      return;
-    }
-
+  const handleFiles = async (files: FileList | File[]) => {
+    console.log('🎯 handleFiles called with files:', files);
+    console.log('🎯 Files length:', files.length);
+    console.log('🎯 Upload mode:', uploadMode.type);
+    
     const commonData = uploadMode.type === 'album' ? {
       description: albumData.description,
       tourName: albumData.tourName,
@@ -141,41 +141,50 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
       tags: albumData.tags
     } : {};
 
-    const newMediaFiles: MediaFile[] = [];
-    
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
+    console.log('🎯 Common data:', commonData);
+
+    // Convert FileList to array if necessary
+    const fileArray = Array.isArray(files) ? files : Array.from(files);
+
+    // Process files sequentially for better progress tracking
+    for (let i = 0; i < fileArray.length; i++) {
+      const file = fileArray[i];
+      console.log(`🎯 Processing file ${i + 1}/${fileArray.length}: ${file.name}`);
+      
       try {
         setUploadProgress(prev => ({ ...prev, [file.name]: 0 }));
         
-        // Simulate upload progress
-        const progressInterval = setInterval(() => {
-          setUploadProgress(prev => {
-            const currentProgress = prev[file.name] || 0;
-            if (currentProgress >= 100) {
-              clearInterval(progressInterval);
-              return prev;
-            }
-            return { ...prev, [file.name]: currentProgress + 10 };
-          });
-        }, 100);
-
         const mediaFile = await processFile(file);
-        // Apply common album data if in album mode
-        const finalMediaFile = { ...mediaFile, ...commonData };
-        newMediaFiles.push(finalMediaFile);
         
-        // Complete the progress
-        setTimeout(() => {
-          setUploadProgress(prev => ({ ...prev, [file.name]: 100 }));
-          setTimeout(() => {
-            setUploadProgress(prev => {
-              const updated = { ...prev };
-              delete updated[file.name];
-              return updated;
-            });
-          }, 1000);
-        }, 1000);
+        // Simulate realistic upload progress
+        let progress = 0;
+        const progressInterval = setInterval(() => {
+          progress += Math.random() * 12 + 8; // Random increment between 8-20%
+          
+          setUploadProgress(prev => ({ ...prev, [file.name]: Math.min(progress, 100) }));
+          
+          if (progress >= 100) {
+            clearInterval(progressInterval);
+            
+            // Apply common album data if in album mode
+            const finalMediaFile = { ...mediaFile, ...commonData };
+            
+            // Add the file to media files immediately after completion
+            setMediaFiles(prev => [...prev, finalMediaFile]);
+            
+            // Complete the progress after a short delay
+            setTimeout(() => {
+              setUploadProgress(prev => {
+                const updated = { ...prev };
+                delete updated[file.name];
+                return updated;
+              });
+              
+              // Call onMediaUploaded for this individual file
+              onMediaUploaded?.([finalMediaFile]);
+            }, 300);
+          }
+        }, 120);
         
       } catch (error) {
         console.error(`Error processing file ${file.name}:`, error);
@@ -187,24 +196,6 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
       }
     }
 
-    if (newMediaFiles.length > 0) {
-      setMediaFiles(prev => [...prev, ...newMediaFiles]);
-      onMediaUploaded?.(newMediaFiles);
-    }
-
-    // Reset album mode if it was used
-    if (uploadMode.type === 'album') {
-      setUploadMode({ type: 'single' }); // Reset to single mode after album upload
-      setShowAlbumModal(false);
-      setPendingFiles(null);
-      setAlbumData({
-        name: '',
-        description: '',
-        tourName: '',
-        location: '',
-        tags: []
-      });
-    }
   };
 
   const handleDrag = (e: React.DragEvent) => {
@@ -230,28 +221,84 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
     setDragActive(false);
     
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      if (uploadMode.type === 'album' || e.dataTransfer.files.length > 1) {
-        // For album mode or multiple files, show album modal
-        setPendingFiles(e.dataTransfer.files);
-        setShowAlbumModal(true);
-      } else {
-        // Single file upload - reset to single mode first
-        setUploadMode({ type: 'single' });
-        handleFiles(e.dataTransfer.files);
+      if (uploadMode.type === 'single') {
+        if (e.dataTransfer.files.length === 1) {
+          // Single upload mode with single file - process directly
+          handleFiles(e.dataTransfer.files);
+        } else {
+          // Single mode but multiple files - ask user if they want to switch to album mode
+          const switchToAlbum = confirm(
+            `You're in Single Upload mode but dropped ${e.dataTransfer.files.length} files. ` +
+            'Would you like to switch to Album mode to upload all files together?'
+          );
+          
+          if (switchToAlbum) {
+            setUploadMode({ type: 'album' });
+            const files = e.dataTransfer.files;
+            // Set pending files first, then show modal
+            setPendingFiles(Array.from(files));
+            // Use React's flushSync to ensure state is updated immediately
+            flushSync(() => {
+              setShowAlbumModal(true);
+            });
+          } else {
+            // Just upload the first file in single mode
+            const singleFile = new DataTransfer();
+            singleFile.items.add(e.dataTransfer.files[0]);
+            handleFiles(singleFile.files);
+            alert(`Only uploaded the first file (${e.dataTransfer.files[0].name}). Switch to Album mode to upload multiple files.`);
+          }
+        }
+      } else if (uploadMode.type === 'album') {
+        // Album mode - show modal for batch upload
+        const files = e.dataTransfer.files;
+        setPendingFiles(Array.from(files));
+        // Use React's flushSync to ensure state is updated immediately
+        flushSync(() => {
+          setShowAlbumModal(true);
+        });
       }
     }
   };
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      if (uploadMode.type === 'album' || e.target.files.length > 1) {
-        // For album mode or multiple files, show album modal
-        setPendingFiles(e.target.files);
-        setShowAlbumModal(true);
-      } else {
-        // Single file upload - reset to single mode first
-        setUploadMode({ type: 'single' });
-        handleFiles(e.target.files);
+      if (uploadMode.type === 'single') {
+        if (e.target.files.length === 1) {
+          // Single upload mode with single file - process directly
+          handleFiles(e.target.files);
+        } else {
+          // Single mode but multiple files - ask user if they want to switch to album mode
+          const switchToAlbum = confirm(
+            `You're in Single Upload mode but selected ${e.target.files.length} files. ` +
+            'Would you like to switch to Album mode to upload all files together?'
+          );
+          
+          if (switchToAlbum) {
+            setUploadMode({ type: 'album' });
+            const files = e.target.files;
+            // Set pending files first, then show modal
+            setPendingFiles(Array.from(files));
+            // Use React's flushSync to ensure state is updated immediately
+            flushSync(() => {
+              setShowAlbumModal(true);
+            });
+          } else {
+            // Just upload the first file in single mode
+            const singleFile = new DataTransfer();
+            singleFile.items.add(e.target.files[0]);
+            handleFiles(singleFile.files);
+            alert(`Only uploaded the first file (${e.target.files[0].name}). Switch to Album mode to upload multiple files.`);
+          }
+        }
+      } else if (uploadMode.type === 'album') {
+        // Album mode - show modal for batch upload
+        const files = e.target.files;
+        setPendingFiles(Array.from(files));
+        // Use React's flushSync to ensure state is updated immediately
+        flushSync(() => {
+          setShowAlbumModal(true);
+        });
       }
     }
     // Reset the input
@@ -259,13 +306,36 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
   };
 
   const openFileDialog = () => {
-    fileInputRef.current?.click();
+    if (fileInputRef.current) {
+      // Reset the input value to ensure onChange fires even if the same files are selected
+      fileInputRef.current.value = '';
+      fileInputRef.current.click();
+    }
   };
 
   const handleAlbumUpload = () => {
-    if (pendingFiles) {
-      setUploadMode({ type: 'album' });
+    console.log('🎯 handleAlbumUpload called');
+    console.log('🎯 pendingFiles:', pendingFiles);
+    console.log('🎯 pendingFiles length:', pendingFiles?.length);
+    console.log('🎯 albumData:', albumData);
+    
+    if (pendingFiles && pendingFiles.length > 0) {
+      console.log('🎯 Processing files...');
+      // Process the files
       handleFiles(pendingFiles);
+      
+      // Close the modal and reset state
+      setShowAlbumModal(false);
+      setPendingFiles(null);
+      setAlbumData({
+        name: '',
+        description: '',
+        tourName: '',
+        location: '',
+        tags: []
+      });
+    } else {
+      console.log('🎯 No pending files found!');
     }
   };
 
@@ -312,6 +382,56 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
+  const handleSubmitToDatabase = async () => {
+    if (mediaFiles.length === 0) {
+      alert('No media files to submit. Please upload some files first.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    setSubmitSuccess(false);
+
+    try {
+      // Simulate API call to backend database
+      // In a real implementation, this would send the media files data to your backend
+      const mediaData = mediaFiles.map(media => ({
+        id: media.id,
+        name: media.name,
+        type: media.type,
+        size: media.size,
+        description: media.description,
+        tourName: media.tourName,
+        location: media.location,
+        tags: media.tags,
+        uploadDate: media.uploadDate.toISOString(),
+        // In real implementation, you'd upload the actual file and get a URL back
+        fileUrl: media.url // This would be a permanent URL from your storage service
+      }));
+
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      // Simulate API call
+      console.log('Submitting media files to database:', mediaData);
+      
+      // Simulate successful response
+      setSubmitSuccess(true);
+      
+      // Show success message
+      alert(`Successfully saved ${mediaFiles.length} media files to the database!`);
+      
+      // Wait a moment for user to see success message, then refresh page
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
+      
+    } catch (error) {
+      console.error('Error submitting media files:', error);
+      alert('Failed to save media files to database. Please try again.');
+      setIsSubmitting(false);
+    }
+  };
+
   const filteredMedia = mediaFiles.filter(media => {
     const matchesFilter = filter === 'all' || 
       (filter === 'images' && media.type === 'image') ||
@@ -330,9 +450,9 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
     <div className="media-upload-panel">
       <div className="media-upload-header">
         <div className="header-content">
-          <h2 className="panel-title">Tour Media Gallery</h2>
+          <h2 className="panel-title">Media Upload Portal</h2>
           <p className="panel-subtitle">
-            Upload and manage photos and videos from your astronomy tours
+            Upload astronomy tour photos and videos, then submit them to your database
           </p>
         </div>
         
@@ -353,15 +473,16 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
           </div>
           
           <div className="upload-buttons">
-            <Button
-              variant="secondary"
-              size="medium"
+            <button
+              className="upload-btn"
               onClick={openFileDialog}
-              icon={<PlusIcon />}
-              iconPosition="left"
+              title={uploadMode.type === 'album' ? 'Upload Album' : 'Upload Media'}
             >
-              {uploadMode.type === 'album' ? 'Upload Album' : 'Upload Media'}
-            </Button>
+              <PlusIcon className="upload-icon" />
+              <span className="upload-text">
+                {uploadMode.type === 'album' ? 'Upload Album' : 'Upload Media'}
+              </span>
+            </button>
           </div>
         </div>
       </div>
@@ -382,44 +503,49 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
           <h3>
             {uploadMode.type === 'album' 
               ? 'Drop multiple files to create an album' 
-              : 'Drop your media files here'
+              : 'Drop a media file here'
             }
           </h3>
-          <p>or click to browse files</p>
+          <p>or click to browse {uploadMode.type === 'album' ? 'files' : 'file'}</p>
           <div className="upload-info">
             <span>Supports: JPEG, PNG, WebP, MP4, WebM, MOV</span>
             <span>Max size: {maxFileSize}MB per file</span>
-            {uploadMode.type === 'album' && (
+            {uploadMode.type === 'album' ? (
               <span>💡 Album mode: Upload multiple files with shared details</span>
+            ) : (
+              <span>📷 Single mode: Upload one file at a time</span>
             )}
           </div>
         </div>
       </div>
 
+      {/* File Input */}
       <input
+        key={uploadMode.type} // Force re-render when mode changes
         ref={fileInputRef}
         type="file"
-        multiple
         accept={allowedTypes.join(',')}
         onChange={handleFileInput}
         className="hidden-file-input"
-        aria-label="Upload media files"
+        multiple={uploadMode.type === 'album'}
+        aria-label={uploadMode.type === 'album' ? 'Upload multiple media files for album' : 'Upload single media file'}
       />
 
       {/* Upload Progress */}
       {Object.keys(uploadProgress).length > 0 && (
         <div className="upload-progress-section">
-          <h3>Uploading Files...</h3>            {Object.entries(uploadProgress).map(([fileName, progress]) => (
-              <div key={fileName} className="progress-item">
-                <span className="file-name">{fileName}</span>
-                <div className="progress-bar">
-                  <div 
-                    className={`progress-fill progress-${Math.round(progress / 10) * 10}`}
-                  />
-                </div>
-                <span className="progress-text">{progress}%</span>
+          <h3>Uploading Files...</h3>
+          {Object.entries(uploadProgress).map(([fileName, progress]) => (
+            <div key={fileName} className="progress-item">
+              <span className="file-name">{fileName}</span>
+              <div className="progress-bar">
+                <div 
+                  className={`progress-fill progress-${Math.min(Math.round(progress / 5) * 5, 100)}`}
+                />
               </div>
-            ))}
+              <span className="progress-text">{Math.round(progress)}%</span>
+            </div>
+          ))}
         </div>
       )}
 
@@ -474,6 +600,38 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
               onChange={(e) => setSearchTerm(e.target.value)}
               className="search-input"
             />
+          </div>
+        </div>
+      )}
+
+      {/* Submit to Database Section */}
+      {mediaFiles.length > 0 && (
+        <div className="submit-section">
+          <div className="submit-info">
+            <h3>🚀 Ready to Submit</h3>
+            <p>
+              You have {mediaFiles.length} media file{mediaFiles.length > 1 ? 's' : ''} ready to be submitted to your astronomy tour database.
+            </p>
+            <p className="submit-warning">
+              ⚠️ After successful submission, the page will refresh to start a new upload session.
+            </p>
+          </div>
+          <div className="submit-actions">
+            <Button
+              variant="primary"
+              size="large"
+              onClick={handleSubmitToDatabase}
+              disabled={isSubmitting}
+              loading={isSubmitting}
+              fullWidth={true}
+            >
+              {isSubmitting ? 'Submitting to Database...' : `Submit ${mediaFiles.length} Files to Database`}
+            </Button>
+            {submitSuccess && (
+              <div className="success-message">
+                ✅ Successfully submitted to database! Refreshing page...
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -541,13 +699,19 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
       ) : (
         <div className="empty-state">
           <div className="empty-icon">🌌</div>
-          <h3>No media uploaded yet</h3>
-          <p>Start building your astronomy tour portfolio by uploading your first photos or videos!</p>
+          <h3>Media Upload Portal</h3>
+          <p>Upload your astronomy tour photos and videos, then submit them to your database.</p>
+          <p className="empty-instructions">
+            1. Choose Single or Album upload mode<br/>
+            2. Upload your media files<br/>
+            3. Add descriptions and details<br/>
+            4. Submit to database
+          </p>
         </div>
       )}
 
       {/* Album Upload Modal */}
-      {showAlbumModal && pendingFiles && (
+      {showAlbumModal && (
         <div className="album-modal" onClick={cancelAlbumUpload}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
@@ -562,7 +726,7 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
             
             <div className="modal-body">
               <div className="album-info">
-                <p>You're about to upload <strong>{pendingFiles.length} files</strong> as an album.</p>
+                <p>You're about to upload <strong>{pendingFiles?.length || 0} files</strong> as an album.</p>
                 <p>Fill in the common details that will be applied to all files:</p>
                 <div className="upload-tip">
                   💡 Individual files can still be edited later with unique details
@@ -633,7 +797,7 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
               <div className="file-preview">
                 <h4>Files to Upload:</h4>
                 <div className="file-list">
-                  {Array.from(pendingFiles).map((file, index) => (
+                  {pendingFiles && Array.from(pendingFiles).map((file, index) => (
                     <div key={index} className="file-item">
                       <span className="file-name">{file.name}</span>
                       <span className="file-size">({formatFileSize(file.size)})</span>

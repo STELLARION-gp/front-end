@@ -9,6 +9,11 @@
   border: none;
   border-radius: 0;
 
+  // Allow pointer events to pass through to elements with higher z-index
+  canvas {
+    pointer-events: auto;
+  }
+
   // Black overlay for better content readability
   &::before {
     content: '';

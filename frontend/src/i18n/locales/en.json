@@ -71,5 +71,36 @@
             "title": "Community",
             "description": "Connect with fellow astronomy enthusiasts"
         }
+    },
+    "footer": {
+        "brand": {
+            "name": "STELLARION",
+            "description": "Explore the cosmos and unlock the mysteries of space with our cutting-edge platform designed for space enthusiasts and learners."
+        },
+        "quickLinks": {
+            "title": "Quick Links",
+            "home": "Home",
+            "about": "About",
+            "dashboard": "Dashboard",
+            "login": "Login"
+        },
+        "support": {
+            "title": "Support",
+            "helpCenter": "Help Center",
+            "contactUs": "Contact Us",
+            "privacyPolicy": "Privacy Policy",
+            "termsOfService": "Terms of Service"
+        },
+        "legal": {
+            "copyright": "© {{year}} Stellarion. All rights reserved.",
+            "privacy": "Privacy",
+            "terms": "Terms",
+            "cookies": "Cookies"
+        },
+        "socialMedia": {
+            "twitter": "Follow us on Twitter",
+            "github": "Visit our GitHub",
+            "linkedin": "Connect on LinkedIn"
+        }
     }
 }

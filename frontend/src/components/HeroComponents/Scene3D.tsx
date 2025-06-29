@@ -18,15 +18,15 @@ const Scene3D: React.FC<Scene3DProps> = ({ currentSlide, isTransitioning }) => {
       <ambientLight intensity={0.5} />
       <pointLight position={[10, 10, 10]} />
       <directionalLight position={[-10, -10, -5]} intensity={0.3} />
-            
+
       {currentSlide === 0 && <ParticleField />}
-      
+
       {/* Custom light-speed stars effect */}
       <LightSpeedStars isTransitioning={isTransitioning} />
-      
-      <OrbitControls 
-        enableZoom={false} 
-        enablePan={false} 
+
+      <OrbitControls
+        enableZoom={false}
+        enablePan={false}
         enableRotate={true}
         autoRotate={!isTransitioning}
         autoRotateSpeed={0.5}

@@ -7,8 +7,6 @@ nav,
     align-items: center;
     transition: transform 0.4s cubic-bezier(.4, 0, .2, 1);
     position: sticky;
-    -webkit-backdrop-filter: blur(10px);
-    backdrop-filter: blur(10px);
 }
 
 .navbar-hidden {
@@ -18,7 +16,7 @@ nav,
 .navbar-inner {
     width: 100%;
     max-width: 1440px;
-    margin: 0 auto;
+    margin: 2rem auto;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -28,7 +26,39 @@ nav,
 }
 
 .navbar-compact .navbar-inner {
-    justify-content: flex-start;
+    justify-content: space-between;
+    padding: 0 2rem;
+}
+
+.navbar-section-compact {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex: 1;
+    justify-content: center;
+    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 0 0.5rem;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-15px);
+}
+
+.navbar-compact .navbar-section-compact {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .navbar-section {
@@ -49,6 +79,16 @@ nav,
     z-index: 5;
     margin-right: 220px;
     /* Space for centered logo */
+    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.navbar-compact .navbar-section.left-section {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-30px);
+    pointer-events: none;
 }
 
 .navbar-section.right-section {
@@ -56,20 +96,16 @@ nav,
     z-index: 5;
     margin-left: 220px;
     /* Space for centered logo */
+    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 1;
+    transform: translateX(0);
 }
 
-.left-section {
-    justify-content: flex-end;
-    /* Align items closer to logo */
-    flex: 1;
-    gap: 2rem;
-}
-
-.right-section {
-    justify-content: flex-start;
-    /* Align items closer to logo */
-    flex: 1;
-    gap: 2rem;
+.navbar-compact .navbar-section.right-section {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(30px);
+    pointer-events: none;
 }
 
 .navbar-logo {
@@ -85,23 +121,56 @@ nav,
     position: relative;
     left: 0;
     transform: translateX(0);
-    margin-right: auto;
+    margin-right: 0;
+    flex-shrink: 0;
 }
 
 .logo-left {
     position: relative !important;
     left: 0 !important;
     transform: translateX(0) !important;
-    margin-right: auto !important;
+    margin-right: 0 !important;
 }
 
 .auth-section-compact {
-    position: absolute;
-    right: 2rem;
     display: flex;
     align-items: center;
-    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    animation: slideInRight 0.6s ease-out;
+    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(30px);
+}
+
+.navbar-compact .auth-section-compact {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
+}
+
+// Keyframe animations for smooth transitions
+@keyframes slideInFromRight {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .nav-faded {
@@ -121,7 +190,7 @@ nav,
     height: auto;
     background: #fff;
     padding: 6px 24px 10px;
-    border-radius: 0 0 20px 20px;
+    border-radius: 30px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
     transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
@@ -164,8 +233,6 @@ nav,
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
     border-radius: 8px;
-    -webkit-backdrop-filter: blur(5px);
-    backdrop-filter: blur(5px);
     margin: 0 0.5rem;
     white-space: nowrap;
 }
@@ -231,8 +298,8 @@ nav,
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     padding: 4px;
     border-radius: 50%;
-    border: 2px solid transparent;
-    background: linear-gradient(45deg, #8B5CF6, #EC4899);
+    border: 1px solid transparent;
+    background: linear-gradient(45deg, $theme2, $theme3);
     background-clip: padding-box;
     position: relative;
 }
@@ -242,7 +309,7 @@ nav,
     position: absolute;
     inset: 0;
     padding: 2px;
-    background: linear-gradient(45deg, #8B5CF6, #EC4899);
+    background: linear-gradient(45deg, $theme3, $theme4);
     border-radius: inherit;
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
@@ -251,7 +318,6 @@ nav,
 }
 
 .profile-section:hover {
-    transform: scale(1.1);
     box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
 }
 
@@ -264,13 +330,58 @@ nav,
     transition: all 0.3s ease;
 }
 
+/* Auth Button Animations */
+.auth-section-compact button,
+.navbar-section button {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 1;
+    }
+
+    &:hover::before {
+        left: 100%;
+    }
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    &:active {
+        transform: translateY(0);
+        transition: transform 0.1s ease;
+    }
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .navbar-inner {
         padding: 0 1rem;
     }
 
+    .navbar-compact .navbar-inner {
+        padding: 0 1rem;
+    }
+
     .navbar-section {
+        gap: 1rem;
+    }
+
+    .navbar-section-compact {
         gap: 1rem;
     }
 
@@ -293,13 +404,13 @@ nav,
     .nav-logo {
         width: 140px;
     }
-
-    .auth-section-compact {
-        right: 1rem;
-    }
 }
 
 @media (max-width: 640px) {
+    .navbar-compact .navbar-inner {
+        padding: 0 0.5rem;
+    }
+
     .navbar-section.left-section {
         margin-right: 130px;
         /* Even smaller space for very small screens */
@@ -308,6 +419,10 @@ nav,
     .navbar-section.right-section {
         margin-left: 130px;
         /* Even smaller space for very small screens */
+    }
+
+    .navbar-section-compact {
+        gap: 0.5rem;
     }
 
     .left-section,
@@ -325,12 +440,22 @@ nav,
         width: 120px;
     }
 
-    .auth-section-compact {
-        right: 0.5rem;
-    }
-
     /* Hide some nav items on very small screens */
     .nav-link:nth-child(n+4) {
         display: none;
     }
+}
+
+.left-section {
+    justify-content: flex-end;
+    /* Align items closer to logo */
+    flex: 1;
+    gap: 2rem;
+}
+
+.right-section {
+    justify-content: flex-start;
+    /* Align items closer to logo */
+    flex: 1;
+    gap: 2rem;
 }

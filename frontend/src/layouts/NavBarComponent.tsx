@@ -11,8 +11,12 @@ interface UserProfile {
 const NavBarComponent = () => {
   const [hidden, setHidden] = useState(false);
   const [isCompactMode, setIsCompactMode] = useState(false);
-  const [isAuthenticated] = useState(false); // This would come from auth context
-  const [userProfile] = useState<UserProfile | null>(null); // This would come from auth context
+  const [isAuthenticated] = useState(true); // Mock: Set to true to show authenticated state
+  const [userProfile] = useState<UserProfile | null>({ 
+    // avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+    // name: 'John Doe'
+    
+  }); // Mock: User profile with avatar
   const lastScroll = useRef(window.scrollY);
 
   useEffect(() => {
@@ -43,33 +47,39 @@ const NavBarComponent = () => {
     // Handle auth navigation here
   };
 
-  const renderAuthContent = () => {
-    if (userProfile) {
+  const renderAuthContent = (forCompactMode = false) => {
+    if (userProfile && userProfile.avatar) {
       return (
         <div className="profile-section" onClick={handleAuthClick}>
           <img
-            src={userProfile.avatar || '/default-avatar.png'}
+            src={userProfile.avatar}
             alt="Profile"
             className="profile-avatar"
           />
         </div>
       );
     } else if (isAuthenticated) {
-      return (
-        <Button
-          variant="secondary"
-          size="medium"
-          onClick={handleAuthClick}
-        >
-          Sign In
-        </Button>
-      );
-    } else {
+      // In compact mode, only show if there's a profile avatar
+      if (forCompactMode) return null;
       return (
         <Button
           variant="primary"
           size="medium"
           onClick={handleAuthClick}
+          href='/login'
+        >
+          Sign In
+        </Button>
+      );
+    } else {
+      // In compact mode, only show if there's a profile avatar
+      if (forCompactMode) return null;
+      return (
+        <Button
+          variant="primary"
+          size="medium"
+          onClick={handleAuthClick}
+          href='/signup'
         >
           Sign Up
         </Button>
@@ -109,10 +119,10 @@ const NavBarComponent = () => {
           </div>
         )}
 
-        {/* Auth Section - Shown in compact mode */}
-        {isCompactMode && (
+        {/* Auth Section - Shown in compact mode only if user has profile avatar */}
+        {isCompactMode && renderAuthContent(true) && (
           <div className="auth-section-compact">
-            {renderAuthContent()}
+            {renderAuthContent(true)}
           </div>
         )}
       </div>

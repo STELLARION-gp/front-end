@@ -1,16 +1,32 @@
 @use '../../abstracts/variables' as *;
 @use '../../abstracts/mixins' as *;
 
+// Dashboard Layout
+.dashboard-layout {
+  display: flex;
+  min-height: 100vh;
+  background: $primary-color;
+
+  .dashboard-content {
+    flex: 1;
+    margin-left: 120px; // Sidebar width + padding
+    padding: $spacing-lg;
+    overflow-x: auto;
+
+    @media (max-width: 768px) {
+      margin-left: 0;
+      padding: $spacing-md;
+    }
+  }
+}
+
 .media-upload-panel {
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: $spacing-lg;
   font-family: $font-outfit;
   color: $text-color;
-  background: $primary-color;
-  border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  background: transparent;
 
   .media-upload-header {
     display: flex;
@@ -42,6 +58,47 @@
 
     .header-actions {
       flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-md;
+
+      .upload-mode-tabs {
+        display: flex;
+        background: rgba($secondary-color, 0.5);
+        border-radius: 8px;
+        padding: 4px;
+        gap: 4px;
+
+        .mode-tab {
+          flex: 1;
+          padding: $spacing-sm $spacing-md;
+          border: none;
+          border-radius: 6px;
+          background: transparent;
+          color: rgba($text-color, 0.7);
+          font-size: $font-size-sm;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          white-space: nowrap;
+
+          &:hover {
+            color: $text-color;
+            background: rgba($accent-color, 0.1);
+          }
+
+          &.active {
+            background: $accent-color;
+            color: $primary-color;
+            font-weight: 600;
+          }
+        }
+      }
+
+      .upload-buttons {
+        display: flex;
+        justify-content: flex-end;
+      }
     }
 
     @media (max-width: 768px) {
@@ -50,6 +107,15 @@
       
       .header-actions {
         align-self: flex-start;
+        width: 100%;
+
+        .upload-mode-tabs {
+          width: 100%;
+        }
+
+        .upload-buttons {
+          justify-content: flex-start;
+        }
       }
     }
   }
@@ -63,6 +129,7 @@
     transition: all 0.3s ease;
     background: rgba($secondary-color, 0.5);
     margin-bottom: $spacing-xl;
+    position: relative;
 
     &:hover {
       border-color: rgba($accent-color, 0.6);
@@ -109,10 +176,16 @@
         font-size: $font-size-sm;
         color: rgba($text-color, 0.6);
 
+        span:last-child {
+          color: $accent-color;
+          font-weight: 500;
+        }
+
         @media (min-width: 768px) {
           flex-direction: row;
           justify-content: center;
           gap: $spacing-lg;
+          flex-wrap: wrap;
         }
       }
     }
@@ -478,6 +551,202 @@
       line-height: 1.6;
       max-width: 400px;
       margin: 0 auto;
+    }
+  }
+
+  // Album Upload Modal
+  .album-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: $spacing-lg;
+
+    .modal-content {
+      background: $primary-color;
+      border-radius: 16px;
+      max-width: 700px;
+      max-height: 90vh;
+      width: 100%;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: $spacing-lg;
+        border-bottom: 1px solid rgba($text-color, 0.1);
+
+        h3 {
+          font-size: $font-size-xl;
+          font-weight: 600;
+          margin: 0;
+          color: $text-color;
+        }
+
+        .close-btn {
+          background: transparent;
+          border: none;
+          color: rgba($text-color, 0.7);
+          font-size: $font-size-xl;
+          cursor: pointer;
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.3s ease;
+
+          &:hover {
+            background: rgba($text-color, 0.1);
+            color: $text-color;
+          }
+        }
+      }
+
+      .modal-body {
+        padding: $spacing-lg;
+
+        .album-info {
+          margin-bottom: $spacing-lg;
+          
+          p {
+            margin: 0 0 $spacing-sm 0;
+            color: rgba($text-color, 0.8);
+            
+            strong {
+              color: $accent-color;
+            }
+          }
+
+          .upload-tip {
+            background: rgba($accent-color, 0.1);
+            border: 1px solid rgba($accent-color, 0.3);
+            border-radius: 8px;
+            padding: $spacing-sm;
+            margin-top: $spacing-sm;
+            font-size: $font-size-sm;
+            color: $accent-color;
+          }
+        }
+
+        .album-form {
+          margin-bottom: $spacing-lg;
+
+          .form-group {
+            margin-bottom: $spacing-md;
+
+            label {
+              display: block;
+              font-weight: 600;
+              margin-bottom: $spacing-xs;
+              color: $text-color;
+            }
+
+            input,
+            textarea {
+              width: 100%;
+              padding: $spacing-sm;
+              border: 1px solid rgba($text-color, 0.2);
+              border-radius: 8px;
+              background: rgba($secondary-color, 0.5);
+              color: $text-color;
+              font-size: $font-size-base;
+              transition: all 0.3s ease;
+
+              &:focus {
+                outline: none;
+                border-color: $accent-color;
+                background: rgba($secondary-color, 0.7);
+              }
+
+              &::placeholder {
+                color: rgba($text-color, 0.5);
+              }
+            }
+
+            textarea {
+              resize: vertical;
+              min-height: 80px;
+            }
+
+            small {
+              display: block;
+              margin-top: $spacing-xs;
+              font-size: $font-size-sm;
+              color: rgba($text-color, 0.6);
+            }
+          }
+        }
+
+        .file-preview {
+          h4 {
+            font-size: $font-size-base;
+            font-weight: 600;
+            margin: 0 0 $spacing-sm 0;
+            color: $text-color;
+          }
+
+          .file-list {
+            max-height: 150px;
+            overflow-y: auto;
+            background: rgba($secondary-color, 0.3);
+            border-radius: 8px;
+            padding: $spacing-sm;
+
+            .file-item {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              padding: $spacing-xs;
+              margin-bottom: $spacing-xs;
+              background: rgba($secondary-color, 0.5);
+              border-radius: 6px;
+
+              &:last-child {
+                margin-bottom: 0;
+              }
+
+              .file-name {
+                flex: 1;
+                font-size: $font-size-sm;
+                color: $text-color;
+                text-overflow: ellipsis;
+                overflow: hidden;
+                white-space: nowrap;
+                margin-right: $spacing-sm;
+              }
+
+              .file-size {
+                font-size: $font-size-sm;
+                color: rgba($text-color, 0.6);
+                flex-shrink: 0;
+              }
+            }
+          }
+        }
+      }
+
+      .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: $spacing-md;
+        padding: $spacing-lg;
+        border-top: 1px solid rgba($text-color, 0.1);
+
+        @media (max-width: 480px) {
+          flex-direction: column;
+          gap: $spacing-sm;
+        }
+      }
     }
   }
 

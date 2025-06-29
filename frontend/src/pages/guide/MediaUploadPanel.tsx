@@ -1,5 +1,6 @@
 import React, { useState, useRef, useCallback } from 'react';
 import Button from '../../components/Button';
+import Sidebar from '../../components/Sidebar';
 import '../../styles/pages/guide/_mediaUploadPanel.scss';
 
 // Simple Upload Icon Component
@@ -45,12 +46,28 @@ interface MediaUploadPanelProps {
   onMediaUploaded?: (media: MediaFile[]) => void;
   maxFileSize?: number; // in MB
   allowedTypes?: string[];
+  showSidebar?: boolean; // Whether to show sidebar layout
+}
+
+interface UploadMode {
+  type: 'single' | 'album';
+  albumName?: string;
+  albumDescription?: string;
+}
+
+interface AlbumData {
+  name: string;
+  description: string;
+  tourName: string;
+  location: string;
+  tags: string[];
 }
 
 const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
   onMediaUploaded,
   maxFileSize = 50, // 50MB default
-  allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'video/mp4', 'video/webm', 'video/quicktime']
+  allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'video/mp4', 'video/webm', 'video/quicktime'],
+  showSidebar = true // Default to showing sidebar
 }) => {
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
   const [dragActive, setDragActive] = useState(false);
@@ -59,6 +76,16 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [filter, setFilter] = useState<'all' | 'images' | 'videos'>('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [uploadMode, setUploadMode] = useState<UploadMode>({ type: 'single' });
+  const [showAlbumModal, setShowAlbumModal] = useState(false);
+  const [pendingFiles, setPendingFiles] = useState<FileList | null>(null);
+  const [albumData, setAlbumData] = useState<AlbumData>({
+    name: '',
+    description: '',
+    tourName: '',
+    location: '',
+    tags: []
+  });
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const generateId = () => Math.random().toString(36).substr(2, 9);
@@ -100,6 +127,20 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
   }, [maxFileSize, allowedTypes]);
 
   const handleFiles = async (files: FileList) => {
+    if (files.length > 1 && uploadMode.type === 'single') {
+      // Multiple files selected, offer album mode
+      setPendingFiles(files);
+      setShowAlbumModal(true);
+      return;
+    }
+
+    const commonData = uploadMode.type === 'album' ? {
+      description: albumData.description,
+      tourName: albumData.tourName,
+      location: albumData.location,
+      tags: albumData.tags
+    } : {};
+
     const newMediaFiles: MediaFile[] = [];
     
     for (let i = 0; i < files.length; i++) {
@@ -120,7 +161,9 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
         }, 100);
 
         const mediaFile = await processFile(file);
-        newMediaFiles.push(mediaFile);
+        // Apply common album data if in album mode
+        const finalMediaFile = { ...mediaFile, ...commonData };
+        newMediaFiles.push(finalMediaFile);
         
         // Complete the progress
         setTimeout(() => {
@@ -148,6 +191,20 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
       setMediaFiles(prev => [...prev, ...newMediaFiles]);
       onMediaUploaded?.(newMediaFiles);
     }
+
+    // Reset album mode if it was used
+    if (uploadMode.type === 'album') {
+      setUploadMode({ type: 'single' }); // Reset to single mode after album upload
+      setShowAlbumModal(false);
+      setPendingFiles(null);
+      setAlbumData({
+        name: '',
+        description: '',
+        tourName: '',
+        location: '',
+        tags: []
+      });
+    }
   };
 
   const handleDrag = (e: React.DragEvent) => {
@@ -173,18 +230,55 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
     setDragActive(false);
     
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      handleFiles(e.dataTransfer.files);
+      if (uploadMode.type === 'album' || e.dataTransfer.files.length > 1) {
+        // For album mode or multiple files, show album modal
+        setPendingFiles(e.dataTransfer.files);
+        setShowAlbumModal(true);
+      } else {
+        // Single file upload - reset to single mode first
+        setUploadMode({ type: 'single' });
+        handleFiles(e.dataTransfer.files);
+      }
     }
   };
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      handleFiles(e.target.files);
+      if (uploadMode.type === 'album' || e.target.files.length > 1) {
+        // For album mode or multiple files, show album modal
+        setPendingFiles(e.target.files);
+        setShowAlbumModal(true);
+      } else {
+        // Single file upload - reset to single mode first
+        setUploadMode({ type: 'single' });
+        handleFiles(e.target.files);
+      }
     }
+    // Reset the input
+    e.target.value = '';
   };
 
   const openFileDialog = () => {
     fileInputRef.current?.click();
+  };
+
+  const handleAlbumUpload = () => {
+    if (pendingFiles) {
+      setUploadMode({ type: 'album' });
+      handleFiles(pendingFiles);
+    }
+  };
+
+  const cancelAlbumUpload = () => {
+    setShowAlbumModal(false);
+    setPendingFiles(null);
+    setAlbumData({
+      name: '',
+      description: '',
+      tourName: '',
+      location: '',
+      tags: []
+    });
   };
 
   const deleteMedia = (id: string) => {
@@ -232,7 +326,7 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
     return matchesFilter && matchesSearch;
   });
 
-  return (
+  const renderMediaContent = () => (
     <div className="media-upload-panel">
       <div className="media-upload-header">
         <div className="header-content">
@@ -243,15 +337,32 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
         </div>
         
         <div className="header-actions">
-          <Button
-            variant="primary"
-            size="medium"
-            onClick={openFileDialog}
-            icon={<PlusIcon />}
-            iconPosition="left"
-          >
-            Upload Media
-          </Button>
+          <div className="upload-mode-tabs">
+            <button
+              className={`mode-tab ${uploadMode.type === 'single' ? 'active' : ''}`}
+              onClick={() => setUploadMode({ type: 'single' })}
+            >
+              Single Upload
+            </button>
+            <button
+              className={`mode-tab ${uploadMode.type === 'album' ? 'active' : ''}`}
+              onClick={() => setUploadMode({ type: 'album' })}
+            >
+              Album Upload
+            </button>
+          </div>
+          
+          <div className="upload-buttons">
+            <Button
+              variant="secondary"
+              size="medium"
+              onClick={openFileDialog}
+              icon={<PlusIcon />}
+              iconPosition="left"
+            >
+              {uploadMode.type === 'album' ? 'Upload Album' : 'Upload Media'}
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -268,11 +379,19 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
           <div className="upload-icon">
             <UploadIcon className="upload-svg-icon" />
           </div>
-          <h3>Drop your media files here</h3>
+          <h3>
+            {uploadMode.type === 'album' 
+              ? 'Drop multiple files to create an album' 
+              : 'Drop your media files here'
+            }
+          </h3>
           <p>or click to browse files</p>
           <div className="upload-info">
             <span>Supports: JPEG, PNG, WebP, MP4, WebM, MOV</span>
             <span>Max size: {maxFileSize}MB per file</span>
+            {uploadMode.type === 'album' && (
+              <span>💡 Album mode: Upload multiple files with shared details</span>
+            )}
           </div>
         </div>
       </div>
@@ -427,6 +546,123 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
         </div>
       )}
 
+      {/* Album Upload Modal */}
+      {showAlbumModal && pendingFiles && (
+        <div className="album-modal" onClick={cancelAlbumUpload}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Create Album Upload</h3>
+              <button 
+                className="close-btn"
+                onClick={cancelAlbumUpload}
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div className="modal-body">
+              <div className="album-info">
+                <p>You're about to upload <strong>{pendingFiles.length} files</strong> as an album.</p>
+                <p>Fill in the common details that will be applied to all files:</p>
+                <div className="upload-tip">
+                  💡 Individual files can still be edited later with unique details
+                </div>
+              </div>
+              
+              <div className="album-form">
+                <div className="form-group">
+                  <label htmlFor="albumName">Album Name:</label>
+                  <input
+                    type="text"
+                    id="albumName"
+                    value={albumData.name}
+                    onChange={(e) => setAlbumData(prev => ({ ...prev, name: e.target.value }))}
+                    placeholder="e.g., Saturn Observation Night"
+                  />
+                </div>
+                
+                <div className="form-group">
+                  <label htmlFor="albumDescription">Album Description:</label>
+                  <textarea
+                    id="albumDescription"
+                    value={albumData.description}
+                    onChange={(e) => setAlbumData(prev => ({ ...prev, description: e.target.value }))}
+                    placeholder="Describe this collection of photos/videos..."
+                    rows={3}
+                  />
+                </div>
+                
+                <div className="form-group">
+                  <label htmlFor="albumTourName">Tour Name:</label>
+                  <input
+                    type="text"
+                    id="albumTourName"
+                    value={albumData.tourName}
+                    onChange={(e) => setAlbumData(prev => ({ ...prev, tourName: e.target.value }))}
+                    placeholder="e.g., Stargazing Night at Mount Wilson"
+                  />
+                </div>
+                
+                <div className="form-group">
+                  <label htmlFor="albumLocation">Location:</label>
+                  <input
+                    type="text"
+                    id="albumLocation"
+                    value={albumData.location}
+                    onChange={(e) => setAlbumData(prev => ({ ...prev, location: e.target.value }))}
+                    placeholder="e.g., Mount Wilson Observatory, California"
+                  />
+                </div>
+                
+                <div className="form-group">
+                  <label htmlFor="albumTags">Tags:</label>
+                  <input
+                    type="text"
+                    id="albumTags"
+                    value={albumData.tags.join(', ')}
+                    onChange={(e) => setAlbumData(prev => ({ 
+                      ...prev, 
+                      tags: e.target.value.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0)
+                    }))}
+                    placeholder="e.g., telescope, saturn, rings, astrophotography"
+                  />
+                  <small>Separate tags with commas</small>
+                </div>
+              </div>
+              
+              <div className="file-preview">
+                <h4>Files to Upload:</h4>
+                <div className="file-list">
+                  {Array.from(pendingFiles).map((file, index) => (
+                    <div key={index} className="file-item">
+                      <span className="file-name">{file.name}</span>
+                      <span className="file-size">({formatFileSize(file.size)})</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            
+            <div className="modal-footer">
+              <Button
+                variant="secondary"
+                size="medium"
+                onClick={cancelAlbumUpload}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="primary"
+                size="medium"
+                onClick={handleAlbumUpload}
+              >
+                Upload Album
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Media Preview Modal */}
       {selectedMedia && (
         <div className="media-modal" onClick={() => setSelectedMedia(null)}>
@@ -552,6 +788,17 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
         </div>
       )}
     </div>
+  );
+
+  return showSidebar ? (
+    <div className="dashboard-layout">
+      <Sidebar />
+      <div className="dashboard-content">
+        {renderMediaContent()}
+      </div>
+    </div>
+  ) : (
+    renderMediaContent()
   );
 };
 

@@ -130,10 +130,6 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
   }, [maxFileSize, allowedTypes]);
 
   const handleFiles = async (files: FileList | File[]) => {
-    console.log('🎯 handleFiles called with files:', files);
-    console.log('🎯 Files length:', files.length);
-    console.log('🎯 Upload mode:', uploadMode.type);
-    
     const commonData = uploadMode.type === 'album' ? {
       description: albumData.description,
       tourName: albumData.tourName,
@@ -141,15 +137,12 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
       tags: albumData.tags
     } : {};
 
-    console.log('🎯 Common data:', commonData);
-
     // Convert FileList to array if necessary
     const fileArray = Array.isArray(files) ? files : Array.from(files);
 
     // Process files sequentially for better progress tracking
     for (let i = 0; i < fileArray.length; i++) {
       const file = fileArray[i];
-      console.log(`🎯 Processing file ${i + 1}/${fileArray.length}: ${file.name}`);
       
       try {
         setUploadProgress(prev => ({ ...prev, [file.name]: 0 }));
@@ -314,13 +307,7 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
   };
 
   const handleAlbumUpload = () => {
-    console.log('🎯 handleAlbumUpload called');
-    console.log('🎯 pendingFiles:', pendingFiles);
-    console.log('🎯 pendingFiles length:', pendingFiles?.length);
-    console.log('🎯 albumData:', albumData);
-    
     if (pendingFiles && pendingFiles.length > 0) {
-      console.log('🎯 Processing files...');
       // Process the files
       handleFiles(pendingFiles);
       
@@ -334,8 +321,6 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
         location: '',
         tags: []
       });
-    } else {
-      console.log('🎯 No pending files found!');
     }
   };
 

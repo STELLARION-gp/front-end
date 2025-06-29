@@ -10,7 +10,7 @@ import Button from '../components/Button';
 import '../styles/pages/Dashboard.scss';
 import Chatbot from '../components/Chatbot';
 import Preview from './learner/Preview';
-import MediaGalleryPage from './guide/MediaGalleryPage';
+import MediaUploadPanel from './guide/MediaUploadPanel';
 
 // Create placeholder components for different pages
 const BlogsPage = () => (
@@ -154,7 +154,20 @@ const Dashboard: React.FC = () => {
             path="media"
             element={
               <ProtectedRoute allowedRoles={['guide']}>
-                <MediaGalleryPage />
+                <div className="dashboard-page">
+                  <MediaUploadPanel 
+                    showSidebar={false}
+                    maxFileSize={50}
+                    allowedTypes={[
+                      'image/jpeg', 
+                      'image/png', 
+                      'image/webp', 
+                      'video/mp4', 
+                      'video/webm', 
+                      'video/quicktime'
+                    ]}
+                  />
+                </div>
               </ProtectedRoute>
             }
           />

@@ -1,6 +1,5 @@
 .stats-section {
     padding: 80px 20px;
-    background: transparent;
     min-height: 100vh;
     height: 100vh;
     display: flex;
@@ -10,12 +9,46 @@
     overflow: hidden;
     pointer-events: none;
     z-index: 15;
+    background: transparent; // Keep transparent to show 3D background
+
+    // Black overlay for better content readability (like hero)
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.15);
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    // Smoke effect overlay for Galaxy-like background (like hero)
+    &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background:
+            radial-gradient(circle at 10% 30%, rgba(255, 255, 255, 0.01) 0%, transparent 60%),
+            radial-gradient(circle at 50% 60%, rgba(100, 100, 255, 0.03) 0%, transparent 20%),
+            radial-gradient(circle at 80% 20%, rgba(255, 0, 0, 0.03) 0%, transparent 40%),
+            radial-gradient(circle at 30% 10%, rgba(0, 0, 255, 0.04) 0%, transparent 60%),
+            radial-gradient(circle at 40% 30%, rgba(255, 255, 255, 0.02) 0%, transparent 80%);
+        pointer-events: none;
+        z-index: 2;
+    }
 
     .stats-container {
         max-width: 1200px;
         width: 100%;
         margin: 0 auto;
         pointer-events: none;
+        position: relative;
+        z-index: 3; // Above background overlays
 
         .stats-title {
             text-align: center;

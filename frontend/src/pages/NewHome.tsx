@@ -6,7 +6,6 @@ import { useLoading } from '../hooks/useLoading';
 import { preloadHomeAssets } from '../utils/assetPreloader';
 import './../styles/pages/Hero.scss';
 import Team from '../components/HomeComponents/Team';
-import Stats from '../components/HomeComponents/Stats';
 import Footer from '../components/Footer';
 
 const NewHome = () => {
@@ -66,7 +65,6 @@ const NewHome = () => {
           {/* Scrollable content on top of galaxy background */}
           <div className="new-home">
             <Hero />
-            <Stats />
             <Team />
           </div>
         </>

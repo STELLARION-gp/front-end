@@ -1,10 +1,11 @@
 import './../../styles/components/Team.scss';
 import mem1 from '../../assets/home/nimna.png';
 import mem2 from '../../assets/home/vidusha.png';
-import mem3 from '../../assets/home/irumi.png';    
+import mem3 from '../../assets/home/irumi.png';
 import mem4 from '../../assets/home/janith.png';
 import mem5 from '../../assets/home/sasanka.png';
 import mem6 from '../../assets/home/senesh.png';
+import Header from '../Header';
 
 const Team = () => {
     const teamMembers = [
@@ -19,7 +20,7 @@ const Team = () => {
     return (
         <section className="team-section">
             <div className="team-container">
-                <h2 className="team-title">Our Team</h2>
+                <Header heading="Team" theme='theme5' subheading='Meet our stellar team members' />
                 <div className="team-grid">
                     {teamMembers.map((member) => (
                         <div key={member.id} className="team-member">

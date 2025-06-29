@@ -10,7 +10,8 @@ import Button from '../components/Button';
 import '../styles/pages/Dashboard.scss';
 import Chatbot from '../components/Chatbot';
 import Preview from './learner/Preview';
-
+import NightCamps from './enthuasist/NightCamps';
+ 
 // Create placeholder components for different pages
 const BlogsPage = () => (
   <div className="dashboard-page">
@@ -176,6 +177,15 @@ const Dashboard: React.FC = () => {
                 <AdminPage />
               </ProtectedRoute>
             }
+          />
+
+          <Route
+          path="night-camps"
+          element={
+            <ProtectedRoute allowedRoles={['enthusiast','admin']}>
+              <NightCamps />
+            </ProtectedRoute>
+          }
           />
 
           {/* Default redirect to overview */}

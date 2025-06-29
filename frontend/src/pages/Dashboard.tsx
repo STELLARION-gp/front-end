@@ -10,6 +10,7 @@ import Button from '../components/Button';
 import '../styles/pages/Dashboard.scss';
 import Chatbot from '../components/Chatbot';
 import Preview from './learner/Preview';
+import MediaGalleryPage from './guide/MediaGalleryPage';
 
 // Create placeholder components for different pages
 const BlogsPage = () => (
@@ -145,6 +146,15 @@ const Dashboard: React.FC = () => {
             element={
               <ProtectedRoute allowedRoles={['guide', 'mentor', 'moderator', 'admin']}>
                 <EventsPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="media"
+            element={
+              <ProtectedRoute allowedRoles={['guide']}>
+                <MediaGalleryPage />
               </ProtectedRoute>
             }
           />

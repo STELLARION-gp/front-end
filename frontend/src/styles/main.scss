@@ -4,4 +4,9 @@
 @use './layout/container';
 @use './components/buttons';
 @use './components/languageSwitcher';
+
+
+// Importing styles for the media upload panel
+@use './pages/guide/mediaUploadPanel';
+
 @use './utilities/helpers';

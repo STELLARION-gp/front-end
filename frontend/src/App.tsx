@@ -10,6 +10,7 @@ import Dashboard from './pages/Dashboard';
 import Signup from './pages/Signup';
 import Login from './pages/Login';
 import NewHome from './pages/NewHome';
+import MediaUploadPanel from './pages/guide/MediaUploadPanel';
 
 const App: React.FC = () => {
   return (
@@ -29,6 +30,7 @@ const App: React.FC = () => {
               </ProtectedRoute>
             }
           />
+          <Route path="/guide/media-upload" element={<MediaUploadPanel />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

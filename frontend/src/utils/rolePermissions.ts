@@ -56,6 +56,7 @@ export const ROLE_BASED_MENU_ITEMS = {
     learner: [
         { label: 'Overview', icon: 'HomeIcon', href: '/dashboard/overview' },
         { label: 'Profile', icon: 'UserCircleIcon', href: '/dashboard/profile' },
+        { label: 'Blogs', icon: 'BookOpenIcon', href: '/dashboard/blogs' },
         { label: 'Chat', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/chat' },
         { label: 'Settings', icon: 'Cog6ToothIcon', href: '/dashboard/settings' },
          { label: 'Night Camps', icon: 'MoonIcon', href: '/dashboard/night-camps' },

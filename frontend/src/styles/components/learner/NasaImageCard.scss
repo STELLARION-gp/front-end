@@ -1,0 +1,75 @@
+.nasa-image-card {
+  background: #181f2a;
+//   border: 2px solid #2563eb;
+  border-radius: 10px;
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    transform: scale(1.04);
+    box-shadow: 0 4px 24px rgba(37, 99, 235, 0.18);
+  
+  .nasa-image-rating-overlay{
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.8s;
+  }
+  }
+}
+
+
+.nasa-image-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.nasa-image {
+  width: 100%;
+  border-radius: 8px;
+  object-fit: cover;
+  height: 200px;
+  background: #222;
+  display: block;
+}
+
+.nasa-image-title-overlay {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  
+  color: #e5e7eb;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  z-index: 2;
+}
+
+.nasa-image-rating-overlay {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  background: rgba(24, 31, 42, 0.85);
+  padding: 4px 10px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  z-index: 2;
+  font-size: 1rem;
+  transition: opacity 0.8s;
+}
+
+.nasa-star {
+  color: #fbbf24;
+  font-size: 1.1rem;
+  margin-right: 2px;
+}
+.nasa-star.empty {
+  color: #374151;
+}

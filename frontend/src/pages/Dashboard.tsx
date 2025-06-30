@@ -118,7 +118,13 @@ const Dashboard: React.FC = () => {
         </div>
 
         <Routes>
-          <Route path="overview" element={<Preview />} />
+          <Route 
+          path="overview" 
+          element={
+            <ProtectedRoute allowedRoles={['learner','admin']}>
+              <Preview />
+            </ProtectedRoute>
+          } />
           <Route path="profile" element={<Profile />} />
           <Route path="settings" element={<Settings />} />
 

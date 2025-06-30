@@ -75,21 +75,25 @@ const spaceEvents = [
     id: 1,
     event: "Perseid Meteor Shower Peak",
     date: "2025-08-12",
+    category: "meteor",
   },
   {
     id: 2,
     event: "Total Lunar Eclipse",
     date: "2025-09-07",
+    category: "eclipse",
   },
   {
     id: 3,
     event: "International Observe the Moon Night",
     date: "2025-10-04",
+    category: "moon",
   },
   {
     id: 4,
     event: "Next Stargazing Meetup",
     date: "2025-08-30",
+    category: "meetup",
   },
 ];
 const competitions = [

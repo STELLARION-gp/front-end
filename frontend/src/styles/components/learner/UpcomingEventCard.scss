@@ -1,42 +1,83 @@
-.space-event-card {
-  background: #181f2a;
-  border: 2px solid #2563eb;
-  border-radius: 10px;
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  padding: 1rem 1.5rem;
-  width: 400px;
-  color: #fff;
-  box-shadow: 0 2px 12px rgba(37, 99, 235, 0.08);
-  transition: box-shadow 0.2s, border-color 0.2s;
+// .space-event-card {
+//   background: #181f2a;
+//   border: 2px solid #2563eb;
+//   border-radius: 10px;
+//   display: flex;
+//   align-items: flex-start;
+//   gap: 1rem;
+//   padding: 1rem 1.5rem;
+//   width: 400px;
+//   color: #fff;
+//   box-shadow: 0 2px 12px rgba(37, 99, 235, 0.08);
+//   transition: box-shadow 0.2s, border-color 0.2s;
 
-  &:hover {
-    border-color: #3b82f6;
-    box-shadow: 0 4px 24px rgba(37, 99, 235, 0.18);
-  }
+//   &:hover {
+//     border-color: #3b82f6;
+//     box-shadow: 0 4px 24px rgba(37, 99, 235, 0.18);
+//   }
+// }
+
+// .space-event-icon {
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   background: #2563eb;
+//   border-radius: 50%;
+//   width: 44px;
+//   height: 44px;
+//   margin-right: 0.5rem;
+//   box-shadow: 0 2px 8px rgba(37, 99, 235, 0.12);
+// }
+
+// .space-event-title {
+//   font-size: 1.08rem;
+//   font-weight: 600;
+//   color: #60a5fa;
+// }
+
+// .space-event-date {
+//   font-size: 0.98rem;
+//   color: #a5b4fc;
+//   margin-top: 0.1rem;
+// }
+.space-event-card.modern {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border: 2px solid #2563eb;
+  background: linear-gradient(90deg, #181f2a 0%, #1e293b 100%);
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(37,99,235,0.10);
+  padding: 1.1rem 1.5rem;
+//   margin-bottom: 0.8rem;
+  width: 400px;
+  transition: box-shadow 0.2s;
 }
 
-.space-event-icon {
+.space-event-card.modern:hover {
+  box-shadow: 0 8px 32px rgba(59,130,246,0.18);
+}
+
+.space-event-icon.modern-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #2563eb;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
-  width: 44px;
-  height: 44px;
-  margin-right: 0.5rem;
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.12);
+  background: #111827;
+  border: 2.5px solid #fff;
+  box-shadow: 0 2px 8px rgba(37,99,235,0.10);
 }
 
 .space-event-title {
-  font-size: 1.08rem;
+  font-size: 1.1rem;
   font-weight: 600;
   color: #60a5fa;
 }
 
 .space-event-date {
   font-size: 0.98rem;
-  color: #a5b4fc;
-  margin-top: 0.1rem;
+  color: #cbd5e1;
+  margin-top: 0.2rem;
 }

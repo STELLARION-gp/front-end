@@ -1,5 +1,5 @@
 import React from "react";
-import "../../styles/pages/learner/blogcard.scss";
+import "../../styles/components/learner/blogcard.scss";
 import Button from "../Button";
 import { UserIcon } from '@heroicons/react/24/outline';
 import { Calendar } from "lucide-react";

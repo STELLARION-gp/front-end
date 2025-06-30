@@ -1,0 +1,486 @@
+// Card Component Styles
+// ======================
+
+// Card Variables
+$card-border-radius: 0.5rem;
+$card-border-radius-sm: 0.25rem;
+$card-border-radius-lg: 0.75rem;
+$card-border-radius-xl: 1rem;
+
+$card-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+$card-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+$card-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+$card-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+$card-padding-sm: 0.75rem;
+$card-padding-md: 1rem;
+$card-padding-lg: 1.5rem;
+$card-padding-xl: 2rem;
+
+$card-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+// Base Card Styles
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid white;
+  border-radius: $card-border-radius;
+  box-shadow: $card-shadow-md;
+  overflow: hidden;
+  transition: $card-transition;
+  padding: 1rem;
+
+  // Card Variants
+  &--default {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid white;
+  }
+
+  &--elevated {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid white;
+    box-shadow: $card-shadow-lg;
+  }
+
+  &--outlined {
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid white;
+    box-shadow: none;
+  }
+
+  &--filled {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid white;
+  }
+
+  // Card Sizes
+  &--small {
+    max-width: 24rem;
+  }
+
+  &--medium {
+    max-width: 28rem;
+  }
+
+  &--large {
+    max-width: 32rem;
+  }
+
+  // Padding Variants
+  &--padding-none {
+    padding: 0;
+  }
+
+  &--padding-small {
+    padding: $card-padding-sm;
+  }
+
+  &--padding-medium {
+    padding: $card-padding-md;
+  }
+
+  &--padding-large {
+    padding: $card-padding-lg;
+  }
+
+  // Rounded Variants
+  &--rounded-none {
+    border-radius: 0;
+  }
+
+  &--rounded-small {
+    border-radius: $card-border-radius-sm;
+  }
+
+  &--rounded-medium {
+    border-radius: $card-border-radius;
+  }
+
+  &--rounded-large {
+    border-radius: $card-border-radius-lg;
+  }
+
+  &--rounded-xl {
+    border-radius: $card-border-radius-xl;
+  }
+
+  &--rounded-full {
+    border-radius: 9999px;
+  }
+
+  // Shadow Variants
+  &--shadow-none {
+    box-shadow: none;
+  }
+
+  &--shadow-small {
+    box-shadow: $card-shadow-sm;
+  }
+
+  &--shadow-medium {
+    box-shadow: $card-shadow-md;
+  }
+
+  &--shadow-large {
+    box-shadow: $card-shadow-lg;
+  }
+
+  // Interactive States
+  &--hoverable {
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: $card-shadow-xl;
+      background:rgba(255, 255, 255, 0.05); 
+      border-color: white;
+    }
+  }
+
+  &--clickable {
+    cursor: pointer;
+    user-select: none;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: $card-shadow-xl;
+      background: 
+        radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.3) 0%, transparent 45%),
+        radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.25) 0%, transparent 45%),
+        radial-gradient(circle at 40% 60%, rgba(255, 255, 255, 0.15) 0%, transparent 55%),
+        linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, transparent 100%);
+      border-color: white;
+    }
+
+    &:active {
+      transform: translateY(0);
+      box-shadow: $card-shadow-lg;
+    }
+  }
+
+  // Loading State
+  &--loading {
+    .card-content {
+      .skeleton {
+        animation: skeleton-loading 1.5s infinite ease-in-out;
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+      }
+    }
+  }
+
+  // Card Image
+  &__image {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    border-radius: inherit;
+
+    &--top {
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+
+    &--left {
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+      width: 33.333333%;
+      height: 100%;
+    }
+
+    &--right {
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+      width: 33.333333%;
+      height: 100%;
+    }
+  }
+
+  // Card Badge
+  &__badge {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    z-index: 10;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 9999px;
+    background-color: #3b82f6;
+    color: white;
+  }
+}
+
+// Card Sub-components
+.card-header {
+  padding: $card-padding-md $card-padding-md 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #ffffff;
+  border-bottom: 1px solid #f3f4f6;
+  margin-bottom: $card-padding-sm;
+
+  &:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+  }
+}
+
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+
+  &--small {
+    font-size: 1rem;
+  }
+
+  &--large {
+    font-size: 1.5rem;
+  }
+}
+
+.card-subtitle {
+  font-size: 0.875rem;
+  color: #c3c6ca;
+  margin-bottom: 0.5rem;
+  line-height: 1.5;
+}
+
+.card-content {
+  flex: 1;
+  padding: $card-padding-md;
+  color: #fdfeff;
+  line-height: 1.6;
+
+  &--no-padding {
+    padding: 0;
+  }
+
+  p {
+    margin-bottom: 0.75rem;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+.card-footer {
+  padding: 0 $card-padding-md $card-padding-md;
+  border-top: 1px solid #f3f4f6;
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  &--no-border {
+    border-top: none;
+  }
+}
+
+.card-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+
+  &--center {
+    justify-content: center;
+  }
+
+  &--end {
+    justify-content: flex-end;
+  }
+
+  &--space-between {
+    justify-content: space-between;
+  }
+}
+
+// Card Layouts
+.card-grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+
+  &--small {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+  }
+
+  &--large {
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 2rem;
+  }
+}
+
+.card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  .card {
+    flex-direction: row;
+    align-items: flex-start;
+
+    .card__image {
+      width: 120px;
+      height: 120px;
+      flex-shrink: 0;
+      border-radius: $card-border-radius-sm;
+      margin-right: 1rem;
+    }
+  }
+}
+
+// Animations
+@keyframes skeleton-loading {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes card-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .card {
+    &--small,
+    &--medium,
+    &--large {
+      max-width: 100%;
+    }
+  }
+
+  .card-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+
+    &--small,
+    &--large {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .card-list {
+    .card {
+      flex-direction: column;
+
+      .card__image {
+        width: 100%;
+        height: 200px;
+        margin-right: 0;
+        margin-bottom: 1rem;
+      }
+    }
+  }
+
+  .card-actions {
+    flex-direction: column;
+
+    &--space-between {
+      justify-content: stretch;
+    }
+  }
+}
+
+// Dark Mode Support
+@media (prefers-color-scheme: dark) {
+  .card {
+    background: 
+      radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.08) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.06) 0%, transparent 50%),
+      radial-gradient(circle at 40% 60%, rgba(255, 255, 255, 0.04) 0%, transparent 60%),
+      linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, transparent 100%);
+    border-color: white;
+    color: #f9fafb;
+
+    &--filled {
+      background: 
+        radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.12) 0%, transparent 40%),
+        radial-gradient(circle at 70% 70%, rgba(255, 255, 255, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.06) 0%, transparent 50%),
+        linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(249, 250, 251, 0.02) 100%);
+    }
+
+    &--outlined {
+      background: 
+        radial-gradient(circle at 15% 15%, rgba(255, 255, 255, 0.06) 0%, transparent 60%),
+        radial-gradient(circle at 85% 85%, rgba(255, 255, 255, 0.04) 0%, transparent 60%),
+        radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.02) 0%, transparent 70%);
+      border-color: white;
+    }
+
+    &--elevated {
+      background: 
+        radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.15) 0%, transparent 45%),
+        radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.12) 0%, transparent 45%),
+        radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.08) 0%, transparent 55%),
+        linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, transparent 100%);
+      border-color: white;
+    }
+
+    &--hoverable:hover,
+    &--clickable:hover {
+      background: 
+        radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.12) 0%, transparent 45%),
+        radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 45%),
+        radial-gradient(circle at 40% 60%, rgba(255, 255, 255, 0.08) 0%, transparent 55%),
+        linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, transparent 100%);
+      border-color: white;
+    }
+  }
+
+  .card-title {
+    color: #f9fafb;
+  }
+
+  .card-subtitle {
+    color: #9ca3af;
+  }
+
+  .card-content {
+    color: #d1d5db;
+  }
+
+  .card-header,
+  .card-footer {
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+}
+
+// Utility Classes
+.card-animate {
+  animation: card-fade-in 0.5s ease-out;
+}
+
+.card-stacked {
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: 4px;
+    right: -4px;
+    height: 100%;
+    background-color: #e5e7eb;
+    border-radius: inherit;
+    z-index: -1;
+  }
+}

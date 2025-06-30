@@ -17,6 +17,7 @@ import {
   ShieldCheckIcon,
   KeyIcon,
   ArrowLeftOnRectangleIcon,
+  MoonIcon,
   PhotoIcon,
 } from '@heroicons/react/24/outline';
 
@@ -31,6 +32,7 @@ const iconMap = {
   UsersIcon,
   ShieldCheckIcon,
   KeyIcon,
+  MoonIcon,
   PhotoIcon,
 };
 

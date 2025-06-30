@@ -18,6 +18,7 @@ import {
   KeyIcon,
   ArrowLeftOnRectangleIcon,
   MoonIcon,
+  PhotoIcon,
 } from '@heroicons/react/24/outline';
 
 const iconMap = {
@@ -32,6 +33,7 @@ const iconMap = {
   ShieldCheckIcon,
   KeyIcon,
   MoonIcon,
+  PhotoIcon,
 };
 
 const Sidebar: React.FC = () => {

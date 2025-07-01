@@ -44,40 +44,6 @@ const iconMap = {
 // Memoize the icon components to prevent re-renders
 const MemoizedIcon = memo(({ icon }: { icon: React.ReactNode }) => <>{icon}</>);
 
-// Memoized sidebar menu item to prevent re-renders
-const SidebarMenuItem = memo(({
-  item,
-  index,
-  isActive,
-  handleNavigation,
-  handleMouseEnter,
-  handleMouseLeave,
-  setRef
-}: {
-  item: ProcessedMenuItem;
-  index: number;
-  isActive: (path: string) => boolean;
-  handleNavigation: (e: React.MouseEvent<HTMLAnchorElement>, path: string) => void;
-  handleMouseEnter: (index: number) => void;
-  handleMouseLeave: () => void;
-  setRef: (el: HTMLLIElement | null) => void;
-}) => (
-  <li
-    ref={setRef}
-    onMouseEnter={() => handleMouseEnter(index)}
-    onMouseLeave={handleMouseLeave}
-    className={isActive(item.href) ? 'active' : ''}
-  >
-    <Link
-      to={item.href}
-      onClick={(e) => handleNavigation(e, item.href)}
-    >
-      <MemoizedIcon icon={item.icon} />
-      <span className="label">{item.label}</span>
-    </Link>
-  </li>
-));
-
 const Sidebar: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, memo } from 'react';
-import { useLocation, Link, useNavigate } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import logo from '../assets/logo-dark.png';
 import Button from '../components/Button';

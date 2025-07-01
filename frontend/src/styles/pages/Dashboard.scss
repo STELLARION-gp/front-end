@@ -58,6 +58,20 @@
     }
 }
 
+.content {
+    flex: 1; // ✅ Take remaining space
+    overflow-y: auto; // ✅ Allow vertical scroll
+    overflow-x: hidden; // ✅ Prevent horizontal scroll
+    padding: 1rem; // Optional padding inside content
+    box-sizing: border-box;
+    position: absolute;
+    top: 120px;
+    left: 150px;
+    width: calc(100% - 150px);
+    bottom: 0; 
+    //background-color: $theme4;
+}
+
 // Dashboard header and common styles
 .dashboard-header {
     margin-bottom: 2rem;

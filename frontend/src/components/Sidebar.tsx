@@ -41,6 +41,9 @@ const iconMap = {
   UsersIcon,
   ShieldCheckIcon,
   KeyIcon,
+  MoonIcon,
+  PhotoIcon,
+  StarIcon,
 };
 
 // Memoize the icon components to prevent re-renders

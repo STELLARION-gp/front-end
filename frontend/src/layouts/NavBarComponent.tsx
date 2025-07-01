@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
-import { useLocation, Link } from 'react-router-dom';
+import { useEffect, useRef, useState, memo } from 'react';
+import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import logo from '../assets/logo-dark.png';
 import Button from '../components/Button';
@@ -12,7 +12,7 @@ import './../styles/components/navbar.scss';
 const NavBarComponent = () => {
   const [hidden, setHidden] = useState(false);
   const [currentTheme, setCurrentTheme] = useState('system');
-  const [currentLangCode, setCurrentLangCode] = useState('en');
+  // Removed language state variable - using i18n directly
   const location = useLocation();
   const { user, userProfile, logout } = useAuth();
   const { t, i18n } = useTranslation();
@@ -27,26 +27,27 @@ const NavBarComponent = () => {
 
   const currentLanguage = getCurrentLanguage();
 
-  // Track language changes and update local state to trigger re-renders
+  // No need to track language changes via state anymore
   useEffect(() => {
     console.log('NavBar re-rendered with language:', i18n.language);
-    setCurrentLangCode(i18n.language);
-
-    // Add a listener for language change events
-    const handleLanguageChange = (lng: string) => {
-      console.log('Language changed event received:', lng);
-      setCurrentLangCode(lng);
-    };
-
-    i18n.on('languageChanged', handleLanguageChange);
-
-    return () => {
-      i18n.off('languageChanged', handleLanguageChange);
-    };
-  }, [i18n]);
+    // Language is tracked directly via i18n
+  }, [i18n.language]);
 
   // Determine if we should show compact mode based on current route
-  const isCompactMode = location.pathname !== '/';
+  const isCompactMode = location.pathname !== '/' && !location.pathname.includes('/404');
+
+  // Save route path in ref to avoid re-renders on route changes
+  const routeRef = useRef(location.pathname);
+
+  // Only update compact mode when truly needed (home vs other pages)
+  const shouldUpdateCompactMode =
+    (routeRef.current === '/' && location.pathname !== '/') ||
+    (routeRef.current !== '/' && location.pathname === '/');
+
+  // Update ref only when needed for comparison
+  if (shouldUpdateCompactMode) {
+    routeRef.current = location.pathname;
+  }
 
   useEffect(() => {
     const handleScroll = () => {
@@ -140,6 +141,7 @@ const NavBarComponent = () => {
   const handleLogout = async () => {
     try {
       await logout();
+      // Use window.location.href to force a full page reload after logout
       window.location.href = '/';
     } catch (error) {
       console.error('Error during logout:', error);
@@ -184,7 +186,7 @@ const NavBarComponent = () => {
                 <Link to="/dashboard/profile" className="dropdown-link">{t('navbar.profile')}</Link>
                 <Link to="/dashboard/settings" className="dropdown-link">{t('navbar.settings')}</Link>
                 <RoleGuard minimumRole="moderator">
-                  <Link to="/admin" className="dropdown-link">{t('navbar.adminPanel')}</Link>
+                  <Link to="/dashboard/admin" className="dropdown-link">{t('navbar.adminPanel')}</Link>
                 </RoleGuard>
                 <button onClick={handleLogout} className="dropdown-link logout">
                   {t('auth.signOut')}
@@ -239,7 +241,7 @@ const NavBarComponent = () => {
   };
 
   return (
-    <nav key={currentLangCode} className={`navbar-blur${hidden ? ' navbar-hidden' : ''}${isCompactMode ? ' navbar-compact' : ''}`}>
+    <nav className={`navbar-blur${hidden ? ' navbar-hidden' : ''}${isCompactMode ? ' navbar-compact' : ''}`}>
       <div className="navbar-inner">
         {/* Left Nav - Hidden in compact mode */}
         {!isCompactMode && (
@@ -285,4 +287,9 @@ const NavBarComponent = () => {
   );
 };
 
-export default NavBarComponent;
+// Export memoized component to prevent unnecessary re-renders
+export default memo(NavBarComponent, () => {
+  // Custom comparison to prevent unnecessary re-renders
+  // Since this component has no props, it should never re-render unless state changes
+  return true;
+});

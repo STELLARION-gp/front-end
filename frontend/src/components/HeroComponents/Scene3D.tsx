@@ -16,7 +16,7 @@ const Scene3D: React.FC<Scene3DProps> = ({ currentSlide, isTransitioning }) => {
       className="absolute inset-0"
       style={{
         pointerEvents: 'auto',
-        zIndex: 1
+        zIndex: 2 // Interactive 3D canvas
       }}
       onPointerMissed={(event) => {
         // Allow events to bubble up when not interacting with 3D objects

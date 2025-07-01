@@ -345,9 +345,7 @@ nav,
 }
 
 .dashboard-link {
-    background: linear-gradient(135deg, #8B5CF6, #EC4899);
-    background-size: 200% 200%;
-    animation: gradientShift 3s ease infinite;
+    background: transparent;
     border-radius: 8px;
     padding: 8px 16px;
     font-weight: 600;
@@ -360,23 +358,8 @@ nav,
 }
 
 .dashboard-link:hover {
-    background-position: right center;
     transform: translateY(-3px);
     box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
-}
-
-@keyframes gradientShift {
-    0% {
-        background-position: 0% 50%;
-    }
-
-    50% {
-        background-position: 100% 50%;
-    }
-
-    100% {
-        background-position: 0% 50%;
-    }
 }
 
 .profile-section {
@@ -386,9 +369,8 @@ nav,
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     padding: 4px;
     border-radius: 50%;
-    border: 1px solid transparent;
-    background: linear-gradient(45deg, $theme2, $theme3);
-    background-clip: padding-box;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: transparent;
     position: relative;
 
     .profile-avatar {

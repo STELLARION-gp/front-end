@@ -2,6 +2,7 @@ import React, { useRef, useMemo, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Sphere, Ring, OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
+import { ACCRETION_COLORS } from '../utils/galaxyColors';
 
 const AccretionDisk: React.FC = () => {
     const diskRef = useRef<THREE.Group>(null);
@@ -12,9 +13,9 @@ const AccretionDisk: React.FC = () => {
         return new THREE.ShaderMaterial({
             uniforms: {
                 time: { value: 0 },
-                colorInner: { value: new THREE.Color(0xffffff) },
-                colorMiddle: { value: new THREE.Color(0xff4000) },
-                colorOuter: { value: new THREE.Color(0xff1020) },
+                colorInner: { value: new THREE.Color(ACCRETION_COLORS.INNER) },
+                colorMiddle: { value: new THREE.Color(ACCRETION_COLORS.MIDDLE) },
+                colorOuter: { value: new THREE.Color(ACCRETION_COLORS.OUTER) },
             },
             vertexShader: `
                 varying vec2 vUv;

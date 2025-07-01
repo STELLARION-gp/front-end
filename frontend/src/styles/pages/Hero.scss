@@ -5,7 +5,7 @@
   height: 100vh;
   width: 100vw;
   overflow: hidden;
-  z-index: 1; // Above the container but below content
+  z-index: 1; // Above background but below content
   border: none;
   border-radius: 0;
 
@@ -13,7 +13,7 @@
   canvas {
     pointer-events: auto;
     position: relative;
-    z-index: 1; // Ensure canvas receives events
+    z-index: 1; // Interactive canvas
   }
 
   // Black overlay for better content readability
@@ -63,7 +63,7 @@ body {
 
 .hero-section {
   pointer-events: none;
-  z-index: 5; // Above 3D background but not blocking navbar
+  z-index: 10; // Above 3D background and overlay
   height: 100vh !important;
   min-height: 100vh !important;
   max-height: 100vh;
@@ -76,6 +76,7 @@ body {
   padding: 0;
   box-sizing: border-box;
   overflow: hidden;
+  background: transparent; // Ensure background is transparent to show 3D scene
 
   .hero-navbar {
     pointer-events: auto;
@@ -96,7 +97,8 @@ body {
   max-width: 900px;
   color: #fff;
   text-align: center;
-  z-index: 6; // Above hero section
+  z-index: 15; // Above hero section and 3D background
+  pointer-events: auto; // Allow interaction with content
   padding: 2rem;
   pointer-events: none;
 
@@ -448,4 +450,10 @@ body {
   .hero-content {
     margin-top: 4rem;
   }
+}
+
+// Galaxy background wrapper
+.galaxy-background {
+  z-index: 1; // Interactive background layer
+  pointer-events: auto; // Allow interaction with 3D scene
 }

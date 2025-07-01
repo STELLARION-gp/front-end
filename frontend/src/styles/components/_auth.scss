@@ -142,12 +142,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
-  background: #0f1419;
+  min-height: 200px; // Reduced from 100vh
+  background: transparent; // Remove dark background
 
   .loading-spinner {
-    color: #ffffff;
-    font-size: 1.2rem;
+    color: #666666; // More subtle color
+    font-size: 1rem; // Smaller font
   }
 }
 
@@ -201,5 +201,50 @@
       height: 100%;
       object-fit: cover;
     }
+  }
+}
+
+// Test accounts section for development
+.test-accounts {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+
+  .test-title {
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  .test-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 8px;
+  }
+
+  .test-button {
+    padding: 8px 12px;
+    font-size: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.9);
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+  }
+
+  .test-note {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.6);
+    margin-top: 8px;
   }
 }

@@ -2,6 +2,7 @@ import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import type { UserRole } from '../AuthContext';
+import LoadingSpinner from './LoadingSpinner';
 
 interface ProtectedRouteProps {
     children: React.ReactNode;
@@ -17,18 +18,48 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     const { user, userProfile, loading } = useAuth();
     const location = useLocation();
 
-    // Show loading spinner while auth state is being determined
+    // Debug logging
+    console.log('ProtectedRoute - Auth State:', {
+        user: !!user,
+        userProfile: !!userProfile,
+        loading,
+        userEmail: user?.email,
+        userRole: userProfile?.role
+    });
+
+    // Show simple loading while auth state is being determined
     if (loading) {
         return (
-            <div className="loading-container">
-                <div className="loading-spinner">Loading...</div>
+            <div className="auth-loading">
+                <LoadingSpinner
+                    size="small"
+                    variant="primary"
+                    showMessage={false}
+                    useLottie={false}
+                />
             </div>
         );
     }
 
     // Redirect to login if not authenticated
-    if (!user || !userProfile) {
+    if (!user) {
+        console.log('ProtectedRoute - No user, redirecting to login');
         return <Navigate to={redirectTo} state={{ from: location }} replace />;
+    }
+
+    // If user exists but profile is still loading, show simple loading
+    if (!userProfile) {
+        console.log('ProtectedRoute - User exists but no profile, showing loading');
+        return (
+            <div className="auth-loading">
+                <LoadingSpinner
+                    size="small"
+                    variant="primary"
+                    showMessage={false}
+                    useLottie={false}
+                />
+            </div>
+        );
     }
 
     // Check role-based access if allowedRoles is specified

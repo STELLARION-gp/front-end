@@ -1,0 +1,28 @@
+// Galactic Colors for use in 3D components and throughout the app
+// These colors are designed to match the space theme of STELLARION
+// and provide bright, vibrant options for UI elements and visualizations
+
+// Main galaxy colors
+$galaxy-pink: #FF61F6; // Bright Pink
+$galaxy-purple: #7B4BFF; // Bright Purple
+$galaxy-cyan: #00E5FF; // Bright Cyan
+$galaxy-aqua: #5DF9FF; // Bright Aqua
+$galaxy-gold: #FFD500; // Bright Gold
+$galaxy-orange: #FF7D00; // Bright Orange
+$galaxy-hot-pink: #FF0070; // Hot Pink
+$galaxy-electric-blue: #01FEFE; // Electric Blue
+$galaxy-green: #01FF89; // Bright Green
+$galaxy-white: #FFFFFF; // Pure White (for stars)
+
+// Accretion disk colors from BlackHole component
+$accretion-inner: #FFFFFF; // Inner disk color
+$accretion-middle: #FF4000; // Middle disk color
+$accretion-outer: #FF1020; // Outer disk color
+
+// Galaxy-themed gradients
+$galaxy-gradient-1: linear-gradient(90deg, $galaxy-purple 0%, $galaxy-pink 100%);
+$galaxy-gradient-2: linear-gradient(90deg, $galaxy-cyan 0%, $galaxy-electric-blue 100%);
+$galaxy-gradient-3: linear-gradient(135deg, $galaxy-hot-pink 0%, $galaxy-purple 50%, $galaxy-cyan 100%);
+
+// These can be used for gradients, backgrounds, and UI accents
+// throughout the application to maintain a consistent space theme

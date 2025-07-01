@@ -1,0 +1,108 @@
+.dashboard-footer {
+    position: relative;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    z-index: 10;
+    display: flex;
+    border-radius: 5px;
+    align-items: center;
+    flex-shrink: 0; // Prevent footer from shrinking
+    margin-top: auto; // This will push footer to bottom when content is small
+
+    .dashboard-footer-content {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .footer-left {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+
+        .brand-name {
+            font-weight: 700;
+            font-size: 1.125rem;
+            background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .separator {
+            color: rgba(255, 255, 255, 0.3);
+            font-weight: 300;
+        }
+
+        .tagline {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.875rem;
+            font-weight: 400;
+        }
+    }
+
+    .footer-right {
+        .copyright {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.8rem;
+            font-weight: 400;
+        }
+    }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+    .dashboard-footer {
+        height: 50px;
+
+        .dashboard-footer-content {
+            padding: 0 1rem;
+        }
+
+        .footer-left {
+            gap: 0.5rem;
+
+            .brand-name {
+                font-size: 1rem;
+            }
+
+            .tagline {
+                display: none;
+            }
+        }
+
+        .footer-right {
+            .copyright {
+                font-size: 0.75rem;
+            }
+        }
+    }
+}
+
+@media (max-width: 480px) {
+    .dashboard-footer {
+        height: 45px;
+
+        .dashboard-footer-content {
+            padding: 0 0.5rem;
+        }
+
+        .footer-left {
+            .brand-name {
+                font-size: 0.875rem;
+            }
+
+            .separator {
+                display: none;
+            }
+        }
+    }
+}

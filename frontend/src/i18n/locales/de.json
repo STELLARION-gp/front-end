@@ -1,0 +1,32 @@
+{
+    "navbar": {
+        "home": "Startseite",
+        "about": "Über uns",
+        "contact": "Kontakt",
+        "profile": "Profil",
+        "settings": "Einstellungen",
+        "features": "Funktionen",
+        "team": "Team",
+        "explore": "Entdecken",
+        "adminPanel": "Verwaltungspanel"
+    },
+    "welcome": "Willkommen auf unserer Website!",
+    "hero": {
+        "title": "Erkunde das Universum. Entfache deine Neugier.",
+        "subtitle": "Erkunde das Universum. Entfache deine Neugier.",
+        "description": "Tritt Stellarion bei — deinem geführten Gateway zur Weltraumerkundung, zum Lernen und zur Entdeckung. Von Weltraum-Updates bis zu immersiven Lernsitzungen ist der Weltraum nur einen Klick entfernt.",
+        "getStarted": "Loslegen",
+        "scrollToExplore": "Scrollen zum Erkunden"
+    },
+    "auth": {
+        "signIn": "Anmelden",
+        "signUp": "Registrieren",
+        "email": "E-Mail",
+        "password": "Passwort",
+        "confirmPassword": "Passwort bestätigen",
+        "forgotPassword": "Passwort vergessen?",
+        "alreadyHaveAccount": "Haben Sie bereits ein Konto?",
+        "dontHaveAccount": "Haben Sie noch kein Konto?",
+        "signOut": "Abmelden"
+    }
+}

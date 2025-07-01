@@ -2,7 +2,6 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import ProtectedRoute from '../components/ProtectedRoute';
-import { RoleGuard } from '../components/RoleGuard';
 import Sidebar from '../components/Sidebar';
 import Profile from '../pages/Profile';
 import Settings from '../pages/Settings';
@@ -12,20 +11,21 @@ import Chatbot from '../components/Chatbot';
 import Preview from './learner/Preview';
 import NightCamps from './enthuasist/NightCamps';
 import MediaUploadPanel from './guide/MediaUploadPanel';
+import BlogExplore from './learner/Blog_Explore';
 
 // Create placeholder components for different pages
-const BlogsPage = () => (
-  <div className="dashboard-page">
-    <h2>Blogs & Content</h2>
-    <p>Create and manage your astronomy blog posts and articles.</p>
-    <RoleGuard allowedRoles={['influencer', 'mentor', 'moderator', 'admin']}>
-      <div className="advanced-features">
-        <h3>Advanced Features</h3>
-        <p>You have access to advanced blogging features.</p>
-      </div>
-    </RoleGuard>
-  </div>
-);
+// const BlogsPage = () => (
+//   <div className="dashboard-page">
+//     <h2>Blogs & Content</h2>
+//     <p>Create and manage your astronomy blog posts and articles.</p>
+//     <RoleGuard allowedRoles={['influencer', 'mentor', 'moderator', 'admin']}>
+//       <div className="advanced-features">
+//         <h3>Advanced Features</h3>
+//         <p>You have access to advanced blogging features.</p>
+//       </div>
+//     </RoleGuard>
+//   </div>
+// );
 
 const MentorPage = () => (
   <div className="dashboard-page">
@@ -120,15 +120,21 @@ const Dashboard: React.FC = () => {
         </div>
 
         <Routes>
-          <Route path="overview" element={<Preview />} />
+          <Route 
+          path="overview" 
+          element={
+            <ProtectedRoute allowedRoles={['learner','admin']}>
+              <Preview />
+            </ProtectedRoute>
+          } />
           <Route path="profile" element={<Profile />} />
           <Route path="settings" element={<Settings />} />
 
           <Route
             path="blogs"
             element={
-              <ProtectedRoute allowedRoles={['enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin']}>
-                <BlogsPage />
+              <ProtectedRoute allowedRoles={['learner','admin', 'enthusiast', 'influencer', 'guide', 'mentor', 'moderator']}>
+                <BlogExplore />
               </ProtectedRoute>
             }
           />

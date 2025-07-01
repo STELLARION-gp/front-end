@@ -538,6 +538,8 @@ case 'upcoming': {
         return (
           <div className="volunteer-camps-table">
             <h2 className="volunteer-camps-table__title">My Volunteering</h2>
+            <p className="volunteer-camps-table__subtitle">Manage your volunteer registrations and roles</p>
+            
             <div className="volunteer-camps-table__table-container">
               <table className="volunteer-camps-table__table">
                 <thead>

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import logo from '../assets/logo-dark.png';
 import Button from '../components/Button';
@@ -151,7 +151,7 @@ const NavBarComponent = () => {
       // User is logged in - show profile picture or placeholder
       const avatarUrl = user.photoURL || userProfile?.profileData?.avatar;
       const displayName = user.displayName || userProfile?.displayName || user.email || 'User';
-      
+
       return (
         <div className="profile-section">
           {avatarUrl ? (
@@ -180,10 +180,11 @@ const NavBarComponent = () => {
                 <p className="profile-role">{userProfile?.role || 'User'}</p>
               </div>
               <div className="profile-actions">
-                <a href="/profile" className="dropdown-link">{t('navbar.profile')}</a>
-                <a href="/settings" className="dropdown-link">{t('navbar.settings')}</a>
+                <Link to="/dashboard/overview" className="dropdown-link">{t('navbar.dashboard')}</Link>
+                <Link to="/dashboard/profile" className="dropdown-link">{t('navbar.profile')}</Link>
+                <Link to="/dashboard/settings" className="dropdown-link">{t('navbar.settings')}</Link>
                 <RoleGuard minimumRole="moderator">
-                  <a href="/admin" className="dropdown-link">{t('navbar.adminPanel')}</a>
+                  <Link to="/admin" className="dropdown-link">{t('navbar.adminPanel')}</Link>
                 </RoleGuard>
                 <button onClick={handleLogout} className="dropdown-link logout">
                   {t('auth.signOut')}
@@ -202,6 +203,7 @@ const NavBarComponent = () => {
             variant="secondary"
             size="medium"
             href="/login"
+            enableNavigationLoading={false}
           >
             {t('auth.signIn')}
           </Button>
@@ -243,7 +245,7 @@ const NavBarComponent = () => {
         {!isCompactMode && (
           <div className="navbar-section left-section">
             <a href="#" className="nav-link">{t('navbar.features')}</a>
-            <a href="/about" className="nav-link">{t('navbar.about')}</a>
+            <Link to="/about" className="nav-link">{t('navbar.about')}</Link>
             <a href="#" className="nav-link">{t('navbar.contact')}</a>
           </div>
         )}

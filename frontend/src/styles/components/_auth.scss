@@ -142,12 +142,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
-  background: #0f1419;
+  min-height: 200px; // Reduced from 100vh
+  background: transparent; // Remove dark background
 
   .loading-spinner {
-    color: #ffffff;
-    font-size: 1.2rem;
+    color: #666666; // More subtle color
+    font-size: 1rem; // Smaller font
   }
 }
 

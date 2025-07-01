@@ -1,8 +1,10 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { useDashboardLoading } from '../hooks/useDashboardLoading';
 import { RoleGuard } from '../components/RoleGuard';
 import Sidebar from '../components/Sidebar';
+import ContentLoader from '../components/ContentLoader';
 import Profile from '../pages/Profile';
 import Settings from '../pages/Settings';
 import DashboardOverview from '../pages/DashboardOverview';
@@ -102,6 +104,7 @@ const AdminPage = () => (
 
 const Dashboard: React.FC = () => {
   const { userProfile } = useAuth();
+  const { isLoadingContent } = useDashboardLoading();
 
   if (!userProfile) {
     return <Navigate to="/login" replace />;
@@ -113,78 +116,80 @@ const Dashboard: React.FC = () => {
 
       <main className="dashboard-content">
         <div className="routes-container">
-          <Routes>
-            <Route path="overview" element={<DashboardOverview />} />
-            <Route path="profile" element={<Profile />} />
-            <Route path="settings" element={<Settings />} />
+          <ContentLoader isLoading={isLoadingContent}>
+            <Routes>
+              <Route path="overview" element={<DashboardOverview />} />
+              <Route path="profile" element={<Profile />} />
+              <Route path="settings" element={<Settings />} />
 
-            <Route
-              path="blogs"
-              element={
-                <RoleGuard allowedRoles={['enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin']}>
-                  <BlogsPage />
-                </RoleGuard>
-              }
-            />
+              <Route
+                path="blogs"
+                element={
+                  <RoleGuard allowedRoles={['enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin']}>
+                    <BlogsPage />
+                  </RoleGuard>
+                }
+              />
 
-            <Route
-              path="mentor"
-              element={
-                <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
-                  <MentorPage />
-                </RoleGuard>
-              }
-            />
+              <Route
+                path="mentor"
+                element={
+                  <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
+                    <MentorPage />
+                  </RoleGuard>
+                }
+              />
 
-            <Route
-              path="events"
-              element={
-                <RoleGuard allowedRoles={['guide', 'mentor', 'moderator', 'admin']}>
-                  <EventsPage />
-                </RoleGuard>
-              }
-            />
+              <Route
+                path="events"
+                element={
+                  <RoleGuard allowedRoles={['guide', 'mentor', 'moderator', 'admin']}>
+                    <EventsPage />
+                  </RoleGuard>
+                }
+              />
 
-            <Route path="chat" element={<ChatPage />} />
+              <Route path="chat" element={<ChatPage />} />
 
-            <Route
-              path="sessions"
-              element={
-                <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
-                  <SessionsPage />
-                </RoleGuard>
-              }
-            />
+              <Route
+                path="sessions"
+                element={
+                  <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
+                    <SessionsPage />
+                  </RoleGuard>
+                }
+              />
 
-            <Route
-              path="moderation"
-              element={
-                <RoleGuard allowedRoles={['moderator', 'admin']}>
-                  <ModerationPage />
-                </RoleGuard>
-              }
-            />
+              <Route
+                path="moderation"
+                element={
+                  <RoleGuard allowedRoles={['moderator', 'admin']}>
+                    <ModerationPage />
+                  </RoleGuard>
+                }
+              />
 
-            <Route
-              path="admin"
-              element={
-                <RoleGuard allowedRoles={['admin']}>
-                  <AdminPage />
-                </RoleGuard>
-              }
-            />
+              <Route
+                path="admin"
+                element={
+                  <RoleGuard allowedRoles={['admin']}>
+                    <AdminPage />
+                  </RoleGuard>
+                }
+              />
 
-            {/* Default redirect to overview */}
-            <Route path="" element={<Navigate to="overview" replace />} />
+              {/* Default redirect to overview */}
+              <Route path="" element={<Navigate to="overview" replace />} />
 
-            {/* Catch all route for unauthorized access */}
-            <Route path="*" element={
-              <div className="access-denied">
-                <h2>Page Not Found</h2>
-                <p>The page you're looking for doesn't exist or you don't have access to it.</p>
-              </div>
-            } />
-          </Routes>
+              {/* Catch all route for unauthorized access */}
+              <Route path="*" element={
+                <div className="access-denied">
+                  <h2>Page Not Found</h2>
+                  <p>The page you're looking for doesn't exist or you don't have access to it.</p>
+                </div>
+              } />
+            </Routes>
+          </ContentLoader>
         </div>
 
         <DashboardFooter />

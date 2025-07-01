@@ -202,8 +202,8 @@ const NavBarComponent = () => {
       return (
         <div className="auth-buttons">
           <Button
-            variant="secondary"
-            size="medium"
+            variant="primary"
+            size="small"
             href="/login"
             enableNavigationLoading={false}
           >

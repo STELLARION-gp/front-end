@@ -1,7 +1,20 @@
 import React, { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { getAllGalaxyColors } from '../../utils/galaxyColors';
+
+// Galaxy colors - defined locally to avoid module resolution issues
+const GALAXY_COLORS = [
+  '#FF61F6', // Bright Pink
+  '#7B4BFF', // Bright Purple
+  '#00E5FF', // Bright Cyan
+  '#5DF9FF', // Bright Aqua
+  '#FFD500', // Bright Gold
+  '#FF7D00', // Bright Orange
+  '#FF0070', // Hot Pink
+  '#01FEFE', // Electric Blue
+  '#01FF89', // Bright Green
+  '#FFFFFF', // Pure White (for stars)
+];
 
 const ParticleField: React.FC = () => {
   const mesh = useRef<THREE.Points>(null);
@@ -29,7 +42,7 @@ const ParticleField: React.FC = () => {
 
   const [positions, colors, sizes] = useMemo(() => {
     // Use our consistent galaxy color palette
-    const colorPalette = getAllGalaxyColors();
+    const colorPalette = GALAXY_COLORS.map(color => new THREE.Color(color));
 
     const positions = new Float32Array(PARTICLE_COUNT * 3);
     const colors = new Float32Array(PARTICLE_COUNT * 3);

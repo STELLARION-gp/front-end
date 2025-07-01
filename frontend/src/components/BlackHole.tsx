@@ -2,7 +2,13 @@ import React, { useRef, useMemo, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Sphere, Ring, OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
-import { ACCRETION_COLORS } from '../utils/galaxyColors';
+
+// Accretion disk colors - defined locally to avoid module resolution issues
+const ACCRETION_COLORS = {
+    INNER: '#FFFFFF',   // Inner disk color
+    MIDDLE: '#FF4000',  // Middle disk color
+    OUTER: '#FF1020',   // Outer disk color
+} as const;
 
 const AccretionDisk: React.FC = () => {
     const diskRef = useRef<THREE.Group>(null);

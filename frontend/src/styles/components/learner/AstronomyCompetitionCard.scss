@@ -1,0 +1,90 @@
+.competition-card {
+  background: #181f2a;
+//   border: 2px solid #2563eb;
+  border-radius: 14px;
+  width: 320px;
+  box-shadow: 0 2px 12px rgba(37, 99, 235, 0.08);
+
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+
+  &:hover {
+    transform: scale(1.035);
+    border-color: #3b82f6;
+    box-shadow: 0 6px 32px rgba(37, 99, 235, 0.18);
+  }
+}
+
+.competition-image-wrapper {
+  position: relative;
+  width: 100%;
+  height: 160px;
+  overflow: hidden;
+}
+
+.competition-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.5s cubic-bezier(0.4,0,0.2,1);
+  position: relative; // add this line
+  z-index: 1; 
+}
+
+.competition-card:hover .competition-image {
+  transform: scale(1.08);
+}
+
+.competition-date-badge {
+  position: absolute;
+  top: 8px;    // changed from -10px
+  left: 8px;   // changed from -10px
+  z-index: 10;
+  background: linear-gradient(90deg, #1e293b 0%, #2563eb 60%, #3b82f6 100%);
+  color: #fff;
+  padding: 4px 14px;
+  border-radius: 20px;
+  font-size: 0.98rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(37,99,235,0.12);
+}
+
+.competition-content {
+  padding: 1rem 1.2rem 1.2rem 1.2rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.competition-title {
+  font-size: 1.18rem;
+  font-weight: 700;
+  color: #60a5fa;
+  margin: 0.2rem 0 0.5rem 0;
+}
+
+.competition-desc {
+  color: #e5e7eb;
+  font-size: 1rem;
+  margin-bottom: 1.1rem;
+  flex: 1;
+}
+
+.competition-btn {
+  background: linear-gradient(90deg, #2563eb 0%, #1e40af 100%);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.55rem 1.2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  box-shadow: 0 2px 8px rgba(37,99,235,0.10);
+
+  &:hover {
+    background: linear-gradient(90deg, #1e40af 0%, #2563eb 100%);
+  }
+}

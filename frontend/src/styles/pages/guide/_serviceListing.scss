@@ -123,9 +123,10 @@
   .service-filters {
     margin-bottom: 2rem;
     
-    .filters-card {
+    .filters-container {
       background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 4px;
       -webkit-backdrop-filter: blur(10px);
       backdrop-filter: blur(10px);
       
@@ -134,7 +135,7 @@
         flex-wrap: wrap;
         gap: 1.5rem;
         align-items: center;
-        padding: 1.5rem;
+        padding: 1.2rem 2rem;
         
         .search-section {
           flex: 1;
@@ -417,7 +418,7 @@
         
         .service-footer {
           display: flex;
-          justify-content: space-between;
+          justify-content: center;
           align-items: center;
           padding-top: 1rem;
           border-top: 1px solid rgba(255, 255, 255, 0.1);
@@ -425,7 +426,7 @@
           .price-section {
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 1.5rem;
             
             .price {
               font-family: $font-orbitron;
@@ -436,7 +437,7 @@
             }
             
             .difficulty-badge {
-              padding: 0.3rem 0.8rem;
+              padding: 0.4rem 1rem;
               border-radius: 12px;
               font-size: 0.8rem;
               font-weight: 600;
@@ -462,12 +463,17 @@
               }
             }
           }
-          
-          .action-buttons {
-            display: flex;
-            gap: 0.5rem;
-          }
         }
+      }
+      
+      // Card Actions - buttons at bottom of card
+      .card-actions {
+        padding: 1rem 1.5rem;
+        background: rgba(255, 255, 255, 0.03);
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        gap: 0.75rem;
+        justify-content: center;
       }
     }
   }
@@ -534,7 +540,7 @@
     }
     
     .service-filters {
-      .filters-card {
+      .filters-container {
         .filters-content {
           flex-direction: column;
           align-items: stretch;
@@ -576,17 +582,16 @@
           }
           
           .service-footer {
-            flex-direction: column;
-            align-items: stretch;
-            gap: 1rem;
+            justify-content: center;
             
             .price-section {
-              justify-content: space-between;
-            }
-            
-            .action-buttons {
               justify-content: center;
             }
+          }
+          
+          .card-actions {
+            padding: 0.75rem 1rem;
+            justify-content: center;
           }
         }
       }

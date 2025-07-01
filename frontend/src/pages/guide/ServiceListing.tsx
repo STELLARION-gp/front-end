@@ -336,7 +336,7 @@ const ServiceListing: React.FC = () => {
 
       {/* Filters and Search */}
       <div className="service-filters">
-        <Card className="filters-card" variant="outlined">
+        <div className="filters-container">
           <div className="filters-content">
             {/* Search */}
             <div className="search-section">
@@ -397,7 +397,7 @@ const ServiceListing: React.FC = () => {
               </label>
             </div>
           </div>
-        </Card>
+        </div>
       </div>
 
       {/* Services Grid */}
@@ -467,15 +467,17 @@ const ServiceListing: React.FC = () => {
                     {service.difficulty}
                   </span>
                 </div>
-                <div className="action-buttons">
-                  <Button variant="secondary" size="small">
-                    Edit
-                  </Button>
-                  <Button variant="primary" size="small">
-                    View Details
-                  </Button>
-                </div>
               </div>
+            </div>
+
+            {/* Card Actions */}
+            <div className="card-actions">
+              <Button variant="secondary" size="small">
+                Edit
+              </Button>
+              <Button variant="primary" size="small">
+                View Details
+              </Button>
             </div>
           </Card>
         ))}

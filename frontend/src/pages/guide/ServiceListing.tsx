@@ -73,11 +73,11 @@ const CloseIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
   </svg>
 );
 
-const EditIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
-  <svg className={className} width="16" height="16" viewBox="0 0 20 20" fill="none">
-    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-);
+// const EditIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
+//   <svg className={className} width="16" height="16" viewBox="0 0 20 20" fill="none">
+//     <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+//   </svg>
+// );
 
 // Service interface
 interface Service {

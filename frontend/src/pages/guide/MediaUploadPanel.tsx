@@ -941,10 +941,10 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
 
   return showSidebar ? (
     <div className="dashboard-layout">
-      <Sidebar />
+      {/* <Sidebar />
       <div className="dashboard-content">
         {renderMediaContent()}
-      </div>
+      </div> */}
     </div>
   ) : (
     renderMediaContent()

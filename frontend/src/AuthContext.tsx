@@ -68,7 +68,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         uid: 'mock-user-123',
         email: 'john.doe@stellarion.com',
         displayName: 'John Doe',
-        role: 'learner', // 🎯 Change this to test different roles:
+        role: 'guide', // 🎯 Change this to test different roles:
         // 'admin' - Full access to everything including admin panel
         // 'moderator' - Access to moderation tools
         // 'mentor' - Access to mentoring features

@@ -4,7 +4,15 @@
         "about": "අපි ගැන",
         "contact": "අප අමතන්න",
         "profile": "පැතිකඩ",
-        "settings": "සැකසුම්"
+        "settings": "සැකසුම්",
+        "features": "විශේෂාංග",
+        "team": "කණ්ඩායම",
+        "explore": "ගවේෂණය කරන්න",
+        "adminPanel": "පරිපාලන මණ්ඩලය",
+        "goToHome": "මුල් පිටුවට යන්න",
+        "scrollToTop": "ඉහළට අනුචලනය කරන්න",
+        "currentLanguage": "වර්තමාන භාෂාව",
+        "currentTheme": "වර්තමාන තේමාව"
     },
     "welcome": "අපගේ වෙබ් අඩවියට පිළිගනිමු!",
     "hero": {

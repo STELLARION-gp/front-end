@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { flushSync } from 'react-dom';
 import Button from '../../components/Button';
-import Sidebar from '../../components/Sidebar';
+// import Sidebar from '../../components/Sidebar';
 import '../../styles/pages/guide/_mediaUploadPanel.scss';
 
 // Simple Upload Icon Component

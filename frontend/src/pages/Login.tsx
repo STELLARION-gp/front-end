@@ -36,7 +36,7 @@ const Login: React.FC = () => {
                     navigate(dashboardRoute);
                 } else {
                     console.log('⚠️ No userProfile or role, redirecting to default dashboard');
-                    navigate('/dashboard');
+                    navigate('/dashboard/overview');
                 }
 
             } catch (error: unknown) {

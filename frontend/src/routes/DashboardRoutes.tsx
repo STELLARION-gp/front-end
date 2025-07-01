@@ -5,6 +5,10 @@ import Profile from '../pages/Profile';
 import Settings from '../pages/Settings';
 import DashboardOverview from '../pages/DashboardOverview';
 import Button from '../components/Button';
+import NightCamps from '../pages/enthuasist/NightCamps';
+import Stargazing from '../pages/enthuasist/Stargazing';
+import MediaUploadPanel from '../pages/guide/MediaUploadPanel';
+import ServiceListing from '../pages/guide/ServiceListing';
 
 // Create placeholder components for different pages - all memoized
 const BlogsPage = memo(() => (
@@ -156,6 +160,42 @@ const DashboardRoutes = () => {
                 element={
                     <RoleGuard allowedRoles={['admin']}>
                         <AdminPage />
+                    </RoleGuard>
+                }
+            />
+
+            <Route
+                path="night-camps"
+                element={
+                    <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
+                        <NightCamps />
+                    </RoleGuard>
+                }
+            />
+
+            <Route
+                path="stargazing"
+                element={
+                    <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
+                        <Stargazing />
+                    </RoleGuard>
+                }
+            />
+
+            <Route
+                path="media"
+                element={
+                    <RoleGuard allowedRoles={['guide', 'moderator', 'admin']}>
+                        <MediaUploadPanel />
+                    </RoleGuard>
+                }
+            />
+
+            <Route
+                path="services"
+                element={
+                    <RoleGuard allowedRoles={['guide', 'moderator', 'admin']}>
+                        <ServiceListing />
                     </RoleGuard>
                 }
             />

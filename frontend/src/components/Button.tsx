@@ -1,5 +1,6 @@
 import React, { useRef, useCallback } from "react";
 import LoadingSpinner from "./LoadingSpinner";
+import { useNavigationLoading } from "../hooks/useNavigationLoading";
 
 interface ButtonProps {
   className?: string;
@@ -16,6 +17,8 @@ interface ButtonProps {
   icon?: React.ReactElement;
   iconPosition?: "left" | "right";
   fullWidth?: boolean;
+  enableNavigationLoading?: boolean;
+  navigationMessage?: string;
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -33,11 +36,26 @@ const Button: React.FC<ButtonProps> = ({
   icon,
   iconPosition = "left",
   fullWidth = false,
+  enableNavigationLoading = false,
+  navigationMessage = "Loading...",
 }) => {
   const buttonRef = useRef<HTMLButtonElement>(null);
   const linkRef = useRef<HTMLAnchorElement>(null);
   const circleRef = useRef<HTMLSpanElement>(null);
   const lastPositionRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+
+  // Only use navigation loading if enabled
+  const navigationLoading = useNavigationLoading({
+    loadingMessage: navigationMessage
+  });
+
+  const handleClick = useCallback(() => {
+    if (href && enableNavigationLoading) {
+      navigationLoading.navigateWithLoading(href);
+    } else if (onClick) {
+      onClick();
+    }
+  }, [href, enableNavigationLoading, navigationLoading, onClick]);
 
   const handleMouseEnter = useCallback((e: React.MouseEvent) => {
     if (disabled || loading || variant !== "primary") return;
@@ -136,7 +154,7 @@ const Button: React.FC<ButtonProps> = ({
     <button
       type={type}
       className={classes}
-      onClick={onClick}
+      onClick={handleClick}
       disabled={disabled || loading}
       onMouseEnter={handleMouseEnter}
       onMouseMove={handleMouseMove}
@@ -149,8 +167,9 @@ const Button: React.FC<ButtonProps> = ({
 
   const renderLink = () => (
     <a
-      href={href}
+      href={enableNavigationLoading ? undefined : href}
       className={classes}
+      onClick={enableNavigationLoading ? handleClick : undefined}
       onMouseEnter={handleMouseEnter}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}

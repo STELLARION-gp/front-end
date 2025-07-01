@@ -1,16 +1,15 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import ProtectedRoute from '../components/ProtectedRoute';
 import { RoleGuard } from '../components/RoleGuard';
 import Sidebar from '../components/Sidebar';
 import Profile from '../pages/Profile';
 import Settings from '../pages/Settings';
+import DashboardOverview from '../pages/DashboardOverview';
 import Button from '../components/Button';
 import '../styles/pages/Dashboard.scss';
 import Chatbot from '../components/Chatbot';
 import DashboardFooter from '../components/DashboardFooter';
-import Preview from './learner/Preview';
 
 // Create placeholder components for different pages
 const BlogsPage = () => (
@@ -115,34 +114,34 @@ const Dashboard: React.FC = () => {
       <main className="dashboard-content">
         <div className="routes-container">
           <Routes>
-            <Route path="overview" element={<Preview />} />
+            <Route path="overview" element={<DashboardOverview />} />
             <Route path="profile" element={<Profile />} />
             <Route path="settings" element={<Settings />} />
 
             <Route
               path="blogs"
               element={
-                <ProtectedRoute allowedRoles={['enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin']}>
+                <RoleGuard allowedRoles={['enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin']}>
                   <BlogsPage />
-                </ProtectedRoute>
+                </RoleGuard>
               }
             />
 
             <Route
               path="mentor"
               element={
-                <ProtectedRoute allowedRoles={['mentor', 'moderator', 'admin']}>
+                <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
                   <MentorPage />
-                </ProtectedRoute>
+                </RoleGuard>
               }
             />
 
             <Route
               path="events"
               element={
-                <ProtectedRoute allowedRoles={['guide', 'mentor', 'moderator', 'admin']}>
+                <RoleGuard allowedRoles={['guide', 'mentor', 'moderator', 'admin']}>
                   <EventsPage />
-                </ProtectedRoute>
+                </RoleGuard>
               }
             />
 
@@ -151,27 +150,27 @@ const Dashboard: React.FC = () => {
             <Route
               path="sessions"
               element={
-                <ProtectedRoute allowedRoles={['mentor', 'moderator', 'admin']}>
+                <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
                   <SessionsPage />
-                </ProtectedRoute>
+                </RoleGuard>
               }
             />
 
             <Route
               path="moderation"
               element={
-                <ProtectedRoute allowedRoles={['moderator', 'admin']}>
+                <RoleGuard allowedRoles={['moderator', 'admin']}>
                   <ModerationPage />
-                </ProtectedRoute>
+                </RoleGuard>
               }
             />
 
             <Route
               path="admin"
               element={
-                <ProtectedRoute allowedRoles={['admin']}>
+                <RoleGuard allowedRoles={['admin']}>
                   <AdminPage />
-                </ProtectedRoute>
+                </RoleGuard>
               }
             />
 

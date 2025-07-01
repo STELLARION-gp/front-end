@@ -1,0 +1,32 @@
+{
+    "navbar": {
+        "home": "Inicio",
+        "about": "Acerca de",
+        "contact": "Contacto",
+        "profile": "Perfil",
+        "settings": "Configuración",
+        "features": "Características",
+        "team": "Equipo",
+        "explore": "Explorar",
+        "adminPanel": "Panel de administración"
+    },
+    "welcome": "¡Bienvenido a nuestro sitio web!",
+    "hero": {
+        "title": "Explora el Universo. Enciende tu Curiosidad.",
+        "subtitle": "Explora el Universo. Enciende tu Curiosidad.",
+        "description": "Únete a Stellarion — tu puerta de entrada guiada a la exploración espacial, el aprendizaje y el descubrimiento. Desde actualizaciones espaciales hasta sesiones de aprendizaje inmersivas, el espacio está a solo un clic.",
+        "getStarted": "Comenzar",
+        "scrollToExplore": "Desplázate para explorar"
+    },
+    "auth": {
+        "signIn": "Iniciar sesión",
+        "signUp": "Registrarse",
+        "email": "Correo electrónico",
+        "password": "Contraseña",
+        "confirmPassword": "Confirmar contraseña",
+        "forgotPassword": "¿Olvidaste tu contraseña?",
+        "alreadyHaveAccount": "¿Ya tienes una cuenta?",
+        "dontHaveAccount": "¿No tienes una cuenta?",
+        "signOut": "Cerrar sesión"
+    }
+}

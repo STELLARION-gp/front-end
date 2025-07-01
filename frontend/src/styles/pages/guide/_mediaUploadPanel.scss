@@ -79,16 +79,20 @@
 
   .dashboard-content {
     flex: 1;
-    margin-left: 120px; // Sidebar width + padding
+    margin-left: 200px; // Increased margin for sidebar width + padding
     padding: $spacing-lg;
     overflow-y: auto; // Only vertical scroll for content
     overflow-x: hidden; // Prevent horizontal scroll
-    height: 100vh; // Full viewport height
+    height: calc(100vh - 100px); // Adjust height to account for top margin
     box-sizing: border-box; // Include padding in height calculation
+    margin-top: 100px;
+    padding-bottom: $spacing-2xl; // Extra bottom padding to ensure last row is visible
 
     @media (max-width: 768px) {
       margin-left: 0;
       padding: $spacing-md;
+      height: calc(100vh - 80px); // Smaller adjustment for mobile
+      margin-top: 80px;
     }
   }
 }
@@ -104,22 +108,22 @@
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
-  padding-bottom: $spacing-xl; // Add bottom padding for last row visibility
+  padding-bottom: $spacing-lg; // Reduced from $spacing-xl for more compact layout
   
   .media-upload-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: $spacing-xl;
-    gap: $spacing-lg;
+    margin-bottom: $spacing-lg; // Reduced from $spacing-xl
+    gap: $spacing-md; // Reduced from $spacing-lg
 
     .header-content {
       flex: 1;
 
       .panel-title {
-        font-size: $font-size-3xl;
+        font-size: $font-size-2xl; // Reduced from $font-size-3xl
         font-weight: 700;
-        margin: 0 0 $spacing-sm 0;
+        margin: 0 0 $spacing-xs 0; // Reduced from $spacing-sm
         background: $gradient-3;
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
@@ -127,10 +131,10 @@
       }
 
       .panel-subtitle {
-        font-size: $font-size-lg;
+        font-size: $font-size-base; // Reduced from $font-size-lg
         color: rgba($text-color, 0.8);
         margin: 0;
-        line-height: 1.5;
+        line-height: 1.4; // Reduced from 1.5
       }
     }
 
@@ -237,12 +241,12 @@
   .upload-area {
     border: 2px dashed rgba($accent-color, 0.3);
     border-radius: 12px;
-    padding: $spacing-xl;
+    padding: $spacing-lg; // Reduced from $spacing-xl
     text-align: center;
     cursor: pointer;
     transition: all 0.3s ease;
     background: rgba($secondary-color, 0.5);
-    margin-bottom: $spacing-xl;
+    margin-bottom: $spacing-lg; // Reduced from $spacing-xl
     position: relative;
 
     &:hover {
@@ -259,11 +263,11 @@
 
     .upload-content {
       .upload-icon {
-        margin-bottom: $spacing-md;
+        margin-bottom: $spacing-sm; // Reduced from $spacing-md
         
         .upload-svg-icon {
-          width: 48px;
-          height: 48px;
+          width: 36px; // Reduced from 48px
+          height: 36px; // Reduced from 48px
           color: $accent-color;
           opacity: 0.8;
           transition: all 0.3s ease;
@@ -271,16 +275,16 @@
       }
 
       h3 {
-        font-size: $font-size-xl;
+        font-size: $font-size-lg; // Reduced from $font-size-xl
         font-weight: 600;
-        margin: 0 0 $spacing-sm 0;
+        margin: 0 0 $spacing-xs 0; // Reduced from $spacing-sm
         color: $text-color;
       }
 
       p {
-        font-size: $font-size-base;
+        font-size: $font-size-sm; // Reduced from $font-size-base
         color: rgba($text-color, 0.7);
-        margin: 0 0 $spacing-md 0;
+        margin: 0 0 $spacing-sm 0; // Reduced from $spacing-md
       }
 
       .upload-info {
@@ -734,19 +738,19 @@
   .no-results,
   .empty-state {
     text-align: center;
-    padding: $spacing-xl;
+    padding: $spacing-lg; // Reduced from $spacing-xl
     color: rgba($text-color, 0.6);
-    margin-bottom: $spacing-2xl; // Add extra space under the empty state
+    margin-bottom: $spacing-xl; // Reduced from $spacing-2xl
 
     .empty-icon {
-      font-size: 4rem;
-      margin-bottom: $spacing-md;
+      font-size: 3rem; // Reduced from 4rem
+      margin-bottom: $spacing-sm; // Reduced from $spacing-md
     }
 
     h3 {
-      font-size: $font-size-xl;
+      font-size: $font-size-lg; // Reduced from $font-size-xl
       font-weight: 600;
-      margin: 0 0 $spacing-sm 0;
+      margin: 0 0 $spacing-xs 0; // Reduced from $spacing-sm
       color: $text-color;
     }
 
@@ -1149,32 +1153,10 @@
   }
 }
 
-// Responsive adjustments
-@media (max-width: 768px) {
-  .media-upload-panel {
-    padding: $spacing-md;
-
-    .media-upload-header {
-      .header-content .panel-title {
-        font-size: $font-size-2xl;
-      }
-    }
-
-    .upload-area {
-      padding: $spacing-lg;
-    }
-
-    .media-gallery.grid {
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: $spacing-md;
-    }
-  }
-}
-
-// Submit Section
+// Submit Section - Compact version
 .submit-section {
-  margin: $spacing-xl 0;
-  padding: $spacing-2xl; // Increased padding
+  margin: $spacing-lg 0; // Reduced from $spacing-xl
+  padding: $spacing-lg; // Reduced from $spacing-2xl
   background: rgba($text-light, 0.05);
   border: 2px solid rgba($accent-color, 0.3);
   border-radius: $border-radius-lg;
@@ -1184,12 +1166,12 @@
   backdrop-filter: blur(10px);
 
   .submit-info {
-    margin-bottom: $spacing-2xl; // Increased margin
+    margin-bottom: $spacing-lg; // Reduced from $spacing-2xl
 
     h3 {
-      font-size: $font-size-3xl; // Larger heading
+      font-size: $font-size-xl; // Reduced from $font-size-3xl
       font-weight: 700;
-      margin: 0 0 $spacing-lg 0; // Increased margin
+      margin: 0 0 $spacing-md 0; // Reduced from $spacing-lg
       background: $gradient-3;
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -1198,21 +1180,21 @@
 
     p {
       color: $text-color-secondary;
-      margin: 0 0 $spacing-md 0; // Increased margin
-      font-size: $font-size-lg;
-      line-height: 1.6;
+      margin: 0 0 $spacing-sm 0; // Reduced from $spacing-md
+      font-size: $font-size-base; // Reduced from $font-size-lg
+      line-height: 1.5; // Reduced from 1.6
     }
 
     .submit-warning {
       color: $color-warning;
-      font-size: $font-size-base; // Larger font
+      font-size: $font-size-sm; // Reduced from $font-size-base
       font-weight: 500;
-      padding: $spacing-lg $spacing-xl; // Increased padding
+      padding: $spacing-sm $spacing-md; // Reduced from $spacing-lg $spacing-xl
       background: rgba($color-warning, 0.1);
       border: 1px solid rgba($color-warning, 0.3);
       border-radius: $border-radius-md;
-      margin-top: $spacing-lg; // Increased margin
-      line-height: 1.5;
+      margin-top: $spacing-sm; // Reduced from $spacing-lg
+      line-height: 1.4; // Reduced from 1.5
     }
   }
 
@@ -1220,13 +1202,13 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: $spacing-lg;
+    gap: $spacing-md; // Reduced from $spacing-lg
 
     .success-message {
       color: $color-success;
       font-weight: 600;
-      font-size: $font-size-lg;
-      padding: $spacing-md $spacing-xl;
+      font-size: $font-size-base; // Reduced from $font-size-lg
+      padding: $spacing-sm $spacing-md; // Reduced from $spacing-md $spacing-xl
       background: rgba($color-success, 0.1);
       border: 1px solid rgba($color-success, 0.3);
       border-radius: $border-radius-md;
@@ -1243,6 +1225,40 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 1200px) {
+  .dashboard-layout .dashboard-content {
+    margin-left: 180px; // Slightly less margin for medium screens
+  }
+}
+
+@media (max-width: 968px) {
+  .dashboard-layout .dashboard-content {
+    margin-left: 160px; // Even less margin for smaller screens
+  }
+}
+
+@media (max-width: 768px) {
+  .media-upload-panel {
+    padding: $spacing-md;
+
+    .media-upload-header {
+      .header-content .panel-title {
+        font-size: $font-size-xl; // Even smaller on mobile
+      }
+    }
+
+    .upload-area {
+      padding: $spacing-md; // Smaller padding on mobile
+    }
+
+    .media-gallery.grid {
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); // Smaller cards
+      gap: $spacing-md;
+    }
   }
 }
 

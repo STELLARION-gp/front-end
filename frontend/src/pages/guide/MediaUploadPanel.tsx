@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { flushSync } from 'react-dom';
 import Button from '../../components/Button';
-import Sidebar from '../../components/Sidebar';
+// import Sidebar from '../../components/Sidebar';
 import '../../styles/pages/guide/_mediaUploadPanel.scss';
 
 // Simple Upload Icon Component
@@ -941,10 +941,10 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
 
   return showSidebar ? (
     <div className="dashboard-layout">
-      <Sidebar />
+      {/* <Sidebar />
       <div className="dashboard-content">
         {renderMediaContent()}
-      </div>
+      </div> */}
     </div>
   ) : (
     renderMediaContent()

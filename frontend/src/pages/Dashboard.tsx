@@ -11,6 +11,7 @@ import Chatbot from '../components/Chatbot';
 import Preview from './learner/Preview';
 import NightCamps from './enthuasist/NightCamps';
 import MediaUploadPanel from './guide/MediaUploadPanel';
+import ServiceListing from './guide/ServiceListing';
 import BlogExplore from './learner/Blog_Explore';
 
 // Create placeholder components for different pages
@@ -175,6 +176,15 @@ const Dashboard: React.FC = () => {
                     ]}
                   />
                 </div>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="services"
+            element={
+              <ProtectedRoute allowedRoles={['guide']}>
+                <ServiceListing />
               </ProtectedRoute>
             }
           />

@@ -2,7 +2,6 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import ProtectedRoute from '../components/ProtectedRoute';
-import { RoleGuard } from '../components/RoleGuard';
 import Sidebar from '../components/Sidebar';
 import Profile from '../pages/Profile';
 import Settings from '../pages/Settings';

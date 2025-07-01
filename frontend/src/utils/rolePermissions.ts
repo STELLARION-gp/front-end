@@ -43,6 +43,7 @@ export const PAGE_ACCESS_CONTROL = {
     '/dashboard/blogs': ['enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin'] as UserRole[],
     '/dashboard/mentor': ['mentor', 'moderator', 'admin'] as UserRole[],
     '/dashboard/events': ['guide', 'mentor', 'moderator', 'admin'] as UserRole[],
+    '/dashboard/services': ['guide'] as UserRole[],
     '/dashboard/chat': ['learner', 'enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin'] as UserRole[],
     '/dashboard/sessions': ['mentor', 'moderator', 'admin'] as UserRole[],
     '/dashboard/media': ['guide'] as UserRole[],
@@ -81,6 +82,7 @@ export const ROLE_BASED_MENU_ITEMS = {
     guide: [
         { label: 'Overview', icon: 'HomeIcon', href: '/dashboard/overview' },
         { label: 'Profile', icon: 'UserCircleIcon', href: '/dashboard/profile' },
+        { label: 'Services', icon: 'AcademicCapIcon', href: '/dashboard/services' },
         { label: 'Blogs', icon: 'BookOpenIcon', href: '/dashboard/blogs' },
         { label: 'Events', icon: 'CalendarDaysIcon', href: '/dashboard/events' },
         { label: 'Media Gallery', icon: 'PhotoIcon', href: '/dashboard/media' },

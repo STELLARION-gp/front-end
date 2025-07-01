@@ -116,7 +116,7 @@
     .css-spinner-inner {
         width: 100%;
         height: 100%;
-        border: 2px solid transparent;
+        border: 2px solid rgba(255, 255, 255, 0.2);
         border-top: 2px solid currentColor;
         border-radius: 50%;
         animation: spin 1s linear infinite;
@@ -231,7 +231,14 @@
 
 .loading-spinner--white {
     .css-spinner {
-        color: $text-light; // Using pure white variable
+        color: #ffffff; // Pure bright white
+
+        .css-spinner-inner {
+            border-top-color: #ffffff;
+            border-right-color: rgba(255, 255, 255, 0.3);
+            border-width: 3px; // Thicker border for better visibility
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3); // Subtle glow
+        }
     }
 }
 
@@ -246,8 +253,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 100vh;
-    background: $primary-color; // Using theme primary dark background
+    min-height: 200px; // Much smaller height for dashboard
+    background: transparent; // Remove prominent background
 
     .loading-spinner {
         .loading-message {

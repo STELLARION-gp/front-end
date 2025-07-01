@@ -7,7 +7,7 @@ const DashboardOverview: React.FC = () => {
     const { userProfile } = useAuth();
 
     if (!userProfile) {
-        return <div>Loading...</div>;
+        return null; // Simple, no loading needed here since ProtectedRoute handles it
     }
 
     const roleName = getRoleName(userProfile.role);

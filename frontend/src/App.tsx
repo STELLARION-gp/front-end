@@ -8,6 +8,7 @@ import NavBarComponent from './layouts/NavBarComponent';
 import PageTransitionWrapper from './components/PageTransitionWrapper';
 import LazyPageWrapper from './components/LazyPageWrapper';
 import Dashboard from './pages/Dashboard'; // Direct import, not lazy
+import NotFound from './pages/NotFound'; // Direct import, not lazy
 
 // Lazy load other pages for better performance
 const About = lazy(() => import('./pages/About'));
@@ -82,6 +83,9 @@ const App: React.FC = () => {
                       </ProtectedRoute>
                     }
                   />
+
+                  {/* 404 Not Found Route - Must be last, no lazy loading for immediate display */}
+                  <Route path="*" element={<NotFound />} />
                 </Routes>
               </PageTransitionWrapper>
             </main>

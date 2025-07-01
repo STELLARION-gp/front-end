@@ -4,7 +4,15 @@
         "about": "About",
         "contact": "Contact",
         "profile": "Profile",
-        "settings": "Settings"
+        "settings": "Settings",
+        "features": "Features",
+        "team": "Team",
+        "explore": "Explore",
+        "adminPanel": "Admin Panel",
+        "goToHome": "Go to Home",
+        "scrollToTop": "Scroll to top",
+        "currentLanguage": "Current language",
+        "currentTheme": "Current theme"
     },
     "welcome": "Welcome to our website!",
     "hero": {

@@ -360,3 +360,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     </AuthContext.Provider>
   );
 };
+
+// Export the UserRole type for use in other components
+export type { UserRole } from './types/auth';

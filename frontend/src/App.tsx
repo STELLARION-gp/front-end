@@ -1,6 +1,6 @@
 // App.tsx
 import React, { lazy } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './AuthContext';
 import { LoadingProvider } from './contexts/LoadingContext.tsx';
 import ProtectedRoute from './components/ProtectedRoute';

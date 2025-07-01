@@ -673,7 +673,6 @@ const ServiceListing: React.FC = () => {
                 handleCloseModals();
                 handleEditService(selectedService);
               }}>
-                <EditIcon />
                 Edit Service
               </Button>
             </div>

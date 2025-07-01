@@ -669,6 +669,7 @@
   z-index: 1000;
   padding: 1rem;
   animation: modalOverlayFadeIn 0.3s ease;
+  overflow: auto;
 }
 
 @keyframes modalOverlayFadeIn {
@@ -686,7 +687,8 @@
   border-radius: 20px;
   max-width: 90vw;
   max-height: 90vh;
-  overflow: hidden;
+  display: flex;
+  flex-direction: column;
   -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
   box-shadow: 
@@ -721,6 +723,7 @@
   padding: 1.5rem 2rem;
   border-bottom: 1px solid rgba(16, 140, 255, 0.2);
   background: linear-gradient(90deg, rgba(16, 140, 255, 0.1), rgba(232, 249, 255, 0.05));
+  flex-shrink: 0;
   
   h2 {
     font-family: $font-orbitron;
@@ -759,7 +762,8 @@
 .modal-content {
   padding: 2rem;
   overflow-y: auto;
-  max-height: calc(90vh - 140px);
+  flex: 1;
+  min-height: 0;
   
   // Custom scrollbar
   &::-webkit-scrollbar {
@@ -788,6 +792,12 @@
   padding: 1.5rem 2rem;
   border-top: 1px solid rgba(16, 140, 255, 0.2);
   background: linear-gradient(90deg, rgba(232, 249, 255, 0.05), rgba(16, 140, 255, 0.1));
+  flex-shrink: 0;
+  
+  button {
+    min-width: 120px;
+    white-space: nowrap;
+  }
 }
 
 // View Modal Specific Styles
@@ -1091,10 +1101,17 @@
 
 // Responsive Modal Styles
 @media (max-width: 768px) {
+  .modal-overlay {
+    padding: 0.5rem;
+    align-items: flex-start;
+    padding-top: 2rem;
+  }
+  
   .modal-container {
-    margin: 1rem;
-    max-width: calc(100vw - 2rem);
-    max-height: calc(100vh - 2rem);
+    margin: 0;
+    max-width: 100%;
+    max-height: calc(100vh - 1rem);
+    width: 100%;
     
     .modal-header {
       padding: 1rem 1.5rem;
@@ -1112,6 +1129,11 @@
       padding: 1rem 1.5rem;
       flex-direction: column;
       gap: 0.8rem;
+      
+      button {
+        width: 100%;
+        justify-content: center;
+      }
     }
   }
   
@@ -1146,6 +1168,11 @@
 }
 
 @media (max-width: 480px) {
+  .modal-overlay {
+    padding: 0.25rem;
+    padding-top: 1rem;
+  }
+  
   .service-image-large {
     height: 180px;
   }
@@ -1164,5 +1191,14 @@
   
   .modal-footer {
     padding: 1rem;
+    
+    button {
+      padding: 0.75rem 1.5rem;
+      font-size: 0.9rem;
+    }
+  }
+  
+  .modal-container {
+    max-height: calc(100vh - 0.5rem);
   }
 }

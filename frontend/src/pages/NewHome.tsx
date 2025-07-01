@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import Hero from '../components/Hero';
-import FullScreenLoader from '../components/FullScreenLoader';
+import LoadingSpinner from '../components/LoadingSpinner';
 import GalaxyHero from '../components/HeroComponents/GalaxyHero';
 import { useLoading } from '../hooks/useLoading';
 import { preloadHomeAssets } from '../utils/assetPreloader';
@@ -12,17 +12,6 @@ const NewHome = () => {
   const { isLoading, withLoading } = useLoading(true); // Start with loading true
   const [componentsLoaded, setComponentsLoaded] = useState(false);
 
-  // Option 1: Single smooth message (recommended for simplicity)
-  const singleMessage = "Welcome to STELLARION";
-
-  // Option 2: Multiple messages for engaging experience (uncomment to use)
-  // const loadingMessages = [
-  //   "Welcome to STELLARION",
-  //   "Initializing cosmic interface...",
-  //   "Loading stellar data...",
-  //   "Preparing your journey..."
-  // ];
-
   useEffect(() => {
     // Load homepage with asset preloading
     const loadHomepage = async () => {
@@ -30,11 +19,8 @@ const NewHome = () => {
         // Preload critical assets
         await preloadHomeAssets();
 
-        // Adjust timing based on message type:
-        // - Single message: shorter delay (2-3 seconds)
-        // - Multiple messages: longer delay to show transitions (8 seconds)
-        const delay = Array.isArray(singleMessage) ? 8000 : 2500;
-        await new Promise(resolve => setTimeout(resolve, delay));
+        // Shorter delay for better UX - just enough to load assets
+        await new Promise(resolve => setTimeout(resolve, 1000));
 
         setComponentsLoaded(true);
       });
@@ -45,14 +31,17 @@ const NewHome = () => {
 
   return (
     <>
-      {/* Full screen loader with single smooth message */}
-      <FullScreenLoader
-        isVisible={isLoading}
-        message={singleMessage} // Change to `loadingMessages` for cycling messages
-        opacity={0.9}
-        messageDuration={2000}
-        smoothTransitions={true}
-      />
+      {/* Simple loading spinner */}
+      {isLoading && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+          <LoadingSpinner
+            size="large"
+            variant="white"
+            useLottie={true}
+            centered={true}
+          />
+        </div>
+      )}
 
       {/* Main content - only render when loaded */}
       {componentsLoaded && (

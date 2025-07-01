@@ -5,9 +5,11 @@ nav,
     z-index: 200;
     display: flex;
     align-items: center;
-    transition: transform 0.4s cubic-bezier(.4, 0, .2, 1);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     position: fixed;
     height: 80px;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
 }
 
 .navbar-hidden {
@@ -20,18 +22,45 @@ nav,
     margin: 0 auto;
     display: grid;
     grid-template-columns: 300px 1fr 300px;
-    /* Fixed columns: left nav, logo area, right nav */
     align-items: center;
     padding: 1rem 2rem;
     position: relative;
-    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: center;
 }
 
 .navbar-compact .navbar-inner {
     display: flex;
-    /* Switch back to flex for compact mode */
     justify-content: space-between;
-    padding: 0 2rem;
+    padding: 0.5rem 2rem;
+    transform: scale(0.95);
+    animation: compactModeEnter 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes compactModeEnter {
+    0% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(0.95);
+        opacity: 1;
+    }
+}
+
+@keyframes normalModeEnter {
+    0% {
+        transform: scale(0.95);
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.navbar:not(.navbar-compact) .navbar-inner {
+    animation: normalModeEnter 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 .navbar-section-compact {
@@ -40,17 +69,17 @@ nav,
     gap: 1.5rem;
     flex: 1;
     justify-content: center;
-    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     padding: 0 0.5rem;
     opacity: 0;
     visibility: hidden;
-    transform: translateY(-15px);
+    transform: translateY(-15px) scale(0.9);
 }
 
 .navbar-compact .navbar-section-compact {
     opacity: 1;
     visibility: visible;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
 }
 
 @keyframes fadeInDown {
@@ -69,32 +98,40 @@ nav,
     display: flex;
     align-items: center;
     gap: 1.5rem;
-    /* Adjusted for better spacing with new layout */
-    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     opacity: 1;
-    transform: translateX(0);
-    animation: fadeInUp 0.6s ease-out;
+    transform: translateX(0) scale(1);
     padding: 0 0.5rem;
-    /* Add padding for better visual separation */
 }
 
 .navbar-section.left-section {
     position: relative;
     z-index: 5;
     width: 300px;
-    /* Fixed width */
     display: flex;
     justify-content: space-evenly;
-    /* Evenly distribute nav items */
-    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     opacity: 1;
-    transform: translateX(0);
+    transform: translateX(0) scale(1);
 }
 
 .navbar-compact .navbar-section.left-section {
     opacity: 0;
     visibility: hidden;
-    transform: translateX(-30px);
+    transform: translateX(-30px) scale(0.8);
+    pointer-events: none;
+}
+
+.navbar-section.right-section {
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 1;
+    transform: translateX(0) scale(1);
+}
+
+.navbar-compact .navbar-section.right-section {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(30px) scale(0.8);
     pointer-events: none;
 }
 
@@ -123,29 +160,50 @@ nav,
 
 .navbar-logo {
     grid-column: 2;
-    /* Place in the middle grid column */
     justify-self: center;
-    /* Center within the grid column */
-    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 10;
+    transform: scale(1) translateX(0);
+    opacity: 1;
 }
 
 .navbar-compact .navbar-logo {
     position: relative;
     left: 0;
-    transform: translateX(0);
+    transform: scale(0.9) translateX(-20px);
     margin-right: 0;
     flex-shrink: 0;
     grid-column: unset;
-    /* Remove grid positioning in compact mode */
     justify-self: unset;
-    /* Remove grid positioning in compact mode */
+    animation: logoCompactEnter 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes logoCompactEnter {
+    0% {
+        transform: scale(1) translateX(0);
+    }
+    100% {
+        transform: scale(0.9) translateX(-20px);
+    }
+}
+
+@keyframes logoNormalEnter {
+    0% {
+        transform: scale(0.9) translateX(-20px);
+    }
+    100% {
+        transform: scale(1) translateX(0);
+    }
+}
+
+.navbar:not(.navbar-compact) .navbar-logo {
+    animation: logoNormalEnter 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 .logo-left {
     position: relative !important;
     left: 0 !important;
-    transform: translateX(0) !important;
+    transform: scale(0.9) translateX(-20px) !important;
     margin-right: 0 !important;
 }
 
@@ -153,11 +211,17 @@ nav,
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     flex-shrink: 0;
     opacity: 0;
     visibility: hidden;
-    transform: translateX(30px);
+    transform: translateX(30px) scale(0.9);
+}
+
+.navbar-compact .auth-section-compact {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0) scale(1);
 }
 
 .navbar-compact .auth-section-compact {

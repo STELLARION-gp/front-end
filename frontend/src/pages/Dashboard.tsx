@@ -12,6 +12,7 @@ import Chatbot from '../components/Chatbot';
 import Preview from './learner/Preview';
 import NightCamps from './enthuasist/NightCamps';
 import MediaUploadPanel from './guide/MediaUploadPanel';
+import Stargazing from './enthuasist/Stargazing';
 
 // Create placeholder components for different pages
 const BlogsPage = () => (
@@ -205,8 +206,17 @@ const Dashboard: React.FC = () => {
           <Route
           path="night-camps"
           element={
-            <ProtectedRoute allowedRoles={['enthusiast','admin']}>
+            <ProtectedRoute allowedRoles={['enthusiast', 'influencer', 'learner', 'moderator', 'admin', 'guide']}>
               <NightCamps />
+            </ProtectedRoute>
+          }
+          />
+
+          <Route
+          path="stargazing"
+          element={
+            <ProtectedRoute allowedRoles={['enthusiast', 'influencer', 'guide', 'admin']}>
+              <Stargazing />
             </ProtectedRoute>
           }
           />

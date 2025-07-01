@@ -6,7 +6,7 @@ import DateIcon from '../../assets/svg/DateIcon'
 import TimeIcon from '../../assets/svg/TimeIcon'
 import LocationIcon from '../../assets/svg/LocationIcon'
 import ParticipantsIcon from '../../assets/svg/ParticipantsIcon'
-import '../../styles/pages/NightCamps.scss'
+import '../../styles/pages/enthusiast/NightCamps.scss'
 
 type ActiveSection = 'upcoming' | 'organizing' | 'registered' | 'volunteers'
 
@@ -48,115 +48,346 @@ const NightCamps = () => {
   ];
   const [activeSection, setActiveSection] = useState<ActiveSection>('upcoming')
   const [editingRole, setEditingRole] = useState<{campId: number, role: string} | null>(null);
+  const [showJoinModal, setShowJoinModal] = useState(false);
+  const [selectedCamp, setSelectedCamp] = useState<typeof camps[0] | null>(null);
+  const [showFilters, setShowFilters] = useState(false);
+  const [filters, setFilters] = useState({
+    location: '',
+    dateFrom: '',
+    dateTo: ''
+  });
+  const [joinForm, setJoinForm] = useState({
+    name: '',
+    experience: '',
+    preferredRole: '',
+    motivation: ''
+  });
+
+  const handleJoinOrganizing = (camp: typeof camps[0]) => {
+    setSelectedCamp(camp);
+    setShowJoinModal(true);
+  };
+
+  const handleCloseJoinModal = () => {
+    setShowJoinModal(false);
+    setSelectedCamp(null);
+    setJoinForm({
+      name: '',
+      experience: '',
+      preferredRole: '',
+      motivation: ''
+    });
+  };
+
+  const handleJoinFormChange = (field: string, value: string) => {
+    setJoinForm(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleSubmitJoinForm = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (joinForm.name && joinForm.preferredRole) {
+      // In a real app, this would be sent to a backend
+      console.log('Submitting organizing committee application:', {
+        camp: selectedCamp?.title,
+        ...joinForm
+      });
+      
+      // Show success message
+      alert('Your application to join the organizing committee has been submitted successfully!');
+      handleCloseJoinModal();
+    }
+  };
+
+  const handleFilterChange = (field: string, value: string | boolean) => {
+    setFilters(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleClearFilters = () => {
+    setFilters({
+      location: '',
+      dateFrom: '',
+      dateTo: ''
+    });
+  };
+
+  const filterCamps = (campsToFilter: typeof camps) => {
+    return campsToFilter.filter(camp => {
+      // Location filter
+      if (filters.location && !camp.location.toLowerCase().includes(filters.location.toLowerCase())) {
+        return false;
+      }
+
+      // Date range filter
+      if (filters.dateFrom) {
+        const campDate = new Date(camp.date);
+        const fromDate = new Date(filters.dateFrom);
+        if (campDate < fromDate) return false;
+      }
+
+      if (filters.dateTo) {
+        const campDate = new Date(camp.date);
+        const toDate = new Date(filters.dateTo);
+        if (campDate > toDate) return false;
+      }
+
+      return true;
+    });
+  };
 
   const renderContent = () => {
     switch (activeSection) {
 case 'upcoming': {
-  
+  const filteredCamps = filterCamps(camps);
 
   return (
     <div className="upcoming-camps">
-      <h2 className="upcoming-camps__title">Upcoming Camps</h2>
-      <div className="card-grid card-grid--small">
-        {camps.map((camp, index) => (
-          <Card 
-            key={index}
-            variant="elevated"
-            hover={true}
-            className="card-animate"
+      <div className="upcoming-camps__header">
+        <h2 className="upcoming-camps__title">Upcoming Camps</h2>
+        <div className="upcoming-camps__actions">
+          <Button 
+            variant="ghost" 
+            onClick={() => setShowFilters(!showFilters)}
+            className="filter-toggle-btn"
           >
-            <CardTitle>{camp.title}</CardTitle>
-            <CardSubtitle>{camp.description}</CardSubtitle>
-            <CardContent>
-              <div className="camp-info">
-                <div className="camp-info__item">
-                  <DateIcon className="camp-info__icon" size={16} />
-                  <span className="camp-info__text">{camp.date}</span>
-                </div>
-                <div className="camp-info__item">
-                  <TimeIcon className="camp-info__icon" size={16} />
-                  <span className="camp-info__text">{camp.time}</span>
-                </div>
-                <div className="camp-info__item">
-                  <LocationIcon className="camp-info__icon" size={16} />
-                  <span className="camp-info__text">{camp.location}</span>
-                </div>
-                <div className="camp-info__item">
-                  <ParticipantsIcon className="camp-info__icon" size={16} />
-                  <span className="camp-info__text">{camp.maxParticipants} max</span>
-                </div>
-              </div>
-              <div className="camp-participation">
-                <ProgressBar 
-                  current={camp.participants}
-                  max={camp.maxParticipants}
-                  label="Registered Participants"
-                  className="progress-bar--small"
+            {showFilters ? 'Hide Filters' : 'Show Filters'} ({filteredCamps.length})
+          </Button>
+        </div>
+      </div>
+
+      {/* Filters Section */}
+      {showFilters && (
+        <div className="filters">
+          <div className="filters__content">
+            <div className="filters__row">
+              <div className="filters__group">
+                <label htmlFor="locationFilter">Location</label>
+                <input
+                  type="text"
+                  id="locationFilter"
+                  value={filters.location}
+                  onChange={(e) => handleFilterChange('location', e.target.value)}
+                  placeholder="Search by location..."
                 />
               </div>
-            </CardContent>
-            <CardActions>
-              <Button variant="primary">
-                Register Now
-              </Button>
-            </CardActions>
-          </Card>
-        ))}
+              <div className="filters__group">
+                <label htmlFor="dateFromFilter">From Date</label>
+                <input
+                  type="date"
+                  id="dateFromFilter"
+                  value={filters.dateFrom}
+                  onChange={(e) => handleFilterChange('dateFrom', e.target.value)}
+                />
+              </div>
+              <div className="filters__group">
+                <label htmlFor="dateToFilter">To Date</label>
+                <input
+                  type="date"
+                  id="dateToFilter"
+                  value={filters.dateTo}
+                  onChange={(e) => handleFilterChange('dateTo', e.target.value)}
+                />
+              </div>
+              <div className="filters__actions">
+                <Button 
+                  variant="ghost" 
+                  size="small"
+                  onClick={handleClearFilters}
+                >
+                  Clear All
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="card-grid card-grid--small">
+        {filteredCamps.length > 0 ? (
+          filteredCamps.map((camp, index) => (
+            <Card 
+              key={index}
+              variant="elevated"
+              hover={true}
+              className="card-animate"
+            >
+              <CardTitle>{camp.title}</CardTitle>
+              <CardSubtitle>{camp.description}</CardSubtitle>
+              <CardContent>
+                <div className="camp-info">
+                  <div className="camp-info__item">
+                    <DateIcon className="camp-info__icon" size={16} />
+                    <span className="camp-info__text">{camp.date}</span>
+                  </div>
+                  <div className="camp-info__item">
+                    <TimeIcon className="camp-info__icon" size={16} />
+                    <span className="camp-info__text">{camp.time}</span>
+                  </div>
+                  <div className="camp-info__item">
+                    <LocationIcon className="camp-info__icon" size={16} />
+                    <span className="camp-info__text">{camp.location}</span>
+                  </div>
+                  <div className="camp-info__item">
+                    <ParticipantsIcon className="camp-info__icon" size={16} />
+                    <span className="camp-info__text">{camp.maxParticipants} max</span>
+                  </div>
+                </div>
+                <div className="camp-participation">
+                  <ProgressBar 
+                    current={camp.participants}
+                    max={camp.maxParticipants}
+                    label="Registered Participants"
+                    className="progress-bar--small"
+                  />
+                </div>
+              </CardContent>
+              <CardActions>
+                <Button variant="primary">
+                  Register Now
+                </Button>
+              </CardActions>
+            </Card>
+          ))
+        ) : (
+          <div className="no-results">
+            <p>No camps found matching your filters.</p>
+            <Button variant="ghost" onClick={handleClearFilters}>
+              Clear Filters
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   )
 }
       case 'organizing':{
+        const filteredCamps = filterCamps(camps);
          
         return (
           <div className="volunteer-camps">
-            <h2 className="volunteer-camps__title">Join Organizing Committee</h2>
-            <div className="card-grid card-grid--medium">
-        {camps.map((camps, index) => (
-          <Card 
-            key={index}
-            variant="elevated"
-            hover={true}
-            className="card-animate"
-          >
-            <CardTitle>{camps.title}</CardTitle>
-            <CardSubtitle>{camps.description}</CardSubtitle>
-            <CardContent>
-              <div className="camp-info">
-                <div className="camp-info__item">
-                  <DateIcon className="camp-info__icon" size={16} />
-                  <span className="camp-info__text">{camps.date}</span>
-                </div>
-                <div className="camp-info__item">
-                  <TimeIcon className="camp-info__icon" size={16} />
-                  <span className="camp-info__text">{camps.time}</span>
-                </div>
-                <div className="camp-info__item">
-                  <LocationIcon className="camp-info__icon" size={16} />
-                  <span className="camp-info__text">{camps.location}</span>
-                </div>
-                <div className="camp-info__item">
-                  <ParticipantsIcon className="camp-info__icon" size={16} />
-                  <span className="camp-info__text">{camps.maxParticipants} participants</span>
-                </div>
-                <div className="camp-info__item">
-                  <div className="camp-info__roles-header">Volunteering Roles</div>
-                  <ul className="camp-info__roles">
-                    {camps.rolls.map((role, roleIndex) => (
-                      <li key={roleIndex}>{role}</li>
-                    ))}
-                  </ul>
+            <div className="volunteer-camps__header">
+              <h2 className="volunteer-camps__title">Join Organizing Committee</h2>
+              <div className="volunteer-camps__actions">
+                <Button 
+                  variant="ghost" 
+                  onClick={() => setShowFilters(!showFilters)}
+                  className="filter-toggle-btn"
+                >
+                  {showFilters ? 'Hide Filters' : 'Show Filters'} ({filteredCamps.length})
+                </Button>
+              </div>
+            </div>
+
+            {/* Filters Section */}
+            {showFilters && (
+              <div className="filters">
+                <div className="filters__content">
+                  <div className="filters__row">
+                    <div className="filters__group">
+                      <label htmlFor="locationFilter">Location</label>
+                      <input
+                        type="text"
+                        id="locationFilter"
+                        value={filters.location}
+                        onChange={(e) => handleFilterChange('location', e.target.value)}
+                        placeholder="Search by location..."
+                      />
+                    </div>
+                    <div className="filters__group">
+                      <label htmlFor="dateFromFilter">From Date</label>
+                      <input
+                        type="date"
+                        id="dateFromFilter"
+                        value={filters.dateFrom}
+                        onChange={(e) => handleFilterChange('dateFrom', e.target.value)}
+                      />
+                    </div>
+                    <div className="filters__group">
+                      <label htmlFor="dateToFilter">To Date</label>
+                      <input
+                        type="date"
+                        id="dateToFilter"
+                        value={filters.dateTo}
+                        onChange={(e) => handleFilterChange('dateTo', e.target.value)}
+                      />
+                    </div>
+                    <div className="filters__actions">
+                      <Button 
+                        variant="ghost" 
+                        size="small"
+                        onClick={handleClearFilters}
+                      >
+                        Clear All
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </CardContent>
-            <CardActions>
-              <Button variant="primary">
-                Register Now
-              </Button>
-            </CardActions>
-          </Card>
-        ))}
-      </div>
+            )}
+
+            <div className="card-grid card-grid--medium">
+              {filteredCamps.length > 0 ? (
+                filteredCamps.map((camps, index) => (
+                  <Card 
+                    key={index}
+                    variant="elevated"
+                    hover={true}
+                    className="card-animate"
+                  >
+                    <CardTitle>{camps.title}</CardTitle>
+                    <CardSubtitle>{camps.description}</CardSubtitle>
+                    <CardContent>
+                      <div className="camp-info">
+                        <div className="camp-info__item">
+                          <DateIcon className="camp-info__icon" size={16} />
+                          <span className="camp-info__text">{camps.date}</span>
+                        </div>
+                        <div className="camp-info__item">
+                          <TimeIcon className="camp-info__icon" size={16} />
+                          <span className="camp-info__text">{camps.time}</span>
+                        </div>
+                        <div className="camp-info__item">
+                          <LocationIcon className="camp-info__icon" size={16} />
+                          <span className="camp-info__text">{camps.location}</span>
+                        </div>
+                        <div className="camp-info__item">
+                          <ParticipantsIcon className="camp-info__icon" size={16} />
+                          <span className="camp-info__text">{camps.maxParticipants} participants</span>
+                        </div>
+                        <div className="camp-info__item">
+                          <div className="camp-info__roles-header">Volunteering Roles</div>
+                          <ul className="camp-info__roles">
+                            {camps.rolls.map((role, roleIndex) => (
+                              <li key={roleIndex}>{role}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    </CardContent>
+                    <CardActions>
+                      <Button 
+                        variant="primary"
+                        onClick={() => handleJoinOrganizing(camps)}
+                      >
+                        Join Committee
+                      </Button>
+                    </CardActions>
+                  </Card>
+                ))
+              ) : (
+                <div className="no-results">
+                  <p>No camps found matching your filters.</p>
+                  <Button variant="ghost" onClick={handleClearFilters}>
+                    Clear Filters
+                  </Button>
+                </div>
+              )}
+            </div>
           </div>
         )}
       case 'registered': {
@@ -307,8 +538,6 @@ case 'upcoming': {
         return (
           <div className="volunteer-camps-table">
             <h2 className="volunteer-camps-table__title">My Volunteering</h2>
-            <p className="volunteer-camps-table__subtitle">Manage your volunteer registrations and roles</p>
-            
             <div className="volunteer-camps-table__table-container">
               <table className="volunteer-camps-table__table">
                 <thead>
@@ -462,6 +691,98 @@ case 'upcoming': {
           {renderContent()}
         </div>
       </div>
+
+      {/* Join Organizing Committee Modal */}
+      {showJoinModal && selectedCamp && (
+        <div className="join-modal" onClick={handleCloseJoinModal}>
+          <div className="join-modal__content" onClick={(e) => e.stopPropagation()}>
+            <div className="join-modal__header">
+              <h2 className="join-modal__title">Join Organizing Committee</h2>
+              <button className="join-modal__close" onClick={handleCloseJoinModal}>
+                &times;
+              </button>
+            </div>
+            
+            <div className="join-modal__camp-info">
+              <h3>{selectedCamp.title}</h3>
+              <div className="join-modal__camp-details">
+                <span><DateIcon size={16} />{selectedCamp.date}</span>
+                <span><TimeIcon size={16} />{selectedCamp.time}</span>
+                <span><LocationIcon size={16} />{selectedCamp.location}</span>
+              </div>
+            </div>
+
+            <form onSubmit={handleSubmitJoinForm} className="join-modal__form">
+              <div className="join-modal__form-row">
+                <div className="join-modal__form-group">
+                  <label htmlFor="name">Full Name *</label>
+                  <input
+                    type="text"
+                    id="name"
+                    value={joinForm.name}
+                    onChange={(e) => handleJoinFormChange('name', e.target.value)}
+                    placeholder="Enter your full name"
+                    required
+                  />
+                </div>
+                <div className="join-modal__form-group">
+                  <label htmlFor="preferredRole">Preferred Role *</label>
+                  <select
+                    id="preferredRole"
+                    value={joinForm.preferredRole}
+                    onChange={(e) => handleJoinFormChange('preferredRole', e.target.value)}
+                    required
+                  >
+                    <option value="">Select a role</option>
+                    {selectedCamp.rolls.map((role, index) => (
+                      <option key={index} value={role}>{role}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="join-modal__form-group join-modal__form-group--full">
+                <label htmlFor="experience">Relevant Experience</label>
+                <textarea
+                  id="experience"
+                  value={joinForm.experience}
+                  onChange={(e) => handleJoinFormChange('experience', e.target.value)}
+                  placeholder="Describe any relevant experience you have..."
+                  rows={3}
+                />
+              </div>
+
+              <div className="join-modal__form-group join-modal__form-group--full">
+                <label htmlFor="motivation">Why do you want to join? *</label>
+                <textarea
+                  id="motivation"
+                  value={joinForm.motivation}
+                  onChange={(e) => handleJoinFormChange('motivation', e.target.value)}
+                  placeholder="Tell us why you want to join the organizing committee..."
+                  rows={4}
+                  required
+                />
+              </div>
+
+              <div className="join-modal__form-actions">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={handleCloseJoinModal}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  variant="primary"
+                >
+                  Submit Application
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

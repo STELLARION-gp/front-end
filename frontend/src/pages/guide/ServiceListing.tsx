@@ -67,6 +67,18 @@ const PlusIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
   </svg>
 );
 
+const CloseIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
+  <svg className={className} width="20" height="20" viewBox="0 0 20 20" fill="none">
+    <path d="M15 5L5 15M5 5l10 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+const EditIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
+  <svg className={className} width="16" height="16" viewBox="0 0 20 20" fill="none">
+    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
 // Service interface
 interface Service {
   id: string;
@@ -211,10 +223,17 @@ const ServiceListing: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'rating' | 'price' | 'date' | 'popularity'>('rating');
   const [showFeaturedOnly, setShowFeaturedOnly] = useState(false);
+  const [services, setServices] = useState<Service[]>(dummyServices);
+  
+  // Modal states
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [editForm, setEditForm] = useState<Service | null>(null);
 
   // Filter and sort services
   const filteredServices = useMemo(() => {
-    const filtered = dummyServices.filter(service => {
+    const filtered = services.filter(service => {
       const matchesSearch = service.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           service.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           service.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -242,7 +261,43 @@ const ServiceListing: React.FC = () => {
     });
 
     return filtered;
-  }, [searchTerm, selectedCategory, sortBy, showFeaturedOnly]);
+  }, [searchTerm, selectedCategory, sortBy, showFeaturedOnly, services]);
+
+  // Modal handlers
+  const handleViewService = (service: Service) => {
+    setSelectedService(service);
+    setIsViewModalOpen(true);
+  };
+
+  const handleEditService = (service: Service) => {
+    setSelectedService(service);
+    setEditForm({ ...service });
+    setIsEditModalOpen(true);
+  };
+
+  const handleCloseModals = () => {
+    setIsViewModalOpen(false);
+    setIsEditModalOpen(false);
+    setSelectedService(null);
+    setEditForm(null);
+  };
+
+  const handleSaveEdit = () => {
+    if (editForm) {
+      setServices(prevServices => 
+        prevServices.map(service => 
+          service.id === editForm.id ? editForm : service
+        )
+      );
+      handleCloseModals();
+    }
+  };
+
+  const handleEditFormChange = (field: keyof Service, value: string | number | boolean | string[]) => {
+    if (editForm) {
+      setEditForm(prev => prev ? { ...prev, [field]: value } : null);
+    }
+  };
 
   const categories = [
     { value: 'all', label: 'All Services' },
@@ -472,10 +527,18 @@ const ServiceListing: React.FC = () => {
 
             {/* Card Actions */}
             <div className="card-actions">
-              <Button variant="secondary" size="small">
+              <Button 
+                variant="secondary" 
+                size="small"
+                onClick={() => handleEditService(service)}
+              >
                 Edit
               </Button>
-              <Button variant="primary" size="small">
+              <Button 
+                variant="primary" 
+                size="small"
+                onClick={() => handleViewService(service)}
+              >
                 View Details
               </Button>
             </div>
@@ -493,6 +556,325 @@ const ServiceListing: React.FC = () => {
             <Button variant="primary" size="medium">
               Create Your First Service
             </Button>
+          </div>
+        </div>
+      )}
+
+      {/* View Service Modal */}
+      {isViewModalOpen && selectedService && (
+        <div className="modal-overlay" onClick={handleCloseModals}>
+          <div className="modal-container view-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Service Details</h2>
+              <button className="modal-close" onClick={handleCloseModals} title="Close modal">
+                <CloseIcon />
+              </button>
+            </div>
+            
+            <div className="modal-content">
+              <div className="service-image-large">
+                <img src={selectedService.image} alt={selectedService.title} />
+                {selectedService.featured && (
+                  <div className="featured-badge">
+                    <StarIcon className="featured-star" filled />
+                    <span>Featured Service</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="service-info">
+                <div className="service-title-rating">
+                  <h3>{selectedService.title}</h3>
+                  <div className="rating-section">
+                    <div className="stars">
+                      {renderStars(selectedService.rating)}
+                    </div>
+                    <span className="rating-text">
+                      {selectedService.rating} ({selectedService.totalReviews} reviews)
+                    </span>
+                  </div>
+                </div>
+
+                <p className="service-description-full">{selectedService.description}</p>
+
+                <div className="service-details-grid">
+                  <div className="detail-group">
+                    <h4>Pricing & Duration</h4>
+                    <div className="detail-item">
+                      <span className="label">Price:</span>
+                      <span className="value">${selectedService.price}</span>
+                    </div>
+                    <div className="detail-item">
+                      <span className="label">Duration:</span>
+                      <span className="value">{selectedService.duration}</span>
+                    </div>
+                  </div>
+
+                  <div className="detail-group">
+                    <h4>Availability</h4>
+                    <div className="detail-item">
+                      <span className="label">Next Available:</span>
+                      <span className="value">{new Date(selectedService.nextAvailable).toLocaleDateString()}</span>
+                    </div>
+                    <div className="detail-item">
+                      <span className="label">Bookings:</span>
+                      <span className="value">{selectedService.currentBookings}/{selectedService.maxParticipants} spots</span>
+                    </div>
+                  </div>
+
+                  <div className="detail-group">
+                    <h4>Service Info</h4>
+                    <div className="detail-item">
+                      <span className="label">Category:</span>
+                      <span className="value">{selectedService.category}</span>
+                    </div>
+                    <div className="detail-item">
+                      <span className="label">Difficulty:</span>
+                      <span className={`difficulty-badge-modal ${selectedService.difficulty.toLowerCase()}`}>
+                        {selectedService.difficulty}
+                      </span>
+                    </div>
+                    <div className="detail-item">
+                      <span className="label">Location:</span>
+                      <span className="value">{selectedService.location}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="equipment-section">
+                  <h4>Equipment Provided</h4>
+                  <div className="equipment-list">
+                    {selectedService.equipment.map((item, index) => (
+                      <span key={index} className="equipment-item">
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="tags-section">
+                  <h4>Tags</h4>
+                  <div className="tags-list">
+                    {selectedService.tags.map((tag, index) => (
+                      <span key={index} className="tag-modal">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="modal-footer">
+              <Button variant="secondary" onClick={handleCloseModals}>
+                Close
+              </Button>
+              <Button variant="primary" onClick={() => {
+                handleCloseModals();
+                handleEditService(selectedService);
+              }}>
+                <EditIcon />
+                Edit Service
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Service Modal */}
+      {isEditModalOpen && editForm && (
+        <div className="modal-overlay" onClick={handleCloseModals}>
+          <div className="modal-container edit-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Edit Service</h2>
+              <button className="modal-close" onClick={handleCloseModals} title="Close modal">
+                <CloseIcon />
+              </button>
+            </div>
+            
+            <div className="modal-content">
+              <form className="edit-form" onSubmit={(e) => { e.preventDefault(); handleSaveEdit(); }}>
+                <div className="form-grid">
+                  <div className="form-group">
+                    <label htmlFor="title">Service Title</label>
+                    <input
+                      id="title"
+                      type="text"
+                      value={editForm.title}
+                      onChange={(e) => handleEditFormChange('title', e.target.value)}
+                      className="form-input"
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="category">Category</label>
+                    <select
+                      id="category"
+                      value={editForm.category}
+                      onChange={(e) => handleEditFormChange('category', e.target.value)}
+                      className="form-select"
+                      required
+                    >
+                      <option value="stargazing">Stargazing</option>
+                      <option value="astrophotography">Astrophotography</option>
+                      <option value="telescope">Telescope</option>
+                      <option value="planetarium">Planetarium</option>
+                      <option value="workshop">Workshop</option>
+                      <option value="expedition">Expedition</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="price">Price ($)</label>
+                    <input
+                      id="price"
+                      type="number"
+                      value={editForm.price}
+                      onChange={(e) => handleEditFormChange('price', parseFloat(e.target.value))}
+                      className="form-input"
+                      min="0"
+                      step="0.01"
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="duration">Duration</label>
+                    <input
+                      id="duration"
+                      type="text"
+                      value={editForm.duration}
+                      onChange={(e) => handleEditFormChange('duration', e.target.value)}
+                      className="form-input"
+                      placeholder="e.g., 3 hours, 2 days"
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="maxParticipants">Max Participants</label>
+                    <input
+                      id="maxParticipants"
+                      type="number"
+                      value={editForm.maxParticipants}
+                      onChange={(e) => handleEditFormChange('maxParticipants', parseInt(e.target.value))}
+                      className="form-input"
+                      min="1"
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="difficulty">Difficulty Level</label>
+                    <select
+                      id="difficulty"
+                      value={editForm.difficulty}
+                      onChange={(e) => handleEditFormChange('difficulty', e.target.value)}
+                      className="form-select"
+                      required
+                    >
+                      <option value="Beginner">Beginner</option>
+                      <option value="Intermediate">Intermediate</option>
+                      <option value="Advanced">Advanced</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group full-width">
+                    <label htmlFor="location">Location</label>
+                    <input
+                      id="location"
+                      type="text"
+                      value={editForm.location}
+                      onChange={(e) => handleEditFormChange('location', e.target.value)}
+                      className="form-input"
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group full-width">
+                    <label htmlFor="description">Description</label>
+                    <textarea
+                      id="description"
+                      value={editForm.description}
+                      onChange={(e) => handleEditFormChange('description', e.target.value)}
+                      className="form-textarea"
+                      rows={4}
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="nextAvailable">Next Available Date</label>
+                    <input
+                      id="nextAvailable"
+                      type="date"
+                      value={editForm.nextAvailable}
+                      onChange={(e) => handleEditFormChange('nextAvailable', e.target.value)}
+                      className="form-input"
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="image">Image URL</label>
+                    <input
+                      id="image"
+                      type="url"
+                      value={editForm.image}
+                      onChange={(e) => handleEditFormChange('image', e.target.value)}
+                      className="form-input"
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group full-width">
+                    <label htmlFor="equipment">Equipment (comma-separated)</label>
+                    <input
+                      id="equipment"
+                      type="text"
+                      value={editForm.equipment.join(', ')}
+                      onChange={(e) => handleEditFormChange('equipment', e.target.value.split(',').map(item => item.trim()))}
+                      className="form-input"
+                      placeholder="Professional Telescope, Star Charts, Red Light Flashlight"
+                    />
+                  </div>
+
+                  <div className="form-group full-width">
+                    <label htmlFor="tags">Tags (comma-separated)</label>
+                    <input
+                      id="tags"
+                      type="text"
+                      value={editForm.tags.join(', ')}
+                      onChange={(e) => handleEditFormChange('tags', e.target.value.split(',').map(item => item.trim()))}
+                      className="form-input"
+                      placeholder="Deep Space, Galaxies, Nebulae"
+                    />
+                  </div>
+
+                  <div className="form-group checkbox-group">
+                    <label className="checkbox-label">
+                      <input
+                        type="checkbox"
+                        checked={editForm.featured}
+                        onChange={(e) => handleEditFormChange('featured', e.target.checked)}
+                        className="form-checkbox"
+                      />
+                      <span className="checkbox-text">Featured Service</span>
+                    </label>
+                  </div>
+                </div>
+              </form>
+            </div>
+
+            <div className="modal-footer">
+              <Button variant="secondary" onClick={handleCloseModals}>
+                Cancel
+              </Button>
+              <Button variant="primary" onClick={handleSaveEdit}>
+                Save Changes
+              </Button>
+            </div>
           </div>
         </div>
       )}

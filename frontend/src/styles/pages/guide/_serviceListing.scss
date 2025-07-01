@@ -474,6 +474,7 @@
         display: flex;
         gap: 0.75rem;
         justify-content: center;
+        border-radius: 10px;
       }
     }
   }
@@ -649,3 +650,519 @@
 .service-card:nth-child(4) { animation-delay: 0.4s; }
 .service-card:nth-child(5) { animation-delay: 0.5s; }
 .service-card:nth-child(6) { animation-delay: 0.6s; }
+
+// Modal Styles
+// ============
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+  animation: modalOverlayFadeIn 0.3s ease;
+}
+
+@keyframes modalOverlayFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal-container {
+  background: linear-gradient(135deg, rgba(20, 30, 48, 0.95), rgba(13, 21, 32, 0.95));
+  border: 1px solid rgba(16, 140, 255, 0.3);
+  border-radius: 20px;
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow: hidden;
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  box-shadow: 
+    0 25px 50px rgba(0, 0, 0, 0.5),
+    0 0 60px rgba(16, 140, 255, 0.2);
+  animation: modalSlideIn 0.4s ease;
+  
+  &.view-modal {
+    max-width: 800px;
+  }
+  
+  &.edit-modal {
+    max-width: 900px;
+  }
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid rgba(16, 140, 255, 0.2);
+  background: linear-gradient(90deg, rgba(16, 140, 255, 0.1), rgba(232, 249, 255, 0.05));
+  
+  h2 {
+    font-family: $font-orbitron;
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: $theme5;
+    margin: 0;
+    text-shadow: 0 0 10px rgba(232, 249, 255, 0.3);
+  }
+  
+  .modal-close {
+    background: none;
+    border: none;
+    color: $theme4;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: $theme5;
+      transform: scale(1.1);
+    }
+    
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+  }
+}
+
+.modal-content {
+  padding: 2rem;
+  overflow-y: auto;
+  max-height: calc(90vh - 140px);
+  
+  // Custom scrollbar
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: rgba(16, 140, 255, 0.5);
+    border-radius: 4px;
+    
+    &:hover {
+      background: rgba(16, 140, 255, 0.7);
+    }
+  }
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding: 1.5rem 2rem;
+  border-top: 1px solid rgba(16, 140, 255, 0.2);
+  background: linear-gradient(90deg, rgba(232, 249, 255, 0.05), rgba(16, 140, 255, 0.1));
+}
+
+// View Modal Specific Styles
+.service-image-large {
+  position: relative;
+  width: 100%;
+  height: 250px;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 2rem;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .featured-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: linear-gradient(135deg, #ffd700, #ffed4e);
+    color: #000;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    
+    .featured-star {
+      color: #000;
+    }
+  }
+}
+
+.service-info {
+  .service-title-rating {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+    
+    h3 {
+      font-family: $font-orbitron;
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: $theme5;
+      margin: 0;
+      flex: 1;
+      min-width: 250px;
+    }
+    
+    .rating-section {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.5rem;
+      
+      .stars {
+        display: flex;
+        gap: 2px;
+        
+        .star-icon {
+          color: #ffd700;
+          width: 18px;
+          height: 18px;
+        }
+      }
+      
+      .rating-text {
+        font-size: 0.9rem;
+        color: $theme4;
+        white-space: nowrap;
+      }
+    }
+  }
+  
+  .service-description-full {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: $theme4;
+    margin-bottom: 2rem;
+  }
+  
+  .service-details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-bottom: 2rem;
+    
+    .detail-group {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 1.5rem;
+      
+      h4 {
+        font-family: $font-orbitron;
+        font-size: 1.1rem;
+        color: $theme3;
+        margin: 0 0 1rem 0;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      
+      .detail-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.8rem;
+        
+        &:last-child {
+          margin-bottom: 0;
+        }
+        
+        .label {
+          font-weight: 500;
+          color: $theme4;
+        }
+        
+        .value {
+          font-weight: 600;
+          color: $theme5;
+        }
+      }
+    }
+  }
+  
+  .difficulty-badge-modal {
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    
+    &.beginner {
+      background: linear-gradient(135deg, #10b981, #34d399);
+      color: #000;
+    }
+    
+    &.intermediate {
+      background: linear-gradient(135deg, #f59e0b, #fbbf24);
+      color: #000;
+    }
+    
+    &.advanced {
+      background: linear-gradient(135deg, #ef4444, #f87171);
+      color: #fff;
+    }
+  }
+  
+  .equipment-section, .tags-section {
+    margin-bottom: 2rem;
+    
+    h4 {
+      font-family: $font-orbitron;
+      font-size: 1.1rem;
+      color: $theme3;
+      margin: 0 0 1rem 0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  }
+  
+  .equipment-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    
+    .equipment-item {
+      background: rgba(16, 140, 255, 0.2);
+      border: 1px solid rgba(16, 140, 255, 0.4);
+      color: $theme5;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+  }
+  
+  .tags-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    
+    .tag-modal {
+      background: linear-gradient(135deg, rgba(232, 249, 255, 0.2), rgba(16, 140, 255, 0.2));
+      border: 1px solid rgba(232, 249, 255, 0.3);
+      color: $theme5;
+      padding: 0.4rem 0.8rem;
+      border-radius: 15px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+  }
+}
+
+// Edit Modal Specific Styles
+.edit-form {
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      
+      &.full-width {
+        grid-column: 1 / -1;
+      }
+      
+      &.checkbox-group {
+        flex-direction: row;
+        align-items: center;
+        gap: 1rem;
+      }
+      
+      label {
+        font-weight: 600;
+        color: $theme5;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        
+        &.checkbox-label {
+          display: flex;
+          align-items: center;
+          gap: 0.8rem;
+          margin: 0;
+          text-transform: none;
+          font-weight: 500;
+          cursor: pointer;
+        }
+      }
+      
+      .form-input, .form-select {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        padding: 0.8rem 1rem;
+        color: $theme5;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        
+        &:focus {
+          outline: none;
+          border-color: rgba(16, 140, 255, 0.6);
+          box-shadow: 0 0 0 3px rgba(16, 140, 255, 0.2);
+          background: rgba(255, 255, 255, 0.12);
+        }
+        
+        &::placeholder {
+          color: rgba(255, 255, 255, 0.5);
+        }
+      }
+      
+      .form-textarea {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        padding: 0.8rem 1rem;
+        color: $theme5;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        resize: vertical;
+        min-height: 100px;
+        font-family: inherit;
+        
+        &:focus {
+          outline: none;
+          border-color: rgba(16, 140, 255, 0.6);
+          box-shadow: 0 0 0 3px rgba(16, 140, 255, 0.2);
+          background: rgba(255, 255, 255, 0.12);
+        }
+        
+        &::placeholder {
+          color: rgba(255, 255, 255, 0.5);
+        }
+      }
+      
+      .form-checkbox {
+        width: 18px;
+        height: 18px;
+        accent-color: $theme3;
+        cursor: pointer;
+      }
+      
+      .checkbox-text {
+        font-size: 0.95rem;
+        color: $theme4;
+      }
+    }
+  }
+}
+
+// Responsive Modal Styles
+@media (max-width: 768px) {
+  .modal-container {
+    margin: 1rem;
+    max-width: calc(100vw - 2rem);
+    max-height: calc(100vh - 2rem);
+    
+    .modal-header {
+      padding: 1rem 1.5rem;
+      
+      h2 {
+        font-size: 1.5rem;
+      }
+    }
+    
+    .modal-content {
+      padding: 1.5rem;
+    }
+    
+    .modal-footer {
+      padding: 1rem 1.5rem;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+  }
+  
+  .service-info {
+    .service-title-rating {
+      flex-direction: column;
+      align-items: flex-start;
+      
+      h3 {
+        font-size: 1.5rem;
+        min-width: auto;
+      }
+      
+      .rating-section {
+        align-items: flex-start;
+      }
+    }
+    
+    .service-details-grid {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+  }
+  
+  .edit-form .form-grid {
+    grid-template-columns: 1fr;
+    
+    .form-group.checkbox-group {
+      flex-direction: row;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .service-image-large {
+    height: 180px;
+  }
+  
+  .modal-header {
+    padding: 1rem;
+    
+    h2 {
+      font-size: 1.3rem;
+    }
+  }
+  
+  .modal-content {
+    padding: 1rem;
+  }
+  
+  .modal-footer {
+    padding: 1rem;
+  }
+}

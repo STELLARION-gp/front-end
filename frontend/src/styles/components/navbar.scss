@@ -350,6 +350,10 @@ nav,
         font-size: 14px;
         color: rgba(255, 255, 255, 0.9);
         border: 2px solid rgba(255, 255, 255, 0.2);
+
+        &.hidden {
+            display: none;
+        }
     }
 
     .profile-dropdown {

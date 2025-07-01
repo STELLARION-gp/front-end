@@ -6,13 +6,7 @@ import Button from '../components/Button';
 import { useAuth } from '../hooks/useAuth';
 import { RoleGuard } from '../components/RoleGuard';
 import { supportedLanguages } from '../i18n';
-import {
-  ComputerDesktopIcon
-} from '@heroicons/react/24/outline';
-import {
-  SunIcon as SunIconSolid,
-  MoonIcon as MoonIconSolid
-} from '@heroicons/react/24/solid';
+
 import './../styles/components/navbar.scss';
 
 const NavBarComponent = () => {
@@ -90,10 +84,6 @@ const NavBarComponent = () => {
     }
   };
 
-  const handleAuthClick = () => {
-    // Handle auth navigation here
-  };
-
   const handleLanguageToggle = () => {
     const currentIndex = supportedLanguages.findIndex(lang => lang.code === currentLanguage.code);
     const nextIndex = (currentIndex + 1) % supportedLanguages.length;
@@ -157,26 +147,37 @@ const NavBarComponent = () => {
   };
 
   const renderAuthContent = (forCompactMode = false) => {
-    if (user && userProfile) {
-      // Authenticated user - show profile or logout
+    if (user) {
+      // User is logged in - show profile picture or placeholder
+      const avatarUrl = user.photoURL || userProfile?.profileData?.avatar;
+      const displayName = user.displayName || userProfile?.displayName || user.email || 'User';
+      
       return (
-        <div className="profile-section" onClick={handleAuthClick}>
-          {userProfile.profileData?.avatar ? (
+        <div className="profile-section">
+          {avatarUrl ? (
             <img
-              src={userProfile.profileData.avatar}
+              src={avatarUrl}
               alt="Profile"
               className="profile-avatar"
+              onError={(e) => {
+                // Hide the image and show placeholder if image fails to load
+                const target = e.target as HTMLImageElement;
+                target.style.display = 'none';
+                const placeholder = target.nextElementSibling as HTMLElement;
+                if (placeholder) {
+                  placeholder.classList.remove('hidden');
+                }
+              }}
             />
-          ) : (
-            <div className="profile-placeholder">
-              {userProfile.displayName.charAt(0).toUpperCase()}
-            </div>
-          )}
+          ) : null}
+          <div className={`profile-placeholder ${avatarUrl ? 'hidden' : ''}`}>
+            {displayName.charAt(0).toUpperCase()}
+          </div>
           {!forCompactMode && (
             <div className="profile-dropdown">
               <div className="profile-info">
-                <p className="profile-name">{userProfile.displayName}</p>
-                <p className="profile-role">{userProfile.role}</p>
+                <p className="profile-name">{displayName}</p>
+                <p className="profile-role">{userProfile?.role || 'User'}</p>
               </div>
               <div className="profile-actions">
                 <a href="/profile" className="dropdown-link">{t('navbar.profile')}</a>
@@ -270,11 +271,11 @@ const NavBarComponent = () => {
           </div>
         )}
 
-        {/* Auth Section - Shown in compact mode only if user has profile */}
+        {/* Auth Section - Shown in compact mode only if user is logged in */}
         {isCompactMode && (
           <div className="auth-section-compact">
             {renderUtilityButtons(true)}
-            {user && userProfile && renderAuthContent(true)}
+            {user && renderAuthContent(true)}
           </div>
         )}
       </div>

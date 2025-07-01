@@ -1,0 +1,103 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/galaxy-colors' as *;
+@use '../abstracts/mixins' as *;
+
+// Utility classes for galaxy-themed components
+
+// Galaxy text classes
+.galaxy-text-gradient {
+    @include galaxy-text-gradient;
+}
+
+.galaxy-text-gradient-vertical {
+    @include galaxy-text-gradient(180deg);
+}
+
+// Text color classes for each galaxy color
+.text-galaxy-pink {
+    color: $galaxy-pink;
+}
+
+.text-galaxy-purple {
+    color: $galaxy-purple;
+}
+
+.text-galaxy-cyan {
+    color: $galaxy-cyan;
+}
+
+.text-galaxy-aqua {
+    color: $galaxy-aqua;
+}
+
+.text-galaxy-gold {
+    color: $galaxy-gold;
+}
+
+.text-galaxy-orange {
+    color: $galaxy-orange;
+}
+
+.text-galaxy-hot-pink {
+    color: $galaxy-hot-pink;
+}
+
+.text-galaxy-electric-blue {
+    color: $galaxy-electric-blue;
+}
+
+.text-galaxy-green {
+    color: $galaxy-green;
+}
+
+// Background classes
+.bg-galaxy-gradient-1 {
+    background: $galaxy-gradient-1;
+}
+
+.bg-galaxy-gradient-2 {
+    background: $galaxy-gradient-2;
+}
+
+.bg-galaxy-gradient-3 {
+    background: $galaxy-gradient-3;
+}
+
+.bg-space {
+    @include space-background;
+}
+
+// Interactive elements
+.btn-galaxy {
+    @include galaxy-button;
+}
+
+// Glow effects
+.glow-pink {
+    @include cosmic-glow($galaxy-pink);
+}
+
+.glow-cyan {
+    @include cosmic-glow($galaxy-cyan);
+}
+
+.glow-purple {
+    @include cosmic-glow($galaxy-purple);
+}
+
+// Animations
+.galaxy-pulse {
+    animation: galaxy-pulse 2s infinite alternate;
+}
+
+@keyframes galaxy-pulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1.05);
+        opacity: 0.8;
+    }
+}

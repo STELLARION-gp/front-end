@@ -1,7 +1,8 @@
-import React, { useRef, useCallback, memo } from 'react';
+import React, { useRef, useCallback, memo, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { getMenuItemsForRole } from '../utils/rolePermissions';
+import LogoutModal from './LogoutModal';
 import '../styles/components/_sidebar.scss';
 import {
   HomeIcon,
@@ -15,6 +16,7 @@ import {
   UsersIcon,
   ShieldCheckIcon,
   KeyIcon,
+  ArrowRightOnRectangleIcon,
 } from '@heroicons/react/24/outline';
 
 // Define interfaces for menu items
@@ -49,6 +51,7 @@ const Sidebar: React.FC = () => {
   const navigate = useNavigate();
   const { userProfile, logout } = useAuth();
   const itemsRef = useRef<(HTMLLIElement | null)[]>([]);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
   // Determine if a menu item is active
   const isActive = useCallback((path: string): boolean => location.pathname.startsWith(path), [location.pathname]);
@@ -71,9 +74,28 @@ const Sidebar: React.FC = () => {
     }
   }, [logout, navigate]);
 
+  const handleLogoutClick = useCallback(() => {
+    setIsLogoutModalOpen(true);
+  }, []);
+
+  const handleLogoutConfirm = useCallback(() => {
+    setIsLogoutModalOpen(false);
+    handleLogout();
+  }, [handleLogout]);
+
+  const handleLogoutCancel = useCallback(() => {
+    setIsLogoutModalOpen(false);
+  }, []);
+
   // Handle navigation without page reload
   const handleNavigation = useCallback((e: React.MouseEvent<HTMLAnchorElement>, path: string) => {
     e.preventDefault();
+
+    // Handle logout specifically
+    if (path === '/logout') {
+      handleLogoutClick();
+      return;
+    }
 
     // Only trigger navigation if we're not already on that path
     if (!isActive(path)) {
@@ -84,7 +106,7 @@ const Sidebar: React.FC = () => {
     } else {
       console.log("Already on path:", path, "- skipping navigation");
     }
-  }, [navigate, isActive]);
+  }, [navigate, isActive, handleLogoutClick]);
 
   // Get menu items based on user role
   const menuItems: ProcessedMenuItem[] = userProfile
@@ -98,6 +120,7 @@ const Sidebar: React.FC = () => {
 
   const LinkItems: ProcessedMenuItem[] = [
     { label: 'Help', icon: <QuestionMarkCircleIcon className="icon" />, href: '/help' },
+    { label: 'Logout', icon: <ArrowRightOnRectangleIcon className="icon" />, href: '/logout' },
   ];
 
   if (!userProfile) {
@@ -105,64 +128,59 @@ const Sidebar: React.FC = () => {
   }
 
   return (
-    <div className="sidebar">
-      <div className="center sidebar-main">
-        <ul className="sidebar-menu">
-          {menuItems.map((item: ProcessedMenuItem, i: number) => (
-            <li
-              key={i}
-              ref={(el) => { itemsRef.current[i] = el; }}
-              onMouseEnter={() => handleMouseEnter(i)}
-              onMouseLeave={handleMouseLeave}
-              className={isActive(item.href) ? 'active' : ''}
-            >
-              <Link
-                to={item.href}
-                onClick={(e) => handleNavigation(e, item.href)}
+    <>
+      <div className="sidebar">
+        <div className="center sidebar-main">
+          <ul className="sidebar-menu">
+            {menuItems.map((item: ProcessedMenuItem, i: number) => (
+              <li
+                key={i}
+                ref={(el) => { itemsRef.current[i] = el; }}
+                onMouseEnter={() => handleMouseEnter(i)}
+                onMouseLeave={handleMouseLeave}
+                className={isActive(item.href) ? 'active' : ''}
               >
-                <MemoizedIcon icon={item.icon} />
-                <span className="label">{item.label}</span>
-              </Link>
-            </li>
-          ))}
-        </ul>
+                <Link
+                  to={item.href}
+                  onClick={(e) => handleNavigation(e, item.href)}
+                >
+                  <MemoizedIcon icon={item.icon} />
+                  <span className="label">{item.label}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="bottom">
+          <ul className="sidebar-menu">
+            {LinkItems.map((item: ProcessedMenuItem, i: number) => (
+              <li
+                key={i + menuItems.length}
+                ref={(el) => { itemsRef.current[i + menuItems.length] = el; }}
+                onMouseEnter={() => handleMouseEnter(i + menuItems.length)}
+                onMouseLeave={handleMouseLeave}
+                className={`${isActive(item.href) ? 'active' : ''} ${item.label === 'Logout' ? 'logout-item' : ''}`}
+              >
+                <Link
+                  to={item.href}
+                  onClick={(e) => handleNavigation(e, item.href)}
+                >
+                  <MemoizedIcon icon={item.icon} />
+                  <span className="label">{item.label}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
 
-      <div className="bottom">
-        <ul className="sidebar-menu">
-          {LinkItems.map((item: ProcessedMenuItem, i: number) => (
-            <li
-              key={i + menuItems.length}
-              ref={(el) => { itemsRef.current[i + menuItems.length] = el; }}
-              onMouseEnter={() => handleMouseEnter(i + menuItems.length)}
-              onMouseLeave={handleMouseLeave}
-              className={isActive(item.href) ? 'active' : ''}
-            >
-              <Link
-                to={item.href}
-                onClick={(e) => handleNavigation(e, item.href)}
-              >
-                <MemoizedIcon icon={item.icon} />
-                <span className="label">{item.label}</span>
-              </Link>
-            </li>
-          ))}
-
-          {/* Logout Button */}
-          <li
-            ref={(el) => { itemsRef.current[menuItems.length + LinkItems.length] = el; }}
-            onMouseEnter={() => handleMouseEnter(menuItems.length + LinkItems.length)}
-            onMouseLeave={handleMouseLeave}
-            className="logout-item"
-            onClick={handleLogout}
-          >
-            <div className="logout-link">
-              <span className="label">Logout</span>
-            </div>
-          </li>
-        </ul>
-      </div>
-    </div>
+      <LogoutModal
+        isOpen={isLogoutModalOpen}
+        onConfirm={handleLogoutConfirm}
+        onCancel={handleLogoutCancel}
+      />
+    </>
   );
 };
 

@@ -3,6 +3,9 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    position: relative;
+    z-index: 1000;
+    /* Ensure language switcher is above modal */
 
     .language-select {
         padding: 0.375rem 0.75rem;

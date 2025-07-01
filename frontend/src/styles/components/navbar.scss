@@ -30,7 +30,7 @@ nav,
 .navbar-compact .navbar-inner {
     display: flex;
     justify-content: space-between;
-    padding: 0.5rem 2rem;
+    padding: 1rem 0.2rem;
     transform: scale(0.95);
     animation: compactModeEnter 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }

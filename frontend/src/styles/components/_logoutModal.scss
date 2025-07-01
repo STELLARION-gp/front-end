@@ -1,0 +1,160 @@
+// Logout Modal Styles
+.logout-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 900;
+    /* Slightly lower z-index to allow language switcher to be accessible */
+    animation: fadeIn 0.2s ease-out;
+
+    /* Make sure pointer events work properly */
+    pointer-events: auto;
+}
+
+.logout-modal {
+    background: $dark-bg;
+    border: 1px solid $border-color;
+    border-radius: $radius-lg;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5),
+        0 10px 10px -5px rgba(0, 0, 0, 0.2);
+    max-width: 400px;
+    width: 90%;
+    max-height: 90vh;
+    overflow: hidden;
+    animation: slideUp 0.2s ease-out;
+    position: relative;
+    z-index: 950;
+    /* Higher than backdrop but still allows language switcher to work */
+
+    .logout-modal-header {
+        padding: 1.5rem 1.5rem 0 1.5rem;
+
+        .logout-modal-title {
+            font-family: $font-outfit;
+            font-size: $font-size-xl;
+            font-weight: 600;
+            color: $text-light;
+            margin: 0;
+            text-align: center;
+        }
+    }
+
+    .logout-modal-body {
+        padding: 1rem 1.5rem 1.5rem 1.5rem;
+
+        .logout-modal-message {
+            font-family: $font-outfit;
+            font-size: $font-size-base;
+            color: $text-color;
+            margin: 0;
+            text-align: center;
+            line-height: 1.5;
+        }
+    }
+
+    .logout-modal-footer {
+        padding: 0 1.5rem 1.5rem 1.5rem;
+        display: flex;
+        gap: 0.75rem;
+        justify-content: center;
+    }
+
+    .logout-modal-button {
+        font-family: $font-outfit;
+        padding: 0.75rem 2rem;
+        border-radius: $radius-md;
+        border: none;
+        font-size: $font-size-sm;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all $transition-medium;
+        min-width: 100px;
+
+        &--cancel {
+            background: transparent;
+            color: $text-color;
+            border: 1px solid $border-color;
+
+            &:hover {
+                background: rgba(255, 255, 255, 0.05);
+                border-color: $text-color;
+                color: $text-light;
+                transform: translateY(-1px);
+            }
+
+            &:active {
+                transform: translateY(0);
+            }
+        }
+
+        &--confirm {
+            background: $danger-color;
+            color: white;
+
+            &:hover {
+                background: $danger-color-dark;
+                transform: translateY(-1px);
+                box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+            }
+
+            &:active {
+                transform: translateY(0);
+                box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+            }
+        }
+    }
+}
+
+// Animations
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+// Responsive design
+@media (max-width: 480px) {
+    .logout-modal {
+        margin: 1rem;
+        width: calc(100% - 2rem);
+
+        .logout-modal-header,
+        .logout-modal-body,
+        .logout-modal-footer {
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+
+        .logout-modal-footer {
+            flex-direction: column;
+
+            .logout-modal-button {
+                width: 100%;
+            }
+        }
+    }
+}

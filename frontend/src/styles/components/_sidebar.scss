@@ -170,11 +170,21 @@
                 }
 
                 &:hover {
-                    color: #fca5a5;
+                    color: $danger-color-light;
+
+                    .icon {
+                        color: $danger-color-light;
+                    }
 
                     &::after {
-                        background-color: #ef4444;
+                        background-color: $danger-color;
                         height: 80%;
+                    }
+
+                    .label {
+                        opacity: 1;
+                        transform: translateX(0);
+                        margin-left: 5px;
                     }
                 }
             }

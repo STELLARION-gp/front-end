@@ -118,5 +118,11 @@
             "github": "Visit our GitHub",
             "linkedin": "Connect on LinkedIn"
         }
+    },
+    "logout": {
+        "title": "Confirm Logout",
+        "message": "Are you sure you want to logout?",
+        "confirmButton": "Logout",
+        "cancelButton": "Cancel"
     }
 }

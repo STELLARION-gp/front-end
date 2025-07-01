@@ -118,5 +118,11 @@
             "github": "අපගේ GitHub ගවේෂණය කරන්න",
             "linkedin": "LinkedIn හි සම්බන්ධ වන්න"
         }
+    },
+    "logout": {
+        "title": "ඉවත්වීම සනාථ කරන්න",
+        "message": "ඔබට නිසැකවම ඉවත්වීමට අවශ්‍යද?",
+        "confirmButton": "ඉවත්වන්න",
+        "cancelButton": "අවලංගු කරන්න"
     }
 }

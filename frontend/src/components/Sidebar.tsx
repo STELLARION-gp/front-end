@@ -17,6 +17,9 @@ import {
   ShieldCheckIcon,
   KeyIcon,
   ArrowRightOnRectangleIcon,
+  MoonIcon,
+  PhotoIcon,
+  StarIcon,
 } from '@heroicons/react/24/outline';
 
 // Define interfaces for menu items

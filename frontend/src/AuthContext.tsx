@@ -102,18 +102,46 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
 
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      console.log('🔄 Auth state changed:', { user: !!firebaseUser, email: firebaseUser?.email });
       setUser(firebaseUser);
 
       if (firebaseUser) {
         try {
           // Fetch user profile from backend
           const profile = await fetchUserProfileInEffect();
-          setUserProfile(profile);
+          if (profile) {
+            console.log('✅ User profile loaded:', { role: profile.role, email: profile.email });
+            setUserProfile(profile);
+          } else {
+            // Create a fallback profile if backend fails
+            console.log('⚠️ Backend profile failed, creating fallback profile');
+            const fallbackProfile: UserProfile = {
+              uid: firebaseUser.uid,
+              email: firebaseUser.email || '',
+              displayName: firebaseUser.displayName || 'User',
+              role: getDefaultRoleFromEmail(firebaseUser.email || ''),
+              isActive: true,
+              createdAt: new Date(),
+              lastLogin: new Date()
+            };
+            setUserProfile(fallbackProfile);
+          }
         } catch (error) {
           console.error('Error loading user profile:', error);
-          setUserProfile(null);
+          // Create a fallback profile on error
+          const fallbackProfile: UserProfile = {
+            uid: firebaseUser.uid,
+            email: firebaseUser.email || '',
+            displayName: firebaseUser.displayName || 'User',
+            role: getDefaultRoleFromEmail(firebaseUser.email || ''),
+            isActive: true,
+            createdAt: new Date(),
+            lastLogin: new Date()
+          };
+          setUserProfile(fallbackProfile);
         }
       } else {
+        console.log('❌ No user, clearing profile');
         setUserProfile(null);
       }
 

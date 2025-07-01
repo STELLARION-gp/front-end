@@ -31,10 +31,16 @@
             opacity: 1;
         }
 
-        // Fade-in animation for new content
+        // Fade-in animation for new content (exclude 404 page)
         .dashboard-page,
         .access-denied {
             animation: contentFadeIn 0.3s ease forwards;
+        }
+
+        // 404 page should not have animations
+        .dashboard-not-found {
+            animation: none !important;
+            transition: none !important;
         }
     }
 }
@@ -221,6 +227,48 @@
         color: #fca5a5;
         font-size: 1.125rem;
         opacity: 0.8;
+    }
+}
+
+// Dashboard specific not found page styles
+.dashboard-not-found {
+    text-align: center;
+    padding: 3rem 2rem;
+    background: rgba(139, 92, 246, 0.1);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    border-radius: 16px;
+    margin: 2rem 0;
+
+    h2 {
+        color: #c4b5fd;
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    p {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 1rem;
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+
+    .dashboard-not-found-actions {
+        .dashboard-back-link {
+            display: inline-block;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #8B5CF6, #EC4899);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+
+            &:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+            }
+        }
     }
 }
 

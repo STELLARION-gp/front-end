@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useDashboardLoading } from '../hooks/useDashboardLoading';
 import { RoleGuard } from '../components/RoleGuard';
@@ -183,9 +183,14 @@ const Dashboard: React.FC = () => {
 
               {/* Catch all route for unauthorized access */}
               <Route path="*" element={
-                <div className="access-denied">
-                  <h2>Page Not Found</h2>
-                  <p>The page you're looking for doesn't exist or you don't have access to it.</p>
+                <div className="dashboard-not-found">
+                  <h2>Dashboard Page Not Found</h2>
+                  <p>The dashboard page you're looking for doesn't exist or you don't have access to it.</p>
+                  <div className="dashboard-not-found-actions">
+                    <Link to="/dashboard/overview" className="dashboard-back-link">
+                      Go to Dashboard Overview
+                    </Link>
+                  </div>
                 </div>
               } />
             </Routes>

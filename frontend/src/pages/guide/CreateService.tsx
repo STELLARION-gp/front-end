@@ -539,7 +539,13 @@ const CreateService: React.FC = () => {
                                 {uploadedFiles.map((file) => (
                                   <div key={file.id} className="file-item">
                                     <div className="file-info">
-                                      <FileIcon className="file-icon" />
+                                      {file.preview ? (
+                                        <div className="file-thumbnail">
+                                          <img src={file.preview} alt={file.file.name} />
+                                        </div>
+                                      ) : (
+                                        <FileIcon className="file-icon" />
+                                      )}
                                       <div className="file-details">
                                         <div className="file-name">{file.file.name}</div>
                                         <div className="file-size">{(file.file.size / 1024 / 1024).toFixed(2)} MB</div>
@@ -558,12 +564,6 @@ const CreateService: React.FC = () => {
                                     </div>
                                   </div>
                                 ))}
-                              </div>
-                            )}
-                            
-                            {uploadedFiles.length > 0 && uploadedFiles[0].preview && (
-                              <div className="uploaded-preview">
-                                <img src={uploadedFiles[0].preview} alt="Service preview" />
                               </div>
                             )}
                           </div>

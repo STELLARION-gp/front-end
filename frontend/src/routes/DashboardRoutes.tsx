@@ -7,22 +7,21 @@ import DashboardOverview from '../pages/DashboardOverview';
 import Button from '../components/Button';
 import Preview from '../pages/learner/Preview';
 import BlogExplore from '../pages/learner/Blog_Explore';
-import BlogDetailedPage from '../pages/learner/Blog_Page';
 import BlogDetailedPageWrapper from '../pages/learner/BlogDetailedPageWrapper';
 
 // Create placeholder components for different pages - all memoized
-const BlogsPage = memo(() => (
-    <div className="dashboard-page">
-        <h2>Blogs & Content</h2>
-        <p>Create and manage your astronomy blog posts and articles.</p>
-        <RoleGuard allowedRoles={['influencer', 'mentor', 'moderator', 'admin']}>
-            <div className="advanced-features">
-                <h3>Advanced Features</h3>
-                <p>You have access to advanced blogging features.</p>
-            </div>
-        </RoleGuard>
-    </div>
-));
+// const BlogsPage = memo(() => (
+//     <div className="dashboard-page">
+//         <h2>Blogs & Content</h2>
+//         <p>Create and manage your astronomy blog posts and articles.</p>
+//         <RoleGuard allowedRoles={['influencer', 'mentor', 'moderator', 'admin']}>
+//             <div className="advanced-features">
+//                 <h3>Advanced Features</h3>
+//                 <p>You have access to advanced blogging features.</p>
+//             </div>
+//         </RoleGuard>
+//     </div>
+// ));
 
 const MentorPage = memo(() => (
     <div className="dashboard-page">

@@ -729,12 +729,16 @@
       font-size: 3rem; // Reduced from 4rem
       margin-bottom: $spacing-sm; // Reduced from $spacing-md
       color: $accent-color;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 20px;
       
       .galaxy-icon {
-        width: 64px;
-        height: 64px;
-        color: $accent-color;
-        animation: gentle-pulse 3s ease-in-out infinite;
+      width: 64px;
+      height: 64px;
+      color: $accent-color;
+      animation: gentle-pulse 3s ease-in-out infinite;
       }
     }
 

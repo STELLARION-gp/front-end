@@ -331,8 +331,9 @@ const ServiceListing: React.FC = () => {
 
   return (
     <div className="service-listing">
-      {/* Header */}
-      <div className="service-listing__header">
+      <div className="service-listing-container">
+        {/* Header */}
+        <div className="service-listing__header">
         <div className="header-content">
           <div className="title-section">
             <h1 className="page-title">Guide Services</h1>
@@ -877,6 +878,7 @@ const ServiceListing: React.FC = () => {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 };

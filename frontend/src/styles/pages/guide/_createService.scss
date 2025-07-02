@@ -551,15 +551,22 @@
       }
       
       &.has-files {
-        min-height: 150px;
-        padding: 1.5rem;
+        min-height: 120px;
+        padding: 1.25rem;
         
         .upload-text {
-          font-size: 1rem;
+          font-size: 0.95rem;
+          margin-bottom: 0.25rem;
         }
         
         .upload-hint {
-          font-size: 0.85rem;
+          font-size: 0.8rem;
+          margin-bottom: 1rem;
+        }
+        
+        .upload-button {
+          padding: 0.6rem 1.25rem;
+          font-size: 0.9rem;
         }
       }
       
@@ -611,24 +618,6 @@
         cursor: pointer;
       }
       
-      // Uploaded file preview
-      .uploaded-preview {
-        position: absolute;
-        top: 1rem;
-        right: 1rem;
-        width: 80px;
-        height: 80px;
-        border-radius: 8px;
-        overflow: hidden;
-        border: 2px solid rgba(255, 255, 255, 0.3);
-        
-        img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
-      }
-      
       // File list
       .uploaded-files {
         width: 100%;
@@ -640,8 +629,8 @@
           justify-content: space-between;
           background: rgba(255, 255, 255, 0.05);
           border-radius: 8px;
-          padding: 0.75rem 1rem;
-          margin-bottom: 0.5rem;
+          padding: 1rem;
+          margin-bottom: 0.75rem;
           border: 1px solid rgba(255, 255, 255, 0.1);
           transition: all 0.2s ease;
           
@@ -649,17 +638,43 @@
             background: rgba(255, 255, 255, 0.08);
             border-color: rgba(255, 255, 255, 0.2);
             transform: translateY(-1px);
-          }
-          
-          .file-info {
+          }            .file-info {
             display: flex;
             align-items: center;
             gap: 0.75rem;
             
             .file-icon {
-              width: 20px;
-              height: 20px;
+              width: 40px;
+              height: 40px;
               color: $theme3;
+              flex-shrink: 0;
+            }
+            
+            .file-thumbnail {
+              width: 40px;
+              height: 40px;
+              border-radius: 6px;
+              overflow: hidden;
+              border: 1px solid rgba(255, 255, 255, 0.2);
+              flex-shrink: 0;
+              transition: all 0.2s ease;
+              cursor: pointer;
+              
+              &:hover {
+                border-color: rgba(16, 140, 255, 0.5);
+                transform: scale(1.05);
+              }
+              
+              img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: transform 0.2s ease;
+              }
+              
+              &:hover img {
+                transform: scale(1.1);
+              }
             }
             
             .file-details {
@@ -667,6 +682,8 @@
                 color: $theme5;
                 font-size: 0.9rem;
                 font-weight: 500;
+                margin-bottom: 0.25rem;
+                word-break: break-word;
               }
               
               .file-size {

@@ -98,10 +98,12 @@
 }
 
 .media-upload-panel {
-  width: 100%;
+  width: 96%;
   height: 100%; // Full available height
   max-width: none; // Remove max-width restriction
-  margin: 0;
+  margin: auto;
+  margin-top: 40px;
+  margin-left: 20px;
   font-family: $font-outfit;
   color: $text-color;
   background: transparent;
@@ -151,28 +153,25 @@
         padding: 4px;
         gap: 4px;
 
-        .mode-tab {
+        .mode-tab-component {
           flex: 1;
-          padding: $spacing-sm $spacing-md;
-          border: none;
-          border-radius: 6px;
-          background: transparent;
-          color: rgba($text-color, 0.7);
-          font-size: $font-size-sm;
-          font-weight: 500;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          white-space: nowrap;
-
-          &:hover {
-            color: $text-color;
-            background: rgba($accent-color, 0.1);
+          min-width: auto;
+          
+          // Override button component styles for compact tabs
+          &[data-variant="secondary"] {
+            background: transparent;
+            color: rgba($text-color, 0.7);
+            border: none;
+            
+            &:hover {
+              background: rgba($accent-color, 0.1);
+              color: $text-color;
+            }
           }
-
-          &.active {
+          
+          &[data-variant="primary"] {
             background: $accent-color;
             color: $primary-color;
-            font-weight: 600;
           }
         }
       }
@@ -181,42 +180,18 @@
         display: flex;
         justify-content: flex-end;
 
-        .upload-btn {
-          background: $accent-color;
-          border: none;
-          border-radius: 12px;
-          padding: $spacing-md $spacing-lg; // Increased padding for better height
-          color: $primary-color;
-          font-size: $font-size-sm;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          display: flex;
-          align-items: center;
-          gap: $spacing-xs;
+        .upload-btn-component {
           box-shadow: 0 4px 12px rgba($accent-color, 0.3);
-          min-height: 44px; // Ensure minimum tap target size
-          line-height: 1;
-
+          
           &:hover {
-            background: color.adjust($accent-color, $lightness: 10%);
             transform: translateY(-2px);
             box-shadow: 0 6px 16px rgba($accent-color, 0.4);
-          }
-
-          &:active {
-            transform: translateY(0);
           }
 
           .upload-icon {
             width: 18px;
             height: 18px;
             stroke-width: 2.5;
-            flex-shrink: 0;
-          }
-
-          .upload-text {
-            white-space: nowrap;
           }
         }
       }
@@ -458,23 +433,19 @@
         display: flex;
         gap: $spacing-xs;
 
-        .filter-tab {
-          background: transparent;
-          border: 1px solid rgba($text-color, 0.2);
-          color: rgba($text-color, 0.7);
-          padding: $spacing-sm $spacing-md;
-          border-radius: 8px;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          font-size: $font-size-sm;
-          font-weight: 500;
-
-          &:hover {
-            border-color: rgba($accent-color, 0.5);
-            color: $text-color;
+        .filter-tab-component {
+          &[data-variant="secondary"] {
+            background: transparent;
+            border: 1px solid rgba($text-color, 0.2);
+            color: rgba($text-color, 0.7);
+            
+            &:hover {
+              border-color: rgba($accent-color, 0.5);
+              color: $text-color;
+            }
           }
-
-          &.active {
+          
+          &[data-variant="primary"] {
             background: $accent-color;
             border-color: $accent-color;
             color: $text-light;
@@ -486,26 +457,24 @@
         display: flex;
         gap: $spacing-xs;
 
-        .view-btn {
-          background: transparent;
-          border: 1px solid rgba($text-color, 0.2);
-          color: rgba($text-color, 0.7);
+        .view-btn-component {
           width: 40px;
           height: 40px;
-          border-radius: 8px;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: $font-size-lg;
-
-          &:hover {
-            border-color: rgba($accent-color, 0.5);
-            color: $text-color;
+          min-width: 40px;
+          padding: 0;
+          
+          &[data-variant="secondary"] {
+            background: transparent;
+            border: 1px solid rgba($text-color, 0.2);
+            color: rgba($text-color, 0.7);
+            
+            &:hover {
+              border-color: rgba($accent-color, 0.5);
+              color: $text-color;
+            }
           }
-
-          &.active {
+          
+          &[data-variant="primary"] {
             background: $accent-color;
             border-color: $accent-color;
             color: $text-light;
@@ -646,23 +615,20 @@
             backdrop-filter: blur(10px);
           }
 
-          .delete-btn {
-            background: rgba(220, 38, 38, 0.9);
-            color: $text-light;
-            border: none;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
+          .delete-btn-wrapper {
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: $font-size-lg;
-            transition: all 0.3s ease;
-
-            &:hover {
-              background: rgba(220, 38, 38, 1);
-              transform: scale(1.1);
+            
+            .delete-btn-component {
+              width: 32px;
+              height: 32px;
+              min-width: 32px;
+              border-radius: 50%;
+              padding: 0;
+              font-size: $font-size-lg;
+              
+              &:hover {
+                transform: scale(1.1);
+              }
             }
           }
         }
@@ -793,13 +759,26 @@
       color: $text-color-secondary;
       text-align: left;
       max-width: 300px;
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-sm;
       
-      .instruction-icon {
-        width: 16px;
-        height: 16px;
-        margin-right: $spacing-xs;
-        color: $accent-color;
-        vertical-align: text-top;
+      .instruction-item {
+        display: flex;
+        align-items: center;
+        gap: $spacing-xs;
+        line-height: 1.4;
+        
+        .instruction-icon {
+          width: 16px;
+          height: 16px;
+          color: $accent-color;
+          flex-shrink: 0; // Prevent icon from shrinking
+        }
+        
+        span {
+          flex: 1;
+        }
       }
     }
   }
@@ -841,23 +820,23 @@
           color: $text-color;
         }
 
-        .close-btn {
-          background: transparent;
-          border: none;
-          color: rgba($text-color, 0.7);
-          font-size: $font-size-xl;
-          cursor: pointer;
+        .close-btn-component {
           width: 40px;
           height: 40px;
+          min-width: 40px;
           border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          transition: all 0.3s ease;
-
-          &:hover {
-            background: rgba($text-color, 0.1);
-            color: $text-color;
+          padding: 0;
+          font-size: $font-size-xl;
+          
+          &[data-variant="secondary"] {
+            background: transparent;
+            border: none;
+            color: rgba($text-color, 0.7);
+            
+            &:hover {
+              background: rgba($text-color, 0.1);
+              color: $text-color;
+            }
           }
         }
       }

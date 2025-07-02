@@ -28,6 +28,49 @@ const PlusIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
   </svg>
 );
 
+const StarIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
+  <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none">
+    <path
+      d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+const GalaxyIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
+  <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none">
+    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+    <path d="M8 12C8 9.79 9.79 8 12 8C14.21 8 16 9.79 16 12C16 14.21 14.21 16 12 16" stroke="currentColor" strokeWidth="2" fill="none"/>
+    <circle cx="12" cy="12" r="3" fill="currentColor"/>
+    <path d="M12 1V3M12 21V23M4.22 4.22L5.64 5.64M18.36 18.36L19.78 19.78M1 12H3M21 12H23M4.22 19.78L5.64 18.36M18.36 5.64L19.78 4.22" stroke="currentColor" strokeWidth="1"/>
+  </svg>
+);
+
+const RocketIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
+  <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none">
+    <path
+      d="M4.5 16.5C4.5 16.5 5.5 7.5 13 4C13 4 18 2 20 4C22 6 20 11 20 11C16.5 18.5 7.5 19.5 7.5 19.5L4.5 16.5Z"
+      stroke="currentColor"
+      strokeWidth="2"
+      fill="none"
+    />
+    <path d="M13.5 10.5L15.5 12.5" stroke="currentColor" strokeWidth="2"/>
+    <path d="M6 15L9 18L10.5 16.5" stroke="currentColor" strokeWidth="2"/>
+  </svg>
+);
+
+const TelescopeIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
+  <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none">
+    <path d="M3 3L21 21M6 6L18 18" stroke="currentColor" strokeWidth="2"/>
+    <path d="M12 12L8 16M16 8L12 12" stroke="currentColor" strokeWidth="2"/>
+    <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2"/>
+    <path d="M12 1V5M12 19V23M5 12H1M23 12H19" stroke="currentColor" strokeWidth="2"/>
+  </svg>
+);
+
 interface MediaFile {
   id: string;
   file: File;
@@ -460,7 +503,7 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
               onClick={openFileDialog}
               title={uploadMode.type === 'album' ? 'Upload Album' : 'Upload Media'}
             >
-              <PlusIcon className="upload-icon" />
+              <RocketIcon className="upload-icon" />
               <span className="upload-text">
                 {uploadMode.type === 'album' ? 'Upload Album' : 'Upload Media'}
               </span>
@@ -493,9 +536,9 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
             <span>Supports: JPEG, PNG, WebP, MP4, WebM, MOV</span>
             <span>Max size: {maxFileSize}MB per file</span>
             {uploadMode.type === 'album' ? (
-              <span>💡 Album mode: Upload multiple files with shared details</span>
+              <span><GalaxyIcon className="info-icon" /> Album mode: Upload multiple files with shared details</span>
             ) : (
-              <span>📷 Single mode: Upload one file at a time</span>
+              <span><StarIcon className="info-icon" /> Single mode: Upload one file at a time</span>
             )}
           </div>
         </div>
@@ -590,7 +633,7 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
       {mediaFiles.length > 0 && (
         <div className="submit-section">
           <div className="submit-info">
-            <h3>🚀 Ready to Submit</h3>
+            <h3><RocketIcon className="submit-icon" /> Ready to Submit</h3>
             <p>
               You have {mediaFiles.length} media file{mediaFiles.length > 1 ? 's' : ''} ready to be submitted to your astronomy tour database.
             </p>
@@ -680,14 +723,16 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
         </div>
       ) : (
         <div className="empty-state">
-          <div className="empty-icon">🌌</div>
+          <div className="empty-icon">
+            <GalaxyIcon className="galaxy-icon" />
+          </div>
           <h3>Media Upload Portal</h3>
           <p>Upload your astronomy tour photos and videos, then submit them to your database.</p>
           <p className="empty-instructions">
-            1. Choose Single or Album upload mode<br/>
-            2. Upload your media files<br/>
-            3. Add descriptions and details<br/>
-            4. Submit to database
+            <StarIcon className="instruction-icon" /> Choose Single or Album upload mode<br/>
+            <TelescopeIcon className="instruction-icon" /> Upload your media files<br/>
+            <PlusIcon className="instruction-icon" /> Add descriptions and details<br/>
+            <RocketIcon className="instruction-icon" /> Submit to database
           </p>
         </div>
       )}

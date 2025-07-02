@@ -185,7 +185,7 @@
           background: $accent-color;
           border: none;
           border-radius: 12px;
-          padding: $spacing-sm $spacing-lg;
+          padding: $spacing-md $spacing-lg; // Increased padding for better height
           color: $primary-color;
           font-size: $font-size-sm;
           font-weight: 600;
@@ -195,6 +195,8 @@
           align-items: center;
           gap: $spacing-xs;
           box-shadow: 0 4px 12px rgba($accent-color, 0.3);
+          min-height: 44px; // Ensure minimum tap target size
+          line-height: 1;
 
           &:hover {
             background: color.adjust($accent-color, $lightness: 10%);
@@ -210,6 +212,7 @@
             width: 18px;
             height: 18px;
             stroke-width: 2.5;
+            flex-shrink: 0;
           }
 
           .upload-text {
@@ -297,6 +300,16 @@
         span:last-child {
           color: $accent-color;
           font-weight: 500;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: $spacing-xs;
+        }
+        
+        .info-icon {
+          width: 16px;
+          height: 16px;
+          color: $accent-color;
         }
 
         @media (min-width: 768px) {
@@ -745,6 +758,14 @@
     .empty-icon {
       font-size: 3rem; // Reduced from 4rem
       margin-bottom: $spacing-sm; // Reduced from $spacing-md
+      color: $accent-color;
+      
+      .galaxy-icon {
+        width: 64px;
+        height: 64px;
+        color: $accent-color;
+        animation: gentle-pulse 3s ease-in-out infinite;
+      }
     }
 
     h3 {
@@ -772,6 +793,14 @@
       color: $text-color-secondary;
       text-align: left;
       max-width: 300px;
+      
+      .instruction-icon {
+        width: 16px;
+        height: 16px;
+        margin-right: $spacing-xs;
+        color: $accent-color;
+        vertical-align: text-top;
+      }
     }
   }
 
@@ -1176,6 +1205,17 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: $spacing-xs;
+      
+      .submit-icon {
+        width: 24px;
+        height: 24px;
+        color: $accent-color;
+        animation: gentle-bounce 2s ease-in-out infinite;
+      }
     }
 
     p {
@@ -1272,4 +1312,36 @@
       padding: $spacing-md;
     }
   }
+}
+
+// Space-themed animations for icons
+@keyframes gentle-pulse {
+  0%, 100% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes gentle-bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+// Icon color transitions
+.instruction-icon,
+.submit-icon,
+.galaxy-icon {
+  transition: all 0.3s ease;
+}
+
+.empty-instructions:hover .instruction-icon {
+  color: color.adjust($accent-color, $lightness: 15%);
 }

@@ -249,6 +249,10 @@
           color: $accent-color;
           opacity: 0.8;
           transition: all 0.3s ease;
+          display: block; // Make it a block element
+          margin: 0 auto; // Center horizontally
+          margin-bottom: 10px;
+          margin-top: 5px; // Added top margin for spacing
         }
       }
 
@@ -1020,23 +1024,23 @@
           margin-right: $spacing-md;
         }
 
-        .close-btn {
-          background: transparent;
-          border: none;
-          color: rgba($text-color, 0.7);
-          font-size: $font-size-xl;
-          cursor: pointer;
+        .close-btn-component {
           width: 40px;
           height: 40px;
+          min-width: 40px;
           border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          transition: all 0.3s ease;
-
-          &:hover {
-            background: rgba($text-color, 0.1);
-            color: $text-color;
+          padding: 0;
+          font-size: $font-size-xl;
+          
+          &[data-variant="secondary"] {
+            background: transparent;
+            border: none;
+            color: rgba($text-color, 0.7);
+            
+            &:hover {
+              background: rgba($text-color, 0.1);
+              color: $text-color;
+            }
           }
         }
       }
@@ -1321,6 +1325,11 @@
   transition: all 0.3s ease;
 }
 
-.empty-instructions:hover .instruction-icon {
+.empty-instructions:hover .instruction-item .instruction-icon {
   color: color.adjust($accent-color, $lightness: 15%);
+}
+
+.instruction-item:hover .instruction-icon {
+  color: color.adjust($accent-color, $lightness: 15%);
+  transform: scale(1.1);
 }

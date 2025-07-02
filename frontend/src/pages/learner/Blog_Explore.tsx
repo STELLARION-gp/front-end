@@ -3,7 +3,7 @@ import AstronomyBlogCard from "../../components/Learner/blogcard";
 import "../../styles/pages/learner/blog_explore.scss"
 import { BookOpenIcon, UserGroupIcon, StarIcon, CalendarDaysIcon } from "@heroicons/react/24/outline";
 
-const blogs = [
+export const blogs = [
   {
     id: 1,
     image: "https://kielderobservatory.org/images/stories/virtuemart/product/Orion%20Nebula%20-%20AS%20-%20med.jpg",
@@ -123,7 +123,7 @@ const BlogExplore: React.FC = () => {
           createdAt={blog.createdAt}
           rating={blog.rating}
           content={blog.content}
-          onClick={() => navigate(`/blogs/${blog.id}`)}
+          onClick={() => navigate(`/dashboard/blogs/${blog.id}`)}
         />
         ))}
       </div>

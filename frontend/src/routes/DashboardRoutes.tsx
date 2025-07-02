@@ -5,20 +5,23 @@ import Profile from '../pages/Profile';
 import Settings from '../pages/Settings';
 import DashboardOverview from '../pages/DashboardOverview';
 import Button from '../components/Button';
+import Preview from '../pages/learner/Preview';
+import BlogExplore from '../pages/learner/Blog_Explore';
+import BlogDetailedPageWrapper from '../pages/learner/BlogDetailedPageWrapper';
 
 // Create placeholder components for different pages - all memoized
-const BlogsPage = memo(() => (
-    <div className="dashboard-page">
-        <h2>Blogs & Content</h2>
-        <p>Create and manage your astronomy blog posts and articles.</p>
-        <RoleGuard allowedRoles={['influencer', 'mentor', 'moderator', 'admin']}>
-            <div className="advanced-features">
-                <h3>Advanced Features</h3>
-                <p>You have access to advanced blogging features.</p>
-            </div>
-        </RoleGuard>
-    </div>
-));
+// const BlogsPage = memo(() => (
+//     <div className="dashboard-page">
+//         <h2>Blogs & Content</h2>
+//         <p>Create and manage your astronomy blog posts and articles.</p>
+//         <RoleGuard allowedRoles={['influencer', 'mentor', 'moderator', 'admin']}>
+//             <div className="advanced-features">
+//                 <h3>Advanced Features</h3>
+//                 <p>You have access to advanced blogging features.</p>
+//             </div>
+//         </RoleGuard>
+//     </div>
+// ));
 
 const MentorPage = memo(() => (
     <div className="dashboard-page">
@@ -100,15 +103,36 @@ const DashboardRoutes = () => {
 
     return (
         <Routes>
-            <Route path="overview" element={<DashboardOverview />} />
+            <Route 
+            path="overview" 
+            element={
+                <RoleGuard allowedRoles={['learner']}>
+                    <Preview />
+                </RoleGuard>} 
+            />
+            <Route 
+            path="overview" 
+            element={
+                <RoleGuard allowedRoles={['enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin', 'learner']}>
+                    <DashboardOverview />
+                </RoleGuard>} 
+            />
             <Route path="profile" element={<Profile />} />
             <Route path="settings" element={<Settings />} />
 
             <Route
                 path="blogs"
                 element={
-                    <RoleGuard allowedRoles={['enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin']}>
-                        <BlogsPage />
+                    <RoleGuard allowedRoles={['enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin', 'learner']}>
+                        <BlogExplore />
+                    </RoleGuard>
+                }
+            />
+            <Route
+                path="blogs/:id"
+                element={
+                    <RoleGuard allowedRoles={['enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin', 'learner']}>
+                        <BlogDetailedPageWrapper />
                     </RoleGuard>
                 }
             />

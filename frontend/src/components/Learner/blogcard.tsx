@@ -11,7 +11,7 @@ interface AstronomyBlogCardProps {
   createdAt: string;
   rating: number;
   content: string;
-  onReadMore?: () => void;
+  onClick: () => void;
 }
 
 const renderStars = (rating: number) => {
@@ -37,6 +37,7 @@ const AstronomyBlogCard: React.FC<AstronomyBlogCardProps> = ({
   createdAt,
   rating,
   content,
+  onClick,
 }) => (
   <div className="astro-blog-card">
     <img src={image} alt={title} className="astro-blog-card-image" />
@@ -56,7 +57,7 @@ const AstronomyBlogCard: React.FC<AstronomyBlogCardProps> = ({
       <span className="rating-number">{rating.toFixed(1)}</span>
     </div>
     <p className="astro-blog-card-content">{content.slice(0, 80)}...</p>
-    <Button>Read More</Button>
+    <Button onClick={onClick} >Read More</Button>
   </div>
 );
 

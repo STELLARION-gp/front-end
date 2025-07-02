@@ -6,6 +6,7 @@ import Settings from '../pages/Settings';
 import DashboardOverview from '../pages/DashboardOverview';
 import Button from '../components/Button';
 import ServiceListing from '../pages/guide/ServiceListing';
+import CreateService from '../pages/guide/CreateService';
 import MediaUploadPanel from '../pages/guide/MediaUploadPanel';
 
 // Create placeholder components for different pages - all memoized
@@ -134,10 +135,13 @@ const DashboardRoutes = () => {
             />
 
             <Route
-                path="services"
+                path="services/*"
                 element={
                     <RoleGuard allowedRoles={['guide', 'admin']}>
-                        <ServiceListing />
+                        <Routes>
+                            <Route index element={<ServiceListing />} />
+                            <Route path="create" element={<CreateService />} />
+                        </Routes>
                     </RoleGuard>
                 }
             />

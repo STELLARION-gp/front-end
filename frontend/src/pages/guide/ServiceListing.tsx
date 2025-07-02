@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Button from '../../components/Button';
 import Card from '../../components/Card';
 import '../../styles/pages/guide/_serviceListing.scss';
@@ -219,6 +220,7 @@ const dummyServices: Service[] = [
 ];
 
 const ServiceListing: React.FC = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'rating' | 'price' | 'date' | 'popularity'>('rating');
@@ -347,6 +349,7 @@ const ServiceListing: React.FC = () => {
               size="medium"
               icon={<PlusIcon />}
               iconPosition="left"
+              onClick={() => navigate('/dashboard/services/create')}
             >
               Create New Service
             </Button>

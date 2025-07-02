@@ -483,31 +483,35 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
         
         <div className="header-actions">
           <div className="upload-mode-tabs">
-            <button
-              className={`mode-tab ${uploadMode.type === 'single' ? 'active' : ''}`}
+            <Button
+              variant={uploadMode.type === 'single' ? 'primary' : 'secondary'}
+              size="small"
               onClick={() => setUploadMode({ type: 'single' })}
+              className="mode-tab-component"
             >
               Single Upload
-            </button>
-            <button
-              className={`mode-tab ${uploadMode.type === 'album' ? 'active' : ''}`}
+            </Button>
+            <Button
+              variant={uploadMode.type === 'album' ? 'primary' : 'secondary'}
+              size="small"
               onClick={() => setUploadMode({ type: 'album' })}
+              className="mode-tab-component"
             >
               Album Upload
-            </button>
+            </Button>
           </div>
           
           <div className="upload-buttons">
-            <button
-              className="upload-btn"
+            <Button
+              variant="primary"
+              size="medium"
               onClick={openFileDialog}
-              title={uploadMode.type === 'album' ? 'Upload Album' : 'Upload Media'}
+              icon={<RocketIcon className="upload-icon" />}
+              iconPosition="left"
+              className="upload-btn-component"
             >
-              <RocketIcon className="upload-icon" />
-              <span className="upload-text">
-                {uploadMode.type === 'album' ? 'Upload Album' : 'Upload Media'}
-              </span>
-            </button>
+              {uploadMode.type === 'album' ? 'Upload Album' : 'Upload Media'}
+            </Button>
           </div>
         </div>
       </div>
@@ -579,41 +583,49 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
         <div className="media-controls">
           <div className="filters">
             <div className="filter-tabs">
-              <button 
-                className={`filter-tab ${filter === 'all' ? 'active' : ''}`}
+              <Button
+                variant={filter === 'all' ? 'primary' : 'secondary'}
+                size="small"
                 onClick={() => setFilter('all')}
+                className="filter-tab-component"
               >
                 All ({mediaFiles.length})
-              </button>
-              <button 
-                className={`filter-tab ${filter === 'images' ? 'active' : ''}`}
+              </Button>
+              <Button
+                variant={filter === 'images' ? 'primary' : 'secondary'}
+                size="small"
                 onClick={() => setFilter('images')}
+                className="filter-tab-component"
               >
                 Images ({mediaFiles.filter(m => m.type === 'image').length})
-              </button>
-              <button 
-                className={`filter-tab ${filter === 'videos' ? 'active' : ''}`}
+              </Button>
+              <Button
+                variant={filter === 'videos' ? 'primary' : 'secondary'}
+                size="small"
                 onClick={() => setFilter('videos')}
+                className="filter-tab-component"
               >
                 Videos ({mediaFiles.filter(m => m.type === 'video').length})
-              </button>
+              </Button>
             </div>
             
             <div className="view-controls">
-              <button 
-                className={`view-btn ${viewMode === 'grid' ? 'active' : ''}`}
+              <Button
+                variant={viewMode === 'grid' ? 'primary' : 'secondary'}
+                size="small"
                 onClick={() => setViewMode('grid')}
-                title="Grid View"
+                className="view-btn-component"
               >
                 ⊞
-              </button>
-              <button 
-                className={`view-btn ${viewMode === 'list' ? 'active' : ''}`}
+              </Button>
+              <Button
+                variant={viewMode === 'list' ? 'primary' : 'secondary'}
+                size="small"
                 onClick={() => setViewMode('list')}
-                title="List View"
+                className="view-btn-component"
               >
                 ☰
-              </button>
+              </Button>
             </div>
           </div>
           
@@ -689,15 +701,22 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
                   <div className="media-type-badge">
                     {media.type === 'image' ? '📷' : '🎥'}
                   </div>
-                  <button 
-                    className="delete-btn"
+                  <div 
                     onClick={(e) => {
                       e.stopPropagation();
                       deleteMedia(media.id);
                     }}
+                    className="delete-btn-wrapper"
                   >
-                    ✕
-                  </button>
+                    <Button
+                      variant="danger"
+                      size="small"
+                      onClick={() => {}}
+                      className="delete-btn-component"
+                    >
+                      ✕
+                    </Button>
+                  </div>
                 </div>
               </div>
               
@@ -729,10 +748,22 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
           <h3>Media Upload Portal</h3>
           <p>Upload your astronomy tour photos and videos, then submit them to your database.</p>
           <p className="empty-instructions">
-            <StarIcon className="instruction-icon" /> Choose Single or Album upload mode<br/>
-            <TelescopeIcon className="instruction-icon" /> Upload your media files<br/>
-            <PlusIcon className="instruction-icon" /> Add descriptions and details<br/>
-            <RocketIcon className="instruction-icon" /> Submit to database
+            <span className="instruction-item">
+              <StarIcon className="instruction-icon" /> 
+              <span>Choose Single or Album upload mode</span>
+            </span>
+            <span className="instruction-item">
+              <TelescopeIcon className="instruction-icon" /> 
+              <span>Upload your media files</span>
+            </span>
+            <span className="instruction-item">
+              <PlusIcon className="instruction-icon" /> 
+              <span>Add descriptions and details</span>
+            </span>
+            <span className="instruction-item">
+              <RocketIcon className="instruction-icon" /> 
+              <span>Submit to database</span>
+            </span>
           </p>
         </div>
       )}
@@ -743,12 +774,14 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h3>Create Album Upload</h3>
-              <button 
-                className="close-btn"
+              <Button
+                variant="secondary"
+                size="small"
                 onClick={cancelAlbumUpload}
+                className="close-btn-component"
               >
                 ✕
-              </button>
+              </Button>
             </div>
             
             <div className="modal-body">
@@ -860,12 +893,14 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h3>{selectedMedia.name}</h3>
-              <button 
-                className="close-btn"
+              <Button
+                variant="secondary"
+                size="small"
                 onClick={() => setSelectedMedia(null)}
+                className="close-btn-component"
               >
                 ✕
-              </button>
+              </Button>
             </div>
             
             <div className="modal-body">

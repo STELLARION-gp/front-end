@@ -206,426 +206,427 @@ const CreateService: React.FC = () => {
         <form onSubmit={handleSubmit} className="service-form">
           <div className="form-sections">
             
-            {/* Basic Information */}
-            <Card className="form-section" variant="elevated">
-              <div className="section-header">
-                <h2 className="section-title">Basic Information</h2>
-                <p className="section-subtitle">Essential details about your service</p>
-              </div>
-              
-              <div className="form-grid">
-                <div className="form-group full-width">
-                  <label htmlFor="title">Service Title *</label>
-                  <input
-                    id="title"
-                    type="text"
-                    value={formData.title}
-                    onChange={(e) => handleInputChange('title', e.target.value)}
-                    className={`form-input ${errors.title ? 'error' : ''}`}
-                    placeholder="e.g., Deep Space Observation Experience"
-                    maxLength={100}
-                  />
-                  {errors.title && <span className="error-message">{errors.title}</span>}
+            <div className="main-column">
+              {/* Basic Information */}
+              <Card className="form-section" variant="elevated">
+                <div className="section-header">
+                  <h2 className="section-title">✨ Basic Information</h2>
+                  <p className="section-subtitle">Essential details about your service</p>
                 </div>
-
-                <div className="form-group">
-                  <label htmlFor="category">Category *</label>
-                  <select
-                    id="category"
-                    value={formData.category}
-                    onChange={(e) => handleInputChange('category', e.target.value)}
-                    className="form-select"
-                  >
-                    {categories.map(cat => (
-                      <option key={cat.value} value={cat.value}>
-                        {cat.icon} {cat.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="difficulty">Difficulty Level *</label>
-                  <select
-                    id="difficulty"
-                    value={formData.difficulty}
-                    onChange={(e) => handleInputChange('difficulty', e.target.value)}
-                    className="form-select"
-                  >
-                    {difficulties.map(diff => (
-                      <option key={diff.value} value={diff.value}>
-                        {diff.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="form-group full-width">
-                  <label htmlFor="description">Description *</label>
-                  <textarea
-                    id="description"
-                    value={formData.description}
-                    onChange={(e) => handleInputChange('description', e.target.value)}
-                    className={`form-textarea ${errors.description ? 'error' : ''}`}
-                    placeholder="Describe your service in detail. What will participants experience? What makes it special?"
-                    rows={4}
-                    maxLength={1000}
-                  />
-                  {errors.description && <span className="error-message">{errors.description}</span>}
-                  <span className="character-count">{formData.description.length}/1000</span>
-                </div>
-              </div>
-            </Card>
-
-            {/* Pricing & Logistics */}
-            <Card className="form-section" variant="elevated">
-              <div className="section-header">
-                <h2 className="section-title">Pricing & Logistics</h2>
-                <p className="section-subtitle">Set your pricing and practical details</p>
-              </div>
-              
-              <div className="form-grid">
-                <div className="form-group">
-                  <label htmlFor="price">Price (USD) *</label>
-                  <input
-                    id="price"
-                    type="number"
-                    value={formData.price || ''}
-                    onChange={(e) => handleInputChange('price', parseFloat(e.target.value) || 0)}
-                    className={`form-input ${errors.price ? 'error' : ''}`}
-                    placeholder="0"
-                    min="0"
-                    step="0.01"
-                  />
-                  {errors.price && <span className="error-message">{errors.price}</span>}
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="duration">Duration *</label>
-                  <input
-                    id="duration"
-                    type="text"
-                    value={formData.duration}
-                    onChange={(e) => handleInputChange('duration', e.target.value)}
-                    className={`form-input ${errors.duration ? 'error' : ''}`}
-                    placeholder="e.g., 3 hours, 2 days"
-                  />
-                  {errors.duration && <span className="error-message">{errors.duration}</span>}
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="maxParticipants">Max Participants *</label>
-                  <input
-                    id="maxParticipants"
-                    type="number"
-                    value={formData.maxParticipants || ''}
-                    onChange={(e) => handleInputChange('maxParticipants', parseInt(e.target.value) || 1)}
-                    className={`form-input ${errors.maxParticipants ? 'error' : ''}`}
-                    placeholder="1"
-                    min="1"
-                  />
-                  {errors.maxParticipants && <span className="error-message">{errors.maxParticipants}</span>}
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="nextAvailable">Next Available Date *</label>
-                  <input
-                    id="nextAvailable"
-                    type="date"
-                    value={formData.nextAvailable}
-                    onChange={(e) => handleInputChange('nextAvailable', e.target.value)}
-                    className={`form-input ${errors.nextAvailable ? 'error' : ''}`}
-                    min={new Date().toISOString().split('T')[0]}
-                  />
-                  {errors.nextAvailable && <span className="error-message">{errors.nextAvailable}</span>}
-                </div>
-
-                <div className="form-group full-width">
-                  <label htmlFor="location">Location *</label>
-                  <input
-                    id="location"
-                    type="text"
-                    value={formData.location}
-                    onChange={(e) => handleInputChange('location', e.target.value)}
-                    className={`form-input ${errors.location ? 'error' : ''}`}
-                    placeholder="e.g., Dark Sky Observatory, Mount Wilson"
-                  />
-                  {errors.location && <span className="error-message">{errors.location}</span>}
-                </div>
-              </div>
-            </Card>
-
-            {/* Media & Additional Details */}
-            <Card className="form-section" variant="elevated">
-              <div className="section-header">
-                <h2 className="section-title">Media & Additional Details</h2>
-                <p className="section-subtitle">Add images and extra information</p>
-              </div>
-              
-              <div className="form-grid">
-                <div className="form-group full-width">
-                  <label htmlFor="image">Image URL *</label>
-                  <div className="image-input-wrapper">
-                    <ImageIcon className="image-icon" />
+                
+                <div className="form-grid">
+                  <div className="form-group full-width">
+                    <label htmlFor="title">Service Title *</label>
                     <input
-                      id="image"
-                      type="url"
-                      value={formData.image}
-                      onChange={(e) => handleInputChange('image', e.target.value)}
-                      className={`form-input ${errors.image ? 'error' : ''}`}
-                      placeholder="https://example.com/image.jpg"
+                      id="title"
+                      type="text"
+                      value={formData.title}
+                      onChange={(e) => handleInputChange('title', e.target.value)}
+                      className={`form-input ${errors.title ? 'error' : ''}`}
+                      placeholder="e.g., Deep Space Observation Experience"
+                      maxLength={100}
                     />
+                    {errors.title && <span className="error-message">{errors.title}</span>}
                   </div>
-                  {errors.image && <span className="error-message">{errors.image}</span>}
-                  {formData.image && (
-                    <div className="image-preview">
-                      <img src={formData.image} alt="Service preview" onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                      }} />
+
+                  <div className="form-group">
+                    <label htmlFor="category">Category *</label>
+                    <select
+                      id="category"
+                      value={formData.category}
+                      onChange={(e) => handleInputChange('category', e.target.value)}
+                      className="form-select"
+                    >
+                      {categories.map(cat => (
+                        <option key={cat.value} value={cat.value}>
+                          {cat.icon} {cat.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="difficulty">Difficulty Level *</label>
+                    <select
+                      id="difficulty"
+                      value={formData.difficulty}
+                      onChange={(e) => handleInputChange('difficulty', e.target.value)}
+                      className="form-select"
+                    >
+                      {difficulties.map(diff => (
+                        <option key={diff.value} value={diff.value}>
+                          {diff.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="form-group full-width">
+                    <label htmlFor="description">Description *</label>
+                    <textarea
+                      id="description"
+                      value={formData.description}
+                      onChange={(e) => handleInputChange('description', e.target.value)}
+                      className={`form-textarea ${errors.description ? 'error' : ''}`}
+                      placeholder="Describe your service in detail. What will participants experience? What makes it special?"
+                      rows={4}
+                      maxLength={1000}
+                    />
+                    {errors.description && <span className="error-message">{errors.description}</span>}
+                    <span className="character-count">{formData.description.length}/1000</span>
+                  </div>
+                </div>
+              </Card>
+
+              {/* Pricing & Logistics */}
+              <Card className="form-section" variant="elevated">
+                <div className="section-header">
+                  <h2 className="section-title">💰 Pricing & Logistics</h2>
+                  <p className="section-subtitle">Set your pricing and practical details</p>
+                </div>
+                
+                <div className="form-grid">
+                  <div className="form-group">
+                    <label htmlFor="price">Price (USD) *</label>
+                    <input
+                      id="price"
+                      type="number"
+                      value={formData.price || ''}
+                      onChange={(e) => handleInputChange('price', parseFloat(e.target.value) || 0)}
+                      className={`form-input ${errors.price ? 'error' : ''}`}
+                      placeholder="0"
+                      min="0"
+                      step="0.01"
+                    />
+                    {errors.price && <span className="error-message">{errors.price}</span>}
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="duration">Duration *</label>
+                    <input
+                      id="duration"
+                      type="text"
+                      value={formData.duration}
+                      onChange={(e) => handleInputChange('duration', e.target.value)}
+                      className={`form-input ${errors.duration ? 'error' : ''}`}
+                      placeholder="e.g., 3 hours, 2 days"
+                    />
+                    {errors.duration && <span className="error-message">{errors.duration}</span>}
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="maxParticipants">Max Participants *</label>
+                    <input
+                      id="maxParticipants"
+                      type="number"
+                      value={formData.maxParticipants || ''}
+                      onChange={(e) => handleInputChange('maxParticipants', parseInt(e.target.value) || 1)}
+                      className={`form-input ${errors.maxParticipants ? 'error' : ''}`}
+                      placeholder="1"
+                      min="1"
+                    />
+                    {errors.maxParticipants && <span className="error-message">{errors.maxParticipants}</span>}
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="nextAvailable">Next Available Date *</label>
+                    <input
+                      id="nextAvailable"
+                      type="date"
+                      value={formData.nextAvailable}
+                      onChange={(e) => handleInputChange('nextAvailable', e.target.value)}
+                      className={`form-input ${errors.nextAvailable ? 'error' : ''}`}
+                      min={new Date().toISOString().split('T')[0]}
+                    />
+                    {errors.nextAvailable && <span className="error-message">{errors.nextAvailable}</span>}
+                  </div>
+
+                  <div className="form-group full-width">
+                    <label htmlFor="location">Location *</label>
+                    <input
+                      id="location"
+                      type="text"
+                      value={formData.location}
+                      onChange={(e) => handleInputChange('location', e.target.value)}
+                      className={`form-input ${errors.location ? 'error' : ''}`}
+                      placeholder="e.g., Dark Sky Observatory, Mount Wilson"
+                    />
+                    {errors.location && <span className="error-message">{errors.location}</span>}
+                  </div>
+                </div>
+              </Card>
+
+              {/* Requirements & Expectations */}
+              <Card className="form-section" variant="elevated">
+                <div className="section-header">
+                  <h2 className="section-title">📋 Requirements & Expectations</h2>
+                  <p className="section-subtitle">Set clear expectations for participants</p>
+                </div>
+                
+                <div className="form-grid">
+                  <div className="form-group full-width">
+                    <label htmlFor="whatToExpect">What Participants Can Expect</label>
+                    <textarea
+                      id="whatToExpect"
+                      value={formData.whatToExpect}
+                      onChange={(e) => handleInputChange('whatToExpect', e.target.value)}
+                      className="form-textarea"
+                      placeholder="Describe the detailed experience, activities, and outcomes participants can expect..."
+                      rows={3}
+                      maxLength={500}
+                    />
+                    <span className="character-count">{formData.whatToExpect.length}/500</span>
+                  </div>
+
+                  <div className="form-group full-width">
+                    <label htmlFor="requirements">Requirements & Prerequisites</label>
+                    <textarea
+                      id="requirements"
+                      value={formData.requirements}
+                      onChange={(e) => handleInputChange('requirements', e.target.value)}
+                      className="form-textarea"
+                      placeholder="Any physical requirements, experience levels, or items participants should bring..."
+                      rows={3}
+                      maxLength={300}
+                    />
+                    <span className="character-count">{formData.requirements.length}/300</span>
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="meetingPoint">Meeting Point</label>
+                    <input
+                      id="meetingPoint"
+                      type="text"
+                      value={formData.meetingPoint}
+                      onChange={(e) => handleInputChange('meetingPoint', e.target.value)}
+                      className="form-input"
+                      placeholder="Observatory parking lot, main entrance"
+                    />
+                    <span className="input-help">Where participants should meet</span>
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="languages">Languages Offered</label>
+                    <input
+                      id="languages"
+                      type="text"
+                      value={formData.languages.join(', ')}
+                      onChange={(e) => handleArrayInputChange('languages', e.target.value)}
+                      className="form-input"
+                      placeholder="English, Spanish, French"
+                    />
+                    <span className="input-help">Languages you can conduct service in</span>
+                  </div>
+                </div>
+              </Card>
+            </div>
+
+            <div className="sidebar-column">
+              {/* Media & Additional Details */}
+              <Card className="form-section" variant="elevated">
+                <div className="section-header">
+                  <h2 className="section-title">🖼️ Media</h2>
+                  <p className="section-subtitle">Add images and tags</p>
+                </div>
+                
+                <div className="form-grid">
+                  <div className="form-group full-width">
+                    <label htmlFor="image">Image URL *</label>
+                    <div className="image-input-wrapper">
+                      <ImageIcon className="image-icon" />
+                      <input
+                        id="image"
+                        type="url"
+                        value={formData.image}
+                        onChange={(e) => handleInputChange('image', e.target.value)}
+                        className={`form-input ${errors.image ? 'error' : ''}`}
+                        placeholder="https://example.com/image.jpg"
+                      />
                     </div>
-                  )}
-                </div>
+                    {errors.image && <span className="error-message">{errors.image}</span>}
+                    {formData.image && (
+                      <div className="image-preview">
+                        <img src={formData.image} alt="Service preview" onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                        }} />
+                      </div>
+                    )}
+                  </div>
 
-                <div className="form-group">
-                  <label htmlFor="equipment">Equipment Provided</label>
-                  <input
-                    id="equipment"
-                    type="text"
-                    value={formData.equipment.join(', ')}
-                    onChange={(e) => handleArrayInputChange('equipment', e.target.value)}
-                    className="form-input"
-                    placeholder="Professional Telescope, Star Charts"
-                  />
-                  <span className="input-help">List equipment you'll provide</span>
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="tags">Tags</label>
-                  <input
-                    id="tags"
-                    type="text"
-                    value={formData.tags.join(', ')}
-                    onChange={(e) => handleArrayInputChange('tags', e.target.value)}
-                    className="form-input"
-                    placeholder="Deep Space, Galaxies, Nebulae"
-                  />
-                  <span className="input-help">Add relevant search tags</span>
-                </div>
-
-                <div className="form-group checkbox-group">
-                  <label className="checkbox-label" htmlFor="featured">
+                  <div className="form-group full-width">
+                    <label htmlFor="equipment">Equipment Provided</label>
                     <input
-                      id="featured"
-                      type="checkbox"
-                      checked={formData.featured}
-                      onChange={(e) => handleInputChange('featured', e.target.checked)}
-                      className="form-checkbox"
+                      id="equipment"
+                      type="text"
+                      value={formData.equipment.join(', ')}
+                      onChange={(e) => handleArrayInputChange('equipment', e.target.value)}
+                      className="form-input"
+                      placeholder="Professional Telescope, Star Charts"
                     />
-                    <StarIcon className="featured-icon" />
-                    <span className="checkbox-text">Mark as Featured Service</span>
-                  </label>
-                  <span className="input-help">Featured services appear prominently</span>
-                </div>
-              </div>
-            </Card>
+                    <span className="input-help">List equipment you'll provide</span>
+                  </div>
 
-            {/* Requirements & Expectations */}
-            <Card className="form-section" variant="elevated">
-              <div className="section-header">
-                <h2 className="section-title">Requirements & Expectations</h2>
-                <p className="section-subtitle">Set clear expectations for participants</p>
-              </div>
-              
-              <div className="form-grid">
-                <div className="form-group full-width">
-                  <label htmlFor="whatToExpect">What Participants Can Expect</label>
-                  <textarea
-                    id="whatToExpect"
-                    value={formData.whatToExpect}
-                    onChange={(e) => handleInputChange('whatToExpect', e.target.value)}
-                    className="form-textarea"
-                    placeholder="Describe the detailed experience, activities, and outcomes participants can expect..."
-                    rows={3}
-                    maxLength={500}
-                  />
-                  <span className="character-count">{formData.whatToExpect.length}/500</span>
-                </div>
-
-                <div className="form-group full-width">
-                  <label htmlFor="requirements">Requirements & Prerequisites</label>
-                  <textarea
-                    id="requirements"
-                    value={formData.requirements}
-                    onChange={(e) => handleInputChange('requirements', e.target.value)}
-                    className="form-textarea"
-                    placeholder="Any physical requirements, experience levels, or items participants should bring..."
-                    rows={3}
-                    maxLength={300}
-                  />
-                  <span className="character-count">{formData.requirements.length}/300</span>
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="meetingPoint">Meeting Point</label>
-                  <input
-                    id="meetingPoint"
-                    type="text"
-                    value={formData.meetingPoint}
-                    onChange={(e) => handleInputChange('meetingPoint', e.target.value)}
-                    className="form-input"
-                    placeholder="Observatory parking lot, main entrance"
-                  />
-                  <span className="input-help">Where participants should meet</span>
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="languages">Languages Offered</label>
-                  <input
-                    id="languages"
-                    type="text"
-                    value={formData.languages.join(', ')}
-                    onChange={(e) => handleArrayInputChange('languages', e.target.value)}
-                    className="form-input"
-                    placeholder="English, Spanish, French"
-                  />
-                  <span className="input-help">Languages you can conduct service in</span>
-                </div>
-              </div>
-            </Card>
-
-            {/* Policies & Booking Settings */}
-            <Card className="form-section" variant="elevated">
-              <div className="section-header">
-                <h2 className="section-title">Policies & Booking Settings</h2>
-                <p className="section-subtitle">Configure booking options and policies</p>
-              </div>
-              
-              <div className="form-grid">
-                <div className="form-group">
-                  <label htmlFor="bookingDeadline">Booking Deadline (hours)</label>
-                  <input
-                    id="bookingDeadline"
-                    type="number"
-                    value={formData.bookingDeadline || ''}
-                    onChange={(e) => handleInputChange('bookingDeadline', parseInt(e.target.value) || 24)}
-                    className="form-input"
-                    placeholder="24"
-                    min="1"
-                    max="168"
-                  />
-                  <span className="input-help">Hours before service starts</span>
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="weatherPolicy">Weather Policy</label>
-                  <select
-                    id="weatherPolicy"
-                    value={formData.weatherPolicy}
-                    onChange={(e) => handleInputChange('weatherPolicy', e.target.value)}
-                    className="form-select"
-                  >
-                    <option value="">Select policy</option>
-                    <option value="reschedule">Reschedule if cloudy</option>
-                    <option value="partial-refund">50% refund if cancelled</option>
-                    <option value="full-refund">Full refund if cancelled</option>
-                    <option value="no-refund">No weather cancellations</option>
-                  </select>
-                </div>
-
-                <div className="form-group full-width">
-                  <label htmlFor="cancellationPolicy">Cancellation Policy</label>
-                  <textarea
-                    id="cancellationPolicy"
-                    value={formData.cancellationPolicy}
-                    onChange={(e) => handleInputChange('cancellationPolicy', e.target.value)}
-                    className="form-textarea"
-                    placeholder="Outline your cancellation and refund policy..."
-                    rows={3}
-                    maxLength={400}
-                  />
-                  <span className="character-count">{formData.cancellationPolicy.length}/400</span>
-                </div>
-
-                <div className="form-group checkbox-group">
-                  <label className="checkbox-label" htmlFor="instantBooking">
+                  <div className="form-group full-width">
+                    <label htmlFor="tags">Tags</label>
                     <input
-                      id="instantBooking"
-                      type="checkbox"
-                      checked={formData.instantBooking}
-                      onChange={(e) => handleInputChange('instantBooking', e.target.checked)}
-                      className="form-checkbox"
+                      id="tags"
+                      type="text"
+                      value={formData.tags.join(', ')}
+                      onChange={(e) => handleArrayInputChange('tags', e.target.value)}
+                      className="form-input"
+                      placeholder="Deep Space, Galaxies, Nebulae"
                     />
-                    <span className="checkbox-text">Enable Instant Booking</span>
-                  </label>
-                  <span className="input-help">Allow immediate booking without approval</span>
-                </div>
+                    <span className="input-help">Add relevant search tags</span>
+                  </div>
 
-                <div className="form-group checkbox-group">
-                  <label className="checkbox-label" htmlFor="groupDiscount">
+                  <div className="form-group full-width checkbox-group">
+                    <label className="checkbox-label" htmlFor="featured">
+                      <input
+                        id="featured"
+                        type="checkbox"
+                        checked={formData.featured}
+                        onChange={(e) => handleInputChange('featured', e.target.checked)}
+                        className="form-checkbox"
+                      />
+                      <StarIcon className="featured-icon" />
+                      <span className="checkbox-text">Mark as Featured Service</span>
+                    </label>
+                    <span className="input-help">Featured services appear prominently</span>
+                  </div>
+                </div>
+              </Card>
+
+              {/* Booking Settings */}
+              <Card className="form-section" variant="elevated">
+                <div className="section-header">
+                  <h2 className="section-title">⚙️ Booking Settings</h2>
+                  <p className="section-subtitle">Configure booking options</p>
+                </div>
+                
+                <div className="form-grid">
+                  <div className="form-group full-width">
+                    <label htmlFor="bookingDeadline">Booking Deadline (hours)</label>
                     <input
-                      id="groupDiscount"
-                      type="checkbox"
-                      checked={formData.groupDiscount}
-                      onChange={(e) => handleInputChange('groupDiscount', e.target.checked)}
-                      className="form-checkbox"
+                      id="bookingDeadline"
+                      type="number"
+                      value={formData.bookingDeadline || ''}
+                      onChange={(e) => handleInputChange('bookingDeadline', parseInt(e.target.value) || 24)}
+                      className="form-input"
+                      placeholder="24"
+                      min="1"
+                      max="168"
                     />
-                    <span className="checkbox-text">Offer Group Discounts</span>
-                  </label>
-                  <span className="input-help">Discount for groups of 4+ people</span>
-                </div>
+                    <span className="input-help">Hours before service starts</span>
+                  </div>
 
-                <div className="form-group checkbox-group">
-                  <label className="checkbox-label" htmlFor="privateBooking">
+                  <div className="form-group full-width">
+                    <label htmlFor="weatherPolicy">Weather Policy</label>
+                    <select
+                      id="weatherPolicy"
+                      value={formData.weatherPolicy}
+                      onChange={(e) => handleInputChange('weatherPolicy', e.target.value)}
+                      className="form-select"
+                    >
+                      <option value="">Select policy</option>
+                      <option value="reschedule">Reschedule if cloudy</option>
+                      <option value="partial-refund">50% refund if cancelled</option>
+                      <option value="full-refund">Full refund if cancelled</option>
+                      <option value="no-refund">No weather cancellations</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group full-width checkbox-group">
+                    <label className="checkbox-label" htmlFor="instantBooking">
+                      <input
+                        id="instantBooking"
+                        type="checkbox"
+                        checked={formData.instantBooking}
+                        onChange={(e) => handleInputChange('instantBooking', e.target.checked)}
+                        className="form-checkbox"
+                      />
+                      <span className="checkbox-text">Enable Instant Booking</span>
+                    </label>
+                  </div>
+
+                  <div className="form-group full-width checkbox-group">
+                    <label className="checkbox-label" htmlFor="groupDiscount">
+                      <input
+                        id="groupDiscount"
+                        type="checkbox"
+                        checked={formData.groupDiscount}
+                        onChange={(e) => handleInputChange('groupDiscount', e.target.checked)}
+                        className="form-checkbox"
+                      />
+                      <span className="checkbox-text">Offer Group Discounts</span>
+                    </label>
+                  </div>
+
+                  <div className="form-group full-width checkbox-group">
+                    <label className="checkbox-label" htmlFor="privateBooking">
+                      <input
+                        id="privateBooking"
+                        type="checkbox"
+                        checked={formData.privateBooking}
+                        onChange={(e) => handleInputChange('privateBooking', e.target.checked)}
+                        className="form-checkbox"
+                      />
+                      <span className="checkbox-text">Allow Private Bookings</span>
+                    </label>
+                  </div>
+                </div>
+              </Card>
+
+              {/* Guide Information */}
+              <Card className="form-section" variant="elevated">
+                <div className="section-header">
+                  <h2 className="section-title">👨‍🚀 Guide Information</h2>
+                  <p className="section-subtitle">Share your expertise</p>
+                </div>
+                
+                <div className="form-grid">
+                  <div className="form-group full-width">
+                    <label htmlFor="experience">Your Experience</label>
+                    <textarea
+                      id="experience"
+                      value={formData.experience}
+                      onChange={(e) => handleInputChange('experience', e.target.value)}
+                      className="form-textarea"
+                      placeholder="Tell participants about your background in astronomy, years of experience, specializations..."
+                      rows={3}
+                      maxLength={500}
+                    />
+                    <span className="character-count">{formData.experience.length}/500</span>
+                  </div>
+
+                  <div className="form-group full-width">
+                    <label htmlFor="certification">Certifications & Qualifications</label>
                     <input
-                      id="privateBooking"
-                      type="checkbox"
-                      checked={formData.privateBooking}
-                      onChange={(e) => handleInputChange('privateBooking', e.target.checked)}
-                      className="form-checkbox"
+                      id="certification"
+                      type="text"
+                      value={formData.certification}
+                      onChange={(e) => handleInputChange('certification', e.target.value)}
+                      className="form-input"
+                      placeholder="Astronomy degree, Certified guide..."
                     />
-                    <span className="checkbox-text">Allow Private Bookings</span>
-                  </label>
-                  <span className="input-help">Exclusive sessions for individuals/families</span>
-                </div>
-              </div>
-            </Card>
+                    <span className="input-help">List relevant certifications</span>
+                  </div>
 
-            {/* Guide Information */}
-            <Card className="form-section" variant="elevated">
-              <div className="section-header">
-                <h2 className="section-title">Guide Information</h2>
-                <p className="section-subtitle">Share your expertise and credentials</p>
-              </div>
-              
-              <div className="form-grid">
-                <div className="form-group full-width">
-                  <label htmlFor="experience">Your Experience</label>
-                  <textarea
-                    id="experience"
-                    value={formData.experience}
-                    onChange={(e) => handleInputChange('experience', e.target.value)}
-                    className="form-textarea"
-                    placeholder="Tell participants about your background in astronomy, years of experience, specializations..."
-                    rows={3}
-                    maxLength={500}
-                  />
-                  <span className="character-count">{formData.experience.length}/500</span>
+                  <div className="form-group full-width">
+                    <label htmlFor="cancellationPolicy">Cancellation Policy</label>
+                    <textarea
+                      id="cancellationPolicy"
+                      value={formData.cancellationPolicy}
+                      onChange={(e) => handleInputChange('cancellationPolicy', e.target.value)}
+                      className="form-textarea"
+                      placeholder="Outline your cancellation and refund policy..."
+                      rows={3}
+                      maxLength={400}
+                    />
+                    <span className="character-count">{formData.cancellationPolicy.length}/400</span>
+                  </div>
                 </div>
-
-                <div className="form-group full-width">
-                  <label htmlFor="certification">Certifications & Qualifications</label>
-                  <input
-                    id="certification"
-                    type="text"
-                    value={formData.certification}
-                    onChange={(e) => handleInputChange('certification', e.target.value)}
-                    className="form-input"
-                    placeholder="Astronomy degree, Certified guide, Observatory certification..."
-                  />
-                  <span className="input-help">List relevant certifications and qualifications</span>
-                </div>
-              </div>
-            </Card>
+              </Card>
+            </div>
           </div>
 
           {/* Form Actions */}

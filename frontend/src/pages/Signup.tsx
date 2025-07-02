@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { useLoading } from '../hooks/useLoading';
 import type { UserRole } from '../AuthContext';
 import Button from '../components/Button';
 import '../styles/components/_auth.scss';
@@ -12,7 +13,7 @@ const Signup: React.FC = () => {
   const [displayName, setDisplayName] = useState('');
   const [role, setRole] = useState<UserRole>('learner');
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const { isLoading, withLoading } = useLoading();
 
   const { signup } = useAuth();
   const navigate = useNavigate();
@@ -45,20 +46,22 @@ const Signup: React.FC = () => {
       return;
     }
 
-    try {
-      setError('');
-      setLoading(true);
-      await signup(email, password, displayName, role);
-      navigate('/dashboard/overview');
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        setError(error.message);
-      } else {
-        setError('Failed to create account');
+    await withLoading(async () => {
+      try {
+        setError('');
+        await signup(email, password, displayName, role);
+        navigate('/dashboard/overview');
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          setError(error.message);
+        } else {
+          setError('Failed to create account');
+        }
+        throw error; // Re-throw to handle in withLoading
       }
-    } finally {
-      setLoading(false);
-    }
+    }).catch(() => {
+      // Error already handled above
+    });
   };
 
   return (
@@ -138,13 +141,13 @@ const Signup: React.FC = () => {
 
           <Button
             type="submit"
-            disabled={loading}
-            loading={loading}
+            disabled={isLoading}
+            loading={isLoading}
             variant="primary"
             fullWidth
             size="medium"
           >
-            {loading ? 'Creating Account...' : 'Create Account'}
+            {isLoading ? 'Creating Account...' : 'Create Account'}
           </Button>
         </form>
 

@@ -136,7 +136,7 @@ const Preview = () => {
           createdAt={blog.createdAt}
           rating={blog.rating}
           content={blog.content}
-          onClick={() => navigate(`/blogs/${blog.id}`)}
+          onClick={() => navigate(`/dashboard/blogs/${blog.id}`)}
         />
       ))}
     </div>

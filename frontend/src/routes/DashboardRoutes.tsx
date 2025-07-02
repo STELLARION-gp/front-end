@@ -5,6 +5,10 @@ import Profile from '../pages/Profile';
 import Settings from '../pages/Settings';
 import DashboardOverview from '../pages/DashboardOverview';
 import Button from '../components/Button';
+import Preview from '../pages/learner/Preview';
+import BlogExplore from '../pages/learner/Blog_Explore';
+import BlogDetailedPage from '../pages/learner/Blog_Page';
+import BlogDetailedPageWrapper from '../pages/learner/BlogDetailedPageWrapper';
 
 // Create placeholder components for different pages - all memoized
 const BlogsPage = memo(() => (
@@ -100,15 +104,36 @@ const DashboardRoutes = () => {
 
     return (
         <Routes>
-            <Route path="overview" element={<DashboardOverview />} />
+            <Route 
+            path="overview" 
+            element={
+                <RoleGuard allowedRoles={['learner']}>
+                    <Preview />
+                </RoleGuard>} 
+            />
+            <Route 
+            path="overview" 
+            element={
+                <RoleGuard allowedRoles={['enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin', 'learner']}>
+                    <DashboardOverview />
+                </RoleGuard>} 
+            />
             <Route path="profile" element={<Profile />} />
             <Route path="settings" element={<Settings />} />
 
             <Route
                 path="blogs"
                 element={
-                    <RoleGuard allowedRoles={['enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin']}>
-                        <BlogsPage />
+                    <RoleGuard allowedRoles={['enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin', 'learner']}>
+                        <BlogExplore />
+                    </RoleGuard>
+                }
+            />
+            <Route
+                path="blogs/:id"
+                element={
+                    <RoleGuard allowedRoles={['enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin', 'learner']}>
+                        <BlogDetailedPageWrapper />
                     </RoleGuard>
                 }
             />

@@ -1,0 +1,407 @@
+// Create Service Page Styles
+// ==========================
+
+@use '../../abstracts/variables' as *;
+
+.create-service {
+  padding: 2rem 2rem 4rem 2rem;
+  width: 100%;
+  background: linear-gradient(135deg, $theme1 0%, $theme2 100%);
+  min-height: 100vh;
+  
+  // Ensure background covers full page
+  background-attachment: fixed;
+  background-size: cover;
+  
+  // Inner container for content width control
+  .create-service-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+  }
+  
+  // Header Section
+  &__header {
+    margin-bottom: 2rem;
+    
+    .header-content {
+      .header-navigation {
+        margin-bottom: 1rem;
+      }
+      
+      .title-section {
+        text-align: center;
+        
+        .page-title {
+          font-family: $font-orbitron;
+          font-size: 2.5rem;
+          font-weight: 700;
+          color: $theme5;
+          margin: 0 0 0.5rem 0;
+          text-shadow: 0 0 20px rgba(232, 249, 255, 0.3);
+        }
+        
+        .page-subtitle {
+          font-size: 1.1rem;
+          color: $theme4;
+          margin: 0;
+          font-weight: 300;
+        }
+      }
+    }
+  }
+  
+  // Service Form
+  .service-form {
+    .form-sections {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+    
+    .form-section {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+      
+      .section-header {
+        padding: 1.5rem 1.5rem 0 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 1.5rem;
+        
+        .section-title {
+          font-family: $font-orbitron;
+          font-size: 1.4rem;
+          font-weight: 600;
+          color: $theme5;
+          margin: 0 0 0.5rem 0;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+        }
+        
+        .section-subtitle {
+          font-size: 0.95rem;
+          color: $theme4;
+          margin: 0 0 1rem 0;
+          font-weight: 300;
+        }
+      }
+      
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        padding: 0 1.5rem 1.5rem 1.5rem;
+        
+        .form-group {
+          display: flex;
+          flex-direction: column;
+          
+          &.full-width {
+            grid-column: 1 / -1;
+          }
+          
+          &.checkbox-group {
+            flex-direction: column;
+            gap: 0.5rem;
+          }
+          
+          label {
+            font-weight: 600;
+            color: $theme5;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            
+            &.checkbox-label {
+              display: flex;
+              align-items: center;
+              gap: 0.8rem;
+              margin: 0;
+              text-transform: none;
+              font-weight: 500;
+              cursor: pointer;
+              background: rgba(255, 255, 255, 0.05);
+              padding: 1rem;
+              border-radius: 8px;
+              border: 1px solid rgba(255, 255, 255, 0.1);
+              transition: all 0.3s ease;
+              
+              &:hover {
+                background: rgba(255, 255, 255, 0.08);
+                border-color: rgba(16, 140, 255, 0.3);
+              }
+            }
+          }
+          
+          .form-input, .form-select {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 0.8rem 1rem;
+            color: $theme5;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            
+            &:focus {
+              outline: none;
+              border-color: rgba(16, 140, 255, 0.6);
+              box-shadow: 0 0 0 3px rgba(16, 140, 255, 0.2);
+              background: rgba(255, 255, 255, 0.12);
+            }
+            
+            &::placeholder {
+              color: rgba(255, 255, 255, 0.5);
+            }
+            
+            &.error {
+              border-color: rgba(239, 68, 68, 0.6);
+              box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+            }
+          }
+          
+          .form-textarea {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 0.8rem 1rem;
+            color: $theme5;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            resize: vertical;
+            min-height: 120px;
+            font-family: inherit;
+            
+            &:focus {
+              outline: none;
+              border-color: rgba(16, 140, 255, 0.6);
+              box-shadow: 0 0 0 3px rgba(16, 140, 255, 0.2);
+              background: rgba(255, 255, 255, 0.12);
+            }
+            
+            &::placeholder {
+              color: rgba(255, 255, 255, 0.5);
+            }
+            
+            &.error {
+              border-color: rgba(239, 68, 68, 0.6);
+              box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+            }
+          }
+          
+          .form-checkbox {
+            width: 20px;
+            height: 20px;
+            accent-color: $theme3;
+            cursor: pointer;
+          }
+          
+          .checkbox-text {
+            font-size: 1rem;
+            color: $theme5;
+          }
+          
+          .featured-icon {
+            width: 20px;
+            height: 20px;
+            color: #fbbf24;
+          }
+          
+          .error-message {
+            color: #ef4444;
+            font-size: 0.85rem;
+            margin-top: 0.3rem;
+            font-weight: 500;
+          }
+          
+          .character-count {
+            color: $theme4;
+            font-size: 0.8rem;
+            text-align: right;
+            margin-top: 0.3rem;
+          }
+          
+          .input-help {
+            color: $theme4;
+            font-size: 0.85rem;
+            margin-top: 0.3rem;
+            font-style: italic;
+          }
+        }
+        
+        // Image Input Special Styling
+        .image-input-wrapper {
+          position: relative;
+          
+          .image-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: $theme4;
+            width: 20px;
+            height: 20px;
+          }
+          
+          .form-input {
+            padding-left: 3rem;
+          }
+        }
+        
+        .image-preview {
+          margin-top: 1rem;
+          border-radius: 8px;
+          overflow: hidden;
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          
+          img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            display: block;
+          }
+        }
+      }
+    }
+    
+    // Form Actions
+    .form-actions {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      padding: 2rem 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 8px;
+      margin-top: 1rem;
+    }
+  }
+  
+  // Responsive Design
+  @media (max-width: 768px) {
+    padding: 1rem 1rem 3rem 1rem;
+    
+    .create-service-container {
+      max-width: 100%;
+      padding: 0 0.5rem;
+    }
+    
+    &__header {
+      .header-content {
+        .title-section {
+          .page-title {
+            font-size: 2rem;
+          }
+        }
+      }
+    }
+    
+    .service-form {
+      .form-section {
+        .section-header {
+          padding: 1rem 1rem 0 1rem;
+          
+          .section-title {
+            font-size: 1.2rem;
+          }
+        }
+        
+        .form-grid {
+          grid-template-columns: 1fr;
+          padding: 0 1rem 1rem 1rem;
+          gap: 1rem;
+        }
+      }
+      
+      .form-actions {
+        flex-direction: column;
+        padding: 1.5rem 1rem;
+        
+        button {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+    }
+  }
+  
+  @media (max-width: 480px) {
+    padding: 0.5rem 0.5rem 2.5rem 0.5rem;
+    
+    .create-service-container {
+      padding: 0 0.25rem;
+    }
+    
+    &__header {
+      margin-bottom: 1rem;
+      
+      .header-content {
+        .title-section {
+          .page-title {
+            font-size: 1.8rem;
+          }
+          
+          .page-subtitle {
+            font-size: 1rem;
+          }
+        }
+      }
+    }
+    
+    .service-form {
+      .form-sections {
+        gap: 1rem;
+      }
+      
+      .form-section {
+        .section-header {
+          padding: 0.75rem;
+          
+          .section-title {
+            font-size: 1.1rem;
+          }
+          
+          .section-subtitle {
+            font-size: 0.9rem;
+          }
+        }
+        
+        .form-grid {
+          padding: 0 0.75rem 0.75rem 0.75rem;
+          
+          .form-group {
+            .form-input, .form-select, .form-textarea {
+              padding: 0.7rem 0.8rem;
+              font-size: 0.95rem;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// Animations
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.form-section {
+  animation: slideInUp 0.6s ease forwards;
+}
+
+.form-section:nth-child(1) { animation-delay: 0.1s; }
+.form-section:nth-child(2) { animation-delay: 0.2s; }
+.form-section:nth-child(3) { animation-delay: 0.3s; }

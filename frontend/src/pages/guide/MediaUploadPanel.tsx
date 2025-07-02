@@ -1,7 +1,6 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { flushSync } from 'react-dom';
 import Button from '../../components/Button';
-// import Sidebar from '../../components/Sidebar';
 import '../../styles/pages/guide/_mediaUploadPanel.scss';
 
 // Simple Upload Icon Component
@@ -47,7 +46,6 @@ interface MediaUploadPanelProps {
   onMediaUploaded?: (media: MediaFile[]) => void;
   maxFileSize?: number; // in MB
   allowedTypes?: string[];
-  showSidebar?: boolean; // Whether to show sidebar layout
 }
 
 interface UploadMode {
@@ -67,8 +65,7 @@ interface AlbumData {
 const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
   onMediaUploaded,
   maxFileSize = 50, // 50MB default
-  allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'video/mp4', 'video/webm', 'video/quicktime'],
-  showSidebar = true // Default to showing sidebar
+  allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'video/mp4', 'video/webm', 'video/quicktime']
 }) => {
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
   const [dragActive, setDragActive] = useState(false);
@@ -93,7 +90,7 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
 
   const generateId = () => Math.random().toString(36).substr(2, 9);
 
-  const validateFile = (file: File): string | null => {
+  const validateFile = useCallback((file: File): string | null => {
     if (!allowedTypes.includes(file.type)) {
       return `File type ${file.type} is not supported. Please upload images (JPEG, PNG, WebP) or videos (MP4, WebM, MOV).`;
     }
@@ -101,7 +98,7 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
       return `File size exceeds ${maxFileSize}MB limit.`;
     }
     return null;
-  };
+  }, [allowedTypes, maxFileSize]);
 
   const processFile = useCallback((file: File): Promise<MediaFile> => {
     return new Promise((resolve, reject) => {
@@ -127,7 +124,7 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
 
       resolve(mediaFile);
     });
-  }, [maxFileSize, allowedTypes]);
+  }, [validateFile]);
 
   const handleFiles = async (files: FileList | File[]) => {
     const commonData = uploadMode.type === 'album' ? {
@@ -939,16 +936,7 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
     </div>
   );
 
-  return showSidebar ? (
-    <div className="dashboard-layout">
-      {/* <Sidebar />
-      <div className="dashboard-content">
-        {renderMediaContent()}
-      </div> */}
-    </div>
-  ) : (
-    renderMediaContent()
-  );
+  return renderMediaContent();
 };
 
 export default MediaUploadPanel;

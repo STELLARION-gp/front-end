@@ -5,6 +5,8 @@ import Profile from '../pages/Profile';
 import Settings from '../pages/Settings';
 import DashboardOverview from '../pages/DashboardOverview';
 import Button from '../components/Button';
+import ServiceListing from '../pages/guide/ServiceListing';
+import MediaUploadPanel from '../pages/guide/MediaUploadPanel';
 
 // Create placeholder components for different pages - all memoized
 const BlogsPage = memo(() => (
@@ -127,6 +129,24 @@ const DashboardRoutes = () => {
                 element={
                     <RoleGuard allowedRoles={['guide', 'mentor', 'moderator', 'admin']}>
                         <EventsPage />
+                    </RoleGuard>
+                }
+            />
+
+            <Route
+                path="services"
+                element={
+                    <RoleGuard allowedRoles={['guide', 'admin']}>
+                        <ServiceListing />
+                    </RoleGuard>
+                }
+            />
+
+            <Route
+                path="media"
+                element={
+                    <RoleGuard allowedRoles={['guide', 'admin']}>
+                        <MediaUploadPanel />
                     </RoleGuard>
                 }
             />

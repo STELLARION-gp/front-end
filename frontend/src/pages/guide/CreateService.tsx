@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../../components/Button';
 import '../../styles/pages/guide/_createService.scss';
@@ -173,7 +173,24 @@ const CreateService: React.FC = () => {
   };
 
   const removeFile = (fileId: string) => {
-    setUploadedFiles(prev => prev.filter(f => f.id !== fileId));
+    const fileToRemove = uploadedFiles.find(f => f.id === fileId);
+    if (fileToRemove) {
+      console.log('Removing file:', fileToRemove.file.name);
+      
+      // Remove from uploadedFiles state
+      setUploadedFiles(prev => prev.filter(f => f.id !== fileId));
+      
+      // Remove from formData.uploadedFiles
+      const updatedFiles = formData.uploadedFiles.filter(file => file !== fileToRemove.file);
+      handleInputChange('uploadedFiles', updatedFiles);
+      
+      // Clean up the preview URL to prevent memory leaks
+      if (fileToRemove.preview) {
+        URL.revokeObjectURL(fileToRemove.preview);
+      }
+      
+      console.log('Remaining files:', updatedFiles.length);
+    }
   };
 
   const validateForm = (): boolean => {
@@ -219,6 +236,18 @@ const CreateService: React.FC = () => {
   const handleCancel = () => {
     navigate('/dashboard/services');
   };
+
+  // Cleanup function to revoke object URLs when component unmounts
+  useEffect(() => {
+    return () => {
+      // Clean up all preview URLs when component unmounts
+      uploadedFiles.forEach(file => {
+        if (file.preview) {
+          URL.revokeObjectURL(file.preview);
+        }
+      });
+    };
+  }, [uploadedFiles]);
 
   return (
     <div className="create-service">
@@ -469,7 +498,7 @@ const CreateService: React.FC = () => {
                       <div className="form-grid">
                         <div className="form-group full-width">
                           <div 
-                            className={`media-upload-dock ${isDragging ? 'drag-over' : ''}`}
+                            className={`media-upload-dock ${isDragging ? 'drag-over' : ''} ${uploadedFiles.length > 0 ? 'has-files' : ''}`}
                             onDrop={(e) => {
                               e.preventDefault();
                               setIsDragging(false);
@@ -522,6 +551,7 @@ const CreateService: React.FC = () => {
                                         className="delete-button"
                                         onClick={() => removeFile(file.id)}
                                         aria-label="Remove file"
+                                        title="Remove this file"
                                       >
                                         <DeleteIcon className="delete-icon" />
                                       </button>
@@ -533,7 +563,7 @@ const CreateService: React.FC = () => {
                             
                             {uploadedFiles.length > 0 && uploadedFiles[0].preview && (
                               <div className="uploaded-preview">
-                                <img src={uploadedFiles[0].preview} alt="Preview" />
+                                <img src={uploadedFiles[0].preview} alt="Service preview" />
                               </div>
                             )}
                           </div>

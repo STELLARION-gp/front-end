@@ -11,6 +11,7 @@ import Signup from './pages/Signup';
 import Login from './pages/Login';
 import NewHome from './pages/NewHome';
 import MediaUploadPanel from './pages/guide/MediaUploadPanel';
+import BlogPage from './pages/learner/Blog_Page';
 
 const App: React.FC = () => {
   return (
@@ -21,6 +22,7 @@ const App: React.FC = () => {
           <Route path="/" element={<NewHome />} />
           <Route path="/about" element={<About />} />
           <Route path="/login" element={<Login />} />
+          <Route path='/blogs/*' element={<BlogPage />} />
           <Route path="/signup" element={<Signup />} />
           <Route
             path="/dashboard/*"

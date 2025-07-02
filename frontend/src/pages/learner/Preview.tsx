@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import AstronomyCompetitionCard from "../../components/Learner/AstronomyCompetitionCard";
 import AstronomyBlogCard from "../../components/Learner/blogcard";
 import NasaImageCard from "../../components/Learner/NasaImageCard";
@@ -120,12 +121,14 @@ const competitions = [
   },
 ];
 
-const Preview = () => (
-  <div className="preview-content">
-    <h2>Recent Blog Preview</h2>
-    <div className="astronomy-card-container">
-      {blogs.map((blog) => (
-        <AstronomyBlogCard
+const Preview = () => {
+  const navigate = useNavigate();
+  return (
+    <div className="preview-content">
+      <h2>Recent Blog Preview</h2>
+      <div className="astronomy-card-container">
+        {blogs.map((blog) => (
+          <AstronomyBlogCard
           key={blog.id}
           image={blog.image}
           title={blog.title}
@@ -133,7 +136,7 @@ const Preview = () => (
           createdAt={blog.createdAt}
           rating={blog.rating}
           content={blog.content}
-          onReadMore={() => alert(`Read more about: ${blog.title}`)}
+          onClick={() => navigate(`/blogs/${blog.id}`)}
         />
       ))}
     </div>
@@ -145,7 +148,7 @@ const Preview = () => (
         <NasaImageCard key={img.id} image={img.image} title={img.title} rating={img.rating} />
       ))}
     </div>
-{/* upcoming events */}
+    {/* upcoming events */}
     <h2 style={{ marginTop: "2rem" }}>Upcoming Space Events</h2>
     <div className="space-events-container">
       {spaceEvents.map(ev => (
@@ -153,7 +156,7 @@ const Preview = () => (
       ))}
     </div>
 
-{/* upcoming competitions */}
+    {/* upcoming competitions */}
     <h2 style={{ marginTop: "2rem" }}>Upcoming Competitions</h2>
     <div className="competitions-container">
       {competitions.map(comp => (
@@ -169,8 +172,6 @@ const Preview = () => (
 
 
   </div>
-
-  
-);
-
+  );
+};
 export default Preview;

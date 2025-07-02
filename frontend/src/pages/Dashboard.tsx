@@ -13,20 +13,6 @@ import NightCamps from './enthuasist/NightCamps';
 import MediaUploadPanel from './guide/MediaUploadPanel';
 import BlogExplore from './learner/Blog_Explore';
 
-// Create placeholder components for different pages
-// const BlogsPage = () => (
-//   <div className="dashboard-page">
-//     <h2>Blogs & Content</h2>
-//     <p>Create and manage your astronomy blog posts and articles.</p>
-//     <RoleGuard allowedRoles={['influencer', 'mentor', 'moderator', 'admin']}>
-//       <div className="advanced-features">
-//         <h3>Advanced Features</h3>
-//         <p>You have access to advanced blogging features.</p>
-//       </div>
-//     </RoleGuard>
-//   </div>
-// );
-
 const MentorPage = () => (
   <div className="dashboard-page">
     <h2>Mentor Dashboard</h2>

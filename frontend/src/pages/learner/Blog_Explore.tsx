@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import AstronomyBlogCard from "../../components/Learner/blogcard";
 import "../../styles/pages/learner/blog_explore.scss"
 import { BookOpenIcon, UserGroupIcon, StarIcon, CalendarDaysIcon } from "@heroicons/react/24/outline";
@@ -77,6 +78,7 @@ const latestDate = blogs
 
 
 const BlogExplore: React.FC = () => {
+  const navigate = useNavigate();
   return (
     <div className="blog-explore-page">
       <div className="blog-explore-head-cards">
@@ -121,7 +123,7 @@ const BlogExplore: React.FC = () => {
           createdAt={blog.createdAt}
           rating={blog.rating}
           content={blog.content}
-          onReadMore={() => alert(`Read more about: ${blog.title}`)}
+          onClick={() => navigate(`/blogs/${blog.id}`)}
         />
         ))}
       </div>

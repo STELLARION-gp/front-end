@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../../styles/pages/learner/AuthorProfilePage.scss";
 import AstronomyBlogCard from "../../components/Learner/blogcard";
 import { GlobeAltIcon, VideoCameraIcon } from "@heroicons/react/24/outline";
@@ -40,6 +41,7 @@ interface AuthorProfile {
 
 const AuthorProfilePage: React.FC<{ author: AuthorProfile }> = ({ author }) => {
   const [tab, setTab] = useState("blogs");
+  const navigate = useNavigate();
 
   return (
     <div className="author-profile-page">
@@ -76,7 +78,7 @@ const AuthorProfilePage: React.FC<{ author: AuthorProfile }> = ({ author }) => {
                 createdAt={blog.createdAt}
                 rating={blog.rating}
                 content={blog.content}
-                onClick={() => {}}
+                onClick={() => navigate(`/dashboard/blogs/${blog.id}`)}
               />
             ))}
           </div>

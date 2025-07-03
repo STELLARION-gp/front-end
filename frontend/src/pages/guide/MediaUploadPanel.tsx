@@ -1,7 +1,6 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { flushSync } from 'react-dom';
 import Button from '../../components/Button';
-// import Sidebar from '../../components/Sidebar';
 import '../../styles/pages/guide/_mediaUploadPanel.scss';
 
 // Simple Upload Icon Component
@@ -29,6 +28,49 @@ const PlusIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
   </svg>
 );
 
+const StarIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
+  <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none">
+    <path
+      d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+const GalaxyIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
+  <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none">
+    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+    <path d="M8 12C8 9.79 9.79 8 12 8C14.21 8 16 9.79 16 12C16 14.21 14.21 16 12 16" stroke="currentColor" strokeWidth="2" fill="none"/>
+    <circle cx="12" cy="12" r="3" fill="currentColor"/>
+    <path d="M12 1V3M12 21V23M4.22 4.22L5.64 5.64M18.36 18.36L19.78 19.78M1 12H3M21 12H23M4.22 19.78L5.64 18.36M18.36 5.64L19.78 4.22" stroke="currentColor" strokeWidth="1"/>
+  </svg>
+);
+
+const RocketIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
+  <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none">
+    <path
+      d="M4.5 16.5C4.5 16.5 5.5 7.5 13 4C13 4 18 2 20 4C22 6 20 11 20 11C16.5 18.5 7.5 19.5 7.5 19.5L4.5 16.5Z"
+      stroke="currentColor"
+      strokeWidth="2"
+      fill="none"
+    />
+    <path d="M13.5 10.5L15.5 12.5" stroke="currentColor" strokeWidth="2"/>
+    <path d="M6 15L9 18L10.5 16.5" stroke="currentColor" strokeWidth="2"/>
+  </svg>
+);
+
+const TelescopeIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
+  <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none">
+    <path d="M3 3L21 21M6 6L18 18" stroke="currentColor" strokeWidth="2"/>
+    <path d="M12 12L8 16M16 8L12 12" stroke="currentColor" strokeWidth="2"/>
+    <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2"/>
+    <path d="M12 1V5M12 19V23M5 12H1M23 12H19" stroke="currentColor" strokeWidth="2"/>
+  </svg>
+);
+
 interface MediaFile {
   id: string;
   file: File;
@@ -47,7 +89,6 @@ interface MediaUploadPanelProps {
   onMediaUploaded?: (media: MediaFile[]) => void;
   maxFileSize?: number; // in MB
   allowedTypes?: string[];
-  showSidebar?: boolean; // Whether to show sidebar layout
 }
 
 interface UploadMode {
@@ -67,8 +108,7 @@ interface AlbumData {
 const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
   onMediaUploaded,
   maxFileSize = 50, // 50MB default
-  allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'video/mp4', 'video/webm', 'video/quicktime'],
-  showSidebar = true // Default to showing sidebar
+  allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'video/mp4', 'video/webm', 'video/quicktime']
 }) => {
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
   const [dragActive, setDragActive] = useState(false);
@@ -93,7 +133,7 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
 
   const generateId = () => Math.random().toString(36).substr(2, 9);
 
-  const validateFile = (file: File): string | null => {
+  const validateFile = useCallback((file: File): string | null => {
     if (!allowedTypes.includes(file.type)) {
       return `File type ${file.type} is not supported. Please upload images (JPEG, PNG, WebP) or videos (MP4, WebM, MOV).`;
     }
@@ -101,7 +141,7 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
       return `File size exceeds ${maxFileSize}MB limit.`;
     }
     return null;
-  };
+  }, [allowedTypes, maxFileSize]);
 
   const processFile = useCallback((file: File): Promise<MediaFile> => {
     return new Promise((resolve, reject) => {
@@ -127,7 +167,7 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
 
       resolve(mediaFile);
     });
-  }, [maxFileSize, allowedTypes]);
+  }, [validateFile]);
 
   const handleFiles = async (files: FileList | File[]) => {
     const commonData = uploadMode.type === 'album' ? {
@@ -443,31 +483,35 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
         
         <div className="header-actions">
           <div className="upload-mode-tabs">
-            <button
-              className={`mode-tab ${uploadMode.type === 'single' ? 'active' : ''}`}
+            <Button
+              variant={uploadMode.type === 'single' ? 'primary' : 'secondary'}
+              size="small"
               onClick={() => setUploadMode({ type: 'single' })}
+              className="mode-tab-component"
             >
               Single Upload
-            </button>
-            <button
-              className={`mode-tab ${uploadMode.type === 'album' ? 'active' : ''}`}
+            </Button>
+            <Button
+              variant={uploadMode.type === 'album' ? 'primary' : 'secondary'}
+              size="small"
               onClick={() => setUploadMode({ type: 'album' })}
+              className="mode-tab-component"
             >
               Album Upload
-            </button>
+            </Button>
           </div>
           
           <div className="upload-buttons">
-            <button
-              className="upload-btn"
+            <Button
+              variant="primary"
+              size="medium"
               onClick={openFileDialog}
-              title={uploadMode.type === 'album' ? 'Upload Album' : 'Upload Media'}
+              icon={<RocketIcon className="upload-icon" />}
+              iconPosition="left"
+              className="upload-btn-component"
             >
-              <PlusIcon className="upload-icon" />
-              <span className="upload-text">
-                {uploadMode.type === 'album' ? 'Upload Album' : 'Upload Media'}
-              </span>
-            </button>
+              {uploadMode.type === 'album' ? 'Upload Album' : 'Upload Media'}
+            </Button>
           </div>
         </div>
       </div>
@@ -496,9 +540,9 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
             <span>Supports: JPEG, PNG, WebP, MP4, WebM, MOV</span>
             <span>Max size: {maxFileSize}MB per file</span>
             {uploadMode.type === 'album' ? (
-              <span>💡 Album mode: Upload multiple files with shared details</span>
+              <span><GalaxyIcon className="info-icon" /> Album mode: Upload multiple files with shared details</span>
             ) : (
-              <span>📷 Single mode: Upload one file at a time</span>
+              <span><StarIcon className="info-icon" /> Single mode: Upload one file at a time</span>
             )}
           </div>
         </div>
@@ -539,41 +583,49 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
         <div className="media-controls">
           <div className="filters">
             <div className="filter-tabs">
-              <button 
-                className={`filter-tab ${filter === 'all' ? 'active' : ''}`}
+              <Button
+                variant={filter === 'all' ? 'primary' : 'secondary'}
+                size="small"
                 onClick={() => setFilter('all')}
+                className="filter-tab-component"
               >
                 All ({mediaFiles.length})
-              </button>
-              <button 
-                className={`filter-tab ${filter === 'images' ? 'active' : ''}`}
+              </Button>
+              <Button
+                variant={filter === 'images' ? 'primary' : 'secondary'}
+                size="small"
                 onClick={() => setFilter('images')}
+                className="filter-tab-component"
               >
                 Images ({mediaFiles.filter(m => m.type === 'image').length})
-              </button>
-              <button 
-                className={`filter-tab ${filter === 'videos' ? 'active' : ''}`}
+              </Button>
+              <Button
+                variant={filter === 'videos' ? 'primary' : 'secondary'}
+                size="small"
                 onClick={() => setFilter('videos')}
+                className="filter-tab-component"
               >
                 Videos ({mediaFiles.filter(m => m.type === 'video').length})
-              </button>
+              </Button>
             </div>
             
             <div className="view-controls">
-              <button 
-                className={`view-btn ${viewMode === 'grid' ? 'active' : ''}`}
+              <Button
+                variant={viewMode === 'grid' ? 'primary' : 'secondary'}
+                size="small"
                 onClick={() => setViewMode('grid')}
-                title="Grid View"
+                className="view-btn-component"
               >
                 ⊞
-              </button>
-              <button 
-                className={`view-btn ${viewMode === 'list' ? 'active' : ''}`}
+              </Button>
+              <Button
+                variant={viewMode === 'list' ? 'primary' : 'secondary'}
+                size="small"
                 onClick={() => setViewMode('list')}
-                title="List View"
+                className="view-btn-component"
               >
                 ☰
-              </button>
+              </Button>
             </div>
           </div>
           
@@ -593,7 +645,7 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
       {mediaFiles.length > 0 && (
         <div className="submit-section">
           <div className="submit-info">
-            <h3>🚀 Ready to Submit</h3>
+            <h3><RocketIcon className="submit-icon" /> Ready to Submit</h3>
             <p>
               You have {mediaFiles.length} media file{mediaFiles.length > 1 ? 's' : ''} ready to be submitted to your astronomy tour database.
             </p>
@@ -649,15 +701,22 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
                   <div className="media-type-badge">
                     {media.type === 'image' ? '📷' : '🎥'}
                   </div>
-                  <button 
-                    className="delete-btn"
+                  <div 
                     onClick={(e) => {
                       e.stopPropagation();
                       deleteMedia(media.id);
                     }}
+                    className="delete-btn-wrapper"
                   >
-                    ✕
-                  </button>
+                    <Button
+                      variant="danger"
+                      size="small"
+                      onClick={() => {}}
+                      className="delete-btn-component"
+                    >
+                      ✕
+                    </Button>
+                  </div>
                 </div>
               </div>
               
@@ -683,14 +742,28 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
         </div>
       ) : (
         <div className="empty-state">
-          <div className="empty-icon">🌌</div>
+          <div className="empty-icon">
+            <GalaxyIcon className="galaxy-icon" />
+          </div>
           <h3>Media Upload Portal</h3>
           <p>Upload your astronomy tour photos and videos, then submit them to your database.</p>
           <p className="empty-instructions">
-            1. Choose Single or Album upload mode<br/>
-            2. Upload your media files<br/>
-            3. Add descriptions and details<br/>
-            4. Submit to database
+            <span className="instruction-item">
+              <StarIcon className="instruction-icon" /> 
+              <span>Choose Single or Album upload mode</span>
+            </span>
+            <span className="instruction-item">
+              <TelescopeIcon className="instruction-icon" /> 
+              <span>Upload your media files</span>
+            </span>
+            <span className="instruction-item">
+              <PlusIcon className="instruction-icon" /> 
+              <span>Add descriptions and details</span>
+            </span>
+            <span className="instruction-item">
+              <RocketIcon className="instruction-icon" /> 
+              <span>Submit to database</span>
+            </span>
           </p>
         </div>
       )}
@@ -701,12 +774,14 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h3>Create Album Upload</h3>
-              <button 
-                className="close-btn"
+              <Button
+                variant="secondary"
+                size="small"
                 onClick={cancelAlbumUpload}
+                className="close-btn-component"
               >
                 ✕
-              </button>
+              </Button>
             </div>
             
             <div className="modal-body">
@@ -818,12 +893,14 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h3>{selectedMedia.name}</h3>
-              <button 
-                className="close-btn"
+              <Button
+                variant="secondary"
+                size="small"
                 onClick={() => setSelectedMedia(null)}
+                className="close-btn-component"
               >
                 ✕
-              </button>
+              </Button>
             </div>
             
             <div className="modal-body">
@@ -939,16 +1016,7 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
     </div>
   );
 
-  return showSidebar ? (
-    <div className="dashboard-layout">
-      {/* <Sidebar />
-      <div className="dashboard-content">
-        {renderMediaContent()}
-      </div> */}
-    </div>
-  ) : (
-    renderMediaContent()
-  );
+  return renderMediaContent();
 };
 
 export default MediaUploadPanel;

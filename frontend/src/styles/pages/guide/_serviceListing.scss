@@ -4,11 +4,22 @@
 @use '../../abstracts/variables' as *;
 
 .service-listing {
-  padding: 2rem;
-  max-width: 1400px;
-  margin: 0 auto;
-  background: linear-gradient(135deg, $theme1 0%, $theme2 100%);
+  padding: 2rem 2rem 4rem 2rem;
+  width: 100%;
+  // background: linear-gradient(135deg, $theme1 0%, $theme2 100%);
   min-height: 100vh;
+  
+  // Ensure background covers full page even with scrolling
+  background-attachment: fixed;
+  background-size: cover;
+  
+  // Inner container for content width control
+  .service-listing-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+    padding-bottom: 10px;
+  }
   
   // Header Section
   &__header {
@@ -512,7 +523,12 @@
   
   // Responsive Design
   @media (max-width: 768px) {
-    padding: 1rem;
+    padding: 1rem 1rem 3rem 1rem;
+    
+    .service-listing-container {
+      max-width: 100%;
+      padding: 0 0.5rem;
+    }
     
     &__header {
       .header-content {
@@ -600,6 +616,12 @@
   }
   
   @media (max-width: 480px) {
+    padding: 0.5rem 0.5rem 2.5rem 0.5rem;
+    
+    .service-listing-container {
+      padding: 0 0.25rem;
+    }
+    
     .services-grid {
       .service-card {
         .service-image {

@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Button from '../../components/Button';
 import Card from '../../components/Card';
 import '../../styles/pages/guide/_serviceListing.scss';
@@ -70,6 +71,15 @@ const PlusIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
 const CloseIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
   <svg className={className} width="20" height="20" viewBox="0 0 20 20" fill="none">
     <path d="M15 5L5 15M5 5l10 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+const CalendarIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
+  <svg className={className} width="16" height="16" viewBox="0 0 24 24" fill="none">
+    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="currentColor" strokeWidth="2"/>
+    <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" strokeWidth="2"/>
+    <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" strokeWidth="2"/>
+    <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" strokeWidth="2"/>
   </svg>
 );
 
@@ -219,6 +229,7 @@ const dummyServices: Service[] = [
 ];
 
 const ServiceListing: React.FC = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'rating' | 'price' | 'date' | 'popularity'>('rating');
@@ -331,8 +342,9 @@ const ServiceListing: React.FC = () => {
 
   return (
     <div className="service-listing">
-      {/* Header */}
-      <div className="service-listing__header">
+      <div className="service-listing-container">
+        {/* Header */}
+        <div className="service-listing__header">
         <div className="header-content">
           <div className="title-section">
             <h1 className="page-title">Guide Services</h1>
@@ -342,10 +354,20 @@ const ServiceListing: React.FC = () => {
           </div>
           <div className="header-actions">
             <Button
+              variant="secondary"
+              size="medium"
+              icon={<CalendarIcon />}
+              iconPosition="left"
+              onClick={() => navigate('/dashboard/services/availability')}
+            >
+              Manage Availability
+            </Button>
+            <Button
               variant="primary"
               size="medium"
               icon={<PlusIcon />}
               iconPosition="left"
+              onClick={() => navigate('/dashboard/services/create')}
             >
               Create New Service
             </Button>
@@ -535,6 +557,15 @@ const ServiceListing: React.FC = () => {
                 Edit
               </Button>
               <Button 
+                variant="secondary" 
+                size="small"
+                icon={<CalendarIcon />}
+                iconPosition="left"
+                onClick={() => navigate(`/dashboard/services/${service.id}/availability`)}
+              >
+                Availability
+              </Button>
+              <Button 
                 variant="primary" 
                 size="small"
                 onClick={() => handleViewService(service)}
@@ -668,6 +699,17 @@ const ServiceListing: React.FC = () => {
             <div className="modal-footer">
               <Button variant="secondary" onClick={handleCloseModals}>
                 Close
+              </Button>
+              <Button 
+                variant="secondary"
+                icon={<CalendarIcon />}
+                iconPosition="left"
+                onClick={() => {
+                  handleCloseModals();
+                  navigate(`/dashboard/services/${selectedService.id}/availability`);
+                }}
+              >
+                Set Availability
               </Button>
               <Button variant="primary" onClick={() => {
                 handleCloseModals();
@@ -877,6 +919,7 @@ const ServiceListing: React.FC = () => {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 };

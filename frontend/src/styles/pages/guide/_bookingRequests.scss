@@ -21,18 +21,23 @@
     .stat-card {
       text-align: center;
       padding: 1rem;
-      background: color.adjust($theme2, $alpha: 0.1);
+      background: $theme2;
+      color: $text-light;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      border: 1px solid color.adjust($theme2, $lightness: -10%);
 
       span {
         display: block;
-        font-size: 0.875rem;
-        color: $theme4;
-        margin-bottom: 0.25rem;
+        font-size: 0.9rem;
+        color: rgba($text-light, 0.8);
+        margin-bottom: 0.5rem;
       }
 
       strong {
-        font-size: 1.25rem;
-        color: $theme2;
+        font-size: 1.5rem;
+        color: $text-light;
+        display: block;
       }
     }
   }

@@ -12,28 +12,59 @@
     margin-bottom: 1rem;
   }
 
-  .booking-requests-list {
+  .stats-grid {
     display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
     gap: 1rem;
+    margin-bottom: 1.5rem;
+
+    .stat-card {
+      text-align: center;
+      padding: 1rem;
+      background: color.adjust($theme2, $alpha: 0.1);
+
+      span {
+        display: block;
+        font-size: 0.875rem;
+        color: $theme4;
+        margin-bottom: 0.25rem;
+      }
+
+      strong {
+        font-size: 1.25rem;
+        color: $theme2;
+      }
+    }
   }
 
-  .booking-request-card {
-    padding: 1rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  .requests-table {
+    width: 100%;
+    border-collapse: collapse;
 
-    .request-info {
-      p {
-        margin: 0.25rem 0;
-        color: $theme4;
-        font-size: 0.95rem;
+    th, td {
+      padding: 0.75rem;
+      border: 1px solid color.adjust($theme1, $alpha: -0.9);
+      text-align: left;
+    }
+
+    thead {
+      background: color.adjust($theme1, $alpha: -0.9);
+
+      th {
+        color: $theme5;
+        font-weight: 600;
       }
     }
 
-    .request-actions {
+    tbody tr:nth-child(even) {
+      background: color.adjust($theme1, $alpha: -0.95);
+    }
+
+    .actions-cell {
       display: flex;
       gap: 0.5rem;
     }
   }
+
+  // remove old card styles
 }

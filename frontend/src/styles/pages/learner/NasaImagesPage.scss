@@ -109,6 +109,14 @@
   gap: 2rem;
 }
 
+
+.nasa-missions-grid {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 2rem;
+}
+
 @media (max-width: 900px) {
   .nasa-featured-image-wrapper {
     max-width: 100%;

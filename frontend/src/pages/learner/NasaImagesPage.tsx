@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import "../../styles/pages/learner/NasaImagesPage.scss";
 import NasaImageCard from "../../components/Learner/NasaImageCard";
+import NasaMissionCard from "../../components/Learner/NasaMissionCard";
 
 // Mock image data
 const nasaImages = [
@@ -29,6 +30,33 @@ const nasaImages = [
     url: "https://skyandtelescope.org/wp-content/uploads/M42_M43_341_210.jpg",
     description: "The Orion Nebula, a stellar nursery where new stars are born."
   },
+];
+
+const nasaMissions = [
+  {
+    name: "Apollo 11",
+    description: "First crewed mission to land on the Moon. Neil Armstrong and Buzz Aldrin walked on the lunar surface in 1969.",
+    image: "https://www.omegon.eu/CMS/images/text/category/mondlandung_astronaut_flagge_all.jpg",
+    years: "1969"
+  },
+  {
+    name: "Voyager 1",
+    description: "Launched in 1977, Voyager 1 is now the farthest human-made object from Earth, exploring interstellar space.",
+    image: "https://scitechdaily.com/images/NASA-Voyager-Spacecraft-Illustration.jpg",
+    years: "1977–present"
+  },
+  {
+    name: "Curiosity Rover",
+    description: "Mars Science Laboratory rover exploring the surface of Mars since 2012.",
+    image: "https://www.datocms-assets.com/117510/1722389708-slh_news34_curiosity_rover_original.jpg?auto=format&fit=max&w=1200",
+    years: "2012–present"
+  },
+  {
+    name: "James Webb Space Telescope",
+    description: "The most powerful space telescope ever built, launched in 2021 to study the early universe.",
+    image: "https://cdn.mos.cms.futurecdn.net/NQRzVz58E3xE3i4Jvopew5.jpg",
+    years: "2021–present"
+  }
 ];
 
 const FADE_DURATION = 1250; // ms
@@ -67,6 +95,7 @@ const NasaImagesPage: React.FC = () => {
 
   return (
     <div className="nasa-images-page">
+        <h2>NASA Images</h2>
       <div className="nasa-featured-section">
         <div className="nasa-featured-image-wrapper">
           {prevIndex !== null && isTransitioning && (
@@ -113,6 +142,14 @@ const NasaImagesPage: React.FC = () => {
         <div className="nasa-gallery-grid">
           {nasaImages.map((img) => (
             <NasaImageCard key={img.url} image={img.url} title={img.title} rating={5} />
+          ))}
+        </div>
+      </div>
+      <div>
+        <h2>NASA Missions</h2>
+        <div className="nasa-missions-grid">
+          {nasaMissions.map((mission) => (
+            <NasaMissionCard key={mission.name} {...mission} />
           ))}
         </div>
       </div>

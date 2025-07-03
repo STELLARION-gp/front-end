@@ -20,6 +20,7 @@ import SetAvailability from '../pages/guide/SetAvailability';
 import MediaUploadPanel from '../pages/guide/MediaUploadPanel';
 import MentorProfile from '../pages/mentor/MentorProfile';
 import BookingRequests from '../pages/guide/BookingRequests';
+import CelestialEventsPage from '../pages/learner/Celestial_Events_Page';
 
 
 // Create placeholder components for different pages - all memoized
@@ -157,7 +158,14 @@ const DashboardRoutes = () => {
                     </RoleGuard>
                 }
             />
-
+            <Route
+                path="celestial-events"
+                element={
+                    <RoleGuard allowedRoles={['learner']}>
+                        <CelestialEventsPage />
+                    </RoleGuard>
+                }
+            />
             <Route
                 path="mentor"
                 element={

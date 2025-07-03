@@ -19,13 +19,13 @@ const renderStars = (rating: number) => {
   const halfStar = rating % 1 >= 0.5;
   const stars = [];
   for (let i = 0; i < fullStars; i++) {
-    stars.push(<span key={i} className="star">&#9733;</span>); // filled star
+    stars.push(<span key={i} className="blog-star">&#9733;</span>); // filled star
   }
   if (halfStar) {
-    stars.push(<span key="half" className="star">&#9734;</span>); // half/empty star
+    stars.push(<span key="half" className="blog-star">&#9734;</span>); // half/empty star
   }
   while (stars.length < 5) {
-    stars.push(<span key={stars.length} className="star empty">&#9734;</span>);
+    stars.push(<span key={stars.length} className="blog-star empty">&#9734;</span>);
   }
   return stars;
 };

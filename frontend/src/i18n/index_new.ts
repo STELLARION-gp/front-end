@@ -6,9 +6,9 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 import en from './locales/en.json';
 import sin from './locales/sin.json';
 import ta from './locales/ta.json';
-import fr from './locales/fr.json';
-import es from './locales/es.json';
-import de from './locales/de.json';
+// import fr from '../locales/fr.json';
+// import es from './locales/es.json';
+// import de from './locales/de.json';
 
 // Import validation for development
 import { devValidateTranslations } from './translationValidator';
@@ -18,9 +18,9 @@ const resources = {
     en: { translation: en },
     sin: { translation: sin },
     ta: { translation: ta },
-    fr: { translation: fr },
-    es: { translation: es },
-    de: { translation: de },
+    // fr: { translation: fr },
+    // es: { translation: es },
+    // de: { translation: de },
 };
 
 // Supported languages configuration
@@ -28,9 +28,9 @@ export const supportedLanguages = [
     { code: 'en', name: 'English', nativeName: 'English' },
     { code: 'sin', name: 'Sinhala', nativeName: 'සිංහල' },
     { code: 'ta', name: 'Tamil', nativeName: 'தமிழ்' },
-    { code: 'fr', name: 'French', nativeName: 'Français' },
-    { code: 'es', name: 'Spanish', nativeName: 'Español' },
-    { code: 'de', name: 'German', nativeName: 'Deutsch' },
+    // { code: 'fr', name: 'French', nativeName: 'Français' },
+    // { code: 'es', name: 'Spanish', nativeName: 'Español' },
+    // { code: 'de', name: 'German', nativeName: 'Deutsch' },
 ];
 
 // Language detector options

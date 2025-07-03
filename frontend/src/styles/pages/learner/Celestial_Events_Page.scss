@@ -38,3 +38,33 @@
     margin-bottom: 1.2rem;
   }
 }
+
+.celestial-events-list.upcoming {
+  .space-event-card.modern {
+    position: relative;
+    border: 2px solid #3b82f6;
+    box-shadow: 0 0 0 0 transparent;
+    background: linear-gradient(90deg, #181f2a 0%, #1e293b 100%);
+    transition: box-shadow 0.2s, border-color 0.2s;
+  }
+  .space-event-card.modern::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 18px;
+    pointer-events: none;
+    z-index: 0;
+    box-shadow: 0 0 12px 2px rgba(255,255,255,0.18);
+    opacity: 0.85;
+    transition: box-shadow 0.2s, opacity 0.2s;
+  }
+  .space-event-card.modern:hover::after {
+    box-shadow: 0 0 18px 3px rgba(255,255,255,0.22);
+    opacity: 1;
+  }
+}
+
+@keyframes border-glow-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

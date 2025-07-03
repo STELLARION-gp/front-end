@@ -21,7 +21,7 @@ const CelestialEventsPage: React.FC = () => (
   <div className="celestial-events-page">
     <h2>Upcoming Celestial Events</h2>
     <p>Stay up to date with the most exciting astronomical happenings visible from Earth.</p>
-    <div className="celestial-events-list">
+    <div className="celestial-events-list upcoming">
       {upcomingEvents.map(ev => (
         <SpaceEventCard key={ev.id} event={ev} />
       ))}

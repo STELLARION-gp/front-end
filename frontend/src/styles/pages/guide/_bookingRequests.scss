@@ -1,0 +1,39 @@
+@use 'sass:color';
+@use '../../abstracts/variables' as *;
+// Booking Requests Page Styles
+// ===========================
+
+.dashboard-page {
+  padding: 1.5rem;
+
+  h2 {
+    font-size: 1.75rem;
+    color: $theme5;
+    margin-bottom: 1rem;
+  }
+
+  .booking-requests-list {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .booking-request-card {
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .request-info {
+      p {
+        margin: 0.25rem 0;
+        color: $theme4;
+        font-size: 0.95rem;
+      }
+    }
+
+    .request-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+  }
+}

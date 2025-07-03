@@ -102,7 +102,7 @@ export const ROLE_BASED_MENU_ITEMS = {
     ],
     mentor: [
         { label: 'Overview', icon: 'HomeIcon', href: '/dashboard/overview' },
-        { label: 'Profile', icon: 'UserCircleIcon', href: '/dashboard/profile' },
+        { label: 'Profile', icon: 'UserCircleIcon', href: '/dashboard/mentorprofile' },
         { label: 'Blogs', icon: 'BookOpenIcon', href: '/dashboard/blogs' },
         { label: 'Mentor', icon: 'AcademicCapIcon', href: '/dashboard/mentor' },
         { label: 'Events', icon: 'CalendarDaysIcon', href: '/dashboard/events' },

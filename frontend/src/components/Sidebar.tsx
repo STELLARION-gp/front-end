@@ -60,7 +60,12 @@ const Sidebar: React.FC = () => {
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
   // Determine if a menu item is active
-  const isActive = useCallback((path: string): boolean => location.pathname.startsWith(path), [location.pathname]);
+  const isActive = useCallback(
+    (path: string): boolean => {
+      return location.pathname === path || location.pathname.startsWith(path + '/');
+    },
+    [location.pathname]
+  );
 
   const handleMouseEnter = useCallback((index: number) => {
     if (itemsRef.current[index - 1]) itemsRef.current[index - 1]?.classList.add('bottom-rounded');

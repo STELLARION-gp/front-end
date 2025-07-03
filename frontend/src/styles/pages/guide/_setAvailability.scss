@@ -76,7 +76,8 @@
     
     .services-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      // use auto-fit to collapse empty columns and let cards fill available width
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
       gap: 1.5rem;
       margin-top: 2rem;
     }
@@ -183,9 +184,28 @@
     // Removed grid layout to make full width components
     .calendar-card,
     .availability-form-card {
-      width: 100%;
+      width: 100% !important;
+      max-width: 100% !important;
       margin-bottom: 2rem;
     }
+  }
+
+  // Force full-width for main cards
+  .service-selection,
+  .availability-list-card,
+  .calendar-card,
+  .availability-form-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto 2rem;
+  }
+
+  // Override default Card size constraints
+  .card--small,
+  .card--medium,
+  .card--large {
+    max-width: none !important;
+    width: 100% !important;
   }
   
   // Calendar Section

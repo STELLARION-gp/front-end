@@ -9,11 +9,16 @@ import Preview from '../pages/learner/Preview';
 import BlogExplore from '../pages/learner/Blog_Explore';
 import BlogDetailedPageWrapper from '../pages/learner/BlogDetailedPageWrapper';
 import AuthorProfilePageWrapper from '../pages/learner/AuthorProfilePageWrapper';
+
+import NightCamps from '../pages/enthuasist/NightCamps';
+import Stargazing from '../pages/enthuasist/Stargazing';
+
 import ServiceListing from '../pages/guide/ServiceListing';
 import CreateService from '../pages/guide/CreateService';
 import SetAvailability from '../pages/guide/SetAvailability';
 import MediaUploadPanel from '../pages/guide/MediaUploadPanel';
 import MentorProfile from '../pages/mentor/MentorProfile';
+import BookingRequests from '../pages/guide/BookingRequests';
 
 
 // Create placeholder components for different pages - all memoized
@@ -162,6 +167,16 @@ const DashboardRoutes = () => {
                 }
             />
 
+
+            <Route
+                path="booking-requests"
+                element={
+                    <RoleGuard allowedRoles={['learner', 'enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin']}>
+                        <BookingRequests />
+                    </RoleGuard>
+                }
+            />
+
             <Route
                 path="services/*"
                 element={
@@ -184,6 +199,7 @@ const DashboardRoutes = () => {
                     </RoleGuard>
                 }
             />
+
 
             <Route path="chat" element={<ChatPage />} />
 
@@ -231,6 +247,27 @@ const DashboardRoutes = () => {
                         </RoleGuard>
                 }
             />
+
+
+
+            <Route
+                path="night-camps"
+                element={
+                    <RoleGuard allowedRoles={['enthusiast', 'influencer','learner','moderator', 'admin','guide', 'mentor']}>
+                        <NightCamps />
+                    </RoleGuard>
+                }
+            />
+
+                <Route
+                path="stargazing"
+                element={
+                    <RoleGuard allowedRoles={['enthusiast', 'influencer','admin', 'learner','guide','mentor']}>
+                        <Stargazing />
+                    </RoleGuard>
+                }
+            />
+
 
 
             {/* Default redirect to overview */}

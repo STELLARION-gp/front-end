@@ -51,6 +51,9 @@ export const PAGE_ACCESS_CONTROL = {
     '/dashboard/moderation': ['moderator', 'admin'] as UserRole[],
     '/dashboard/night-camps': ['enthusiast', 'influencer','learner','moderator', 'admin','mentor'] as UserRole[],
     '/dashboard/stargazing': ['enthusiast', 'influencer','admin', 'learner','mentor','moderator'] as UserRole[],
+    '/dashboard/booking-requests': ['guide'] as UserRole[],
+    
+
 };
 
 // Sidebar menu items with role-based visibility
@@ -63,6 +66,7 @@ export const ROLE_BASED_MENU_ITEMS = {
         { label: 'Settings', icon: 'Cog6ToothIcon', href: '/dashboard/settings' },
         { label: 'Night Camps', icon: 'MoonIcon', href: '/dashboard/night-camps' },
         { label: 'Stargazing Spot', icon: 'StarIcon', href: '/dashboard/stargazing' },
+
 
         
     ],
@@ -89,7 +93,7 @@ export const ROLE_BASED_MENU_ITEMS = {
         { label: 'Profile', icon: 'UserCircleIcon', href: '/dashboard/profile' },
         { label: 'Services', icon: 'AcademicCapIcon', href: '/dashboard/services' },
         { label: 'Blogs', icon: 'BookOpenIcon', href: '/dashboard/blogs' },
-        { label: 'Night Camps', icon: 'MoonIcon', href: '/dashboard/night-camps' },
+        { label: 'Requests', icon: 'MoonIcon', href: '/dashboard/booking-requests' },
         { label: 'Stargazing', icon: 'StarIcon', href: '/dashboard/stargazing' },
         { label: 'Events', icon: 'CalendarDaysIcon', href: '/dashboard/events' },
         { label: 'Media Gallery', icon: 'PhotoIcon', href: '/dashboard/media' },
@@ -114,6 +118,7 @@ export const ROLE_BASED_MENU_ITEMS = {
         { label: 'Blogs', icon: 'BookOpenIcon', href: '/dashboard/blogs' },
         { label: 'Night Camps', icon: 'MoonIcon', href: '/dashboard/night-camps' },
         { label: 'Stargazing Spot', icon: 'StarIcon', href: '/dashboard/stargazing' },
+        { label: 'Requests', icon: 'MoonIcon', href: '/dashboard/booking-requests' },
         { label: 'Mentor', icon: 'AcademicCapIcon', href: '/dashboard/mentor' },
         { label: 'Events', icon: 'CalendarDaysIcon', href: '/dashboard/events' },
         { label: 'Chat', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/chat' },
@@ -127,13 +132,10 @@ export const ROLE_BASED_MENU_ITEMS = {
         { label: 'Blogs', icon: 'BookOpenIcon', href: '/dashboard/blogs' },
         { label: 'Night Camps', icon: 'MoonIcon', href: '/dashboard/night-camps' },
         { label: 'Stargazing Spot', icon: 'StarIcon', href: '/dashboard/stargazing' },
+        { label: 'Requests', icon: 'MoonIcon', href: '/dashboard/booking-requests' },
         { label: 'Mentor', icon: 'AcademicCapIcon', href: '/dashboard/mentor' },
         { label: 'Events', icon: 'CalendarDaysIcon', href: '/dashboard/events' },
         { label: 'Chat', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/chat' },
-        { label: 'Sessions', icon: 'UsersIcon', href: '/dashboard/sessions' },
-        { label: 'Moderation', icon: 'ShieldCheckIcon', href: '/dashboard/moderation' },
-        { label: 'Admin', icon: 'KeyIcon', href: '/dashboard/admin' },
-        { label: 'Settings', icon: 'Cog6ToothIcon', href: '/dashboard/settings' },
     ],
 } as const;
 

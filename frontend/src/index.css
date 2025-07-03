@@ -1,3 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Optimized loading animations */
+@layer utilities {
+  .animate-pulse {
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  
+  .animate-fadeIn {
+    animation: fadeIn 0.6s ease-out;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+  
+  .animate-shimmer {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+  
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+
+  /* Fast page transitions */
+  .page-transition-enter {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  
+  .page-transition-enter-active {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 200ms ease-in, transform 200ms ease-in;
+  }
+  
+  .page-transition-exit {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  .page-transition-exit-active {
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 150ms ease-out, transform 150ms ease-out;
+  }
+}
+
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -13,6 +86,15 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+html {
+  height: 100%;
+}
+
+#root {
+  min-height: 100vh;
+  height: auto;
+}
+
 a {
   font-weight: 500;
   color: #646cff;
@@ -24,10 +106,9 @@ a:hover {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  padding-top: 80px; /* Match navbar height */
 }
 
 h1 {
@@ -52,6 +133,56 @@ button:hover {
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
+}
+
+/* Override for pages that manage their own spacing */
+.no-navbar-padding {
+  padding-top: 0 !important;
+}
+
+/* Content Loading Styles */
+.content-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 12px;
+  margin: 1rem;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dashboard-content {
+  position: relative;
+  overflow: hidden;
+}
+
+.dashboard-content .content-loading {
+  margin: 0;
+  min-height: calc(100vh - 200px);
+  border-radius: 0;
+  background: transparent;
+  backdrop-filter: none;
+  border: none;
+}
+
+/* Auth Loading Styles - Minimal and unobtrusive */
+.auth-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60px;
+  padding: 1rem;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  backdrop-filter: blur(5px);
 }
 
 @media (prefers-color-scheme: light) {

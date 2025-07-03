@@ -63,11 +63,11 @@
   align-items: center;
   gap: 0.2rem;
 
-  .star {
+  .blog-star {
     color: #fbbf24;
     font-size: 1.2rem;
   }
-  .star.empty {
+  .blog-star.empty {
     color: #374151; // gray-700
   }
   .rating-number {

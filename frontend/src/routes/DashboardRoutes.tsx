@@ -9,8 +9,17 @@ import Preview from '../pages/learner/Preview';
 import BlogExplore from '../pages/learner/Blog_Explore';
 import BlogDetailedPageWrapper from '../pages/learner/BlogDetailedPageWrapper';
 import AuthorProfilePageWrapper from '../pages/learner/AuthorProfilePageWrapper';
+
 import NightCamps from '../pages/enthuasist/NightCamps';
 import Stargazing from '../pages/enthuasist/Stargazing';
+
+import ServiceListing from '../pages/guide/ServiceListing';
+import CreateService from '../pages/guide/CreateService';
+import SetAvailability from '../pages/guide/SetAvailability';
+import MediaUploadPanel from '../pages/guide/MediaUploadPanel';
+import BookingRequests from '../pages/guide/BookingRequests';
+
+
 
 // Create placeholder components for different pages - all memoized
 // const BlogsPage = memo(() => (
@@ -158,6 +167,40 @@ const DashboardRoutes = () => {
                 }
             />
 
+
+            <Route
+                path="booking-requests"
+                element={
+                    <RoleGuard allowedRoles={['learner', 'enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin']}>
+                        <BookingRequests />
+                    </RoleGuard>
+                }
+            />
+
+            <Route
+                path="services/*"
+                element={
+                    <RoleGuard allowedRoles={['guide', 'admin']}>
+                        <Routes>
+                            <Route index element={<ServiceListing />} />
+                            <Route path="create" element={<CreateService />} />
+                            <Route path="availability" element={<SetAvailability />} />
+                            <Route path=":serviceId/availability" element={<SetAvailability />} />
+                        </Routes>
+                    </RoleGuard>
+                }
+            />
+
+            <Route
+                path="media"
+                element={
+                    <RoleGuard allowedRoles={['guide', 'admin']}>
+                        <MediaUploadPanel />
+                    </RoleGuard>
+                }
+            />
+
+
             <Route path="chat" element={<ChatPage />} />
 
             <Route
@@ -196,6 +239,7 @@ const DashboardRoutes = () => {
                 }
             />
 
+
             <Route
                 path="night-camps"
                 element={
@@ -213,6 +257,7 @@ const DashboardRoutes = () => {
                     </RoleGuard>
                 }
             />
+
 
 
             {/* Default redirect to overview */}

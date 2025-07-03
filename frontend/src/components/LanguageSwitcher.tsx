@@ -1,5 +1,6 @@
 import React from 'react';
 import { useI18n } from '../i18n/useI18n';
+import Button from './Button';
 import '../styles/components/_languageSwitcher.scss';
 
 interface LanguageSwitcherProps {
@@ -48,14 +49,15 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
         return (
             <div className={`language-switcher language-buttons ${className}`}>
                 {availableLanguages.map((lang) => (
-                    <button
+                    <Button
                         key={lang.code}
                         onClick={() => handleLanguageChange(lang.code)}
-                        className={`language-button ${currentLang.code === lang.code ? 'active' : ''}`}
+                        variant={currentLang.code === lang.code ? 'primary' : 'border'}
+                        size="small"
                         aria-label={`Switch to ${lang.name}`}
                     >
                         {showLabels ? lang.name : lang.nativeName}
-                    </button>
+                    </Button>
                 ))}
             </div>
         );

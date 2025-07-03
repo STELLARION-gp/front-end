@@ -1,8 +1,48 @@
 @use "../abstracts/variables" as *;
+@use "../abstracts/galaxy-colors" as *;
 
 
 @mixin flex-center {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+// Galaxy-themed mixins for consistent space visuals
+
+// Mixin for text with galaxy gradient
+@mixin galaxy-text-gradient($direction: 90deg) {
+  background: linear-gradient($direction, $galaxy-purple, $galaxy-pink, $galaxy-cyan);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+
+// Mixin for cosmic glow effect
+@mixin cosmic-glow($color: $galaxy-cyan, $blur-radius: 15px) {
+  box-shadow: 0 0 $blur-radius rgba($color, 0.6);
+}
+
+// Mixin for space background with subtle star pattern
+@mixin space-background {
+  background-color: $theme1;
+  background-image: radial-gradient(white, rgba(255, 255, 255, 0.2) 2px, transparent 2px);
+  background-size: 100px 100px;
+  background-position: 0 0, 50px 50px;
+}
+
+// Mixin for galaxy-themed button
+@mixin galaxy-button {
+  background: linear-gradient(90deg, $galaxy-purple, $galaxy-hot-pink);
+  color: white;
+  border: none;
+  border-radius: $radius-md;
+  transition: all $transition-medium;
+
+  &:hover {
+    background: linear-gradient(90deg, $galaxy-hot-pink, $galaxy-purple);
+    transform: translateY(-2px);
+    @include cosmic-glow($galaxy-hot-pink, 10px);
+  }
 }

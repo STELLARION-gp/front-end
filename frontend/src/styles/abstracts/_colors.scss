@@ -1,0 +1,17 @@
+// Central file for importing all color-related variables
+// Use this file to ensure consistent color usage across the project
+
+@forward 'variables';
+@forward 'galaxy-colors';
+
+// Usage examples for developers:
+// 
+// SCSS:
+// @use '../abstracts/colors' as *;
+// .my-element {
+//   color: $galaxy-purple;
+//   background: $gradient-3;
+// }
+//
+// Tailwind:
+// <div className="text-galaxy-purple bg-galaxyGradient3"></div>

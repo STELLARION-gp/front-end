@@ -29,6 +29,19 @@ export default {
         theme3: "#108CFF",
         theme4: "#9DA5BD",
         theme5: "#E6F9FF",
+        // Galaxy color palette
+        galaxy: {
+          pink: "#FF61F6",
+          purple: "#7B4BFF",
+          cyan: "#00E5FF",
+          aqua: "#5DF9FF",
+          gold: "#FFD500",
+          orange: "#FF7D00",
+          hotPink: "#FF0070",
+          electricBlue: "#01FEFE",
+          green: "#01FF89",
+          white: "#FFFFFF",
+        },
       },
       fontFamily: {
         outfit: ["'Outfit'", "sans-serif"],
@@ -73,6 +86,10 @@ export default {
         gradient2: "linear-gradient(90deg, #D87CEE 0%, #FACB7B 100%)",
         gradient3: "linear-gradient(90deg, #9099FC 0%, #89F9E8 100%)",
         gradient4: "linear-gradient(180deg, #9099FC 0%, #D87CEE 100%)",
+        // Galaxy-themed gradients
+        galaxyGradient1: "linear-gradient(90deg, #7B4BFF 0%, #FF61F6 100%)",
+        galaxyGradient2: "linear-gradient(90deg, #00E5FF 0%, #01FEFE 100%)",
+        galaxyGradient3: "linear-gradient(135deg, #FF0070 0%, #7B4BFF 50%, #00E5FF 100%)",
       },
     },
   },

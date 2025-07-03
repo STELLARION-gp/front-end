@@ -26,23 +26,27 @@ const nasaImages = [
   },
   {
     title: "Orion Nebula",
-    url: "https://images-assets.nasa.gov/image/PIA03605/PIA03605~orig.jpg",
+    url: "https://skyandtelescope.org/wp-content/uploads/M42_M43_341_210.jpg",
     description: "The Orion Nebula, a stellar nursery where new stars are born."
   },
 ];
 
+const FADE_DURATION = 1250; // ms
 const NasaImagesPage: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [prevIndex, setPrevIndex] = useState<number | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const [fade, setFade] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   useEffect(() => {
-    setFade(true);
     timeoutRef.current = setTimeout(() => {
-      setFade(false);
-      timeoutRef.current = setTimeout(() => {
+      setPrevIndex(currentIndex);
+      setIsTransitioning(true);
+      setTimeout(() => {
         setCurrentIndex((prev) => (prev + 1) % nasaImages.length);
-      }, 400); // match fade duration
+        setIsTransitioning(false);
+        setPrevIndex(null);
+      }, FADE_DURATION);
     }, 5000);
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -50,24 +54,45 @@ const NasaImagesPage: React.FC = () => {
   }, [currentIndex]);
 
   const handleThumbnailClick = (idx: number) => {
-    if (idx !== currentIndex) {
-      setFade(true);
+    if (idx !== currentIndex && !isTransitioning) {
+      setPrevIndex(currentIndex);
+      setIsTransitioning(true);
       setTimeout(() => {
         setCurrentIndex(idx);
-        setFade(false);
-      }, 400);
+        setIsTransitioning(false);
+        setPrevIndex(null);
+      }, FADE_DURATION);
     }
   };
 
   return (
     <div className="nasa-images-page">
       <div className="nasa-featured-section">
-        <div className={`nasa-featured-image-wrapper${fade ? " fade" : ""}`}>  
-          <img
-            src={nasaImages[currentIndex].url}
-            alt={nasaImages[currentIndex].title}
-            className="nasa-featured-image"
-          />
+        <div className="nasa-featured-image-wrapper">
+          {prevIndex !== null && isTransitioning && (
+            <img
+              src={nasaImages[prevIndex].url}
+              alt={nasaImages[prevIndex].title}
+              className="nasa-featured-image crossfade-out"
+              style={{zIndex: 2}}
+            />
+          )}
+          {isTransitioning && (
+            <img
+              src={nasaImages[(currentIndex + 1) % nasaImages.length].url}
+              alt={nasaImages[(currentIndex + 1) % nasaImages.length].title}
+              className="nasa-featured-image crossfade-in"
+              style={{zIndex: 3}}
+            />
+          )}
+          {!isTransitioning && (
+            <img
+              src={nasaImages[currentIndex].url}
+              alt={nasaImages[currentIndex].title}
+              className="nasa-featured-image"
+              style={{zIndex: 3}}
+            />
+          )}
           <div className="nasa-featured-title-overlay">
             <h2>{nasaImages[currentIndex].title}</h2>
           </div>

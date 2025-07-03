@@ -9,6 +9,7 @@ import Preview from '../pages/learner/Preview';
 import BlogExplore from '../pages/learner/Blog_Explore';
 import BlogDetailedPageWrapper from '../pages/learner/BlogDetailedPageWrapper';
 import AuthorProfilePageWrapper from '../pages/learner/AuthorProfilePageWrapper';
+import NasaImagesPage from '../pages/learner/NasaImagesPage';
 
 import NightCamps from '../pages/enthuasist/NightCamps';
 import Stargazing from '../pages/enthuasist/Stargazing';
@@ -145,6 +146,14 @@ const DashboardRoutes = () => {
                 element={
                     <RoleGuard allowedRoles={['enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin', 'learner']}>
                         <BlogDetailedPageWrapper />
+                    </RoleGuard>
+                }
+            />
+            <Route
+                path="nasa-content"
+                element={
+                    <RoleGuard allowedRoles={['learner']}>
+                        <NasaImagesPage />
                     </RoleGuard>
                 }
             />

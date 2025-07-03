@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import "../../styles/pages/learner/NasaImagesPage.scss";
 import NasaImageCard from "../../components/Learner/NasaImageCard";
 import NasaMissionCard from "../../components/Learner/NasaMissionCard";
+import NasaImageModal from "../../components/Learner/NasaImageModal";
 
 // Mock image data
 const nasaImages = [
@@ -65,6 +66,10 @@ const NasaImagesPage: React.FC = () => {
   const [prevIndex, setPrevIndex] = useState<number | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalImage, setModalImage] = useState<typeof nasaImages[0] | null>(null);
+  const [modalComments, setModalComments] = useState<{[url: string]: {id: number; user: string; rating: number; text: string;}[]}>({});
+  const [modalFavorite, setModalFavorite] = useState<{[url: string]: boolean}>({});
 
   useEffect(() => {
     timeoutRef.current = setTimeout(() => {
@@ -93,6 +98,29 @@ const NasaImagesPage: React.FC = () => {
     }
   };
 
+  const handleImageClick = (img: typeof nasaImages[0]) => {
+    setModalImage(img);
+    setModalOpen(true);
+  };
+  const handleCloseModal = () => setModalOpen(false);
+  const handleAddComment = (comment: {rating: number; text: string}) => {
+    if (!modalImage) return;
+    setModalComments(prev => ({
+      ...prev,
+      [modalImage.url]: [
+        ...(prev[modalImage.url] || []),
+        { id: Date.now(), user: "You", ...comment }
+      ]
+    }));
+  };
+  const handleToggleFavorite = () => {
+    if (!modalImage) return;
+    setModalFavorite(prev => ({
+      ...prev,
+      [modalImage.url]: !prev[modalImage.url]
+    }));
+  };
+
   return (
     <div className="nasa-images-page">
         <h2>NASA Images</h2>
@@ -119,7 +147,8 @@ const NasaImagesPage: React.FC = () => {
               src={nasaImages[currentIndex].url}
               alt={nasaImages[currentIndex].title}
               className="nasa-featured-image"
-              style={{zIndex: 3}}
+              style={{zIndex: 3, cursor: 'pointer'}}
+              onClick={() => handleImageClick(nasaImages[currentIndex])}
             />
           )}
           <div className="nasa-featured-title-overlay">
@@ -141,7 +170,7 @@ const NasaImagesPage: React.FC = () => {
       <div className="nasa-gallery-section">
         <div className="nasa-gallery-grid">
           {nasaImages.map((img) => (
-            <NasaImageCard key={img.url} image={img.url} title={img.title} rating={5} />
+            <NasaImageCard key={img.url} image={img.url} title={img.title} rating={5} onClick={() => handleImageClick(img)} />
           ))}
         </div>
       </div>
@@ -153,6 +182,15 @@ const NasaImagesPage: React.FC = () => {
           ))}
         </div>
       </div>
+      <NasaImageModal
+        open={modalOpen}
+        onClose={handleCloseModal}
+        image={modalImage || nasaImages[0]}
+        comments={modalComments[modalImage?.url || nasaImages[0].url] || []}
+        onAddComment={handleAddComment}
+        isFavorite={!!modalFavorite[modalImage?.url || nasaImages[0].url]}
+        onToggleFavorite={handleToggleFavorite}
+      />
     </div>
   );
 };

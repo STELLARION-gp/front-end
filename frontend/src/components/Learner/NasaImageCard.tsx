@@ -5,6 +5,7 @@ interface NasaImageCardProps {
   image: string;
   title: string;
   rating: number;
+  onClick?: () => void;
 }
 
 const renderStars = (rating: number) => {
@@ -23,8 +24,8 @@ const renderStars = (rating: number) => {
   return stars;
 };
 
-const NasaImageCard: React.FC<NasaImageCardProps> = ({ image, title, rating }) => (
-  <div className="nasa-image-card">
+const NasaImageCard: React.FC<NasaImageCardProps> = ({ image, title, rating, onClick }) => (
+  <div className="nasa-image-card" onClick={onClick} style={{ cursor: onClick ? 'pointer' : undefined }}>
     <div className="nasa-image-wrapper">
       <img src={image} alt={title} className="nasa-image" />
       <div className="nasa-image-title-overlay">{title}</div>

@@ -9,8 +9,8 @@
   padding: 1.5rem 1.5rem 3rem 1.5rem;
   
   .set-availability-container {
-    max-width: 1400px;
-    margin: 0 auto;
+    max-width: none;
+    margin: 0;
     width: 100%;
     padding-bottom: 2rem;
   }
@@ -176,13 +176,15 @@
   
   // Calendar and Form Layout
   .availability-management {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
+    display: block;
+    width: 100%;
     margin-bottom: 2rem;
     
-    @media (max-width: 1024px) {
-      grid-template-columns: 1fr;
+    // Removed grid layout to make full width components
+    .calendar-card,
+    .availability-form-card {
+      width: 100%;
+      margin-bottom: 2rem;
     }
   }
   

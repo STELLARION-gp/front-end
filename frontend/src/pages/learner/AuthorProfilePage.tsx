@@ -103,7 +103,7 @@ const AuthorProfilePage: React.FC<{ author: AuthorProfile }> = ({ author }) => {
               <div className="author-review-card" key={review.id}>
                 <div className="author-review-rating">
                   {[...Array(5)].map((_, i) => (
-                    <StarIcon key={i} className={i < review.rating ? "icon star filled" : "icon star"} />
+                    <StarIcon key={i} className={i < review.rating ? "icon author-review-star filled" : "icon author-review-star"} />
                   ))}
                   <span className="author-reviewer">{review.reviewer}</span>
                 </div>

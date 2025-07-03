@@ -223,10 +223,13 @@
   width: 1.2rem;
   height: 1.2rem;
   color: #a1a1aa;
+  fill: none;
+  transition: color 0.15s, fill 0.15s;
 }
 
 .author-review-rating .icon.author-review-star.filled {
   color: #fbbf24;
+  fill: #fbbf24;
 }
 
 .author-reviewer {

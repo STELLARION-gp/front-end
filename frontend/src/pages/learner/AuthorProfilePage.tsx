@@ -4,6 +4,7 @@ import "../../styles/pages/learner/AuthorProfilePage.scss";
 import AstronomyBlogCard from "../../components/Learner/blogcard";
 import { GlobeAltIcon, VideoCameraIcon } from "@heroicons/react/24/outline";
 import { StarIcon } from "lucide-react";
+import Button from "../../components/Button";
 
 interface Blog {
   id: number;
@@ -42,6 +43,28 @@ interface AuthorProfile {
 const AuthorProfilePage: React.FC<{ author: AuthorProfile }> = ({ author }) => {
   const [tab, setTab] = useState("blogs");
   const navigate = useNavigate();
+  const [reviews, setReviews] = useState(author.reviews);
+  const [comment, setComment] = useState("");
+  const [rating, setRating] = useState(0);
+  const [success, setSuccess] = useState(false);
+
+  const handleReviewSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!comment.trim() || rating === 0) return;
+    setReviews([
+      ...reviews,
+      {
+        id: Date.now(),
+        reviewer: "You (Learner)",
+        rating,
+        comment,
+      },
+    ]);
+    setComment("");
+    setRating(0);
+    setSuccess(true);
+    setTimeout(() => setSuccess(false), 2000);
+  };
 
   return (
     <div className="author-profile-page">
@@ -101,7 +124,7 @@ const AuthorProfilePage: React.FC<{ author: AuthorProfile }> = ({ author }) => {
         )}
         {tab === "reviews" && (
           <div className="author-reviews-list">
-            {author.reviews.map(review => (
+            {reviews.map(review => (
               <div className="author-review-card" key={review.id}>
                 <div className="author-review-rating">
                   {[...Array(5)].map((_, i) => (
@@ -112,6 +135,32 @@ const AuthorProfilePage: React.FC<{ author: AuthorProfile }> = ({ author }) => {
                 <div className="author-review-comment">{review.comment}</div>
               </div>
             ))}
+            <form className="author-review-form" onSubmit={handleReviewSubmit} style={{marginTop: '1.5rem', background: '#232b3b', borderRadius: 10, padding: '1rem 1.2rem', boxShadow: '0 1px 4px rgba(37,99,235,0.06)'}}>
+              <div style={{display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: 8}}>
+                <span style={{fontWeight: 600, color: '#60a5fa'}}>Your Rating:</span>
+                {[1,2,3,4,5].map(i => (
+                  <StarIcon key={i} className={i <= rating ? "icon author-review-star filled" : "icon author-review-star"} style={{cursor: 'pointer'}} onClick={() => setRating(i)} />
+                ))}
+              </div>
+              <textarea
+                className="author-review-input"
+                value={comment}
+                onChange={e => setComment(e.target.value)}
+                placeholder="Write your comment..."
+                rows={3}
+                style={{width: '100%', borderRadius: 6, border: '1px solid #334155', padding: 8, color: '#e5e7eb', background: '#1e293b', resize: 'vertical', marginBottom: 8}}
+              />
+              <Button
+                type="submit"
+                variant="primary"
+                size="medium"
+                className="author-review-submit-btn"
+                disabled={rating === 0 || !comment.trim()}
+              >
+                Submit
+              </Button>
+              {success && <span style={{marginLeft: 16, color: '#22c55e', fontWeight: 500}}>Comment submitted!</span>}
+            </form>
           </div>
         )}
       </div>

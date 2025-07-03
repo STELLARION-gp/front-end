@@ -22,8 +22,13 @@ const BookingRequests: React.FC = () => {
     const dummy: BookingRequest[] = [
       { id: '1', userName: 'Alice Johnson', serviceName: 'Deep Space Observation', date: '2025-07-10', startTime: '20:00', endTime: '23:00' },
       { id: '2', userName: 'Bob Smith', serviceName: 'Astrophotography Masterclass', date: '2025-07-08', startTime: '18:00', endTime: '00:00' },
+      { id: '3', userName: 'Carol Lee', serviceName: 'Telescope Building Workshop', date: '2025-07-12', startTime: '09:00', endTime: '17:00' },
+      { id: '4', userName: 'David Kim', serviceName: 'Planetary Observation Session', date: '2025-07-03', startTime: '21:00', endTime: '23:00' },
     ];
     setRequests(dummy);
+    // dummy stats initial values
+    setAcceptedCount(2);
+    setRejectedCount(1);
   }, []);
 
   const handleAccept = (id: string) => {

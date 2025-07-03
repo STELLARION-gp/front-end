@@ -7,6 +7,7 @@ import DashboardOverview from '../pages/DashboardOverview';
 import Button from '../components/Button';
 import ServiceListing from '../pages/guide/ServiceListing';
 import CreateService from '../pages/guide/CreateService';
+import SetAvailability from '../pages/guide/SetAvailability';
 import MediaUploadPanel from '../pages/guide/MediaUploadPanel';
 
 // Create placeholder components for different pages - all memoized
@@ -141,6 +142,8 @@ const DashboardRoutes = () => {
                         <Routes>
                             <Route index element={<ServiceListing />} />
                             <Route path="create" element={<CreateService />} />
+                            <Route path="availability" element={<SetAvailability />} />
+                            <Route path=":serviceId/availability" element={<SetAvailability />} />
                         </Routes>
                     </RoleGuard>
                 }

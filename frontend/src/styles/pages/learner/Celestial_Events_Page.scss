@@ -1,0 +1,40 @@
+.celestial-events-page {
+  width: 95%;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 2.5rem 1.5rem;
+  background: linear-gradient(120deg, #1e293b99 10%, #36476499 100%);
+  border-radius: 18px;
+  box-shadow: 0 4px 32px rgba(37, 99, 235, 0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+
+.celestial-events-list {
+  width: 100%;
+//   display: flex;
+//   gap: 1.1rem;
+//   margin-bottom: 2.2rem;
+    display: flex;
+    gap: 0.7rem;
+  flex-wrap: wrap;
+  margin-top: 1.5rem;
+  margin-bottom: 3.5rem;
+  
+  
+}
+
+// Responsive adjustments
+@media (max-width: 600px) {
+  .celestial-events-page {
+    padding: 1.2rem 0.2rem;
+  }
+  .celestial-events-title {
+    font-size: 1.1rem;
+    margin-bottom: 0.7rem;
+  }
+  .celestial-events-list {
+    gap: 0.7rem;
+    margin-bottom: 1.2rem;
+  }
+}

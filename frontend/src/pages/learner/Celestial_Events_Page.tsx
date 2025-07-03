@@ -1,5 +1,6 @@
 import React from "react";
 import SpaceEventCard from "../../components/Learner/SpaceEvent";
+import "../../styles/pages/learner/Celestial_Events_Page.scss";
 
 const upcomingEvents = [
   { id: 1, event: "Perseid Meteor Shower Peak", date: "2025-08-12", category: "meteor" },
@@ -18,13 +19,15 @@ const previousEvents = [
 
 const CelestialEventsPage: React.FC = () => (
   <div className="celestial-events-page">
-    <h2 className="celestial-events-title">Upcoming Celestial Events</h2>
+    <h2>Upcoming Celestial Events</h2>
+    <p>Stay up to date with the most exciting astronomical happenings visible from Earth.</p>
     <div className="celestial-events-list">
       {upcomingEvents.map(ev => (
         <SpaceEventCard key={ev.id} event={ev} />
       ))}
     </div>
-    <h2 className="celestial-events-title" style={{marginTop: 32}}>Previous Celestial Events</h2>
+    <h2>Previous Celestial Events</h2>
+    <p>A look back at recent celestial events and gatherings you may have missed.</p>
     <div className="celestial-events-list">
       {previousEvents.map(ev => (
         <SpaceEventCard key={ev.id} event={ev} />

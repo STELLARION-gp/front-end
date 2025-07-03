@@ -142,7 +142,7 @@
       cursor: pointer;
       
       option {
-        background: $background-color;
+        background: #101624; // fallback for $background-color
         color: white;
         padding: 0.5rem;
       }

@@ -260,9 +260,13 @@
           padding: 0.75rem;
           text-align: center;
           font-weight: 600;
-          color: $theme4;
-          background: color.adjust($theme1, $alpha: -0.95);
+          /* darker text for better contrast */
+          color: $theme5;
+          /* slightly darker background for contrast */
+          background: color.adjust($theme1, $alpha: -0.9);
           font-size: 0.875rem;
+          /* add border to separate days */
+          border: 1px solid color.adjust($theme1, $alpha: -0.85);
         }
       }
       
@@ -281,10 +285,13 @@
           background: $text-light;
           cursor: pointer;
           transition: all 0.2s ease;
+          /* add border for better separation */
+          border: 1px solid color.adjust($theme1, $alpha: -0.9);
           
           &:not(.empty):not(.disabled):hover {
-            background: color.adjust($theme2, $alpha: -0.9);
-            color: $theme2;
+            /* on hover, use theme2 with higher contrast and light text */
+            background: color.adjust($theme2, $alpha: -0.8);
+            color: $text-light;
           }
           
           &.empty {
@@ -293,17 +300,20 @@
           }
           
           &.disabled {
-            background: color.adjust($theme1, $alpha: -0.95);
-            color: color.adjust($theme1, $alpha: -0.4);
+            /* muted disabled days with subtle background and text */
+            background: color.adjust($theme1, $alpha: -0.97);
+            color: color.adjust($theme1, $alpha: -0.6);
             cursor: not-allowed;
           }
           
           &.has-availability {
-            background: color.adjust($theme2, $alpha: -0.9);
+            /* indicate availability via border highlight */
+            background: $text-light;
+            border: 2px solid $theme2;
             color: $theme2;
             font-weight: 600;
-            
             .availability-indicator {
+              /* small dot indicator */
               position: absolute;
               bottom: 4px;
               right: 4px;
@@ -351,7 +361,8 @@
           }
           
           &.disabled {
-            background: color.adjust($theme1, $alpha: -0.4);
+            /* deeper shade for disabled legend for better contrast */
+            background: color.adjust($theme1, $alpha: -0.6);
           }
         }
       }

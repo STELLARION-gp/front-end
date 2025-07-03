@@ -1,0 +1,254 @@
+.author-profile-page {
+  width: 1100px;
+//   max-height: 110vh;
+  margin: 0rem auto;
+  padding: 2rem 1.5rem 2.5rem 1.5rem;
+  background: linear-gradient(120deg, #1e293b99 10%, #326eef99 100%); /* semi-transparent */
+  border-radius: 18px;
+  box-shadow: 0 4px 32px rgba(37, 99, 235, 0.1);
+  display: flex;
+  flex-direction: column;
+  backdrop-filter: blur(6px);
+}
+
+.author-info-card {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 2.2rem;
+}
+
+.author-profile-pic {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #3b82f6;
+  background: #fff;
+}
+
+.author-info-details {
+  flex: 1;
+}
+
+.author-name {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #60a5fa;
+  margin-bottom: 0.3rem;
+}
+
+.author-bio {
+  color: #cbd5e1;
+  font-size: 1.08rem;
+  margin-bottom: 0.7rem;
+}
+
+.author-socials {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.author-social-icon {
+  color: #3b82f6;
+  font-size: 1.5rem;
+  transition: color 0.2s;
+}
+
+.author-social-icon:hover {
+  color: #1e40af;
+}
+
+.author-tabs {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.author-tabs button {
+  background: none;
+  border: none;
+  color: #a5b4fc;
+  font-size: 1.1rem;
+  font-weight: 600;
+  padding: 0.5rem 1.2rem;
+  border-radius: 8px 8px 0 0;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.author-tabs button.active {
+  background: #232b3b;
+  color: #60a5fa;
+}
+
+.author-tab-content {
+  min-height: 340px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.author-blogs-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+  gap: 2rem;
+}
+
+.author-blog-card,
+.author-session-card,
+.author-review-card {
+  background: #232b3be6;
+  /* slightly opaque for highlight */
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(37, 99, 235, 0.10);
+  margin-bottom: 0.5rem;
+}
+
+.author-review-card {
+  background: #232b3b;
+  border-radius: 10px;
+  padding: 1rem 1.2rem;
+  box-shadow: 0 1px 4px rgba(37, 99, 235, 0.06);
+  border-left: 2px solid #3b82f6; // blue accent left border for emphasis
+}
+
+.author-blog-image {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 12px 12px 0 0;
+  background: #222;
+}
+
+.author-blog-info {
+  padding: 1rem 1.2rem 1.2rem 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.author-blog-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #60a5fa;
+}
+
+.author-blog-meta {
+  display: flex;
+  gap: 1.2rem;
+  color: #a5b4fc;
+  font-size: 0.98rem;
+  align-items: center;
+}
+
+.author-blog-meta .icon {
+  width: 1.1rem;
+  height: 1.1rem;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+
+.author-blog-meta .star {
+  color: #fbbf24;
+}
+
+.author-blog-preview {
+  color: #e5e7eb;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.author-sessions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.author-session-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.2rem;
+  background: #232b3b;
+  border-radius: 10px;
+  padding: 1rem 1.2rem;
+  box-shadow: 0 1px 4px rgba(37, 99, 235, 0.06);
+}
+
+.author-session-card .icon.session {
+  width: 2rem;
+  height: 2rem;
+  color: #3b82f6;
+  margin-top: 0.2rem;
+}
+
+.author-session-title {
+  font-size: 1.08rem;
+  font-weight: 600;
+  color: #60a5fa;
+}
+
+.author-session-meta {
+  display: flex;
+  gap: 1.2rem;
+  color: #a5b4fc;
+  font-size: 0.98rem;
+  margin-top: 0.2rem;
+}
+
+.author-reviews-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.author-review-card {
+  background: #232b3b;
+  border-radius: 10px;
+  padding: 1rem 1.2rem;
+  box-shadow: 0 1px 4px rgba(37, 99, 235, 0.06);
+  border-left: 5px solid #3b82f6;
+}
+
+.author-review-rating {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 0.3rem;
+}
+
+.author-review-rating .icon.author-review-star {
+  width: 1.2rem;
+  height: 1.2rem;
+  color: #a1a1aa;
+}
+
+.author-review-rating .icon.author-review-star.filled {
+  color: #fbbf24;
+}
+
+.author-reviewer {
+  color: #60a5fa;
+  font-weight: 600;
+  margin-left: 0.7rem;
+}
+
+.author-review-comment {
+  color: #e5e7eb;
+  font-size: 1.05rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 700px) {
+  .author-info-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.2rem;
+  }
+
+  .author-blogs-list {
+    grid-template-columns: 1fr;
+  }
+}

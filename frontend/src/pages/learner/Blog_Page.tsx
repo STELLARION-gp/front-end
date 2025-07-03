@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import "../../styles/pages/learner/BlogPage.scss";
 import Button from "../../components/Button";
 import { ArrowDownTrayIcon, HeartIcon } from "@heroicons/react/24/outline";
@@ -79,7 +80,12 @@ const BlogDetailedPage: React.FC<BlogDetailedPageProps> = ({ blog }) => {
                 alt="Author profile"
                 className="blog-author-avatar"
               />
-              {blog.author}
+              <Link
+                to={`/dashboard/author/${encodeURIComponent(blog.author)}`}
+                className="blog-author-link"
+              >
+                {blog.author}
+              </Link>
             </span>
             <span className="blog-date">
               {new Date(blog.createdAt).toLocaleDateString()}

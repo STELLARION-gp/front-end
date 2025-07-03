@@ -352,6 +352,13 @@
         font-weight: 600;
         color: $theme5;
         margin: 0;
+        
+        .mode-indicator {
+          font-size: 0.875rem;
+          color: $theme2;
+          font-weight: 500;
+          opacity: 0.8;
+        }
       }
     }
     
@@ -409,6 +416,63 @@
           .form-textarea {
             resize: vertical;
             min-height: 80px;
+          }
+
+          // Days selector for date series
+          .days-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            
+            .day-checkbox {
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              cursor: pointer;
+              position: relative;
+              
+              input[type="checkbox"] {
+                position: absolute;
+                opacity: 0;
+                width: 0;
+                height: 0;
+              }
+              
+              .day-label {
+                padding: 0.5rem 0.75rem;
+                border: 2px solid color.adjust($theme1, $alpha: -0.8);
+                border-radius: 8px;
+                background: $text-light;
+                color: $theme1;
+                font-size: 0.875rem;
+                font-weight: 600;
+                transition: all 0.2s ease;
+                min-width: 40px;
+                text-align: center;
+                -webkit-user-select: none;
+                user-select: none;
+              }
+              
+              &:hover .day-label {
+                border-color: $theme2;
+                background: color.adjust($theme2, $alpha: -0.95);
+              }
+              
+              input:checked + .day-label {
+                background: $theme2;
+                color: $text-light;
+                border-color: $theme2;
+              }
+            }
+          }
+
+          .form-help-text {
+            font-size: 0.875rem;
+            color: $theme4;
+            opacity: 0.8;
+            margin: 0.5rem 0 0 0;
+            font-style: italic;
           }
         }
       }

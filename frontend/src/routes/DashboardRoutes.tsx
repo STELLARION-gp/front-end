@@ -13,6 +13,7 @@ import ServiceListing from '../pages/guide/ServiceListing';
 import CreateService from '../pages/guide/CreateService';
 import SetAvailability from '../pages/guide/SetAvailability';
 import MediaUploadPanel from '../pages/guide/MediaUploadPanel';
+import BookingRequests from '../pages/guide/BookingRequests';
 
 
 // Create placeholder components for different pages - all memoized
@@ -157,6 +158,14 @@ const DashboardRoutes = () => {
                 element={
                     <RoleGuard allowedRoles={['guide', 'mentor', 'moderator', 'admin']}>
                         <EventsPage />
+                    </RoleGuard>
+                }
+            />
+            <Route
+                path="booking-requests"
+                element={
+                    <RoleGuard allowedRoles={['learner', 'enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin']}>
+                        <BookingRequests />
                     </RoleGuard>
                 }
             />

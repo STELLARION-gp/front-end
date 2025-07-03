@@ -43,6 +43,7 @@ export const PAGE_ACCESS_CONTROL = {
     '/dashboard/blogs': ['enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin'] as UserRole[],
     '/dashboard/mentor': ['mentor', 'moderator', 'admin'] as UserRole[],
     '/dashboard/events': ['guide', 'mentor', 'moderator', 'admin'] as UserRole[],
+    '/dashboard/services': ['guide'] as UserRole[],
     '/dashboard/chat': ['learner', 'enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin'] as UserRole[],
     '/dashboard/sessions': ['mentor', 'moderator', 'admin'] as UserRole[],
     '/dashboard/media': ['guide'] as UserRole[],
@@ -57,6 +58,7 @@ export const ROLE_BASED_MENU_ITEMS = {
     learner: [
         { label: 'Overview', icon: 'HomeIcon', href: '/dashboard/overview' },
         { label: 'Profile', icon: 'UserCircleIcon', href: '/dashboard/profile' },
+        { label: 'Blogs', icon: 'BookOpenIcon', href: '/dashboard/blogs' },
         { label: 'Chat', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/chat' },
         { label: 'Settings', icon: 'Cog6ToothIcon', href: '/dashboard/settings' },
         { label: 'Night Camps', icon: 'MoonIcon', href: '/dashboard/night-camps' },
@@ -85,6 +87,7 @@ export const ROLE_BASED_MENU_ITEMS = {
     guide: [
         { label: 'Overview', icon: 'HomeIcon', href: '/dashboard/overview' },
         { label: 'Profile', icon: 'UserCircleIcon', href: '/dashboard/profile' },
+        { label: 'Services', icon: 'AcademicCapIcon', href: '/dashboard/services' },
         { label: 'Blogs', icon: 'BookOpenIcon', href: '/dashboard/blogs' },
         { label: 'Night Camps', icon: 'MoonIcon', href: '/dashboard/night-camps' },
         { label: 'Stargazing', icon: 'StarIcon', href: '/dashboard/stargazing' },

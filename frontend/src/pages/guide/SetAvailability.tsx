@@ -11,6 +11,12 @@ const ArrowLeftIcon: React.FC<{ className?: string }> = ({ className = "" }) => 
   </svg>
 );
 
+const ArrowRightIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
+  <svg className={className} width="16" height="16" viewBox="0 0 20 20" fill="none">
+    <path d="M7.5 5l5 5-5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
 const CalendarIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
   <svg className={className} width="16" height="16" viewBox="0 0 24 24" fill="none">
     <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="currentColor" strokeWidth="2"/>
@@ -208,8 +214,25 @@ const SetAvailability: React.FC = () => {
     return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
   };
 
+  // Format a Date object to 'YYYY-MM-DD' in local time to avoid timezone offsets
   const formatDate = (date: Date) => {
-    return date.toISOString().split('T')[0];
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  // Generate half-hourly time options for select inputs
+  const generateTimeOptions = (): string[] => {
+    const times: string[] = [];
+    for (let h = 0; h < 24; h++) {
+      for (let m = 0; m < 60; m += 30) {
+        const hour = String(h).padStart(2, '0');
+        const minute = String(m).padStart(2, '0');
+        times.push(`${hour}:${minute}`);
+      }
+    }
+    return times;
   };
 
   const isDateDisabled = (date: Date) => {
@@ -225,12 +248,17 @@ const SetAvailability: React.FC = () => {
 
   // Form handlers
   const handleServiceSelect = (service: Service) => {
+    // Select a new service and reset form state
     setSelectedService(service);
     setFormData(prev => ({ 
       ...prev, 
       capacity: service.maxParticipants, 
       price: service.price 
     }));
+    // Close any open form when changing service
+    setIsFormOpen(false);
+    setEditingSlot(null);
+    setSelectedDate('');
   };
 
   const handleDateSelect = (date: string) => {
@@ -644,7 +672,7 @@ const SetAvailability: React.FC = () => {
                           <Button
                             variant="secondary"
                             size="small"
-                            icon={<ArrowLeftIcon />}
+                            icon={<ArrowRightIcon />}
                             onClick={() => setCurrentMonth(prev => new Date(prev.getFullYear(), prev.getMonth() + 1))}
                           >
                             ›
@@ -696,26 +724,34 @@ const SetAvailability: React.FC = () => {
 
                         <div className="form-group">
                           <label htmlFor="startTime">Start Time</label>
-                          <input
+                          <select
                             id="startTime"
-                            type="time"
                             value={formData.startTime}
                             onChange={(e) => setFormData(prev => ({ ...prev, startTime: e.target.value }))}
-                            className="form-input"
+                            className="form-select"
                             required
-                          />
+                          >
+                            <option value="">Select start time</option>
+                            {generateTimeOptions().map(time => (
+                              <option key={time} value={time}>{time}</option>
+                            ))}
+                          </select>
                         </div>
 
                         <div className="form-group">
                           <label htmlFor="endTime">End Time</label>
-                          <input
+                          <select
                             id="endTime"
-                            type="time"
                             value={formData.endTime}
                             onChange={(e) => setFormData(prev => ({ ...prev, endTime: e.target.value }))}
-                            className="form-input"
+                            className="form-select"
                             required
-                          />
+                          >
+                            <option value="">Select end time</option>
+                            {generateTimeOptions().map(time => (
+                              <option key={time} value={time}>{time}</option>
+                            ))}
+                          </select>
                         </div>
 
                         <div className="form-group">

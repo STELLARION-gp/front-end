@@ -139,7 +139,12 @@ const SetAvailability: React.FC = () => {
     isRecurring: false,
     recurringPattern: 'weekly' as 'weekly' | 'monthly',
     recurringEndDate: '',
-    notes: ''
+    notes: '',
+    // New fields for date series
+    isDateSeries: false,
+    seriesStartDate: '',
+    seriesEndDate: '',
+    seriesDays: [] as string[] // ['monday', 'tuesday', etc.]
   });
 
   // Initialize with serviceId if provided and add some dummy availability data
@@ -238,31 +243,119 @@ const SetAvailability: React.FC = () => {
     e.preventDefault();
     if (!selectedService) return;
 
-    const newSlot: AvailabilitySlot = {
-      id: editingSlot ? editingSlot.id : Date.now().toString(),
-      serviceId: selectedService.id,
-      date: formData.date,
-      startTime: formData.startTime,
-      endTime: formData.endTime,
-      capacity: formData.capacity,
-      bookedCount: editingSlot ? editingSlot.bookedCount : 0,
-      price: formData.price || selectedService.price,
-      isRecurring: formData.isRecurring,
-      recurringPattern: formData.recurringPattern,
-      recurringEndDate: formData.recurringEndDate,
-      status: 'active',
-      notes: formData.notes
-    };
+    // Validation for date series
+    if (formData.isDateSeries) {
+      if (!formData.seriesStartDate || !formData.seriesEndDate) {
+        alert('Please select both start and end dates for the date series.');
+        return;
+      }
+      if (new Date(formData.seriesStartDate) > new Date(formData.seriesEndDate)) {
+        alert('End date must be after or equal to start date.');
+        return;
+      }
+    } else if (!formData.date) {
+      alert('Please select a date.');
+      return;
+    }
+
+    // Validation for time
+    if (!formData.startTime || !formData.endTime) {
+      alert('Please select both start and end times.');
+      return;
+    }
+    if (formData.startTime >= formData.endTime) {
+      alert('End time must be after start time.');
+      return;
+    }
 
     if (editingSlot) {
+      // Handle editing existing slot
+      const updatedSlot: AvailabilitySlot = {
+        ...editingSlot,
+        date: formData.date,
+        startTime: formData.startTime,
+        endTime: formData.endTime,
+        capacity: formData.capacity,
+        price: formData.price || selectedService.price,
+        isRecurring: formData.isRecurring,
+        recurringPattern: formData.recurringPattern,
+        recurringEndDate: formData.recurringEndDate,
+        notes: formData.notes
+      };
+
       setAvailabilitySlots(prev => prev.map(slot => 
-        slot.id === editingSlot.id ? newSlot : slot
+        slot.id === editingSlot.id ? updatedSlot : slot
       ));
     } else {
-      setAvailabilitySlots(prev => [...prev, newSlot]);
+      // Handle creating new slot(s)
+      if (formData.isDateSeries) {
+        // Generate multiple slots for date series
+        const newSlots = generateDateSeriesSlots();
+        setAvailabilitySlots(prev => [...prev, ...newSlots]);
+      } else {
+        // Single slot creation
+        const newSlot: AvailabilitySlot = {
+          id: Date.now().toString(),
+          serviceId: selectedService.id,
+          date: formData.date,
+          startTime: formData.startTime,
+          endTime: formData.endTime,
+          capacity: formData.capacity,
+          bookedCount: 0,
+          price: formData.price || selectedService.price,
+          isRecurring: formData.isRecurring,
+          recurringPattern: formData.recurringPattern,
+          recurringEndDate: formData.recurringEndDate,
+          status: 'active',
+          notes: formData.notes
+        };
+
+        setAvailabilitySlots(prev => [...prev, newSlot]);
+      }
     }
 
     handleFormReset();
+  };
+
+  // Generate slots for date series
+  const generateDateSeriesSlots = (): AvailabilitySlot[] => {
+    if (!selectedService || !formData.seriesStartDate || !formData.seriesEndDate) return [];
+
+    const slots: AvailabilitySlot[] = [];
+    const startDate = new Date(formData.seriesStartDate);
+    const endDate = new Date(formData.seriesEndDate);
+    const selectedDays = formData.seriesDays;
+
+    // If no specific days selected, use all days
+    const daysToInclude = selectedDays.length > 0 ? selectedDays : 
+      ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+
+    const currentDate = new Date(startDate);
+    let slotId = Date.now();
+
+    while (currentDate <= endDate) {
+      const dayName = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][currentDate.getDay()];
+      
+      if (daysToInclude.includes(dayName)) {
+        const slot: AvailabilitySlot = {
+          id: (slotId++).toString(),
+          serviceId: selectedService.id,
+          date: formatDate(currentDate),
+          startTime: formData.startTime,
+          endTime: formData.endTime,
+          capacity: formData.capacity,
+          bookedCount: 0,
+          price: formData.price || selectedService.price,
+          status: 'active',
+          notes: formData.notes
+        };
+        slots.push(slot);
+      }
+      
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    return slots;
   };
 
   const handleFormReset = () => {
@@ -278,7 +371,11 @@ const SetAvailability: React.FC = () => {
       isRecurring: false,
       recurringPattern: 'weekly',
       recurringEndDate: '',
-      notes: ''
+      notes: '',
+      isDateSeries: false,
+      seriesStartDate: '',
+      seriesEndDate: '',
+      seriesDays: []
     });
   };
 
@@ -293,13 +390,27 @@ const SetAvailability: React.FC = () => {
       isRecurring: slot.isRecurring || false,
       recurringPattern: slot.recurringPattern || 'weekly',
       recurringEndDate: slot.recurringEndDate || '',
-      notes: slot.notes || ''
+      notes: slot.notes || '',
+      isDateSeries: false,
+      seriesStartDate: '',
+      seriesEndDate: '',
+      seriesDays: []
     });
     setIsFormOpen(true);
   };
 
   const handleDeleteSlot = (slotId: string) => {
     setAvailabilitySlots(prev => prev.filter(slot => slot.id !== slotId));
+  };
+
+  // Handle day selection for date series
+  const handleDayToggle = (day: string) => {
+    setFormData(prev => ({
+      ...prev,
+      seriesDays: prev.seriesDays.includes(day)
+        ? prev.seriesDays.filter(d => d !== day)
+        : [...prev.seriesDays, day]
+    }));
   };
 
   // Calendar rendering
@@ -470,6 +581,8 @@ const SetAvailability: React.FC = () => {
                   <div className="form-header">
                     <h3>
                       {editingSlot ? 'Edit' : 'Add'} Availability
+                      {!editingSlot && formData.isDateSeries && <span className="mode-indicator"> (Multiple Sessions)</span>}
+                      {!editingSlot && formData.isRecurring && <span className="mode-indicator"> (Recurring)</span>}
                     </h3>
                     <Button
                       variant="secondary"
@@ -482,17 +595,19 @@ const SetAvailability: React.FC = () => {
 
                   <form onSubmit={handleFormSubmit} className="availability-form">
                     <div className="form-grid">
-                      <div className="form-group">
-                        <label htmlFor="date">Date</label>
-                        <input
-                          id="date"
-                          type="date"
-                          value={formData.date}
-                          onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
-                          className="form-input"
-                          required
-                        />
-                      </div>
+                      {!formData.isDateSeries && (
+                        <div className="form-group">
+                          <label htmlFor="date">Date</label>
+                          <input
+                            id="date"
+                            type="date"
+                            value={formData.date}
+                            onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
+                            className="form-input"
+                            required={!formData.isDateSeries}
+                          />
+                        </div>
+                      )}
 
                       <div className="form-group">
                         <label htmlFor="startTime">Start Time</label>
@@ -563,10 +678,26 @@ const SetAvailability: React.FC = () => {
                           <input
                             type="checkbox"
                             checked={formData.isRecurring}
-                            onChange={(e) => setFormData(prev => ({ ...prev, isRecurring: e.target.checked }))}
+                            onChange={(e) => setFormData(prev => ({ ...prev, isRecurring: e.target.checked, isDateSeries: false }))}
+                            disabled={formData.isDateSeries}
                           />
                           <span>Recurring Availability</span>
                         </label>
+                      </div>
+
+                      <div className="form-group full-width">
+                        <label className="checkbox-label">
+                          <input
+                            type="checkbox"
+                            checked={formData.isDateSeries}
+                            onChange={(e) => setFormData(prev => ({ ...prev, isDateSeries: e.target.checked, isRecurring: false }))}
+                            disabled={formData.isRecurring}
+                          />
+                          <span>Create Multiple Sessions (Date Range)</span>
+                        </label>
+                        <p className="form-help-text">
+                          Create multiple availability slots across a date range with the same time and settings.
+                        </p>
                       </div>
 
                       {formData.isRecurring && (
@@ -597,6 +728,57 @@ const SetAvailability: React.FC = () => {
                           </div>
                         </>
                       )}
+
+                      {formData.isDateSeries && (
+                        <>
+                          <div className="form-group">
+                            <label htmlFor="seriesStartDate">Start Date</label>
+                            <input
+                              id="seriesStartDate"
+                              type="date"
+                              value={formData.seriesStartDate}
+                              onChange={(e) => setFormData(prev => ({ ...prev, seriesStartDate: e.target.value }))}
+                              className="form-input"
+                              min={new Date().toISOString().split('T')[0]}
+                              required
+                            />
+                          </div>
+
+                          <div className="form-group">
+                            <label htmlFor="seriesEndDate">End Date</label>
+                            <input
+                              id="seriesEndDate"
+                              type="date"
+                              value={formData.seriesEndDate}
+                              onChange={(e) => setFormData(prev => ({ ...prev, seriesEndDate: e.target.value }))}
+                              className="form-input"
+                              min={formData.seriesStartDate || new Date().toISOString().split('T')[0]}
+                              required
+                            />
+                          </div>
+
+                          <div className="form-group full-width">
+                            <label>Days of the Week (Optional - leave blank for all days)</label>
+                            <div className="days-selector">
+                              {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map(day => (
+                                <label key={day} className="day-checkbox">
+                                  <input
+                                    type="checkbox"
+                                    checked={formData.seriesDays.includes(day)}
+                                    onChange={() => handleDayToggle(day)}
+                                  />
+                                  <span className="day-label">
+                                    {day.charAt(0).toUpperCase() + day.slice(1, 3)}
+                                  </span>
+                                </label>
+                              ))}
+                            </div>
+                            <p className="form-help-text">
+                              Select specific days or leave blank to include all days in the date range.
+                            </p>
+                          </div>
+                        </>
+                      )}
                     </div>
 
                     <div className="form-actions">
@@ -606,7 +788,9 @@ const SetAvailability: React.FC = () => {
                         icon={<SaveIcon />}
                         iconPosition="left"
                       >
-                        {editingSlot ? 'Update' : 'Add'} Availability
+                        {editingSlot ? 'Update' : 
+                         formData.isDateSeries ? 'Create Sessions' : 
+                         'Add'} Availability
                       </Button>
                     </div>
                   </form>

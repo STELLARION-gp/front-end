@@ -521,267 +521,6 @@ const SetAvailability: React.FC = () => {
 
         {selectedService && (
           <>
-            {/* Calendar and Form */}
-            <div className="availability-management">
-              {isFormOpen && (
-                <Card className="availability-form-card" variant="elevated">
-                  <form onSubmit={handleFormSubmit} className="availability-form">
-                    {/* Calendar Section */}
-                    <div className="calendar-section">
-                      <div className="calendar-header">
-                        <h3>
-                          <CalendarIcon className="calendar-header-icon" />
-                          Schedule Calendar
-                        </h3>
-                        <div className="calendar-navigation">
-                          <Button
-                            variant="secondary"
-                            size="small"
-                            onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))}
-                          >
-                            ‹
-                          </Button>
-                          <span className="current-month">
-                            {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-                          </span>
-                          <Button
-                            variant="secondary"
-                            size="small"
-                            onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1))}
-                          >
-                            › 
-                          </Button>
-                        </div>
-                      </div>
-
-                      <div className="calendar">
-                        <div className="calendar-weekdays">
-                          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                            <div key={day} className="weekday">{day}</div>
-                          ))}
-                        </div>
-                        <div className="calendar-days">
-                          {renderCalendar()}
-                        </div>
-                      </div>
-
-                      <div className="calendar-legend">
-                        <div className="legend-item">
-                          <div className="legend-indicator available"></div>
-                          <span>Available dates</span>
-                        </div>
-                        <div className="legend-item">
-                          <div className="legend-indicator disabled"></div>
-                          <span>Past dates</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Availability Form Fields */}
-                    <div className="form-grid">
-                      {!formData.isDateSeries && (
-                        <div className="form-group">
-                          <label htmlFor="date">Date</label>
-                          <input
-                            id="date"
-                            type="date"
-                            value={formData.date}
-                            onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
-                            className="form-input"
-                            required={!formData.isDateSeries}
-                          />
-                        </div>
-                      )}
-
-                      <div className="form-group">
-                        <label htmlFor="startTime">Start Time</label>
-                        <input
-                          id="startTime"
-                          type="time"
-                          value={formData.startTime}
-                          onChange={(e) => setFormData(prev => ({ ...prev, startTime: e.target.value }))}
-                          className="form-input"
-                          required
-                        />
-                      </div>
-
-                      <div className="form-group">
-                        <label htmlFor="endTime">End Time</label>
-                        <input
-                          id="endTime"
-                          type="time"
-                          value={formData.endTime}
-                          onChange={(e) => setFormData(prev => ({ ...prev, endTime: e.target.value }))}
-                          className="form-input"
-                          required
-                        />
-                      </div>
-
-                      <div className="form-group">
-                        <label htmlFor="capacity">Capacity</label>
-                        <input
-                          id="capacity"
-                          type="number"
-                          value={formData.capacity}
-                          onChange={(e) => setFormData(prev => ({ ...prev, capacity: parseInt(e.target.value) }))}
-                          className="form-input"
-                          min="1"
-                          max={selectedService.maxParticipants}
-                          required
-                        />
-                      </div>
-
-                      <div className="form-group">
-                        <label htmlFor="price">Price Override</label>
-                        <input
-                          id="price"
-                          type="number"
-                          value={formData.price}
-                          onChange={(e) => setFormData(prev => ({ ...prev, price: parseFloat(e.target.value) }))}
-                          className="form-input"
-                          min="0"
-                          step="0.01"
-                          placeholder={`Default: $${selectedService.price}`}
-                        />
-                      </div>
-
-                      <div className="form-group full-width">
-                        <label htmlFor="notes">Notes (Optional)</label>
-                        <textarea
-                          id="notes"
-                          value={formData.notes}
-                          onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
-                          className="form-textarea"
-                          rows={3}
-                          placeholder="Special instructions, requirements, etc."
-                        />
-                      </div>
-
-                      <div className="form-group full-width">
-                        <label className="checkbox-label">
-                          <input
-                            type="checkbox"
-                            checked={formData.isRecurring}
-                            onChange={(e) => setFormData(prev => ({ ...prev, isRecurring: e.target.checked, isDateSeries: false }))}
-                            disabled={formData.isDateSeries}
-                          />
-                          <span>Recurring Availability</span>
-                        </label>
-                      </div>
-
-                      <div className="form-group full-width">
-                        <label className="checkbox-label">
-                          <input
-                            type="checkbox"
-                            checked={formData.isDateSeries}
-                            onChange={(e) => setFormData(prev => ({ ...prev, isDateSeries: e.target.checked, isRecurring: false }))}
-                            disabled={formData.isRecurring}
-                          />
-                          <span>Create Multiple Sessions (Date Range)</span>
-                        </label>
-                        <p className="form-help-text">
-                          Create multiple availability slots across a date range with the same time and settings.
-                        </p>
-                      </div>
-
-                      {formData.isRecurring && (
-                        <>
-                          <div className="form-group">
-                            <label htmlFor="recurringPattern">Repeat Every</label>
-                            <select
-                              id="recurringPattern"
-                              value={formData.recurringPattern}
-                              onChange={(e) => setFormData(prev => ({ ...prev, recurringPattern: e.target.value as 'weekly' | 'monthly' }))}
-                              className="form-select"
-                            >
-                              <option value="weekly">Week</option>
-                              <option value="monthly">Month</option>
-                            </select>
-                          </div>
-
-                          <div className="form-group">
-                            <label htmlFor="recurringEndDate">End Date</label>
-                            <input
-                              id="recurringEndDate"
-                              type="date"
-                              value={formData.recurringEndDate}
-                              onChange={(e) => setFormData(prev => ({ ...prev, recurringEndDate: e.target.value }))}
-                              className="form-input"
-                              min={formData.date}
-                            />
-                          </div>
-                        </>
-                      )}
-
-                      {formData.isDateSeries && (
-                        <>
-                          <div className="form-group">
-                            <label htmlFor="seriesStartDate">Start Date</label>
-                            <input
-                              id="seriesStartDate"
-                              type="date"
-                              value={formData.seriesStartDate}
-                              onChange={(e) => setFormData(prev => ({ ...prev, seriesStartDate: e.target.value }))}
-                              className="form-input"
-                              min={new Date().toISOString().split('T')[0]}
-                              required
-                            />
-                          </div>
-
-                          <div className="form-group">
-                            <label htmlFor="seriesEndDate">End Date</label>
-                            <input
-                              id="seriesEndDate"
-                              type="date"
-                              value={formData.seriesEndDate}
-                              onChange={(e) => setFormData(prev => ({ ...prev, seriesEndDate: e.target.value }))}
-                              className="form-input"
-                              min={formData.seriesStartDate || new Date().toISOString().split('T')[0]}
-                              required
-                            />
-                          </div>
-
-                          <div className="form-group full-width">
-                            <label>Days of the Week (Optional - leave blank for all days)</label>
-                            <div className="days-selector">
-                              {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map(day => (
-                                <label key={day} className="day-checkbox">
-                                  <input
-                                    type="checkbox"
-                                    checked={formData.seriesDays.includes(day)}
-                                    onChange={() => handleDayToggle(day)}
-                                  />
-                                  <span className="day-label">
-                                    {day.charAt(0).toUpperCase() + day.slice(1, 3)}
-                                  </span>
-                                </label>
-                              ))}
-                            </div>
-                            <p className="form-help-text">
-                              Select specific days or leave blank to include all days in the date range.
-                            </p>
-                          </div>
-                        </>
-                      )}
-                    </div>
-
-                    <div className="form-actions">
-                     <Button
-                        type="submit"
-                        variant="primary"
-                        icon={<SaveIcon />}
-                        iconPosition="left"
-                      >
-                        {editingSlot ? 'Update' : 
-                         formData.isDateSeries ? 'Create Sessions' : 
-                         'Add'} Availability
-                      </Button>
-                    </div>
-                  </form>
-                </Card>
-              )}
-            </div>
-
             {/* Availability List */}
             <Card className="availability-list-card" variant="elevated">
               <div className="list-header">
@@ -880,6 +619,270 @@ const SetAvailability: React.FC = () => {
                 </div>
               )}
             </Card>
+
+            {/* Calendar and Form */}
+            <div className="availability-management">
+              {isFormOpen && (
+                <>
+                  <Card className="calendar-card" variant="elevated">
+                    {/* Calendar Section */}
+                    <div className="calendar-section">
+                      <div className="calendar-header">
+                        <h3>Availability Calendar</h3>
+                        <div className="calendar-navigation">
+                          <Button
+                            variant="secondary"
+                            size="small"
+                            icon={<ArrowLeftIcon />}
+                            onClick={() => setCurrentMonth(prev => new Date(prev.getFullYear(), prev.getMonth() - 1))}
+                          >
+                            ‹
+                          </Button>
+                          <span className="current-month">
+                            {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                          </span>
+                          <Button
+                            variant="secondary"
+                            size="small"
+                            icon={<ArrowLeftIcon />}
+                            onClick={() => setCurrentMonth(prev => new Date(prev.getFullYear(), prev.getMonth() + 1))}
+                          >
+                            ›
+                          </Button>
+                        </div>
+                      </div>
+                      
+                      {/* Calendar Grid */}
+                      <div className="calendar">
+                        <div className="calendar-weekdays">
+                          {['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(day => <div key={day} className="weekday">{day}</div>)}
+                        </div>
+                        <div className="calendar-days">
+                          {renderCalendar()}
+                        </div>
+                      </div>
+
+                      <div className="calendar-legend">
+                        <div className="legend-item">
+                          <div className="legend-indicator available"></div>
+                          <span>Available dates</span>
+                        </div>
+                        <div className="legend-item">
+                          <div className="legend-indicator disabled"></div>
+                          <span>Past dates</span>
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+
+                  <Card className="availability-form-card" variant="elevated">
+                    {/* Availability Form */}
+                    <form onSubmit={handleFormSubmit} className="availability-form">
+                      {/* Availability Form Fields */}
+                      <div className="form-grid">
+                        {!formData.isDateSeries && (
+                          <div className="form-group">
+                            <label htmlFor="date">Date</label>
+                            <input
+                              id="date"
+                              type="date"
+                              value={formData.date}
+                              onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
+                              className="form-input"
+                              required={!formData.isDateSeries}
+                            />
+                          </div>
+                        )}
+
+                        <div className="form-group">
+                          <label htmlFor="startTime">Start Time</label>
+                          <input
+                            id="startTime"
+                            type="time"
+                            value={formData.startTime}
+                            onChange={(e) => setFormData(prev => ({ ...prev, startTime: e.target.value }))}
+                            className="form-input"
+                            required
+                          />
+                        </div>
+
+                        <div className="form-group">
+                          <label htmlFor="endTime">End Time</label>
+                          <input
+                            id="endTime"
+                            type="time"
+                            value={formData.endTime}
+                            onChange={(e) => setFormData(prev => ({ ...prev, endTime: e.target.value }))}
+                            className="form-input"
+                            required
+                          />
+                        </div>
+
+                        <div className="form-group">
+                          <label htmlFor="capacity">Capacity</label>
+                          <input
+                            id="capacity"
+                            type="number"
+                            value={formData.capacity}
+                            onChange={(e) => setFormData(prev => ({ ...prev, capacity: parseInt(e.target.value) }))}
+                            className="form-input"
+                            min="1"
+                            max={selectedService.maxParticipants}
+                            required
+                          />
+                        </div>
+
+                        <div className="form-group">
+                          <label htmlFor="price">Price Override</label>
+                          <input
+                            id="price"
+                            type="number"
+                            value={formData.price}
+                            onChange={(e) => setFormData(prev => ({ ...prev, price: parseFloat(e.target.value) }))}
+                            className="form-input"
+                            min="0"
+                            step="0.01"
+                            placeholder={`Default: $${selectedService.price}`}
+                          />
+                        </div>
+
+                        <div className="form-group full-width">
+                          <label htmlFor="notes">Notes (Optional)</label>
+                          <textarea
+                            id="notes"
+                            value={formData.notes}
+                            onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+                            className="form-textarea"
+                            rows={3}
+                            placeholder="Special instructions, requirements, etc."
+                          />
+                        </div>
+
+                        <div className="form-group full-width">
+                          <label className="checkbox-label">
+                            <input
+                              type="checkbox"
+                              checked={formData.isRecurring}
+                              onChange={(e) => setFormData(prev => ({ ...prev, isRecurring: e.target.checked, isDateSeries: false }))}
+                              disabled={formData.isDateSeries}
+                            />
+                            <span>Recurring Availability</span>
+                          </label>
+                        </div>
+
+                        <div className="form-group full-width">
+                          <label className="checkbox-label">
+                            <input
+                              type="checkbox"
+                              checked={formData.isDateSeries}
+                              onChange={(e) => setFormData(prev => ({ ...prev, isDateSeries: e.target.checked, isRecurring: false }))}
+                              disabled={formData.isRecurring}
+                            />
+                            <span>Create Multiple Sessions (Date Range)</span>
+                          </label>
+                          <p className="form-help-text">
+                            Create multiple availability slots across a date range with the same time and settings.
+                          </p>
+                        </div>
+
+                        {formData.isRecurring && (
+                          <>
+                            <div className="form-group">
+                              <label htmlFor="recurringPattern">Repeat Every</label>
+                              <select
+                                id="recurringPattern"
+                                value={formData.recurringPattern}
+                                onChange={(e) => setFormData(prev => ({ ...prev, recurringPattern: e.target.value as 'weekly' | 'monthly' }))}
+                                className="form-select"
+                              >
+                                <option value="weekly">Week</option>
+                                <option value="monthly">Month</option>
+                              </select>
+                            </div>
+
+                            <div className="form-group">
+                              <label htmlFor="recurringEndDate">End Date</label>
+                              <input
+                                id="recurringEndDate"
+                                type="date"
+                                value={formData.recurringEndDate}
+                                onChange={(e) => setFormData(prev => ({ ...prev, recurringEndDate: e.target.value }))}
+                                className="form-input"
+                                min={formData.date}
+                              />
+                            </div>
+                          </>
+                        )}
+
+                        {formData.isDateSeries && (
+                          <>
+                            <div className="form-group">
+                              <label htmlFor="seriesStartDate">Start Date</label>
+                              <input
+                                id="seriesStartDate"
+                                type="date"
+                                value={formData.seriesStartDate}
+                                onChange={(e) => setFormData(prev => ({ ...prev, seriesStartDate: e.target.value }))}
+                                className="form-input"
+                                min={new Date().toISOString().split('T')[0]}
+                                required
+                              />
+                            </div>
+
+                            <div className="form-group">
+                              <label htmlFor="seriesEndDate">End Date</label>
+                              <input
+                                id="seriesEndDate"
+                                type="date"
+                                value={formData.seriesEndDate}
+                                onChange={(e) => setFormData(prev => ({ ...prev, seriesEndDate: e.target.value }))}
+                                className="form-input"
+                                min={formData.seriesStartDate || new Date().toISOString().split('T')[0]}
+                                required
+                              />
+                            </div>
+
+                            <div className="form-group full-width">
+                              <label>Days of the Week (Optional - leave blank for all days)</label>
+                              <div className="days-selector">
+                                {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map(day => (
+                                  <label key={day} className="day-checkbox">
+                                    <input
+                                      type="checkbox"
+                                      checked={formData.seriesDays.includes(day)}
+                                      onChange={() => handleDayToggle(day)}
+                                    />
+                                    <span className="day-label">
+                                      {day.charAt(0).toUpperCase() + day.slice(1, 3)}
+                                    </span>
+                                  </label>
+                                ))}
+                              </div>
+                              <p className="form-help-text">
+                                Select specific days or leave blank to include all days in the date range.
+                              </p>
+                            </div>
+                          </>
+                        )}
+                      </div>
+
+                      <div className="form-actions">
+                       <Button
+                          type="submit"
+                          variant="primary"
+                          icon={<SaveIcon />}
+                          iconPosition="left"
+                        >
+                          {editingSlot ? 'Update' : 
+                           formData.isDateSeries ? 'Create Sessions' : 
+                           'Add'} Availability
+                        </Button>
+                      </div>
+                    </form>
+                  </Card>
+                </>
+              )}
+            </div>
           </>
         )}
       </div>

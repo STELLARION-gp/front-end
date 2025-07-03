@@ -2,7 +2,7 @@
 import React from "react";
 import { useParams } from "react-router-dom";
 import BlogDetailedPage from "./Blog_Page";
-import {blogs} from "./Blog_Explore"; // Import your blogs array
+import {blogs} from "./blogData"; // Import your blogs array
 
 const BlogDetailedPageWrapper: React.FC = () => {
   const { id } = useParams();

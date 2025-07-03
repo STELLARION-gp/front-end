@@ -13,6 +13,7 @@ import ServiceListing from '../pages/guide/ServiceListing';
 import CreateService from '../pages/guide/CreateService';
 import SetAvailability from '../pages/guide/SetAvailability';
 import MediaUploadPanel from '../pages/guide/MediaUploadPanel';
+import MentorProfile from '../pages/mentor/MentorProfile';
 
 
 // Create placeholder components for different pages - all memoized
@@ -221,6 +222,16 @@ const DashboardRoutes = () => {
                     </RoleGuard>
                 }
             />
+
+            <Route
+                path="mentorprofile"
+                element={
+                    <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
+                        <MentorProfile />
+                        </RoleGuard>
+                }
+            />
+
 
             {/* Default redirect to overview */}
             <Route path="" element={<Navigate to="overview" replace />} />

@@ -8,6 +8,7 @@ import Button from '../components/Button';
 import Preview from '../pages/learner/Preview';
 import BlogExplore from '../pages/learner/Blog_Explore';
 import BlogDetailedPageWrapper from '../pages/learner/BlogDetailedPageWrapper';
+import AuthorProfilePageWrapper from '../pages/learner/AuthorProfilePageWrapper';
 
 // Create placeholder components for different pages - all memoized
 // const BlogsPage = memo(() => (
@@ -180,6 +181,15 @@ const DashboardRoutes = () => {
                 element={
                     <RoleGuard allowedRoles={['admin']}>
                         <AdminPage />
+                    </RoleGuard>
+                }
+            />
+
+            <Route
+                path="author/:authorName"
+                element={
+                    <RoleGuard allowedRoles={['enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin', 'learner']}>
+                        <AuthorProfilePageWrapper />
                     </RoleGuard>
                 }
             />

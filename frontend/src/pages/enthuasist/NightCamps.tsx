@@ -151,7 +151,7 @@ case 'upcoming': {
         <h2 className="upcoming-camps__title">Upcoming Camps</h2>
         <div className="upcoming-camps__actions">
           <Button 
-            variant="ghost" 
+            variant="secondary" 
             onClick={() => setShowFilters(!showFilters)}
             className="filter-toggle-btn"
           >
@@ -195,7 +195,7 @@ case 'upcoming': {
               </div>
               <div className="filters__actions">
                 <Button 
-                  variant="ghost" 
+                  variant="secondary" 
                   size="small"
                   onClick={handleClearFilters}
                 >
@@ -256,7 +256,7 @@ case 'upcoming': {
         ) : (
           <div className="no-results">
             <p>No camps found matching your filters.</p>
-            <Button variant="ghost" onClick={handleClearFilters}>
+            <Button variant="secondary" onClick={handleClearFilters}>
               Clear Filters
             </Button>
           </div>
@@ -274,7 +274,7 @@ case 'upcoming': {
               <h2 className="volunteer-camps__title">Join Organizing Committee</h2>
               <div className="volunteer-camps__actions">
                 <Button 
-                  variant="ghost" 
+                  variant="secondary" 
                   onClick={() => setShowFilters(!showFilters)}
                   className="filter-toggle-btn"
                 >
@@ -318,7 +318,7 @@ case 'upcoming': {
                     </div>
                     <div className="filters__actions">
                       <Button 
-                        variant="ghost" 
+                        variant="secondary" 
                         size="small"
                         onClick={handleClearFilters}
                       >
@@ -382,7 +382,7 @@ case 'upcoming': {
               ) : (
                 <div className="no-results">
                   <p>No camps found matching your filters.</p>
-                  <Button variant="ghost" onClick={handleClearFilters}>
+                  <Button variant="secondary" onClick={handleClearFilters}>
                     Clear Filters
                   </Button>
                 </div>
@@ -480,7 +480,7 @@ case 'upcoming': {
                       </td>
                       <td className="registered-camps__cell registered-camps__cell--actions">
                         <Button 
-                          variant="ghost" 
+                          variant="secondary" 
                           size="small"
                           onClick={() => handleCancelRegistration(camp.id, camp.name)}
                           className="registered-camps__cancel-btn"
@@ -603,7 +603,7 @@ case 'upcoming': {
                                 Save
                               </Button>
                               <Button 
-                                variant="ghost" 
+                                variant="secondary" 
                                 size="small"
                                 onClick={() => setEditingRole(null)}
                                 className="volunteer-camps-table__cancel-edit-btn"
@@ -616,7 +616,7 @@ case 'upcoming': {
                           <div className="volunteer-camps-table__role-display">
                             <span className="volunteer-camps-table__role-text">{camp.currentRole}</span>
                             <Button 
-                              variant="ghost" 
+                              variant="secondary" 
                               size="small"
                               onClick={() => setEditingRole({campId: camp.id, role: camp.currentRole})}
                               className="volunteer-camps-table__edit-btn"
@@ -628,7 +628,7 @@ case 'upcoming': {
                       </td>
                       <td className="volunteer-camps-table__cell volunteer-camps-table__cell--actions">
                         <Button 
-                          variant="ghost" 
+                          variant="secondary" 
                           size="small"
                           onClick={() => handleCancelVolunteering(camp.id, camp.name)}
                           className="volunteer-camps-table__cancel-btn"
@@ -663,25 +663,25 @@ case 'upcoming': {
         {/* Navigation Buttons */}
         <div className="night-camps__navigation">
           <Button 
-            variant={activeSection === 'upcoming' ? 'primary' : 'ghost'}
+            variant={activeSection === 'upcoming' ? 'primary' : 'secondary'}
             onClick={() => setActiveSection('upcoming')}
           >
             Upcoming Camps
           </Button>
           <Button 
-            variant={activeSection === 'organizing' ? 'primary' : 'ghost'}
+            variant={activeSection === 'organizing' ? 'primary' : 'secondary'}
             onClick={() => setActiveSection('organizing')}
           >
             Join Organizing Committee
           </Button>
           <Button 
-            variant={activeSection === 'registered' ? 'primary' : 'ghost'}
+            variant={activeSection === 'registered' ? 'primary' : 'secondary'}
             onClick={() => setActiveSection('registered')}
           >
             Registered Camps
           </Button>
           <Button 
-            variant={activeSection === 'volunteers' ? 'primary' : 'ghost'}
+            variant={activeSection === 'volunteers' ? 'primary' : 'secondary'}
             onClick={() => setActiveSection('volunteers')}
           >
             My Volunteers
@@ -769,7 +769,7 @@ case 'upcoming': {
               <div className="join-modal__form-actions">
                 <Button
                   type="button"
-                  variant="ghost"
+                  variant="secondary"
                   onClick={handleCloseJoinModal}
                 >
                   Cancel

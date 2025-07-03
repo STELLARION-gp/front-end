@@ -74,6 +74,15 @@ const CloseIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
   </svg>
 );
 
+const CalendarIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
+  <svg className={className} width="16" height="16" viewBox="0 0 24 24" fill="none">
+    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="currentColor" strokeWidth="2"/>
+    <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" strokeWidth="2"/>
+    <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" strokeWidth="2"/>
+    <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" strokeWidth="2"/>
+  </svg>
+);
+
 // const EditIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
 //   <svg className={className} width="16" height="16" viewBox="0 0 20 20" fill="none">
 //     <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -345,6 +354,15 @@ const ServiceListing: React.FC = () => {
           </div>
           <div className="header-actions">
             <Button
+              variant="secondary"
+              size="medium"
+              icon={<CalendarIcon />}
+              iconPosition="left"
+              onClick={() => navigate('/dashboard/services/availability')}
+            >
+              Manage Availability
+            </Button>
+            <Button
               variant="primary"
               size="medium"
               icon={<PlusIcon />}
@@ -539,6 +557,15 @@ const ServiceListing: React.FC = () => {
                 Edit
               </Button>
               <Button 
+                variant="secondary" 
+                size="small"
+                icon={<CalendarIcon />}
+                iconPosition="left"
+                onClick={() => navigate(`/dashboard/services/${service.id}/availability`)}
+              >
+                Availability
+              </Button>
+              <Button 
                 variant="primary" 
                 size="small"
                 onClick={() => handleViewService(service)}
@@ -672,6 +699,17 @@ const ServiceListing: React.FC = () => {
             <div className="modal-footer">
               <Button variant="secondary" onClick={handleCloseModals}>
                 Close
+              </Button>
+              <Button 
+                variant="secondary"
+                icon={<CalendarIcon />}
+                iconPosition="left"
+                onClick={() => {
+                  handleCloseModals();
+                  navigate(`/dashboard/services/${selectedService.id}/availability`);
+                }}
+              >
+                Set Availability
               </Button>
               <Button variant="primary" onClick={() => {
                 handleCloseModals();

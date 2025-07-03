@@ -1,0 +1,199 @@
+.nasa-image-modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+.nasa-image-modal {
+  background: #181f2e;
+  border-radius: 18px;
+  box-shadow: 0 8px 40px rgba(37, 99, 235, 0.18);
+  max-width: 700px;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+  position: relative;
+  @media (max-width: 700px) {
+    flex-direction: column;
+    max-width: 98vw;
+  }
+}
+.nasa-image-modal__close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: rgba(255,255,255,0.08);
+  border: none;
+  color: #fff;
+  font-size: 2rem;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  transition: background 0.2s, color 0.2s;
+  &:hover { background: #f43f5e; color: #fff; }
+}
+.nasa-image-modal__img-section {
+  flex: 1.2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #232b3b;
+  padding: 2rem 1rem 1rem 1rem;
+  min-width: 0;
+}
+.nasa-image-modal__img {
+  width: 100%;
+  max-width: 320px;
+  max-height: 320px;
+  object-fit: cover;
+  border-radius: 12px;
+  box-shadow: 0 2px 16px rgba(37, 99, 235, 0.13);
+  margin-bottom: 1.2rem;
+}
+.nasa-image-modal__img-actions {
+  display: flex;
+  gap: 1.2rem;
+  margin-top: 0.5rem;
+}
+.nasa-image-modal__icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.2rem;
+  border-radius: 50%;
+  transition: background 0.2s;
+  &:hover { background: #232b3b; }
+}
+.nasa-image-modal__icon-btn.fav {
+  background: #f43f5e22;
+}
+.nasa-image-modal__icon {
+  width: 1.7rem;
+  height: 1.7rem;
+  color: #60a5fa;
+  vertical-align: middle;
+}
+.nasa-image-modal__info {
+  flex: 2;
+  padding: 2rem 2rem 2rem 1rem;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  @media (max-width: 700px) {
+    padding: 1.2rem;
+  }
+}
+.nasa-image-modal__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #60a5fa;
+  margin-bottom: 0.5rem;
+}
+.nasa-image-modal__desc {
+  color: #e5e7eb;
+  font-size: 1.08rem;
+  margin-bottom: 1.2rem;
+}
+.nasa-image-modal__comments-section {
+  margin-top: 1.2rem;
+}
+.nasa-image-modal__comments-section h3 {
+  color: #60a5fa;
+  font-size: 1.1rem;
+  margin-bottom: 0.7rem;
+}
+.nasa-image-modal__comment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  margin-bottom: 1.2rem;
+}
+.nasa-image-modal__rating-input {
+  display: flex;
+  gap: 0.4rem;
+}
+.nasa-image-modal__comment-input {
+  border-radius: 8px;
+  border: 1px solid #334155;
+  background: #1e293b;
+  color: #e5e7eb;
+  padding: 0.7rem;
+  font-size: 1rem;
+  resize: vertical;
+}
+.nasa-image-modal__submit-btn {
+  background: #3b82f6;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 1rem;
+  align-self: flex-start;
+  transition: background 0.2s;
+  &:hover { background: #2563eb; }
+}
+.nasa-image-modal__error {
+  color: #f43f5e;
+  font-size: 0.95rem;
+  margin-top: -0.5rem;
+}
+.nasa-image-modal__comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  max-height: 180px;
+  overflow-y: auto;
+}
+.nasa-image-modal__no-comments {
+  color: #a1a1aa;
+  font-size: 1rem;
+  text-align: center;
+}
+.nasa-image-modal__comment-item {
+  background: #232b3b;
+  border-radius: 8px;
+  padding: 0.7rem 1rem;
+  box-shadow: 0 1px 4px rgba(37, 99, 235, 0.06);
+}
+.nasa-image-modal__comment-header {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  margin-bottom: 0.2rem;
+}
+.nasa-image-modal__comment-user {
+  color: #60a5fa;
+  font-weight: 600;
+  font-size: 1rem;
+}
+.nasa-image-modal__comment-rating {
+  display: flex;
+  gap: 0.4rem;
+}
+.nasa-image-modal__comment-rating .comment-star {
+  width: 1.1rem;
+  height: 1.1rem;
+  color: #a1a1aa;
+}
+.nasa-image-modal__comment-rating .comment-star.filled {
+  color: #fbbf24;
+}
+.nasa-image-modal__comment-text {
+  color: #e5e7eb;
+  font-size: 1.05rem;
+  line-height: 1.5;
+}

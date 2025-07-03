@@ -139,7 +139,12 @@ const AuthorProfilePage: React.FC<{ author: AuthorProfile }> = ({ author }) => {
               <div style={{display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: 8}}>
                 <span style={{fontWeight: 600, color: '#60a5fa'}}>Your Rating:</span>
                 {[1,2,3,4,5].map(i => (
-                  <StarIcon key={i} className={i <= rating ? "icon author-review-star filled" : "icon author-review-star"} style={{cursor: 'pointer'}} onClick={() => setRating(i)} />
+                  <StarIcon
+                    key={i}
+                    className={i <= rating ? "icon author-review-star filled" : "icon author-review-star"}
+                    style={{cursor: 'pointer', color: i <= rating ? '#fbbf24' : '#a1a1aa'}}
+                    onClick={() => setRating(i)}
+                  />
                 ))}
               </div>
               <textarea

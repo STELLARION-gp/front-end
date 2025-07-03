@@ -464,7 +464,7 @@ const SetAvailability: React.FC = () => {
             <div className="header-navigation">
               <Button
                 variant="secondary"
-                size="small"
+                size="medium"
                 icon={<ArrowLeftIcon />}
                 iconPosition="left"
                 onClick={() => navigate('/dashboard/services')}
@@ -523,77 +523,61 @@ const SetAvailability: React.FC = () => {
           <>
             {/* Calendar and Form */}
             <div className="availability-management">
-              <div className="calendar-section">
-                <Card className="calendar-card" variant="elevated">
-                  <div className="calendar-header">
-                    <h3>
-                      <CalendarIcon className="calendar-header-icon" />
-                      Schedule Calendar
-                    </h3>
-                    <div className="calendar-navigation">
-                      <Button
-                        variant="secondary"
-                        size="small"
-                        onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))}
-                      >
-                        ‹
-                      </Button>
-                      <span className="current-month">
-                        {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-                      </span>
-                      <Button
-                        variant="secondary"
-                        size="small"
-                        onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1))}
-                      >
-                        ›
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="calendar">
-                    <div className="calendar-weekdays">
-                      {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                        <div key={day} className="weekday">{day}</div>
-                      ))}
-                    </div>
-                    <div className="calendar-days">
-                      {renderCalendar()}
-                    </div>
-                  </div>
-
-                  <div className="calendar-legend">
-                    <div className="legend-item">
-                      <div className="legend-indicator available"></div>
-                      <span>Available dates</span>
-                    </div>
-                    <div className="legend-item">
-                      <div className="legend-indicator disabled"></div>
-                      <span>Past dates</span>
-                    </div>
-                  </div>
-                </Card>
-              </div>
-
-              {/* Availability Form */}
               {isFormOpen && (
                 <Card className="availability-form-card" variant="elevated">
-                  <div className="form-header">
-                    <h3>
-                      {editingSlot ? 'Edit' : 'Add'} Availability
-                      {!editingSlot && formData.isDateSeries && <span className="mode-indicator"> (Multiple Sessions)</span>}
-                      {!editingSlot && formData.isRecurring && <span className="mode-indicator"> (Recurring)</span>}
-                    </h3>
-                    <Button
-                      variant="secondary"
-                      size="small"
-                      onClick={handleFormReset}
-                    >
-                      Cancel
-                    </Button>
-                  </div>
-
                   <form onSubmit={handleFormSubmit} className="availability-form">
+                    {/* Calendar Section */}
+                    <div className="calendar-section">
+                      <div className="calendar-header">
+                        <h3>
+                          <CalendarIcon className="calendar-header-icon" />
+                          Schedule Calendar
+                        </h3>
+                        <div className="calendar-navigation">
+                          <Button
+                            variant="secondary"
+                            size="small"
+                            onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))}
+                          >
+                            ‹
+                          </Button>
+                          <span className="current-month">
+                            {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                          </span>
+                          <Button
+                            variant="secondary"
+                            size="small"
+                            onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1))}
+                          >
+                            › 
+                          </Button>
+                        </div>
+                      </div>
+
+                      <div className="calendar">
+                        <div className="calendar-weekdays">
+                          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+                            <div key={day} className="weekday">{day}</div>
+                          ))}
+                        </div>
+                        <div className="calendar-days">
+                          {renderCalendar()}
+                        </div>
+                      </div>
+
+                      <div className="calendar-legend">
+                        <div className="legend-item">
+                          <div className="legend-indicator available"></div>
+                          <span>Available dates</span>
+                        </div>
+                        <div className="legend-item">
+                          <div className="legend-indicator disabled"></div>
+                          <span>Past dates</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Availability Form Fields */}
                     <div className="form-grid">
                       {!formData.isDateSeries && (
                         <div className="form-group">
@@ -782,7 +766,7 @@ const SetAvailability: React.FC = () => {
                     </div>
 
                     <div className="form-actions">
-                      <Button
+                     <Button
                         type="submit"
                         variant="primary"
                         icon={<SaveIcon />}

@@ -134,17 +134,22 @@
   resize: vertical;
 }
 .nasa-image-modal__submit-btn {
-  background: #3b82f6;
-  color: #fff;
-  border: none;
+  background: #181f2e;
+  border: 2px solid #3b82f6;
   border-radius: 8px;
   padding: 0.5rem 1.2rem;
   font-weight: 600;
   cursor: pointer;
   font-size: 1rem;
   align-self: flex-start;
-  transition: background 0.2s;
-  &:hover { background: #2563eb; }
+  transition: background 0.2s, color 0.2s, border 0.2s;
+  outline: none;
+  box-shadow: none;
+  &:hover {
+    background: #3b82f6;
+    color: #fff;
+    border-color: #3b82f6;
+  }
 }
 .nasa-image-modal__error {
   color: #f43f5e;
@@ -199,7 +204,7 @@
 }
 .nasa-mission-modal-vertical {
   flex-direction: column !important;
-  max-width: 420px;
+  
   width: 96vw;
   align-items: center;
   padding-bottom: 0.5rem;

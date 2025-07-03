@@ -63,7 +63,7 @@ const NasaMissionModal: React.FC<NasaMissionModalProps> = ({ open, onClose, miss
                 rows={2}
                 className="nasa-image-modal__comment-input"
               />
-              <Button type="submit" className="nasa-image-modal__submit-btn" variant="primary" size="small">
+              <Button type="submit" className="nasa-image-modal__submit-btn" size="small">
                 Submit
               </Button>
               {error && <div className="nasa-image-modal__error">{error}</div>}

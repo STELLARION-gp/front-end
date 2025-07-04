@@ -56,7 +56,7 @@ const BookingRequests: React.FC = () => {
           <Button 
             variant="primary" 
             size="medium"
-            onClick={() => navigate('/guide/confirmed-bookings')}
+            onClick={() => navigate('/dashboard/confirmed-bookings')}
           >
             View Confirmed Bookings
           </Button>

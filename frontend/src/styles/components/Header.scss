@@ -1,0 +1,61 @@
+/* Header component styles with glowing underline */
+.header-container {
+    margin-bottom: 80px;
+}
+
+.header-heading {
+    position: relative;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .header-container {
+        margin-bottom: 60px;
+    }
+
+    .header-heading::after {
+        width: 120px;
+    }
+
+    .header-heading.header-small::after {
+        width: 80px;
+    }
+
+    .header-heading.header-medium::after {
+        width: 100px;
+    }
+
+    .header-heading.header-large::after {
+        width: 120px;
+    }
+
+    .header-heading.header-xl::after {
+        width: 140px;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-container {
+        margin-bottom: 40px;
+    }
+
+    .header-heading::after {
+        width: 100px;
+    }
+
+    .header-heading.header-small::after {
+        width: 60px;
+    }
+
+    .header-heading.header-medium::after {
+        width: 80px;
+    }
+
+    .header-heading.header-large::after {
+        width: 100px;
+    }
+
+    .header-heading.header-xl::after {
+        width: 120px;
+    }
+}

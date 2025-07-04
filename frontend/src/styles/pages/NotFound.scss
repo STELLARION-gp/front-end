@@ -1,0 +1,591 @@
+@use '../abstracts/variables' as *;
+@use 'sass:color';
+
+// Black hole container
+.blackhole-container {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 0 !important; // Lower z-index to be behind content
+    pointer-events: none !important; // Allow interactions with elements behind
+    background: linear-gradient(to bottom, $theme1, $theme2) !important; // Theme-based gradient
+    overflow: hidden !important; // Ensure no scrollbars
+    display: block !important; // Force display
+    visibility: visible !important; // Force visibility
+
+    canvas {
+        // Ensure canvas covers the entire container
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        display: block !important;
+        visibility: visible !important;
+    }
+}
+
+// Transparent navbar when on 404 page
+.transparent-navbar {
+
+    nav,
+    .navbar-blur {
+        background: transparent !important;
+        -webkit-backdrop-filter: none !important;
+        backdrop-filter: none !important;
+    }
+}
+
+// Static 404 page styles - no animations
+.not-found-container {
+    position: relative;
+    height: 100vh; // Set exact height to 100vh
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background: linear-gradient(135deg, $theme1 0%, $theme2 50%, $theme1 100%) !important; // Theme-based gradient background
+    overflow: hidden;
+    z-index: 10; // Above the black hole
+    pointer-events: auto; // Enable interactions
+    color: $text-light;
+
+    // Static background decoration
+    .static-background {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        pointer-events: none;
+
+        .bg-decoration {
+            position: absolute;
+            top: 20%;
+            left: 20%;
+            width: 60%;
+            height: 60%;
+            background: radial-gradient(circle at center,
+                    rgba($theme3, 0.1) 0%,
+                    rgba($theme2, 0.05) 50%,
+                    transparent 70%);
+            border-radius: 50%;
+        }
+    }
+
+    .not-found-content {
+        position: relative;
+        z-index: 10;
+        text-align: center;
+        max-width: 600px;
+        width: 100%;
+        -webkit-backdrop-filter: blur(5px); // Lighter blur
+        backdrop-filter: blur(5px); // Lighter blur
+        border-radius: 20px;
+        padding: 3rem 2rem;
+
+        .error-code {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+
+            .error-number {
+                font-size: 8rem;
+                font-weight: 900;
+                color: $theme3; // Using theme3 blue
+                text-shadow: 0 0 20px rgba($theme3, 0.3);
+                line-height: 1;
+
+                @media (max-width: 768px) {
+                    font-size: 6rem;
+                }
+
+                @media (max-width: 480px) {
+                    font-size: 4rem;
+                }
+            }
+        }
+
+        .error-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: $text-light;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 4px rgba($theme1, 0.3);
+
+            @media (max-width: 768px) {
+                font-size: 2rem;
+            }
+
+            @media (max-width: 480px) {
+                font-size: 1.5rem;
+            }
+        }
+
+        .error-description {
+            font-size: 1.125rem;
+            color: rgba($text-light, 0.8);
+            margin-bottom: 2.5rem;
+            line-height: 1.6;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+
+            @media (max-width: 768px) {
+                font-size: 1rem;
+                margin-bottom: 2rem;
+            }
+        }
+
+        .error-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+
+            .home-button,
+            .back-button {
+                min-width: 150px;
+            }
+
+            @media (max-width: 480px) {
+                flex-direction: column;
+                align-items: center;
+
+                .home-button,
+                .back-button {
+                    width: 100%;
+                    max-width: 250px;
+                }
+            }
+        }
+
+        .help-links {
+            .help-text {
+                color: rgba($text-light, 0.7);
+                font-size: 0.9rem;
+                margin-bottom: 1rem;
+            }
+
+            .help-actions {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 1rem;
+
+                .help-link {
+                    color: $theme3;
+                    text-decoration: none;
+                    font-weight: 500;
+                    transition: color 0.2s ease;
+
+                    &:hover {
+                        color: color.adjust($theme3, $lightness: 10%);
+                    }
+                }
+
+                .separator {
+                    color: rgba($text-light, 0.5);
+                }
+
+                @media (max-width: 480px) {
+                    flex-direction: column;
+                    gap: 0.5rem;
+
+                    .separator {
+                        display: none;
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Ensure navbar styling for 404 page
+body.transparent-navbar {
+
+    nav,
+    .navbar-blur {
+        background: rgba($theme1, 0.2) !important;
+        -webkit-backdrop-filter: blur(10px) !important;
+        backdrop-filter: blur(10px) !important;
+    }
+}
+
+.not-found-container {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, $theme1 0%, $theme2 50%, $theme1 100%);
+    position: relative;
+    overflow: hidden;
+    padding: 2rem;
+    color: $text-light;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(ellipse at center, rgba($theme3, 0.1) 0%, transparent 70%);
+        pointer-events: none;
+    }
+}
+
+.not-found-content {
+    text-align: center;
+    z-index: 10;
+    position: relative;
+    max-width: 600px;
+    width: 100%;
+}
+
+.error-code {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.error-number {
+    font-size: 8rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, $theme3, $accent-color, $accent-color-light);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 30px rgba($theme3, 0.5);
+    line-height: 1;
+}
+
+@keyframes gradientShift {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+@keyframes glow {
+    0% {
+        filter: brightness(1) drop-shadow(0 0 10px rgba($theme3, 0.3));
+    }
+
+    100% {
+        filter: brightness(1.2) drop-shadow(0 0 20px rgba($theme3, 0.6));
+    }
+}
+
+.error-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, $text-light, $theme5);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.error-description {
+    font-size: 1.125rem;
+    color: rgba($text-light, 0.8);
+    margin-bottom: 3rem;
+    line-height: 1.6;
+    animation: fadeInUp 0.8s ease-out 0.2s both;
+}
+
+.error-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 3rem;
+    animation: fadeInUp 0.8s ease-out 0.4s both;
+
+    .home-button,
+    .back-button {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+        &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba($theme3, 0.3);
+        }
+    }
+
+    .home-button {
+        text-decoration: none;
+
+        button {
+            background: linear-gradient(135deg, $theme3, $accent-color);
+            border: none;
+            color: $text-light;
+            font-weight: 600;
+            position: relative;
+            overflow: hidden;
+
+            &::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba($text-light, 0.2), transparent);
+                transition: left 0.5s ease;
+            }
+
+            &:hover::before {
+                left: 100%;
+            }
+        }
+    }
+}
+
+/* Additional styling for help section if needed */
+
+.help-text {
+    color: rgba($text-light, 0.6);
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.help-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.help-link {
+    color: $theme3;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all $transition-medium;
+    position: relative;
+
+    &::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: linear-gradient(90deg, $theme3, $accent-color);
+        transition: width $transition-medium;
+    }
+
+    &:hover {
+        color: $accent-color;
+        transform: translateY(-1px);
+
+        &::after {
+            width: 100%;
+        }
+    }
+}
+
+.separator {
+    color: rgba($text-light, 0.4);
+    font-weight: 300;
+}
+
+.stars-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+
+// Remove animations - static stars
+.star {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: $text-light;
+    border-radius: 50%;
+    opacity: 0.7;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: -1px;
+        left: -1px;
+        width: 4px;
+        height: 4px;
+        background: radial-gradient(circle, rgba($text-light, 0.8) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+}
+
+// Static star positions - no animations
+.star-0 {
+    left: 10%;
+    top: 20%;
+}
+
+.star-1 {
+    left: 20%;
+    top: 80%;
+}
+
+.star-2 {
+    left: 35%;
+    top: 15%;
+}
+
+.star-3 {
+    left: 50%;
+    top: 60%;
+}
+
+.star-4 {
+    left: 65%;
+    top: 30%;
+}
+
+.star-5 {
+    left: 80%;
+    top: 70%;
+}
+
+.star-6 {
+    left: 15%;
+    top: 50%;
+}
+
+.star-7 {
+    left: 75%;
+    top: 25%;
+}
+
+.star-8 {
+    left: 90%;
+    top: 85%;
+}
+
+.star-9 {
+    left: 40%;
+    top: 90%;
+}
+
+@keyframes twinkle {
+
+    0%,
+    100% {
+        opacity: 0.3;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.2);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+    .not-found-container {
+        padding: 1rem;
+        height: -webkit-fill-available;
+        /* For iOS browsers */
+        height: 100vh;
+        /* Force full height on mobile */
+    }
+
+    .error-number {
+        font-size: 5rem;
+    }
+
+    .error-title {
+        font-size: 2rem;
+    }
+
+    .error-description {
+        font-size: 1rem;
+    }
+
+    .error-actions {
+        flex-direction: column;
+        align-items: center;
+
+        .home-button,
+        .back-button {
+            width: 100%;
+            max-width: 280px;
+        }
+    }
+
+    .help-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+
+        .separator {
+            display: none;
+        }
+    }
+
+    .blackhole-container {
+        canvas {
+            // Adjust rendering quality for mobile performance
+            display: block !important;
+            touch-action: none;
+        }
+    }
+}
+
+@media (max-width: 480px) {
+    .error-number {
+        font-size: 4rem;
+    }
+
+    .error-title {
+        font-size: 1.5rem;
+    }
+
+    .error-code {
+        gap: 0.5rem;
+    }
+}
+
+// Dark background for body when on 404 page
+body.dark-background {
+    background: linear-gradient(135deg, $theme1 0%, $theme2 50%, $theme1 100%) !important; // Theme-based gradient background
+    color: $text-light !important; // Force white text
+
+    // Ensure all parent elements are also using theme background
+    #root,
+    .App,
+    main {
+        background: linear-gradient(135deg, $theme1 0%, $theme2 50%, $theme1 100%) !important;
+    }
+}

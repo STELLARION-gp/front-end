@@ -1,0 +1,796 @@
+// Set Availability Page Styles
+// ============================
+
+@use 'sass:color';
+@use '../../abstracts/variables' as *;
+
+.set-availability {
+  min-height: 100vh;
+  padding: 1.5rem 1.5rem 3rem 1.5rem;
+  
+  .set-availability-container {
+    max-width: none;
+    margin: 0;
+    width: 100%;
+    padding-bottom: 2rem;
+  }
+  
+  // Header Section
+  &__header {
+    margin-bottom: 3rem;
+    
+    .header-content {
+      .header-navigation {
+        margin-bottom: 1.5rem;
+        display: flex;
+        justify-content: flex-start;
+      }
+      
+      .title-section {
+        text-align: center;
+        
+        .page-title {
+          font-family: $font-orbitron;
+          font-size: 2.75rem;
+          font-weight: 700;
+          color: $theme5;
+          margin: 0 0 0.75rem 0;
+          text-shadow: 0 0 20px rgba(232, 249, 255, 0.4);
+          letter-spacing: -0.02em;
+        }
+        
+        .page-subtitle {
+          font-size: 1.2rem;
+          color: $theme4;
+          margin: 0;
+          font-weight: 300;
+          opacity: 0.9;
+        }
+      }
+    }
+  }
+  
+  // Service Selection
+  .service-selection {
+    margin-bottom: 2rem;
+    
+    .section-header {
+      margin-bottom: 1.5rem;
+      text-align: center;
+      
+      h2 {
+        font-family: $font-orbitron;
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: $theme5;
+        margin: 0 0 0.5rem 0;
+      }
+      
+      p {
+        color: $theme4;
+        font-size: 1.1rem;
+        margin: 0;
+        opacity: 0.8;
+      }
+    }
+    
+    .services-grid {
+      display: grid;
+      // use auto-fit to collapse empty columns and let cards fill available width
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+    
+    .service-card {
+      position: relative;
+      padding: 1.5rem;
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+      
+      &.selected {
+        border-color: $theme2;
+        background: linear-gradient(135deg, 
+          rgba($theme2, 0.05) 0%, 
+          rgba($theme3, 0.02) 100%);
+        box-shadow: 0 0 30px rgba($theme2, 0.2);
+      }
+      
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba($theme1, 0.15);
+      }
+      
+      .service-info {
+        .service-title {
+          font-family: $font-orbitron;
+          font-size: 1.25rem;
+          font-weight: 600;
+          color: $theme5;
+          margin: 0 0 1rem 0;
+          line-height: 1.3;
+        }
+        
+        .service-details {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.75rem;
+          margin-bottom: 1rem;
+          
+          span {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            
+            &.service-category {
+              background: color.adjust($theme2, $alpha: -0.9);
+              color: $theme2;
+              border: 1px solid color.adjust($theme2, $alpha: -0.8);
+            }
+            
+            &.service-duration {
+              background: color.adjust($theme3, $alpha: -0.9);
+              color: $theme3;
+              border: 1px solid color.adjust($theme3, $alpha: -0.8);
+            }
+            
+            &.service-price {
+              background: color.adjust($theme4, $alpha: -0.9);
+              color: $theme4;
+              border: 1px solid color.adjust($theme4, $alpha: -0.8);
+              font-weight: 600;
+            }
+          }
+        }
+        
+        .service-capacity {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          color: $theme4;
+          font-size: 0.95rem;
+          
+          .capacity-icon {
+            color: $theme3;
+          }
+        }
+      }
+      
+      .selected-indicator {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        width: 24px;
+        height: 24px;
+        background: $theme2;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 0.875rem;
+      }
+    }
+  }
+  
+  // Calendar and Form Layout
+  .availability-management {
+    display: block;
+    width: 100%;
+    margin-bottom: 2rem;
+    
+    // Removed grid layout to make full width components
+    .calendar-card,
+    .availability-form-card {
+      width: 100% !important;
+      max-width: 100% !important;
+      margin-bottom: 2rem;
+    }
+  }
+
+  // Force full-width for main cards
+  .service-selection,
+  .availability-list-card,
+  .calendar-card,
+  .availability-form-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto 2rem;
+  }
+
+  // Override default Card size constraints
+  .card--small,
+  .card--medium,
+  .card--large {
+    max-width: none !important;
+    width: 100% !important;
+  }
+  
+  // Calendar Section
+  .calendar-section {
+    .calendar-card {
+      padding: 1.5rem;
+    }
+    
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      
+      h3 {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-family: $font-orbitron;
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: $theme5;
+        margin: 0;
+        
+        .calendar-header-icon {
+          color: $theme2;
+        }
+      }
+      
+      .calendar-navigation {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        
+        .current-month {
+          font-weight: 600;
+          color: $theme4;
+          min-width: 140px;
+          text-align: center;
+        }
+      }
+    }
+    
+    .calendar {
+      .calendar-weekdays {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 1px;
+        margin-bottom: 1px;
+        
+        .weekday {
+          padding: 0.75rem;
+          text-align: center;
+          font-weight: 600;
+          /* darker text for better contrast */
+          color: $theme5;
+          /* slightly darker background for contrast */
+          background: color.adjust($theme1, $alpha: -0.9);
+          font-size: 0.875rem;
+          /* add border to separate days */
+          border: 1px solid color.adjust($theme1, $alpha: -0.85);
+        }
+      }
+      
+      .calendar-days {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 1px;
+        background: color.adjust($theme1, $alpha: -0.9);
+        
+        .calendar-day {
+          position: relative;
+          aspect-ratio: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: $text-light;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          /* add border for better separation */
+          border: 1px solid color.adjust($theme1, $alpha: -0.9);
+          
+          &:not(.empty):not(.disabled):hover {
+            /* on hover, use theme2 with higher contrast and light text */
+            background: color.adjust($theme2, $alpha: -0.8);
+            color: $text-light;
+          }
+          
+          &.empty {
+            background: color.adjust($theme1, $alpha: -0.98);
+            cursor: default;
+          }
+          
+          &.disabled {
+            /* muted disabled days with subtle background and text */
+            background: color.adjust($theme1, $alpha: -0.97);
+            color: color.adjust($theme1, $alpha: -0.6);
+            cursor: not-allowed;
+          }
+          
+          &.has-availability {
+            /* indicate availability via border highlight */
+            background: $text-light;
+            border: 2px solid $theme2;
+            color: $theme2;
+            font-weight: 600;
+            .availability-indicator {
+              /* small dot indicator */
+              position: absolute;
+              bottom: 4px;
+              right: 4px;
+              width: 6px;
+              height: 6px;
+              background: $theme2;
+              border-radius: 50%;
+            }
+          }
+          
+          &.selected {
+            background: $theme2;
+            color: white;
+            font-weight: 600;
+          }
+          
+          .day-number {
+            font-size: 0.9rem;
+          }
+        }
+      }
+    }
+    
+    .calendar-legend {
+      display: flex;
+      gap: 1.5rem;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid color.adjust($theme1, $alpha: -0.9);
+      
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        color: $theme4;
+        
+        .legend-indicator {
+          width: 12px;
+          height: 12px;
+          border-radius: 50%;
+          
+          &.available {
+            background: $theme2;
+          }
+          
+          &.disabled {
+            /* deeper shade for disabled legend for better contrast */
+            background: color.adjust($theme1, $alpha: -0.6);
+          }
+        }
+      }
+    }
+  }
+  
+  // Availability Form
+  .availability-form-card {
+    padding: 1.5rem;
+    
+    .form-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      
+      h3 {
+        font-family: $font-orbitron;
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: $theme5;
+        margin: 0;
+        
+        .mode-indicator {
+          font-size: 0.875rem;
+          color: $theme2;
+          font-weight: 500;
+          opacity: 0.8;
+        }
+      }
+    }
+    
+    .availability-form {
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin-bottom: 2rem;
+        
+        @media (max-width: 768px) {
+          grid-template-columns: 1fr;
+        }
+        
+        .form-group {
+          &.full-width {
+            grid-column: 1 / -1;
+          }
+          
+          label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: $theme4;
+            
+            &.checkbox-label {
+              display: flex;
+              align-items: center;
+              gap: 0.5rem;
+              cursor: pointer;
+              
+              input[type="checkbox"] {
+                margin: 0;
+              }
+            }
+          }
+          
+          .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid color.adjust($theme1, $alpha: -0.8);
+            border-radius: 8px;
+            background: $text-light;
+            color: $theme1;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            
+            &:focus {
+              outline: none;
+              border-color: $theme2;
+              box-shadow: 0 0 0 3px color.adjust($theme2, $alpha: -0.9);
+            }
+          }
+          
+          .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+          }
+
+          // Days selector for date series
+          .days-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            
+            .day-checkbox {
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              cursor: pointer;
+              position: relative;
+              
+              input[type="checkbox"] {
+                position: absolute;
+                opacity: 0;
+                width: 0;
+                height: 0;
+              }
+              
+              .day-label {
+                padding: 0.5rem 0.75rem;
+                border: 2px solid color.adjust($theme1, $alpha: -0.8);
+                border-radius: 8px;
+                background: $text-light;
+                color: $theme1;
+                font-size: 0.875rem;
+                font-weight: 600;
+                transition: all 0.2s ease;
+                min-width: 40px;
+                text-align: center;
+                -webkit-user-select: none;
+                user-select: none;
+              }
+              
+              &:hover .day-label {
+                border-color: $theme2;
+                background: color.adjust($theme2, $alpha: -0.95);
+              }
+              
+              input:checked + .day-label {
+                background: $theme2;
+                color: $text-light;
+                border-color: $theme2;
+              }
+            }
+          }
+
+          .form-help-text {
+            font-size: 0.875rem;
+            color: $theme4;
+            opacity: 0.8;
+            margin: 0.5rem 0 0 0;
+            font-style: italic;
+          }
+        }
+      }
+      
+      .form-actions {
+        display: flex;
+        justify-content: flex-end;
+      }
+    }
+  }
+  
+  // Availability List
+  .availability-list-card {
+    padding: 1.5rem;
+    
+    .list-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      
+      h3 {
+        font-family: $font-orbitron;
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: $theme5;
+        margin: 0;
+      }
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      
+      .empty-icon {
+        font-size: 3rem;
+        color: $theme3;
+        margin-bottom: 1rem;
+      }
+      
+      h4 {
+        font-family: $font-orbitron;
+        font-size: 1.25rem;
+        color: $theme4;
+        margin: 0 0 0.75rem 0;
+      }
+      
+      p {
+        color: $theme4;
+        opacity: 0.8;
+        max-width: 400px;
+        margin: 0 auto;
+      }
+    }
+    
+    .availability-table {
+      .table-header {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+        gap: 1rem;
+        padding: 1rem;
+        background: color.adjust($theme1, $alpha: -0.95);
+        border-radius: 8px 8px 0 0;
+        border-bottom: 2px solid color.adjust($theme1, $alpha: -0.9);
+        
+        @media (max-width: 768px) {
+          grid-template-columns: 1fr;
+          gap: 0.5rem;
+        }
+        
+        .header-cell {
+          font-weight: 600;
+          color: $theme4;
+          font-size: 0.875rem;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+        }
+      }
+      
+      .table-body {
+        .table-row {
+          display: grid;
+          grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+          gap: 1rem;
+          padding: 1rem;
+          border-bottom: 1px solid color.adjust($theme1, $alpha: -0.9);
+          transition: background-color 0.2s ease;
+          
+          @media (max-width: 768px) {
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+            padding: 1.5rem 1rem;
+          }
+          
+          &:hover {
+            background: color.adjust($theme2, $alpha: -0.98);
+          }
+          
+          &:last-child {
+            border-bottom: none;
+            border-radius: 0 0 8px 8px;
+          }
+          
+          .table-cell {
+            display: flex;
+            align-items: center;
+            
+            &.date-time {
+              .date-time-content {
+                .date, .time {
+                  display: flex;
+                  align-items: center;
+                  gap: 0.5rem;
+                  
+                  .date-icon, .time-icon {
+                    color: $theme3;
+                    width: 14px;
+                    height: 14px;
+                  }
+                }
+                
+                .date {
+                  font-weight: 600;
+                  color: $theme4;
+                  margin-bottom: 0.25rem;
+                }
+                
+                .time {
+                  font-size: 0.875rem;
+                  color: $theme4;
+                  opacity: 0.8;
+                }
+              }
+            }
+            
+            &.capacity {
+              .capacity-content {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                
+                .capacity-icon {
+                  color: $theme3;
+                  width: 16px;
+                  height: 16px;
+                }
+                
+                span {
+                  font-weight: 600;
+                  color: $theme4;
+                }
+              }
+            }
+            
+            &.price {
+              font-weight: 600;
+              color: $theme2;
+              font-size: 1.1rem;
+            }
+            
+            &.status {
+              .status-badge {
+                padding: 0.5rem 1rem;
+                border-radius: 20px;
+                font-size: 0.875rem;
+                font-weight: 600;
+                
+                &.active {
+                  background: color.adjust($color-success, $alpha: -0.9);
+                  color: $color-success;
+                  border: 1px solid color.adjust($color-success, $alpha: -0.8);
+                }
+                
+                &.full {
+                  background: color.adjust($color-warning, $alpha: -0.9);
+                  color: $color-warning;
+                  border: 1px solid color.adjust($color-warning, $alpha: -0.8);
+                }
+                
+                &.inactive {
+                  background: color.adjust($theme1, $alpha: -0.9);
+                  color: $theme1;
+                  border: 1px solid color.adjust($theme1, $alpha: -0.8);
+                }
+              }
+            }
+            
+            &.actions {
+              .action-buttons {
+                display: flex;
+                gap: 0.5rem;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  // Responsive Design
+  @media (max-width: 1024px) {
+    .availability-management {
+      .calendar-section,
+      .availability-form-card {
+        .calendar-header,
+        .form-header {
+          flex-direction: column;
+          gap: 1rem;
+          text-align: center;
+        }
+      }
+    }
+  }
+  
+  @media (max-width: 768px) {
+    padding: 1rem 1rem 2rem 1rem;
+    
+    &__header {
+      margin-bottom: 2rem;
+      
+      .title-section {
+        .page-title {
+          font-size: 2rem;
+        }
+        
+        .page-subtitle {
+          font-size: 1rem;
+        }
+      }
+    }
+    
+    .service-selection {
+      .services-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+    }
+    
+    .availability-table {
+      .table-header {
+        display: none;
+      }
+      
+      .table-body .table-row {
+        border: 1px solid color.adjust($theme1, $alpha: -0.9);
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        
+        .table-cell {
+          &::before {
+            content: attr(data-label);
+            font-weight: 600;
+            color: $theme4;
+            display: block;
+            margin-bottom: 0.25rem;
+            font-size: 0.875rem;
+          }
+          
+          &.date-time::before { content: "Date & Time:"; }
+          &.capacity::before { content: "Capacity:"; }
+          &.price::before { content: "Price:"; }
+          &.status::before { content: "Status:"; }
+          &.actions::before { content: "Actions:"; }
+        }
+      }
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .set-availability-container {
+      padding-bottom: 1rem;
+    }
+    
+    .availability-form {
+      .form-grid {
+        grid-template-columns: 1fr !important;
+      }
+    }
+    
+    .calendar {
+      .calendar-weekdays .weekday,
+      .calendar-days .calendar-day {
+        padding: 0.5rem;
+        font-size: 0.8rem;
+      }
+    }
+  }
+}

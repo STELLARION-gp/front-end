@@ -43,10 +43,18 @@ export const PAGE_ACCESS_CONTROL = {
     '/dashboard/blogs': ['enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin'] as UserRole[],
     '/dashboard/mentor': ['mentor', 'moderator', 'admin'] as UserRole[],
     '/dashboard/events': ['guide', 'mentor', 'moderator', 'admin'] as UserRole[],
+    '/dashboard/services': ['guide'] as UserRole[],
     '/dashboard/chat': ['learner', 'enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin'] as UserRole[],
     '/dashboard/sessions': ['mentor', 'moderator', 'admin'] as UserRole[],
+    '/dashboard/media': ['guide'] as UserRole[],
     '/dashboard/admin': ['admin'] as UserRole[],
-    '/dashboard/moderation': ['moderator', 'admin'] as UserRole[]
+    '/dashboard/moderation': ['moderator', 'admin'] as UserRole[],
+    '/dashboard/night-camps': ['enthusiast', 'influencer','learner','moderator', 'admin','mentor'] as UserRole[],
+    '/dashboard/stargazing': ['enthusiast', 'influencer','admin', 'learner','mentor','moderator'] as UserRole[],
+    '/dashboard/booking-requests': ['guide'] as UserRole[],
+    '/dashboard/astrohub': ['enthusiast'] as UserRole[],
+    
+
 };
 
 // Sidebar menu items with role-based visibility
@@ -54,45 +62,67 @@ export const ROLE_BASED_MENU_ITEMS = {
     learner: [
         { label: 'Overview', icon: 'HomeIcon', href: '/dashboard/overview' },
         { label: 'Profile', icon: 'UserCircleIcon', href: '/dashboard/profile' },
+        { label: 'Blogs', icon: 'BookOpenIcon', href: '/dashboard/blogs' },
+        { label: 'NASA content', icon: 'RocketLaunchIcon', href: '/dashboard/nasa-content' },
+        { label: 'Celestial Events', icon: 'SparklesIcon', href: '/dashboard/celestial-events' },
         { label: 'Chat', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/chat' },
-        { label: 'Settings', icon: 'Cog6ToothIcon', href: '/dashboard/settings' },
+        // { label: 'Settings', icon: 'Cog6ToothIcon', href: '/dashboard/settings' },
+        { label: 'Night Camps', icon: 'MoonIcon', href: '/dashboard/night-camps' },
+        { label: 'Stargazing Spot', icon: 'StarIcon', href: '/dashboard/stargazing' },
+
+
+
+        
     ],
     enthusiast: [
         { label: 'Overview', icon: 'HomeIcon', href: '/dashboard/overview' },
         { label: 'Profile', icon: 'UserCircleIcon', href: '/dashboard/profile' },
+        { label: 'Night Camps', icon: 'MoonIcon', href: '/dashboard/night-camps' },
+        { label: 'Stargazing Spot', icon: 'StarIcon', href: '/dashboard/stargazing' },
         { label: 'Blogs', icon: 'BookOpenIcon', href: '/dashboard/blogs' },
-        { label: 'Chat', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/chat' },
+        { label: 'Astro Hub', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/astrohub' },
         { label: 'Settings', icon: 'Cog6ToothIcon', href: '/dashboard/settings' },
     ],
     influencer: [
         { label: 'Overview', icon: 'HomeIcon', href: '/dashboard/overview' },
         { label: 'Profile', icon: 'UserCircleIcon', href: '/dashboard/profile' },
         { label: 'Blogs', icon: 'BookOpenIcon', href: '/dashboard/blogs' },
+        { label: 'Night Camps', icon: 'MoonIcon', href: '/dashboard/night-camps' },
+        { label: 'Stargazing Spot', icon: 'StarIcon', href: '/dashboard/stargazing' },
         { label: 'Chat', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/chat' },
         { label: 'Settings', icon: 'Cog6ToothIcon', href: '/dashboard/settings' },
     ],
     guide: [
         { label: 'Overview', icon: 'HomeIcon', href: '/dashboard/overview' },
         { label: 'Profile', icon: 'UserCircleIcon', href: '/dashboard/profile' },
+        { label: 'Services', icon: 'AcademicCapIcon', href: '/dashboard/services' },
         { label: 'Blogs', icon: 'BookOpenIcon', href: '/dashboard/blogs' },
+        { label: 'Requests', icon: 'MoonIcon', href: '/dashboard/booking-requests' },
+        { label: 'Stargazing', icon: 'StarIcon', href: '/dashboard/stargazing' },
         { label: 'Events', icon: 'CalendarDaysIcon', href: '/dashboard/events' },
+        { label: 'Media Gallery', icon: 'PhotoIcon', href: '/dashboard/media' },
         { label: 'Chat', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/chat' },
         { label: 'Settings', icon: 'Cog6ToothIcon', href: '/dashboard/settings' },
     ],
     mentor: [
         { label: 'Overview', icon: 'HomeIcon', href: '/dashboard/overview' },
-        { label: 'Profile', icon: 'UserCircleIcon', href: '/dashboard/profile' },
+        { label: 'Profile', icon: 'UserCircleIcon', href: '/dashboard/mentorprofile' },
         { label: 'Blogs', icon: 'BookOpenIcon', href: '/dashboard/blogs' },
         { label: 'Mentor', icon: 'AcademicCapIcon', href: '/dashboard/mentor' },
         { label: 'Events', icon: 'CalendarDaysIcon', href: '/dashboard/events' },
+        { label: 'Stargazing Spot', icon: 'StarIcon', href: '/dashboard/stargazing' },
         { label: 'Chat', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/chat' },
         { label: 'Sessions', icon: 'UsersIcon', href: '/dashboard/sessions' },
         { label: 'Settings', icon: 'Cog6ToothIcon', href: '/dashboard/settings' },
+        
     ],
     moderator: [
         { label: 'Overview', icon: 'HomeIcon', href: '/dashboard/overview' },
         { label: 'Profile', icon: 'UserCircleIcon', href: '/dashboard/profile' },
         { label: 'Blogs', icon: 'BookOpenIcon', href: '/dashboard/blogs' },
+        { label: 'Night Camps', icon: 'MoonIcon', href: '/dashboard/night-camps' },
+        { label: 'Stargazing Spot', icon: 'StarIcon', href: '/dashboard/stargazing' },
+        { label: 'Requests', icon: 'MoonIcon', href: '/dashboard/booking-requests' },
         { label: 'Mentor', icon: 'AcademicCapIcon', href: '/dashboard/mentor' },
         { label: 'Events', icon: 'CalendarDaysIcon', href: '/dashboard/events' },
         { label: 'Chat', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/chat' },
@@ -104,13 +134,12 @@ export const ROLE_BASED_MENU_ITEMS = {
         { label: 'Overview', icon: 'HomeIcon', href: '/dashboard/overview' },
         { label: 'Profile', icon: 'UserCircleIcon', href: '/dashboard/profile' },
         { label: 'Blogs', icon: 'BookOpenIcon', href: '/dashboard/blogs' },
+        { label: 'Night Camps', icon: 'MoonIcon', href: '/dashboard/night-camps' },
+        { label: 'Stargazing Spot', icon: 'StarIcon', href: '/dashboard/stargazing' },
+        { label: 'Requests', icon: 'MoonIcon', href: '/dashboard/booking-requests' },
         { label: 'Mentor', icon: 'AcademicCapIcon', href: '/dashboard/mentor' },
         { label: 'Events', icon: 'CalendarDaysIcon', href: '/dashboard/events' },
         { label: 'Chat', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/chat' },
-        { label: 'Sessions', icon: 'UsersIcon', href: '/dashboard/sessions' },
-        { label: 'Moderation', icon: 'ShieldCheckIcon', href: '/dashboard/moderation' },
-        { label: 'Admin', icon: 'KeyIcon', href: '/dashboard/admin' },
-        { label: 'Settings', icon: 'Cog6ToothIcon', href: '/dashboard/settings' },
     ],
 } as const;
 

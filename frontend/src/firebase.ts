@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getAuth } from "firebase/auth";
+import { getAuth, GoogleAuthProvider } from "firebase/auth";
 
 // Firebase config
 const firebaseConfig = {
@@ -25,4 +25,9 @@ if (typeof window !== "undefined") {
 // Auth instance
 const auth = getAuth(app);
 
-export { app, auth, analytics };
+// Google Auth Provider
+const googleProvider = new GoogleAuthProvider();
+googleProvider.addScope('profile');
+googleProvider.addScope('email');
+
+export { app, auth, analytics, googleProvider };

@@ -13,7 +13,7 @@ const MentorProfile = memo(() => {
   useEffect(() => {
     if (avatarRef.current && videoBoxRef.current) {
       // Subtract 16px to lift the video up
-      const margin = avatarRef.current.offsetTop + avatarRef.current.offsetHeight - 235;
+      const margin = avatarRef.current.offsetTop + avatarRef.current.offsetHeight - 0;
       setVideoMarginTop(margin > 0 ? margin : 0);
     }
   }, []);
@@ -23,7 +23,7 @@ const MentorProfile = memo(() => {
       <h2>Mentor Profile</h2>
       <div className="mentor-profile-layout" style={{ display: 'flex', gap: '2.5rem', flexWrap: 'wrap' }}>
         {/* Left Card */}
-        <div className="mentor-profile-left">
+        <div className="mentor-profile-left" style={{ minWidth: 500, maxWidth: 500, flex: '0 0 400px' }}>
           <div className="mentor-profile-avatar" ref={avatarRef}>
             <img src={avatarImg} alt="Mentor Avatar" />
           </div>
@@ -56,21 +56,17 @@ const MentorProfile = memo(() => {
               </div>
             </div>
           </div>
-          <div style={{ marginTop: 32, width: '100%' }}>
+          <div style={{ marginTop: 32, width: '80%' }}>
             <Button className="w-full">
               Check Reviews
             </Button>
           </div>
-        </div>
-        {/* Right Section */}
-        <div style={{ flex: 2, minWidth: 320, display: 'flex', flexDirection: 'column', gap: 24 }}>
-          <div
-            className="advanced-features mentor-profile-video-box"
-            ref={videoBoxRef}
-            style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: videoMarginTop, borderRadius: 12 }}
-          >
+        {/* Intro Video as a separate section */}
+        <div className="advanced-features mentor-profile-field-box mentor-profile-intro-video" style={{ marginTop: 120 }}>
+          <label>Intro Video</label>
+          <div className="mentor-profile-field-value" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: 8 }}>
             <iframe
-              width="360"
+              width="400"
               height="200"
               src="https://www.youtube.com/embed/sdGseNKrurA"
               title="Mentor Introduction Video"
@@ -80,6 +76,11 @@ const MentorProfile = memo(() => {
               style={{ display: 'block', borderRadius: 12 }}
             ></iframe>
           </div>
+        </div>
+        </div>
+        {/* Right Section */}
+        <div style={{ flex: 1, minWidth: 1000, maxWidth: 1000, display: 'flex', flexDirection: 'column', gap: 24 }}>
+          {/* Removed video section from here. Now starts with qualifications. */}
           <div className="advanced-features mentor-profile-field-box">
             <label>Qualifications and Years of expertise in Astronomy</label>
             <div className="mentor-profile-field-value">PhD in Astrophysics, 10+ years experience</div>

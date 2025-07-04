@@ -11,7 +11,7 @@ import './../styles/components/navbar.scss';
 
 const NavBarComponent = () => {
   const [hidden, setHidden] = useState(false);
-  const [currentTheme, setCurrentTheme] = useState('system');
+  //const [currentTheme, setCurrentTheme] = useState('system');
   // Removed language state variable - using i18n directly
   const location = useLocation();
   const { user, userProfile, logout } = useAuth();
@@ -66,7 +66,7 @@ const NavBarComponent = () => {
   useEffect(() => {
     // Initialize theme from localStorage
     const savedTheme = localStorage.getItem('theme') || 'system';
-    setCurrentTheme(savedTheme);
+    //setCurrentTheme(savedTheme);
     document.documentElement.setAttribute('data-theme', savedTheme);
   }, []);
 
@@ -96,33 +96,33 @@ const NavBarComponent = () => {
     console.log(`Language switched to: ${nextLanguage.name} (${nextLanguage.code})`);
   };
 
-  const handleThemeToggle = () => {
-    const themes = ['system', 'light', 'dark'];
-    const currentIndex = themes.indexOf(currentTheme);
-    const nextIndex = (currentIndex + 1) % themes.length;
-    const nextTheme = themes[nextIndex];
-    setCurrentTheme(nextTheme);
+  // const handleThemeToggle = () => {
+  //   const themes = ['system', 'light', 'dark'];
+  //   const currentIndex = themes.indexOf(currentTheme);
+  //   const nextIndex = (currentIndex + 1) % themes.length;
+  //   const nextTheme = themes[nextIndex];
+  //   setCurrentTheme(nextTheme);
 
-    // Apply theme to document
-    document.documentElement.setAttribute('data-theme', nextTheme);
-    localStorage.setItem('theme', nextTheme);
-    console.log(`Theme switched to: ${nextTheme}`);
-  };
+  //   // Apply theme to document
+  //   document.documentElement.setAttribute('data-theme', nextTheme);
+  //   localStorage.setItem('theme', nextTheme);
+  //   console.log(`Theme switched to: ${nextTheme}`);
+  // };
 
-  const getThemeIcon = () => {
-    console.log('Getting theme icon for theme:', currentTheme);
-    switch (currentTheme) {
-      case 'light':
-        // Sun emoji for light theme
-        return <span className="theme-text">☀️</span>;
-      case 'dark':
-        // Moon emoji for dark theme
-        return <span className="theme-text">🌙</span>;
-      default:
-        // Computer emoji for system theme
-        return <span className="theme-text">💻</span>;
-    }
-  };
+  // const getThemeIcon = () => {
+  //   console.log('Getting theme icon for theme:', currentTheme);
+  //   switch (currentTheme) {
+  //     case 'light':
+  //       // Sun emoji for light theme
+  //       return <span className="theme-text">☀️</span>;
+  //     case 'dark':
+  //       // Moon emoji for dark theme
+  //       return <span className="theme-text">🌙</span>;
+  //     default:
+  //       // Computer emoji for system theme
+  //       return <span className="theme-text">💻</span>;
+  //   }
+  // };
 
   const getLanguageIcon = () => {
     console.log('Getting language icon for language:', currentLanguage.code);
@@ -227,7 +227,7 @@ const NavBarComponent = () => {
         </button>
 
         {/* Theme Toggle Button */}
-        <button
+        {/* <button
           className="utility-btn theme-btn"
           onClick={handleThemeToggle}
           title={t('navbar.currentTheme') + `: ${currentTheme}`}
@@ -235,7 +235,7 @@ const NavBarComponent = () => {
           <div className="theme-icon-wrapper">
             {getThemeIcon()}
           </div>
-        </button>
+        </button> */}
       </div>
     );
   };

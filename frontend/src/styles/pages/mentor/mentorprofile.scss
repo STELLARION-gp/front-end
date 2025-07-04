@@ -211,10 +211,10 @@
 }
 
 .mentor-save-btn {
-  background: #2563eb;
+  // background: #2563eb;
   color: #fff;
   border-radius: 8px;
-  border: none;
+  border: 1px solid #3b82f6;
   padding: 0.7rem 2.2rem;
   font-size: 1.1rem;
   font-weight: 600;
@@ -227,9 +227,9 @@
 
 .mentor-cancel-btn {
   background: #374151;
-  color: #fff;
+  // color: #fff;
   border-radius: 8px;
-  border: none;
+  border: 1px solid #3b82f6;
   padding: 0.7rem 2.2rem;
   font-size: 1.1rem;
   font-weight: 600;

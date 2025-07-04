@@ -18,7 +18,10 @@ import ServiceListing from '../pages/guide/ServiceListing';
 import CreateService from '../pages/guide/CreateService';
 import SetAvailability from '../pages/guide/SetAvailability';
 import MediaUploadPanel from '../pages/guide/MediaUploadPanel';
+
 import MentorProfile from '../pages/mentor/MentorProfile';
+import EditMentor from '../pages/mentor/EditMentor';
+
 import BookingRequests from '../pages/guide/BookingRequests';
 import CelestialEventsPage from '../pages/learner/Celestial_Events_Page';
 
@@ -265,7 +268,14 @@ const DashboardRoutes = () => {
                 }
             />
 
-
+            <Route
+                path="editmentor"
+                element={
+                    <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
+                        <EditMentor />
+                    </RoleGuard>
+                }
+            />
 
             <Route
                 path="night-camps"

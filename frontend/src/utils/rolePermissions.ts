@@ -98,7 +98,7 @@ export const ROLE_BASED_MENU_ITEMS = {
         { label: 'Requests', icon: 'MoonIcon', href: '/dashboard/booking-requests' },
         { label: 'Stargazing', icon: 'StarIcon', href: '/dashboard/stargazing' },
         { label: 'Events', icon: 'CalendarDaysIcon', href: '/dashboard/events' },
-        { label: 'Media Gallery', icon: 'PhotoIcon', href: '/dashboard/media' },
+        { label: 'Media', icon: 'PhotoIcon', href: '/dashboard/media' },
         { label: 'Chat', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/chat' },
         { label: 'Settings', icon: 'Cog6ToothIcon', href: '/dashboard/settings' },
     ],

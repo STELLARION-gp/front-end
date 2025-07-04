@@ -56,6 +56,29 @@ interface Discussion {
   lastActivity: string;
   category: string;
   isSticky?: boolean;
+  content?: string;
+  discussions?: DiscussionComment[];
+}
+
+interface DiscussionComment {
+  id: number;
+  userName: string;
+  userAvatar?: string;
+  comment: string;
+  postedTime: string;
+  likes: number;
+  isLiked: boolean;
+  replies?: DiscussionReply[];
+}
+
+interface DiscussionReply {
+  id: number;
+  userName: string;
+  userAvatar?: string;
+  comment: string;
+  postedTime: string;
+  likes: number;
+  isLiked: boolean;
 }
 
 interface GroupChat {
@@ -279,7 +302,63 @@ const discussions: Discussion[] = [
     replies: 23,
     lastActivity: "2 hours ago",
     category: "Equipment",
-    isSticky: true
+    isSticky: true,
+    content: "Hi everyone! I'm looking to get my first telescope and would love some recommendations. My budget is around $300-500 and I'm mainly interested in viewing planets and the moon. I live in Colombo so there's some light pollution to consider. What would you recommend for a complete beginner?",
+    discussions: [
+      {
+        id: 1,
+        userName: "TelescopeGuru",
+        comment: "For your budget and location, I'd highly recommend the Celestron NexStar 4SE. It's computerized so it helps with finding objects, and the 4-inch aperture is great for planets and moon viewing despite city light pollution.",
+        postedTime: "1 hour ago",
+        likes: 12,
+        isLiked: false,
+        replies: [
+          {
+            id: 1,
+            userName: "SkyWatcher_LK",
+            comment: "Thanks! I've been looking at that one. Is it easy to set up for a complete beginner?",
+            postedTime: "45 minutes ago",
+            likes: 3,
+            isLiked: false
+          },
+          {
+            id: 2,
+            userName: "TelescopeGuru",
+            comment: "Yes, very user-friendly! The SkyAlign feature makes initial setup quite simple. Just make sure to get a good eyepiece kit too.",
+            postedTime: "30 minutes ago",
+            likes: 8,
+            isLiked: true
+          }
+        ]
+      },
+      {
+        id: 2,
+        userName: "ColomboStargazer",
+        comment: "I second the NexStar recommendation, but also consider the Orion XT6 Dobsonian if you don't mind manual tracking. Better value for light gathering and great for planets.",
+        postedTime: "2 hours ago",
+        likes: 15,
+        isLiked: false,
+        replies: []
+      },
+      {
+        id: 3,
+        userName: "AmateurAstronomer",
+        comment: "Don't forget about portability! If you plan to take it to darker skies outside Colombo, weight becomes important. The NexStar is more portable than most Dobsonians.",
+        postedTime: "3 hours ago",
+        likes: 7,
+        isLiked: false,
+        replies: [
+          {
+            id: 1,
+            userName: "SkyWatcher_LK",
+            comment: "Great point! I do want to take it to places like Horton Plains occasionally.",
+            postedTime: "2 hours ago",
+            likes: 4,
+            isLiked: false
+          }
+        ]
+      }
+    ]
   },
   {
     id: 2,
@@ -287,7 +366,37 @@ const discussions: Discussion[] = [
     author: "AstroPhotoColombo",
     replies: 45,
     lastActivity: "5 hours ago",
-    category: "Photography"
+    category: "Photography",
+    content: "I've been experimenting with astrophotography in Sri Lanka for the past year. Here are some camera settings that work well for our tropical skies and light pollution levels. Feel free to share your own experiences and tips!",
+    discussions: [
+      {
+        id: 1,
+        userName: "NightSkyPhotoLK",
+        comment: "Great timing! I just got my first DSLR. What ISO settings do you recommend for Milky Way shots from places like Ella or Nuwara Eliya?",
+        postedTime: "4 hours ago",
+        likes: 18,
+        isLiked: false,
+        replies: [
+          {
+            id: 1,
+            userName: "AstroPhotoColombo",
+            comment: "For those darker locations, I typically use ISO 3200-6400. Start with 15-20 second exposures at f/2.8. The key is finding the sweet spot for your camera's noise performance.",
+            postedTime: "3 hours ago",
+            likes: 22,
+            isLiked: true
+          }
+        ]
+      },
+      {
+        id: 2,
+        userName: "DigitalDarkSky",
+        comment: "Has anyone tried shooting from Sigiriya area? I'm planning a trip there next month and wondering about the light pollution levels.",
+        postedTime: "6 hours ago",
+        likes: 9,
+        isLiked: false,
+        replies: []
+      }
+    ]
   },
   {
     id: 3,
@@ -295,7 +404,28 @@ const discussions: Discussion[] = [
     author: "DarkSkyAdvocate",
     replies: 18,
     lastActivity: "1 day ago",
-    category: "Observation"
+    category: "Observation",
+    content: "I've been working on mapping light pollution levels around Colombo using a Sky Quality Meter. Here are my findings and some recommendations for the best stargazing spots within driving distance of the city.",
+    discussions: [
+      {
+        id: 1,
+        userName: "SuburbanStargazer",
+        comment: "This is incredibly useful! I live in Nugegoda and was wondering if there are any decent spots closer than Horton Plains.",
+        postedTime: "18 hours ago",
+        likes: 11,
+        isLiked: false,
+        replies: [
+          {
+            id: 1,
+            userName: "DarkSkyAdvocate",
+            comment: "Try the areas around Avissawella or even parts of Kotte Marsh. Not perfect, but much better than central Colombo for basic observations.",
+            postedTime: "12 hours ago",
+            likes: 14,
+            isLiked: false
+          }
+        ]
+      }
+    ]
   },
   {
     id: 4,
@@ -303,7 +433,137 @@ const discussions: Discussion[] = [
     author: "MountainStargazer",
     replies: 31,
     lastActivity: "2 days ago",
-    category: "Travel"
+    category: "Travel",
+    content: "Planning my first serious stargazing trip to Horton Plains National Park. Looking for advice on best viewing spots, permits needed, and what to expect from the skies there. Any experienced stargazers been there recently?",
+    discussions: [
+      {
+        id: 1,
+        userName: "HighlandObserver",
+        comment: "Horton Plains has incredible dark skies! Make sure to get there early to set up before sunset. The Milky Way visibility is outstanding on clear nights.",
+        postedTime: "1 day ago",
+        likes: 25,
+        isLiked: true,
+        replies: []
+      },
+      {
+        id: 2,
+        userName: "ParkRanger_HP",
+        comment: "Remember you need to coordinate with park authorities for night access. Also bring warm clothes - it gets surprisingly cold at night even in our tropical climate!",
+        postedTime: "2 days ago",
+        likes: 19,
+        isLiked: false,
+        replies: [
+          {
+            id: 1,
+            userName: "MountainStargazer",
+            comment: "Thanks for the tip! I didn't realize about the night access requirements. Do you know who I should contact?",
+            postedTime: "1 day ago",
+            likes: 7,
+            isLiked: false
+          }
+        ]
+      }
+    ]
+  }
+];
+
+// My Discussions (discussions created by current user)
+const myDiscussions: Discussion[] = [
+  {
+    id: 101,
+    title: "Observing Jupiter's Moons from Colombo",
+    author: "CurrentUser",
+    replies: 12,
+    lastActivity: "3 hours ago",
+    category: "Observation",
+    content: "Last night I managed to observe all four Galilean moons of Jupiter using my 6-inch telescope from my backyard in Colombo. Despite the city's light pollution, they were clearly visible! Here's what I observed and the equipment I used.",
+    discussions: [
+      {
+        id: 1,
+        userName: "JupiterFan",
+        comment: "That's awesome! Which telescope did you use? I've been trying to see them from Mount Lavinia but only managed to spot two clearly.",
+        postedTime: "2 hours ago",
+        likes: 8,
+        isLiked: false,
+        replies: [
+          {
+            id: 1,
+            userName: "CurrentUser",
+            comment: "I used a Celestron NexStar 6SE with a 25mm eyepiece. The key is waiting for Jupiter to be high in the sky to minimize atmospheric distortion.",
+            postedTime: "1 hour ago",
+            likes: 12,
+            isLiked: false
+          }
+        ]
+      },
+      {
+        id: 2,
+        userName: "CityAstronomer",
+        comment: "Great observation! Did you notice any color differences between the moons? I sometimes see Io looking slightly yellowish.",
+        postedTime: "3 hours ago",
+        likes: 6,
+        isLiked: false,
+        replies: []
+      }
+    ]
+  },
+  {
+    id: 102,
+    title: "DIY Telescope Mount Modifications",
+    author: "CurrentUser",
+    replies: 8,
+    lastActivity: "1 day ago",
+    category: "Equipment",
+    content: "I've been working on some modifications to improve the stability of my telescope mount for astrophotography. Sharing my DIY solutions and would love to hear about your own modifications!",
+    discussions: [
+      {
+        id: 1,
+        userName: "DIYAstronomer",
+        comment: "This is exactly what I needed! The vibration dampening solution looks brilliant. What materials did you use for the counterweight system?",
+        postedTime: "18 hours ago",
+        likes: 15,
+        isLiked: true,
+        replies: [
+          {
+            id: 1,
+            userName: "CurrentUser",
+            comment: "I used lead fishing weights encased in PVC pipe. Much cheaper than commercial counterweights and just as effective!",
+            postedTime: "12 hours ago",
+            likes: 9,
+            isLiked: false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: 103,
+    title: "Saturn Observation Session - July 2025",
+    author: "CurrentUser",
+    replies: 5,
+    lastActivity: "2 days ago",
+    category: "Observation",
+    content: "Had an amazing Saturn observation session last weekend. The rings were incredibly detailed and I could see the Cassini Division clearly. Sharing my observation notes and sketches.",
+    discussions: [
+      {
+        id: 1,
+        userName: "PlanetWatcher",
+        comment: "Beautiful sketches! Saturn has been particularly stunning this month. Did you manage to spot any of its moons?",
+        postedTime: "1 day ago",
+        likes: 11,
+        isLiked: false,
+        replies: [
+          {
+            id: 1,
+            userName: "CurrentUser",
+            comment: "Yes! I could clearly see Titan and suspected Rhea, though it was at the limit of my telescope's capability.",
+            postedTime: "1 day ago",
+            likes: 7,
+            isLiked: false
+          }
+        ]
+      }
+    ]
   }
 ];
 
@@ -347,8 +607,10 @@ const groupChats: GroupChat[] = [
 ];
 
 const AstroHub: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'events' | 'news' | 'discussions' | 'chats'>('events');
+  const [activeTab, setActiveTab] = useState<'events' | 'news' | 'discussions' | 'my-discussions' | 'chats'>('events');
   const [selectedNews, setSelectedNews] = useState<SpaceNews | null>(null);
+  const [selectedDiscussion, setSelectedDiscussion] = useState<Discussion | null>(null);
+  const [showCreateDiscussion, setShowCreateDiscussion] = useState(false);
   const [newComment, setNewComment] = useState('');
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
   const [newReply, setNewReply] = useState('');
@@ -356,6 +618,14 @@ const AstroHub: React.FC = () => {
   const [editingReply, setEditingReply] = useState<{ discussionId: number; replyId: number } | null>(null);
   const [editText, setEditText] = useState('');
   const [newsLiked, setNewsLiked] = useState(false);
+  
+  // New discussion form states
+  const [newDiscussionTitle, setNewDiscussionTitle] = useState('');
+  const [newDiscussionContent, setNewDiscussionContent] = useState('');
+  const [newDiscussionCategory, setNewDiscussionCategory] = useState('General');
+  
+  // Navigation context to track where the user came from
+  const [discussionContext, setDiscussionContext] = useState<'community' | 'my-discussions'>('community');
 
   const handleViewNewsDetails = (article: SpaceNews) => {
     setSelectedNews(article);
@@ -641,6 +911,65 @@ const AstroHub: React.FC = () => {
     }
   };
 
+  // Discussion navigation handlers
+  const handleJoinDiscussionFromCommunity = (discussion: Discussion) => {
+    setDiscussionContext('community');
+    setSelectedDiscussion(discussion);
+  };
+
+  const handleJoinDiscussionFromMyDiscussions = (discussion: Discussion) => {
+    setDiscussionContext('my-discussions');
+    setSelectedDiscussion(discussion);
+  };
+
+  const handleBackToDiscussions = () => {
+    setSelectedDiscussion(null);
+    setNewComment('');
+    setReplyingTo(null);
+    setNewReply('');
+    
+    // Navigate back to the appropriate context
+    if (discussionContext === 'my-discussions') {
+      setActiveTab('my-discussions');
+    } else {
+      setActiveTab('discussions');
+    }
+  };
+
+  const handleStartNewDiscussion = () => {
+    setShowCreateDiscussion(true);
+  };
+
+  const handleBackToDiscussionsList = () => {
+    setShowCreateDiscussion(false);
+    setNewDiscussionTitle('');
+    setNewDiscussionContent('');
+    setNewDiscussionCategory('General');
+  };
+
+  const handleCreateDiscussion = () => {
+    if (newDiscussionTitle.trim() && newDiscussionContent.trim()) {
+      const newDiscussion: Discussion = {
+        id: discussions.length + 1,
+        title: newDiscussionTitle.trim(),
+        author: "CurrentUser",
+        replies: 0,
+        lastActivity: "Just now",
+        category: newDiscussionCategory,
+        isSticky: false
+      };
+      
+      // Add to discussions array (in a real app, this would be an API call)
+      discussions.unshift(newDiscussion);
+      
+      // Reset form and go back to discussions list
+      setShowCreateDiscussion(false);
+      setNewDiscussionTitle('');
+      setNewDiscussionContent('');
+      setNewDiscussionCategory('General');
+    }
+  };
+
   const renderNewsDetails = (article: SpaceNews) => {
     return (
       <div className="news-details">
@@ -908,6 +1237,238 @@ const AstroHub: React.FC = () => {
     );
   };
 
+  const renderDiscussionDetails = (discussion: Discussion) => {
+    return (
+      <div className="discussion-details">
+        <div className="discussion-details__header">
+          <Button 
+            variant="secondary" 
+            size="small" 
+            onClick={handleBackToDiscussions}
+            className="back-button"
+          >
+            ← Back to {discussionContext === 'my-discussions' ? 'My Discussions' : 'Discussions'}
+          </Button>
+        </div>
+        
+        <div className="discussion-details__content">
+          <div className="discussion-details__info">
+            <div className="discussion-details__meta">
+              <span className="category-badge">{discussion.category}</span>
+              {discussion.isSticky && <span className="sticky-badge">📌 Pinned</span>}
+              <span className="discussion-details__activity">Last activity: {discussion.lastActivity}</span>
+            </div>
+            
+            <h1 className="discussion-details__title">{discussion.title}</h1>
+            
+            <div className="discussion-details__author-info">
+              <div className="discussion-details__avatar">
+                {discussion.author.charAt(0).toUpperCase()}
+              </div>
+              <div className="author-details">
+                <span className="discussion-details__author">Started by {discussion.author}</span>
+                <span className="discussion-details__replies">{discussion.replies} replies</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="discussion-conversation">
+          <div className="discussion-conversation__header">
+            <h2>Discussion Thread</h2>
+          </div>
+
+          <div className="discussion-conversation__add-comment">
+            <textarea
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              placeholder="Share your thoughts in this discussion..."
+              className="comment-textarea"
+              rows={3}
+            />
+            <Button 
+              variant="primary" 
+              size="small" 
+              onClick={handleAddComment}
+              disabled={!newComment.trim()}
+            >
+              Post Reply
+            </Button>
+          </div>
+
+          <div className="discussion-conversation__placeholder">
+            {/* Original discussion post */}
+            <div className="original-discussion-post">
+              <div className="discussion-comment">
+                <div className="discussion-comment__header">
+                  <div className="discussion-comment__avatar">
+                    {discussion.author.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="discussion-comment__info">
+                    <span className="discussion-comment__username">{discussion.author}</span>
+                    <span className="discussion-comment__time">Started this discussion</span>
+                  </div>
+                </div>
+                <p className="discussion-comment__text">{discussion.content || "No content available for this discussion."}</p>
+              </div>
+            </div>
+
+            {/* Discussion replies */}
+            {discussion.discussions && discussion.discussions.length > 0 ? (
+              <div className="discussion-thread-list">
+                {discussion.discussions.map((comment) => (
+                  <div key={comment.id} className="discussion-thread">
+                    <div className="discussion-comment">
+                      <div className="discussion-comment__header">
+                        <div className="discussion-comment__avatar">
+                          {comment.userName.charAt(0).toUpperCase()}
+                        </div>
+                        <div className="discussion-comment__info">
+                          <span className="discussion-comment__username">{comment.userName}</span>
+                          <span className="discussion-comment__time">{comment.postedTime}</span>
+                        </div>
+                      </div>
+                      <p className="discussion-comment__text">{comment.comment}</p>
+                      <div className="discussion-comment__footer">
+                        <button 
+                          className={`comment-like-button ${comment.isLiked ? 'liked' : ''}`}
+                          onClick={() => {/* Add like functionality for discussion comments */}}
+                        >
+                          <span className="like-icon">❤️</span>
+                          <span className="like-count">{comment.likes}</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {comment.replies && comment.replies.length > 0 && (
+                      <div className="discussion-replies">
+                        {comment.replies.map((reply) => (
+                          <div key={reply.id} className="discussion-reply">
+                            <div className="discussion-comment__header">
+                              <div className="discussion-comment__avatar">
+                                {reply.userName.charAt(0).toUpperCase()}
+                              </div>
+                              <div className="discussion-comment__info">
+                                <span className="discussion-comment__username">{reply.userName}</span>
+                                <span className="discussion-comment__time">{reply.postedTime}</span>
+                              </div>
+                            </div>
+                            <p className="discussion-comment__text">{reply.comment}</p>
+                            <div className="discussion-comment__footer">
+                              <button 
+                                className={`reply-like-button ${reply.isLiked ? 'liked' : ''}`}
+                                onClick={() => {/* Add like functionality for replies */}}
+                              >
+                                <span className="like-icon">❤️</span>
+                                <span className="like-count">{reply.likes}</span>
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="no-comments">
+                <p>No replies yet. Be the first to share your thoughts!</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderCreateDiscussion = () => {
+    return (
+      <div className="create-discussion">
+        <div className="create-discussion__header">
+          <Button 
+            variant="secondary" 
+            size="small" 
+            onClick={handleBackToDiscussionsList}
+            className="back-button"
+          >
+            ← Back to Discussions
+          </Button>
+        </div>
+        
+        <div className="create-discussion__content">
+          <h1 className="create-discussion__title">Start New Discussion</h1>
+          
+          <form className="create-discussion__form" onSubmit={(e) => e.preventDefault()}>
+            <div className="form-group">
+              <label htmlFor="discussion-title" className="form-label">Discussion Title</label>
+              <input
+                id="discussion-title"
+                type="text"
+                value={newDiscussionTitle}
+                onChange={(e) => setNewDiscussionTitle(e.target.value)}
+                placeholder="Enter a descriptive title for your discussion..."
+                className="form-input"
+                maxLength={150}
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="discussion-category" className="form-label">Category</label>
+              <select
+                id="discussion-category"
+                value={newDiscussionCategory}
+                onChange={(e) => setNewDiscussionCategory(e.target.value)}
+                className="form-select"
+              >
+                <option value="General">General</option>
+                <option value="Equipment">Equipment</option>
+                <option value="Photography">Photography</option>
+                <option value="Observation">Observation</option>
+                <option value="Travel">Travel</option>
+                <option value="Events">Events</option>
+                <option value="Science">Science</option>
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="discussion-content" className="form-label">Discussion Content</label>
+              <textarea
+                id="discussion-content"
+                value={newDiscussionContent}
+                onChange={(e) => setNewDiscussionContent(e.target.value)}
+                placeholder="Brief description of your discussion topic..."
+                className="form-textarea"
+                rows={3}
+                maxLength={500}
+              />
+              <div className="character-count">
+                {newDiscussionContent.length}/500 characters
+              </div>
+            </div>
+
+            <div className="form-actions">
+              <Button 
+                variant="primary" 
+                size="medium"
+                onClick={handleCreateDiscussion}
+                disabled={!newDiscussionTitle.trim() || !newDiscussionContent.trim()}
+              >
+                Create Discussion
+              </Button>
+              <Button 
+                variant="secondary" 
+                size="medium"
+                onClick={handleBackToDiscussionsList}
+              >
+                Cancel
+              </Button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  };
+
   const renderTabContent = () => {
     switch (activeTab) {
       case 'events':
@@ -1000,13 +1561,37 @@ const AstroHub: React.FC = () => {
         );
 
       case 'discussions':
+        // If showing create discussion form
+        if (showCreateDiscussion) {
+          return renderCreateDiscussion();
+        }
+        
+        // If a discussion is selected, show detailed view
+        if (selectedDiscussion) {
+          return renderDiscussionDetails(selectedDiscussion);
+        }
+        
+        // Otherwise show the discussions list
         return (
           <div className="discussions-section">
             <div className="section-header">
               <h2>Community Discussions</h2>
-              <Button variant="primary" className="start-discussion-btn">
-                Start New Discussion
-              </Button>
+              <div className="section-header-buttons">
+                <Button 
+                  variant="secondary" 
+                  className="my-discussions-btn"
+                  onClick={() => setActiveTab('my-discussions')}
+                >
+                  My Discussions
+                </Button>
+                <Button 
+                  variant="primary" 
+                  className="start-discussion-btn"
+                  onClick={handleStartNewDiscussion}
+                >
+                  Start New Discussion
+                </Button>
+              </div>
             </div>
             <div className="discussions-list">
               {discussions.map((discussion) => (
@@ -1023,8 +1608,64 @@ const AstroHub: React.FC = () => {
                       <span className="discussion-item__activity">Last activity: {discussion.lastActivity}</span>
                     </div>
                   </div>
-                  <Button variant="secondary" size="small">
+                  <Button 
+                    variant="secondary" 
+                    size="small"
+                    onClick={() => handleJoinDiscussionFromCommunity(discussion)}
+                  >
                     Join Discussion
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+
+      case 'my-discussions':
+        // If showing create discussion form
+        if (showCreateDiscussion) {
+          return renderCreateDiscussion();
+        }
+        
+        // If a discussion is selected, show detailed view
+        if (selectedDiscussion) {
+          return renderDiscussionDetails(selectedDiscussion);
+        }
+        
+        // Otherwise show the my discussions list
+        return (
+          <div className="discussions-section">
+            <div className="section-header">
+              <h2>My Discussions</h2>
+              <Button 
+                variant="primary" 
+                className="start-discussion-btn"
+                onClick={handleStartNewDiscussion}
+              >
+                Start New Discussion
+              </Button>
+            </div>
+            <div className="discussions-list">
+              {myDiscussions.map((discussion) => (
+                <div key={discussion.id} className={`discussion-item ${discussion.isSticky ? 'sticky' : ''}`}>
+                  <div className="discussion-item__main">
+                    <div className="discussion-item__header">
+                      {discussion.isSticky && <span className="sticky-badge">📌 Pinned</span>}
+                      <span className="category-badge">{discussion.category}</span>
+                    </div>
+                    <h3 className="discussion-item__title">{discussion.title}</h3>
+                    <div className="discussion-item__meta">
+                      <span className="discussion-item__author">by {discussion.author}</span>
+                      <span className="discussion-item__replies">{discussion.replies} replies</span>
+                      <span className="discussion-item__activity">Last activity: {discussion.lastActivity}</span>
+                    </div>
+                  </div>
+                  <Button 
+                    variant="secondary" 
+                    size="small"
+                    onClick={() => handleJoinDiscussionFromMyDiscussions(discussion)}
+                  >
+                    View Discussion
                   </Button>
                 </div>
               ))}

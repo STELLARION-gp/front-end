@@ -1,9 +1,10 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { AuthContext } from "./contexts/AuthContext";
-import { auth } from "./firebase";
+import { auth, googleProvider } from "./firebase";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  signInWithPopup,
   signOut,
   onAuthStateChanged,
   updateProfile,
@@ -300,6 +301,80 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
+  const signInWithGoogle = async (): Promise<UserProfile | null> => {
+    try {
+      console.log('🔐 Starting Google sign-in process...');
+
+      // Sign in with Google popup
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+
+      console.log('✅ Google sign-in successful:', user.email);
+
+      // Check if this is a new user
+      const isNewUser = result.user.metadata.creationTime === result.user.metadata.lastSignInTime;
+
+      if (isNewUser) {
+        console.log('👤 New user detected, registering with backend...');
+
+        // Extract names from displayName
+        const nameParts = user.displayName?.split(' ') || [];
+        const firstName = nameParts[0] || '';
+        const lastName = nameParts.slice(1).join(' ') || '';
+
+        // Register new user with backend
+        await apiService.registerUser({
+          email: user.email || '',
+          displayName: user.displayName || '',
+          firstName,
+          lastName,
+          role: 'learner' // Default role
+        });
+      }
+
+      // Fetch user profile from backend
+      console.log('📡 Fetching user profile from backend...');
+      const profile = await fetchUserProfile();
+
+      if (!profile) {
+        console.log('⚠️ Backend profile fetch failed, creating basic profile');
+        const basicProfile: UserProfile = {
+          uid: user.uid,
+          email: user.email || '',
+          displayName: user.displayName || 'Google User',
+          firstName: user.displayName?.split(' ')[0],
+          lastName: user.displayName?.split(' ').slice(1).join(' ') || undefined,
+          role: 'learner',
+          isActive: true,
+          createdAt: new Date(),
+          lastLogin: new Date()
+        };
+        setUserProfile(basicProfile);
+        return basicProfile;
+      }
+
+      setUserProfile(profile);
+      console.log('🎉 Google authentication successful');
+      return profile;
+
+    } catch (error: unknown) {
+      console.error('❌ Google sign-in error:', error);
+
+      const authError = error as { code?: string; message?: string };
+
+      // Handle specific Google auth errors
+      if (authError.code === 'auth/popup-closed-by-user') {
+        throw new Error('Google sign-in was cancelled');
+      } else if (authError.code === 'auth/popup-blocked') {
+        throw new Error('Google sign-in popup was blocked. Please allow popups and try again.');
+      } else if (authError.code === 'auth/account-exists-with-different-credential') {
+        throw new Error('An account already exists with the same email address but different sign-in credentials.');
+      } else {
+        throw new Error(authError.message || 'Google sign-in failed');
+      }
+    }
+  };
+
   const updateUserProfile = async (data: Partial<UserProfile['profileData']>): Promise<void> => {
     if (!userProfile) return;
 
@@ -353,6 +428,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       signup,
       login,
       logout,
+      signInWithGoogle,
       updateUserProfile,
       refreshUserProfile
     }}>

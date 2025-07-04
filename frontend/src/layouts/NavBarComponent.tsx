@@ -11,7 +11,7 @@ import './../styles/components/navbar.scss';
 
 const NavBarComponent = () => {
   const [hidden, setHidden] = useState(false);
-  const [currentTheme, setCurrentTheme] = useState('system');
+  //const [currentTheme, setCurrentTheme] = useState('system');
   // Removed language state variable - using i18n directly
   const location = useLocation();
   const { user, userProfile, logout } = useAuth();
@@ -66,7 +66,7 @@ const NavBarComponent = () => {
   useEffect(() => {
     // Initialize theme from localStorage
     const savedTheme = localStorage.getItem('theme') || 'system';
-    setCurrentTheme(savedTheme);
+    //setCurrentTheme(savedTheme);
     document.documentElement.setAttribute('data-theme', savedTheme);
   }, []);
 
@@ -96,47 +96,48 @@ const NavBarComponent = () => {
     console.log(`Language switched to: ${nextLanguage.name} (${nextLanguage.code})`);
   };
 
-  const handleThemeToggle = () => {
-    const themes = ['system', 'light', 'dark'];
-    const currentIndex = themes.indexOf(currentTheme);
-    const nextIndex = (currentIndex + 1) % themes.length;
-    const nextTheme = themes[nextIndex];
-    setCurrentTheme(nextTheme);
+  // const handleThemeToggle = () => {
+  //   const themes = ['system', 'light', 'dark'];
+  //   const currentIndex = themes.indexOf(currentTheme);
+  //   const nextIndex = (currentIndex + 1) % themes.length;
+  //   const nextTheme = themes[nextIndex];
+  //   setCurrentTheme(nextTheme);
 
-    // Apply theme to document
-    document.documentElement.setAttribute('data-theme', nextTheme);
-    localStorage.setItem('theme', nextTheme);
-    console.log(`Theme switched to: ${nextTheme}`);
-  };
+  //   // Apply theme to document
+  //   document.documentElement.setAttribute('data-theme', nextTheme);
+  //   localStorage.setItem('theme', nextTheme);
+  //   console.log(`Theme switched to: ${nextTheme}`);
+  // };
 
-  const getThemeIcon = () => {
-    console.log('Getting theme icon for theme:', currentTheme);
-    switch (currentTheme) {
-      case 'light':
-        // Sun emoji for light theme
-        return <span className="theme-text">☀️</span>;
-      case 'dark':
-        // Moon emoji for dark theme
-        return <span className="theme-text">🌙</span>;
-      default:
-        // Computer emoji for system theme
-        return <span className="theme-text">💻</span>;
-    }
-  };
+  // const getThemeIcon = () => {
+  //   console.log('Getting theme icon for theme:', currentTheme);
+  //   switch (currentTheme) {
+  //     case 'light':
+  //       // Sun emoji for light theme
+  //       return <span className="theme-text">☀️</span>;
+  //     case 'dark':
+  //       // Moon emoji for dark theme
+  //       return <span className="theme-text">🌙</span>;
+  //     default:
+  //       // Computer emoji for system theme
+  //       return <span className="theme-text">💻</span>;
+  //   }
+  // };
 
   const getLanguageIcon = () => {
     console.log('Getting language icon for language:', currentLanguage.code);
-    // Use first letter of language as icon content
+    // Use appropriate letters for each language
     switch (currentLanguage.code) {
       case 'sin':
-        return 'සි'; // First letter of Sinhala
+        return 'සි'; // Sinhala letters
       case 'ta':
-        return 'த'; // First letter of Tamil
+        return 'த'; // Tamil letter
       case 'en':
+        return 'En'; // English
       default:
-        return 'E'; // First letter of English
+        return 'En'; // Default to English
     }
-  };
+  }
 
   const handleLogout = async () => {
     try {
@@ -184,10 +185,6 @@ const NavBarComponent = () => {
               <div className="profile-actions">
                 <Link to="/dashboard/overview" className="dropdown-link">{t('navbar.dashboard')}</Link>
                 <Link to="/dashboard/profile" className="dropdown-link">{t('navbar.profile')}</Link>
-                <Link to="/dashboard/settings" className="dropdown-link">{t('navbar.settings')}</Link>
-                <RoleGuard minimumRole="moderator">
-                  <Link to="/dashboard/admin" className="dropdown-link">{t('navbar.adminPanel')}</Link>
-                </RoleGuard>
                 <button onClick={handleLogout} className="dropdown-link logout">
                   {t('auth.signOut')}
                 </button>
@@ -227,7 +224,7 @@ const NavBarComponent = () => {
         </button>
 
         {/* Theme Toggle Button */}
-        <button
+        {/* <button
           className="utility-btn theme-btn"
           onClick={handleThemeToggle}
           title={t('navbar.currentTheme') + `: ${currentTheme}`}
@@ -235,7 +232,7 @@ const NavBarComponent = () => {
           <div className="theme-icon-wrapper">
             {getThemeIcon()}
           </div>
-        </button>
+        </button> */}
       </div>
     );
   };
@@ -266,7 +263,7 @@ const NavBarComponent = () => {
         {/* Right Nav - Only auth content in compact mode */}
         {!isCompactMode && (
           <div className="navbar-section right-section">
-            <a href="#" className="nav-link">{t('navbar.team')}</a>
+            {/* <a href="#" className="nav-link">{t('navbar.team')}</a> */}
             <RoleGuard>
               <a href="#" className="nav-link">{t('navbar.explore')}</a>
             </RoleGuard>

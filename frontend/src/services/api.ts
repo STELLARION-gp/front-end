@@ -69,9 +69,27 @@ class ApiService {
     lastName?: string;
     role?: string;
   }) {
+    // Get current Firebase user for the backend
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      throw new Error('No authenticated user found');
+    }
+
+    // Transform to match backend's expected format
+    const backendData = {
+      firebaseUser: {
+        uid: currentUser.uid,
+        email: currentUser.email,
+        name: userData.displayName
+      },
+      role: userData.role || 'learner',
+      first_name: userData.firstName,
+      last_name: userData.lastName
+    };
+
     return this.makeRequest('/users/register', {
       method: 'POST',
-      body: JSON.stringify(userData),
+      body: JSON.stringify(backendData),
     });
   }
 

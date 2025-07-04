@@ -3,7 +3,7 @@ import Hero from '../components/Hero';
 import LoadingSpinner from '../components/LoadingSpinner';
 import GalaxyHero from '../components/HeroComponents/GalaxyHero';
 import './../styles/pages/Hero.scss';
-import Team from '../components/HomeComponents/Team';
+//import Team from '../components/HomeComponents/Team';
 import Footer from '../components/Footer';
 
 const NewHome = () => {
@@ -43,7 +43,7 @@ const NewHome = () => {
           {/* Scrollable content on top of galaxy background */}
           <div className="new-home">
             <Hero />
-            <Team />
+            {/* <Team /> */}
           </div>
 
           {/* Footer */}

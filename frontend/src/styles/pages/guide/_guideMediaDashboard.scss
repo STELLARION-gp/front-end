@@ -110,22 +110,23 @@
 // Statistics Cards Grid
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 1.5rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 
   .stat-card {
-    padding: 1.5rem;
+    background: rgba(30, 41, 59, 0.7);
+    border: 1px solid rgba(148, 163, 184, 0.2);
     border-radius: 16px;
-    background: var(--card-background);
-    border: 1px solid var(--border-color);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
 
     &:hover {
       transform: translateY(-4px);
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-      border-color: var(--primary-color);
+      border-color: rgba(147, 51, 234, 0.5);
+      box-shadow: 0 20px 40px rgba(147, 51, 234, 0.1);
     }
 
     .stat-content {
@@ -134,52 +135,55 @@
       gap: 1rem;
 
       .stat-icon {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 48px;
-        height: 48px;
+        padding: 12px;
         border-radius: 12px;
-        background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-        color: white;
-        box-shadow: 0 4px 8px rgba(var(--primary-rgb), 0.3);
+        background: rgba(147, 51, 234, 0.1);
+        border: 1px solid rgba(147, 51, 234, 0.3);
+        color: #a855f7;
       }
 
       .stat-info {
-        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
 
         .stat-label {
-          display: block;
           font-size: 0.875rem;
-          color: var(--text-secondary);
-          margin-bottom: 0.25rem;
+          color: #94a3b8;
           font-weight: 500;
         }
 
         .stat-value {
-          display: block;
-          font-size: 1.5rem;
+          font-size: 2rem;
           font-weight: 700;
-          color: var(--text-primary);
+          color: #e2e8f0;
         }
       }
     }
 
     // Specific card colors
     &.images .stat-icon {
-      background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+      background: rgba(59, 130, 246, 0.1);
+      border-color: rgba(59, 130, 246, 0.3);
+      color: #3b82f6;
     }
 
     &.videos .stat-icon {
-      background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+      background: rgba(139, 92, 246, 0.1);
+      border-color: rgba(139, 92, 246, 0.3);
+      color: #8b5cf6;
     }
 
     &.views .stat-icon {
-      background: linear-gradient(135deg, #10b981, #059669);
+      background: rgba(34, 197, 94, 0.1);
+      border-color: rgba(34, 197, 94, 0.3);
+      color: #22c55e;
     }
 
     &.likes .stat-icon {
-      background: linear-gradient(135deg, #f59e0b, #d97706);
+      background: rgba(245, 158, 11, 0.1);
+      border-color: rgba(245, 158, 11, 0.3);
+      color: #f59e0b;
     }
   }
 }

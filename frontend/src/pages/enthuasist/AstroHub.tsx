@@ -626,6 +626,82 @@ const AstroHub: React.FC = () => {
   
   // Navigation context to track where the user came from
   const [discussionContext, setDiscussionContext] = useState<'community' | 'my-discussions'>('community');
+  
+  // Group chat states
+  const [selectedGroupChat, setSelectedGroupChat] = useState<GroupChat | null>(null);
+  const [showCreateGroup, setShowCreateGroup] = useState(false);
+  const [showGroupInfo, setShowGroupInfo] = useState(false);
+  const [showGroupChat, setShowGroupChat] = useState(false);
+  const [newGroupName, setNewGroupName] = useState('');
+  const [newGroupDescription, setNewGroupDescription] = useState('');
+  const [newGroupType, setNewGroupType] = useState<'public' | 'private'>('public');
+  const [newChatMessage, setNewChatMessage] = useState('');
+
+  // Success alert state
+  const [successAlert, setSuccessAlert] = useState<{ show: boolean; message: string }>({ 
+    show: false, 
+    message: '' 
+  });
+
+  // Search states for filtering
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredEvents, setFilteredEvents] = useState(astronomicalEvents);
+  const [filteredNews, setFilteredNews] = useState(spaceNews);
+  const [filteredDiscussions, setFilteredDiscussions] = useState(discussions);
+  const [filteredMyDiscussions, setFilteredMyDiscussions] = useState(myDiscussions);
+  const [filteredGroupChats, setFilteredGroupChats] = useState(groupChats);
+
+  // Show success alert function
+  const showSuccessAlert = (message: string) => {
+    setSuccessAlert({ show: true, message });
+    setTimeout(() => {
+      setSuccessAlert({ show: false, message: '' });
+    }, 4000);
+  };
+
+  // Search functionality
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    const lowerQuery = query.toLowerCase();
+
+    // Filter events
+    const newFilteredEvents = astronomicalEvents.filter(event =>
+      event.name.toLowerCase().includes(lowerQuery) ||
+      event.description.toLowerCase().includes(lowerQuery) ||
+      event.visibility.toLowerCase().includes(lowerQuery)
+    );
+    setFilteredEvents(newFilteredEvents);
+
+    // Filter news
+    const newFilteredNews = spaceNews.filter(article =>
+      article.title.toLowerCase().includes(lowerQuery) ||
+      article.summary.toLowerCase().includes(lowerQuery) ||
+      article.source.toLowerCase().includes(lowerQuery)
+    );
+    setFilteredNews(newFilteredNews);
+
+    // Filter discussions
+    const newFilteredDiscussions = discussions.filter(discussion =>
+      discussion.title.toLowerCase().includes(lowerQuery) ||
+      discussion.author.toLowerCase().includes(lowerQuery) ||
+      discussion.category.toLowerCase().includes(lowerQuery)
+    );
+    setFilteredDiscussions(newFilteredDiscussions);
+
+    // Filter my discussions
+    const newFilteredMyDiscussions = myDiscussions.filter(discussion =>
+      discussion.title.toLowerCase().includes(lowerQuery) ||
+      discussion.category.toLowerCase().includes(lowerQuery)
+    );
+    setFilteredMyDiscussions(newFilteredMyDiscussions);
+
+    // Filter group chats
+    const newFilteredGroupChats = groupChats.filter(chat =>
+      chat.name.toLowerCase().includes(lowerQuery) ||
+      chat.description.toLowerCase().includes(lowerQuery)
+    );
+    setFilteredGroupChats(newFilteredGroupChats);
+  };
 
   const handleViewNewsDetails = (article: SpaceNews) => {
     setSelectedNews(article);
@@ -658,6 +734,7 @@ const AstroHub: React.FC = () => {
       
       setSelectedNews(updatedNews);
       setNewComment('');
+      showSuccessAlert('Comment added successfully!');
       
       // Update the original data (in a real app, this would be an API call)
       const newsIndex = spaceNews.findIndex(news => news.id === selectedNews.id);
@@ -695,6 +772,7 @@ const AstroHub: React.FC = () => {
       setSelectedNews(updatedNews);
       setNewReply('');
       setReplyingTo(null);
+      showSuccessAlert('Reply added successfully!');
       
       // Update the original data
       const newsIndex = spaceNews.findIndex(news => news.id === selectedNews.id);
@@ -811,6 +889,7 @@ const AstroHub: React.FC = () => {
       setSelectedNews(updatedNews);
       setEditingComment(null);
       setEditText('');
+      showSuccessAlert('Comment updated successfully!');
       
       // Update the original data
       const newsIndex = spaceNews.findIndex(news => news.id === selectedNews.id);
@@ -831,6 +910,7 @@ const AstroHub: React.FC = () => {
       };
 
       setSelectedNews(updatedNews);
+      showSuccessAlert('Comment deleted successfully!');
       
       // Update the original data
       const newsIndex = spaceNews.findIndex(news => news.id === selectedNews.id);
@@ -967,6 +1047,71 @@ const AstroHub: React.FC = () => {
       setNewDiscussionTitle('');
       setNewDiscussionContent('');
       setNewDiscussionCategory('General');
+      showSuccessAlert('Discussion created successfully!');
+    }
+  };
+
+  // Group chat handlers
+  const handleCreateNewGroup = () => {
+    setShowCreateGroup(true);
+    setSelectedGroupChat(null);
+    setShowGroupInfo(false);
+    setShowGroupChat(false);
+  };
+
+  const handleBackToGroupChats = () => {
+    setShowCreateGroup(false);
+    setShowGroupInfo(false);
+    setShowGroupChat(false);
+    setSelectedGroupChat(null);
+    setNewGroupName('');
+    setNewGroupDescription('');
+    setNewGroupType('public');
+    setNewChatMessage('');
+  };
+
+  const handleCreateGroup = () => {
+    if (newGroupName.trim() && newGroupDescription.trim()) {
+      const newGroup: GroupChat = {
+        id: groupChats.length + 1,
+        name: newGroupName.trim(),
+        description: newGroupDescription.trim(),
+        members: 1, // Current user
+        lastMessage: "Group created!",
+        lastMessageTime: "Just now",
+        isActive: true
+      };
+      
+      // Add to group chats array (in a real app, this would be an API call)
+      groupChats.unshift(newGroup);
+      
+      // Reset form and go back to group chats list
+      handleBackToGroupChats();
+      showSuccessAlert('Group created successfully!');
+    }
+  };
+
+  const handleJoinChat = (chat: GroupChat) => {
+    setSelectedGroupChat(chat);
+    setShowGroupChat(true);
+    setShowCreateGroup(false);
+    setShowGroupInfo(false);
+    showSuccessAlert(`Joined ${chat.name} successfully!`);
+  };
+
+  const handleViewGroupInfo = (chat: GroupChat) => {
+    setSelectedGroupChat(chat);
+    setShowGroupInfo(true);
+    setShowCreateGroup(false);
+    setShowGroupChat(false);
+  };
+
+  const handleSendChatMessage = () => {
+    if (newChatMessage.trim() && selectedGroupChat) {
+      // In a real app, this would send the message to the chat server
+      console.log(`Sending message to ${selectedGroupChat.name}: ${newChatMessage}`);
+      setNewChatMessage('');
+      showSuccessAlert('Message sent successfully!');
     }
   };
 
@@ -1439,11 +1584,7 @@ const AstroHub: React.FC = () => {
                 placeholder="Brief description of your discussion topic..."
                 className="form-textarea"
                 rows={3}
-                maxLength={500}
               />
-              <div className="character-count">
-                {newDiscussionContent.length}/500 characters
-              </div>
             </div>
 
             <div className="form-actions">
@@ -1469,6 +1610,271 @@ const AstroHub: React.FC = () => {
     );
   };
 
+  const renderCreateGroup = () => {
+    return (
+      <div className="create-group">
+        <div className="create-group__header">
+          <Button 
+            variant="secondary" 
+            size="small" 
+            onClick={handleBackToGroupChats}
+            className="back-button"
+          >
+            ← Back to Group Chats
+          </Button>
+        </div>
+        
+        <div className="create-group__content">
+          <h1 className="create-group__title">Create New Group Chat</h1>
+          
+          <form className="create-group__form" onSubmit={(e) => e.preventDefault()}>
+            <div className="form-group">
+              <label htmlFor="group-name" className="form-label">Group Name</label>
+              <input
+                id="group-name"
+                type="text"
+                value={newGroupName}
+                onChange={(e) => setNewGroupName(e.target.value)}
+                placeholder="Enter a name for your group chat..."
+                className="form-input"
+                maxLength={50}
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="group-type" className="form-label">Group Type</label>
+              <select
+                id="group-type"
+                value={newGroupType}
+                onChange={(e) => setNewGroupType(e.target.value as 'public' | 'private')}
+                className="form-select"
+              >
+                <option value="public">Public (Anyone can join)</option>
+                <option value="private">Private (Invite only)</option>
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="group-description" className="form-label">Group Description</label>
+              <textarea
+                id="group-description"
+                value={newGroupDescription}
+                onChange={(e) => setNewGroupDescription(e.target.value)}
+                placeholder="Describe the purpose and focus of your group..."
+                className="form-textarea"
+                rows={3}
+              />
+            </div>
+
+            <div className="form-actions">
+              <Button 
+                variant="primary" 
+                size="medium"
+                onClick={handleCreateGroup}
+                disabled={!newGroupName.trim() || !newGroupDescription.trim()}
+              >
+                Create Group
+              </Button>
+              <Button 
+                variant="secondary" 
+                size="medium"
+                onClick={handleBackToGroupChats}
+              >
+                Cancel
+              </Button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  };
+
+  const renderGroupInfo = (chat: GroupChat) => {
+    return (
+      <div className="group-info">
+        <div className="group-info__header">
+          <Button 
+            variant="secondary" 
+            size="small" 
+            onClick={handleBackToGroupChats}
+            className="back-button"
+          >
+            ← Back to Group Chats
+          </Button>
+        </div>
+        
+        <div className="group-info__content">
+          <div className="group-info__main">
+            <div className="group-info__avatar">
+              {chat.name.charAt(0).toUpperCase()}
+            </div>
+            
+            <div className="group-info__details">
+              <h1 className="group-info__title">{chat.name}</h1>
+              <div className="group-info__status">
+                <span className={`status-indicator ${chat.isActive ? 'online' : 'offline'}`}></span>
+                <span className="status-text">{chat.isActive ? 'Active' : 'Inactive'}</span>
+                <span className="member-count">{chat.members} members</span>
+              </div>
+              <p className="group-info__description">{chat.description}</p>
+            </div>
+          </div>
+
+          <div className="group-info__stats">
+            <div className="stat-card">
+              <div className="stat-number">{chat.members}</div>
+              <div className="stat-label">Members</div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-number">Active</div>
+              <div className="stat-label">Status</div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-number">{chat.lastMessageTime}</div>
+              <div className="stat-label">Last Activity</div>
+            </div>
+          </div>
+
+          <div className="group-info__last-activity">
+            <h3>Recent Activity</h3>
+            <div className="recent-message">
+              <div className="message-content">
+                <span className="message-text">"{chat.lastMessage}"</span>
+                <span className="message-time">{chat.lastMessageTime}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="group-info__actions">
+            <Button 
+              variant="primary" 
+              size="medium"
+              onClick={() => handleJoinChat(chat)}
+            >
+              Join This Group
+            </Button>
+            <Button 
+              variant="secondary" 
+              size="medium"
+              onClick={handleBackToGroupChats}
+            >
+              Back to Groups
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderGroupChat = (chat: GroupChat) => {
+    // Sample chat messages for demo
+    const sampleMessages = [
+      {
+        id: 1,
+        userName: "AstroEnthusiast",
+        message: "Has anyone seen the ISS pass tonight? It should be visible around 9:30 PM.",
+        time: "8:45 PM",
+        avatar: "A"
+      },
+      {
+        id: 2,
+        userName: "StarGazer92",
+        message: "Yes! Just spotted it. Amazing pass tonight, very bright!",
+        time: "9:32 PM",
+        avatar: "S"
+      },
+      {
+        id: 3,
+        userName: "TelescopeGuru",
+        message: "I managed to get some photos. The timing was perfect with Jupiter in the background.",
+        time: "9:45 PM",
+        avatar: "T"
+      },
+      {
+        id: 4,
+        userName: "CurrentUser",
+        message: "That's awesome! Would love to see those photos when you process them.",
+        time: "9:47 PM",
+        avatar: "C"
+      },
+      {
+        id: 5,
+        userName: "ColomboStargazer",
+        message: "Next pass is tomorrow at 8:15 PM. Lower altitude but still should be visible.",
+        time: "10:12 PM",
+        avatar: "C"
+      }
+    ];
+
+    return (
+      <div className="group-chat">
+        <div className="group-chat__header">
+          <Button 
+            variant="secondary" 
+            size="small" 
+            onClick={handleBackToGroupChats}
+            className="back-button"
+          >
+            ← Back to Group Chats
+          </Button>
+          <div className="group-chat__info">
+            <h1 className="group-chat__title">{chat.name}</h1>
+            <div className="group-chat__status">
+              <span className={`status-indicator ${chat.isActive ? 'online' : 'offline'}`}></span>
+              <span className="member-count">{chat.members} members online</span>
+            </div>
+          </div>
+        </div>
+        
+        <div className="group-chat__content">
+          <div className="group-chat__messages">
+            {sampleMessages.map((message) => (
+              <div key={message.id} className={`chat-message ${message.userName === 'CurrentUser' ? 'own-message' : ''}`}>
+                <div className="chat-message__avatar">
+                  {message.avatar}
+                </div>
+                <div className="chat-message__content">
+                  <div className="chat-message__header">
+                    <span className="chat-message__username">{message.userName}</span>
+                    <span className="chat-message__time">{message.time}</span>
+                  </div>
+                  <p className="chat-message__text">{message.message}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="group-chat__input">
+            <div className="chat-input-container">
+              <textarea
+                value={newChatMessage}
+                onChange={(e) => setNewChatMessage(e.target.value)}
+                placeholder="Type your message..."
+                className="chat-input"
+                rows={2}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSendChatMessage();
+                  }
+                }}
+              />
+              <Button 
+                variant="primary" 
+                size="small"
+                onClick={handleSendChatMessage}
+                disabled={!newChatMessage.trim()}
+                className="send-button"
+              >
+                Send
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const renderTabContent = () => {
     switch (activeTab) {
       case 'events':
@@ -1478,39 +1884,45 @@ const AstroHub: React.FC = () => {
               <h2>Upcoming Astronomical Events</h2>
             </div>
             <div className="events-grid">
-              {astronomicalEvents.map((event) => (
-                <div key={event.id} className="event-card">
-                  <div className="event-card__image">
-                    <img src={event.image} alt={event.name} />
-                    <div className="event-card__date-badge">
-                      {event.date}
+              {filteredEvents.length > 0 ? (
+                filteredEvents.map((event) => (
+                  <div key={event.id} className="event-card">
+                    <div className="event-card__image">
+                      <img src={event.image} alt={event.name} />
+                      <div className="event-card__date-badge">
+                        {event.date}
+                      </div>
+                    </div>
+                    <div className="event-card__content">
+                      <h3 className="event-card__title">{event.name}</h3>
+                      <p className="event-card__description">{event.description}</p>
+                      <div className="event-card__details">
+                        <div className="event-detail">
+                          <span className="event-detail__label">Visibility:</span>
+                          <span className="event-detail__value">{event.visibility}</span>
+                        </div>
+                        <div className="event-detail">
+                          <span className="event-detail__label">Best Time:</span>
+                          <span className="event-detail__value">{event.bestTime}</span>
+                        </div>
+                        <div className="event-detail">
+                          <span className="event-detail__label">Duration:</span>
+                          <span className="event-detail__value">{event.duration}</span>
+                        </div>
+                      </div>
+                      <div className="event-card__actions">
+                        <Button variant="primary" size="small">
+                          Set Reminder
+                        </Button>
+                      </div>
                     </div>
                   </div>
-                  <div className="event-card__content">
-                    <h3 className="event-card__title">{event.name}</h3>
-                    <p className="event-card__description">{event.description}</p>
-                    <div className="event-card__details">
-                      <div className="event-detail">
-                        <span className="event-detail__label">Visibility:</span>
-                        <span className="event-detail__value">{event.visibility}</span>
-                      </div>
-                      <div className="event-detail">
-                        <span className="event-detail__label">Best Time:</span>
-                        <span className="event-detail__value">{event.bestTime}</span>
-                      </div>
-                      <div className="event-detail">
-                        <span className="event-detail__label">Duration:</span>
-                        <span className="event-detail__value">{event.duration}</span>
-                      </div>
-                    </div>
-                    <div className="event-card__actions">
-                      <Button variant="primary" size="small">
-                        Set Reminder
-                      </Button>
-                    </div>
-                  </div>
+                ))
+              ) : (
+                <div className="no-results">
+                  <p>No astronomical events found matching your search.</p>
                 </div>
-              ))}
+              )}
             </div>
           </div>
         );
@@ -1528,34 +1940,40 @@ const AstroHub: React.FC = () => {
               <h2>Latest Space News</h2>
             </div>
             <div className="news-grid">
-              {spaceNews.map((article) => (
-                <div key={article.id} className="news-card">
-                  <div className="news-card__image">
-                    <img src={article.image} alt={article.title} />
-                    <div className="news-card__source">{article.source}</div>
-                  </div>
-                  <div className="news-card__content">
-                    <div className="news-card__meta">
-                      <span className="news-card__date">{article.date}</span>
-                      <span className="news-card__read-time">{article.readTime} read</span>
+              {filteredNews.length > 0 ? (
+                filteredNews.map((article) => (
+                  <div key={article.id} className="news-card">
+                    <div className="news-card__image">
+                      <img src={article.image} alt={article.title} />
+                      <div className="news-card__source">{article.source}</div>
                     </div>
-                    <h3 className="news-card__title">{article.title}</h3>
-                    <p className="news-card__summary">{article.summary}</p>
-                    <div className="news-card__stats">
-                      <span className="news-card__likes">{article.likes} likes</span>
-                      <span className="news-card__comments">{article.comments} comments</span>
+                    <div className="news-card__content">
+                      <div className="news-card__meta">
+                        <span className="news-card__date">{article.date}</span>
+                        <span className="news-card__read-time">{article.readTime} read</span>
+                      </div>
+                      <h3 className="news-card__title">{article.title}</h3>
+                      <p className="news-card__summary">{article.summary}</p>
+                      <div className="news-card__stats">
+                        <span className="news-card__likes">{article.likes} likes</span>
+                        <span className="news-card__comments">{article.comments} comments</span>
+                      </div>
+                      <Button 
+                        variant="secondary" 
+                        size="small" 
+                        className="news-card__read-more"
+                        onClick={() => handleViewNewsDetails(article)}
+                      >
+                        View More Details
+                      </Button>
                     </div>
-                    <Button 
-                      variant="secondary" 
-                      size="small" 
-                      className="news-card__read-more"
-                      onClick={() => handleViewNewsDetails(article)}
-                    >
-                      View More Details
-                    </Button>
                   </div>
+                ))
+              ) : (
+                <div className="no-results">
+                  <p>No space news found matching your search.</p>
                 </div>
-              ))}
+              )}
             </div>
           </div>
         );
@@ -1594,29 +2012,35 @@ const AstroHub: React.FC = () => {
               </div>
             </div>
             <div className="discussions-list">
-              {discussions.map((discussion) => (
-                <div key={discussion.id} className={`discussion-item ${discussion.isSticky ? 'sticky' : ''}`}>
-                  <div className="discussion-item__main">
-                    <div className="discussion-item__header">
-                      {discussion.isSticky && <span className="sticky-badge">📌 Pinned</span>}
-                      <span className="category-badge">{discussion.category}</span>
+              {filteredDiscussions.length > 0 ? (
+                filteredDiscussions.map((discussion) => (
+                  <div key={discussion.id} className={`discussion-item ${discussion.isSticky ? 'sticky' : ''}`}>
+                    <div className="discussion-item__main">
+                      <div className="discussion-item__header">
+                        {discussion.isSticky && <span className="sticky-badge">📌 Pinned</span>}
+                        <span className="category-badge">{discussion.category}</span>
+                      </div>
+                      <h3 className="discussion-item__title">{discussion.title}</h3>
+                      <div className="discussion-item__meta">
+                        <span className="discussion-item__author">by {discussion.author}</span>
+                        <span className="discussion-item__replies">{discussion.replies} replies</span>
+                        <span className="discussion-item__activity">Last activity: {discussion.lastActivity}</span>
+                      </div>
                     </div>
-                    <h3 className="discussion-item__title">{discussion.title}</h3>
-                    <div className="discussion-item__meta">
-                      <span className="discussion-item__author">by {discussion.author}</span>
-                      <span className="discussion-item__replies">{discussion.replies} replies</span>
-                      <span className="discussion-item__activity">Last activity: {discussion.lastActivity}</span>
-                    </div>
+                    <Button 
+                      variant="secondary" 
+                      size="small"
+                      onClick={() => handleJoinDiscussionFromCommunity(discussion)}
+                    >
+                      Join Discussion
+                    </Button>
                   </div>
-                  <Button 
-                    variant="secondary" 
-                    size="small"
-                    onClick={() => handleJoinDiscussionFromCommunity(discussion)}
-                  >
-                    Join Discussion
-                  </Button>
+                ))
+              ) : (
+                <div className="no-results">
+                  <p>No discussions found matching your search.</p>
                 </div>
-              ))}
+              )}
             </div>
           </div>
         );
@@ -1646,71 +2070,111 @@ const AstroHub: React.FC = () => {
               </Button>
             </div>
             <div className="discussions-list">
-              {myDiscussions.map((discussion) => (
-                <div key={discussion.id} className={`discussion-item ${discussion.isSticky ? 'sticky' : ''}`}>
-                  <div className="discussion-item__main">
-                    <div className="discussion-item__header">
-                      {discussion.isSticky && <span className="sticky-badge">📌 Pinned</span>}
-                      <span className="category-badge">{discussion.category}</span>
+              {filteredMyDiscussions.length > 0 ? (
+                filteredMyDiscussions.map((discussion) => (
+                  <div key={discussion.id} className={`discussion-item ${discussion.isSticky ? 'sticky' : ''}`}>
+                    <div className="discussion-item__main">
+                      <div className="discussion-item__header">
+                        {discussion.isSticky && <span className="sticky-badge">📌 Pinned</span>}
+                        <span className="category-badge">{discussion.category}</span>
+                      </div>
+                      <h3 className="discussion-item__title">{discussion.title}</h3>
+                      <div className="discussion-item__meta">
+                        <span className="discussion-item__author">by {discussion.author}</span>
+                        <span className="discussion-item__replies">{discussion.replies} replies</span>
+                        <span className="discussion-item__activity">Last activity: {discussion.lastActivity}</span>
+                      </div>
                     </div>
-                    <h3 className="discussion-item__title">{discussion.title}</h3>
-                    <div className="discussion-item__meta">
-                      <span className="discussion-item__author">by {discussion.author}</span>
-                      <span className="discussion-item__replies">{discussion.replies} replies</span>
-                      <span className="discussion-item__activity">Last activity: {discussion.lastActivity}</span>
-                    </div>
+                    <Button 
+                      variant="secondary" 
+                      size="small"
+                      onClick={() => handleJoinDiscussionFromMyDiscussions(discussion)}
+                    >
+                      View Discussion
+                    </Button>
                   </div>
-                  <Button 
-                    variant="secondary" 
-                    size="small"
-                    onClick={() => handleJoinDiscussionFromMyDiscussions(discussion)}
-                  >
-                    View Discussion
-                  </Button>
+                ))
+              ) : (
+                <div className="no-results">
+                  <p>No discussions found matching your search.</p>
                 </div>
-              ))}
+              )}
             </div>
           </div>
         );
 
       case 'chats':
+        // If showing create group form
+        if (showCreateGroup) {
+          return renderCreateGroup();
+        }
+        
+        // If showing group info
+        if (showGroupInfo && selectedGroupChat) {
+          return renderGroupInfo(selectedGroupChat);
+        }
+        
+        // If showing group chat
+        if (showGroupChat && selectedGroupChat) {
+          return renderGroupChat(selectedGroupChat);
+        }
+        
+        // Otherwise show the group chats list
         return (
           <div className="chats-section">
             <div className="section-header">
               <h2>Group Chats</h2>
-              <Button variant="primary" className="create-chat-btn">
+              <Button 
+                variant="primary" 
+                className="create-chat-btn"
+                onClick={handleCreateNewGroup}
+              >
                 Create New Group
               </Button>
             </div>
             <div className="chats-grid">
-              {groupChats.map((chat) => (
-                <div key={chat.id} className={`chat-card ${chat.isActive ? 'active' : ''}`}>
-                  <div className="chat-card__header">
-                    <div className="chat-card__title-section">
-                      <h3 className="chat-card__title">{chat.name}</h3>
-                      <div className="chat-card__status">
-                        <span className={`status-indicator ${chat.isActive ? 'online' : 'offline'}`}></span>
-                        <span className="member-count">{chat.members} members</span>
+              {filteredGroupChats.length > 0 ? (
+                filteredGroupChats.map((chat) => (
+                  <div key={chat.id} className={`chat-card ${chat.isActive ? 'active' : ''}`}>
+                    <div className="chat-card__header">
+                      <div className="chat-card__title-section">
+                        <h3 className="chat-card__title">{chat.name}</h3>
+                        <div className="chat-card__status">
+                          <span className={`status-indicator ${chat.isActive ? 'online' : 'offline'}`}></span>
+                          <span className="member-count">{chat.members} members</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <p className="chat-card__description">{chat.description}</p>
-                  <div className="chat-card__last-message">
-                    <div className="last-message-content">
-                      <span className="last-message-text">"{chat.lastMessage}"</span>
-                      <span className="last-message-time">{chat.lastMessageTime}</span>
+                    <p className="chat-card__description">{chat.description}</p>
+                    <div className="chat-card__last-message">
+                      <div className="last-message-content">
+                        <span className="last-message-text">"{chat.lastMessage}"</span>
+                        <span className="last-message-time">{chat.lastMessageTime}</span>
+                      </div>
+                    </div>
+                    <div className="chat-card__actions">
+                      <Button 
+                        variant="primary" 
+                        size="small"
+                        onClick={() => handleJoinChat(chat)}
+                      >
+                        Join Chat
+                      </Button>
+                      <Button 
+                        variant="secondary" 
+                        size="small"
+                        onClick={() => handleViewGroupInfo(chat)}
+                      >
+                        View Info
+                      </Button>
                     </div>
                   </div>
-                  <div className="chat-card__actions">
-                    <Button variant="primary" size="small">
-                      Join Chat
-                    </Button>
-                    <Button variant="secondary" size="small">
-                      View Info
-                    </Button>
-                  </div>
+                ))
+              ) : (
+                <div className="no-results">
+                  <p>No group chats found matching your search.</p>
                 </div>
-              ))}
+              )}
             </div>
           </div>
         );
@@ -1735,34 +2199,86 @@ const AstroHub: React.FC = () => {
         <div className="tab-buttons">
           <Button 
             variant={activeTab === 'events' ? 'primary' : 'secondary'}
-            onClick={() => setActiveTab('events')}
+            onClick={() => {
+              setActiveTab('events');
+              handleSearch(''); // Clear search when switching tabs
+            }}
           >
             Astronomical Events
           </Button>
           <Button 
             variant={activeTab === 'news' ? 'primary' : 'secondary'}
-            onClick={() => setActiveTab('news')}
+            onClick={() => {
+              setActiveTab('news');
+              handleSearch(''); // Clear search when switching tabs
+            }}
           >
             Space News
           </Button>
           <Button 
             variant={activeTab === 'discussions' ? 'primary' : 'secondary'}
-            onClick={() => setActiveTab('discussions')}
+            onClick={() => {
+              setActiveTab('discussions');
+              handleSearch(''); // Clear search when switching tabs
+            }}
           >
             Discussions
           </Button>
           <Button 
             variant={activeTab === 'chats' ? 'primary' : 'secondary'}
-            onClick={() => setActiveTab('chats')}
+            onClick={() => {
+              setActiveTab('chats');
+              handleSearch(''); // Clear search when switching tabs
+            }}
           >
             Group Chats
           </Button>
         </div>
       </div>
 
+      {/* Search Bar */}
+      <div className="astro-hub__search">
+        <div className="search-container">
+          <input
+            type="text"
+            placeholder={`Search ${activeTab === 'events' ? 'astronomical events' : 
+              activeTab === 'news' ? 'space news' : 
+              activeTab === 'discussions' ? 'discussions' : 
+              activeTab === 'my-discussions' ? 'my discussions' : 'group chats'}...`}
+            value={searchQuery}
+            onChange={(e) => handleSearch(e.target.value)}
+            className="search-input"
+          />
+          <div className="search-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8"/>
+              <path d="M21 21l-4.35-4.35"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
       <div className="astro-hub__content">
         {renderTabContent()}
       </div>
+
+      {/* Success Alert */}
+      {successAlert.show && (
+        <div className={`success-alert ${successAlert.show ? 'show' : ''}`}>
+          <svg className="success-alert__icon" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+          </svg>
+          <span className="success-alert__message">{successAlert.message}</span>
+          <button 
+            className="success-alert__close"
+            onClick={() => setSuccessAlert({ show: false, message: '' })}
+          >
+            <svg viewBox="0 0 14 14" fill="none">
+              <path d="M13 1L1 13M1 1l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      )}
     </div>
   );
 };

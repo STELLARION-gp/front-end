@@ -63,6 +63,7 @@ export const ROLE_BASED_MENU_ITEMS = {
         { label: 'Overview', icon: 'HomeIcon', href: '/dashboard/overview' },
         { label: 'Profile', icon: 'UserCircleIcon', href: '/dashboard/profile' },
         { label: 'Blogs', icon: 'BookOpenIcon', href: '/dashboard/blogs' },
+        {label: 'Sessions', icon: 'UsersIcon', href: '/dashboard/sessions'},
         { label: 'NASA content', icon: 'RocketLaunchIcon', href: '/dashboard/nasa-content' },
         { label: 'Celestial Events', icon: 'SparklesIcon', href: '/dashboard/celestial-events' },
         { label: 'Chat', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/chat' },

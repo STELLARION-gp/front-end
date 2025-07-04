@@ -9,8 +9,8 @@ const Galaxy3D: React.FC = () => {
 
   // Generate galaxy points
   const [positions, colors] = useMemo(() => {
-    const positions = new Float32Array(5000 * 3);
-    const colors = new Float32Array(5000 * 3);
+    const positions = new Float32Array(10000 * 3); // Increased from 5000 to 10000 points
+    const colors = new Float32Array(10000 * 3);
 
     const colorPalette = [
       new THREE.Color('#8B5CF6'), // Purple
@@ -21,11 +21,11 @@ const Galaxy3D: React.FC = () => {
       new THREE.Color('#EC4899'), // Pink
     ];
 
-    for (let i = 0; i < 5000; i++) {
+    for (let i = 0; i < 10000; i++) {
       const i3 = i * 3;
 
       // Create spiral galaxy shape
-      const radius = Math.random() * 25;
+      const radius = Math.random() * 30; // Increased from 25 to 30
       const spinAngle = radius * 0.3;
       const branchAngle = ((i % 3) / 3) * Math.PI * 2;
 
@@ -51,11 +51,12 @@ const Galaxy3D: React.FC = () => {
   }, []);
 
   // Animation loop
-  useFrame(() => {
+  useFrame(({ clock }) => {
     if (ref.current) {
-      ref.current.rotation.y += 0.01;
-      ref.current.rotation.x = mouse.y * 0.05;
-      ref.current.rotation.z = mouse.x * 0.05;
+      // Use clock for smoother rotation
+      ref.current.rotation.y = clock.getElapsedTime() * 0.05;
+      ref.current.rotation.x = mouse.y * 0.1 + Math.sin(clock.getElapsedTime() * 0.2) * 0.05;
+      ref.current.rotation.z = mouse.x * 0.1 + Math.cos(clock.getElapsedTime() * 0.1) * 0.05;
     }
   });
 
@@ -80,7 +81,7 @@ const Galaxy3D: React.FC = () => {
       <PointMaterial
         transparent
         vertexColors
-        size={0.05}
+        size={0.1} // Increased from 0.05 to 0.1
         sizeAttenuation={true}
         depthWrite={false}
         blending={THREE.AdditiveBlending}

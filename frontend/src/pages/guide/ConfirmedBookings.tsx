@@ -16,7 +16,7 @@ import {
 } from 'chart.js';
 import Button from '../../components/Button';
 import Card from '../../components/Card';
-import { Calendar, Clock, Users, Star, TrendingUp, Activity, ArrowLeft } from 'lucide-react';
+import { Calendar, Clock, Users, Star, TrendingUp, Activity, ArrowLeftIcon } from 'lucide-react';
 import '../../styles/pages/guide/_confirmedBookings.scss';
 
 // Register Chart.js components
@@ -320,14 +320,15 @@ const ConfirmedBookings: React.FC = () => {
         className="page-header"
       >
         <div className="header-top">
-          <Button
-            variant="secondary"
-            size="small"
-            onClick={() => navigate(-1)}
-            icon={<ArrowLeft className="w-4 h-4" />}
-          >
-            Back
-          </Button>
+              <Button
+                variant="secondary"
+                size="medium"
+                icon={<ArrowLeftIcon />}
+                iconPosition="left"
+                onClick={() => navigate(-1)}
+              >
+                Back to Services
+              </Button>
         </div>
         <h2>Confirmed Bookings</h2>
         <p>Manage and track all your confirmed astronomy sessions</p>

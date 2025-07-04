@@ -9,6 +9,7 @@ import Preview from '../pages/learner/Preview';
 import BlogExplore from '../pages/learner/Blog_Explore';
 import BlogDetailedPageWrapper from '../pages/learner/BlogDetailedPageWrapper';
 import AuthorProfilePageWrapper from '../pages/learner/AuthorProfilePageWrapper';
+import NasaImagesPage from '../pages/learner/NasaImagesPage';
 
 import NightCamps from '../pages/enthuasist/NightCamps';
 import Stargazing from '../pages/enthuasist/Stargazing';
@@ -19,6 +20,7 @@ import SetAvailability from '../pages/guide/SetAvailability';
 import MediaUploadPanel from '../pages/guide/MediaUploadPanel';
 import MentorProfile from '../pages/mentor/MentorProfile';
 import BookingRequests from '../pages/guide/BookingRequests';
+import CelestialEventsPage from '../pages/learner/Celestial_Events_Page';
 
 
 // Create placeholder components for different pages - all memoized
@@ -148,7 +150,22 @@ const DashboardRoutes = () => {
                     </RoleGuard>
                 }
             />
-
+            <Route
+                path="nasa-content"
+                element={
+                    <RoleGuard allowedRoles={['learner']}>
+                        <NasaImagesPage />
+                    </RoleGuard>
+                }
+            />
+            <Route
+                path="celestial-events"
+                element={
+                    <RoleGuard allowedRoles={['learner']}>
+                        <CelestialEventsPage />
+                    </RoleGuard>
+                }
+            />
             <Route
                 path="mentor"
                 element={

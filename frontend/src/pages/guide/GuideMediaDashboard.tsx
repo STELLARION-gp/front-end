@@ -770,17 +770,17 @@ const GuideMediaDashboard: React.FC = () => {
                       <div className="action-group">
                         <button 
                           className="action-button primary"
+                          title="Download"
                           onClick={(e) => handleDownload(selectedMedia, e)}
                         >
-                          <Download className="w-4 h-4" />
-                          Download
+                          <Download className="w-5 h-5" />
                         </button>
                         <button 
                           className="action-button secondary"
+                          title="Share"
                           onClick={(e) => handleShare(selectedMedia, e)}
                         >
-                          <Share className="w-4 h-4" />
-                          Share
+                          <Share className="w-5 h-5" />
                         </button>
                       </div>
                       <div className="engagement-stats">

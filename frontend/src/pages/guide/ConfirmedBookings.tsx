@@ -47,6 +47,7 @@ interface ConfirmedBooking {
 }
 
 const ConfirmedBookings: React.FC = () => {
+  console.log('ConfirmedBookings component mounting...');
   const navigate = useNavigate();
   const [bookings, setBookings] = useState<ConfirmedBooking[]>([]);
   const [selectedTimeframe, setSelectedTimeframe] = useState<'week' | 'month' | 'year'>('month');

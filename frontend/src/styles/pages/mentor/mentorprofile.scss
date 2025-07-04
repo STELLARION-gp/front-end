@@ -1,0 +1,241 @@
+.mentor-profile-video-box {
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  margin-bottom: 1.5rem;
+  iframe {
+    display: block;
+    margin: 0 auto;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(59,130,246,0.13);
+    background: #181f2a;
+  }
+}
+
+.mentor-profile-field-box {
+  margin-bottom: 1.2rem;
+  label {
+    display: block;
+    color: #60a5fa;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.01em;
+  }
+  .mentor-profile-field-value {
+    color: #fff;
+    font-size: 1.08rem;
+    font-weight: 500;
+    background: none;
+    padding: 0;
+    margin: 0;
+  }
+}
+
+.advanced-features {
+  background: rgba(59, 130, 246, 0.10);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-top: 0;
+  margin-bottom: 0;
+  box-shadow: 0 2px 12px rgba(59,130,246,0.08);
+}
+
+// Remove extra margin from last field
+.mentor-profile-field-box:last-child {
+  margin-bottom: 0;
+}
+
+.mentor-profile-left {
+  min-width: 280px;
+  max-width: 340px;
+  flex: 1;
+  border-radius: 12px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(59,130,246,0.07);
+}
+
+.mentor-profile-avatar {
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: #1a202c;
+  overflow: hidden;
+  img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+  }
+}
+
+.mentor-profile-info-list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mentor-profile-info-item {
+  label {
+    color: #a0aec0;
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 0.2rem;
+    display: block;
+  }
+  .value {
+    font-weight: 600;
+    color: #fff;
+    font-size: 1.08rem;
+  }
+}
+
+.mentor-profile-info-item.rating {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  label {
+    margin-right: 8px;
+    color: #a0aec0;
+    font-size: 1rem;
+    font-weight: 500;
+  }
+  .stars {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    .star {
+      width: 20px;
+      height: 20px;
+      color: #fbbf24;
+      &.empty {
+        color: #cbd5e1;
+      }
+    }
+  }
+  .rating-number {
+    color: #a0aec0;
+    font-weight: 500;
+    margin-left: 8px;
+    font-size: 1rem;
+  }
+}
+
+.mentor-edit-input {
+  width: 100%;
+  padding: 0.6rem 1rem;
+  border: 1.5px solid #3b82f6;
+  border-radius: 8px;
+  font-size: 1rem;
+  margin-top: 0.3rem;
+  margin-bottom: 0.7rem;
+  background: #181f2a;
+  color: #fff;
+  transition: border-color 0.2s;
+  &:focus {
+    border-color: #60a5fa;
+    outline: none;
+  }
+}
+
+.mentor-profile-video-box.mentor-edit-video-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.mentor-upload-video-btn {
+  margin-left: 1.5rem;
+  height: 40px;
+  font-size: 1rem;
+  padding: 0 1.2rem;
+  background: #2563eb;
+  color: #fff;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+  &:hover {
+    background: #1d4ed8;
+  }
+}
+
+.mentor-video-popup {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 0.5rem;
+  background: #181f2a;
+  border: 1.5px solid #3b82f6;
+  border-radius: 10px;
+  box-shadow: 0 4px 24px rgba(37,99,235,0.18);
+  padding: 1.2rem 1.5rem;
+  z-index: 10;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  min-width: 320px;
+}
+
+.mentor-get-video-btn {
+  background: #10b981;
+  color: #fff;
+  border-radius: 8px;
+  border: none;
+  padding: 0.5rem 1.2rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  &:hover {
+    background: #059669;
+  }
+}
+
+.mentor-edit-actions {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 2rem;
+  justify-content: flex-end;
+}
+
+.mentor-save-btn {
+  background: #2563eb;
+  color: #fff;
+  border-radius: 8px;
+  border: none;
+  padding: 0.7rem 2.2rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  &:hover {
+    background: #1d4ed8;
+  }
+}
+
+.mentor-cancel-btn {
+  background: #374151;
+  color: #fff;
+  border-radius: 8px;
+  border: none;
+  padding: 0.7rem 2.2rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  &:hover {
+    background: #1e293b;
+  }
+} 

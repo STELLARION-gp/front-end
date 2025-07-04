@@ -7,6 +7,7 @@ import en from './locales/en.json';
 import sin from './locales/sin.json';
 import ta from './locales/ta.json';
 
+
 // Import validation for development
 import { devValidateTranslations } from './translationValidator';
 
@@ -15,6 +16,7 @@ const resources = {
     en: { translation: en },
     sin: { translation: sin },
     ta: { translation: ta },
+
 };
 
 // Supported languages configuration
@@ -22,6 +24,7 @@ export const supportedLanguages = [
     { code: 'en', name: 'English', nativeName: 'English' },
     { code: 'sin', name: 'Sinhala', nativeName: 'සිංහල' },
     { code: 'ta', name: 'Tamil', nativeName: 'தமিழ্' },
+
 ];
 
 // Language detector options

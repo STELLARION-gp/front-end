@@ -11,7 +11,7 @@ interface AstronomyBlogCardProps {
   createdAt: string;
   rating: number;
   content: string;
-  onReadMore?: () => void;
+  onClick: () => void;
 }
 
 const renderStars = (rating: number) => {
@@ -19,13 +19,13 @@ const renderStars = (rating: number) => {
   const halfStar = rating % 1 >= 0.5;
   const stars = [];
   for (let i = 0; i < fullStars; i++) {
-    stars.push(<span key={i} className="star">&#9733;</span>); // filled star
+    stars.push(<span key={i} className="blog-star">&#9733;</span>); // filled star
   }
   if (halfStar) {
-    stars.push(<span key="half" className="star">&#9734;</span>); // half/empty star
+    stars.push(<span key="half" className="blog-star">&#9734;</span>); // half/empty star
   }
   while (stars.length < 5) {
-    stars.push(<span key={stars.length} className="star empty">&#9734;</span>);
+    stars.push(<span key={stars.length} className="blog-star empty">&#9734;</span>);
   }
   return stars;
 };
@@ -37,6 +37,7 @@ const AstronomyBlogCard: React.FC<AstronomyBlogCardProps> = ({
   createdAt,
   rating,
   content,
+  onClick,
 }) => (
   <div className="astro-blog-card">
     <img src={image} alt={title} className="astro-blog-card-image" />
@@ -56,7 +57,7 @@ const AstronomyBlogCard: React.FC<AstronomyBlogCardProps> = ({
       <span className="rating-number">{rating.toFixed(1)}</span>
     </div>
     <p className="astro-blog-card-content">{content.slice(0, 80)}...</p>
-    <Button>Read More</Button>
+    <Button onClick={onClick} >Read More</Button>
   </div>
 );
 

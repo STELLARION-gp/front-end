@@ -5,24 +5,38 @@ import Profile from '../pages/Profile';
 import Settings from '../pages/Settings';
 import DashboardOverview from '../pages/DashboardOverview';
 import Button from '../components/Button';
+
+import Preview from '../pages/learner/Preview';
+import BlogExplore from '../pages/learner/Blog_Explore';
+import BlogDetailedPageWrapper from '../pages/learner/BlogDetailedPageWrapper';
+import AuthorProfilePageWrapper from '../pages/learner/AuthorProfilePageWrapper';
+import NasaImagesPage from '../pages/learner/NasaImagesPage';
+
 import NightCamps from '../pages/enthuasist/NightCamps';
 import Stargazing from '../pages/enthuasist/Stargazing';
-import MediaUploadPanel from '../pages/guide/MediaUploadPanel';
+
 import ServiceListing from '../pages/guide/ServiceListing';
+import CreateService from '../pages/guide/CreateService';
+import SetAvailability from '../pages/guide/SetAvailability';
+import MediaUploadPanel from '../pages/guide/MediaUploadPanel';
+import MentorProfile from '../pages/mentor/MentorProfile';
+import BookingRequests from '../pages/guide/BookingRequests';
+import AstroHub from '../pages/enthuasist/AstroHub';
+import CelestialEventsPage from '../pages/learner/Celestial_Events_Page';
 
 // Create placeholder components for different pages - all memoized
-const BlogsPage = memo(() => (
-    <div className="dashboard-page">
-        <h2>Blogs & Content</h2>
-        <p>Create and manage your astronomy blog posts and articles.</p>
-        <RoleGuard allowedRoles={['influencer', 'mentor', 'moderator', 'admin']}>
-            <div className="advanced-features">
-                <h3>Advanced Features</h3>
-                <p>You have access to advanced blogging features.</p>
-            </div>
-        </RoleGuard>
-    </div>
-));
+// const BlogsPage = memo(() => (
+//     <div className="dashboard-page">
+//         <h2>Blogs & Content</h2>
+//         <p>Create and manage your astronomy blog posts and articles.</p>
+//         <RoleGuard allowedRoles={['influencer', 'mentor', 'moderator', 'admin']}>
+//             <div className="advanced-features">
+//                 <h3>Advanced Features</h3>
+//                 <p>You have access to advanced blogging features.</p>
+//             </div>
+//         </RoleGuard>
+//     </div>
+// ));
 
 const MentorPage = memo(() => (
     <div className="dashboard-page">
@@ -104,19 +118,55 @@ const DashboardRoutes = () => {
 
     return (
         <Routes>
-            <Route path="overview" element={<DashboardOverview />} />
+            <Route 
+            path="overview" 
+            element={
+                <RoleGuard allowedRoles={['learner']}>
+                    <Preview />
+                </RoleGuard>} 
+            />
+            <Route 
+            path="dashboard-overview" 
+            element={
+                <RoleGuard allowedRoles={['enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin']}>
+                    <DashboardOverview />
+                </RoleGuard>} 
+            />
             <Route path="profile" element={<Profile />} />
             <Route path="settings" element={<Settings />} />
 
             <Route
                 path="blogs"
                 element={
-                    <RoleGuard allowedRoles={['enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin']}>
-                        <BlogsPage />
+                    <RoleGuard allowedRoles={['enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin', 'learner']}>
+                        <BlogExplore />
                     </RoleGuard>
                 }
             />
-
+            <Route
+                path="blogs/:id"
+                element={
+                    <RoleGuard allowedRoles={['enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin', 'learner']}>
+                        <BlogDetailedPageWrapper />
+                    </RoleGuard>
+                }
+            />
+            <Route
+                path="nasa-content"
+                element={
+                    <RoleGuard allowedRoles={['learner']}>
+                        <NasaImagesPage />
+                    </RoleGuard>
+                }
+            />
+            <Route
+                path="celestial-events"
+                element={
+                    <RoleGuard allowedRoles={['learner']}>
+                        <CelestialEventsPage />
+                    </RoleGuard>
+                }
+            />
             <Route
                 path="mentor"
                 element={
@@ -134,6 +184,40 @@ const DashboardRoutes = () => {
                     </RoleGuard>
                 }
             />
+
+
+            <Route
+                path="booking-requests"
+                element={
+                    <RoleGuard allowedRoles={['learner', 'enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin']}>
+                        <BookingRequests />
+                    </RoleGuard>
+                }
+            />
+
+            <Route
+                path="services/*"
+                element={
+                    <RoleGuard allowedRoles={['guide', 'admin']}>
+                        <Routes>
+                            <Route index element={<ServiceListing />} />
+                            <Route path="create" element={<CreateService />} />
+                            <Route path="availability" element={<SetAvailability />} />
+                            <Route path=":serviceId/availability" element={<SetAvailability />} />
+                        </Routes>
+                    </RoleGuard>
+                }
+            />
+
+            <Route
+                path="media"
+                element={
+                    <RoleGuard allowedRoles={['guide', 'admin']}>
+                        <MediaUploadPanel />
+                    </RoleGuard>
+                }
+            />
+
 
             <Route path="chat" element={<ChatPage />} />
 
@@ -165,40 +249,53 @@ const DashboardRoutes = () => {
             />
 
             <Route
-                path="night-camps"
+                path="author/:authorName"
+                element={
+                    <RoleGuard allowedRoles={['enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin', 'learner']}>
+                        <AuthorProfilePageWrapper />
+                    </RoleGuard>
+                }
+            />
+
+            <Route
+                path="mentorprofile"
                 element={
                     <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
+                        <MentorProfile />
+                        </RoleGuard>
+                }
+            />
+
+
+
+            <Route
+                path="night-camps"
+                element={
+                    <RoleGuard allowedRoles={['enthusiast', 'influencer','learner','moderator', 'admin','guide', 'mentor']}>
                         <NightCamps />
                     </RoleGuard>
                 }
             />
 
-            <Route
+                <Route
                 path="stargazing"
                 element={
-                    <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
+                    <RoleGuard allowedRoles={['enthusiast', 'influencer','admin', 'learner','guide','mentor']}>
                         <Stargazing />
                     </RoleGuard>
                 }
             />
 
-            <Route
-                path="media"
+            
+                <Route
+                path="astrohub"
                 element={
-                    <RoleGuard allowedRoles={['guide', 'moderator', 'admin']}>
-                        <MediaUploadPanel />
+                    <RoleGuard allowedRoles={['enthusiast']}>
+                        <AstroHub />
                     </RoleGuard>
                 }
             />
 
-            <Route
-                path="services"
-                element={
-                    <RoleGuard allowedRoles={['guide', 'moderator', 'admin']}>
-                        <ServiceListing />
-                    </RoleGuard>
-                }
-            />
 
             {/* Default redirect to overview */}
             <Route path="" element={<Navigate to="overview" replace />} />

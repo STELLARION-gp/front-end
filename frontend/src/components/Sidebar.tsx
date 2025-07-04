@@ -20,6 +20,8 @@ import {
   MoonIcon,
   PhotoIcon,
   StarIcon,
+  RocketLaunchIcon,
+  SparklesIcon
 } from '@heroicons/react/24/outline';
 
 // Define interfaces for menu items
@@ -47,6 +49,8 @@ const iconMap = {
   MoonIcon,
   PhotoIcon,
   StarIcon,
+  RocketLaunchIcon,
+  SparklesIcon
 };
 
 // Memoize the icon components to prevent re-renders
@@ -60,7 +64,12 @@ const Sidebar: React.FC = () => {
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
   // Determine if a menu item is active
-  const isActive = useCallback((path: string): boolean => location.pathname.startsWith(path), [location.pathname]);
+  const isActive = useCallback(
+    (path: string): boolean => {
+      return location.pathname === path || location.pathname.startsWith(path + '/');
+    },
+    [location.pathname]
+  );
 
   const handleMouseEnter = useCallback((index: number) => {
     if (itemsRef.current[index - 1]) itemsRef.current[index - 1]?.classList.add('bottom-rounded');

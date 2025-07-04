@@ -69,6 +69,7 @@ export const ROLE_BASED_MENU_ITEMS = {
         // { label: 'Settings', icon: 'Cog6ToothIcon', href: '/dashboard/settings' },
         { label: 'Night Camps', icon: 'MoonIcon', href: '/dashboard/night-camps' },
         { label: 'Stargazing Spot', icon: 'StarIcon', href: '/dashboard/stargazing' },
+        { label: 'Astro Hub', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/astrohub' },
 
 
 
@@ -81,6 +82,7 @@ export const ROLE_BASED_MENU_ITEMS = {
         { label: 'Stargazing Spot', icon: 'StarIcon', href: '/dashboard/stargazing' },
         { label: 'Blogs', icon: 'BookOpenIcon', href: '/dashboard/blogs' },
         { label: 'Astro Hub', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/astrohub' },
+        { label: 'Volunteering', icon: 'HandRaisedIcon', href: '/dashboard/volunteering' },
         { label: 'Settings', icon: 'Cog6ToothIcon', href: '/dashboard/settings' },
     ],
     influencer: [
@@ -90,6 +92,7 @@ export const ROLE_BASED_MENU_ITEMS = {
         { label: 'Night Camps', icon: 'MoonIcon', href: '/dashboard/night-camps' },
         { label: 'Stargazing Spot', icon: 'StarIcon', href: '/dashboard/stargazing' },
         { label: 'Chat', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/chat' },
+        { label: 'Astro Hub', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/astrohub' },
         { label: 'Settings', icon: 'Cog6ToothIcon', href: '/dashboard/settings' },
     ],
     guide: [

@@ -22,6 +22,7 @@ import MentorProfile from '../pages/mentor/MentorProfile';
 import BookingRequests from '../pages/guide/BookingRequests';
 import AstroHub from '../pages/enthuasist/AstroHub';
 import CelestialEventsPage from '../pages/learner/Celestial_Events_Page';
+import Volunteering from '../pages/enthuasist/Volunteering';
 
 // Create placeholder components for different pages - all memoized
 // const BlogsPage = memo(() => (
@@ -270,7 +271,7 @@ const DashboardRoutes = () => {
             <Route
                 path="night-camps"
                 element={
-                    <RoleGuard allowedRoles={['enthusiast', 'influencer','learner','moderator', 'admin','guide', 'mentor']}>
+                    <RoleGuard allowedRoles={['enthusiast','learner','guide']}>
                         <NightCamps />
                     </RoleGuard>
                 }
@@ -279,7 +280,7 @@ const DashboardRoutes = () => {
                 <Route
                 path="stargazing"
                 element={
-                    <RoleGuard allowedRoles={['enthusiast', 'influencer','admin', 'learner','guide','mentor']}>
+                    <RoleGuard allowedRoles={['enthusiast', 'influencer','learner']}>
                         <Stargazing />
                     </RoleGuard>
                 }
@@ -289,8 +290,17 @@ const DashboardRoutes = () => {
                 <Route
                 path="astrohub"
                 element={
-                    <RoleGuard allowedRoles={['enthusiast']}>
+                    <RoleGuard allowedRoles={['enthusiast', 'influencer','learner','guide']}>
                         <AstroHub />
+                    </RoleGuard>
+                }
+            />
+
+            <Route
+                path="volunteering"
+                element={
+                    <RoleGuard allowedRoles={['enthusiast']}>
+                        <Volunteering />
                     </RoleGuard>
                 }
             />

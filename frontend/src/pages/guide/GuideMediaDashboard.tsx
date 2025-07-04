@@ -325,6 +325,8 @@ const GuideMediaDashboard: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [isImageZoomed, setIsImageZoomed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null);
+  const [touchEnd, setTouchEnd] = useState<{ x: number; y: number } | null>(null);
 
   // Body scroll lock for modal
   useEffect(() => {
@@ -478,6 +480,39 @@ const GuideMediaDashboard: React.FC = () => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedMedia, isImageZoomed, filteredAndSortedMedia, navigateMedia, handleImageZoom]);
+
+  // Touch handlers for swipe navigation
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart({
+      x: e.targetTouches[0].clientX,
+      y: e.targetTouches[0].clientY,
+    });
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd({
+      x: e.targetTouches[0].clientX,
+      y: e.targetTouches[0].clientY,
+    });
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distanceX = touchStart.x - touchEnd.x;
+    const distanceY = touchStart.y - touchEnd.y;
+    const isLeftSwipe = distanceX > 50 && Math.abs(distanceY) < 100;
+    const isRightSwipe = distanceX < -50 && Math.abs(distanceY) < 100;
+    
+    if (selectedMedia && filteredAndSortedMedia.length > 1) {
+      if (isLeftSwipe) {
+        navigateMedia('next');
+      } else if (isRightSwipe) {
+        navigateMedia('prev');
+      }
+    }
+  };
 
   // Close modal
   const closeModal = () => {
@@ -777,7 +812,12 @@ const GuideMediaDashboard: React.FC = () => {
       {selectedMedia && (
         <div className="media-modal" onClick={closeModal}>
           <div className="modal-backdrop" />
-          <div className="modal-container">
+          <div 
+            className="modal-container"
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+          >
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
               {/* Modal Header */}
               <div className="modal-header">
@@ -987,6 +1027,31 @@ const GuideMediaDashboard: React.FC = () => {
                         <Button variant="border" size="medium" className="edit-button">
                           Edit Details
                         </Button>
+                      </div>
+
+                      {/* Navigation Help */}
+                      <div className="navigation-help">
+                        <div className="help-title">Quick Actions</div>
+                        <div className="help-shortcuts">
+                          <span className="shortcut">
+                            <kbd>ESC</kbd> Close
+                          </span>
+                          {selectedMedia.type === 'image' && (
+                            <span className="shortcut">
+                              <kbd>SPACE</kbd> Zoom
+                            </span>
+                          )}
+                          {filteredAndSortedMedia.length > 1 && (
+                            <>
+                              <span className="shortcut">
+                                <kbd>←</kbd> Previous
+                              </span>
+                              <span className="shortcut">
+                                <kbd>→</kbd> Next
+                              </span>
+                            </>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>

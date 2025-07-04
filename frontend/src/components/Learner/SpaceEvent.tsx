@@ -30,8 +30,9 @@ const getCategoryIcon = (category: string) => {
   }
 };
 
-const UpcomingEventCard: React.FC<{ event: SpaceEvent }> = ({ event }) => (
-  <div className="space-event-card modern">
+// Add onClick prop for modal opening
+const UpcomingEventCard: React.FC<{ event: SpaceEvent; onClick?: () => void }> = ({ event, onClick }) => (
+  <div className="space-event-card modern" onClick={onClick} style={{ cursor: onClick ? 'pointer' : undefined }}>
     <div className="space-event-icon modern-icon">
       {getCategoryIcon(event.category)}
     </div>

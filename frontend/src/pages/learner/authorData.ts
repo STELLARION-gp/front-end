@@ -1,5 +1,5 @@
 // Sample author data for use with AuthorProfilePageWrapper
-import { blogs } from "./Blog_Explore";
+import { blogs } from "./blogData";
 
 export const authors = [
   {

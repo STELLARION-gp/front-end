@@ -466,11 +466,12 @@ const ConfirmedBookings: React.FC = () => {
             >
               <Card className="alert-card" variant="outlined">
                 <div className="alert-content">
-                  <TrendingUp className="w-6 h-6 text-orange-400" />
-                  <div>
+                  <TrendingUp className="alert-icon" />
+                  <div className="alert-text">
                     <h4>Upcoming Sessions Alert!</h4>
                     <p>You have {bookings.filter(isUpcoming).length} sessions starting within the next 3 days.</p>
                   </div>
+                  <div className="alert-pulse"></div>
                 </div>
               </Card>
             </motion.div>

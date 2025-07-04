@@ -351,7 +351,7 @@ const Volunteering = () => {
       {/* Opportunity Cards */}
       <div className="volunteering__grid">
         {filteredOpportunities.map(opportunity => (
-          <Card key={opportunity.id} className="opportunity-card" variant="elevated" hover>
+          <Card key={opportunity.id} className="opportunity-card" hover>
             {opportunity.image && (
               <div className="opportunity-image">
                 <img src={opportunity.image} alt={opportunity.title} />
@@ -361,61 +361,68 @@ const Volunteering = () => {
                 </div>
               </div>
             )}
-            <CardContent>
-              <CardTitle>{opportunity.title}</CardTitle>
-              <CardSubtitle>{opportunity.organization}</CardSubtitle>
-              
-              <div className="opportunity-details">
-                <div className="detail-item">
-                  <CalendarIcon className="detail-icon" />
-                  <span>{new Date(opportunity.date).toLocaleDateString()}</span>
+            <div className="card-content">
+              <div className="opportunity-main">
+                <h3 className="card-title">{opportunity.title}</h3>
+                <div className="card-subtitle">
+                  <span>{opportunity.organization}</span>
                 </div>
-                <div className="detail-item">
-                  <ClockIcon className="detail-icon" />
-                  <span>{opportunity.time}</span>
+                
+                <div className="opportunity-details">
+                  <div className="detail-item">
+                    <CalendarIcon className="detail-icon" />
+                    <span>{new Date(opportunity.date).toLocaleDateString()}</span>
+                  </div>
+                  <div className="detail-item">
+                    <ClockIcon className="detail-icon" />
+                    <span>{opportunity.time}</span>
+                  </div>
+                  <div className="detail-item">
+                    <MapPinIcon className="detail-icon" />
+                    <span>{opportunity.location}</span>
+                  </div>
+                  <div className="detail-item">
+                    <UsersIcon className="detail-icon" />
+                    <span>{opportunity.currentParticipants}/{opportunity.participantsNeeded} volunteers</span>
+                  </div>
                 </div>
-                <div className="detail-item">
-                  <MapPinIcon className="detail-icon" />
-                  <span>{opportunity.location}</span>
-                </div>
-                <div className="detail-item">
-                  <UsersIcon className="detail-icon" />
-                  <span>{opportunity.currentParticipants}/{opportunity.participantsNeeded} volunteers</span>
-                </div>
+
+                <p className="opportunity-description">{opportunity.description}</p>
               </div>
 
-              <p className="opportunity-description">{opportunity.description}</p>
-
-              <div className="opportunity-roles">
-                <h4>Available Roles:</h4>
-                <div className="roles-list">
-                  {opportunity.roles.map((role, index) => (
-                    <span key={index} className="role-tag">{role}</span>
-                  ))}
-                </div>
-              </div>
-
-              {opportunity.requiredSkills && (
-                <div className="required-skills">
-                  <h4>Required Skills:</h4>
-                  <div className="skills-list">
-                    {opportunity.requiredSkills.map((skill, index) => (
-                      <span key={index} className="skill-tag">{skill}</span>
+              <div className="opportunity-meta">
+                <div className="opportunity-roles">
+                  <h4>Available Roles</h4>
+                  <div className="roles-list">
+                    {opportunity.roles.map((role, index) => (
+                      <span key={index} className="role-tag">{role}</span>
                     ))}
                   </div>
                 </div>
-              )}
-            </CardContent>
-            <CardActions>
-              <Button
-                variant="primary"
-                onClick={() => handleRegisterVolunteering(opportunity.id)}
-                icon={<PlusIcon className="w-4 h-4" />}
-                iconPosition="left"
-              >
-                Register to Volunteer
-              </Button>
-            </CardActions>
+
+                {opportunity.requiredSkills && (
+                  <div className="required-skills">
+                    <h4>Required Skills</h4>
+                    <div className="skills-list">
+                      {opportunity.requiredSkills.map((skill, index) => (
+                        <span key={index} className="skill-tag">{skill}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="card-actions">
+                <Button
+                  variant="primary"
+                  onClick={() => handleRegisterVolunteering(opportunity.id)}
+                  icon={<PlusIcon className="w-4 h-4" />}
+                  iconPosition="left"
+                >
+                  Register to Volunteer
+                </Button>
+              </div>
+            </div>
           </Card>
         ))}
       </div>

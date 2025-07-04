@@ -26,6 +26,133 @@
   margin-bottom: 1.5rem;
 }
 
+.upcoming-sessions-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-top: 1.2rem;
+}
+
+.session-card {
+  background: linear-gradient(135deg, #232b3b 80%, #334155 100%);
+  border-radius: 12px;
+  box-shadow: 0 2px 16px 0 rgba(37,99,235,0.10);
+  padding: 1.2rem 1.2rem 1.1rem 1.2rem;
+  color: #e5e7eb;
+  max-width: 340px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  position: relative;
+  border: 2px solid #334155;
+  transition: box-shadow 0.2s, border-color 0.2s, transform 0.18s;
+  overflow: hidden;
+  &:hover {
+    border-color: #3b82f6;
+    box-shadow: 0 8px 32px 0 rgba(59,130,246,0.18), 0 4px 24px rgba(37,99,235,0.18);
+    transform: translateY(-2px) scale(1.018);
+  }
+}
+.session-image-wrap {
+  width: 100%;
+  height: 140px;
+  overflow: hidden;
+  border-radius: 10px;
+  margin-bottom: 0.7rem;
+}
+.session-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 10px;
+  transition: transform 0.3s;
+}
+.session-card:hover .session-image {
+  transform: scale(1.05);
+}
+.session-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #60a5fa;
+  margin-bottom: 0.2rem;
+}
+.session-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  font-size: 0.98rem;
+  color: #a5b4fc;
+  align-items: center;
+}
+.session-organizer {
+//   color: #fbbf24;
+color: #e5e7eb;
+  font-weight: 600;
+}
+.influencer-badge {
+  margin-left: 0.2rem;
+  font-size: 1.1rem;
+  vertical-align: middle;
+}
+.session-category {
+  background: #334155;
+  color: #93c5fd;
+  border-radius: 6px;
+  padding: 0.1rem 0.6rem;
+  font-size: 0.93rem;
+}
+.session-difficulty {
+  background: #334155;
+  color: #fca5a5;
+  border-radius: 6px;
+  padding: 0.1rem 0.6rem;
+  font-size: 0.93rem;
+}
+.session-desc {
+  color: #cbd5e1;
+  font-size: 1rem;
+  margin-bottom: 0.2rem;
+}
+.session-card-actions {
+  display: flex;
+  gap: 0.7rem;
+  margin-top: 0.5rem;
+}
+.session-register-btn {
+  background: #3b82f6;
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  padding: 0.5rem 1.2rem;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  &:hover {
+    background: #2563eb;
+    color: #fff;
+  }
+}
+.session-bookmark-btn {
+  background: #232b3b;
+//   color: #fbbf24;
+    color: #e5e7eb;
+  border: 1.5px solid #3b82f6;
+  border-radius: 7px;
+  padding: 0.5rem 1.2rem;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border 0.2s;
+  &:hover {
+    background: #3b82f6;
+    color: #232b3b;
+    border-color: #3b82f6;
+  }
+}
+
 @media (max-width: 700px) {
   .astronomy-sessions-page {
     padding: 1.2rem 0.2rem;
@@ -41,5 +168,3 @@
     padding: 0.7rem 0.5rem 0.5rem 0.5rem;
   }
 }
-
-// Add more styles for PollItem, SessionCard, FilterBar, etc. as needed

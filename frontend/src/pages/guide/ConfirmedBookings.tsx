@@ -16,7 +16,7 @@ import {
 } from 'chart.js';
 import Button from '../../components/Button';
 import Card from '../../components/Card';
-import { Calendar, Clock, Users, Star, TrendingUp, Activity, ArrowLeftIcon } from 'lucide-react';
+import { Calendar, Clock, Users, Star, TrendingUp, Activity, ArrowLeft } from 'lucide-react';
 import '../../styles/pages/guide/_confirmedBookings.scss';
 
 // Register Chart.js components
@@ -323,7 +323,7 @@ const ConfirmedBookings: React.FC = () => {
               <Button
                 variant="secondary"
                 size="medium"
-                icon={<ArrowLeftIcon />}
+                icon={<ArrowLeft className="w-4 h-4" />}
                 iconPosition="left"
                 onClick={() => navigate(-1)}
               >
@@ -447,36 +447,36 @@ const ConfirmedBookings: React.FC = () => {
         </Card>
       </motion.div>
 
-      {/* Upcoming Sessions Alert */}
-      <AnimatePresence>
-        {bookings.some(isUpcoming) && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            transition={{ type: "spring", stiffness: 100 }}
-            className="upcoming-alert"
-          >
-            <Card className="alert-card" variant="outlined">
-              <div className="alert-content">
-                <TrendingUp className="w-6 h-6 text-orange-400" />
-                <div>
-                  <h4>Upcoming Sessions Alert!</h4>
-                  <p>You have {bookings.filter(isUpcoming).length} sessions starting within the next 3 days.</p>
-                </div>
-              </div>
-            </Card>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Bookings Table */}
+      {/* Upcoming Sessions Alert + Bookings Table in Single Section */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.3 }}
         className="bookings-section"
       >
+        {/* Upcoming Sessions Alert */}
+        <AnimatePresence>
+          {bookings.some(isUpcoming) && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={{ type: "spring", stiffness: 100 }}
+              className="upcoming-alert"
+            >
+              <Card className="alert-card" variant="outlined">
+                <div className="alert-content">
+                  <TrendingUp className="w-6 h-6 text-orange-400" />
+                  <div>
+                    <h4>Upcoming Sessions Alert!</h4>
+                    <p>You have {bookings.filter(isUpcoming).length} sessions starting within the next 3 days.</p>
+                  </div>
+                </div>
+              </Card>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <Card className="table-card" variant="outlined">
           <div className="table-header">
             <h3>All Confirmed Bookings</h3>

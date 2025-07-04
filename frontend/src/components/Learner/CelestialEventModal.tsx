@@ -2,6 +2,10 @@ import React, { useState } from "react";
 import { StarIcon, Heart } from "lucide-react";
 import Button from "../Button";
 import "../../styles/pages/learner/NasaImageModal.scss";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import type { LatLngExpression } from 'leaflet';
+
 
 interface Comment {
   id: number;
@@ -38,6 +42,16 @@ const CelestialEventModal: React.FC<CelestialEventModalProps> = ({ open, onClose
   const [comment, setComment] = useState("");
   const [rating, setRating] = useState(0);
   const [error, setError] = useState("");
+
+  // Mocked coordinates for demonstration
+  const coordinates = [
+    { name: "Sri Lanka", lat: 7.8731, lng: 80.7718 },
+    { name: "Greenwich", lat: 51.4826, lng: 0.0077 }
+  ];
+  const mapCenter: LatLngExpression = coordinates.length > 0
+  ? [coordinates[0].lat, coordinates[0].lng]
+  : [0, 0];
+
 
   if (!open) return null;
 
@@ -76,6 +90,19 @@ const CelestialEventModal: React.FC<CelestialEventModalProps> = ({ open, onClose
             <div className="nasa-image-modal__desc" style={{ color: '#fbbf24', marginBottom: 8 }}>{new Date(event.date).toLocaleString()}</div>
             <div className="nasa-image-modal__desc"><b>Category:</b> {event.category}</div>
             <div className="nasa-image-modal__desc"><b>Locations:</b> {event.locations.join(", ")}</div>
+            {/* Map Section */}
+            <div className="celestial-event-map-container">
+              <MapContainer center={mapCenter} zoom={2} scrollWheelZoom={false} style={{ height: 300, width: "100%", borderRadius: 14, border: "1.5px solid #3b82f6", margin: "18px 0" }}>
+                <TileLayer
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+                {coordinates.map((loc, idx) => (
+                  <Marker key={idx} position={[loc.lat, loc.lng]}>
+                    <Popup>{loc.name}</Popup>
+                  </Marker>
+                ))}
+              </MapContainer>
+            </div>
           </div>
           <div className="nasa-image-modal__comments-section">
             <h3>Comments & Ratings</h3>

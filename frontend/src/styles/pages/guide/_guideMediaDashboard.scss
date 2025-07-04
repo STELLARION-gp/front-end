@@ -3,26 +3,25 @@
 
 .dashboard-page {
   padding: 2rem;
-  min-height: 100vh;
-  background: var(--bg-primary);
+  min-height: 400vh;
+  height: auto;
   position: relative;
-  
-  // Full height gradient overlay
-  &::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
-    z-index: -1;
-    pointer-events: none;
-  }
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px !important;
 
   @media (max-width: 768px) {
     padding: 1rem;
   }
+}
+
+// Dashboard Content Wrapper
+.dashboard-content {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  flex: 1;
+  gap: 2rem;
 }
 
 // Page Header
@@ -388,6 +387,9 @@
 .media-gallery {
   display: grid;
   gap: 1.5rem;
+  width: 100%;
+  flex: 1;
+  align-content: start;
 
   // Grid View
   &.grid {
@@ -1255,6 +1257,8 @@
 @media (max-width: 768px) {
   .dashboard-page {
     padding: 1rem;
+    min-height: 100vh;
+    height: auto;
   }
 
   .stats-grid {

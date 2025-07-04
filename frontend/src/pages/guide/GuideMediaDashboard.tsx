@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../../components/Button';
 import Card from '../../components/Card';
@@ -323,6 +323,8 @@ const GuideMediaDashboard: React.FC = () => {
   const [selectedTour, setSelectedTour] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'date' | 'views' | 'likes' | 'title'>('date');
   const [currentPage, setCurrentPage] = useState(1);
+  const [isImageZoomed, setIsImageZoomed] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Body scroll lock for modal
   useEffect(() => {
@@ -412,7 +414,76 @@ const GuideMediaDashboard: React.FC = () => {
   };
 
   const handleMediaClick = (item: MediaItem) => {
+    setIsLoading(true);
     setSelectedMedia(item);
+    setIsImageZoomed(false);
+    
+    // Simulate loading time for better UX
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 200);
+  };
+
+  // Navigate between media items
+  const navigateMedia = useCallback((direction: 'prev' | 'next') => {
+    if (!selectedMedia) return;
+
+    const currentIndex = filteredAndSortedMedia.findIndex(item => item.id === selectedMedia.id);
+    let newIndex;
+
+    if (direction === 'prev') {
+      newIndex = currentIndex > 0 ? currentIndex - 1 : filteredAndSortedMedia.length - 1;
+    } else {
+      newIndex = currentIndex < filteredAndSortedMedia.length - 1 ? currentIndex + 1 : 0;
+    }
+
+    setSelectedMedia(filteredAndSortedMedia[newIndex]);
+    setIsImageZoomed(false);
+  }, [selectedMedia, filteredAndSortedMedia]);
+
+  // Handle image zoom
+  const handleImageZoom = useCallback(() => {
+    if (selectedMedia?.type === 'image') {
+      setIsImageZoomed(!isImageZoomed);
+    }
+  }, [selectedMedia, isImageZoomed]);
+
+  // Keyboard navigation for modal
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (!selectedMedia) return;
+
+      switch (event.key) {
+        case 'Escape':
+          setSelectedMedia(null);
+          setIsImageZoomed(false);
+          break;
+        case 'ArrowLeft':
+          event.preventDefault();
+          navigateMedia('prev');
+          break;
+        case 'ArrowRight':
+          event.preventDefault();
+          navigateMedia('next');
+          break;
+        case ' ':
+          if (selectedMedia.type === 'image') {
+            event.preventDefault();
+            handleImageZoom();
+          }
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedMedia, isImageZoomed, filteredAndSortedMedia, navigateMedia, handleImageZoom]);
+
+  // Close modal
+  const closeModal = () => {
+    setSelectedMedia(null);
+    setIsImageZoomed(false);
+    setIsLoading(false);
   };
 
   return (
@@ -704,7 +775,7 @@ const GuideMediaDashboard: React.FC = () => {
 
       {/* Media Preview Modal */}
       {selectedMedia && (
-        <div className="media-modal" onClick={() => setSelectedMedia(null)}>
+        <div className="media-modal" onClick={closeModal}>
           <div className="modal-backdrop" />
           <div className="modal-container">
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -721,12 +792,17 @@ const GuideMediaDashboard: React.FC = () => {
                   <h2 className="modal-title">{selectedMedia.title}</h2>
                   <p className="modal-subtitle">
                     {selectedMedia.tour} • {selectedMedia.location}
+                    {filteredAndSortedMedia.length > 1 && (
+                      <span className="media-counter">
+                        • {filteredAndSortedMedia.findIndex(item => item.id === selectedMedia.id) + 1} of {filteredAndSortedMedia.length}
+                      </span>
+                    )}
                   </p>
                 </div>
                 <button 
                   className="close-btn"
-                  onClick={() => setSelectedMedia(null)}
-                  title="Close modal"
+                  onClick={closeModal}
+                  title="Close modal (ESC)"
                   aria-label="Close modal"
                 >
                   <X className="w-5 h-5" />
@@ -739,11 +815,46 @@ const GuideMediaDashboard: React.FC = () => {
                   {/* Media Preview */}
                   <div className="media-section">
                     <div className="media-preview-container">
-                      {selectedMedia.type === 'image' ? (
+                      {/* Navigation Buttons */}
+                      {filteredAndSortedMedia.length > 1 && (
+                        <>
+                          <button 
+                            className="nav-button nav-prev"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigateMedia('prev');
+                            }}
+                            title="Previous media (←)"
+                            aria-label="Previous media"
+                          >
+                            <ChevronLeft className="w-6 h-6" />
+                          </button>
+                          <button 
+                            className="nav-button nav-next"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigateMedia('next');
+                            }}
+                            title="Next media (→)"
+                            aria-label="Next media"
+                          >
+                            <ChevronRight className="w-6 h-6" />
+                          </button>
+                        </>
+                      )}
+
+                      {isLoading ? (
+                        <div className="media-loading">
+                          <div className="loading-spinner"></div>
+                          <p>Loading media...</p>
+                        </div>
+                      ) : selectedMedia.type === 'image' ? (
                         <img 
                           src={selectedMedia.url} 
                           alt={selectedMedia.title}
-                          className="modal-media"
+                          className={`modal-media ${isImageZoomed ? 'zoomed' : ''}`}
+                          onClick={handleImageZoom}
+                          title={isImageZoomed ? "Click to zoom out" : "Click to zoom in (Space)"}
                           onError={(e) => {
                             e.currentTarget.src = selectedMedia.thumbnail;
                           }}

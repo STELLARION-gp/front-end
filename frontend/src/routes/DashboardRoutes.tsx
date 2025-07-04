@@ -24,8 +24,8 @@ import MentorProfile from '../pages/mentor/MentorProfile';
 import EditMentor from '../pages/mentor/EditMentor';
 
 import GuideMediaDashboard from '../pages/guide/GuideMediaDashboard';
-import MentorProfile from '../pages/mentor/MentorProfile';
-import BookingRequests from '../pages/guide/BookingRequests';
+// import MentorProfile from '../pages/mentor/MentorProfile';
+// import BookingRequests from '../pages/guide/BookingRequests';
 import ConfirmedBookings from '../pages/guide/ConfirmedBookings';
 
 import BookingRequests from '../pages/guide/BookingRequests';

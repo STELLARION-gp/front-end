@@ -19,9 +19,6 @@ const Footer: React.FC = () => {
                                 alt="Stellarion"
                                 className="brand-logo"
                             />
-                            <span className="brand-name">
-                                {t('footer.brand.name')}
-                            </span>
                         </div>
                         <p className="brand-description">
                             {t('footer.brand.description')}

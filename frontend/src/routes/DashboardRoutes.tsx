@@ -22,6 +22,7 @@ import MentorProfile from '../pages/mentor/MentorProfile';
 import BookingRequests from '../pages/guide/BookingRequests';
 import AstroHub from '../pages/enthuasist/AstroHub';
 import CelestialEventsPage from '../pages/learner/Celestial_Events_Page';
+import SessionsPage from '../pages/learner/Sessions_Page';
 
 // Create placeholder components for different pages - all memoized
 // const BlogsPage = memo(() => (
@@ -68,12 +69,7 @@ const ChatPage = memo(() => (
     </div>
 ));
 
-const SessionsPage = memo(() => (
-    <div className="dashboard-page">
-        <h2>Learning Sessions</h2>
-        <p>Manage your learning and teaching sessions.</p>
-    </div>
-));
+
 
 const ModerationPage = memo(() => (
     <div className="dashboard-page">
@@ -150,7 +146,16 @@ const DashboardRoutes = () => {
                     </RoleGuard>
                 }
             />
-            <Route
+            <Route 
+                path="sessions"
+                element={
+                    <RoleGuard allowedRoles={['learner']}>
+                        <SessionsPage />
+                    </RoleGuard>
+                }
+            />
+
+                <Route
                 path="nasa-content"
                 element={
                     <RoleGuard allowedRoles={['learner']}>
@@ -220,15 +225,7 @@ const DashboardRoutes = () => {
 
             <Route path="chat" element={<ChatPage />} />
 
-            <Route
-                path="sessions"
-                element={
-                    <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
-                        <SessionsPage />
-                    </RoleGuard>
-                }
-            />
-
+            
             <Route
                 path="moderation"
                 element={

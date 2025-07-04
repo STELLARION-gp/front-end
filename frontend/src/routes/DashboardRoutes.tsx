@@ -18,6 +18,7 @@ import ServiceListing from '../pages/guide/ServiceListing';
 import CreateService from '../pages/guide/CreateService';
 import SetAvailability from '../pages/guide/SetAvailability';
 import MediaUploadPanel from '../pages/guide/MediaUploadPanel';
+import GuideMediaDashboard from '../pages/guide/GuideMediaDashboard';
 import MentorProfile from '../pages/mentor/MentorProfile';
 import BookingRequests from '../pages/guide/BookingRequests';
 import ConfirmedBookings from '../pages/guide/ConfirmedBookings';
@@ -208,6 +209,15 @@ const DashboardRoutes = () => {
 
             <Route
                 path="media"
+                element={
+                    <RoleGuard allowedRoles={['guide', 'admin']}>
+                        <GuideMediaDashboard />
+                    </RoleGuard>
+                }
+            />
+
+            <Route
+                path="media/upload"
                 element={
                     <RoleGuard allowedRoles={['guide', 'admin']}>
                         <MediaUploadPanel />

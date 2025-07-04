@@ -27,14 +27,13 @@ const ProgressBar: React.FC<{ percent: number }> = ({ percent }) => (
   </div>
 );
 
-const PollItem: React.FC<Poll> = ({
+const PollItem: React.FC<Omit<Poll, 'comments'>> = ({
   title,
   description,
   options,
   trending,
   author,
   createdAt,
-  comments,
 }) => {
   const totalVotes = options.reduce((sum, opt) => sum + opt.votes, 0) || 1;
   return (

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Button from '../../components/Button';
 import Card from '../../components/Card';
 import '../../styles/pages/guide/_bookingRequests.scss'; // create styles if needed
@@ -13,6 +14,7 @@ interface BookingRequest {
 }
 
 const BookingRequests: React.FC = () => {
+  const navigate = useNavigate();
   const [requests, setRequests] = useState<BookingRequest[]>([]);
   const [acceptedCount, setAcceptedCount] = useState(0);
   const [rejectedCount, setRejectedCount] = useState(0);
@@ -48,7 +50,18 @@ const BookingRequests: React.FC = () => {
   const totalCount = acceptedCount + rejectedCount + pendingCount;
   return (
     <div className="dashboard-page">
-      <h2>Booking Requests</h2>
+      <div className="page-header">
+        <h2>Booking Requests</h2>
+        <div className="header-actions">
+          <Button 
+            variant="primary" 
+            size="medium"
+            onClick={() => navigate('/guide/confirmed-bookings')}
+          >
+            View Confirmed Bookings
+          </Button>
+        </div>
+      </div>
       {/* Statistics */}
       <div className="stats-grid">
         <Card className="stat-card" variant="outlined"><span>Total</span><strong>{totalCount}</strong></Card>

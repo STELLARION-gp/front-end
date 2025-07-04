@@ -65,6 +65,11 @@ const PollItem: React.FC<Poll> = ({
         </div>
         <span className="poll-date">Created at: {new Date(createdAt).toLocaleDateString()}</span>
       </div>
+      {trending && (
+        <div className="poll-trending-bottom">
+          <span className="poll-trending">Trending</span>
+        </div>
+      )}
     </div>
   );
 };

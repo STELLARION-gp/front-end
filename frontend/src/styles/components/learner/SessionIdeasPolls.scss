@@ -49,19 +49,11 @@
       mask-composite: exclude;
       pointer-events: none;
     }
+    box-shadow: 0 0 16px 2px rgba(59,130,246,0.13);
     > * {
       position: relative;
       z-index: 1;
     }
-    .poll-title,
-    .poll-desc,
-    .poll-options,
-    .poll-author-info {
-      background: linear-gradient(135deg, #232b3b 80%, #334155 100%);
-      border-radius: 8px;
-    }
-    
-    box-shadow: 0 0 16px 2px rgba(59,130,246,0.13);
   }
   &:hover {
     border-color: #3b82f6;

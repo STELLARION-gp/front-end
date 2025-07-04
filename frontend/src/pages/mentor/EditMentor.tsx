@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState} from 'react';
 import { StarIcon } from '@heroicons/react/24/solid';
 import avatarImg from '../../assets/world.png';
 import Button from '../../components/Button';
@@ -23,7 +23,6 @@ const EditMentor = () => {
   });
   const [showVideoPopup, setShowVideoPopup] = useState(false);
   const [videoInput, setVideoInput] = useState('');
-  const [pendingVideo, setPendingVideo] = useState(form.video);
   const [showConfirmPopup, setShowConfirmPopup] = useState(false);
   const navigate = useNavigate();
 
@@ -40,7 +39,6 @@ const EditMentor = () => {
     const match = videoInput.match(/(?:youtu.be\/|youtube.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
     if (match) {
       setForm({ ...form, video: `https://www.youtube.com/embed/${match[1]}` });
-      setPendingVideo(`https://www.youtube.com/embed/${match[1]}`);
       setShowVideoPopup(false);
       // Redirect to MentorProfile and show new video (simulate real-time update)
       navigate('/dashboard/mentorprofile', { state: { video: `https://www.youtube.com/embed/${match[1]}` } });
@@ -202,4 +200,4 @@ const EditMentor = () => {
   );
 };
 
-export default EditMentor; 
+export default EditMentor;

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Button from '../../components/Button';
@@ -222,82 +222,99 @@ const GuideMediaDashboard: React.FC = () => {
     totalLikes: mediaData.reduce((sum, item) => sum + item.likes, 0)
   };
 
+  // Handle body scroll lock when modal is open
+  useEffect(() => {
+    if (selectedMedia) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    
+    // Cleanup on unmount
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [selectedMedia]);
+
 
 
   return (
     <div className="guide-media-dashboard">
-      {isLoading ? (
-        <motion.div 
-          className="loading-skeleton"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-        >
-          <div className="skeleton-header">
-            <div className="skeleton-title"></div>
-            <div className="skeleton-subtitle"></div>
-          </div>
-          <div className="skeleton-stats">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="skeleton-stat-card"></div>
-            ))}
-          </div>
-          <div className="skeleton-controls">
-            <div className="skeleton-search"></div>
-            <div className="skeleton-filters"></div>
-          </div>
-          <div className="skeleton-gallery">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="skeleton-media-card"></div>
-            ))}
-          </div>
-        </motion.div>
-      ) : (
-        <>
-          {/* Header Section */}
+      <div className="guide-media-dashboard-container">
+        {isLoading ? (
           <motion.div 
-            className="dashboard-header"
-            initial={{ opacity: 0, y: -30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="loading-skeleton"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
           >
-        <div className="header-content">
-          <motion.h1 
-            className="page-title"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-          >
-            🌌 Media Gallery
-          </motion.h1>
-          <motion.p 
-            className="page-subtitle"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-          >
-            Discover and manage your cosmic captures from astronomy tours
-          </motion.p>
-        </div>
-        <motion.div 
-          className="header-actions"
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-        >
-          <Link to="/dashboard/media/upload">
-            <Button
-              variant="primary"
-              size="medium"
-              icon={<UploadIcon />}
-              iconPosition="left"
-              className="upload-button"
+            <div className="skeleton-header">
+              <div className="skeleton-title"></div>
+              <div className="skeleton-subtitle"></div>
+            </div>
+            <div className="skeleton-stats">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="skeleton-stat-card"></div>
+              ))}
+            </div>
+            <div className="skeleton-controls">
+              <div className="skeleton-search"></div>
+              <div className="skeleton-filters"></div>
+            </div>
+            <div className="skeleton-gallery">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="skeleton-media-card"></div>
+              ))}
+            </div>
+          </motion.div>
+        ) : (
+          <>
+            {/* Header Section */}
+            <motion.div 
+              className="guide-media-dashboard__header"
+              initial={{ opacity: 0, y: -30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
             >
-              Upload Media
-            </Button>
-          </Link>
-        </motion.div>
-      </motion.div>
+              <div className="header-content">
+                <div className="title-section">
+                  <motion.h1 
+                    className="page-title"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.8, delay: 0.2 }}
+                  >
+                    🌌 Media Gallery
+                  </motion.h1>
+                  <motion.p 
+                    className="page-subtitle"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.6, delay: 0.4 }}
+                  >
+                    Discover and manage your cosmic captures from astronomy tours
+                  </motion.p>
+                </div>
+                <motion.div 
+                  className="header-actions"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.6, delay: 0.3 }}
+                >
+                  <Link to="/dashboard/media/upload">
+                    <Button
+                      variant="primary"
+                      size="medium"
+                      icon={<UploadIcon />}
+                      iconPosition="left"
+                      className="upload-button"
+                    >
+                      Upload Media
+                    </Button>
+                  </Link>
+                </motion.div>
+              </div>
+            </motion.div>
 
       {/* Statistics Cards */}
       <motion.div 
@@ -764,6 +781,7 @@ const GuideMediaDashboard: React.FC = () => {
           </motion.div>
         )}
       </AnimatePresence>
+      </div>
     </div>
   );
 };

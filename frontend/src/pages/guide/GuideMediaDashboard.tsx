@@ -1,163 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Button from '../../components/Button';
+import Card from '../../components/Card';
+import { Image, Video, Eye, Heart, Upload, Search, Grid, List, Folder, Filter, ArrowUpDown, Play, Download, Share, X } from 'lucide-react';
 import '../../styles/pages/guide/_guideMediaDashboard.scss';
-
-// Icons
-const UploadIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
-  <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none">
-    <path d="M12 2L12 12M12 2L8 6M12 2L16 6M3 12L3 20C3 20.5523 3.44772 21 4 21L20 21C20.5523 21 21 20.5523 21 20L21 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-);
-
-const FilterIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
-  <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none">
-    <path d="M3 4H21V6H3V4ZM7 10H17V12H7V10ZM10 16H14V18H10V16Z" fill="currentColor"/>
-  </svg>
-);
-
-const SearchIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
-  <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none">
-    <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="2"/>
-    <path d="m21 21-4.35-4.35" stroke="currentColor" strokeWidth="2"/>
-  </svg>
-);
-
-const GridIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
-  <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none">
-    <rect x="3" y="3" width="7" height="7" stroke="currentColor" strokeWidth="2"/>
-    <rect x="14" y="3" width="7" height="7" stroke="currentColor" strokeWidth="2"/>
-    <rect x="14" y="14" width="7" height="7" stroke="currentColor" strokeWidth="2"/>
-    <rect x="3" y="14" width="7" height="7" stroke="currentColor" strokeWidth="2"/>
-  </svg>
-);
-
-const ListIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
-  <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none">
-    <line x1="8" y1="6" x2="21" y2="6" stroke="currentColor" strokeWidth="2"/>
-    <line x1="8" y1="12" x2="21" y2="12" stroke="currentColor" strokeWidth="2"/>
-    <line x1="8" y1="18" x2="21" y2="18" stroke="currentColor" strokeWidth="2"/>
-    <line x1="3" y1="6" x2="3.01" y2="6" stroke="currentColor" strokeWidth="2"/>
-    <line x1="3" y1="12" x2="3.01" y2="12" stroke="currentColor" strokeWidth="2"/>
-    <line x1="3" y1="18" x2="3.01" y2="18" stroke="currentColor" strokeWidth="2"/>
-  </svg>
-);
-
-const PlayIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
-  <svg className={className} width="24" height="24" viewBox="0 0 24 24" fill="none">
-    <polygon points="5,3 19,12 5,21" fill="currentColor"/>
-  </svg>
-);
-
-const DownloadIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
-  <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none">
-    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-);
-
-const ShareIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
-  <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none">
-    <circle cx="18" cy="5" r="3" stroke="currentColor" strokeWidth="2"/>
-    <circle cx="6" cy="12" r="3" stroke="currentColor" strokeWidth="2"/>
-    <circle cx="18" cy="19" r="3" stroke="currentColor" strokeWidth="2"/>
-    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" stroke="currentColor" strokeWidth="2"/>
-    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" stroke="currentColor" strokeWidth="2"/>
-  </svg>
-);
-
-const FolderIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
-  <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none">
-    <path d="M4 4h6l2 2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-);
-
-const mockMediaData: MediaItem[] = [
-  {
-    id: 1,
-    title: "Saturn Ring Structure",
-    type: "image" as const,
-    url: "https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?w=800",
-    thumbnail: "https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?w=300",
-    tour: "Saturn Observation Night",
-    location: "Mount Wilson Observatory",
-    date: "2025-06-15",
-    tags: ["saturn", "rings", "telescope"],
-    size: "2.4 MB",
-    views: 245,
-    likes: 32
-  },
-  {
-    id: 2,
-    title: "Jupiter's Great Red Spot",
-    type: "video" as const,
-    url: "https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4",
-    thumbnail: "https://images.unsplash.com/photo-1614313913007-2b4ae8ce32d6?w=300",
-    tour: "Jupiter Close-up Session",
-    location: "Palomar Observatory",
-    date: "2025-06-10",
-    tags: ["jupiter", "great-red-spot", "timelapse"],
-    size: "45.2 MB",
-    views: 412,
-    likes: 67
-  },
-  {
-    id: 3,
-    title: "Andromeda Galaxy Core",
-    type: "image" as const,
-    url: "https://images.unsplash.com/photo-1502134249126-9f3755a50d78?w=800",
-    thumbnail: "https://images.unsplash.com/photo-1502134249126-9f3755a50d78?w=300",
-    tour: "Deep Space Photography",
-    location: "Dark Sky Reserve",
-    date: "2025-06-08",
-    tags: ["galaxy", "andromeda", "deep-space"],
-    size: "5.8 MB",
-    views: 892,
-    likes: 156
-  },
-  {
-    id: 4,
-    title: "Lunar Eclipse Sequence",
-    type: "video" as const,
-    url: "https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_2mb.mp4",
-    thumbnail: "https://images.unsplash.com/photo-1518066000714-58c45f1a2c64?w=300",
-    tour: "Lunar Eclipse Special",
-    location: "City Observatory",
-    date: "2025-06-05",
-    tags: ["moon", "eclipse", "sequence"],
-    size: "67.3 MB",
-    views: 634,
-    likes: 98
-  },
-  {
-    id: 5,
-    title: "Orion Nebula Details",
-    type: "image" as const,
-    url: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=800",
-    thumbnail: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=300",
-    tour: "Nebula Photography Workshop",
-    location: "Remote Desert Site",
-    date: "2025-06-03",
-    tags: ["nebula", "orion", "star-formation"],
-    size: "4.1 MB",
-    views: 523,
-    likes: 89
-  },
-  {
-    id: 6,
-    title: "Mars Opposition 2025",
-    type: "image" as const,
-    url: "https://images.unsplash.com/photo-1516849841032-87cbac4d88f7?w=800",
-    thumbnail: "https://images.unsplash.com/photo-1516849841032-87cbac4d88f7?w=300",
-    tour: "Mars Opposition Special",
-    location: "High Altitude Observatory",
-    date: "2025-06-01",
-    tags: ["mars", "opposition", "planetary"],
-    size: "3.2 MB",
-    views: 367,
-    likes: 54
-  }
-];
 
 interface MediaItem {
   id: number;
@@ -172,616 +18,710 @@ interface MediaItem {
   size: string;
   views: number;
   likes: number;
+  description?: string;
 }
 
+const mockMediaData: MediaItem[] = [
+  {
+    id: 1,
+    title: "Saturn Ring Structure Analysis",
+    type: "image" as const,
+    url: "https://picsum.photos/800/600?random=1",
+    thumbnail: "https://picsum.photos/400/300?random=1",
+    tour: "Saturn Observation Night",
+    location: "Mount Wilson Observatory",
+    date: "2025-06-15",
+    tags: ["saturn", "rings", "telescope", "planetary"],
+    size: "2.4 MB",
+    views: 245,
+    likes: 32,
+    description: "Detailed capture of Saturn's ring system showing the Cassini Division"
+  },
+  {
+    id: 2,
+    title: "Jupiter's Great Red Spot",
+    type: "video" as const,
+    url: "#",
+    thumbnail: "https://picsum.photos/400/300?random=2",
+    tour: "Jupiter Close-up Session",
+    location: "Palomar Observatory",
+    date: "2025-06-10",
+    tags: ["jupiter", "storm", "timelapse", "planetary"],
+    size: "45.2 MB",
+    views: 412,
+    likes: 67,
+    description: "Time-lapse showing the rotation of Jupiter's Great Red Spot"
+  },
+  {
+    id: 3,
+    title: "Andromeda Galaxy Core",
+    type: "image" as const,
+    url: "https://picsum.photos/800/600?random=3",
+    thumbnail: "https://picsum.photos/400/300?random=3",
+    tour: "Deep Space Photography",
+    location: "Dark Sky Reserve",
+    date: "2025-06-08",
+    tags: ["galaxy", "andromeda", "deep-space", "astrophotography"],
+    size: "5.8 MB",
+    views: 892,
+    likes: 156,
+    description: "High-resolution capture of Andromeda's galactic core"
+  },
+  {
+    id: 4,
+    title: "Lunar Eclipse Sequence",
+    type: "video" as const,
+    url: "#",
+    thumbnail: "https://picsum.photos/400/300?random=4",
+    tour: "Lunar Eclipse Special",
+    location: "City Observatory",
+    date: "2025-06-05",
+    tags: ["moon", "eclipse", "lunar", "timelapse"],
+    size: "67.3 MB",
+    views: 634,
+    likes: 98,
+    description: "Complete lunar eclipse sequence from start to totality"
+  },
+  {
+    id: 5,
+    title: "Orion Nebula Details",
+    type: "image" as const,
+    url: "https://picsum.photos/800/600?random=5",
+    thumbnail: "https://picsum.photos/400/300?random=5",
+    tour: "Nebula Photography Workshop",
+    location: "Remote Desert Site",
+    date: "2025-06-03",
+    tags: ["nebula", "orion", "star-formation", "deep-space"],
+    size: "4.1 MB",
+    views: 523,
+    likes: 89,
+    description: "Detailed view of star formation in the Orion Nebula"
+  },
+  {
+    id: 6,
+    title: "Mars Opposition 2025",
+    type: "image" as const,
+    url: "https://picsum.photos/800/600?random=6",
+    thumbnail: "https://picsum.photos/400/300?random=6",
+    tour: "Mars Opposition Special",
+    location: "High Altitude Observatory",
+    date: "2025-06-01",
+    tags: ["mars", "opposition", "planetary", "surface"],
+    size: "3.2 MB",
+    views: 367,
+    likes: 54,
+    description: "Mars at its closest approach showing surface features"
+  },
+  {
+    id: 7,
+    title: "Milky Way Panorama",
+    type: "image" as const,
+    url: "https://picsum.photos/800/600?random=7",
+    thumbnail: "https://picsum.photos/400/300?random=7",
+    tour: "Galactic Center Tour",
+    location: "Atacama Desert",
+    date: "2025-05-28",
+    tags: ["milky-way", "panorama", "galactic-center", "night-sky"],
+    size: "12.8 MB",
+    views: 1247,
+    likes: 203,
+    description: "Stunning panoramic view of the Milky Way's galactic center"
+  },
+  {
+    id: 8,
+    title: "International Space Station Transit",
+    type: "video" as const,
+    url: "#",
+    thumbnail: "https://picsum.photos/400/300?random=8",
+    tour: "ISS Observation Session",
+    location: "Kennedy Space Center",
+    date: "2025-05-25",
+    tags: ["iss", "transit", "space-station", "orbital"],
+    size: "89.7 MB",
+    views: 756,
+    likes: 124,
+    description: "ISS transit across the moon's surface captured in real-time"
+  },
+  {
+    id: 9,
+    title: "Venus Transit Composite",
+    type: "image" as const,
+    url: "https://picsum.photos/800/600?random=9",
+    thumbnail: "https://picsum.photos/400/300?random=9",
+    tour: "Planetary Transits Workshop",
+    location: "Mauna Kea Observatory",
+    date: "2025-05-22",
+    tags: ["venus", "transit", "solar", "composite"],
+    size: "6.3 MB",
+    views: 445,
+    likes: 78,
+    description: "Composite image showing Venus transit across the sun's disk"
+  },
+  {
+    id: 10,
+    title: "Comet NEOWISE Trail",
+    type: "video" as const,
+    url: "#",
+    thumbnail: "https://picsum.photos/400/300?random=10",
+    tour: "Comet Hunting Expedition",
+    location: "Rocky Mountain Observatory",
+    date: "2025-05-20",
+    tags: ["comet", "neowise", "tail", "timelapse"],
+    size: "134.5 MB",
+    views: 923,
+    likes: 167,
+    description: "Time-lapse of Comet NEOWISE's magnificent tail development"
+  },
+  {
+    id: 11,
+    title: "Solar Flare Activity",
+    type: "image" as const,
+    url: "https://picsum.photos/800/600?random=11",
+    thumbnail: "https://picsum.photos/400/300?random=11",
+    tour: "Solar Observation Day",
+    location: "National Solar Observatory",
+    date: "2025-05-18",
+    tags: ["solar-flare", "sun", "chromosphere", "magnetic-field"],
+    size: "8.9 MB",
+    views: 612,
+    likes: 95,
+    description: "Spectacular solar flare captured with hydrogen-alpha filter"
+  },
+  {
+    id: 12,
+    title: "Ring Nebula in Lyra",
+    type: "image" as const,
+    url: "https://picsum.photos/800/600?random=12",
+    thumbnail: "https://picsum.photos/400/300?random=12",
+    tour: "Planetary Nebulae Tour",
+    location: "Apache Point Observatory",
+    date: "2025-05-15",
+    tags: ["ring-nebula", "lyra", "planetary-nebula", "dying-star"],
+    size: "7.2 MB",
+    views: 834,
+    likes: 142,
+    description: "The famous Ring Nebula showing intricate gas shell structure"
+  },
+  {
+    id: 13,
+    title: "Meteor Shower Peak",
+    type: "video" as const,
+    url: "#",
+    thumbnail: "https://picsum.photos/400/300?random=13",
+    tour: "Perseid Meteor Watch",
+    location: "Death Valley",
+    date: "2025-05-12",
+    tags: ["meteor-shower", "perseids", "shooting-stars", "night-sky"],
+    size: "156.3 MB",
+    views: 1456,
+    likes: 278,
+    description: "Peak activity of the Perseid meteor shower with multiple fireballs"
+  },
+  {
+    id: 14,
+    title: "Eagle Nebula Pillars",
+    type: "image" as const,
+    url: "https://picsum.photos/800/600?random=14",
+    thumbnail: "https://picsum.photos/400/300?random=14",
+    tour: "Deep Space Photography",
+    location: "Las Campanas Observatory",
+    date: "2025-05-10",
+    tags: ["eagle-nebula", "pillars-of-creation", "star-formation", "emission"],
+    size: "15.4 MB",
+    views: 1123,
+    likes: 198,
+    description: "The iconic Pillars of Creation in the Eagle Nebula"
+  },
+  {
+    id: 15,
+    title: "Binary Star Eclipse",
+    type: "video" as const,
+    url: "#",
+    thumbnail: "https://picsum.photos/400/300?random=15",
+    tour: "Variable Stars Program",
+    location: "Lowell Observatory",
+    date: "2025-05-08",
+    tags: ["binary-star", "eclipse", "variable", "photometry"],
+    size: "78.9 MB",
+    views: 567,
+    likes: 89,
+    description: "Eclipsing binary star system showing dramatic brightness changes"
+  },
+  {
+    id: 16,
+    title: "Aurora Borealis Dance",
+    type: "video" as const,
+    url: "#",
+    thumbnail: "https://picsum.photos/400/300?random=16",
+    tour: "Northern Lights Expedition",
+    location: "Fairbanks, Alaska",
+    date: "2025-05-05",
+    tags: ["aurora", "northern-lights", "geomagnetic", "atmosphere"],
+    size: "198.7 MB",
+    views: 2134,
+    likes: 456,
+    description: "Mesmerizing aurora borealis dancing across the arctic sky"
+  },
+  {
+    id: 17,
+    title: "Horsehead Nebula Silhouette",
+    type: "image" as const,
+    url: "https://picsum.photos/800/600?random=17",
+    thumbnail: "https://picsum.photos/400/300?random=17",
+    tour: "Orion Constellation Tour",
+    location: "Cerro Tololo Observatory",
+    date: "2025-05-03",
+    tags: ["horsehead-nebula", "dark-nebula", "orion", "silhouette"],
+    size: "9.6 MB",
+    views: 789,
+    likes: 134,
+    description: "The distinctive silhouette of the Horsehead Nebula in Orion"
+  },
+  {
+    id: 18,
+    title: "Supernova Remnant",
+    type: "image" as const,
+    url: "https://picsum.photos/800/600?random=18",
+    thumbnail: "https://picsum.photos/400/300?random=18",
+    tour: "Stellar Evolution Workshop",
+    location: "Keck Observatory",
+    date: "2025-05-01",
+    tags: ["supernova", "remnant", "shock-wave", "stellar-death"],
+    size: "11.2 MB",
+    views: 645,
+    likes: 107,
+    description: "Expanding shock waves from an ancient supernova explosion"
+  }
+];
+
 const GuideMediaDashboard: React.FC = () => {
-  const [mediaData] = useState<MediaItem[]>(mockMediaData);
+  const navigate = useNavigate();
+  
+  // State Management
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'images' | 'videos'>('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedMedia, setSelectedMedia] = useState<MediaItem | null>(null);
-  const [selectedFolder, setSelectedFolder] = useState<string>('all');
-  const [isLoading, setIsLoading] = useState(true);
-  const [notification, setNotification] = useState<{message: string, type: 'success' | 'info'} | null>(null);
+  const [selectedTour, setSelectedTour] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<'date' | 'views' | 'likes' | 'title'>('date');
 
-  // Simulate loading
-  React.useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-      setNotification({message: '🌟 Media gallery loaded successfully!', type: 'success'});
-      setTimeout(() => setNotification(null), 3000);
-    }, 1500);
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Get unique tours for folder filter
-  const tours = ['all', ...Array.from(new Set(mediaData.map(item => item.tour)))];
-
-  // Filter media based on search and filters
-  const filteredMedia = mediaData.filter(item => {
-    const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         item.tour.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         item.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         item.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
-    
-    const matchesType = selectedFilter === 'all' || 
-                       (selectedFilter === 'images' && item.type === 'image') ||
-                       (selectedFilter === 'videos' && item.type === 'video');
-    
-    const matchesFolder = selectedFolder === 'all' || item.tour === selectedFolder;
-    
-    return matchesSearch && matchesType && matchesFolder;
-  });
-
-  // Statistics
-  const stats = {
-    total: mediaData.length,
-    images: mediaData.filter(item => item.type === 'image').length,
-    videos: mediaData.filter(item => item.type === 'video').length,
-    totalViews: mediaData.reduce((sum, item) => sum + item.views, 0),
-    totalLikes: mediaData.reduce((sum, item) => sum + item.likes, 0)
-  };
-
-  // Handle body scroll lock when modal is open
+  // Body scroll lock for modal
   useEffect(() => {
     if (selectedMedia) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
     }
-    
-    // Cleanup on unmount
     return () => {
       document.body.style.overflow = 'unset';
     };
   }, [selectedMedia]);
 
+  // Get unique tours for filter
+  const tours = useMemo(() => 
+    ['all', ...Array.from(new Set(mockMediaData.map(item => item.tour)))], 
+    []
+  );
 
+  // Filter and sort media
+  const filteredAndSortedMedia = useMemo(() => {
+    const filtered = mockMediaData.filter(item => {
+      const matchesSearch = searchTerm === '' || 
+                           item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           item.tour.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           item.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           item.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+      
+      const matchesType = selectedFilter === 'all' || 
+                         (selectedFilter === 'images' && item.type === 'image') ||
+                         (selectedFilter === 'videos' && item.type === 'video');
+      
+      const matchesTour = selectedTour === 'all' || item.tour === selectedTour;
+      
+      return matchesSearch && matchesType && matchesTour;
+    });
+
+    // Sort the filtered results
+    filtered.sort((a, b) => {
+      switch (sortBy) {
+        case 'views':
+          return b.views - a.views;
+        case 'likes':
+          return b.likes - a.likes;
+        case 'title':
+          return a.title.localeCompare(b.title);
+        case 'date':
+        default:
+          return new Date(b.date).getTime() - new Date(a.date).getTime();
+      }
+    });
+
+    return filtered;
+  }, [searchTerm, selectedFilter, selectedTour, sortBy]);
+
+  // Statistics
+  const stats = useMemo(() => ({
+    total: mockMediaData.length,
+    images: mockMediaData.filter(item => item.type === 'image').length,
+    videos: mockMediaData.filter(item => item.type === 'video').length,
+    totalViews: mockMediaData.reduce((sum, item) => sum + item.views, 0),
+    totalLikes: mockMediaData.reduce((sum, item) => sum + item.likes, 0),
+    totalSize: mockMediaData.reduce((sum, item) => sum + parseFloat(item.size), 0).toFixed(1)
+  }), []);
+
+  // Handle media item actions
+  const handleDownload = (item: MediaItem, e: React.MouseEvent) => {
+    e.stopPropagation();
+    // TODO: Implement download functionality
+    console.log('Download:', item.title);
+  };
+
+  const handleShare = (item: MediaItem, e: React.MouseEvent) => {
+    e.stopPropagation();
+    // TODO: Implement share functionality
+    console.log('Share:', item.title);
+  };
+
+  const handleMediaClick = (item: MediaItem) => {
+    setSelectedMedia(item);
+  };
 
   return (
-    <div className="guide-media-dashboard">
-      <div className="guide-media-dashboard-container">
-        {isLoading ? (
-          <motion.div 
-            className="loading-skeleton"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+    <div className="dashboard-page">
+      {/* Page Header */}
+      <div className="page-header">
+        <h2>Media Gallery</h2>
+        <div className="header-actions">
+          <Button 
+            variant="primary" 
+            size="medium"
+            onClick={() => navigate('/dashboard/media/upload')}
           >
-            <div className="skeleton-header">
-              <div className="skeleton-title"></div>
-              <div className="skeleton-subtitle"></div>
-            </div>
-            <div className="skeleton-stats">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="skeleton-stat-card"></div>
-              ))}
-            </div>
-            <div className="skeleton-controls">
-              <div className="skeleton-search"></div>
-              <div className="skeleton-filters"></div>
-            </div>
-            <div className="skeleton-gallery">
-              {[...Array(6)].map((_, i) => (
-                <div key={i} className="skeleton-media-card"></div>
-              ))}
-            </div>
-          </motion.div>
-        ) : (
-          <>
-            {/* Header Section */}
-            <motion.div 
-              className="guide-media-dashboard__header"
-              initial={{ opacity: 0, y: -30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-            >
-              <div className="header-content">
-                <div className="title-section">
-                  <motion.h1 
-                    className="page-title"
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.8, delay: 0.2 }}
-                  >
-                    🌌 Media Gallery
-                  </motion.h1>
-                  <motion.p 
-                    className="page-subtitle"
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.6, delay: 0.4 }}
-                  >
-                    Discover and manage your cosmic captures from astronomy tours
-                  </motion.p>
-                </div>
-                <motion.div 
-                  className="header-actions"
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.6, delay: 0.3 }}
-                >
-                  <Link to="/dashboard/media/upload">
-                    <Button
-                      variant="primary"
-                      size="medium"
-                      icon={<UploadIcon />}
-                      iconPosition="left"
-                      className="upload-button"
-                    >
-                      Upload Media
-                    </Button>
-                  </Link>
-                </motion.div>
-              </div>
-            </motion.div>
+            <Upload className="w-4 h-4 mr-2" />
+            Upload New Media
+          </Button>
+        </div>
+      </div>
 
       {/* Statistics Cards */}
-      <motion.div 
-        className="stats-grid"
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 0.2 }}
-      >
-        <motion.div 
-          className="stat-card"
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          whileHover={{ scale: 1.05, y: -5 }}
-        >
-          <div className="stat-icon">�</div>
+      <div className="stats-grid">
+        <Card className="stat-card images" variant="outlined">
           <div className="stat-content">
-            <motion.div 
-              className="stat-number"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.5 }}
-            >
-              {stats.images}
-            </motion.div>
-            <div className="stat-label">Images</div>
+            <div className="stat-icon">
+              <Image className="w-6 h-6" />
+            </div>
+            <div className="stat-info">
+              <span className="stat-label">Images</span>
+              <strong className="stat-value">{stats.images}</strong>
+            </div>
           </div>
-        </motion.div>
-        <motion.div 
-          className="stat-card"
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          whileHover={{ scale: 1.05, y: -5 }}
-        >
-          <div className="stat-icon">�</div>
+        </Card>
+        
+        <Card className="stat-card videos" variant="outlined">
           <div className="stat-content">
-            <motion.div 
-              className="stat-number"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.6 }}
-            >
-              {stats.videos}
-            </motion.div>
-            <div className="stat-label">Videos</div>
+            <div className="stat-icon">
+              <Video className="w-6 h-6" />
+            </div>
+            <div className="stat-info">
+              <span className="stat-label">Videos</span>
+              <strong className="stat-value">{stats.videos}</strong>
+            </div>
           </div>
-        </motion.div>
-        <motion.div 
-          className="stat-card"
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6, delay: 0.5 }}
-          whileHover={{ scale: 1.05, y: -5 }}
-        >
-          <div className="stat-icon">👁️</div>
+        </Card>
+        
+        <Card className="stat-card views" variant="outlined">
           <div className="stat-content">
-            <motion.div 
-              className="stat-number"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.7 }}
-            >
-              {stats.totalViews.toLocaleString()}
-            </motion.div>
-            <div className="stat-label">Total Views</div>
+            <div className="stat-icon">
+              <Eye className="w-6 h-6" />
+            </div>
+            <div className="stat-info">
+              <span className="stat-label">Total Views</span>
+              <strong className="stat-value">{stats.totalViews.toLocaleString()}</strong>
+            </div>
           </div>
-        </motion.div>
-        <motion.div 
-          className="stat-card"
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6, delay: 0.6 }}
-          whileHover={{ scale: 1.05, y: -5 }}
-        >
-          <div className="stat-icon">�</div>
+        </Card>
+        
+        <Card className="stat-card likes" variant="outlined">
           <div className="stat-content">
-            <motion.div 
-              className="stat-number"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.8 }}
-            >
-              {stats.totalLikes}
-            </motion.div>
-            <div className="stat-label">Total Likes</div>
+            <div className="stat-icon">
+              <Heart className="w-6 h-6" />
+            </div>
+            <div className="stat-info">
+              <span className="stat-label">Total Likes</span>
+              <strong className="stat-value">{stats.totalLikes}</strong>
+            </div>
           </div>
-        </motion.div>
-      </motion.div>
+        </Card>
+      </div>
 
       {/* Controls Section */}
-      <motion.div 
-        className="controls-section"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 0.4 }}
-      >
-        {/* Search Bar */}
-        <motion.div 
-          className="search-container"
-          initial={{ opacity: 0, x: -30 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6, delay: 0.5 }}
-        >
-          <SearchIcon className="search-icon" />
+      <div className="controls-section">
+        <div className="search-container">
+          <Search className="search-icon" />
           <input
             type="text"
-            placeholder="🔍 Search by title, tour, location, or tags..."
+            placeholder="Search by title, tour, location, or tags..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="search-input"
           />
-        </motion.div>
+        </div>
 
-        {/* Filters */}
-        <motion.div 
-          className="filters-container"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.6 }}
-        >
-          {/* Folder Filter */}
-          <motion.div 
-            className="filter-group"
-            whileHover={{ scale: 1.02 }}
-            transition={{ duration: 0.2 }}
-          >
-            <FolderIcon className="filter-icon" />
+        <div className="filters-container">
+          <div className="filter-group">
+            <Folder className="filter-icon" />
             <select
-              value={selectedFolder}
-              onChange={(e) => setSelectedFolder(e.target.value)}
+              value={selectedTour}
+              onChange={(e) => setSelectedTour(e.target.value)}
               className="filter-select"
               title="Filter by tour"
             >
               {tours.map(tour => (
                 <option key={tour} value={tour}>
-                  {tour === 'all' ? '🌟 All Tours' : `🚀 ${tour}`}
+                  {tour === 'all' ? 'All Tours' : tour}
                 </option>
               ))}
             </select>
-          </motion.div>
+          </div>
 
-          {/* Type Filter */}
-          <motion.div 
-            className="filter-group"
-            whileHover={{ scale: 1.02 }}
-            transition={{ duration: 0.2 }}
-          >
-            <FilterIcon className="filter-icon" />
+          <div className="filter-group">
+            <Filter className="filter-icon" />
             <div className="filter-buttons">
-              <motion.button
+              <button
                 onClick={() => setSelectedFilter('all')}
                 className={`filter-btn ${selectedFilter === 'all' ? 'active' : ''}`}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
               >
-                All ({stats.total})
-              </motion.button>
-              <motion.button
+                All ({mockMediaData.length})
+              </button>
+              <button
                 onClick={() => setSelectedFilter('images')}
                 className={`filter-btn ${selectedFilter === 'images' ? 'active' : ''}`}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
               >
-                📸 Images ({stats.images})
-              </motion.button>
-              <motion.button
+                Images ({stats.images})
+              </button>
+              <button
                 onClick={() => setSelectedFilter('videos')}
                 className={`filter-btn ${selectedFilter === 'videos' ? 'active' : ''}`}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
               >
-                🎬 Videos ({stats.videos})
-              </motion.button>
+                Videos ({stats.videos})
+              </button>
             </div>
-          </motion.div>
+          </div>
 
-          {/* View Mode */}
-          <motion.div 
-            className="view-mode-group"
-            whileHover={{ scale: 1.02 }}
-            transition={{ duration: 0.2 }}
-          >
-            <motion.button
+          <div className="filter-group">
+            <ArrowUpDown className="filter-icon" />
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as 'date' | 'views' | 'likes' | 'title')}
+              className="filter-select"
+              title="Sort by"
+            >
+              <option value="date">Latest First</option>
+              <option value="views">Most Views</option>
+              <option value="likes">Most Likes</option>
+              <option value="title">Title A-Z</option>
+            </select>
+          </div>
+
+          <div className="view-mode-group">
+            <button
               onClick={() => setViewMode('grid')}
               className={`view-btn ${viewMode === 'grid' ? 'active' : ''}`}
               title="Grid View"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
             >
-              <GridIcon />
-            </motion.button>
-            <motion.button
+              <Grid className="w-4 h-4" />
+            </button>
+            <button
               onClick={() => setViewMode('list')}
               className={`view-btn ${viewMode === 'list' ? 'active' : ''}`}
               title="List View"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
             >
-              <ListIcon />
-            </motion.button>
-          </motion.div>
-        </motion.div>
-      </motion.div>
+              <List className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </div>
 
       {/* Media Gallery */}
-      <motion.div 
-        className={`media-gallery ${viewMode}`}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, delay: 0.3 }}
-      >
-        <AnimatePresence>
-          {filteredMedia.length > 0 ? (
-            filteredMedia.map((item, index) => (
-              <motion.div
-                key={item.id}
-                className="media-item"
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.3, delay: index * 0.05 }}
-                onClick={() => setSelectedMedia(item)}
-                whileHover={{ scale: 1.02, y: -5 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <div className="media-preview">
-                  <img 
-                    src={item.thumbnail} 
-                    alt={item.title}
-                    className="media-thumbnail"
-                  />
-                  {item.type === 'video' && (
-                    <div className="video-overlay">
-                      <PlayIcon className="play-icon" />
-                    </div>
-                  )}
-                  <div className="media-overlay">
-                    <div className="overlay-actions">
-                      <button className="action-btn" title="Download">
-                        <DownloadIcon />
-                      </button>
-                      <button className="action-btn" title="Share">
-                        <ShareIcon />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="media-info">
-                  <h3 className="media-title">{item.title}</h3>
-                  <div className="media-meta">
-                    <span className="media-tour">{item.tour}</span>
-                    <span className="media-date">{new Date(item.date).toLocaleDateString()}</span>
-                  </div>
-                  <div className="media-stats">
-                    <span className="stat">
-                      <span className="stat-icon">👁️</span>
-                      {item.views}
-                    </span>
-                    <span className="stat">
-                      <span className="stat-icon">💖</span>
-                      {item.likes}
-                    </span>
-                    <span className="stat">
-                      <span className="stat-icon">📁</span>
-                      {item.size}
-                    </span>
-                  </div>
-                  <div className="media-tags">
-                    {item.tags.slice(0, 3).map(tag => (
-                      <span key={tag} className="tag">#{tag}</span>
-                    ))}
-                  </div>
-                </div>
-              </motion.div>
-            ))
-          ) : (
-            <motion.div 
-              className="empty-state"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
+      <div className={`media-gallery ${viewMode}`}>
+        {filteredAndSortedMedia.length > 0 ? (
+          filteredAndSortedMedia.map((item) => (
+            <div
+              key={item.id}
+              className="media-item"
             >
-              <motion.div 
-                className="empty-icon"
-                animate={{ y: [0, -10, 0] }}
-                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              <div 
+                className="media-preview"
+                onClick={() => handleMediaClick(item)}
               >
-                🌌
-              </motion.div>
-              <h3>No cosmic captures found</h3>
-              <p>Start your journey by uploading stunning astronomy photos and videos</p>
-              <Link to="/dashboard/media/upload">
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Button variant="primary" size="medium">
-                    🚀 Upload Your First Media
-                  </Button>
-                </motion.div>
-              </Link>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
-
-      {/* Floating Action Button for Quick Upload */}
-      <motion.div
-        className="floating-upload-btn"
-        initial={{ opacity: 0, scale: 0 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5, delay: 1 }}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-      >
-        <Link to="/dashboard/media/upload">
-          <motion.button
-            className="fab"
-            whileHover={{ 
-              boxShadow: "0 20px 40px rgba(102, 126, 234, 0.6)",
-              y: -3
-            }}
-            title="Quick Upload"
-          >
-            <UploadIcon className="fab-icon" />
-          </motion.button>
-        </Link>
-      </motion.div>
+                <img
+                  src={item.thumbnail}
+                  alt={item.title}
+                  className="media-thumbnail"
+                  onError={(e) => {
+                    e.currentTarget.src = 'https://picsum.photos/400/300?random=' + item.id;
+                  }}
+                />
+                {item.type === 'video' && (
+                  <div className="video-overlay">
+                    <Play className="play-icon" />
+                  </div>
+                )}
+                <div className="media-overlay">
+                  <div className="overlay-actions">
+                    <button 
+                      className="action-btn" 
+                      title="Download"
+                      onClick={(e) => handleDownload(item, e)}
+                    >
+                      <Download className="w-4 h-4" />
+                    </button>
+                    <button 
+                      className="action-btn" 
+                      title="Share"
+                      onClick={(e) => handleShare(item, e)}
+                    >
+                      <Share className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+              
+              <div 
+                className="media-info"
+                onClick={() => handleMediaClick(item)}
+              >
+                <h3 className="media-title">{item.title}</h3>
+                <div className="media-meta">
+                  <div className="meta-item">
+                    <Folder className="w-4 h-4" />
+                    <span>{item.tour}</span>
+                  </div>
+                  <div className="meta-item">
+                    <span>📍 {item.location}</span>
+                  </div>
+                  <div className="meta-item">
+                    <span>📅 {new Date(item.date).toLocaleDateString()}</span>
+                  </div>
+                </div>
+                <div className="media-stats">
+                  <div className="stat">
+                    <Eye className="w-4 h-4" />
+                    <span>{item.views}</span>
+                  </div>
+                  <div className="stat">
+                    <Heart className="w-4 h-4" />
+                    <span>{item.likes}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="empty-state">
+            <div className="empty-icon">🌌</div>
+            <h3>No cosmic captures found</h3>
+            <p>Start your journey by uploading stunning astronomy photos and videos</p>
+            <Button 
+              variant="primary" 
+              size="large"
+              onClick={() => navigate('/dashboard/media/upload')}
+            >
+              <Upload className="w-4 h-4 mr-2" />
+              Upload Your First Media
+            </Button>
+          </div>
+        )}
+      </div>
 
       {/* Media Preview Modal */}
-      <AnimatePresence>
-        {selectedMedia && (
-          <motion.div 
-            className="media-modal"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setSelectedMedia(null)}
-          >
-            <motion.div 
-              className="modal-content"
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.8, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="modal-header">
-                <h3>{selectedMedia.title}</h3>
-                <button 
-                  className="close-btn"
-                  onClick={() => setSelectedMedia(null)}
-                >
-                  ✕
-                </button>
+      {selectedMedia && (
+        <div className="media-modal" onClick={() => setSelectedMedia(null)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3 className="modal-title">{selectedMedia.title}</h3>
+              <button 
+                className="close-btn"
+                onClick={() => setSelectedMedia(null)}
+                title="Close modal"
+                aria-label="Close modal"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            
+            <div className="modal-body">
+              <div className="media-preview-large">
+                {selectedMedia.type === 'image' ? (
+                  <img 
+                    src={selectedMedia.url} 
+                    alt={selectedMedia.title}
+                    className="modal-media"
+                    onError={(e) => {
+                      e.currentTarget.src = selectedMedia.thumbnail;
+                    }}
+                  />
+                ) : (
+                  <div className="video-placeholder">
+                    <Play className="w-16 h-16" />
+                    <p>Video preview not available</p>
+                  </div>
+                )}
               </div>
               
-              <div className="modal-body">
-                <div className="media-preview-large">
-                  {selectedMedia.type === 'image' ? (
-                    <img 
-                      src={selectedMedia.url}
-                      alt={selectedMedia.title}
-                      className="large-media"
-                    />
-                  ) : (
-                    <video 
-                      src={selectedMedia.url}
-                      controls
-                      className="large-media"
-                    />
-                  )}
+              <div className="modal-info">
+                <div className="info-grid">
+                  <div className="info-item">
+                    <span className="info-label">Tour</span>
+                    <span className="info-value">{selectedMedia.tour}</span>
+                  </div>
+                  <div className="info-item">
+                    <span className="info-label">Location</span>
+                    <span className="info-value">{selectedMedia.location}</span>
+                  </div>
+                  <div className="info-item">
+                    <span className="info-label">Date</span>
+                    <span className="info-value">{new Date(selectedMedia.date).toLocaleDateString()}</span>
+                  </div>
+                  <div className="info-item">
+                    <span className="info-label">Size</span>
+                    <span className="info-value">{selectedMedia.size}</span>
+                  </div>
+                  <div className="info-item">
+                    <span className="info-label">Views</span>
+                    <span className="info-value">{selectedMedia.views}</span>
+                  </div>
+                  <div className="info-item">
+                    <span className="info-label">Likes</span>
+                    <span className="info-value">{selectedMedia.likes}</span>
+                  </div>
                 </div>
                 
-                <div className="media-details">
-                  <div className="detail-row">
-                    <strong>Tour:</strong> {selectedMedia.tour}
+                {selectedMedia.description && (
+                  <div className="media-description">
+                    <span className="info-label">Description</span>
+                    <p>{selectedMedia.description}</p>
                   </div>
-                  <div className="detail-row">
-                    <strong>Location:</strong> {selectedMedia.location}
-                  </div>
-                  <div className="detail-row">
-                    <strong>Date:</strong> {new Date(selectedMedia.date).toLocaleDateString()}
-                  </div>
-                  <div className="detail-row">
-                    <strong>Size:</strong> {selectedMedia.size}
-                  </div>
-                  <div className="detail-row">
-                    <strong>Views:</strong> {selectedMedia.views.toLocaleString()}
-                  </div>
-                  <div className="detail-row">
-                    <strong>Likes:</strong> {selectedMedia.likes}
-                  </div>
-                  <div className="detail-row">
-                    <strong>Tags:</strong>
-                    <div className="modal-tags">
-                      {selectedMedia.tags.map(tag => (
-                        <span key={tag} className="tag">#{tag}</span>
-                      ))}
-                    </div>
-                  </div>
+                )}
+
+                <div className="modal-actions">
+                  <Button variant="secondary" size="medium">
+                    Edit Details
+                  </Button>
+                  <Button variant="primary" size="medium">
+                    <Download className="w-4 h-4 mr-2" />
+                    Download
+                  </Button>
+                  <Button variant="primary" size="medium">
+                    <Share className="w-4 h-4 mr-2" />
+                    Share
+                  </Button>
                 </div>
               </div>
-              
-              <div className="modal-footer">
-                <Button variant="secondary" size="medium">
-                  Edit Details
-                </Button>
-                <Button variant="primary" size="medium">
-                  Download
-                </Button>
-                <Button variant="primary" size="medium">
-                  Share
-                </Button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Floating Action Button for Quick Upload */}
-      <motion.div
-        className="floating-upload-btn"
-        initial={{ opacity: 0, scale: 0 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5, delay: 1 }}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-      >
-        <Link to="/dashboard/media/upload">
-          <motion.button
-            className="fab"
-            whileHover={{ 
-              boxShadow: "0 20px 40px rgba(102, 126, 234, 0.6)",
-              y: -3
-            }}
-            title="Quick Upload"
-          >
-            <UploadIcon className="fab-icon" />
-          </motion.button>
-        </Link>
-      </motion.div>
-        </>
+            </div>
+          </div>
+        </div>
       )}
-
-      {/* Notification Toast */}
-      <AnimatePresence>
-        {notification && (
-          <motion.div
-            className={`notification ${notification.type}`}
-            initial={{ opacity: 0, y: -50, x: 300 }}
-            animate={{ opacity: 1, y: 0, x: 0 }}
-            exit={{ opacity: 0, y: -50, x: 300 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
-          >
-            <span>{notification.message}</span>
-            <button 
-              onClick={() => setNotification(null)}
-              className="notification-close"
-            >
-              ✕
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
-      </div>
     </div>
   );
 };

@@ -181,7 +181,7 @@ const DashboardRoutes = () => {
             <Route
                 path="booking-requests"
                 element={
-                    <RoleGuard allowedRoles={['learner', 'enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin']}>
+                    <RoleGuard allowedRoles={['influencer', 'guide', 'moderator', 'admin']}>
                         <BookingRequests />
                     </RoleGuard>
                 }
@@ -189,11 +189,7 @@ const DashboardRoutes = () => {
 
             <Route
                 path="confirmed-bookings"
-                element={
-                    <RoleGuard allowedRoles={['guide', 'mentor', 'moderator', 'admin']}>
-                        <ConfirmedBookings />
-                    </RoleGuard>
-                }
+                element={<ConfirmedBookings />}
             />
 
             <Route

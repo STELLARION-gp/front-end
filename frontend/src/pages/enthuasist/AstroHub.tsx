@@ -21,6 +21,31 @@ interface SpaceNews {
   date: string;
   source: string;
   readTime: string;
+  likes: number;
+  comments: number;
+  fullContent?: string;
+  discussions?: NewsDiscussion[];
+}
+
+interface NewsDiscussion {
+  id: number;
+  userName: string;
+  userAvatar?: string;
+  comment: string;
+  postedTime: string;
+  likes: number;
+  isLiked: boolean;
+  replies?: NewsReply[];
+}
+
+interface NewsReply {
+  id: number;
+  userName: string;
+  userAvatar?: string;
+  comment: string;
+  postedTime: string;
+  likes: number;
+  isLiked: boolean;
 }
 
 interface Discussion {
@@ -91,28 +116,158 @@ const spaceNews: SpaceNews[] = [
     id: 1,
     title: "James Webb Telescope Discovers Ancient Galaxies",
     summary: "New observations reveal galaxies that formed just 400 million years after the Big Bang, pushing back the timeline of cosmic evolution.",
+    fullContent: "The James Webb Space Telescope has made groundbreaking discoveries, identifying galaxies that formed merely 400 million years after the Big Bang. These ancient cosmic structures challenge our understanding of early universe formation and provide unprecedented insights into the earliest epochs of cosmic history. The telescope's infrared capabilities have allowed astronomers to peer deeper into space and further back in time than ever before, revealing these primordial galaxies in stunning detail. This discovery suggests that galaxy formation began much earlier than previously thought, fundamentally altering our timeline of cosmic evolution.",
     image: "https://images.unsplash.com/photo-1614728263952-84ea256f9679?w=400&h=200&fit=crop",
     date: "June 28, 2025",
     source: "NASA",
-    readTime: "3 min"
+    readTime: "3 min",
+    likes: 50,
+    comments: 10,
+    discussions: [
+      {
+        id: 1,
+        userName: "CosmicExplorer_LK",
+        comment: "This is absolutely mind-blowing! The James Webb telescope keeps exceeding expectations. Can't wait to see what other secrets of the early universe it will unveil.",
+        postedTime: "2 hours ago",
+        likes: 15,
+        isLiked: false,
+        replies: [
+          {
+            id: 1,
+            userName: "StarGazer92",
+            comment: "I agree! The fact that galaxies formed so early completely changes our understanding of the universe's timeline.",
+            postedTime: "1 hour ago",
+            likes: 8,
+            isLiked: true
+          }
+        ]
+      },
+      {
+        id: 2,
+        userName: "AstroPhysicist_SL",
+        comment: "The implications for dark matter research are huge. These early galaxies could provide clues about how dark matter influenced structure formation.",
+        postedTime: "4 hours ago",
+        likes: 23,
+        isLiked: false,
+        replies: []
+      },
+      {
+        id: 3,
+        userName: "SpaceEnthusiast",
+        comment: "Does this mean we need to revise our models of the Big Bang and early cosmic inflation?",
+        postedTime: "6 hours ago",
+        likes: 12,
+        isLiked: false,
+        replies: [
+          {
+            id: 1,
+            userName: "CosmologyStudent",
+            comment: "Not necessarily revise the Big Bang model, but definitely refine our understanding of when and how the first structures formed.",
+            postedTime: "5 hours ago",
+            likes: 6,
+            isLiked: false
+          },
+          {
+            id: 2,
+            userName: "UniverseWatcher",
+            comment: "It's more about adjusting our timeline of galaxy formation rather than fundamental cosmological principles.",
+            postedTime: "3 hours ago",
+            likes: 4,
+            isLiked: true
+          }
+        ]
+      }
+    ]
   },
   {
     id: 2,
     title: "Mars Sample Return Mission Update",
     summary: "ESA and NASA provide latest updates on the ambitious mission to bring Martian soil samples back to Earth for detailed analysis.",
-    image: "https://images.unsplash.com/photo-1607354534084-6413e9efcd1b?w=400&h=200&fit=crop",
+    fullContent: "The Mars Sample Return mission, a collaborative effort between NASA and ESA, has reached critical milestones in its ambitious goal to bring Martian soil and rock samples back to Earth. The mission involves multiple phases: sample collection by the Perseverance rover, sample retrieval by a future Mars mission, and eventual return to Earth for comprehensive laboratory analysis. Recent updates indicate successful sample caching operations and advanced planning for the retrieval phase. This unprecedented mission will provide scientists with pristine Martian materials for detailed study, potentially answering fundamental questions about past life on Mars and the planet's geological history.",
+    image: "https://images.unsplash.com/photo-1528722828814-77b9b83aafb2?w=400&h=200&fit=crop",
     date: "June 25, 2025",
     source: "ESA",
-    readTime: "5 min"
+    readTime: "5 min",
+    likes: 50,
+    comments: 10,
+    discussions: [
+      {
+        id: 1,
+        userName: "MarsExplorer",
+        comment: "This mission is going to be a game-changer for astrobiology! Finally, we'll have actual Martian samples to study in Earth labs.",
+        postedTime: "3 hours ago",
+        likes: 18,
+        isLiked: true,
+        replies: []
+      },
+      {
+        id: 2,
+        userName: "PlanetaryScientist",
+        comment: "The engineering challenges of this mission are incredible. Landing, collecting, launching from Mars, and then returning to Earth - it's like science fiction becoming reality.",
+        postedTime: "5 hours ago",
+        likes: 14,
+        isLiked: false,
+        replies: [
+          {
+            id: 1,
+            userName: "RocketEngineer",
+            comment: "The Mars Ascent Vehicle is particularly fascinating - launching a rocket from another planet is no small feat!",
+            postedTime: "4 hours ago",
+            likes: 9,
+            isLiked: false
+          }
+        ]
+      }
+    ]
   },
   {
     id: 3,
     title: "Breakthrough in Exoplanet Atmosphere Analysis",
     summary: "Scientists detect water vapor and clouds in the atmosphere of a potentially habitable exoplanet 100 light-years away.",
+    fullContent: "Astronomers have achieved a remarkable breakthrough in exoplanet research by successfully detecting water vapor and cloud formations in the atmosphere of K2-18b, a potentially habitable exoplanet located 100 light-years from Earth. Using advanced spectroscopic techniques with the James Webb Space Telescope, researchers analyzed the planet's atmospheric composition as it transited in front of its host star. The presence of water vapor, combined with the planet's location in the habitable zone where liquid water could exist, makes K2-18b one of the most promising candidates for potentially harboring life. This discovery represents a significant step forward in our ability to characterize exoplanet atmospheres and search for biosignatures.",
     image: "https://images.unsplash.com/photo-1528722828814-77b9b83aafb2?w=400&h=200&fit=crop",
     date: "June 22, 2025",
     source: "ESO",
-    readTime: "4 min"
+    readTime: "4 min",
+    likes: 50,
+    comments: 10,
+    discussions: [
+      {
+        id: 1,
+        userName: "ExoplanetHunter",
+        comment: "K2-18b is becoming one of my favorite exoplanets! The possibility of clouds and water vapor is so exciting for astrobiology.",
+        postedTime: "1 hour ago",
+        likes: 21,
+        isLiked: false,
+        replies: []
+      },
+      {
+        id: 2,
+        userName: "LifeSearcher",
+        comment: "This is exactly the kind of discovery that gets me excited about the search for extraterrestrial life. We're getting so close to finding biosignatures!",
+        postedTime: "7 hours ago",
+        likes: 16,
+        isLiked: true,
+        replies: [
+          {
+            id: 1,
+            userName: "SkepticalScientist",
+            comment: "While exciting, we should be cautious about jumping to conclusions. Water vapor doesn't necessarily mean habitability.",
+            postedTime: "6 hours ago",
+            likes: 7,
+            isLiked: false
+          },
+          {
+            id: 2,
+            userName: "AstrobiologyFan",
+            comment: "True, but it's definitely a step in the right direction! Can't wait for more detailed atmospheric analysis.",
+            postedTime: "5 hours ago",
+            likes: 11,
+            isLiked: true
+          }
+        ]
+      }
+    ]
   }
 ];
 
@@ -193,6 +348,565 @@ const groupChats: GroupChat[] = [
 
 const AstroHub: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'events' | 'news' | 'discussions' | 'chats'>('events');
+  const [selectedNews, setSelectedNews] = useState<SpaceNews | null>(null);
+  const [newComment, setNewComment] = useState('');
+  const [replyingTo, setReplyingTo] = useState<number | null>(null);
+  const [newReply, setNewReply] = useState('');
+  const [editingComment, setEditingComment] = useState<number | null>(null);
+  const [editingReply, setEditingReply] = useState<{ discussionId: number; replyId: number } | null>(null);
+  const [editText, setEditText] = useState('');
+  const [newsLiked, setNewsLiked] = useState(false);
+
+  const handleViewNewsDetails = (article: SpaceNews) => {
+    setSelectedNews(article);
+  };
+
+  const handleBackToNews = () => {
+    setSelectedNews(null);
+    setNewComment('');
+    setReplyingTo(null);
+    setNewReply('');
+  };
+
+  const handleAddComment = () => {
+    if (newComment.trim() && selectedNews) {
+      const newDiscussion: NewsDiscussion = {
+        id: (selectedNews.discussions?.length || 0) + 1,
+        userName: "CurrentUser", // In a real app, this would come from auth context
+        comment: newComment.trim(),
+        postedTime: "Just now",
+        likes: 0,
+        isLiked: false,
+        replies: []
+      };
+      
+      const updatedNews = {
+        ...selectedNews,
+        discussions: [...(selectedNews.discussions || []), newDiscussion],
+        comments: selectedNews.comments + 1
+      };
+      
+      setSelectedNews(updatedNews);
+      setNewComment('');
+      
+      // Update the original data (in a real app, this would be an API call)
+      const newsIndex = spaceNews.findIndex(news => news.id === selectedNews.id);
+      if (newsIndex !== -1) {
+        spaceNews[newsIndex] = updatedNews;
+      }
+    }
+  };
+
+  const handleAddReply = (discussionId: number) => {
+    if (newReply.trim() && selectedNews) {
+      const updatedDiscussions = selectedNews.discussions?.map(discussion => {
+        if (discussion.id === discussionId) {
+          const newReplyObj: NewsReply = {
+            id: (discussion.replies?.length || 0) + 1,
+            userName: "CurrentUser",
+            comment: newReply.trim(),
+            postedTime: "Just now",
+            likes: 0,
+            isLiked: false
+          };
+          return {
+            ...discussion,
+            replies: [...(discussion.replies || []), newReplyObj]
+          };
+        }
+        return discussion;
+      });
+
+      const updatedNews = {
+        ...selectedNews,
+        discussions: updatedDiscussions
+      };
+
+      setSelectedNews(updatedNews);
+      setNewReply('');
+      setReplyingTo(null);
+      
+      // Update the original data
+      const newsIndex = spaceNews.findIndex(news => news.id === selectedNews.id);
+      if (newsIndex !== -1) {
+        spaceNews[newsIndex] = updatedNews;
+      }
+    }
+  };
+
+  const handleToggleNewsLike = () => {
+    if (selectedNews) {
+      const updatedNews = {
+        ...selectedNews,
+        likes: newsLiked ? selectedNews.likes - 1 : selectedNews.likes + 1
+      };
+      setSelectedNews(updatedNews);
+      setNewsLiked(!newsLiked);
+      
+      // Update the original data
+      const newsIndex = spaceNews.findIndex(news => news.id === selectedNews.id);
+      if (newsIndex !== -1) {
+        spaceNews[newsIndex] = updatedNews;
+      }
+    }
+  };
+
+  const handleToggleCommentLike = (discussionId: number) => {
+    if (selectedNews) {
+      const updatedDiscussions = selectedNews.discussions?.map(discussion => {
+        if (discussion.id === discussionId) {
+          return {
+            ...discussion,
+            likes: discussion.isLiked ? discussion.likes - 1 : discussion.likes + 1,
+            isLiked: !discussion.isLiked
+          };
+        }
+        return discussion;
+      });
+
+      const updatedNews = {
+        ...selectedNews,
+        discussions: updatedDiscussions
+      };
+
+      setSelectedNews(updatedNews);
+      
+      // Update the original data
+      const newsIndex = spaceNews.findIndex(news => news.id === selectedNews.id);
+      if (newsIndex !== -1) {
+        spaceNews[newsIndex] = updatedNews;
+      }
+    }
+  };
+
+  const handleToggleReplyLike = (discussionId: number, replyId: number) => {
+    if (selectedNews) {
+      const updatedDiscussions = selectedNews.discussions?.map(discussion => {
+        if (discussion.id === discussionId) {
+          const updatedReplies = discussion.replies?.map(reply => {
+            if (reply.id === replyId) {
+              return {
+                ...reply,
+                likes: reply.isLiked ? reply.likes - 1 : reply.likes + 1,
+                isLiked: !reply.isLiked
+              };
+            }
+            return reply;
+          });
+          return {
+            ...discussion,
+            replies: updatedReplies
+          };
+        }
+        return discussion;
+      });
+
+      const updatedNews = {
+        ...selectedNews,
+        discussions: updatedDiscussions
+      };
+
+      setSelectedNews(updatedNews);
+      
+      // Update the original data
+      const newsIndex = spaceNews.findIndex(news => news.id === selectedNews.id);
+      if (newsIndex !== -1) {
+        spaceNews[newsIndex] = updatedNews;
+      }
+    }
+  };
+
+  const handleEditComment = (discussionId: number, currentText: string) => {
+    setEditingComment(discussionId);
+    setEditText(currentText);
+  };
+
+  const handleSaveCommentEdit = (discussionId: number) => {
+    if (selectedNews && editText.trim()) {
+      const updatedDiscussions = selectedNews.discussions?.map(discussion => {
+        if (discussion.id === discussionId) {
+          return {
+            ...discussion,
+            comment: editText.trim()
+          };
+        }
+        return discussion;
+      });
+
+      const updatedNews = {
+        ...selectedNews,
+        discussions: updatedDiscussions
+      };
+
+      setSelectedNews(updatedNews);
+      setEditingComment(null);
+      setEditText('');
+      
+      // Update the original data
+      const newsIndex = spaceNews.findIndex(news => news.id === selectedNews.id);
+      if (newsIndex !== -1) {
+        spaceNews[newsIndex] = updatedNews;
+      }
+    }
+  };
+
+  const handleDeleteComment = (discussionId: number) => {
+    if (selectedNews) {
+      const updatedDiscussions = selectedNews.discussions?.filter(discussion => discussion.id !== discussionId);
+
+      const updatedNews = {
+        ...selectedNews,
+        discussions: updatedDiscussions,
+        comments: selectedNews.comments - 1
+      };
+
+      setSelectedNews(updatedNews);
+      
+      // Update the original data
+      const newsIndex = spaceNews.findIndex(news => news.id === selectedNews.id);
+      if (newsIndex !== -1) {
+        spaceNews[newsIndex] = updatedNews;
+      }
+    }
+  };
+
+  const handleEditReply = (discussionId: number, replyId: number, currentText: string) => {
+    setEditingReply({ discussionId, replyId });
+    setEditText(currentText);
+  };
+
+  const handleSaveReplyEdit = (discussionId: number, replyId: number) => {
+    if (selectedNews && editText.trim()) {
+      const updatedDiscussions = selectedNews.discussions?.map(discussion => {
+        if (discussion.id === discussionId) {
+          const updatedReplies = discussion.replies?.map(reply => {
+            if (reply.id === replyId) {
+              return {
+                ...reply,
+                comment: editText.trim()
+              };
+            }
+            return reply;
+          });
+          return {
+            ...discussion,
+            replies: updatedReplies
+          };
+        }
+        return discussion;
+      });
+
+      const updatedNews = {
+        ...selectedNews,
+        discussions: updatedDiscussions
+      };
+
+      setSelectedNews(updatedNews);
+      setEditingReply(null);
+      setEditText('');
+      
+      // Update the original data
+      const newsIndex = spaceNews.findIndex(news => news.id === selectedNews.id);
+      if (newsIndex !== -1) {
+        spaceNews[newsIndex] = updatedNews;
+      }
+    }
+  };
+
+  const handleDeleteReply = (discussionId: number, replyId: number) => {
+    if (selectedNews) {
+      const updatedDiscussions = selectedNews.discussions?.map(discussion => {
+        if (discussion.id === discussionId) {
+          const updatedReplies = discussion.replies?.filter(reply => reply.id !== replyId);
+          return {
+            ...discussion,
+            replies: updatedReplies
+          };
+        }
+        return discussion;
+      });
+
+      const updatedNews = {
+        ...selectedNews,
+        discussions: updatedDiscussions
+      };
+
+      setSelectedNews(updatedNews);
+      
+      // Update the original data
+      const newsIndex = spaceNews.findIndex(news => news.id === selectedNews.id);
+      if (newsIndex !== -1) {
+        spaceNews[newsIndex] = updatedNews;
+      }
+    }
+  };
+
+  const renderNewsDetails = (article: SpaceNews) => {
+    return (
+      <div className="news-details">
+        <div className="news-details__header">
+          <Button 
+            variant="secondary" 
+            size="small" 
+            onClick={handleBackToNews}
+            className="back-button"
+          >
+            ← Back to News
+          </Button>
+        </div>
+        
+        <div className="news-details__content">
+          <div className="news-details__image">
+            <img src={article.image} alt={article.title} />
+            <div className="news-details__source">{article.source}</div>
+          </div>
+          
+          <div className="news-details__info">
+            <div className="news-details__meta">
+              <span className="news-details__date">{article.date}</span>
+              <span className="news-details__read-time">{article.readTime} read</span>
+            </div>
+            
+            <h1 className="news-details__title">{article.title}</h1>
+            
+            <div className="news-details__stats">
+              <button 
+                className={`news-like-button ${newsLiked ? 'liked' : ''}`}
+                onClick={handleToggleNewsLike}
+              >
+                <span className="like-icon">❤️</span>
+                <span className="like-count">{article.likes} likes</span>
+              </button>
+              <span className="news-details__comments">{article.comments} comments</span>
+            </div>
+            
+            <div className="news-details__body">
+              <p className="news-details__full-content">{article.fullContent}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="news-discussions">
+          <div className="news-discussions__header">
+            <h2>Discussions ({article.discussions?.length || 0})</h2>
+          </div>
+
+          <div className="news-discussions__add-comment">
+            <textarea
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              placeholder="Share your thoughts about this news..."
+              className="comment-textarea"
+              rows={3}
+            />
+            <Button 
+              variant="primary" 
+              size="small" 
+              onClick={handleAddComment}
+              disabled={!newComment.trim()}
+            >
+              Post Comment
+            </Button>
+          </div>
+
+          <div className="news-discussions__list">
+            {article.discussions?.map((discussion) => (
+              <div key={discussion.id} className="discussion-thread">
+                <div className="discussion-comment">
+                  <div className="discussion-comment__header">
+                    <div className="discussion-comment__avatar">
+                      {discussion.userName.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="discussion-comment__info">
+                      <span className="discussion-comment__username">{discussion.userName}</span>
+                      <span className="discussion-comment__time">{discussion.postedTime}</span>
+                    </div>
+                  </div>
+                  {editingComment === discussion.id ? (
+                    <div className="edit-form">
+                      <textarea
+                        value={editText}
+                        onChange={(e) => setEditText(e.target.value)}
+                        className="edit-textarea"
+                        rows={3}
+                      />
+                      <div className="edit-actions">
+                        <Button 
+                          variant="primary" 
+                          size="small" 
+                          onClick={() => handleSaveCommentEdit(discussion.id)}
+                          disabled={!editText.trim()}
+                        >
+                          Save
+                        </Button>
+                        <Button 
+                          variant="secondary" 
+                          size="small" 
+                          onClick={() => {
+                            setEditingComment(null);
+                            setEditText('');
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="discussion-comment__text">{discussion.comment}</p>
+                  )}
+                  <div className="discussion-comment__footer">
+                    <button 
+                      className={`comment-like-button ${discussion.isLiked ? 'liked' : ''}`}
+                      onClick={() => handleToggleCommentLike(discussion.id)}
+                    >
+                      <span className="like-icon">❤️</span>
+                      <span className="like-count">{discussion.likes}</span>
+                    </button>
+                    <div className="discussion-comment__actions">
+                      <Button 
+                        variant="secondary" 
+                        size="small"
+                        onClick={() => setReplyingTo(replyingTo === discussion.id ? null : discussion.id)}
+                      >
+                        {replyingTo === discussion.id ? 'Cancel' : 'Reply'}
+                      </Button>
+                      {discussion.userName === "CurrentUser" && (
+                        <>
+                          <Button 
+                            variant="secondary" 
+                            size="small"
+                            onClick={() => handleEditComment(discussion.id, discussion.comment)}
+                          >
+                            Edit
+                          </Button>
+                          <Button 
+                            variant="secondary" 
+                            size="small"
+                            onClick={() => handleDeleteComment(discussion.id)}
+                          >
+                            Delete
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {discussion.replies && discussion.replies.length > 0 && (
+                  <div className="discussion-replies">
+                    {discussion.replies.map((reply) => (
+                      <div key={reply.id} className="discussion-reply">
+                        <div className="discussion-comment__header">
+                          <div className="discussion-comment__avatar">
+                            {reply.userName.charAt(0).toUpperCase()}
+                          </div>
+                          <div className="discussion-comment__info">
+                            <span className="discussion-comment__username">{reply.userName}</span>
+                            <span className="discussion-comment__time">{reply.postedTime}</span>
+                          </div>
+                        </div>
+                        {editingReply?.discussionId === discussion.id && editingReply?.replyId === reply.id ? (
+                          <div className="edit-form">
+                            <textarea
+                              value={editText}
+                              onChange={(e) => setEditText(e.target.value)}
+                              className="comment-textarea"
+                              rows={2}
+                            />
+                            <div className="edit-actions">
+                              <Button 
+                                variant="primary" 
+                                size="small" 
+                                onClick={() => handleSaveReplyEdit(discussion.id, reply.id)}
+                                disabled={!editText.trim()}
+                              >
+                                Save
+                              </Button>
+                              <Button 
+                                variant="secondary" 
+                                size="small" 
+                                onClick={() => {
+                                  setEditingReply(null);
+                                  setEditText('');
+                                }}
+                              >
+                                Cancel
+                              </Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="discussion-comment__text">{reply.comment}</p>
+                        )}
+                        <div className="discussion-comment__footer">
+                          <button 
+                            className={`reply-like-button ${reply.isLiked ? 'liked' : ''}`}
+                            onClick={() => handleToggleReplyLike(discussion.id, reply.id)}
+                          >
+                            <span className="like-icon">❤️</span>
+                            <span className="like-count">{reply.likes}</span>
+                          </button>
+                          {reply.userName === "CurrentUser" && (
+                            <div className="discussion-comment__actions">
+                              <Button 
+                                variant="secondary" 
+                                size="small"
+                                onClick={() => handleEditReply(discussion.id, reply.id, reply.comment)}
+                              >
+                                Edit
+                              </Button>
+                              <Button 
+                                variant="danger" 
+                                size="small"
+                                onClick={() => handleDeleteReply(discussion.id, reply.id)}
+                              >
+                                Delete
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {replyingTo === discussion.id && (
+                  <div className="discussion-reply-form">
+                    <textarea
+                      value={newReply}
+                      onChange={(e) => setNewReply(e.target.value)}
+                      placeholder="Write a reply..."
+                      className="reply-textarea"
+                      rows={2}
+                    />
+                    <div className="reply-actions">
+                      <Button 
+                        variant="primary" 
+                        size="small" 
+                        onClick={() => handleAddReply(discussion.id)}
+                        disabled={!newReply.trim()}
+                      >
+                        Post Reply
+                      </Button>
+                      <Button 
+                        variant="secondary" 
+                        size="small" 
+                        onClick={() => {
+                          setReplyingTo(null);
+                          setNewReply('');
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -241,6 +955,12 @@ const AstroHub: React.FC = () => {
         );
 
       case 'news':
+        // If a news article is selected, show detailed view
+        if (selectedNews) {
+          return renderNewsDetails(selectedNews);
+        }
+        
+        // Otherwise show the news list
         return (
           <div className="news-section">
             <div className="section-header">
@@ -260,8 +980,17 @@ const AstroHub: React.FC = () => {
                     </div>
                     <h3 className="news-card__title">{article.title}</h3>
                     <p className="news-card__summary">{article.summary}</p>
-                    <Button variant="secondary" size="small" className="news-card__read-more">
-                      Read Full Article
+                    <div className="news-card__stats">
+                      <span className="news-card__likes">{article.likes} likes</span>
+                      <span className="news-card__comments">{article.comments} comments</span>
+                    </div>
+                    <Button 
+                      variant="secondary" 
+                      size="small" 
+                      className="news-card__read-more"
+                      onClick={() => handleViewNewsDetails(article)}
+                    >
+                      View More Details
                     </Button>
                   </div>
                 </div>

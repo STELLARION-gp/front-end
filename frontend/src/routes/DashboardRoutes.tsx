@@ -23,6 +23,11 @@ import MediaUploadPanel from '../pages/guide/MediaUploadPanel';
 import MentorProfile from '../pages/mentor/MentorProfile';
 import EditMentor from '../pages/mentor/EditMentor';
 
+import GuideMediaDashboard from '../pages/guide/GuideMediaDashboard';
+import MentorProfile from '../pages/mentor/MentorProfile';
+import BookingRequests from '../pages/guide/BookingRequests';
+import ConfirmedBookings from '../pages/guide/ConfirmedBookings';
+
 import BookingRequests from '../pages/guide/BookingRequests';
 import AstroHub from '../pages/enthuasist/AstroHub';
 import CelestialEventsPage from '../pages/learner/Celestial_Events_Page';
@@ -197,10 +202,15 @@ const DashboardRoutes = () => {
             <Route
                 path="booking-requests"
                 element={
-                    <RoleGuard allowedRoles={['learner', 'enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin']}>
+                    <RoleGuard allowedRoles={['influencer', 'guide', 'moderator', 'admin']}>
                         <BookingRequests />
                     </RoleGuard>
                 }
+            />
+
+            <Route
+                path="confirmed-bookings"
+                element={<ConfirmedBookings />}
             />
 
             <Route
@@ -219,6 +229,15 @@ const DashboardRoutes = () => {
 
             <Route
                 path="media"
+                element={
+                    <RoleGuard allowedRoles={['guide', 'admin']}>
+                        <GuideMediaDashboard />
+                    </RoleGuard>
+                }
+            />
+
+            <Route
+                path="media/upload"
                 element={
                     <RoleGuard allowedRoles={['guide', 'admin']}>
                         <MediaUploadPanel />

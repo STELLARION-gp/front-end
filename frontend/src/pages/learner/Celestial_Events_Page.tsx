@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import SpaceEventCard from "../../components/Learner/SpaceEvent";
+import Button from "../../components/Button";
 import "../../styles/pages/learner/Celestial_Events_Page.scss";
 
 const upcomingEvents = [
@@ -17,23 +18,93 @@ const previousEvents = [
   { id: 9, event: "Stargazing Night", date: "2025-06-15", category: "meetup" },
 ];
 
-const CelestialEventsPage: React.FC = () => (
-  <div className="celestial-events-page">
-    <h2>Upcoming Celestial Events</h2>
-    <p>Stay up to date with the most exciting astronomical happenings visible from Earth.</p>
-    <div className="celestial-events-list upcoming">
-      {upcomingEvents.map(ev => (
-        <SpaceEventCard key={ev.id} event={ev} />
-      ))}
+const CelestialEventsPage: React.FC = () => {
+  const [showFilters, setShowFilters] = useState(false);
+  const [filters, setFilters] = useState({
+    location: '',
+    dateFrom: '',
+    dateTo: ''
+  });
+
+  const handleFilterChange = (field: string, value: string) => {
+    setFilters(prev => ({ ...prev, [field]: value }));
+  };
+  const handleClearFilters = () => {
+    setFilters({ location: '', dateFrom: '', dateTo: '' });
+  };
+
+  const filterEvents = (events: typeof upcomingEvents) => {
+    return events.filter(ev => {
+      if (filters.location && !ev.event.toLowerCase().includes(filters.location.toLowerCase())) return false;
+      if (filters.dateFrom && new Date(ev.date) < new Date(filters.dateFrom)) return false;
+      if (filters.dateTo && new Date(ev.date) > new Date(filters.dateTo)) return false;
+      return true;
+    });
+  };
+
+  const filteredUpcoming = filterEvents(upcomingEvents);
+  const filteredPrevious = filterEvents(previousEvents);
+
+  return (
+    <div className="celestial-events-page">
+      <div className="celestial-events-filter-bar">
+        <Button variant="secondary" size="small" onClick={() => setShowFilters(f => !f)}>
+          {showFilters ? 'Hide Filters' : 'Show Filters'}
+        </Button>
+      </div>
+      {showFilters && (
+        <div className="celestial-events-filters">
+          <div className="celestial-events-filters__row">
+            <div className="celestial-events-filters__group">
+              <label htmlFor="locationFilter">Location/Name</label>
+              <input
+                type="text"
+                id="locationFilter"
+                value={filters.location}
+                onChange={e => handleFilterChange('location', e.target.value)}
+                placeholder="Search by event name..."
+              />
+            </div>
+            <div className="celestial-events-filters__group">
+              <label htmlFor="dateFromFilter">From Date</label>
+              <input
+                type="date"
+                id="dateFromFilter"
+                value={filters.dateFrom}
+                onChange={e => handleFilterChange('dateFrom', e.target.value)}
+              />
+            </div>
+            <div className="celestial-events-filters__group">
+              <label htmlFor="dateToFilter">To Date</label>
+              <input
+                type="date"
+                id="dateToFilter"
+                value={filters.dateTo}
+                onChange={e => handleFilterChange('dateTo', e.target.value)}
+              />
+            </div>
+            <div className="celestial-events-filters__actions">
+              <Button variant="secondary" size="small" onClick={handleClearFilters}>Clear</Button>
+            </div>
+          </div>
+        </div>
+      )}
+      <h2>Upcoming Celestial Events</h2>
+      <p>Stay up to date with the most exciting astronomical happenings visible from Earth.</p>
+      <div className="celestial-events-list upcoming">
+        {filteredUpcoming.map(ev => (
+          <SpaceEventCard key={ev.id} event={ev} />
+        ))}
+      </div>
+      <h2>Previous Celestial Events</h2>
+      <p>A look back at recent celestial events and gatherings you may have missed.</p>
+      <div className="celestial-events-list">
+        {filteredPrevious.map(ev => (
+          <SpaceEventCard key={ev.id} event={ev} />
+        ))}
+      </div>
     </div>
-    <h2>Previous Celestial Events</h2>
-    <p>A look back at recent celestial events and gatherings you may have missed.</p>
-    <div className="celestial-events-list">
-      {previousEvents.map(ev => (
-        <SpaceEventCard key={ev.id} event={ev} />
-      ))}
-    </div>
-  </div>
-);
+  );
+};
 
 export default CelestialEventsPage;

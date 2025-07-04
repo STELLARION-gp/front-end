@@ -9,7 +9,7 @@ interface ButtonProps {
   children: React.ReactNode;
   px?: string;
   white?: boolean;
-  variant?: "primary" | "secondary" | "success" | "warning" | "danger" | "border";
+  variant?: "primary" | "secondary" | "success" | "warning" | "danger" | "border" | "ghost";
   size?: "small" | "medium" | "large";
   type?: "button" | "submit" | "reset";
   disabled?: boolean;

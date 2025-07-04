@@ -5,6 +5,7 @@ import Profile from '../pages/Profile';
 import Settings from '../pages/Settings';
 import DashboardOverview from '../pages/DashboardOverview';
 import Button from '../components/Button';
+
 import Preview from '../pages/learner/Preview';
 import BlogExplore from '../pages/learner/Blog_Explore';
 import BlogDetailedPageWrapper from '../pages/learner/BlogDetailedPageWrapper';
@@ -23,8 +24,8 @@ import MentorProfile from '../pages/mentor/MentorProfile';
 import EditMentor from '../pages/mentor/EditMentor';
 
 import BookingRequests from '../pages/guide/BookingRequests';
+import AstroHub from '../pages/enthuasist/AstroHub';
 import CelestialEventsPage from '../pages/learner/Celestial_Events_Page';
-
 
 // Create placeholder components for different pages - all memoized
 // const BlogsPage = memo(() => (
@@ -128,9 +129,9 @@ const DashboardRoutes = () => {
                 </RoleGuard>} 
             />
             <Route 
-            path="overview" 
+            path="dashboard-overview" 
             element={
-                <RoleGuard allowedRoles={['enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin', 'learner']}>
+                <RoleGuard allowedRoles={['enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin']}>
                     <DashboardOverview />
                 </RoleGuard>} 
             />
@@ -295,6 +296,15 @@ const DashboardRoutes = () => {
                 }
             />
 
+            
+                <Route
+                path="astrohub"
+                element={
+                    <RoleGuard allowedRoles={['enthusiast']}>
+                        <AstroHub />
+                    </RoleGuard>
+                }
+            />
 
 
             {/* Default redirect to overview */}

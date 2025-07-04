@@ -52,6 +52,7 @@ export const PAGE_ACCESS_CONTROL = {
     '/dashboard/night-camps': ['enthusiast', 'influencer','learner','moderator', 'admin','mentor'] as UserRole[],
     '/dashboard/stargazing': ['enthusiast', 'influencer','admin', 'learner','mentor','moderator'] as UserRole[],
     '/dashboard/booking-requests': ['guide'] as UserRole[],
+    '/dashboard/astrohub': ['enthusiast'] as UserRole[],
     
 
 };
@@ -79,7 +80,7 @@ export const ROLE_BASED_MENU_ITEMS = {
         { label: 'Night Camps', icon: 'MoonIcon', href: '/dashboard/night-camps' },
         { label: 'Stargazing Spot', icon: 'StarIcon', href: '/dashboard/stargazing' },
         { label: 'Blogs', icon: 'BookOpenIcon', href: '/dashboard/blogs' },
-        { label: 'Chat', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/chat' },
+        { label: 'Astro Hub', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/astrohub' },
         { label: 'Settings', icon: 'Cog6ToothIcon', href: '/dashboard/settings' },
     ],
     influencer: [

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../../components/Button';
 import Card from '../../components/Card';
-import { Image, Video, Eye, Heart, Upload, Search, Grid, List, Folder, Filter, ArrowUpDown, Play, Download, Share, X } from 'lucide-react';
+import { Image, Video, Eye, Heart, Upload, Search, Grid, List, Folder, Filter, ArrowUpDown, Play, Download, Share, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import '../../styles/pages/guide/_guideMediaDashboard.scss';
 
 interface MediaItem {
@@ -291,8 +291,26 @@ const mockMediaData: MediaItem[] = [
     views: 645,
     likes: 107,
     description: "Expanding shock waves from an ancient supernova explosion"
+  },
+    {
+    id: 19,
+    title: "Supernova Remnant",
+    type: "image" as const,
+    url: "https://picsum.photos/800/600?random=18",
+    thumbnail: "https://picsum.photos/400/300?random=18",
+    tour: "Stellar Evolution Workshop",
+    location: "Keck Observatory",
+    date: "2025-05-01",
+    tags: ["supernova", "remnant", "shock-wave", "stellar-death"],
+    size: "11.2 MB",
+    views: 645,
+    likes: 107,
+    description: "Expanding shock waves from an ancient supernova explosion"
   }
 ];
+
+// Pagination constants
+const ITEMS_PER_PAGE = 18;
 
 const GuideMediaDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -304,6 +322,7 @@ const GuideMediaDashboard: React.FC = () => {
   const [selectedMedia, setSelectedMedia] = useState<MediaItem | null>(null);
   const [selectedTour, setSelectedTour] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'date' | 'views' | 'likes' | 'title'>('date');
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Body scroll lock for modal
   useEffect(() => {
@@ -359,6 +378,16 @@ const GuideMediaDashboard: React.FC = () => {
     return filtered;
   }, [searchTerm, selectedFilter, selectedTour, sortBy]);
 
+  // Pagination logic
+  const totalPages = Math.ceil(filteredAndSortedMedia.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedMedia = filteredAndSortedMedia.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+  // Reset to first page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedFilter, selectedTour, searchTerm, sortBy]);
+
   // Statistics
   const stats = useMemo(() => ({
     total: mockMediaData.length,
@@ -387,7 +416,7 @@ const GuideMediaDashboard: React.FC = () => {
   };
 
   return (
-    <div className="dashboard-page">
+    <div className="dashboard-page-new">
       {/* Page Header */}
       <div className="page-header">
         <h2>Media Gallery</h2>
@@ -544,8 +573,8 @@ const GuideMediaDashboard: React.FC = () => {
 
       {/* Media Gallery */}
       <div className={`media-gallery ${viewMode}`}>
-        {filteredAndSortedMedia.length > 0 ? (
-          filteredAndSortedMedia.map((item) => (
+        {paginatedMedia.length > 0 ? (
+          paginatedMedia.map((item) => (
             <div
               key={item.id}
               className="media-item"
@@ -633,6 +662,45 @@ const GuideMediaDashboard: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="pagination-controls" >
+          <Button
+            onClick={() => {
+              console.log('Previous clicked, currentPage:', currentPage);
+              setCurrentPage(prev => Math.max(prev - 1, 1));
+            }}
+              variant="primary" 
+              size="medium"
+              disabled={currentPage === 1}            
+          >
+            <ChevronLeft className="w-4 h-4" />
+            PREV
+          </Button>
+          
+          <div className="pagination-info">
+            <span className="current-page">
+              Page {currentPage} of {totalPages}
+            </span>
+            <span className="items-info">
+              Showing {startIndex + 1}-{Math.min(startIndex + ITEMS_PER_PAGE, filteredAndSortedMedia.length)} of {filteredAndSortedMedia.length} items
+            </span>
+          </div>
+          
+          <Button
+            onClick={() => {
+              console.log('Next clicked, currentPage:', currentPage);
+              setCurrentPage(prev => Math.min(prev + 1, totalPages));
+            }}
+              variant="primary" 
+              size="medium"
+          >
+            NEXT
+          <ChevronRight className="w-4 h-4" />
+          </Button>
+        </div>
+      )}
 
       {/* Media Preview Modal */}
       {selectedMedia && (

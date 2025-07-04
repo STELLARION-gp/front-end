@@ -5,7 +5,7 @@ export const getDashboardRoute = (userProfile: UserProfile | null): string => {
 
     // All users go to the same dashboard, but with role-based sidebar and content
     console.log('🚀 Redirecting all users to: /dashboard');
-    return '/dashboard';
+    return '/dashboard/overview';
 };
 
 export const getRoleName = (role: string): string => {

@@ -5,6 +5,7 @@ import Profile from '../pages/Profile';
 import Settings from '../pages/Settings';
 import DashboardOverview from '../pages/DashboardOverview';
 import Button from '../components/Button';
+
 import Preview from '../pages/learner/Preview';
 import BlogExplore from '../pages/learner/Blog_Explore';
 import BlogDetailedPageWrapper from '../pages/learner/BlogDetailedPageWrapper';
@@ -18,11 +19,19 @@ import ServiceListing from '../pages/guide/ServiceListing';
 import CreateService from '../pages/guide/CreateService';
 import SetAvailability from '../pages/guide/SetAvailability';
 import MediaUploadPanel from '../pages/guide/MediaUploadPanel';
+
+import MentorProfile from '../pages/mentor/MentorProfile';
+import EditMentor from '../pages/mentor/EditMentor';
+
 import GuideMediaDashboard from '../pages/guide/GuideMediaDashboard';
 import MentorProfile from '../pages/mentor/MentorProfile';
 import BookingRequests from '../pages/guide/BookingRequests';
 import ConfirmedBookings from '../pages/guide/ConfirmedBookings';
 
+import BookingRequests from '../pages/guide/BookingRequests';
+import AstroHub from '../pages/enthuasist/AstroHub';
+import CelestialEventsPage from '../pages/learner/Celestial_Events_Page';
+import AstronomySessionsPage from '../pages/learner/AstronomySessionsPage';
 
 // Create placeholder components for different pages - all memoized
 // const BlogsPage = memo(() => (
@@ -69,12 +78,7 @@ const ChatPage = memo(() => (
     </div>
 ));
 
-const SessionsPage = memo(() => (
-    <div className="dashboard-page">
-        <h2>Learning Sessions</h2>
-        <p>Manage your learning and teaching sessions.</p>
-    </div>
-));
+
 
 const ModerationPage = memo(() => (
     <div className="dashboard-page">
@@ -126,9 +130,9 @@ const DashboardRoutes = () => {
                 </RoleGuard>} 
             />
             <Route 
-            path="overview" 
+            path="dashboard-overview" 
             element={
-                <RoleGuard allowedRoles={['enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin', 'learner']}>
+                <RoleGuard allowedRoles={['enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin']}>
                     <DashboardOverview />
                 </RoleGuard>} 
             />
@@ -151,7 +155,16 @@ const DashboardRoutes = () => {
                     </RoleGuard>
                 }
             />
-            <Route
+            <Route 
+                path="sessions"
+                element={
+                    <RoleGuard allowedRoles={['learner']}>
+                        <AstronomySessionsPage />
+                    </RoleGuard>
+                }
+            />
+
+                <Route
                 path="nasa-content"
                 element={
                     <RoleGuard allowedRoles={['learner']}>
@@ -159,7 +172,14 @@ const DashboardRoutes = () => {
                     </RoleGuard>
                 }
             />
-
+            <Route
+                path="celestial-events"
+                element={
+                    <RoleGuard allowedRoles={['learner']}>
+                        <CelestialEventsPage />
+                    </RoleGuard>
+                }
+            />
             <Route
                 path="mentor"
                 element={
@@ -228,15 +248,7 @@ const DashboardRoutes = () => {
 
             <Route path="chat" element={<ChatPage />} />
 
-            <Route
-                path="sessions"
-                element={
-                    <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
-                        <SessionsPage />
-                    </RoleGuard>
-                }
-            />
-
+            
             <Route
                 path="moderation"
                 element={
@@ -273,7 +285,14 @@ const DashboardRoutes = () => {
                 }
             />
 
-
+            <Route
+                path="editmentor"
+                element={
+                    <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
+                        <EditMentor />
+                    </RoleGuard>
+                }
+            />
 
             <Route
                 path="night-camps"
@@ -293,6 +312,15 @@ const DashboardRoutes = () => {
                 }
             />
 
+            
+                <Route
+                path="astrohub"
+                element={
+                    <RoleGuard allowedRoles={['enthusiast']}>
+                        <AstroHub />
+                    </RoleGuard>
+                }
+            />
 
 
             {/* Default redirect to overview */}

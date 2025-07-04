@@ -443,10 +443,10 @@ const Stargazing: React.FC = () => {
         {filteredSpots.map((spot) => (
           <div key={spot.id} className="stargazing-card">
             <div className="stargazing-card__rating-badge">
+              <span className="stargazing-card__rating-value">{spot.rating.toFixed(1)}</span>
               <div className="stargazing-card__stars">
                 {renderStars(Math.floor(spot.rating))}
               </div>
-              <span className="stargazing-card__rating-value">{spot.rating}</span>
             </div>
             
             <div className="stargazing-card__image-container">
@@ -502,10 +502,10 @@ const Stargazing: React.FC = () => {
                   <span>{selectedSpot.location}</span>
                 </div>
                 <div className="stargazing-modal__rating">
+                  <span className="stargazing-modal__rating-value">{selectedSpot.rating.toFixed(1)}</span>
                   <div className="stargazing-modal__stars">
                     {renderStars(Math.floor(selectedSpot.rating))}
                   </div>
-                  <span className="stargazing-modal__rating-value">{selectedSpot.rating}/5.0</span>
                 </div>
               </div>
             </div>
@@ -609,6 +609,7 @@ const Stargazing: React.FC = () => {
                         <div className="review-item__user-info">
                           <span className="review-item__user-name">{review.userName}</span>
                           <div className="review-item__rating">
+                            <span className="review-item__rating-value">{review.rating.toFixed(1)}</span>
                             {renderStars(review.rating)}
                           </div>
                         </div>

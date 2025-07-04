@@ -6,7 +6,15 @@ import { eventLocations, eventComments } from "./celestialEventMockData";
 import "../../styles/pages/learner/Celestial_Events_Page.scss";
 import "../../styles/pages/enthusiast/NightCamps.scss";
 
-const upcomingEvents = [
+// Define a type for celestial events
+export type CelestialEvent = {
+  id: number;
+  event: string;
+  date: string;
+  category: string;
+};
+
+const upcomingEvents: CelestialEvent[] = [
   { id: 1, event: "Perseid Meteor Shower Peak", date: "2025-08-12", category: "meteor" },
   { id: 2, event: "Partial Lunar Eclipse", date: "2025-09-07", category: "eclipse" },
   { id: 3, event: "Supermoon", date: "2025-10-17", category: "moon" },
@@ -14,7 +22,7 @@ const upcomingEvents = [
   { id: 5, event: "Astronomy Club Meetup", date: "2025-11-05", category: "meetup" },
 ];
 
-const previousEvents = [
+const previousEvents: CelestialEvent[] = [
   { id: 6, event: "Total Solar Eclipse", date: "2024-04-08", category: "eclipse" },
   { id: 7, event: "Eta Aquarids Meteor Shower", date: "2025-05-06", category: "meteor" },
   { id: 8, event: "Blue Moon", date: "2025-07-21", category: "moon" },
@@ -29,7 +37,7 @@ const CelestialEventsPage: React.FC = () => {
     dateTo: ''
   });
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState<any>(null);
+  const [selectedEvent, setSelectedEvent] = useState<CelestialEvent | null>(null);
   const [favoriteEvents, setFavoriteEvents] = useState<number[]>([]);
   const [comments, setComments] = useState(eventComments);
 
@@ -52,7 +60,7 @@ const CelestialEventsPage: React.FC = () => {
   const filteredUpcoming = filterEvents(upcomingEvents);
   const filteredPrevious = filterEvents(previousEvents);
 
-  const handleOpenModal = (ev: any) => {
+  const handleOpenModal = (ev: CelestialEvent) => {
     setSelectedEvent(ev);
     setModalOpen(true);
   };

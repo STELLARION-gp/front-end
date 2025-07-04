@@ -737,3 +737,63 @@
     margin-bottom: 1rem;
   }
 }
+
+// Confirmation View Styles
+.confirmation-view {
+  text-align: center;
+  padding: 2rem 1rem;
+
+  .confirmation-icon {
+    margin: 0 auto 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 5rem;
+    height: 5rem;
+    background: rgba(16, 185, 129, 0.1);
+    border-radius: 50%;
+    border: 2px solid rgba(16, 185, 129, 0.3);
+
+    svg {
+      width: 4rem;
+      height: 4rem;
+      color: #10b981;
+    }
+  }
+
+  h3 {
+    color: #f1f5f9;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+
+  p {
+    color: #cbd5e1;
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+
+    strong {
+      color: #3b82f6;
+      font-weight: 600;
+    }
+  }
+
+  .selected-role-confirmation {
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 1.5rem;
+    color: #93c5fd;
+    font-weight: 600;
+
+    strong {
+      color: #3b82f6;
+    }
+  }
+}

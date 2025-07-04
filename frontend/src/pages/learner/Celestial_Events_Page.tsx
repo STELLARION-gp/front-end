@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import SpaceEventCard from "../../components/Learner/SpaceEvent";
 import Button from "../../components/Button";
+import CelestialEventModal from "../../components/Learner/CelestialEventModal";
+import { eventLocations, eventComments } from "./celestialEventMockData";
 import "../../styles/pages/learner/Celestial_Events_Page.scss";
+import "../../styles/pages/enthusiast/NightCamps.scss";
 
 const upcomingEvents = [
   { id: 1, event: "Perseid Meteor Shower Peak", date: "2025-08-12", category: "meteor" },
@@ -25,6 +28,10 @@ const CelestialEventsPage: React.FC = () => {
     dateFrom: '',
     dateTo: ''
   });
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<any>(null);
+  const [favoriteEvents, setFavoriteEvents] = useState<number[]>([]);
+  const [comments, setComments] = useState(eventComments);
 
   const handleFilterChange = (field: string, value: string) => {
     setFilters(prev => ({ ...prev, [field]: value }));
@@ -44,6 +51,31 @@ const CelestialEventsPage: React.FC = () => {
 
   const filteredUpcoming = filterEvents(upcomingEvents);
   const filteredPrevious = filterEvents(previousEvents);
+
+  const handleOpenModal = (ev: any) => {
+    setSelectedEvent(ev);
+    setModalOpen(true);
+  };
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    setSelectedEvent(null);
+  };
+  const handleAddComment = (comment: { rating: number; text: string }) => {
+    if (!selectedEvent) return;
+    setComments(prev => ({
+      ...prev,
+      [selectedEvent.id]: [
+        ...(prev[selectedEvent.id] || []),
+        { id: Date.now(), user: "You", ...comment }
+      ]
+    }));
+  };
+  const handleToggleFavorite = () => {
+    if (!selectedEvent) return;
+    setFavoriteEvents(favs => favs.includes(selectedEvent.id)
+      ? favs.filter(id => id !== selectedEvent.id)
+      : [...favs, selectedEvent.id]);
+  };
 
   return (
     <div className="celestial-events-page">
@@ -93,16 +125,44 @@ const CelestialEventsPage: React.FC = () => {
       <p>Stay up to date with the most exciting astronomical happenings visible from Earth.</p>
       <div className="celestial-events-list upcoming">
         {filteredUpcoming.map(ev => (
-          <SpaceEventCard key={ev.id} event={ev} />
+          <SpaceEventCard key={ev.id} event={ev} onClick={() => handleOpenModal(ev)} />
         ))}
       </div>
       <h2>Previous Celestial Events</h2>
       <p>A look back at recent celestial events and gatherings you may have missed.</p>
       <div className="celestial-events-list">
         {filteredPrevious.map(ev => (
-          <SpaceEventCard key={ev.id} event={ev} />
+          <SpaceEventCard key={ev.id} event={ev} onClick={() => handleOpenModal(ev)} />
         ))}
       </div>
+      <CelestialEventModal
+        open={modalOpen}
+        onClose={handleCloseModal}
+        event={selectedEvent ? {
+          title: selectedEvent.event,
+          date: selectedEvent.date,
+          category: selectedEvent.category,
+          description: `Details about ${selectedEvent.event}.`,
+          locations: eventLocations[selectedEvent.id] || ["Worldwide"]
+        } : {
+          title: "",
+          date: "",
+          category: "",
+          description: "",
+          locations: []
+        }}
+        comments={selectedEvent ? comments[selectedEvent.id] || [] : []}
+        onAddComment={handleAddComment}
+        isFavorite={selectedEvent ? favoriteEvents.includes(selectedEvent.id) : false}
+        onToggleFavorite={handleToggleFavorite}
+        modalClassName="join-modal"
+        contentClassName="join-modal__content"
+        headerClassName="join-modal__header"
+        titleClassName="join-modal__title"
+        closeClassName="join-modal__close"
+        infoClassName="join-modal__camp-info"
+        detailsClassName="join-modal__camp-details"
+      />
     </div>
   );
 };

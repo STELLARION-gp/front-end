@@ -9,7 +9,8 @@ import {
   StarIcon,
   TrophyIcon,
   CheckCircleIcon,
-  PlusIcon
+  PlusIcon,
+  XMarkIcon
 } from '@heroicons/react/24/outline'
 import '../../styles/pages/enthusiast/Volunteering.scss'
 
@@ -46,6 +47,17 @@ interface UserVolunteerRecord {
 const Volunteering = () => {
   const [activeTab, setActiveTab] = useState<ActiveTab>('upcoming')
   const [selectedFilters, setSelectedFilters] = useState<string[]>([])
+  const [showRegistrationModal, setShowRegistrationModal] = useState(false)
+  const [selectedOpportunity, setSelectedOpportunity] = useState<VolunteerOpportunity | null>(null)
+  const [selectedRole, setSelectedRole] = useState<string>('')
+  const [registrationData, setRegistrationData] = useState({
+    motivation: '',
+    experience: '',
+    availability: '',
+    emergencyContact: ''
+  })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [showConfirmation, setShowConfirmation] = useState(false)
 
   // Mock data for volunteer opportunities
   const volunteerOpportunities: VolunteerOpportunity[] = [
@@ -190,8 +202,65 @@ const Volunteering = () => {
   )
 
   const handleRegisterVolunteering = (opportunityId: number) => {
-    // Handle volunteer registration logic
-    console.log('Registering for opportunity:', opportunityId)
+    const opportunity = volunteerOpportunities.find(op => op.id === opportunityId)
+    if (opportunity) {
+      setSelectedOpportunity(opportunity)
+      setSelectedRole(opportunity.roles[0] || '')
+      setShowRegistrationModal(true)
+    }
+  }
+
+  const handleCloseRegistrationModal = () => {
+    setShowRegistrationModal(false)
+    setSelectedOpportunity(null)
+    setSelectedRole('')
+    setIsSubmitting(false)
+    setShowConfirmation(false)
+    setRegistrationData({
+      motivation: '',
+      experience: '',
+      availability: '',
+      emergencyContact: ''
+    })
+  }
+
+  const handleRegistrationSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    // Basic validation
+    if (!selectedRole || !registrationData.motivation.trim() || 
+        !registrationData.availability.trim() || !registrationData.emergencyContact.trim()) {
+      alert('Please fill in all required fields.')
+      return
+    }
+
+    setIsSubmitting(true)
+    
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      
+      // Show success confirmation
+      setShowConfirmation(true)
+      setIsSubmitting(false)
+      
+      // Auto-close after 3 seconds
+      setTimeout(() => {
+        handleCloseRegistrationModal()
+      }, 3000)
+      
+    } catch (error) {
+      console.error('Registration failed:', error)
+      setIsSubmitting(false)
+      alert('Registration failed. Please try again.')
+    }
+  }
+
+  const handleRegistrationDataChange = (field: string, value: string) => {
+    setRegistrationData(prev => ({
+      ...prev,
+      [field]: value
+    }))
   }
 
   const handleCancelRegistration = (registrationId: number) => {
@@ -543,6 +612,186 @@ const Volunteering = () => {
       <div className="volunteering__content">
         {renderTabContent()}
       </div>
+
+      {/* Registration Modal */}
+      {showRegistrationModal && selectedOpportunity && (
+        <div className="registration-modal-backdrop" onClick={handleCloseRegistrationModal}>
+          <div className="registration-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="registration-modal__header">
+              <h2>Register for Volunteering</h2>
+              <button 
+                className="registration-modal__close"
+                onClick={handleCloseRegistrationModal}
+              >
+                <XMarkIcon className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="registration-modal__content">
+              {showConfirmation ? (
+                // Success Confirmation View
+                <div className="confirmation-view">
+                  <div className="confirmation-icon">
+                    <CheckCircleIcon className="w-16 h-16 text-green-500" />
+                  </div>
+                  <h3>Registration Successful!</h3>
+                  <p>
+                    Your volunteer registration for <strong>{selectedOpportunity.title}</strong> has been submitted successfully.
+                  </p>
+                  <p>
+                    You will receive a confirmation email shortly with next steps and event details.
+                  </p>
+                  <div className="selected-role-confirmation">
+                    <strong>Selected Role:</strong> {selectedRole}
+                  </div>
+                </div>
+              ) : (
+                // Registration Form View
+                <>
+                  {/* Event Information */}
+                  <div className="event-info-section">
+                    <h3>Event Details</h3>
+                    <div className="event-summary">
+                      <h4>{selectedOpportunity.title}</h4>
+                      <p className="organization">{selectedOpportunity.organization}</p>
+                      
+                      <div className="event-meta">
+                        <div className="meta-item">
+                          <CalendarIcon className="meta-icon" />
+                          <span>{new Date(selectedOpportunity.date).toLocaleDateString()}</span>
+                        </div>
+                        <div className="meta-item">
+                          <ClockIcon className="meta-icon" />
+                          <span>{selectedOpportunity.time}</span>
+                        </div>
+                        <div className="meta-item">
+                          <MapPinIcon className="meta-icon" />
+                          <span>{selectedOpportunity.location}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Registration Form */}
+                  <form className="registration-form" onSubmit={handleRegistrationSubmit}>
+                    {/* Role Selection */}
+                    <div className="form-group">
+                      <label htmlFor="role-select">Preferred Role *</label>
+                      <select
+                        id="role-select"
+                        value={selectedRole}
+                        onChange={(e) => setSelectedRole(e.target.value)}
+                        disabled={isSubmitting}
+                        required
+                      >
+                        {selectedOpportunity.roles.map((role) => (
+                          <option key={role} value={role}>
+                            {role}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Motivation */}
+                    <div className="form-group">
+                      <label htmlFor="motivation">Why do you want to volunteer for this event? *</label>
+                      <textarea
+                        id="motivation"
+                        rows={4}
+                        value={registrationData.motivation}
+                        onChange={(e) => handleRegistrationDataChange('motivation', e.target.value)}
+                        placeholder="Tell us about your motivation and what you hope to contribute..."
+                        disabled={isSubmitting}
+                        required
+                      />
+                    </div>
+
+                    {/* Experience */}
+                    <div className="form-group">
+                      <label htmlFor="experience">Relevant Experience</label>
+                      <textarea
+                        id="experience"
+                        rows={3}
+                        value={registrationData.experience}
+                        onChange={(e) => handleRegistrationDataChange('experience', e.target.value)}
+                        placeholder="Describe any relevant experience or skills..."
+                        disabled={isSubmitting}
+                      />
+                    </div>
+
+                    {/* Availability */}
+                    <div className="form-group">
+                      <label htmlFor="availability">Availability Confirmation *</label>
+                      <textarea
+                        id="availability"
+                        rows={2}
+                        value={registrationData.availability}
+                        onChange={(e) => handleRegistrationDataChange('availability', e.target.value)}
+                        placeholder="Confirm your availability for the entire duration..."
+                        disabled={isSubmitting}
+                        required
+                      />
+                    </div>
+
+                    {/* Emergency Contact */}
+                    <div className="form-group">
+                      <label htmlFor="emergency-contact">Emergency Contact *</label>
+                      <input
+                        type="text"
+                        id="emergency-contact"
+                        value={registrationData.emergencyContact}
+                        onChange={(e) => handleRegistrationDataChange('emergencyContact', e.target.value)}
+                        placeholder="Name and phone number"
+                        disabled={isSubmitting}
+                        required
+                      />
+                    </div>
+
+                    {/* Required Skills Notice */}
+                    {selectedOpportunity.requiredSkills && selectedOpportunity.requiredSkills.length > 0 && (
+                      <div className="required-skills-notice">
+                        <h4>Required Skills for this Role:</h4>
+                        <div className="skills-tags">
+                          {selectedOpportunity.requiredSkills.map((skill, index) => (
+                            <span key={index} className="skill-tag">
+                              {skill}
+                            </span>
+                          ))}
+                        </div>
+                        <p className="skills-disclaimer">
+                          By applying, you confirm that you have experience with the required skills listed above.
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Action Buttons */}
+                    <div className="form-actions">
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={handleCloseRegistrationModal}
+                        disabled={isSubmitting}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        type="submit"
+                        variant="primary"
+                        loading={isSubmitting}
+                        disabled={isSubmitting}
+                        icon={isSubmitting ? undefined : <CheckCircleIcon className="w-4 h-4" />}
+                        iconPosition="left"
+                      >
+                        {isSubmitting ? 'Submitting...' : 'Submit Registration'}
+                      </Button>
+                    </div>
+                  </form>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

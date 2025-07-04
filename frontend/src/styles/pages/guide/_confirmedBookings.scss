@@ -4,11 +4,8 @@
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
   min-height: 100vh;
   color: #e2e8f0;
-  display: grid;
-  grid-template-rows: auto auto auto 1fr;
-  gap: 1.5rem;
-  max-width: 100%;
-  overflow-x: hidden;
+  width: 100%;
+  box-sizing: border-box;
 
   .page-header {
     .header-top {
@@ -123,9 +120,9 @@
   // Charts Grid
   .charts-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto auto;
+    grid-template-columns: repeat(3, 1fr);
     gap: 1.25rem;
+    margin-bottom: 2rem;
 
     .chart-card {
       background: rgba(30, 41, 59, 0.8);
@@ -139,10 +136,6 @@
       &:hover {
         border-color: rgba(147, 51, 234, 0.3);
         box-shadow: 0 8px 25px rgba(147, 51, 234, 0.1);
-      }
-
-      &.wide {
-        grid-column: span 2;
       }
 
       h3 {
@@ -159,12 +152,16 @@
       }
     }
 
+    @media (max-width: 1400px) {
+      grid-template-columns: repeat(2, 1fr);
+      
+      .chart-card:last-child {
+        grid-column: 1 / -1;
+      }
+    }
+
     @media (max-width: 1024px) {
       grid-template-columns: 1fr;
-      
-      .chart-card.wide {
-        grid-column: span 1;
-      }
     }
   }
 
@@ -199,6 +196,8 @@
 
   // Bookings Section
   .bookings-section {
+    width: 100%;
+    
     .table-card {
       background: rgba(30, 41, 59, 0.8);
       border: 1px solid rgba(148, 163, 184, 0.25);
@@ -207,6 +206,7 @@
       -webkit-backdrop-filter: blur(12px);
       backdrop-filter: blur(12px);
       height: fit-content;
+      width: 100%;
 
       .table-header {
         display: flex;
@@ -477,10 +477,6 @@
   @media (max-width: 1024px) {
     .charts-grid {
       grid-template-columns: 1fr;
-
-      .chart-card.wide {
-        grid-column: span 1;
-      }
     }
   }
 }

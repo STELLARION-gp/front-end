@@ -439,7 +439,7 @@ const ConfirmedBookings: React.FC = () => {
           </div>
         </Card>
 
-        <Card className="chart-card wide" variant="outlined">
+        <Card className="chart-card" variant="outlined">
           <h3>Service Popularity</h3>
           <div className="chart-container">
             <Bar data={servicePopularityData} options={chartOptions} />

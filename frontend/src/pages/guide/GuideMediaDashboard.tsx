@@ -637,85 +637,180 @@ const GuideMediaDashboard: React.FC = () => {
       {/* Media Preview Modal */}
       {selectedMedia && (
         <div className="media-modal" onClick={() => setSelectedMedia(null)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3 className="modal-title">{selectedMedia.title}</h3>
-              <button 
-                className="close-btn"
-                onClick={() => setSelectedMedia(null)}
-                title="Close modal"
-                aria-label="Close modal"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-            
-            <div className="modal-body">
-              <div className="media-preview-large">
-                {selectedMedia.type === 'image' ? (
-                  <img 
-                    src={selectedMedia.url} 
-                    alt={selectedMedia.title}
-                    className="modal-media"
-                    onError={(e) => {
-                      e.currentTarget.src = selectedMedia.thumbnail;
-                    }}
-                  />
-                ) : (
-                  <div className="video-placeholder">
-                    <Play className="w-16 h-16" />
-                    <p>Video preview not available</p>
+          <div className="modal-backdrop" />
+          <div className="modal-container">
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              {/* Modal Header */}
+              <div className="modal-header">
+                <div className="header-content">
+                  <div className="media-type-badge">
+                    {selectedMedia.type === 'image' ? (
+                      <><Image className="w-4 h-4" /> Image</>
+                    ) : (
+                      <><Video className="w-4 h-4" /> Video</>
+                    )}
                   </div>
-                )}
+                  <h2 className="modal-title">{selectedMedia.title}</h2>
+                  <p className="modal-subtitle">
+                    {selectedMedia.tour} • {selectedMedia.location}
+                  </p>
+                </div>
+                <button 
+                  className="close-btn"
+                  onClick={() => setSelectedMedia(null)}
+                  title="Close modal"
+                  aria-label="Close modal"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
               
-              <div className="modal-info">
-                <div className="info-grid">
-                  <div className="info-item">
-                    <span className="info-label">Tour</span>
-                    <span className="info-value">{selectedMedia.tour}</span>
+              {/* Modal Body */}
+              <div className="modal-body">
+                <div className="modal-layout">
+                  {/* Media Preview */}
+                  <div className="media-section">
+                    <div className="media-preview-container">
+                      {selectedMedia.type === 'image' ? (
+                        <img 
+                          src={selectedMedia.url} 
+                          alt={selectedMedia.title}
+                          className="modal-media"
+                          onError={(e) => {
+                            e.currentTarget.src = selectedMedia.thumbnail;
+                          }}
+                        />
+                      ) : (
+                        <div className="video-preview-container">
+                          <img 
+                            src={selectedMedia.thumbnail} 
+                            alt={selectedMedia.title}
+                            className="video-background"
+                          />
+                          <div className="video-overlay-large">
+                            <div className="play-button-large">
+                              <Play className="w-8 h-8" />
+                            </div>
+                            <p className="video-text">Click to play video</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Media Actions */}
+                    <div className="media-actions-bar">
+                      <div className="action-group">
+                        <button 
+                          className="action-button primary"
+                          onClick={(e) => handleDownload(selectedMedia, e)}
+                        >
+                          <Download className="w-4 h-4" />
+                          Download
+                        </button>
+                        <button 
+                          className="action-button secondary"
+                          onClick={(e) => handleShare(selectedMedia, e)}
+                        >
+                          <Share className="w-4 h-4" />
+                          Share
+                        </button>
+                      </div>
+                      <div className="engagement-stats">
+                        <div className="stat-item">
+                          <Eye className="w-4 h-4" />
+                          <span>{selectedMedia.views.toLocaleString()} views</span>
+                        </div>
+                        <div className="stat-item">
+                          <Heart className="w-4 h-4" />
+                          <span>{selectedMedia.likes} likes</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="info-item">
-                    <span className="info-label">Location</span>
-                    <span className="info-value">{selectedMedia.location}</span>
-                  </div>
-                  <div className="info-item">
-                    <span className="info-label">Date</span>
-                    <span className="info-value">{new Date(selectedMedia.date).toLocaleDateString()}</span>
-                  </div>
-                  <div className="info-item">
-                    <span className="info-label">Size</span>
-                    <span className="info-value">{selectedMedia.size}</span>
-                  </div>
-                  <div className="info-item">
-                    <span className="info-label">Views</span>
-                    <span className="info-value">{selectedMedia.views}</span>
-                  </div>
-                  <div className="info-item">
-                    <span className="info-label">Likes</span>
-                    <span className="info-value">{selectedMedia.likes}</span>
-                  </div>
-                </div>
-                
-                {selectedMedia.description && (
-                  <div className="media-description">
-                    <span className="info-label">Description</span>
-                    <p>{selectedMedia.description}</p>
-                  </div>
-                )}
 
-                <div className="modal-actions">
-                  <Button variant="secondary" size="medium">
-                    Edit Details
-                  </Button>
-                  <Button variant="primary" size="medium">
-                    <Download className="w-4 h-4 mr-2" />
-                    Download
-                  </Button>
-                  <Button variant="primary" size="medium">
-                    <Share className="w-4 h-4 mr-2" />
-                    Share
-                  </Button>
+                  {/* Information Panel */}
+                  <div className="info-section">
+                    <div className="info-content">
+                      {/* Description */}
+                      {selectedMedia.description && (
+                        <div className="description-card">
+                          <h3 className="section-title">Description</h3>
+                          <p className="description-text">{selectedMedia.description}</p>
+                        </div>
+                      )}
+
+                      {/* Details Grid */}
+                      <div className="details-card">
+                        <h3 className="section-title">Details</h3>
+                        <div className="details-grid">
+                          <div className="detail-item">
+                            <div className="detail-icon">
+                              <Folder className="w-4 h-4" />
+                            </div>
+                            <div className="detail-content">
+                              <span className="detail-label">Tour</span>
+                              <span className="detail-value">{selectedMedia.tour}</span>
+                            </div>
+                          </div>
+                          
+                          <div className="detail-item">
+                            <div className="detail-icon">
+                              📍
+                            </div>
+                            <div className="detail-content">
+                              <span className="detail-label">Location</span>
+                              <span className="detail-value">{selectedMedia.location}</span>
+                            </div>
+                          </div>
+                          
+                          <div className="detail-item">
+                            <div className="detail-icon">
+                              📅
+                            </div>
+                            <div className="detail-content">
+                              <span className="detail-label">Date Captured</span>
+                              <span className="detail-value">
+                                {new Date(selectedMedia.date).toLocaleDateString('en-US', {
+                                  year: 'numeric',
+                                  month: 'long',
+                                  day: 'numeric'
+                                })}
+                              </span>
+                            </div>
+                          </div>
+                          
+                          <div className="detail-item">
+                            <div className="detail-icon">
+                              💾
+                            </div>
+                            <div className="detail-content">
+                              <span className="detail-label">File Size</span>
+                              <span className="detail-value">{selectedMedia.size}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Tags */}
+                      <div className="tags-card">
+                        <h3 className="section-title">Tags</h3>
+                        <div className="tags-container">
+                          {selectedMedia.tags.map((tag, index) => (
+                            <span key={index} className="tag">
+                              #{tag}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Edit Button */}
+                      <div className="edit-section">
+                        <Button variant="border" size="medium" className="edit-button">
+                          Edit Details
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

@@ -1,0 +1,128 @@
+// Auth Layout Styles
+.auth-layout-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #050517; // Dark background base
+    overflow: hidden;
+    z-index: 1;
+}
+
+// Add a subtle animation for any stars or particles
+@keyframes twinkle {
+
+    0%,
+    100% {
+        opacity: 0.2;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+// Update the auth-galaxy-background class to ensure proper z-index
+.auth-galaxy-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+
+    canvas {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        pointer-events: none;
+        opacity: 1 !important; // Make sure the canvas is fully visible
+    }
+}
+
+// Enhance the galaxy overlay with star particles
+.auth-galaxy-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    background:
+        radial-gradient(circle at center, transparent 40%, rgba(13, 13, 30, 0.4) 100%),
+        radial-gradient(circle at 80% 20%, rgba(123, 75, 255, 0.2) 0%, transparent 30%),
+        radial-gradient(circle at 20% 80%, rgba(0, 229, 255, 0.2) 0%, transparent 40%);
+    pointer-events: none;
+}
+
+// Ensure the glass card appears above the 3D scene
+.glass-card {
+    z-index: 5 !important; // Higher z-index than the 3D scene
+}
+
+// Style for the galaxy-effect in the card image side
+.card-image-side {
+    position: relative;
+    overflow: hidden;
+
+    .auth-image {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: 1;
+        opacity: 0.85; // Slightly transparent to blend with the galaxy effect
+        // Removed transition and transform effects
+    }
+
+    .galaxy-effect {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        z-index: 2;
+        background:
+            radial-gradient(circle at 30% 30%, rgba(123, 75, 255, 0.4) 0%, transparent 70%),
+            radial-gradient(circle at 70% 70%, rgba(0, 229, 255, 0.4) 0%, transparent 70%),
+            linear-gradient(135deg, rgba(32, 32, 80, 0.6) 0%, rgba(10, 10, 40, 0.7) 100%);
+        mix-blend-mode: screen; // Blend with the image underneath
+        /* Animation removed */
+    }
+
+    .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 3;
+        background: linear-gradient(135deg,
+                rgba(13, 13, 30, 0.5) 0%,
+                rgba(50, 50, 100, 0.2) 50%,
+                rgba(13, 13, 30, 0.5) 100%);
+        mix-blend-mode: color-burn;
+    }
+
+    /* Removed shimmer keyframes animation */
+}
+
+// Additional styles for left-aligned logo
+.card-image-side.left-aligned {
+    .auth-card-logo {
+        right: auto;
+        left: 20px;
+    }
+
+    .overlay {
+        background: linear-gradient(to left,
+                rgba(13, 13, 30, 0.5) 0%,
+                rgba(50, 50, 100, 0.2) 50%,
+                rgba(13, 13, 30, 0.5) 100%);
+    }
+}

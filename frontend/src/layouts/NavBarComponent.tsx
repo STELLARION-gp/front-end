@@ -126,17 +126,18 @@ const NavBarComponent = () => {
 
   const getLanguageIcon = () => {
     console.log('Getting language icon for language:', currentLanguage.code);
-    // Use first letter of language as icon content
+    // Use appropriate letters for each language
     switch (currentLanguage.code) {
       case 'sin':
-        return 'සි'; // First letter of Sinhala
+        return 'සි'; // Sinhala letters
       case 'ta':
-        return 'த'; // First letter of Tamil
+        return 'த'; // Tamil letter
       case 'en':
+        return 'En'; // English
       default:
-        return 'E'; // First letter of English
+        return 'En'; // Default to English
     }
-  };
+  }
 
   const handleLogout = async () => {
     try {
@@ -184,10 +185,6 @@ const NavBarComponent = () => {
               <div className="profile-actions">
                 <Link to="/dashboard/overview" className="dropdown-link">{t('navbar.dashboard')}</Link>
                 <Link to="/dashboard/profile" className="dropdown-link">{t('navbar.profile')}</Link>
-                <Link to="/dashboard/settings" className="dropdown-link">{t('navbar.settings')}</Link>
-                <RoleGuard minimumRole="moderator">
-                  <Link to="/dashboard/admin" className="dropdown-link">{t('navbar.adminPanel')}</Link>
-                </RoleGuard>
                 <button onClick={handleLogout} className="dropdown-link logout">
                   {t('auth.signOut')}
                 </button>
@@ -266,7 +263,7 @@ const NavBarComponent = () => {
         {/* Right Nav - Only auth content in compact mode */}
         {!isCompactMode && (
           <div className="navbar-section right-section">
-            <a href="#" className="nav-link">{t('navbar.team')}</a>
+            {/* <a href="#" className="nav-link">{t('navbar.team')}</a> */}
             <RoleGuard>
               <a href="#" className="nav-link">{t('navbar.explore')}</a>
             </RoleGuard>

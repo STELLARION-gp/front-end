@@ -216,7 +216,7 @@ const Sponsorships: React.FC = () => {
     return true;
   };
 
-  // Mock data for events seeking sponsorship
+  // Mock data for events seeking sponsorship - simplified
   const eventsSeekingSponsorship: SponsorshipEvent[] = [
     {
       id: '1',
@@ -458,9 +458,6 @@ const Sponsorships: React.FC = () => {
                     onClick={() => handleSponsorClick(event)}
                   >
                     Sponsor Now
-                  </Button>
-                  <Button variant="border" size="medium">
-                    Learn More
                   </Button>
                 </div>
               </Card>

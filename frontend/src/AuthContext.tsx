@@ -5,6 +5,8 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   signOut,
   onAuthStateChanged,
   updateProfile,
@@ -104,6 +106,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       console.log('🔄 Auth state changed:', { user: !!firebaseUser, email: firebaseUser?.email });
+      
+      // Check for redirect result first
+      try {
+        const redirectResult = await getRedirectResult(auth);
+        if (redirectResult) {
+          console.log('✅ Google redirect sign-in successful:', redirectResult.user.email);
+          // Handle the redirect result like a normal Google sign-in
+          firebaseUser = redirectResult.user;
+        }
+      } catch (redirectError) {
+        console.error('❌ Error handling redirect result:', redirectError);
+      }
+      
       setUser(firebaseUser);
 
       if (firebaseUser) {
@@ -338,11 +353,35 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       console.log('🔐 Starting Google sign-in process...');
 
-      // Sign in with Google popup
-      const result = await signInWithPopup(auth, googleProvider);
+      // Try popup first, fall back to redirect if it fails
+      let result;
+      try {
+        console.log('🪟 Attempting popup sign-in...');
+        result = await signInWithPopup(auth, googleProvider);
+      } catch (popupError: unknown) {
+        const popupAuthError = popupError as { code?: string; message?: string };
+        console.warn('⚠️ Popup failed, attempting redirect:', popupAuthError.code);
+        
+        if (popupAuthError.code === 'auth/popup-blocked' || 
+            popupAuthError.code === 'auth/popup-closed-by-user') {
+          console.log('🔄 Using redirect method as fallback...');
+          await signInWithRedirect(auth, googleProvider);
+          return null; // Redirect will reload the page
+        } else {
+          throw popupError; // Re-throw if it's a different error
+        }
+      }
+
       const user = result.user;
 
       console.log('✅ Google sign-in successful:', user.email);
+      console.log('🔍 User details:', {
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName,
+        photoURL: user.photoURL,
+        emailVerified: user.emailVerified
+      });
 
       // Check if this is a new user
       const isNewUser = result.user.metadata.creationTime === result.user.metadata.lastSignInTime;
@@ -392,8 +431,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     } catch (error: unknown) {
       console.error('❌ Google sign-in error:', error);
+      console.error('🔍 Full error object:', JSON.stringify(error, null, 2));
 
       const authError = error as { code?: string; message?: string };
+      console.error('🔍 Error code:', authError.code);
+      console.error('🔍 Error message:', authError.message);
 
       // Handle specific Google auth errors
       if (authError.code === 'auth/popup-closed-by-user') {

@@ -164,14 +164,14 @@ const DashboardRoutes = () => {
                     </RoleGuard>
                 }
             />
-            <Route
-                path='upcoming-session/:id'
+            {/* <Route
+                path='sessions/:id'
                 element={
                     <RoleGuard allowedRoles={['learner']}>
                         <UpcomingSessionPage />
                     </RoleGuard>
                 }
-            />
+            /> */}
                 <Route
                 path="nasa-content"
                 element={

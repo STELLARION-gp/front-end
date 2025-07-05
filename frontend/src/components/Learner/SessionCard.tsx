@@ -12,7 +12,7 @@ export interface SessionCardProps {
   description: string;
   rating: number;
   image?: string;
-  onRegister?: () => void;
+  // onRegister?: () => void;
 }
 
 const SessionCard: React.FC<SessionCardProps> = ({
@@ -25,7 +25,7 @@ const SessionCard: React.FC<SessionCardProps> = ({
   description,
   rating,
   image,
-  onRegister,
+  // onRegister,
 }) => (
   <div className="session-card">
     {image && (
@@ -54,7 +54,7 @@ const SessionCard: React.FC<SessionCardProps> = ({
       </span>
     </div>
     <div className="session-card-actions">
-      <Button onClick={onRegister}>Register Now</Button>
+      <Button onClick={() => {}}>Register Now</Button>
       <Button className="session-bookmark-btn">🔔 Reminder</Button>
     </div>
   </div>

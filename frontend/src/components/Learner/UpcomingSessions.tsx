@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import SessionCard from "./SessionCard";
 import { upcomingSessions } from "./upcomingSessionsData";
 import "../../styles/pages/learner/AstronomySessionsPage.scss";
@@ -8,7 +7,7 @@ const UpcomingSessions: React.FC = () => {
   const [search, setSearch] = useState("");
   const [difficulty, setDifficulty] = useState("");
   const [category, setCategory] = useState("");
-  const navigate = useNavigate();
+
 
   const filtered = upcomingSessions.filter((s) =>
     (s.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -54,7 +53,7 @@ const UpcomingSessions: React.FC = () => {
       </div>
       <div className="upcoming-sessions-list">
         {filtered.map((session) => (
-          <SessionCard key={session.id} {...session} onRegister={() => navigate(`/dashboard/upcoming-session/${session.id}`)} />
+          <SessionCard key={session.id} {...session} />
         ))}
         {filtered.length === 0 && <div style={{ color: '#60a5fa', marginTop: '1.5rem', fontSize: '1.1rem' }}>No sessions found.</div>}
       </div>

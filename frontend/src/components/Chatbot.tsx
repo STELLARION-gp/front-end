@@ -37,7 +37,7 @@ const Chatbot: React.FC = () => {
 
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
-    
+
     const messageText = inputValue.trim();
     setInputValue('');
     await sendMessage(messageText);
@@ -51,10 +51,10 @@ const Chatbot: React.FC = () => {
   };
 
   const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('en-US', { 
-      hour: '2-digit', 
+    return date.toLocaleTimeString('en-US', {
+      hour: '2-digit',
       minute: '2-digit',
-      hour12: false 
+      hour12: false
     });
   };
 
@@ -91,7 +91,7 @@ const Chatbot: React.FC = () => {
                 </button>
               </div>
             </div>
-            
+
             {!isMinimized && (
               <>
                 <div className="chatbot-messages">
@@ -128,7 +128,7 @@ const Chatbot: React.FC = () => {
                       onKeyPress={handleKeyPress}
                       disabled={isLoading}
                     />
-                    <button 
+                    <button
                       className={`send-btn ${inputValue.trim() ? 'active' : ''}`}
                       onClick={handleSendMessage}
                       disabled={!inputValue.trim() || isLoading}

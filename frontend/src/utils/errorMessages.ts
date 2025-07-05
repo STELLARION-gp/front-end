@@ -25,7 +25,9 @@ export const getFirebaseErrorMessage = (error: unknown): string => {
         case 'auth/weak-password':
             return 'Password is too weak. Please choose a stronger password with at least 6 characters.';
         case 'auth/operation-not-allowed':
-            return 'Email/password accounts are not enabled. Please contact support.';
+            return 'Google sign-in is not enabled. Please contact support or try email/password sign-in.';
+        case 'auth/admin-restricted-operation':
+            return 'This operation is restricted by the administrator. Please contact support.';
 
         // Google Sign-in errors
         case 'auth/popup-closed-by-user':
@@ -38,6 +40,14 @@ export const getFirebaseErrorMessage = (error: unknown): string => {
             return 'An account already exists with this email using a different sign-in method. Please try signing in with your original method.';
         case 'auth/credential-already-in-use':
             return 'This Google account is already linked to another user.';
+        case 'auth/unauthorized-domain':
+            return 'This domain is not authorized for Google sign-in. Please contact support.';
+        case 'auth/operation-not-supported-in-this-environment':
+            return 'Google sign-in is not supported in this browser environment. Please try a different browser.';
+        case 'auth/auth-domain-config-required':
+            return 'Google sign-in configuration error. Please contact support.';
+        case 'auth/invalid-api-key':
+            return 'Invalid API configuration. Please contact support.';
 
         // Generic errors
         case 'auth/invalid-credential':

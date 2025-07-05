@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CalendarDaysIcon, MapPinIcon, CurrencyDollarIcon, UserGroupIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
+import { CalendarDaysIcon, MapPinIcon, CurrencyDollarIcon, UserGroupIcon, EnvelopeIcon, XMarkIcon, InformationCircleIcon, CreditCardIcon, LockClosedIcon } from '@heroicons/react/24/outline';
 import Button from '../../components/Button';
 import ProgressBar from '../../components/ProgressBar';
 import Card from '../../components/Card';
@@ -35,6 +35,16 @@ const Sponsorships: React.FC = () => {
   const [sponsorMessage, setSponsorMessage] = useState<string>('');
   const [sponsorName, setSponsorName] = useState<string>('');
   const [sponsorEmail, setSponsorEmail] = useState<string>('');
+  
+  // Payment Gateway States
+  const [showPaymentForm, setShowPaymentForm] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<'card' | 'bank' | 'paypal'>('card');
+  const [cardNumber, setCardNumber] = useState('');
+  const [expiryDate, setExpiryDate] = useState('');
+  const [cvv, setCvv] = useState('');
+  const [cardholderName, setCardholderName] = useState('');
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const [paymentError, setPaymentError] = useState<string>('');
 
   const handleSponsorClick = (event: SponsorshipEvent) => {
     setSelectedEvent(event);
@@ -43,34 +53,167 @@ const Sponsorships: React.FC = () => {
 
   const handleSponsorSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Here you would normally send the data to your backend
-    console.log('Sponsor submission:', {
-      event: selectedEvent?.name,
-      amount: sponsorAmount,
-      name: sponsorName,
-      email: sponsorEmail,
-      message: sponsorMessage
-    });
     
-    // Close the form and reset
+    // Validate form data
+    if (!sponsorName || !sponsorEmail || !sponsorAmount) {
+      alert('Please fill in all required fields.');
+      return;
+    }
+
+    const amount = parseFloat(sponsorAmount);
+    if (amount < 100) {
+      alert('Minimum sponsorship amount is LKR 100.');
+      return;
+    }
+
+    // Show payment form
+    setShowPaymentForm(true);
+    setPaymentError('');
+  };
+
+  const handlePaymentSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsProcessingPayment(true);
+    setPaymentError('');
+
+    try {
+      // Validate payment details
+      if (paymentMethod === 'card') {
+        if (!cardNumber || !expiryDate || !cvv || !cardholderName) {
+          throw new Error('Please fill in all card details.');
+        }
+        
+        if (cardNumber.replace(/\s/g, '').length < 16) {
+          throw new Error('Please enter a valid card number.');
+        }
+        
+        if (cvv.length < 3) {
+          throw new Error('Please enter a valid CVV.');
+        }
+      }
+
+      // Process payment
+      await processPayment({
+        amount: parseFloat(sponsorAmount),
+        paymentMethod,
+        cardDetails: paymentMethod === 'card' ? {
+          cardNumber: cardNumber.replace(/\s/g, ''),
+          expiryDate,
+          cvv,
+          cardholderName
+        } : null,
+        sponsorDetails: {
+          name: sponsorName,
+          email: sponsorEmail,
+          message: sponsorMessage
+        },
+        eventId: selectedEvent?.id
+      });
+
+      // Payment successful
+      alert('Payment successful! Thank you for your sponsorship. You will receive a confirmation email shortly.');
+      resetForm();
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Payment failed. Please try again.';
+      setPaymentError(errorMessage);
+      console.error('Payment error:', error);
+    } finally {
+      setIsProcessingPayment(false);
+    }
+  };
+
+  const processPayment = async (paymentData: any): Promise<void> => {
+    // Simulate API call to payment gateway (replace with actual implementation)
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        // Simulate payment validation
+        if (paymentData.amount < 100) {
+          reject(new Error('Amount too low'));
+          return;
+        }
+        
+        if (paymentData.paymentMethod === 'card' && 
+            paymentData.cardDetails?.cardNumber === '4000000000000002') {
+          reject(new Error('Card declined. Please use a different card.'));
+          return;
+        }
+        
+        // Simulate 95% success rate
+        if (Math.random() > 0.05) {
+          resolve(paymentData);
+        } else {
+          reject(new Error('Payment processing failed. Please try again.'));
+        }
+      }, 2000);
+    });
+  };
+
+  const resetForm = () => {
     setShowSponsorForm(false);
+    setShowPaymentForm(false);
     setSponsorAmount('');
     setSponsorMessage('');
     setSponsorName('');
     setSponsorEmail('');
     setSelectedEvent(null);
-    
-    // You could show a success message here
-    alert('Thank you for your sponsorship! Your contribution has been submitted.');
+    setCardNumber('');
+    setExpiryDate('');
+    setCvv('');
+    setCardholderName('');
+    setPaymentMethod('card');
+    setPaymentError('');
   };
 
   const closeSponsorForm = () => {
-    setShowSponsorForm(false);
-    setSponsorAmount('');
-    setSponsorMessage('');
-    setSponsorName('');
-    setSponsorEmail('');
-    setSelectedEvent(null);
+    if (!showPaymentForm) {
+      resetForm();
+    }
+  };
+
+  const goBackToSponsorForm = () => {
+    setShowPaymentForm(false);
+    setPaymentError('');
+  };
+
+  // Card formatting functions
+  const formatCardNumber = (value: string) => {
+    const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+    const matches = v.match(/\d{4,16}/g);
+    const match = matches && matches[0] || '';
+    const parts = [];
+    for (let i = 0, len = match.length; i < len; i += 4) {
+      parts.push(match.substring(i, i + 4));
+    }
+    if (parts.length) {
+      return parts.join(' ');
+    } else {
+      return v;
+    }
+  };
+
+  const formatExpiryDate = (value: string) => {
+    const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+    if (v.length >= 2) {
+      return v.substring(0, 2) + '/' + v.substring(2, 4);
+    }
+    return v;
+  };
+
+  const validateExpiryDate = (value: string) => {
+    const [month, year] = value.split('/');
+    if (!month || !year) return false;
+    
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear() % 100;
+    const currentMonth = currentDate.getMonth() + 1;
+    
+    const expMonth = parseInt(month);
+    const expYear = parseInt(year);
+    
+    if (expMonth < 1 || expMonth > 12) return false;
+    if (expYear < currentYear || (expYear === currentYear && expMonth < currentMonth)) return false;
+    
+    return true;
   };
 
   // Mock data for events seeking sponsorship
@@ -366,85 +509,275 @@ const Sponsorships: React.FC = () => {
         <div className="sponsor-modal-overlay" onClick={closeSponsorForm}>
           <div className="sponsor-modal" onClick={(e) => e.stopPropagation()}>
             <div className="sponsor-modal-header">
-              <h2>Sponsor: {selectedEvent.name}</h2>
-              <button className="close-button" onClick={closeSponsorForm}>
+              <h2>{showPaymentForm ? 'Payment Details' : `Sponsor: ${selectedEvent.name}`}</h2>
+              <button className="close-button" onClick={resetForm}>
                 ×
               </button>
             </div>
             
             <div className="sponsor-modal-body">
-              <div className="event-summary">
-                <p><strong>Event:</strong> {selectedEvent.name}</p>
-                <p><strong>Date:</strong> {formatDate(selectedEvent.date)}</p>
-                <p><strong>Goal:</strong> {formatCurrency(selectedEvent.fundraisingGoal)}</p>
-                <p><strong>Raised:</strong> {formatCurrency(selectedEvent.amountRaised)}</p>
-              </div>
+              {!showPaymentForm ? (
+                <>
+                  <div className="event-summary">
+                    <p><strong>Event:</strong> {selectedEvent.name}</p>
+                    <p><strong>Date:</strong> {formatDate(selectedEvent.date)}</p>
+                    <p><strong>Goal:</strong> {formatCurrency(selectedEvent.fundraisingGoal)}</p>
+                    <p><strong>Raised:</strong> {formatCurrency(selectedEvent.amountRaised)}</p>
+                  </div>
 
-              <form onSubmit={handleSponsorSubmit} className="sponsor-form">
-                <div className="form-group">
-                  <label htmlFor="sponsorName">Full Name *</label>
-                  <input
-                    type="text"
-                    id="sponsorName"
-                    value={sponsorName}
-                    onChange={(e) => setSponsorName(e.target.value)}
-                    required
-                    placeholder="Enter your full name"
-                  />
-                </div>
+                  <form onSubmit={handleSponsorSubmit} className="sponsor-form">
+                    <div className="form-group">
+                      <label htmlFor="sponsorName">Full Name *</label>
+                      <input
+                        type="text"
+                        id="sponsorName"
+                        value={sponsorName}
+                        onChange={(e) => setSponsorName(e.target.value)}
+                        required
+                        placeholder="Enter your full name"
+                      />
+                    </div>
 
-                <div className="form-group">
-                  <label htmlFor="sponsorEmail">Email *</label>
-                  <input
-                    type="email"
-                    id="sponsorEmail"
-                    value={sponsorEmail}
-                    onChange={(e) => setSponsorEmail(e.target.value)}
-                    required
-                    placeholder="Enter your email address"
-                  />
-                </div>
+                    <div className="form-group">
+                      <label htmlFor="sponsorEmail">Email *</label>
+                      <input
+                        type="email"
+                        id="sponsorEmail"
+                        value={sponsorEmail}
+                        onChange={(e) => setSponsorEmail(e.target.value)}
+                        required
+                        placeholder="Enter your email address"
+                      />
+                    </div>
 
-                <div className="form-group">
-                  <label htmlFor="sponsorAmount">Sponsorship Amount (LKR) *</label>
-                  <input
-                    type="number"
-                    id="sponsorAmount"
-                    value={sponsorAmount}
-                    onChange={(e) => setSponsorAmount(e.target.value)}
-                    required
-                    min="100"
-                    placeholder="Enter amount in LKR"
-                  />
-                </div>
+                    <div className="form-group">
+                      <label htmlFor="sponsorAmount">Sponsorship Amount (LKR) *</label>
+                      <input
+                        type="number"
+                        id="sponsorAmount"
+                        value={sponsorAmount}
+                        onChange={(e) => setSponsorAmount(e.target.value)}
+                        required
+                        min="100"
+                        placeholder="Enter amount in LKR"
+                      />
+                    </div>
 
-                <div className="form-group">
-                  <label htmlFor="sponsorMessage">Message (Optional)</label>
-                  <textarea
-                    id="sponsorMessage"
-                    value={sponsorMessage}
-                    onChange={(e) => setSponsorMessage(e.target.value)}
-                    rows={4}
-                    placeholder="Leave a message for the organizers..."
-                  />
-                </div>
+                    <div className="form-group">
+                      <label htmlFor="sponsorMessage">Message (Optional)</label>
+                      <textarea
+                        id="sponsorMessage"
+                        value={sponsorMessage}
+                        onChange={(e) => setSponsorMessage(e.target.value)}
+                        rows={4}
+                        placeholder="Leave a message for the organizers..."
+                      />
+                    </div>
 
-                <div className="form-actions">
-                  <Button 
-                    type="button" 
-                    variant="border" 
-                    onClick={closeSponsorForm}
-                  >
-                    Cancel
-                  </Button>
-                  <Button 
-                    type="submit" 
-                    variant="primary"
-                  >
-                    Submit Sponsorship
-                  </Button>
+                    <div className="form-actions">
+                      <Button 
+                        type="button" 
+                        variant="border" 
+                        onClick={resetForm}
+                      >
+                        Cancel
+                      </Button>
+                      <Button 
+                        type="submit" 
+                        variant="primary"
+                      >
+                        Continue to Payment
+                      </Button>
+                    </div>
+                  </form>
+                </>
+              ) : (
+                <div className="payment-section">
+                  <div className="payment-summary">
+                    <div className="summary-card">
+                      <h3>Payment Summary</h3>
+                      <div className="summary-item">
+                        <span>Event:</span>
+                        <span>{selectedEvent.name}</span>
+                      </div>
+                      <div className="summary-item">
+                        <span>Sponsor:</span>
+                        <span>{sponsorName}</span>
+                      </div>
+                      <div className="summary-item total">
+                        <span>Total Amount:</span>
+                        <span>{formatCurrency(parseFloat(sponsorAmount))}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Payment Method Selection */}
+                  <div className="payment-methods">
+                    <h3>Select Payment Method</h3>
+                    <div className="payment-method-options">
+                      <label className={`payment-option ${paymentMethod === 'card' ? 'selected' : ''}`}>
+                        <input
+                          type="radio"
+                          value="card"
+                          checked={paymentMethod === 'card'}
+                          onChange={(e) => setPaymentMethod(e.target.value as 'card')}
+                        />
+                        <CreditCardIcon className="payment-icon" />
+                        <span>Credit/Debit Card</span>
+                      </label>
+                      
+                      <label className={`payment-option ${paymentMethod === 'bank' ? 'selected' : ''}`}>
+                        <input
+                          type="radio"
+                          value="bank"
+                          checked={paymentMethod === 'bank'}
+                          onChange={(e) => setPaymentMethod(e.target.value as 'bank')}
+                        />
+                        <CreditCardIcon className="payment-icon" />
+                        <span>Bank Transfer</span>
+                      </label>
+                      
+                      <label className={`payment-option ${paymentMethod === 'paypal' ? 'selected' : ''}`}>
+                        <input
+                          type="radio"
+                          value="paypal"
+                          checked={paymentMethod === 'paypal'}
+                          onChange={(e) => setPaymentMethod(e.target.value as 'paypal')}
+                        />
+                        <CreditCardIcon className="payment-icon" />
+                        <span>PayPal</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* Error Message */}
+                  {paymentError && (
+                    <div className="payment-error">
+                      <XMarkIcon className="error-icon" />
+                      <span>{paymentError}</span>
+                    </div>
+                  )}
+
+                  {/* Payment Form */}
+                  <form onSubmit={handlePaymentSubmit} className="payment-form">
+                    {paymentMethod === 'card' && (
+                      <div className="card-details">
+                        <div className="form-group">
+                          <label htmlFor="cardholderName">Cardholder Name *</label>
+                          <input
+                            type="text"
+                            id="cardholderName"
+                            value={cardholderName}
+                            onChange={(e) => setCardholderName(e.target.value)}
+                            required
+                            placeholder="Enter name on card"
+                          />
+                        </div>
+
+                        <div className="form-group">
+                          <label htmlFor="cardNumber">Card Number *</label>
+                          <input
+                            type="text"
+                            id="cardNumber"
+                            value={cardNumber}
+                            onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
+                            required
+                            maxLength={19}
+                            placeholder="1234 5678 9012 3456"
+                          />
+                        </div>
+
+                        <div className="form-row">
+                          <div className="form-group">
+                            <label htmlFor="expiryDate">Expiry Date *</label>
+                            <input
+                              type="text"
+                              id="expiryDate"
+                              value={expiryDate}
+                              onChange={(e) => setExpiryDate(formatExpiryDate(e.target.value))}
+                              required
+                              maxLength={5}
+                              placeholder="MM/YY"
+                            />
+                          </div>
+
+                          <div className="form-group">
+                            <label htmlFor="cvv">CVV *</label>
+                            <input
+                              type="text"
+                              id="cvv"
+                              value={cvv}
+                              onChange={(e) => setCvv(e.target.value.replace(/\D/g, ''))}
+                              required
+                              maxLength={4}
+                              placeholder="123"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {paymentMethod === 'bank' && (
+                      <div className="bank-transfer-info">
+                        <div className="info-card">
+                          <InformationCircleIcon className="info-icon" />
+                          <div>
+                            <h4>Bank Transfer Instructions</h4>
+                            <p>Transfer the amount to the following account:</p>
+                            <div className="bank-details">
+                              <p><strong>Bank:</strong> Stellarion Bank</p>
+                              <p><strong>Account:</strong> 1234-5678-9012</p>
+                              <p><strong>Reference:</strong> SPONSOR-{selectedEvent.id}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {paymentMethod === 'paypal' && (
+                      <div className="paypal-info">
+                        <div className="info-card">
+                          <InformationCircleIcon className="info-icon" />
+                          <div>
+                            <h4>PayPal Payment</h4>
+                            <p>You will be redirected to PayPal to complete your payment securely.</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="security-info">
+                      <LockClosedIcon className="security-icon" />
+                      <span>Your payment information is encrypted and secure</span>
+                    </div>
+
+                    <div className="form-actions">
+                      <Button 
+                        type="button" 
+                        variant="border" 
+                        onClick={goBackToSponsorForm}
+                        disabled={isProcessingPayment}
+                      >
+                        Back
+                      </Button>
+                      <Button 
+                        type="submit" 
+                        variant="primary"
+                        disabled={isProcessingPayment}
+                      >
+                        {isProcessingPayment ? (
+                          <span className="processing">
+                            Processing... 
+                            <div className="spinner"></div>
+                          </span>
+                        ) : (
+                          `Pay ${formatCurrency(parseFloat(sponsorAmount))}`
+                        )}
+                      </Button>
+                    </div>
+                  </form>
                 </div>
-              </form>
+              )}
             </div>
           </div>
         </div>

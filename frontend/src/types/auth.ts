@@ -59,8 +59,12 @@ export interface AuthContextType {
   signup: (email: string, password: string, displayName: string, firstName?: string, lastName?: string) => Promise<void>;
   login: (email: string, password: string) => Promise<UserProfile | null>;
   logout: () => Promise<void>;
+  signInWithGoogle: () => Promise<UserProfile | null>;
   updateUserProfile: (data: Partial<UserProfile['profileData']>) => Promise<void>;
   refreshUserProfile: () => Promise<void>;
+  // Debug and sync helpers
+  getSyncStatus?: () => { pending: number; operations: Array<{ id: string; type: string; retryCount: number; timestamp: number }> };
+  triggerSync?: () => Promise<void>;
 }
 
 // Permission levels based on your backend roles

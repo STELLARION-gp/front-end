@@ -78,11 +78,11 @@ const PollItem: React.FC<Omit<Poll, 'comments'> & { onClick: () => void }> = ({
 };
 
 const SessionIdeasPolls: React.FC = () => {
-  const [selectedPoll, setSelectedPoll] = useState<any | null>(null);
+  const [selectedPoll, setSelectedPoll] = useState<Poll | null>(null);
   const [popupOpen, setPopupOpen] = useState(false);
 
   // Dummy conductor and comments for demo
-  const getConductor = (poll: any) => ({
+  const getConductor = (poll: Poll) => ({
     name: poll.author,
     pic: `https://ui-avatars.com/api/?name=${encodeURIComponent(poll.author)}&background=fbbf24&color=232b3b&size=64`,
   });
@@ -106,7 +106,7 @@ const SessionIdeasPolls: React.FC = () => {
       date: new Date(Date.now() - 2 * 86400000).toISOString(),
     },
   ];
-  const getComments = (poll: any) => poll.commentsList || sampleComments;
+  const getComments = (poll: Poll) => (poll as any).commentsList || sampleComments;
 
   return (
     <div className="session-ideas-polls">

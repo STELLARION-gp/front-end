@@ -29,6 +29,49 @@ interface SponsorshipHistory {
 
 const Sponsorships: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'seeking' | 'history'>('seeking');
+  const [showSponsorForm, setShowSponsorForm] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<SponsorshipEvent | null>(null);
+  const [sponsorAmount, setSponsorAmount] = useState<string>('');
+  const [sponsorMessage, setSponsorMessage] = useState<string>('');
+  const [sponsorName, setSponsorName] = useState<string>('');
+  const [sponsorEmail, setSponsorEmail] = useState<string>('');
+
+  const handleSponsorClick = (event: SponsorshipEvent) => {
+    setSelectedEvent(event);
+    setShowSponsorForm(true);
+  };
+
+  const handleSponsorSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Here you would normally send the data to your backend
+    console.log('Sponsor submission:', {
+      event: selectedEvent?.name,
+      amount: sponsorAmount,
+      name: sponsorName,
+      email: sponsorEmail,
+      message: sponsorMessage
+    });
+    
+    // Close the form and reset
+    setShowSponsorForm(false);
+    setSponsorAmount('');
+    setSponsorMessage('');
+    setSponsorName('');
+    setSponsorEmail('');
+    setSelectedEvent(null);
+    
+    // You could show a success message here
+    alert('Thank you for your sponsorship! Your contribution has been submitted.');
+  };
+
+  const closeSponsorForm = () => {
+    setShowSponsorForm(false);
+    setSponsorAmount('');
+    setSponsorMessage('');
+    setSponsorName('');
+    setSponsorEmail('');
+    setSelectedEvent(null);
+  };
 
   // Mock data for events seeking sponsorship
   const eventsSeekingSponsorship: SponsorshipEvent[] = [
@@ -126,9 +169,9 @@ const Sponsorships: React.FC = () => {
   const eventsSponsored = sponsorshipHistory.filter(item => item.status === 'completed').length;
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('en-LK', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'LKR',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(amount);
@@ -266,7 +309,11 @@ const Sponsorships: React.FC = () => {
                 </div>
                 
                 <div className="event-actions">
-                  <Button variant="primary" size="medium">
+                  <Button 
+                    variant="primary" 
+                    size="medium"
+                    onClick={() => handleSponsorClick(event)}
+                  >
                     Sponsor Now
                   </Button>
                   <Button variant="border" size="medium">
@@ -313,6 +360,95 @@ const Sponsorships: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Sponsor Form Modal */}
+      {showSponsorForm && selectedEvent && (
+        <div className="sponsor-modal-overlay" onClick={closeSponsorForm}>
+          <div className="sponsor-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="sponsor-modal-header">
+              <h2>Sponsor: {selectedEvent.name}</h2>
+              <button className="close-button" onClick={closeSponsorForm}>
+                ×
+              </button>
+            </div>
+            
+            <div className="sponsor-modal-body">
+              <div className="event-summary">
+                <p><strong>Event:</strong> {selectedEvent.name}</p>
+                <p><strong>Date:</strong> {formatDate(selectedEvent.date)}</p>
+                <p><strong>Goal:</strong> {formatCurrency(selectedEvent.fundraisingGoal)}</p>
+                <p><strong>Raised:</strong> {formatCurrency(selectedEvent.amountRaised)}</p>
+              </div>
+
+              <form onSubmit={handleSponsorSubmit} className="sponsor-form">
+                <div className="form-group">
+                  <label htmlFor="sponsorName">Full Name *</label>
+                  <input
+                    type="text"
+                    id="sponsorName"
+                    value={sponsorName}
+                    onChange={(e) => setSponsorName(e.target.value)}
+                    required
+                    placeholder="Enter your full name"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="sponsorEmail">Email *</label>
+                  <input
+                    type="email"
+                    id="sponsorEmail"
+                    value={sponsorEmail}
+                    onChange={(e) => setSponsorEmail(e.target.value)}
+                    required
+                    placeholder="Enter your email address"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="sponsorAmount">Sponsorship Amount (LKR) *</label>
+                  <input
+                    type="number"
+                    id="sponsorAmount"
+                    value={sponsorAmount}
+                    onChange={(e) => setSponsorAmount(e.target.value)}
+                    required
+                    min="100"
+                    placeholder="Enter amount in LKR"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="sponsorMessage">Message (Optional)</label>
+                  <textarea
+                    id="sponsorMessage"
+                    value={sponsorMessage}
+                    onChange={(e) => setSponsorMessage(e.target.value)}
+                    rows={4}
+                    placeholder="Leave a message for the organizers..."
+                  />
+                </div>
+
+                <div className="form-actions">
+                  <Button 
+                    type="button" 
+                    variant="border" 
+                    onClick={closeSponsorForm}
+                  >
+                    Cancel
+                  </Button>
+                  <Button 
+                    type="submit" 
+                    variant="primary"
+                  >
+                    Submit Sponsorship
+                  </Button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

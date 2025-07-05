@@ -391,6 +391,159 @@
   color: rgba(255, 255, 255, 0.6) !important;
 }
 
+// Sponsor Modal Styles
+.sponsor-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.sponsor-modal {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  backdrop-filter: blur(20px);
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+
+  @media (max-width: 768px) {
+    max-width: 95%;
+    margin: 1rem;
+  }
+}
+
+.sponsor-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2rem 2rem 1rem 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+  h2 {
+    color: #ffffff;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .close-button {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 2rem;
+    cursor: pointer;
+    padding: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+    }
+  }
+}
+
+.sponsor-modal-body {
+  padding: 2rem;
+}
+
+.event-summary {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+
+  p {
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0.5rem 0;
+    font-size: 0.9rem;
+
+    &:first-child {
+      margin-top: 0;
+    }
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    strong {
+      color: #ffffff;
+      font-weight: 600;
+    }
+  }
+}
+
+.sponsor-form {
+  .form-group {
+    margin-bottom: 1.5rem;
+
+    label {
+      display: block;
+      color: #ffffff;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      color: #ffffff;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+
+      &:focus {
+        outline: none;
+        border-color: #3b82f6;
+        background: rgba(255, 255, 255, 0.12);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      }
+
+      &::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+      }
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+      font-family: inherit;
+    }
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 2rem;
+
+    @media (max-width: 480px) {
+      flex-direction: column;
+    }
+  }
+}
+
 // Responsive adjustments
 @media (max-width: 768px) {
   .events-grid {

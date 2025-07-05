@@ -41,7 +41,7 @@ export const API_CONFIGS: Record<string, ChatbotAPIConfig> = {
     // Custom backend endpoint (your own API)
     custom: {
         provider: 'custom',
-        apiEndpoint: '/api/chatbot', // Your backend endpoint
+        apiEndpoint: 'http://localhost:5000/api/chatbot', // Your backend endpoint
         model: 'stellarion-assistant',
     },
 };

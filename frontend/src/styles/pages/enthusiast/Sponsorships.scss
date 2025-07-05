@@ -114,45 +114,16 @@
 .sponsorships-tabs {
   display: flex;
   gap: 0.5rem;
-  background: rgba(255, 255, 255, 0.05);
   border-radius: 12px;
   padding: 0.5rem;
   margin-bottom: 2rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  justify-content: center;
+  
 
   @media (max-width: 768px) {
     flex-direction: column;
   }
 
-  .tab-button {
-    flex: 1;
-    padding: 1rem 1.5rem;
-    background: transparent;
-    border: none;
-    border-radius: 8px;
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-align: center;
-
-    &:hover {
-      color: rgba(255, 255, 255, 0.9);
-      background: rgba(255, 255, 255, 0.05);
-    }
-
-    &.active {
-      background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-      color: white;
-      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-    }
-
-    @media (max-width: 768px) {
-      padding: 0.875rem 1rem;
-      font-size: 0.925rem;
-    }
-  }
 }
 
 // Tab Content

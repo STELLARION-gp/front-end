@@ -1,17 +1,40 @@
 import React, { useState, useRef, useEffect } from 'react';
 import '../styles/components/_chatbot.scss';
-import { Bot, XIcon, Send, Trash2, Minimize2 } from 'lucide-react';
+import { Bot, XIcon, Send, Trash2, Minimize2, Wifi, WifiOff } from 'lucide-react';
 import { useChatbot } from '../hooks/chatbot/useChatbot';
 
 const Chatbot: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [inputValue, setInputValue] = useState('');
+  const [backendStatus, setBackendStatus] = useState<'connected' | 'disconnected' | 'checking'>('checking');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Use the custom hook for chatbot functionality
   const { messages, isLoading, sendMessage, clearMessages } = useChatbot();
+
+  // Check backend connection status
+  useEffect(() => {
+    const checkBackendConnection = async () => {
+      try {
+        const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+        const response = await fetch(`${backendUrl}/api/chatbot/health`);
+        if (response.ok) {
+          setBackendStatus('connected');
+        } else {
+          setBackendStatus('disconnected');
+        }
+      } catch {
+        setBackendStatus('disconnected');
+      }
+    };
+
+    checkBackendConnection();
+    // Check every 30 seconds
+    const interval = setInterval(checkBackendConnection, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Auto-scroll to bottom when new messages are added
   useEffect(() => {
@@ -77,7 +100,14 @@ const Chatbot: React.FC = () => {
               <div className="header-info">
                 <Bot size={20} />
                 <span>AstroBot Assistant</span>
-                <div className="status-indicator online"></div>
+                <div className={`status-indicator ${backendStatus}`} title={
+                  backendStatus === 'connected' ? 'Connected to AI backend' :
+                    backendStatus === 'disconnected' ? 'Using local responses (backend offline)' :
+                      'Checking connection...'
+                }>
+                  {backendStatus === 'connected' && <Wifi size={12} />}
+                  {backendStatus === 'disconnected' && <WifiOff size={12} />}
+                </div>
               </div>
               <div className="header-actions">
                 <button className="action-btn" onClick={clearMessages} title="Clear chat">

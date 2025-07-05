@@ -32,6 +32,7 @@ import BookingRequests from '../pages/guide/BookingRequests';
 import AstroHub from '../pages/enthuasist/AstroHub';
 import CelestialEventsPage from '../pages/learner/Celestial_Events_Page';
 import AstronomySessionsPage from '../pages/learner/AstronomySessionsPage';
+import UpcomingSessionPage from '../pages/learner/Upcoming_Session_Page';
 
 // Create placeholder components for different pages - all memoized
 // const BlogsPage = memo(() => (
@@ -163,7 +164,14 @@ const DashboardRoutes = () => {
                     </RoleGuard>
                 }
             />
-
+            <Route
+                path='upcoming-session/:id'
+                element={
+                    <RoleGuard allowedRoles={['learner']}>
+                        <UpcomingSessionPage />
+                    </RoleGuard>
+                }
+            />
                 <Route
                 path="nasa-content"
                 element={

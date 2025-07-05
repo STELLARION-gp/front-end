@@ -17,13 +17,7 @@ import Signup from './pages/Signup.tsx';
 
 // Lazy load other pages for better performance
 const About = lazy(() => import('./pages/About'));
-//const Signup = lazy(() => import('./pages/Signup'));
-//const Login = lazy(() => import('./pages/Login'));
 const NewHome = lazy(() => import('./pages/NewHome'));
-const ExampleI18nPage = lazy(() => import('./pages/ExampleI18nPage'));
-const TestDashboard = lazy(() => import('./pages/TestDashboard'));
-const AuthDebugTest = lazy(() => import('./components/AuthDebugTest'));
-const RedirectTest = lazy(() => import('./components/RedirectTest'));
 
 const App: React.FC = () => {
   return (
@@ -46,28 +40,6 @@ const App: React.FC = () => {
                   <LazyPageWrapper skeletonProps={{ title: true, paragraphs: 4 }}>
                     <About />
                   </LazyPageWrapper>
-                } />
-                <Route path="/i18n-example" element={
-                  <LazyPageWrapper>
-                    <ExampleI18nPage />
-                  </LazyPageWrapper>
-                } />
-                <Route path="/debug-auth" element={
-                  <LazyPageWrapper>
-                    <AuthDebugTest />
-                  </LazyPageWrapper>
-                } />
-                <Route path="/redirect-test" element={
-                  <LazyPageWrapper>
-                    <RedirectTest />
-                  </LazyPageWrapper>
-                } />
-                <Route path="/test-dashboard" element={
-                  <ProtectedRoute>
-                    <LazyPageWrapper skeletonProps={{ title: true, paragraphs: 2, cards: 4 }}>
-                      <TestDashboard />
-                    </LazyPageWrapper>
-                  </ProtectedRoute>
                 } />
 
                 {/* 404 Not Found Route */}

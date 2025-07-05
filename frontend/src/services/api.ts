@@ -1,6 +1,6 @@
 import { auth } from '../firebase';
 
-const API_BASE_URL = 'http://localhost:5432/api';
+const API_BASE_URL = 'http://localhost:5000/api';
 
 /**
  * API service for backend communication

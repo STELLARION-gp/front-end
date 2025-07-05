@@ -34,6 +34,7 @@ import CelestialEventsPage from '../pages/learner/Celestial_Events_Page';
 import Volunteering from '../pages/enthuasist/Volunteering';
 import AstronomySessionsPage from '../pages/learner/AstronomySessionsPage';
 import RecordedSessionPage from '../pages/learner/Recorded_Session_Page';
+import NightCampDetails from '../pages/learner/NightCampDetails';
 
 // Create placeholder components for different pages - all memoized
 // const BlogsPage = memo(() => (
@@ -186,6 +187,14 @@ const DashboardRoutes = () => {
                 element={
                     <RoleGuard allowedRoles={['learner']}>
                         <CelestialEventsPage />
+                    </RoleGuard>
+                }
+            />
+            <Route
+                path="night-camps/:campId"
+                element={
+                    <RoleGuard allowedRoles={['learner']}>
+                        <NightCampDetails />
                     </RoleGuard>
                 }
             />

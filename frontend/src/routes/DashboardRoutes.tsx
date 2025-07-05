@@ -33,6 +33,7 @@ import AstroHub from '../pages/enthuasist/AstroHub';
 import CelestialEventsPage from '../pages/learner/Celestial_Events_Page';
 import Volunteering from '../pages/enthuasist/Volunteering';
 import AstronomySessionsPage from '../pages/learner/AstronomySessionsPage';
+import Sponsorships from '../pages/enthuasist/Sponsorships';
 
 // Create placeholder components for different pages - all memoized
 // const BlogsPage = memo(() => (
@@ -328,6 +329,15 @@ const DashboardRoutes = () => {
                 element={
                     <RoleGuard allowedRoles={['enthusiast']}>
                         <Volunteering />
+                    </RoleGuard>
+                }
+            />
+
+            <Route
+                path="sponsorships"
+                element={
+                    <RoleGuard allowedRoles={['enthusiast']}>
+                        <Sponsorships />
                     </RoleGuard>
                 }
             />

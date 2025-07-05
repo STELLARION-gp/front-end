@@ -363,6 +363,10 @@ const Volunteering = () => {
         </Card>
       </div>
 
+      <div className="volunteering__header">
+        <h1>Upcoming Opportunities</h1>
+      </div>
+
       {/* Filters */}
       <div className="volunteering__filters">
         <h3>Filter by Category:</h3>
@@ -475,7 +479,6 @@ const Volunteering = () => {
   const renderRegisteredEvents = () => (
     <div className="registered-events">
       <h2>My Registered Volunteering</h2>
-      <p>Events you're registered to volunteer for</p>
       
       <div className="registered-events__list">
         {registeredVolunteering.map(event => (
@@ -525,7 +528,7 @@ const Volunteering = () => {
   const renderVolunteerHistory = () => (
     <div className="volunteer-history">
       <h2>My Volunteering History</h2>
-      <p>Your completed volunteer activities and achievements</p>
+     
       
       <div className="history-stats">
         <div className="history-summary">

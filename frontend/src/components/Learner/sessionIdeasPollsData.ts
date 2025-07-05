@@ -1,3 +1,5 @@
+import { auth } from "../../firebase";
+
 // Sample data for session ideas & polls
 export const sessionIdeasPolls = [
   {
@@ -11,7 +13,8 @@ export const sessionIdeasPolls = [
     ],
     comments: 12,
     trending: true,
-    author: "Alice",
+    author: "Prof. John Cosmos",
+    authorPic: "https://randomuser.me/api/portraits/men/45.jpg",
     createdAt: "2025-07-01"
   },
   {
@@ -25,7 +28,8 @@ export const sessionIdeasPolls = [
     ],
     comments: 8,
     trending: true,
-    author: "Bob",
+    author: "Dr. Jane Skywalker",
+    authorPic: "https://randomuser.me/api/portraits/women/44.jpg",
     createdAt: "2025-06-28"
   },
   {
@@ -39,7 +43,8 @@ export const sessionIdeasPolls = [
     ],
     comments: 20,
     trending: false,
-    author: "Carol",
+    author: "Luna Rivera",
+    authorPic: "https://randomuser.me/api/portraits/women/65.jpg",
     createdAt: "2025-07-03"
   }
 ];

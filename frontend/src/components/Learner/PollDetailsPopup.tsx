@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import "../../styles/components/learner/PollDetailsPopup.scss";
 import Button from "../Button";
 
@@ -35,6 +36,7 @@ const PollDetailsPopup: React.FC<PollDetailsPopupProps> = ({
   conductorPic,
   comments,
 }) => {
+  const navigate = useNavigate();
   if (!open) return null;
   return (
     <div className="poll-details-popup-backdrop" onClick={onClose}>
@@ -45,7 +47,11 @@ const PollDetailsPopup: React.FC<PollDetailsPopupProps> = ({
           <div>
             <h2 className="poll-details-title" style={{ margin: 0 }}>{title}</h2>
             <div className="poll-details-meta">
-              <span>Created by <b>{author}</b> on {new Date(createdAt).toLocaleDateString()}</span>
+              <span>
+                Created by <b style={{ cursor: 'pointer', color: '#60a5fa' }}
+                  onClick={() => navigate(`/dashboard/author/${encodeURIComponent(author)}`)}
+                >{author}</b> on {new Date(createdAt).toLocaleDateString()}
+              </span>
             </div>
           </div>
         </div>

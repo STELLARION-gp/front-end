@@ -17,6 +17,7 @@ interface Poll {
   options: PollOption[];
   trending: boolean;
   author: string;
+  authorPic: string; // Added authorPic for displaying author's avatar
   createdAt: string;
   comments: number;
 }
@@ -34,6 +35,7 @@ const PollItem: React.FC<Omit<Poll, 'comments'> & { onClick: () => void }> = ({
   options,
   trending,
   author,
+  authorPic,
   createdAt,
   onClick,
 }) => {
@@ -59,7 +61,7 @@ const PollItem: React.FC<Omit<Poll, 'comments'> & { onClick: () => void }> = ({
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
             <img
             className="poll-author-avatar"
-            src={`https://ui-avatars.com/api/?name=${encodeURIComponent(author)}&background=3b82f6&color=fff&size=48`}
+            src={authorPic}
             alt={author}
             />
             <span className="poll-author-name">{author}</span>
@@ -84,7 +86,27 @@ const SessionIdeasPolls: React.FC = () => {
     name: poll.author,
     pic: `https://ui-avatars.com/api/?name=${encodeURIComponent(poll.author)}&background=fbbf24&color=232b3b&size=64`,
   });
-  const getComments = (poll: any) => poll.commentsList || [];
+  const sampleComments = [
+    {
+      id: "c1",
+      author: "Alice Johnson",
+      text: "Great idea! Would love to join this session.",
+      date: new Date().toISOString(),
+    },
+    {
+      id: "c2",
+      author: "Bob Lee",
+      text: "Can we also discuss exoplanet detection methods?",
+      date: new Date(Date.now() - 86400000).toISOString(),
+    },
+    {
+      id: "c3",
+      author: "Priya Sen",
+      text: "Looking forward to this. Please share the slides after!",
+      date: new Date(Date.now() - 2 * 86400000).toISOString(),
+    },
+  ];
+  const getComments = (poll: any) => poll.commentsList || sampleComments;
 
   return (
     <div className="session-ideas-polls">

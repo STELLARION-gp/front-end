@@ -14,7 +14,7 @@ export const useChatbot = (config?: ChatbotAPIConfig) => {
     const [messages, setMessages] = useState<ChatMessage[]>([
         {
             id: '1',
-            text: '👋 Hello! I\'m AstroBot, your space exploration assistant. How can I help you today?',
+            text: '👋 Hello! I\'m Stella, your space exploration assistant. How can I help you today?',
             sender: 'bot',
             timestamp: new Date(),
         },

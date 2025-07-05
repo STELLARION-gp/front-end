@@ -106,7 +106,7 @@ const SessionIdeasPolls: React.FC = () => {
       date: new Date(Date.now() - 2 * 86400000).toISOString(),
     },
   ];
-  const getComments = (poll: Poll) => (poll as any).commentsList || sampleComments;
+  const getComments = (poll: Poll) => (poll as { commentsList?: typeof sampleComments }).commentsList || sampleComments;
 
   return (
     <div className="session-ideas-polls">

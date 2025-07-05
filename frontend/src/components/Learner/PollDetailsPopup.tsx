@@ -1,5 +1,6 @@
 import React from "react";
 import "../../styles/components/learner/PollDetailsPopup.scss";
+import Button from "../Button";
 
 interface PollOption {
   id: string;
@@ -14,6 +15,7 @@ interface PollDetailsPopupProps {
   description: string;
   options: PollOption[];
   author: string;
+  authorPic: string;
   createdAt: string;
   conductor: string;
   conductorPic: string;
@@ -27,6 +29,7 @@ const PollDetailsPopup: React.FC<PollDetailsPopupProps> = ({
   description,
   options,
   author,
+  authorPic,
   createdAt,
   conductor,
   conductorPic,
@@ -37,9 +40,14 @@ const PollDetailsPopup: React.FC<PollDetailsPopupProps> = ({
     <div className="poll-details-popup-backdrop" onClick={onClose}>
       <div className="poll-details-popup" onClick={e => e.stopPropagation()}>
         <button className="poll-details-close" onClick={onClose}>&times;</button>
-        <h2 className="poll-details-title">{title}</h2>
-        <div className="poll-details-meta">
-          <span>Created by <b>{author}</b> on {new Date(createdAt).toLocaleDateString()}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: 12 }}>
+          <img className="poll-author-avatar" src={authorPic} alt={author} style={{ width: 40, height: 40 }} />
+          <div>
+            <h2 className="poll-details-title" style={{ margin: 0 }}>{title}</h2>
+            <div className="poll-details-meta">
+              <span>Created by <b>{author}</b> on {new Date(createdAt).toLocaleDateString()}</span>
+            </div>
+          </div>
         </div>
         <div className="poll-details-description">{description}</div>
         <div className="poll-details-options">
@@ -50,10 +58,10 @@ const PollDetailsPopup: React.FC<PollDetailsPopupProps> = ({
             </div>
           ))}
         </div>
-        <div className="poll-details-organizer">
+        {/* <div className="poll-details-organizer">
           <img className="poll-details-conductor-pic" src={conductorPic} alt={conductor} />
           <span className="poll-details-conductor-name">Organizer: {conductor}</span>
-        </div>
+        </div> */}
         <div className="poll-details-comments-section">
           <h4>Comments</h4>
           <div className="poll-details-comments-list">
@@ -71,7 +79,7 @@ const PollDetailsPopup: React.FC<PollDetailsPopupProps> = ({
           </div>
           <form className="poll-details-comment-form">
             <input type="text" placeholder="Add a comment..." className="poll-details-comment-input" />
-            <button type="submit" className="poll-details-comment-submit">Post</button>
+            <Button type="submit">Post</Button>
           </form>
         </div>
       </div>

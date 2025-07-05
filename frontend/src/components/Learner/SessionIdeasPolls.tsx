@@ -131,6 +131,7 @@ const SessionIdeasPolls: React.FC = () => {
           description={selectedPoll.description}
           options={selectedPoll.options}
           author={selectedPoll.author}
+          authorPic={selectedPoll.authorPic}
           createdAt={selectedPoll.createdAt}
           conductor={getConductor(selectedPoll).name}
           conductorPic={getConductor(selectedPoll).pic}

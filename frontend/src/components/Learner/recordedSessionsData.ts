@@ -1,7 +1,7 @@
 // Sample data for recorded sessions
 export const recordedSessions = [
   {
-    id: 1,
+    id: "1",
     title: "Deep Sky Objects Masterclass",
     date: "2025-07-10",
     instructor: "Dr. Alice Galaxy",
@@ -14,7 +14,7 @@ export const recordedSessions = [
     duration: "2h 15m"
   },
   {
-    id: 2,
+    id: "2",
     title: "Astrophotography for Beginners",
     date: "2025-06-22",
     instructor: "Prof. Stella Lens",
@@ -27,7 +27,7 @@ export const recordedSessions = [
     duration: "1h 40m"
   },
   {
-    id: 3,
+    id: "3",
     title: "Women in Astronomy: Panel Discussion",
     date: "2025-05-30",
     instructor: "Dr. Carol Star",

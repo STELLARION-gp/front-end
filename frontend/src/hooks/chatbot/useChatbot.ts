@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { ChatbotAPIConfig } from './chatbotConfig';
-import { getChatbotConfig, formatAPIRequest, parseAPIResponse } from './chatbotConfig';
+import { getChatbotConfig } from './chatbotConfig';
 
 export interface ChatMessage {
     id: string;
@@ -107,28 +107,47 @@ export const useChatbot = (config?: ChatbotAPIConfig) => {
 
     // API-based response (for production use)
     const getAPIResponse = useCallback(async (userMessage: string): Promise<string> => {
-        if (!chatbotConfig?.apiEndpoint) {
-            throw new Error('API endpoint not configured');
+        // Use backend URL from environment or default to port 5000
+        const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+
+        try {
+            console.log('🤖 Attempting backend request to:', `${backendUrl}/api/chatbot`);
+
+            const response = await fetch(`${backendUrl}/api/chatbot`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message: userMessage,
+                    context: 'space_exploration_assistant',
+                }),
+            });
+
+            console.log('🤖 Backend response status:', response.status);
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('🤖 Backend error:', errorText);
+                throw new Error(`Backend request failed: ${response.status} - ${errorText}`);
+            }
+
+            const data = await response.json();
+            console.log('🤖 Backend response data:', data);
+
+            // Handle both success and error responses from backend
+            if (data.success === false) {
+                throw new Error(data.error || 'Backend returned an error');
+            }
+
+            return data.response || data.message || 'Sorry, I couldn\'t generate a response.';
+        } catch (backendError) {
+            console.warn('🤖 Backend request failed:', backendError);
+
+            // Re-throw the error to be handled by the caller
+            throw backendError;
         }
-
-        const requestBody = formatAPIRequest(chatbotConfig, userMessage, 'space_exploration_assistant');
-
-        const response = await fetch(chatbotConfig.apiEndpoint, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                ...(chatbotConfig.apiKey && { 'Authorization': `Bearer ${chatbotConfig.apiKey}` }),
-            },
-            body: JSON.stringify(requestBody),
-        });
-
-        if (!response.ok) {
-            throw new Error(`API request failed: ${response.status}`);
-        }
-
-        const data = await response.json();
-        return parseAPIResponse(chatbotConfig, data);
-    }, [chatbotConfig]);
+    }, []);
 
     const sendMessage = useCallback(async (userMessage: string) => {
         if (!userMessage.trim() || isLoading) return;
@@ -156,16 +175,28 @@ export const useChatbot = (config?: ChatbotAPIConfig) => {
         try {
             let botResponse: string;
 
-            // Try API response first, fall back to rule-based
-            if (chatbotConfig?.apiEndpoint) {
-                try {
-                    botResponse = await getAPIResponse(userMessage);
-                } catch (apiError) {
-                    console.warn('API request failed, falling back to rule-based response:', apiError);
+            console.log('🤖 Chatbot Config:', {
+                hasConfig: !!chatbotConfig,
+                hasEndpoint: !!chatbotConfig?.apiEndpoint,
+                provider: chatbotConfig?.provider
+            });
+
+            // Always try API response first (through backend)
+            console.log('🤖 Attempting API response...');
+            try {
+                botResponse = await getAPIResponse(userMessage);
+                console.log('🤖 API response successful:', botResponse.substring(0, 100) + '...');
+            } catch (apiError: unknown) {
+                console.warn('🤖 API request failed, falling back to rule-based response:', apiError);
+
+                // Check if it's a rate limit error and provide specific feedback
+                const errorMessage = apiError instanceof Error ? apiError.message : String(apiError);
+                if (errorMessage.includes('Rate limit')) {
+                    botResponse = '⏰ I\'m experiencing high traffic right now. Here\'s what I can tell you based on my knowledge: ' + getRuleBasedResponse(userMessage);
+                } else {
                     botResponse = getRuleBasedResponse(userMessage);
                 }
-            } else {
-                botResponse = getRuleBasedResponse(userMessage);
+                console.log('🤖 Using rule-based response:', botResponse.substring(0, 100) + '...');
             }
 
             // Remove typing indicator and add actual response

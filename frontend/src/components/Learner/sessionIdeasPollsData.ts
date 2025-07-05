@@ -24,7 +24,7 @@ export const sessionIdeasPolls = [
       { id: "opt3", text: "Not interested", votes: 1 }
     ],
     comments: 8,
-    trending: false,
+    trending: true,
     author: "Bob",
     createdAt: "2025-06-28"
   },
@@ -38,7 +38,7 @@ export const sessionIdeasPolls = [
       { id: "opt3", text: "Not interested", votes: 2 }
     ],
     comments: 20,
-    trending: true,
+    trending: false,
     author: "Carol",
     createdAt: "2025-07-03"
   }

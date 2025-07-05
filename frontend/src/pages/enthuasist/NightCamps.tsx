@@ -7,10 +7,12 @@ import TimeIcon from '../../assets/svg/TimeIcon'
 import LocationIcon from '../../assets/svg/LocationIcon'
 import ParticipantsIcon from '../../assets/svg/ParticipantsIcon'
 import '../../styles/pages/enthusiast/NightCamps.scss'
+import { useRoleAccess } from '../../hooks/useRoleAccess';
 
 type ActiveSection = 'upcoming' | 'organizing' | 'registered' | 'volunteers'
 
 const NightCamps = () => {
+  const { userRole } = useRoleAccess();
 
   const camps = [
     {
@@ -668,23 +670,28 @@ case 'upcoming': {
           >
             Upcoming Camps
           </Button>
-          <Button 
-            variant={activeSection === 'organizing' ? 'primary' : 'secondary'}
-            onClick={() => setActiveSection('organizing')}
-          >
-            Join Organizing Committee
-          </Button>
+          {/* Only show these tabs if NOT learner */}
+          {userRole !== 'learner' && (
+            <>
+              <Button 
+                variant={activeSection === 'organizing' ? 'primary' : 'secondary'}
+                onClick={() => setActiveSection('organizing')}
+              >
+                Join Organizing Committee
+              </Button>
+              <Button 
+                variant={activeSection === 'volunteers' ? 'primary' : 'secondary'}
+                onClick={() => setActiveSection('volunteers')}
+              >
+                My Volunteers
+              </Button>
+            </>
+          )}
           <Button 
             variant={activeSection === 'registered' ? 'primary' : 'secondary'}
             onClick={() => setActiveSection('registered')}
           >
             Registered Camps
-          </Button>
-          <Button 
-            variant={activeSection === 'volunteers' ? 'primary' : 'secondary'}
-            onClick={() => setActiveSection('volunteers')}
-          >
-            My Volunteers
           </Button>
         </div>
 

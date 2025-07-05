@@ -1,7 +1,9 @@
 import React from "react";
 import Button from "../Button";
+import { useNavigate } from "react-router-dom";
 
 export interface RecordedSessionCardProps {
+  id: string;
   title: string;
   date: string;
   instructor: string;
@@ -15,6 +17,7 @@ export interface RecordedSessionCardProps {
 }
 
 const RecordedSessionCard: React.FC<RecordedSessionCardProps> = ({
+  id,
   title,
   date,
   instructor,
@@ -25,12 +28,14 @@ const RecordedSessionCard: React.FC<RecordedSessionCardProps> = ({
   image,
   price,
   duration,
-}) => (
-  <div className="recorded-session-card">
-    {image && (
-      <div className="recorded-session-image-wrap">
-        <img className="recorded-session-image" src={image} alt={title} />
-      </div>
+}) => {
+  const navigate = useNavigate();
+  return (
+    <div className="recorded-session-card">
+      {image && (
+        <div className="recorded-session-image-wrap">
+          <img className="recorded-session-image" src={image} alt={title} />
+        </div>
     )}
     <div className="recorded-session-title">{title}</div>
     <div className="recorded-session-meta">
@@ -59,9 +64,9 @@ const RecordedSessionCard: React.FC<RecordedSessionCardProps> = ({
     </div>
     <div className="recorded-session-purchase-row">
       <span className="recorded-session-price">{price}</span>
-      <Button >Buy Session</Button>
+      <Button onClick={() => navigate(`/dashboard/sessions/recorded-sessions/${id}`)}>Buy Session</Button>
     </div>
   </div>
 );
-
+}
 export default RecordedSessionCard;

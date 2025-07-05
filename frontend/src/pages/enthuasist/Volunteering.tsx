@@ -37,10 +37,11 @@ interface UserVolunteerRecord {
   eventTitle: string
   organization: string
   date: string
+  time: string
+  location: string
   role: string
   hoursContributed: number
-  status: 'completed' | 'upcoming' | 'cancelled'
-  rating?: number
+  status: 'completed' | 'upcoming' | 'cancelled' | 'participated'
   feedback?: string
 }
 
@@ -130,6 +131,8 @@ const Volunteering = () => {
       eventTitle: "Star Party at Horton Plains",
       organization: "Sri Lanka Astronomical Association",
       date: "2025-08-25",
+      time: "19:00 - 02:00",
+      location: "Horton Plains National Park",
       role: "Telescope Operator",
       hoursContributed: 6,
       status: "upcoming"
@@ -139,6 +142,8 @@ const Volunteering = () => {
       eventTitle: "Solar Eclipse Public Viewing",
       organization: "Colombo Planetarium",
       date: "2025-09-15",
+      time: "14:00 - 18:00",
+      location: "Colombo Planetarium",
       role: "Safety Coordinator",
       hoursContributed: 8,
       status: "upcoming"
@@ -152,10 +157,11 @@ const Volunteering = () => {
       eventTitle: "World Space Week Celebration",
       organization: "UNESCO Sri Lanka",
       date: "2025-07-10",
+      time: "09:00 - 17:00",
+      location: "Colombo Planetarium",
       role: "Workshop Facilitator",
       hoursContributed: 12,
-      status: "completed",
-      rating: 5,
+      status: "participated",
       feedback: "Excellent workshop delivery and participant engagement!"
     },
     {
@@ -163,10 +169,11 @@ const Volunteering = () => {
       eventTitle: "Asteroid Detection Training",
       organization: "NASA Citizen Science Program",
       date: "2025-06-22",
+      time: "14:00 - 18:00",
+      location: "University of Colombo",
       role: "Data Analyst",
       hoursContributed: 4,
       status: "completed",
-      rating: 4,
       feedback: "Great attention to detail in data analysis."
     },
     {
@@ -174,18 +181,54 @@ const Volunteering = () => {
       eventTitle: "Community Stargazing Night",
       organization: "Kandy Astronomy Club",
       date: "2025-05-18",
+      time: "19:00 - 23:00",
+      location: "Kandy Lake Park",
       role: "Event Coordinator",
       hoursContributed: 8,
-      status: "completed",
-      rating: 5,
+      status: "participated",
       feedback: "Outstanding organization and leadership skills."
+    },
+    {
+      id: 4,
+      eventTitle: "Solar Eclipse Workshop",
+      organization: "Science Foundation",
+      date: "2025-04-15",
+      time: "10:00 - 15:00",
+      location: "Galle Science Museum",
+      role: "Safety Coordinator",
+      hoursContributed: 5,
+      status: "cancelled",
+      feedback: "Event cancelled due to weather conditions."
+    },
+    {
+      id: 5,
+      eventTitle: "Meteor Shower Observation",
+      organization: "Amateur Astronomers Association",
+      date: "2025-08-12",
+      time: "20:00 - 02:00",
+      location: "Horton Plains",
+      role: "Telescope Operator",
+      hoursContributed: 6,
+      status: "upcoming",
+      feedback: undefined
+    },
+    {
+      id: 6,
+      eventTitle: "School Science Fair",
+      organization: "Ministry of Education",
+      date: "2025-03-20",
+      time: "08:00 - 16:00",
+      location: "Royal College Colombo",
+      role: "Judge",
+      hoursContributed: 8,
+      status: "completed",
+      feedback: "Professional judging and great interaction with students."
     }
   ]
 
   const totalEvents = volunteerHistory.filter(v => v.status === 'completed').length
   const totalHours = volunteerHistory.reduce((acc, v) => v.status === 'completed' ? acc + v.hoursContributed : acc, 0)
   const upcomingEvents = registeredVolunteering.filter(v => v.status === 'upcoming').length
-  const averageRating = volunteerHistory.filter(v => v.rating).reduce((acc, v, _, arr) => acc + (v.rating || 0) / arr.length, 0)
 
   const filterCategories = ['event', 'education', 'research', 'outreach']
 
@@ -313,8 +356,8 @@ const Volunteering = () => {
           <div className="stat-content">
             <StarIcon className="stat-icon" />
             <div>
-              <div className="stat-number">{averageRating.toFixed(1)}</div>
-              <div className="stat-label">Average Rating</div>
+              <div className="stat-number">{upcomingEvents}</div>
+              <div className="stat-label">Registered Events</div>
             </div>
           </div>
         </Card>
@@ -488,80 +531,82 @@ const Volunteering = () => {
         <div className="history-summary">
           <div className="summary-item">
             <TrophyIcon className="summary-icon" />
-            <div>
+            <div className="summary-content">
               <span className="summary-number">{totalEvents}</span>
               <span className="summary-label">Events Completed</span>
             </div>
           </div>
           <div className="summary-item">
             <ClockIcon className="summary-icon" />
-            <div>
+            <div className="summary-content">
               <span className="summary-number">{totalHours}</span>
               <span className="summary-label">Total Hours</span>
-            </div>
-          </div>
-          <div className="summary-item">
-            <StarIcon className="summary-icon" />
-            <div>
-              <span className="summary-number">{averageRating.toFixed(1)}/5</span>
-              <span className="summary-label">Average Rating</span>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="history-events">
+      {/* Table View */}
+      <div className="history-table-container">
+        <table className="history-table">
+          <thead>
+            <tr>
+              <th>Event Name</th>
+              <th>Date</th>
+              <th>Time</th>
+              <th>Location</th>
+              <th>Role</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {volunteerHistory.map(event => (
+              <tr key={event.id}>
+                <td className="event-name">{event.eventTitle}</td>
+                <td className="event-date">{new Date(event.date).toLocaleDateString()}</td>
+                <td className="event-time">{event.time}</td>
+                <td className="event-location">{event.location}</td>
+                <td className="event-role">{event.role}</td>
+                <td>
+                  <span className={`event-status ${event.status}`}>
+                    {event.status}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Mobile Card View */}
+      <div className="history-cards">
         {volunteerHistory.map(event => (
-          <Card key={event.id} className="history-event-card" variant="outlined">
-            <CardContent>
-              <div className="event-header">
-                <div>
-                  <CardTitle>{event.eventTitle}</CardTitle>
-                  <CardSubtitle>{event.organization}</CardSubtitle>
-                </div>
-                <div className="event-status completed">
-                  <CheckCircleIcon className="w-5 h-5" />
-                  <span>Completed</span>
-                </div>
+          <div key={event.id} className="history-card">
+            <div className="card-header">
+              <div className="event-name">{event.eventTitle}</div>
+              <span className={`event-status ${event.status}`}>
+                {event.status}
+              </span>
+            </div>
+            <div className="card-details">
+              <div className="detail-row">
+                <span className="label">Date:</span>
+                <span className="value">{new Date(event.date).toLocaleDateString()}</span>
               </div>
-              
-              <div className="event-details">
-                <div className="detail-item">
-                  <CalendarIcon className="detail-icon" />
-                  <span>{new Date(event.date).toLocaleDateString()}</span>
-                </div>
-                <div className="detail-item">
-                  <UsersIcon className="detail-icon" />
-                  <span>Role: {event.role}</span>
-                </div>
-                <div className="detail-item">
-                  <ClockIcon className="detail-icon" />
-                  <span>{event.hoursContributed} hours contributed</span>
-                </div>
+              <div className="detail-row">
+                <span className="label">Time:</span>
+                <span className="value">{event.time}</span>
               </div>
-
-              {event.rating && (
-                <div className="event-rating">
-                  <div className="rating-stars">
-                    {[...Array(5)].map((_, i) => (
-                      <StarIcon 
-                        key={i} 
-                        className={`star ${i < event.rating! ? 'filled' : ''}`}
-                      />
-                    ))}
-                  </div>
-                  <span className="rating-text">{event.rating}/5</span>
-                </div>
-              )}
-
-              {event.feedback && (
-                <div className="event-feedback">
-                  <h4>Feedback:</h4>
-                  <p>"{event.feedback}"</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+              <div className="detail-row">
+                <span className="label">Location:</span>
+                <span className="value">{event.location}</span>
+              </div>
+              <div className="detail-row">
+                <span className="label">Role:</span>
+                <span className="value">{event.role}</span>
+              </div>
+            </div>
+          </div>
         ))}
       </div>
     </div>

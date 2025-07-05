@@ -1,5 +1,3 @@
-import { auth } from "../../firebase";
-
 // Sample data for session ideas & polls
 export const sessionIdeasPolls = [
   {

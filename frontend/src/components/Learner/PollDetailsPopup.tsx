@@ -32,8 +32,6 @@ const PollDetailsPopup: React.FC<PollDetailsPopupProps> = ({
   author,
   authorPic,
   createdAt,
-  conductor,
-  conductorPic,
   comments,
 }) => {
   const navigate = useNavigate();

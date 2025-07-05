@@ -20,6 +20,13 @@
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
   }
 
+  .chatbot-fab-icon {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    border-radius: 4px;
+  }
+
   .message-indicator {
     position: absolute;
     top: -5px;
@@ -56,6 +63,7 @@
   align-items: center;
   justify-content: center;
   animation: fadeIn 0.3s ease-out;
+  overflow: hidden; // Prevent background scrolling
 }
 
 @keyframes fadeIn {
@@ -73,18 +81,19 @@
   inset: 0;
   background: linear-gradient(270deg, $theme1 0%, rgba($theme1, 0.2) 100%);
   -webkit-backdrop-filter: blur(4px);
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(8px);
+  overflow: hidden; // Prevent background scrolling
 }
 
 .chatbot-window {
   position: relative;
   z-index: 1001;
-  width: 90%;
-  max-width: 400px;
+  width: 100%;
+  max-width: 900px;
   height: 500px;
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+  background: transparent;
+  //border-radius: 16px;
+  //box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -93,6 +102,99 @@
   &.minimized {
     height: 60px;
     animation: slideDown 0.3s ease-out;
+  }
+}
+
+// Top-right control buttons
+.chatbot-controls {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1002;
+  display: flex;
+  gap: 5px;
+
+  .control-btn {
+    width: 70px;
+    height: 48px;
+    background: transparent;
+    border: none;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.2s;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+    font-size: 20px;
+    border: none;
+
+    &:hover {
+      text-shadow: 0 3px 8px rgba(0, 0, 0, 0.9);
+    }
+
+    &.delete-btn {
+      color: $theme3;
+
+      &:hover {
+        color: #dc2626;
+      }
+    }
+
+    &.close-btn {
+      color: #f3f4f6;
+
+      &:hover {
+        color: #dc2626;
+      }
+    }
+
+    svg {
+      width: 24px;
+      height: 24px;
+    }
+  }
+}
+
+// Connection status indicator
+.chatbot-status {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 1002;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(0, 0, 0, 0.8);
+  border-radius: 20px;
+  color: white;
+  font-size: 12px;
+  font-weight: 500;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+
+    &.connected {
+      background: #10b981;
+      box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+    }
+
+    &.disconnected {
+      background: #ef4444;
+      box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+    }
+
+    &.checking {
+      background: #f59e0b;
+      box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
+      animation: pulse 2s infinite;
+    }
   }
 }
 
@@ -118,85 +220,6 @@
   }
 }
 
-.chatbot-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px;
-  background: linear-gradient(135deg, #4f46e5, #7c3aed);
-  color: white;
-  font-weight: bold;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-
-  .header-info {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-
-    .status-indicator {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      padding: 4px 8px;
-      border-radius: 12px;
-      font-size: 10px;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-
-      &.connected {
-        background: rgba(16, 185, 129, 0.2);
-        color: #10b981;
-        border: 1px solid rgba(16, 185, 129, 0.3);
-      }
-
-      &.disconnected {
-        background: rgba(239, 68, 68, 0.2);
-        color: #ef4444;
-        border: 1px solid rgba(239, 68, 68, 0.3);
-      }
-
-      &.checking {
-        background: rgba(245, 158, 11, 0.2);
-        color: #f59e0b;
-        border: 1px solid rgba(245, 158, 11, 0.3);
-        animation: pulse 2s infinite;
-      }
-
-      &.online {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: #10b981;
-        box-shadow: 0 0 6px #10b981;
-      }
-    }
-  }
-
-  .header-actions {
-    display: flex;
-    gap: 8px;
-  }
-
-  .action-btn,
-  .close-btn {
-    background: transparent;
-    border: none;
-    color: white;
-    cursor: pointer;
-    padding: 4px;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.2s;
-
-    &:hover {
-      background: rgba(255, 255, 255, 0.1);
-    }
-  }
-}
-
 .chatbot-messages {
   flex: 1;
   padding: 16px;
@@ -204,7 +227,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  background: #f8fafc;
+  background: transparent;
 
   &::-webkit-scrollbar {
     width: 6px;
@@ -231,8 +254,8 @@
     align-items: flex-end;
 
     .message-content {
-      background: linear-gradient(135deg, #4f46e5, #7c3aed);
-      color: white;
+      background: linear-gradient(135deg, $theme4, $theme5);
+      color: $theme1;
       border-radius: 18px 18px 4px 18px;
     }
   }
@@ -242,10 +265,9 @@
     align-items: flex-start;
 
     .message-content {
-      background: white;
-      color: #374151;
+      background: $theme4;
+      color: $theme1;
       border-radius: 18px 18px 18px 4px;
-      border: 1px solid #e5e7eb;
     }
   }
 
@@ -329,8 +351,7 @@
 
 .chatbot-input-area {
   padding: 16px;
-  background: white;
-  border-top: 1px solid #e5e7eb;
+  padding-bottom: 0;
 
   .input-container {
     display: flex;
@@ -341,7 +362,6 @@
   .chatbot-input {
     flex: 1;
     padding: 12px 16px;
-    border: 2px solid #e5e7eb;
     border-radius: 25px;
     font-size: 14px;
     outline: none;
@@ -352,31 +372,38 @@
     }
 
     &:disabled {
-      background: #f3f4f6;
+      background: $theme4;
       cursor: not-allowed;
     }
 
     &::placeholder {
-      color: #9ca3af;
+      color: $theme4;
     }
   }
 
   .send-btn {
-    width: 40px;
-    height: 40px;
+    width: 48px;
+    height: 48px;
     border: none;
     border-radius: 50%;
-    background: #e5e7eb;
-    color: #6b7280;
+    background: $theme3;
+    color: $theme5;
+    padding: 0;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.2s;
 
+    svg {
+      width: 24px !important;
+      height: 24px !important;
+      stroke-width: 2;
+    }
+
     &.active {
-      background: linear-gradient(135deg, #4f46e5, #7c3aed);
-      color: white;
+      background: $theme5;
+      color: $theme2;
       transform: scale(1.05);
     }
 

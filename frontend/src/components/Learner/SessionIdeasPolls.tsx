@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import "../../styles/components/learner/SessionIdeasPolls.scss";
+import PollDetailsPopup from "./PollDetailsPopup";
 import { sessionIdeasPolls } from "./sessionIdeasPollsData";
 
 // Updated PollOption type for multiple options
@@ -16,6 +17,7 @@ interface Poll {
   options: PollOption[];
   trending: boolean;
   author: string;
+  authorPic: string; // Added authorPic for displaying author's avatar
   createdAt: string;
   comments: number;
 }
@@ -27,17 +29,19 @@ const ProgressBar: React.FC<{ percent: number }> = ({ percent }) => (
   </div>
 );
 
-const PollItem: React.FC<Omit<Poll, 'comments'>> = ({
+const PollItem: React.FC<Omit<Poll, 'comments'> & { onClick: () => void }> = ({
   title,
   description,
   options,
   trending,
   author,
+  authorPic,
   createdAt,
+  onClick,
 }) => {
   const totalVotes = options.reduce((sum, opt) => sum + opt.votes, 0) || 1;
   return (
-    <div className={`poll-item blogcard${trending ? " poll-item-trending" : ""}`}>
+    <div className={`poll-item blogcard${trending ? " poll-item-trending" : ""}`} onClick={onClick} style={{ cursor: "pointer" }}>
       <div className="poll-title blogcard-title">{title}</div>
       <div className="poll-desc blogcard-desc">{description}</div>
       <div className="poll-options">
@@ -57,7 +61,7 @@ const PollItem: React.FC<Omit<Poll, 'comments'>> = ({
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
             <img
             className="poll-author-avatar"
-            src={`https://ui-avatars.com/api/?name=${encodeURIComponent(author)}&background=3b82f6&color=fff&size=48`}
+            src={authorPic}
             alt={author}
             />
             <span className="poll-author-name">{author}</span>
@@ -74,14 +78,66 @@ const PollItem: React.FC<Omit<Poll, 'comments'>> = ({
 };
 
 const SessionIdeasPolls: React.FC = () => {
+  const [selectedPoll, setSelectedPoll] = useState<Poll | null>(null);
+  const [popupOpen, setPopupOpen] = useState(false);
+
+  // Dummy conductor and comments for demo
+  const getConductor = (poll: Poll) => ({
+    name: poll.author,
+    pic: `https://ui-avatars.com/api/?name=${encodeURIComponent(poll.author)}&background=fbbf24&color=232b3b&size=64`,
+  });
+  const sampleComments = [
+    {
+      id: "c1",
+      author: "Alice Johnson",
+      text: "Great idea! Would love to join this session.",
+      date: new Date().toISOString(),
+    },
+    {
+      id: "c2",
+      author: "Bob Lee",
+      text: "Can we also discuss exoplanet detection methods?",
+      date: new Date(Date.now() - 86400000).toISOString(),
+    },
+    {
+      id: "c3",
+      author: "Priya Sen",
+      text: "Looking forward to this. Please share the slides after!",
+      date: new Date(Date.now() - 2 * 86400000).toISOString(),
+    },
+  ];
+  const getComments = (poll: Poll) => (poll as any).commentsList || sampleComments;
+
   return (
     <div className="session-ideas-polls">
       <h3>Session Ideas & Polls</h3>
       <div className="poll-list">
         {sessionIdeasPolls.map((poll) => (
-          <PollItem key={poll.id} {...poll} />
+          <PollItem
+            key={poll.id}
+            {...poll}
+            onClick={() => {
+              setSelectedPoll(poll);
+              setPopupOpen(true);
+            }}
+          />
         ))}
       </div>
+      {selectedPoll && (
+        <PollDetailsPopup
+          open={popupOpen}
+          onClose={() => setPopupOpen(false)}
+          title={selectedPoll.title}
+          description={selectedPoll.description}
+          options={selectedPoll.options}
+          author={selectedPoll.author}
+          authorPic={selectedPoll.authorPic}
+          createdAt={selectedPoll.createdAt}
+          conductor={getConductor(selectedPoll).name}
+          conductorPic={getConductor(selectedPoll).pic}
+          comments={getComments(selectedPoll)}
+        />
+      )}
       {/* Submission form can go here */}
     </div>
   );

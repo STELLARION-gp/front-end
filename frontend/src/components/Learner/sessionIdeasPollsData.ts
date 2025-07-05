@@ -11,7 +11,8 @@ export const sessionIdeasPolls = [
     ],
     comments: 12,
     trending: true,
-    author: "Alice",
+    author: "Prof. John Cosmos",
+    authorPic: "https://randomuser.me/api/portraits/men/45.jpg",
     createdAt: "2025-07-01"
   },
   {
@@ -24,8 +25,9 @@ export const sessionIdeasPolls = [
       { id: "opt3", text: "Not interested", votes: 1 }
     ],
     comments: 8,
-    trending: false,
-    author: "Bob",
+    trending: true,
+    author: "Dr. Jane Skywalker",
+    authorPic: "https://randomuser.me/api/portraits/women/44.jpg",
     createdAt: "2025-06-28"
   },
   {
@@ -38,8 +40,9 @@ export const sessionIdeasPolls = [
       { id: "opt3", text: "Not interested", votes: 2 }
     ],
     comments: 20,
-    trending: true,
-    author: "Carol",
+    trending: false,
+    author: "Luna Rivera",
+    authorPic: "https://randomuser.me/api/portraits/women/65.jpg",
     createdAt: "2025-07-03"
   }
 ];

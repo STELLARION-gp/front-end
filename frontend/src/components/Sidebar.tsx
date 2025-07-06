@@ -28,6 +28,9 @@ import {
   HandRaisedIcon,
   CurrencyDollarIcon,
   MegaphoneIcon
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 } from '@heroicons/react/24/outline';
 
@@ -64,6 +67,9 @@ const iconMap = {
   HandRaisedIcon,
   CurrencyDollarIcon,
   MegaphoneIcon
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 };
 

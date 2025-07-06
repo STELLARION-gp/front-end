@@ -372,6 +372,9 @@ const DashboardRoutes = () => {
 
 
 
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 
             {/* Default redirect to overview */}

@@ -58,6 +58,9 @@ export const PAGE_ACCESS_CONTROL = {
     '/dashboard/volunteering': ['enthusiast'] as UserRole[],
     '/dashboard/sponsorships': ['enthusiast', 'influencer',] as UserRole[],
     '/dashboard/influencers': ['enthusiast', 'learner'] as UserRole[],
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
     
 
@@ -95,6 +98,9 @@ export const ROLE_BASED_MENU_ITEMS = {
 =======
         { label: 'Sponsorships', icon: 'CurrencyDollarIcon', href: '/dashboard/sponsorships' },
         { label: 'Influencers', icon: 'MegaphoneIcon', href: '/dashboard/influencers' },
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
         { label: 'Settings', icon: 'Cog6ToothIcon', href: '/dashboard/settings' },
 

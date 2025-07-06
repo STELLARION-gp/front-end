@@ -279,7 +279,6 @@ const Influencers = () => {
     <div className="events-content">
       <div className="events-placeholder">
         <h3>Upcoming Events</h3>
-        <p>Live sessions and events from your favorite astronomy influencers will appear here.</p>
         <div className="events-grid">
           <div className="event-card">
             <h4>Mars Exploration Deep Dive</h4>
@@ -452,7 +451,7 @@ const Influencers = () => {
     <div className="influencers-page">
       <div className="page-header">
         <h1>Astronomy Influencers</h1>
-        <p>Connect with experts and enthusiasts in the astronomy community</p>
+        {/* <p>Connect with experts and enthusiasts in the astronomy community</p> */}
       </div>
 
       <div className="tabs-container">

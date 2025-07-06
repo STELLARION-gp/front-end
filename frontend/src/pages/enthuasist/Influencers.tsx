@@ -15,6 +15,7 @@ interface Influencer {
 
 const Influencers = () => {
   const [activeTab, setActiveTab] = useState<'discover' | 'followings' | 'events'>('discover')
+  const [searchQuery, setSearchQuery] = useState<string>('')
   const [influencers, setInfluencers] = useState<Influencer[]>([
     {
       id: 1,
@@ -84,68 +85,114 @@ const Influencers = () => {
       .slice(0, 2)
   }
 
-  const getFilteredInfluencers = () => {
-    switch (activeTab) {
-      case 'followings':
-        return influencers.filter(influencer => influencer.isFollowing)
-      case 'discover':
-      default:
-        return influencers
-    }
+  const filterInfluencersBySearch = (influencers: Influencer[]) => {
+    if (!searchQuery.trim()) return influencers
+
+    const query = searchQuery.toLowerCase()
+    return influencers.filter(influencer => 
+      influencer.name.toLowerCase().includes(query) ||
+      influencer.description.toLowerCase().includes(query) ||
+      influencer.specializations.some(spec => spec.toLowerCase().includes(query))
+    )
   }
 
-  const renderInfluencerCards = () => (
-    <div className="influencers-grid">
-      {getFilteredInfluencers().map(influencer => (
-        <div key={influencer.id} className="influencer-card">
-          <div className="card-header">
-            <div className="profile-picture-placeholder">
-              {getInitials(influencer.name)}
-            </div>
-            <div className="influencer-info">
-              <h3 className="influencer-name">{influencer.name}</h3>
-              <div className="stats">
-                <span className="stat">
-                  <strong>{formatCount(influencer.followersCount)}</strong> followers
-                </span>
-                <span className="stat">
-                  <strong>{influencer.sessionsCount}</strong> sessions
-                </span>
+  const getFilteredInfluencers = () => {
+    let filtered: Influencer[]
+    
+    switch (activeTab) {
+      case 'followings':
+        filtered = influencers.filter(influencer => influencer.isFollowing)
+        break
+      case 'discover':
+      default:
+        filtered = influencers
+        break
+    }
+    
+    return filterInfluencersBySearch(filtered)
+  }
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value)
+  }
+
+  const clearSearch = () => {
+    setSearchQuery('')
+  }
+
+  const renderInfluencerCards = () => {
+    const filteredInfluencers = getFilteredInfluencers()
+    
+    if (filteredInfluencers.length === 0 && searchQuery.trim()) {
+      return (
+        <div className="no-results">
+          <h3>No influencers found</h3>
+          <p>Try adjusting your search terms or browse all influencers.</p>
+          <Button 
+            variant="secondary"
+            size="medium"
+            onClick={clearSearch}
+            className="clear-search-btn"
+          >
+            Clear Search
+          </Button>
+        </div>
+      )
+    }
+
+    return (
+      <div className="influencers-grid">
+        {filteredInfluencers.map(influencer => (
+          <div key={influencer.id} className="influencer-card">
+            <div className="card-header">
+              <div className="profile-picture-placeholder">
+                {getInitials(influencer.name)}
+              </div>
+              <div className="influencer-info">
+                <h3 className="influencer-name">{influencer.name}</h3>
+                <div className="stats">
+                  <span className="stat">
+                    <strong>{formatCount(influencer.followersCount)}</strong> followers
+                  </span>
+                  <span className="stat">
+                    <strong>{influencer.sessionsCount}</strong> sessions
+                  </span>
+                </div>
               </div>
             </div>
+            
+            <p className="description">{influencer.description}</p>
+            
+            <div className="specializations">
+              {influencer.specializations.map((spec, index) => (
+                <span key={index} className="specialization-tag">
+                  {spec}
+                </span>
+              ))}
+            </div>
+            
+            <div className="card-actions">
+              <Button 
+                variant={influencer.isFollowing ? "secondary" : "primary"}
+                size="small"
+                onClick={() => handleFollowToggle(influencer.id)}
+                className="follow-btn"
+              >
+                {influencer.isFollowing ? 'Following' : 'Follow'}
+              </Button>
+              <Button 
+                variant="secondary"
+                size="small"
+                className="view-profile-btn"
+              >
+                View Profile
+              </Button>
+            </div>
           </div>
-          
-          <p className="description">{influencer.description}</p>
-          
-          <div className="specializations">
-            {influencer.specializations.map((spec, index) => (
-              <span key={index} className="specialization-tag">
-                {spec}
-              </span>
-            ))}
-          </div>
-          
-          <div className="card-actions">
-            <Button 
-              variant={influencer.isFollowing ? "secondary" : "primary"}
-              size="small"
-              onClick={() => handleFollowToggle(influencer.id)}
-              className="follow-btn"
-            >
-              {influencer.isFollowing ? 'Following' : 'Follow'}
-            </Button>
-            <Button 
-              
-              size="small"
-              className="view-profile-btn"
-            >
-              View Profile
-            </Button>
-          </div>
-        </div>
-      ))}
-    </div>
-  )
+        ))}
+      </div>
+    )
+  }
 
   const renderEventsContent = () => (
     <div className="events-content">
@@ -200,10 +247,42 @@ const Influencers = () => {
         </div>
       </div>
 
+      {/* Search Bar - Only show for discover and followings tabs */}
+      {activeTab !== 'events' && (
+        <div className="search-container">
+          <div className="search-input-wrapper">
+            <input
+              type="text"
+              placeholder="Search influencers by name, expertise, or description..."
+              value={searchQuery}
+              onChange={handleSearchChange}
+              className="search-input"
+            />
+            <div className="search-icon">
+              🔍
+            </div>
+            {searchQuery && (
+              <button
+                onClick={clearSearch}
+                className="clear-search"
+                type="button"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+          {searchQuery && (
+            <div className="search-results-info">
+              Showing {getFilteredInfluencers().length} results for "{searchQuery}"
+            </div>
+          )}
+        </div>
+      )}
+
       <div className="tab-content">
         {activeTab === 'events' ? renderEventsContent() : renderInfluencerCards()}
         
-        {activeTab === 'followings' && getFilteredInfluencers().length === 0 && (
+        {activeTab === 'followings' && getFilteredInfluencers().length === 0 && !searchQuery.trim() && (
           <div className="empty-state">
             <h3>No influencers followed yet</h3>
             <p>Discover and follow astronomy influencers to see them here.</p>

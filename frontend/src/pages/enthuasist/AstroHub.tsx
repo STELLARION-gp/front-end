@@ -1914,6 +1914,9 @@ const AstroHub: React.FC = () => {
                         <Button variant="primary" size="small">
                           Set Reminder
                         </Button>
+                        <Button variant="secondary" size="small">
+                          See More
+                        </Button>
                       </div>
                     </div>
                   </div>

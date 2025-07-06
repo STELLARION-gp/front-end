@@ -53,6 +53,8 @@ export const PAGE_ACCESS_CONTROL = {
     '/dashboard/stargazing': ['enthusiast', 'influencer','admin', 'learner','mentor','moderator'] as UserRole[],
     '/dashboard/booking-requests': ['guide'] as UserRole[],
     '/dashboard/astrohub': ['enthusiast'] as UserRole[],
+    '/dashboard/volunteering': ['enthusiast'] as UserRole[],
+    '/dashboard/sponsorships': ['enthusiast', 'influencer',] as UserRole[],
     
 
 };
@@ -84,6 +86,7 @@ export const ROLE_BASED_MENU_ITEMS = {
         { label: 'Blogs', icon: 'BookOpenIcon', href: '/dashboard/blogs' },
         { label: 'Astro Hub', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/astrohub' },
         { label: 'Volunteering', icon: 'HandRaisedIcon', href: '/dashboard/volunteering' },
+        { label: 'Sponsorships', icon: 'CurrencyDollarIcon', href: '/dashboard/sponsorships' },
         { label: 'Settings', icon: 'Cog6ToothIcon', href: '/dashboard/settings' },
     ],
     influencer: [
@@ -94,6 +97,7 @@ export const ROLE_BASED_MENU_ITEMS = {
         { label: 'Stargazing Spot', icon: 'StarIcon', href: '/dashboard/stargazing' },
         { label: 'Chat', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/chat' },
         { label: 'Astro Hub', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/astrohub' },
+        { label: 'Sponsorships', icon: 'CurrencyDollarIcon', href: '/dashboard/sponsorships' },
         { label: 'Settings', icon: 'Cog6ToothIcon', href: '/dashboard/settings' },
     ],
     guide: [

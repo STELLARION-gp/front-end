@@ -34,70 +34,72 @@ const Influencers = () => {
   const [showProfileModal, setShowProfileModal] = useState(false)
   const [selectedInfluencer, setSelectedInfluencer] = useState<Influencer | null>(null)
   const [influencers, setInfluencers] = useState<Influencer[]>([
-    {
+    
+    
+      {
       id: 1,
-      name: "Dr. Sarah Chen",
+      name: "Dr. Chandima Perera",
       profilePicture: "",
-      description: "Astrophysicist specializing in exoplanet research with 15+ years of experience in space exploration.",
-      specializations: ["Exoplanets", "Space Exploration", "Astrophysics"],
-      followersCount: 12500,
-      sessionsCount: 45,
+      description: "Leading astronomy researcher from University of Colombo, specializing in stellar physics and variable star analysis.",
+      specializations: ["Stellar Physics", "Variable Stars", "Photometry"],
+      followersCount: 3400,
+      sessionsCount: 22,
       isFollowing: false,
-      bio: "Dr. Sarah Chen is a renowned astrophysicist with over 15 years of experience in exoplanet research. She has contributed to major discoveries in the field and is passionate about making space science accessible to everyone.",
-      location: "California, USA",
-      website: "www.sarahchen-astro.com",
-      joinedDate: "January 2020",
-      totalViews: 250000,
-      rating: 4.9,
+      bio: "Dr. Chandima Perera is a distinguished astronomy researcher from the University of Colombo, Sri Lanka. He has made significant contributions to stellar physics research and is passionate about promoting astronomy education in South Asia.",
+      location: "Colombo, Sri Lanka",
+      website: "www.stellar-research-sl.edu.lk",
+      joinedDate: "September 2021",
+      totalViews: 85000,
+      rating: 4.6,
       recentSessions: [
-        { id: 1, title: "Discovering New Worlds: Latest Exoplanet Findings", date: "June 28, 2025", duration: "1h 30m", attendees: 342 },
-        { id: 2, title: "The James Webb Telescope Revolution", date: "June 15, 2025", duration: "2h", attendees: 567 },
-        { id: 3, title: "Life Beyond Earth: What We Know So Far", date: "May 30, 2025", duration: "1h 45m", attendees: 489 }
+        { id: 1, title: "Variable Stars of the Southern Hemisphere", date: "June 22, 2025", duration: "1h 20m", attendees: 145 },
+        { id: 2, title: "Stellar Evolution and Life Cycles", date: "June 8, 2025", duration: "1h 45m", attendees: 178 },
       ],
-      achievements: ["NASA Research Award 2023", "Best Science Communicator 2022", "Top Astronomy Educator 2021"]
+      achievements: ["Sri Lankan Science Award 2024", "SAARC Astronomy Excellence 2023"]
     },
     {
       id: 2,
-      name: "Mark Johnson",
+      name: "Nadeeka Silva",
       profilePicture: "",
-      description: "Professional astronomer and educator passionate about making astronomy accessible to everyone.",
-      specializations: ["Deep Sky Objects", "Telescope Reviews", "Beginner Astronomy"],
-      followersCount: 8900,
-      sessionsCount: 32,
-      isFollowing: true,
-      bio: "Mark Johnson is a professional astronomer and educator who has dedicated his career to making astronomy accessible to beginners. He specializes in deep sky observations and telescope guidance.",
-      location: "Colorado, USA",
-      website: "www.stargazerwithmark.com",
-      joinedDate: "March 2020",
-      totalViews: 180000,
-      rating: 4.7,
+      description: "Amateur astronomer and astrophotographer capturing the beauty of Sri Lankan night skies.",
+      specializations: ["Astrophotography", "Night Sky Navigation", "Beginner Guides"],
+      followersCount: 5600,
+      sessionsCount: 18,
+      isFollowing: false,
+      bio: "Nadeeka Silva is a passionate amateur astronomer and astrophotographer based in Kandy, Sri Lanka. She specializes in capturing stunning images of the night sky and teaches beginners about astronomy in tropical regions.",
+      location: "Kandy, Sri Lanka",
+      website: "www.srilankastars.com",
+      joinedDate: "February 2022",
+      totalViews: 95000,
+      rating: 4.5,
       recentSessions: [
-        { id: 1, title: "Choosing Your First Telescope", date: "June 25, 2025", duration: "1h 15m", attendees: 234 },
-        { id: 2, title: "Deep Sky Photography for Beginners", date: "June 10, 2025", duration: "2h 30m", attendees: 189 },
+        { id: 1, title: "Astrophotography in Tropical Climates", date: "June 26, 2025", duration: "1h 30m", attendees: 198 },
+        { id: 2, title: "Southern Sky Constellations Guide", date: "June 12, 2025", duration: "1h 15m", attendees: 167 },
+        { id: 3, title: "Monsoon Season Astronomy Tips", date: "May 28, 2025", duration: "1h", attendees: 143 }
       ],
-      achievements: ["Astronomy Educator of the Year 2023", "Community Choice Award 2022"]
+      achievements: ["Best Astrophotography Sri Lanka 2024", "Community Educator Award 2023"]
     },
     {
       id: 3,
-      name: "Luna Rodriguez",
+      name: "Prof. Ranil Wickramasinghe",
       profilePicture: "",
-      description: "Planetary scientist and science communicator focusing on Mars exploration and planetary geology.",
-      specializations: ["Mars Research", "Planetary Geology", "Space Missions"],
-      followersCount: 15200,
-      sessionsCount: 38,
-      isFollowing: false,
-      bio: "Luna Rodriguez is a planetary scientist specializing in Mars exploration and planetary geology. She works closely with NASA mission teams and brings the latest Mars discoveries to the public.",
-      location: "Texas, USA",
-      website: "www.marswithluna.org",
-      joinedDate: "August 2019",
-      totalViews: 320000,
+      description: "Emeritus professor of astronomy and pioneer of space science education in Sri Lanka.",
+      specializations: ["Space Science Education", "Radio Astronomy", "Cosmic Rays"],
+      followersCount: 7800,
+      sessionsCount: 45,
+      isFollowing: true,
+      bio: "Professor Ranil Wickramasinghe is an emeritus professor and pioneer of space science education in Sri Lanka. He has dedicated over 30 years to astronomical research and education, establishing several astronomy programs in the country.",
+      location: "Peradeniya, Sri Lanka",
+      website: "www.spaceedu-sl.org",
+      joinedDate: "June 2020",
+      totalViews: 145000,
       rating: 4.8,
       recentSessions: [
-        { id: 1, title: "Latest Mars Rover Discoveries", date: "June 30, 2025", duration: "1h 45m", attendees: 445 },
-        { id: 2, title: "Geological Wonders of Mars", date: "June 18, 2025", duration: "2h", attendees: 367 },
-        { id: 3, title: "Future Mars Missions: What's Coming Next", date: "June 5, 2025", duration: "1h 30m", attendees: 512 }
+        { id: 1, title: "History of Astronomy in Sri Lanka", date: "July 1, 2025", duration: "2h", attendees: 234 },
+        { id: 2, title: "Radio Astronomy Fundamentals", date: "June 18, 2025", duration: "1h 45m", attendees: 189 },
+        { id: 3, title: "Cosmic Ray Detection Methods", date: "June 5, 2025", duration: "1h 30m", attendees: 156 }
       ],
-      achievements: ["Mars Research Excellence Award 2024", "Science Communication Champion 2023"]
+      achievements: ["National Science Foundation Award 2023", "Lifetime Achievement in Astronomy 2022", "UNESCO Science Education Medal 2021"]
     },
     {
       id: 4,
@@ -120,72 +122,8 @@ const Influencers = () => {
         { id: 3, title: "Cosmic Microwave Background Explained", date: "June 8, 2025", duration: "1h 50m", attendees: 598 }
       ],
       achievements: ["Breakthrough Physics Prize 2024", "Distinguished Professor Award 2023", "Cosmology Research Medal 2022"]
-    },
-    {
-      id: 5,
-      name: "Dr. Chandima Perera",
-      profilePicture: "",
-      description: "Leading astronomy researcher from University of Colombo, specializing in stellar physics and variable star analysis.",
-      specializations: ["Stellar Physics", "Variable Stars", "Photometry"],
-      followersCount: 3400,
-      sessionsCount: 22,
-      isFollowing: false,
-      bio: "Dr. Chandima Perera is a distinguished astronomy researcher from the University of Colombo, Sri Lanka. He has made significant contributions to stellar physics research and is passionate about promoting astronomy education in South Asia.",
-      location: "Colombo, Sri Lanka",
-      website: "www.stellar-research-sl.edu.lk",
-      joinedDate: "September 2021",
-      totalViews: 85000,
-      rating: 4.6,
-      recentSessions: [
-        { id: 1, title: "Variable Stars of the Southern Hemisphere", date: "June 22, 2025", duration: "1h 20m", attendees: 145 },
-        { id: 2, title: "Stellar Evolution and Life Cycles", date: "June 8, 2025", duration: "1h 45m", attendees: 178 },
-      ],
-      achievements: ["Sri Lankan Science Award 2024", "SAARC Astronomy Excellence 2023"]
-    },
-    {
-      id: 6,
-      name: "Nadeeka Silva",
-      profilePicture: "",
-      description: "Amateur astronomer and astrophotographer capturing the beauty of Sri Lankan night skies.",
-      specializations: ["Astrophotography", "Night Sky Navigation", "Beginner Guides"],
-      followersCount: 5600,
-      sessionsCount: 18,
-      isFollowing: false,
-      bio: "Nadeeka Silva is a passionate amateur astronomer and astrophotographer based in Kandy, Sri Lanka. She specializes in capturing stunning images of the night sky and teaches beginners about astronomy in tropical regions.",
-      location: "Kandy, Sri Lanka",
-      website: "www.srilankastars.com",
-      joinedDate: "February 2022",
-      totalViews: 95000,
-      rating: 4.5,
-      recentSessions: [
-        { id: 1, title: "Astrophotography in Tropical Climates", date: "June 26, 2025", duration: "1h 30m", attendees: 198 },
-        { id: 2, title: "Southern Sky Constellations Guide", date: "June 12, 2025", duration: "1h 15m", attendees: 167 },
-        { id: 3, title: "Monsoon Season Astronomy Tips", date: "May 28, 2025", duration: "1h", attendees: 143 }
-      ],
-      achievements: ["Best Astrophotography Sri Lanka 2024", "Community Educator Award 2023"]
-    },
-    {
-      id: 7,
-      name: "Prof. Ranil Wickramasinghe",
-      profilePicture: "",
-      description: "Emeritus professor of astronomy and pioneer of space science education in Sri Lanka.",
-      specializations: ["Space Science Education", "Radio Astronomy", "Cosmic Rays"],
-      followersCount: 7800,
-      sessionsCount: 45,
-      isFollowing: true,
-      bio: "Professor Ranil Wickramasinghe is an emeritus professor and pioneer of space science education in Sri Lanka. He has dedicated over 30 years to astronomical research and education, establishing several astronomy programs in the country.",
-      location: "Peradeniya, Sri Lanka",
-      website: "www.spaceedu-sl.org",
-      joinedDate: "June 2020",
-      totalViews: 145000,
-      rating: 4.8,
-      recentSessions: [
-        { id: 1, title: "History of Astronomy in Sri Lanka", date: "July 1, 2025", duration: "2h", attendees: 234 },
-        { id: 2, title: "Radio Astronomy Fundamentals", date: "June 18, 2025", duration: "1h 45m", attendees: 189 },
-        { id: 3, title: "Cosmic Ray Detection Methods", date: "June 5, 2025", duration: "1h 30m", attendees: 156 }
-      ],
-      achievements: ["National Science Foundation Award 2023", "Lifetime Achievement in Astronomy 2022", "UNESCO Science Education Medal 2021"]
     }
+    
   ])
 
   const handleFollowToggle = (id: number) => {
@@ -319,7 +257,8 @@ const Influencers = () => {
                 onClick={() => handleFollowToggle(influencer.id)}
                 className="follow-btn"
               >
-                {influencer.isFollowing ? 'Following' : 'Follow'}
+
+                {activeTab === 'followings' && influencer.isFollowing ? 'Unfollow' : (influencer.isFollowing ? 'Following' : 'Follow')}
               </Button>
               <Button 
                 variant="secondary"

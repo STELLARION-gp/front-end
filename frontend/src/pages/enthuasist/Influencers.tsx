@@ -120,6 +120,71 @@ const Influencers = () => {
         { id: 3, title: "Cosmic Microwave Background Explained", date: "June 8, 2025", duration: "1h 50m", attendees: 598 }
       ],
       achievements: ["Breakthrough Physics Prize 2024", "Distinguished Professor Award 2023", "Cosmology Research Medal 2022"]
+    },
+    {
+      id: 5,
+      name: "Dr. Chandima Perera",
+      profilePicture: "",
+      description: "Leading astronomy researcher from University of Colombo, specializing in stellar physics and variable star analysis.",
+      specializations: ["Stellar Physics", "Variable Stars", "Photometry"],
+      followersCount: 3400,
+      sessionsCount: 22,
+      isFollowing: false,
+      bio: "Dr. Chandima Perera is a distinguished astronomy researcher from the University of Colombo, Sri Lanka. He has made significant contributions to stellar physics research and is passionate about promoting astronomy education in South Asia.",
+      location: "Colombo, Sri Lanka",
+      website: "www.stellar-research-sl.edu.lk",
+      joinedDate: "September 2021",
+      totalViews: 85000,
+      rating: 4.6,
+      recentSessions: [
+        { id: 1, title: "Variable Stars of the Southern Hemisphere", date: "June 22, 2025", duration: "1h 20m", attendees: 145 },
+        { id: 2, title: "Stellar Evolution and Life Cycles", date: "June 8, 2025", duration: "1h 45m", attendees: 178 },
+      ],
+      achievements: ["Sri Lankan Science Award 2024", "SAARC Astronomy Excellence 2023"]
+    },
+    {
+      id: 6,
+      name: "Nadeeka Silva",
+      profilePicture: "",
+      description: "Amateur astronomer and astrophotographer capturing the beauty of Sri Lankan night skies.",
+      specializations: ["Astrophotography", "Night Sky Navigation", "Beginner Guides"],
+      followersCount: 5600,
+      sessionsCount: 18,
+      isFollowing: false,
+      bio: "Nadeeka Silva is a passionate amateur astronomer and astrophotographer based in Kandy, Sri Lanka. She specializes in capturing stunning images of the night sky and teaches beginners about astronomy in tropical regions.",
+      location: "Kandy, Sri Lanka",
+      website: "www.srilankastars.com",
+      joinedDate: "February 2022",
+      totalViews: 95000,
+      rating: 4.5,
+      recentSessions: [
+        { id: 1, title: "Astrophotography in Tropical Climates", date: "June 26, 2025", duration: "1h 30m", attendees: 198 },
+        { id: 2, title: "Southern Sky Constellations Guide", date: "June 12, 2025", duration: "1h 15m", attendees: 167 },
+        { id: 3, title: "Monsoon Season Astronomy Tips", date: "May 28, 2025", duration: "1h", attendees: 143 }
+      ],
+      achievements: ["Best Astrophotography Sri Lanka 2024", "Community Educator Award 2023"]
+    },
+    {
+      id: 7,
+      name: "Prof. Ranil Wickramasinghe",
+      profilePicture: "",
+      description: "Emeritus professor of astronomy and pioneer of space science education in Sri Lanka.",
+      specializations: ["Space Science Education", "Radio Astronomy", "Cosmic Rays"],
+      followersCount: 7800,
+      sessionsCount: 45,
+      isFollowing: true,
+      bio: "Professor Ranil Wickramasinghe is an emeritus professor and pioneer of space science education in Sri Lanka. He has dedicated over 30 years to astronomical research and education, establishing several astronomy programs in the country.",
+      location: "Peradeniya, Sri Lanka",
+      website: "www.spaceedu-sl.org",
+      joinedDate: "June 2020",
+      totalViews: 145000,
+      rating: 4.8,
+      recentSessions: [
+        { id: 1, title: "History of Astronomy in Sri Lanka", date: "July 1, 2025", duration: "2h", attendees: 234 },
+        { id: 2, title: "Radio Astronomy Fundamentals", date: "June 18, 2025", duration: "1h 45m", attendees: 189 },
+        { id: 3, title: "Cosmic Ray Detection Methods", date: "June 5, 2025", duration: "1h 30m", attendees: 156 }
+      ],
+      achievements: ["National Science Foundation Award 2023", "Lifetime Achievement in Astronomy 2022", "UNESCO Science Education Medal 2021"]
     }
   ])
 
@@ -138,7 +203,9 @@ const Influencers = () => {
     setShowProfileModal(true)
   }
 
-  const closeProfileModal = () => {
+  const closeProfileModal = (e?: React.MouseEvent) => {
+    e?.preventDefault()
+    e?.stopPropagation()
     setShowProfileModal(false)
     setSelectedInfluencer(null)
   }
@@ -296,8 +363,9 @@ const Influencers = () => {
             <h2>Influencer Profile</h2>
             <button 
               className="profile-modal__close"
-              onClick={closeProfileModal}
+              onClick={(e) => closeProfileModal(e)}
               aria-label="Close modal"
+              type="button"
             >
               ✕
             </button>

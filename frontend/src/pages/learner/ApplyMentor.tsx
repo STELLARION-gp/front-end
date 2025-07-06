@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "../../styles/pages/learner/ApplyMentor.scss";
+import Button from "../../components/Button";
 
 const mentors = [
   {
@@ -65,14 +66,18 @@ const ApplyMentor: React.FC = () => {
   if (!mentor) return <div>Mentor not found.</div>;
   return (
     <div className="apply-mentor-page">
-      <div className="mentor-details">
-        <img src={mentor.image} alt={mentor.name} className="mentor-details__image" />
-        <div className="mentor-details__info">
-          <h2>{mentor.name}</h2>
-          <p><strong>Expertise:</strong> {mentor.expertise}</p>
-          <p><strong>Email:</strong> {mentor.email}</p>
-          <p><strong>Available Slots:</strong> {mentor.availableSlots}</p>
-          <p className="mentor-details__bio">{mentor.bio}</p>
+      <div className="mentor-card mentor-card--modern mentor-card--apply">
+        <div className="mentor-card__avatar-bg">
+          {mentor.image && (
+            <img src={mentor.image} alt={mentor.name} className="mentor-card__image" />
+          )}
+        </div>
+        <div className="mentor-card__info__apply">
+          <h2 className="mentor-card__name">{mentor.name}</h2>
+          <div className="mentor-card__expertise"><b>{mentor.expertise}</b></div>
+          <div className="mentor-card__desc">{mentor.bio}</div>
+          <div className="mentor-card__slots">Available Slots: {mentor.availableSlots}</div>
+          <div className="mentor-card__email">Email: {mentor.email}</div>
         </div>
       </div>
       <form className="apply-form" onSubmit={handleSubmit}>
@@ -102,7 +107,7 @@ const ApplyMentor: React.FC = () => {
           ))}
         </div>
         {error && <div className="error-msg">{error}</div>}
-        <button className="apply-btn" type="submit">Apply</button>
+        <Button type="submit">Apply</Button>
       </form>
     </div>
   );

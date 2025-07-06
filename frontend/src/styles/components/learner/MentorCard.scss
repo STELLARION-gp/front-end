@@ -49,3 +49,82 @@
     }
   }
 }
+
+.mentor-card--modern {
+  background: #19223a;
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.13);
+  padding: 2rem 1.5rem 1.5rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 320px;
+  margin: 1.5rem auto;
+  border: 2px solid #2e3a5e;
+}
+.mentor-card__avatar-bg {
+  background: linear-gradient(135deg, #4f8cff 0%, #a259ff 100%);
+  border-radius: 50%;
+  width: 110px;
+  height: 110px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.1rem;
+  box-shadow: 0 2px 8px rgba(80,80,180,0.13);
+}
+.mentor-card__image {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #fff;
+  background: #e0e7ff;
+}
+.mentor-card__info {
+  text-align: center;
+}
+.mentor-card__name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 0.3rem;
+}
+.mentor-card__expertise {
+  color: #fff;
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+.mentor-card__desc {
+  color: #c7d0e6;
+  font-size: 1rem;
+  margin-bottom: 1.1rem;
+}
+.mentor-card__apply-btn {
+  width: 100%;
+  background: transparent;
+  color: #fff;
+  border: 2px solid #4f8cff;
+  border-radius: 8px;
+  padding: 0.6rem 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-bottom: 0.7rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  &:hover {
+    background: #4f8cff;
+    color: #fff;
+  }
+}
+.mentor-card__accepting {
+    margin-top: 0.5rem;
+  color: #00e396;
+  font-size: 0.98rem;
+  font-weight: 600;
+  background: rgba(0,227,150,0.08);
+  border-radius: 6px;
+  padding: 0.3rem 0.7rem;
+  display: inline-block;
+}

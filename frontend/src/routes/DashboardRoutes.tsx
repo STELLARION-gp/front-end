@@ -38,6 +38,8 @@ import RecordedSessionPage from '../pages/learner/Recorded_Session_Page';
 import NightCampDetails from '../pages/learner/NightCampDetails';
 import Influencers from '../pages/enthuasist/Influencers';
 import Sponsorships from '../pages/enthusiast/Sponsorships';
+import Mentors from '../pages/learner/Mentors';
+import ApplyMentor from '../pages/learner/ApplyMentor';
 
 // Create placeholder components for different pages - all memoized
 // const BlogsPage = memo(() => (
@@ -182,6 +184,14 @@ const DashboardRoutes = () => {
                 element={
                     <RoleGuard allowedRoles={['learner']}>
                         <NasaImagesPage />
+                    </RoleGuard>
+                }
+            />
+            <Route
+                path='mentors'
+                element={
+                    <RoleGuard allowedRoles={['learner']}>
+                        <Mentors />
                     </RoleGuard>
                 }
             />
@@ -370,6 +380,16 @@ const DashboardRoutes = () => {
                 }
             />
                 
+
+
+            <Route
+                path="apply-mentor/:mentorId"
+                element={
+                    <RoleGuard allowedRoles={['learner']}>
+                        <ApplyMentor />
+                    </RoleGuard>
+                }
+            />
 
 
             {/* Default redirect to overview */}

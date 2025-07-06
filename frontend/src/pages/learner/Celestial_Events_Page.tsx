@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import SpaceEventCard from "../../components/Learner/SpaceEvent";
 import Button from "../../components/Button";
-import CelestialEventModal from "../../components/Learner/CelestialEventModal";
+import CelestialEventModel from "./CelestialEventModel";
 import { eventLocations, eventComments } from "./celestialEventMockData";
 import "../../styles/pages/learner/Celestial_Events_Page.scss";
 import "../../styles/pages/enthusiast/NightCamps.scss";
@@ -143,7 +143,7 @@ const CelestialEventsPage: React.FC = () => {
           <SpaceEventCard key={ev.id} event={ev} onClick={() => handleOpenModal(ev)} />
         ))}
       </div>
-      <CelestialEventModal
+      <CelestialEventModel
         open={modalOpen}
         onClose={handleCloseModal}
         event={selectedEvent ? {

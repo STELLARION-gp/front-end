@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import '../../styles/pages/enthusiast/Influencers.scss' 
+import '../../styles/pages/enthusiast/Influencers.scss'
+import Button from '../../components//Button'
 
 interface Influencer {
   id: number
@@ -18,7 +19,7 @@ const Influencers = () => {
     {
       id: 1,
       name: "Dr. Sarah Chen",
-      profilePicture: "https://via.placeholder.com/120x120",
+      profilePicture: "",
       description: "Astrophysicist specializing in exoplanet research with 15+ years of experience in space exploration.",
       specializations: ["Exoplanets", "Space Exploration", "Astrophysics"],
       followersCount: 12500,
@@ -28,7 +29,7 @@ const Influencers = () => {
     {
       id: 2,
       name: "Mark Johnson",
-      profilePicture: "https://via.placeholder.com/120x120",
+      profilePicture: "",
       description: "Professional astronomer and educator passionate about making astronomy accessible to everyone.",
       specializations: ["Deep Sky Objects", "Telescope Reviews", "Beginner Astronomy"],
       followersCount: 8900,
@@ -38,7 +39,7 @@ const Influencers = () => {
     {
       id: 3,
       name: "Luna Rodriguez",
-      profilePicture: "https://via.placeholder.com/120x120",
+      profilePicture: "",
       description: "Planetary scientist and science communicator focusing on Mars exploration and planetary geology.",
       specializations: ["Mars Research", "Planetary Geology", "Space Missions"],
       followersCount: 15200,
@@ -48,7 +49,7 @@ const Influencers = () => {
     {
       id: 4,
       name: "Prof. James Wright",
-      profilePicture: "https://via.placeholder.com/120x120",
+      profilePicture: "",
       description: "Cosmologist researching dark matter and the early universe with groundbreaking discoveries.",
       specializations: ["Cosmology", "Dark Matter", "Big Bang Theory"],
       followersCount: 22100,
@@ -74,6 +75,15 @@ const Influencers = () => {
     return count.toString()
   }
 
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(word => word.charAt(0))
+      .join('')
+      .toUpperCase()
+      .slice(0, 2)
+  }
+
   const getFilteredInfluencers = () => {
     switch (activeTab) {
       case 'followings':
@@ -89,11 +99,9 @@ const Influencers = () => {
       {getFilteredInfluencers().map(influencer => (
         <div key={influencer.id} className="influencer-card">
           <div className="card-header">
-            <img 
-              src={influencer.profilePicture} 
-              alt={influencer.name}
-              className="profile-picture"
-            />
+            <div className="profile-picture-placeholder">
+              {getInitials(influencer.name)}
+            </div>
             <div className="influencer-info">
               <h3 className="influencer-name">{influencer.name}</h3>
               <div className="stats">
@@ -118,15 +126,21 @@ const Influencers = () => {
           </div>
           
           <div className="card-actions">
-            <button 
-              className={`follow-btn ${influencer.isFollowing ? 'following' : ''}`}
+            <Button 
+              variant={influencer.isFollowing ? "border" : "primary"}
+              size="medium"
               onClick={() => handleFollowToggle(influencer.id)}
+              className="follow-btn"
             >
               {influencer.isFollowing ? 'Following' : 'Follow'}
-            </button>
-            <button className="view-profile-btn">
+            </Button>
+            <Button 
+              variant="outlined"
+              size="medium"
+              className="view-profile-btn"
+            >
               View Profile
-            </button>
+            </Button>
           </div>
         </div>
       ))}
@@ -159,24 +173,30 @@ const Influencers = () => {
 
       <div className="tabs-container">
         <div className="tabs">
-          <button 
-            className={`tab ${activeTab === 'discover' ? 'active' : ''}`}
+          <Button 
+            variant={activeTab === 'discover' ? 'primary' : 'border'}
+            size="medium"
             onClick={() => setActiveTab('discover')}
+            className="tab"
           >
             Discover
-          </button>
-          <button 
-            className={`tab ${activeTab === 'followings' ? 'active' : ''}`}
+          </Button>
+          <Button 
+            variant={activeTab === 'followings' ? 'primary' : 'border'}
+            size="medium"
             onClick={() => setActiveTab('followings')}
+            className="tab"
           >
             Following ({influencers.filter(i => i.isFollowing).length})
-          </button>
-          <button 
-            className={`tab ${activeTab === 'events' ? 'active' : ''}`}
+          </Button>
+          <Button 
+            variant={activeTab === 'events' ? 'primary' : 'border'}
+            size="medium"
             onClick={() => setActiveTab('events')}
+            className="tab"
           >
             Events
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -187,12 +207,14 @@ const Influencers = () => {
           <div className="empty-state">
             <h3>No influencers followed yet</h3>
             <p>Discover and follow astronomy influencers to see them here.</p>
-            <button 
-              className="discover-btn"
+            <Button 
+              variant="primary"
+              size="large"
               onClick={() => setActiveTab('discover')}
+              className="discover-btn"
             >
               Discover Influencers
-            </button>
+            </Button>
           </div>
         )}
       </div>

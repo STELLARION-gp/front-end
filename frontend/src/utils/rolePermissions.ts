@@ -86,7 +86,7 @@ export const ROLE_BASED_MENU_ITEMS = {
         { label: 'Blogs', icon: 'BookOpenIcon', href: '/dashboard/blogs' },
         { label: 'Astro Hub', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/astrohub' },
         { label: 'Volunteering', icon: 'HandRaisedIcon', href: '/dashboard/volunteering' },
-        { label: 'Sponsorships', icon: 'HandRaisedIcon', href: '/dashboard/sponsorships' },
+        { label: 'Sponsorships', icon: 'CurrencyDollarIcon', href: '/dashboard/sponsorships' },
         { label: 'Settings', icon: 'Cog6ToothIcon', href: '/dashboard/settings' },
     ],
     influencer: [
@@ -97,7 +97,7 @@ export const ROLE_BASED_MENU_ITEMS = {
         { label: 'Stargazing Spot', icon: 'StarIcon', href: '/dashboard/stargazing' },
         { label: 'Chat', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/chat' },
         { label: 'Astro Hub', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/astrohub' },
-        { label: 'Sponsorships', icon: 'HandRaisedIcon', href: '/dashboard/sponsorships' },
+        { label: 'Sponsorships', icon: 'CurrencyDollarIcon', href: '/dashboard/sponsorships' },
         { label: 'Settings', icon: 'Cog6ToothIcon', href: '/dashboard/settings' },
     ],
     guide: [

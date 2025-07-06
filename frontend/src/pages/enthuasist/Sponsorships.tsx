@@ -199,22 +199,6 @@ const Sponsorships: React.FC = () => {
     return v;
   };
 
-  const validateExpiryDate = (value: string) => {
-    const [month, year] = value.split('/');
-    if (!month || !year) return false;
-    
-    const currentDate = new Date();
-    const currentYear = currentDate.getFullYear() % 100;
-    const currentMonth = currentDate.getMonth() + 1;
-    
-    const expMonth = parseInt(month);
-    const expYear = parseInt(year);
-    
-    if (expMonth < 1 || expMonth > 12) return false;
-    if (expYear < currentYear || (expYear === currentYear && expMonth < currentMonth)) return false;
-    
-    return true;
-  };
 
   // Mock data for events seeking sponsorship - simplified
   const eventsSeekingSponsorship: SponsorshipEvent[] = [
@@ -332,18 +316,6 @@ const Sponsorships: React.FC = () => {
     return Math.min((raised / goal) * 100, 100);
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return 'text-green-400';
-      case 'pending':
-        return 'text-yellow-400';
-      case 'cancelled':
-        return 'text-red-400';
-      default:
-        return 'text-gray-400';
-    }
-  };
 
   return (
     <div className="sponsorships-page">

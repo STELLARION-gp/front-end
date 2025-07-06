@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import ServiceCard from "../../components/Learner/ServiceCard";
-import "../../styles/components/learner/ServiceCard.scss";
+import "../../styles/pages/learner/AstronomyServices.scss";
 
 // Custom SVG icons (from ServiceListing)
 const CalendarIcon = () => (
@@ -158,16 +158,58 @@ const services = [
 	},
 ];
 
+const filterOptions = [
+  { label: "Service Name", value: "title" },
+  { label: "Guide Name", value: "guideName" },
+  { label: "Location", value: "location" },
+];
+
+type Service = typeof services[number];
+type FilterKey = "title" | "guideName" | "location";
+
 const AstronomyServices: React.FC = () => {
+  const [search, setSearch] = useState("");
+  const [filterBy, setFilterBy] = useState<FilterKey>("title");
+
+  const filteredServices = services.filter((service) => {
+    let value = "";
+    if (filterBy === "title") value = service.title;
+    else if (filterBy === "guideName") value = service.guideName;
+    else if (filterBy === "location") value = service.location;
+    return value.toLowerCase().includes(search.toLowerCase());
+  });
+
 	return (
-		<div className="astronomy-services-page">
+		<div className="astronomy-services-container">
 			<h2>Astronomy Services</h2>
 			<p>Explore various astronomy-related services.</p>
-			<div className="services-grid">
-				{services.map((service, idx) => (
-					<ServiceCard key={idx} {...service} />
-				))}
-			</div>
+      <div className="services-filter-bar">
+        <input
+          type="text"
+          placeholder={`Search by ${filterOptions.find(f => f.value === filterBy)?.label}`}
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          className="services-search-input"
+        />
+        <select
+          value={filterBy}
+          onChange={e => setFilterBy(e.target.value as FilterKey)}
+          className="services-filter-select"
+        >
+          {filterOptions.map(opt => (
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
+          ))}
+        </select>
+      </div>
+			<div className="astronomy-services-sections">
+        {filteredServices.length > 0 ? (
+          filteredServices.map((service, idx) => (
+            <ServiceCard key={idx} {...service} />
+          ))
+        ) : (
+          <div className="no-services-found">No services found.</div>
+        )}
+      </div>
 		</div>
 	);
 };

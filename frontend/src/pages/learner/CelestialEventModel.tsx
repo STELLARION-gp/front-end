@@ -1,6 +1,6 @@
 import React from "react";
 import CelestialEventModal from "../../components/Learner/CelestialEventModal";
-import type { CelestialEvent } from "./Celestial_Events_Page";
+
 
 interface Comment {
   id: number;

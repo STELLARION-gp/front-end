@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom';
 import Button from '../../components/Button'
 import Card, { CardActions, CardContent, CardSubtitle, CardTitle } from '../../components/Card'
 import ProgressBar from '../../components/ProgressBar'
@@ -7,13 +8,17 @@ import TimeIcon from '../../assets/svg/TimeIcon'
 import LocationIcon from '../../assets/svg/LocationIcon'
 import ParticipantsIcon from '../../assets/svg/ParticipantsIcon'
 import '../../styles/pages/enthusiast/NightCamps.scss'
+import { useRoleAccess } from '../../hooks/useRoleAccess';
 
 type ActiveSection = 'upcoming' | 'organizing' | 'registered' | 'volunteers'
 
 const NightCamps = () => {
+  const { userRole } = useRoleAccess();
+  const navigate = useNavigate();
 
   const camps = [
     {
+      id: 1,
       title: "Stargazing Night Camp",
       date: "July 15, 2025",
       time: "8:00 PM",
@@ -25,6 +30,7 @@ const NightCamps = () => {
 
     },
     {
+      id: 2,
       title: "Moonlight Astronomy Camp",
       date: "August 12, 2025",
       time: "7:30 PM",
@@ -35,6 +41,7 @@ const NightCamps = () => {
       rolls: ["Observatory & Equipment Coordinator", "Night Sky Education Specialist", "Space Science Activity Leader"]
     },
     {
+      id: 3,
       title: "Stargazing Night Camp",
       date: "July 15, 2025",
       time: "8:00 PM",
@@ -247,7 +254,11 @@ case 'upcoming': {
                 </div>
               </CardContent>
               <CardActions>
-                <Button variant="primary">
+                <Button variant="primary" onClick={() => {
+                  if (userRole === 'learner') {
+                    navigate(`/dashboard/night-camps/${camp.id}`);
+                  }
+                }}>
                   Register Now
                 </Button>
               </CardActions>
@@ -668,23 +679,28 @@ case 'upcoming': {
           >
             Upcoming Camps
           </Button>
-          <Button 
-            variant={activeSection === 'organizing' ? 'primary' : 'secondary'}
-            onClick={() => setActiveSection('organizing')}
-          >
-            Join Organizing Committee
-          </Button>
+          {/* Only show these tabs if NOT learner */}
+          {userRole !== 'learner' && (
+            <>
+              <Button 
+                variant={activeSection === 'organizing' ? 'primary' : 'secondary'}
+                onClick={() => setActiveSection('organizing')}
+              >
+                Join Organizing Committee
+              </Button>
+              <Button 
+                variant={activeSection === 'volunteers' ? 'primary' : 'secondary'}
+                onClick={() => setActiveSection('volunteers')}
+              >
+                My Volunteers
+              </Button>
+            </>
+          )}
           <Button 
             variant={activeSection === 'registered' ? 'primary' : 'secondary'}
             onClick={() => setActiveSection('registered')}
           >
             Registered Camps
-          </Button>
-          <Button 
-            variant={activeSection === 'volunteers' ? 'primary' : 'secondary'}
-            onClick={() => setActiveSection('volunteers')}
-          >
-            My Volunteers
           </Button>
         </div>
 

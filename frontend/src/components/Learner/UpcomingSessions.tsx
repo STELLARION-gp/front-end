@@ -8,6 +8,7 @@ const UpcomingSessions: React.FC = () => {
   const [difficulty, setDifficulty] = useState("");
   const [category, setCategory] = useState("");
 
+
   const filtered = upcomingSessions.filter((s) =>
     (s.title.toLowerCase().includes(search.toLowerCase()) ||
       s.organizer.toLowerCase().includes(search.toLowerCase())) &&

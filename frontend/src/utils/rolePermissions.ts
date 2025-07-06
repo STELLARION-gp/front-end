@@ -70,6 +70,7 @@ export const ROLE_BASED_MENU_ITEMS = {
         // { label: 'Celestial Events', icon: 'SparklesIcon', href: '/dashboard/celestial-events' },
         // { label: 'Chat', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/chat' },
         // { label: 'Settings', icon: 'Cog6ToothIcon', href: '/dashboard/settings' },
+        { label: 'Mentors' , icon: 'AcademicCapIcon', href: '/dashboard/mentors' },
         { label: 'Night Camps', icon: 'MoonIcon', href: '/dashboard/night-camps' },
         { label: 'Stargazing Spot', icon: 'StarIcon', href: '/dashboard/stargazing' },
         { label: 'Astro Hub', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/astrohub' },

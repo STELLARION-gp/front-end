@@ -36,6 +36,7 @@ import AstronomySessionsPage from '../pages/learner/AstronomySessionsPage';
 import RecordedSessionPage from '../pages/learner/Recorded_Session_Page';
 import NightCampDetails from '../pages/learner/NightCampDetails';
 import Influencers from '../pages/enthuasist/Influencers';
+import Sponsorships from '../pages/enthusiast/Sponsorships';
 
 // Create placeholder components for different pages - all memoized
 // const BlogsPage = memo(() => (
@@ -350,8 +351,6 @@ const DashboardRoutes = () => {
                 }
             />
 
-<<<<<<< Updated upstream
-=======
             <Route
                 path="sponsorships"
                 element={
@@ -370,12 +369,6 @@ const DashboardRoutes = () => {
                 }
             />
 
-
-
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
 
             {/* Default redirect to overview */}
             <Route path="" element={<Navigate to="overview" replace />} />

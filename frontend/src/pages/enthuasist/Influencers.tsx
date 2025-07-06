@@ -127,16 +127,16 @@ const Influencers = () => {
           
           <div className="card-actions">
             <Button 
-              variant={influencer.isFollowing ? "border" : "primary"}
-              size="medium"
+              variant={influencer.isFollowing ? "secondary" : "primary"}
+              size="small"
               onClick={() => handleFollowToggle(influencer.id)}
               className="follow-btn"
             >
               {influencer.isFollowing ? 'Following' : 'Follow'}
             </Button>
             <Button 
-              variant="outlined"
-              size="medium"
+              
+              size="small"
               className="view-profile-btn"
             >
               View Profile
@@ -174,24 +174,24 @@ const Influencers = () => {
       <div className="tabs-container">
         <div className="tabs">
           <Button 
-            variant={activeTab === 'discover' ? 'primary' : 'border'}
-            size="medium"
+            variant={activeTab === 'discover' ? 'primary' : 'secondary'}
+            size="small"
             onClick={() => setActiveTab('discover')}
             className="tab"
           >
             Discover
           </Button>
           <Button 
-            variant={activeTab === 'followings' ? 'primary' : 'border'}
-            size="medium"
+            variant={activeTab === 'followings' ? 'primary' : 'secondary'}
+            size="small"
             onClick={() => setActiveTab('followings')}
             className="tab"
           >
             Following ({influencers.filter(i => i.isFollowing).length})
           </Button>
           <Button 
-            variant={activeTab === 'events' ? 'primary' : 'border'}
-            size="medium"
+            variant={activeTab === 'events' ? 'primary' : 'secondary'}
+            size="small"
             onClick={() => setActiveTab('events')}
             className="tab"
           >

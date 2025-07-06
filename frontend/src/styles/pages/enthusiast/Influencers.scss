@@ -35,7 +35,7 @@
   justify-content: center;
 }
 
-// Tab Navigation - Fixed hover and removed backgrounds
+// Tab Navigation - Updated to match Volunteering colors
 .tabs {
   display: flex;
   gap: 1rem;
@@ -53,75 +53,74 @@
     gap: 0.75rem;
   }
 
-  // Tab button styling
-  .button {
-    padding: 12px 24px;
-    border-radius: 12px;
-    font-size: 1rem;
-    font-weight: 500;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    cursor: pointer;
-    border: 1px solid transparent;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    position: relative;
+//   // Tab button styling - matching Volunteering
+//   .button {
+//     padding: 12px 24px;
+//     border-radius: 12px;
+//     font-size: 1rem;
+//     font-weight: 500;
+//     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+//     cursor: pointer;
+//     border: 1px solid transparent;
+//     text-decoration: none;
+//     display: inline-flex;
+//     align-items: center;
+//     justify-content: center;
+//     text-align: center;
+//     backdrop-filter: blur(20px);
+//     -webkit-backdrop-filter: blur(20px);
+//     position: relative;
 
-    // Primary variant (active tab)
-    &.button--primary {
-      background: rgba(59, 130, 246, 0.2);
-      color: #93c5fd;
-      border-color: rgba(59, 130, 246, 0.4);
-      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+//     // Primary variant (active tab) - Volunteering style
+//     &.button--primary {
+//       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+//       color: white;
+//       border: 1px solid rgba(102, 126, 234, 0.3);
+//       box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 
-      &:hover {
-        background: rgba(59, 130, 246, 0.3);
-        color: #dbeafe;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
-      }
-    }
+//       &:hover {
+//         background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+//         transform: translateY(-2px);
+//         box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+//       }
+//     }
 
-    // Ghost variant (inactive tab) - removed background
-    &.button--ghost {
-      background: transparent;
-      color: #e2e8f0;
-      border-color: rgba(255, 255, 255, 0.15);
+//     // Border variant (inactive tab) - Volunteering secondary style
+//     &.button--border {
+//       background: rgba(255, 255, 255, 0.08);
+//       color: #e2e8f0;
+//       border: 1px solid rgba(255, 255, 255, 0.15);
 
-      &:hover {
-        background: rgba(59, 130, 246, 0.1);
-        border-color: rgba(59, 130, 246, 0.3);
-        color: #3b82f6;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
-      }
+//       &:hover {
+//         background: rgba(255, 255, 255, 0.12);
+//         border-color: rgba(255, 255, 255, 0.25);
+//         color: #f1f5f9;
+//         transform: translateY(-2px);
+//         box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+//       }
 
-      &:active {
-        transform: translateY(0);
-      }
-    }
+//       &:active {
+//         transform: translateY(0);
+//       }
+//     }
 
-    // Small size for tabs
-    &.button--small {
-      padding: 10px 20px;
-      font-size: 0.9rem;
-    }
+//     // Small size for tabs
+//     &.button--small {
+//       padding: 10px 20px;
+//       font-size: 0.9rem;
+//     }
 
-    // Medium size
-    &.button--medium {
-      padding: 12px 24px;
-      font-size: 1rem;
-    }
+//     // Medium size
+//     &.button--medium {
+//       padding: 12px 24px;
+//       font-size: 1rem;
+//     }
 
-    @media (max-width: 768px) {
-      width: 100%;
-      text-align: center;
-    }
-  }
+//     @media (max-width: 768px) {
+//       width: 100%;
+//       text-align: center;
+//     }
+//   }
 }
 
 .tab-content {
@@ -268,7 +267,7 @@
   }
 }
 
-// Card Actions with proper button styling
+// Card Actions with Volunteering button colors
 .card-actions {
   display: flex;
   gap: 0.75rem;
@@ -297,7 +296,7 @@
     justify-content: center;
     text-align: center;
 
-    // Primary variant (Follow button when not following)
+    // Primary variant (Follow button when not following) - Volunteering primary
     &.button--primary {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
@@ -310,31 +309,33 @@
       }
     }
 
-    // Ghost variant (Following button)
-    &.button--ghost {
-      background: rgba(59, 130, 246, 0.1);
-      color: #3b82f6;
-      border: 1px solid rgba(59, 130, 246, 0.3);
+    // Border variant (Following button) - Volunteering secondary
+    &.button--border {
+      background: rgba(255, 255, 255, 0.08);
+      color: #e2e8f0;
+      border: 1px solid rgba(255, 255, 255, 0.15);
 
       &:hover {
-        background: rgba(59, 130, 246, 0.2);
-        color: #93c5fd;
+        background: rgba(255, 255, 255, 0.12);
+        color: #f1f5f9;
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.25);
       }
     }
 
-    // Secondary variant (View Profile button)
-    &.button--secondary {
-      background: rgba(148, 163, 184, 0.1);
-      color: #94a3b8;
-      border: 1px solid rgba(148, 163, 184, 0.3);
+    // Outlined variant (View Profile button) - Volunteering secondary
+    &.button--outlined {
+      background: rgba(255, 255, 255, 0.08);
+      color: #e2e8f0;
+      border: 1px solid rgba(255, 255, 255, 0.15);
 
       &:hover {
-        background: rgba(148, 163, 184, 0.2);
-        color: #cbd5e1;
+        background: rgba(255, 255, 255, 0.12);
+        color: #f1f5f9;
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(148, 163, 184, 0.2);
+        box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.25);
       }
     }
 
@@ -350,10 +351,16 @@
       padding: 0.75rem 1.5rem;
       font-size: 0.9rem;
     }
+
+    // Small size
+    &.button--small {
+      padding: 0.5rem 1rem;
+      font-size: 0.85rem;
+    }
   }
 }
 
-// Empty State with AstroHub styling
+// Empty State - matching Volunteering colors
 .empty-state {
   text-align: center;
   padding: 3rem 1rem;
@@ -365,7 +372,7 @@
 
   h3 {
     margin-bottom: 1rem;
-    color: #cbd5e1;
+    color: #f1f5f9;
     font-size: 1.5rem;
     font-weight: 600;
   }
@@ -374,10 +381,22 @@
     margin-bottom: 1.5rem;
     font-size: 1rem;
     line-height: 1.6;
-    color: #94a3b8;
+    color: #cbd5e1;
     max-width: 400px;
     margin-left: auto;
     margin-right: auto;
+  }
+
+  .button--primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: 1px solid rgba(102, 126, 234, 0.3);
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+      background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+    }
   }
 }
 

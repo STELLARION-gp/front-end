@@ -1,48 +1,70 @@
+@use '../../components/learner/MentorCard.scss' as mentorcard;
+
 .apply-mentor-page {
-  max-width: 600px;
-  margin: 2rem auto;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-  padding: 2rem;
-}
-.mentor-details {
-  display: flex;
-  align-items: flex-start;
-  margin-bottom: 2rem;
-  &__image {
-    width: 90px;
-    height: 90px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-right: 1.5rem;
-    background: #f0f0f0;
-  }
-  &__info {
-    flex: 1;
-  }
-  &__bio {
-    margin-top: 0.7rem;
-    color: #555;
-  }
-}
-.apply-form {
+  max-width: 900px;
+  min-height: 80vh;
+  margin: 0rem auto;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  align-items: stretch;
+  background: none;
+  box-shadow: none;
+  padding: 0 0 2.5rem 0;
+}
+
+.mentor-card {
+  justify-content: center;
+}
+
+.mentor-card--apply {
+  margin-bottom: 2.2rem;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.13);
+  border: 2px solid #2e3a5e;
+  background: #19223a;
+  width: 100%;
+  max-width: 100%;
+  min-height: 220px;
+  padding: 2.5rem 2.5rem 2rem 2.5rem;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+.mentor-card__avatar-bg {
+  margin-right: 2.2rem;
+}
+.mentor-card__info {
+  text-align: center;
+}
+.mentor-card__info__apply {
+  text-align: left;
+}
+.apply-form {
+  width: 100%;
+  background: #202b44;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  padding: 2.5rem 2.5rem 2rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
   label {
     font-weight: 500;
     margin-bottom: 0.2rem;
+    color: #fff;
   }
   textarea {
     resize: vertical;
     border-radius: 6px;
-    border: 1px solid #ccc;
+    border: 1px solid #4f8cff;
     padding: 0.7rem;
     font-size: 1rem;
+    background: #1a2236;
+    color: #fff;
   }
   input[type="file"] {
     margin-bottom: 0.5rem;
+    color: #fff;
   }
   .file-list {
     display: flex;
@@ -51,9 +73,10 @@
     .file-item {
       display: flex;
       align-items: center;
-      background: #f7f7f7;
+      background: #232e4a;
       border-radius: 4px;
       padding: 0.3rem 0.7rem;
+      color: #fff;
       span {
         flex: 1;
       }
@@ -73,14 +96,15 @@
     margin-bottom: 0.5rem;
   }
   .apply-btn {
-    background: #007bff;
+    background: #4f8cff;
     color: #fff;
     border: none;
     border-radius: 6px;
-    padding: 0.7rem 1.5rem;
-    font-size: 1.1rem;
+    padding: 0.9rem 1.5rem;
+    font-size: 1.15rem;
     cursor: pointer;
     margin-top: 0.7rem;
+    font-weight: 600;
     transition: background 0.2s;
     &:hover {
       background: #0056b3;

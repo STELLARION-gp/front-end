@@ -37,7 +37,6 @@ import Sponsorships from '../pages/enthuasist/Sponsorships';
 import RecordedSessionPage from '../pages/learner/Recorded_Session_Page';
 import NightCampDetails from '../pages/learner/NightCampDetails';
 import Influencers from '../pages/enthuasist/Influencers';
-import Sponsorships from '../pages/enthusiast/Sponsorships';
 import Mentors from '../pages/learner/Mentors';
 import ApplyMentor from '../pages/learner/ApplyMentor';
 

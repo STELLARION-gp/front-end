@@ -11,11 +11,28 @@ interface Influencer {
   followersCount: number
   sessionsCount: number
   isFollowing: boolean
+  // Extended profile data
+  bio?: string
+  location?: string
+  website?: string
+  joinedDate?: string
+  totalViews?: number
+  rating?: number
+  recentSessions?: {
+    id: number
+    title: string
+    date: string
+    duration: string
+    attendees: number
+  }[]
+  achievements?: string[]
 }
 
 const Influencers = () => {
   const [activeTab, setActiveTab] = useState<'discover' | 'followings' | 'events'>('discover')
   const [searchQuery, setSearchQuery] = useState<string>('')
+  const [showProfileModal, setShowProfileModal] = useState(false)
+  const [selectedInfluencer, setSelectedInfluencer] = useState<Influencer | null>(null)
   const [influencers, setInfluencers] = useState<Influencer[]>([
     {
       id: 1,
@@ -25,7 +42,19 @@ const Influencers = () => {
       specializations: ["Exoplanets", "Space Exploration", "Astrophysics"],
       followersCount: 12500,
       sessionsCount: 45,
-      isFollowing: false
+      isFollowing: false,
+      bio: "Dr. Sarah Chen is a renowned astrophysicist with over 15 years of experience in exoplanet research. She has contributed to major discoveries in the field and is passionate about making space science accessible to everyone.",
+      location: "California, USA",
+      website: "www.sarahchen-astro.com",
+      joinedDate: "January 2020",
+      totalViews: 250000,
+      rating: 4.9,
+      recentSessions: [
+        { id: 1, title: "Discovering New Worlds: Latest Exoplanet Findings", date: "June 28, 2025", duration: "1h 30m", attendees: 342 },
+        { id: 2, title: "The James Webb Telescope Revolution", date: "June 15, 2025", duration: "2h", attendees: 567 },
+        { id: 3, title: "Life Beyond Earth: What We Know So Far", date: "May 30, 2025", duration: "1h 45m", attendees: 489 }
+      ],
+      achievements: ["NASA Research Award 2023", "Best Science Communicator 2022", "Top Astronomy Educator 2021"]
     },
     {
       id: 2,
@@ -35,7 +64,18 @@ const Influencers = () => {
       specializations: ["Deep Sky Objects", "Telescope Reviews", "Beginner Astronomy"],
       followersCount: 8900,
       sessionsCount: 32,
-      isFollowing: true
+      isFollowing: true,
+      bio: "Mark Johnson is a professional astronomer and educator who has dedicated his career to making astronomy accessible to beginners. He specializes in deep sky observations and telescope guidance.",
+      location: "Colorado, USA",
+      website: "www.stargazerwithmark.com",
+      joinedDate: "March 2020",
+      totalViews: 180000,
+      rating: 4.7,
+      recentSessions: [
+        { id: 1, title: "Choosing Your First Telescope", date: "June 25, 2025", duration: "1h 15m", attendees: 234 },
+        { id: 2, title: "Deep Sky Photography for Beginners", date: "June 10, 2025", duration: "2h 30m", attendees: 189 },
+      ],
+      achievements: ["Astronomy Educator of the Year 2023", "Community Choice Award 2022"]
     },
     {
       id: 3,
@@ -45,7 +85,19 @@ const Influencers = () => {
       specializations: ["Mars Research", "Planetary Geology", "Space Missions"],
       followersCount: 15200,
       sessionsCount: 38,
-      isFollowing: false
+      isFollowing: false,
+      bio: "Luna Rodriguez is a planetary scientist specializing in Mars exploration and planetary geology. She works closely with NASA mission teams and brings the latest Mars discoveries to the public.",
+      location: "Texas, USA",
+      website: "www.marswithluna.org",
+      joinedDate: "August 2019",
+      totalViews: 320000,
+      rating: 4.8,
+      recentSessions: [
+        { id: 1, title: "Latest Mars Rover Discoveries", date: "June 30, 2025", duration: "1h 45m", attendees: 445 },
+        { id: 2, title: "Geological Wonders of Mars", date: "June 18, 2025", duration: "2h", attendees: 367 },
+        { id: 3, title: "Future Mars Missions: What's Coming Next", date: "June 5, 2025", duration: "1h 30m", attendees: 512 }
+      ],
+      achievements: ["Mars Research Excellence Award 2024", "Science Communication Champion 2023"]
     },
     {
       id: 4,
@@ -55,7 +107,19 @@ const Influencers = () => {
       specializations: ["Cosmology", "Dark Matter", "Big Bang Theory"],
       followersCount: 22100,
       sessionsCount: 67,
-      isFollowing: true
+      isFollowing: true,
+      bio: "Professor James Wright is a leading cosmologist whose research focuses on dark matter and the early universe. His groundbreaking work has contributed to our understanding of cosmic evolution.",
+      location: "Massachusetts, USA",
+      website: "www.cosmicjameswright.edu",
+      joinedDate: "November 2018",
+      totalViews: 450000,
+      rating: 4.9,
+      recentSessions: [
+        { id: 1, title: "The Mystery of Dark Matter", date: "July 2, 2025", duration: "2h 15m", attendees: 678 },
+        { id: 2, title: "Understanding the Big Bang", date: "June 20, 2025", duration: "2h", attendees: 734 },
+        { id: 3, title: "Cosmic Microwave Background Explained", date: "June 8, 2025", duration: "1h 50m", attendees: 598 }
+      ],
+      achievements: ["Breakthrough Physics Prize 2024", "Distinguished Professor Award 2023", "Cosmology Research Medal 2022"]
     }
   ])
 
@@ -67,6 +131,16 @@ const Influencers = () => {
           : influencer
       )
     )
+  }
+
+  const handleViewProfile = (influencer: Influencer) => {
+    setSelectedInfluencer(influencer)
+    setShowProfileModal(true)
+  }
+
+  const closeProfileModal = () => {
+    setShowProfileModal(false)
+    setSelectedInfluencer(null)
   }
 
   const formatCount = (count: number) => {
@@ -183,6 +257,7 @@ const Influencers = () => {
               <Button 
                 variant="secondary"
                 size="small"
+                onClick={() => handleViewProfile(influencer)}
                 className="view-profile-btn"
               >
                 View Profile
@@ -210,6 +285,131 @@ const Influencers = () => {
       </div>
     </div>
   )
+
+  const renderProfileModal = () => {
+    if (!selectedInfluencer) return null
+
+    return (
+      <div className="profile-modal-backdrop" onClick={closeProfileModal}>
+        <div className="profile-modal" onClick={(e) => e.stopPropagation()}>
+          <div className="profile-modal__header">
+            <h2>Influencer Profile</h2>
+            <button 
+              className="profile-modal__close"
+              onClick={closeProfileModal}
+              aria-label="Close modal"
+            >
+              ✕
+            </button>
+          </div>
+
+          <div className="profile-modal__content">
+            <div className="profile-header">
+              <div className="profile-avatar">
+                {getInitials(selectedInfluencer.name)}
+              </div>
+              <div className="profile-info">
+                <h3>{selectedInfluencer.name}</h3>
+                <p className="profile-location">📍 {selectedInfluencer.location}</p>
+                <p className="profile-joined">Joined {selectedInfluencer.joinedDate}</p>
+                <div className="profile-rating">
+                  <span className="rating-stars">⭐ {selectedInfluencer.rating}</span>
+                  <span className="rating-text">({selectedInfluencer.followersCount} reviews)</span>
+                </div>
+              </div>
+              <div className="profile-actions">
+                <Button 
+                  variant={selectedInfluencer.isFollowing ? "secondary" : "primary"}
+                  size="medium"
+                  onClick={() => handleFollowToggle(selectedInfluencer.id)}
+                >
+                  {selectedInfluencer.isFollowing ? 'Following' : 'Follow'}
+                </Button>
+              </div>
+            </div>
+
+            <div className="profile-stats">
+              <div className="stat-item">
+                <span className="stat-number">{formatCount(selectedInfluencer.followersCount)}</span>
+                <span className="stat-label">Followers</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-number">{selectedInfluencer.sessionsCount}</span>
+                <span className="stat-label">Sessions</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-number">{formatCount(selectedInfluencer.totalViews || 0)}</span>
+                <span className="stat-label">Total Views</span>
+              </div>
+            </div>
+
+            <div className="profile-section">
+              <h4>About</h4>
+              <p>{selectedInfluencer.bio}</p>
+            </div>
+
+            <div className="profile-section">
+              <h4>Specializations</h4>
+              <div className="specializations">
+                {selectedInfluencer.specializations.map((spec, index) => (
+                  <span key={index} className="specialization-tag">
+                    {spec}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {selectedInfluencer.achievements && selectedInfluencer.achievements.length > 0 && (
+              <div className="profile-section">
+                <h4>Achievements</h4>
+                <ul className="achievements-list">
+                  {selectedInfluencer.achievements.map((achievement, index) => (
+                    <li key={index} className="achievement-item">
+                      🏆 {achievement}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {selectedInfluencer.recentSessions && selectedInfluencer.recentSessions.length > 0 && (
+              <div className="profile-section">
+                <h4>Recent Sessions</h4>
+                <div className="recent-sessions">
+                  {selectedInfluencer.recentSessions.map((session) => (
+                    <div key={session.id} className="session-item">
+                      <h5>{session.title}</h5>
+                      <div className="session-meta">
+                        <span>📅 {session.date}</span>
+                        <span>⏱️ {session.duration}</span>
+                        <span>👥 {session.attendees} attendees</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="profile-section">
+              <h4>Contact & Links</h4>
+              <div className="contact-info">
+                {selectedInfluencer.website && (
+                  <a 
+                    href={`https://${selectedInfluencer.website}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="website-link"
+                  >
+                    🌐 {selectedInfluencer.website}
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="influencers-page">
@@ -297,6 +497,9 @@ const Influencers = () => {
           </div>
         )}
       </div>
+
+      {/* Profile Modal */}
+      {showProfileModal && renderProfileModal()}
     </div>
   )
 }

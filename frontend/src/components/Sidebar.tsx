@@ -22,7 +22,13 @@ import {
   StarIcon,
   RocketLaunchIcon,
   SparklesIcon,
+<<<<<<< Updated upstream
   HandRaisedIcon
+=======
+  HandRaisedIcon,
+  CurrencyDollarIcon,
+  MegaphoneIcon
+>>>>>>> Stashed changes
 } from '@heroicons/react/24/outline';
 
 // Define interfaces for menu items
@@ -52,7 +58,13 @@ const iconMap = {
   StarIcon,
   RocketLaunchIcon,
   SparklesIcon,
+<<<<<<< Updated upstream
   HandRaisedIcon
+=======
+  HandRaisedIcon,
+  CurrencyDollarIcon,
+  MegaphoneIcon
+>>>>>>> Stashed changes
 };
 
 // Memoize the icon components to prevent re-renders

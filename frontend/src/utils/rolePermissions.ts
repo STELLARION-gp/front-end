@@ -53,6 +53,12 @@ export const PAGE_ACCESS_CONTROL = {
     '/dashboard/stargazing': ['enthusiast', 'influencer','admin', 'learner','mentor','moderator'] as UserRole[],
     '/dashboard/booking-requests': ['guide'] as UserRole[],
     '/dashboard/astrohub': ['enthusiast'] as UserRole[],
+<<<<<<< Updated upstream
+=======
+    '/dashboard/volunteering': ['enthusiast'] as UserRole[],
+    '/dashboard/sponsorships': ['enthusiast', 'influencer',] as UserRole[],
+    '/dashboard/influencers': ['enthusiast', 'learner'] as UserRole[],
+>>>>>>> Stashed changes
     
 
 };
@@ -71,6 +77,7 @@ export const ROLE_BASED_MENU_ITEMS = {
         { label: 'Night Camps', icon: 'MoonIcon', href: '/dashboard/night-camps' },
         { label: 'Stargazing Spot', icon: 'StarIcon', href: '/dashboard/stargazing' },
         { label: 'Astro Hub', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/astrohub' },
+        { label: 'Influencers', icon: 'MegaphoneIcon', href: '/dashboard/influencers' },
 
 
 
@@ -84,7 +91,13 @@ export const ROLE_BASED_MENU_ITEMS = {
         { label: 'Blogs', icon: 'BookOpenIcon', href: '/dashboard/blogs' },
         { label: 'Astro Hub', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/astrohub' },
         { label: 'Volunteering', icon: 'HandRaisedIcon', href: '/dashboard/volunteering' },
+<<<<<<< Updated upstream
+=======
+        { label: 'Sponsorships', icon: 'CurrencyDollarIcon', href: '/dashboard/sponsorships' },
+        { label: 'Influencers', icon: 'MegaphoneIcon', href: '/dashboard/influencers' },
+>>>>>>> Stashed changes
         { label: 'Settings', icon: 'Cog6ToothIcon', href: '/dashboard/settings' },
+
     ],
     influencer: [
         { label: 'Overview', icon: 'HomeIcon', href: '/dashboard/overview' },

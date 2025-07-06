@@ -280,12 +280,42 @@ const Influencers = () => {
       <div className="events-placeholder">
         <h3>Upcoming Events</h3>
         <p>Live sessions and events from your favorite astronomy influencers will appear here.</p>
-        <div className="event-card">
-          <h4>Mars Exploration Deep Dive</h4>
-          <p>Join Dr. Sarah Chen for an exclusive session on the latest Mars discoveries</p>
-          <div className="event-details">
-            <span>📅 July 15, 2025</span>
-            <span>🕒 7:00 PM EST</span>
+        <div className="events-grid">
+          <div className="event-card">
+            <h4>Mars Exploration Deep Dive</h4>
+            <p>Join Prof. Ranil Wickramasinghe for an exclusive session on the latest Mars discoveries and upcoming missions.</p>
+            <div className="event-details">
+              <span>📅 July 15, 2025</span>
+              <span>🕒 7:00 PM IST</span>
+              <span>👥 156 attendees</span>
+            </div>
+            <div className="event-actions">
+              <Button
+                variant="primary"
+                size="small"
+                className="join-event-btn"
+              >
+                Join Event
+              </Button>
+            </div>
+          </div>
+          <div className="event-card">
+            <h4>Astrophotography Workshop</h4>
+            <p>Learn tropical climate astrophotography techniques with Nadeeka Silva in this hands-on workshop.</p>
+            <div className="event-details">
+              <span>📅 July 20, 2025</span>
+              <span>🕒 8:00 PM IST</span>
+              <span>👥 89 attendees</span>
+            </div>
+            <div className="event-actions">
+              <Button
+                variant="primary"
+                size="small"
+                className="join-event-btn"
+              >
+                Join Event
+              </Button>
+            </div>
           </div>
         </div>
       </div>

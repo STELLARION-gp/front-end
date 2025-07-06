@@ -342,6 +342,194 @@
       }
     }
   }
+
+  .history-table-container {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+  }
+
+  .history-table {
+    width: 100%;
+    border-collapse: collapse;
+
+    thead {
+     background: rgba(59, 130, 246, 0.1);
+      border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+
+      th {
+        padding: 1rem 1.5rem;
+        text-align: left;
+        font-weight: 600;
+        color: #f1f5f9;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+        &:nth-child(5) { // Role column
+          text-align: center;
+        }
+
+        @media (max-width: 768px) {
+          padding: 0.75rem 1rem;
+          font-size: 0.8rem;
+        }
+      }
+    }
+
+    tbody {
+      tr {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.2s ease;
+        background: rgba(255, 255, 255, 0.02);
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.08);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        &:last-child {
+          border-bottom: none;
+        }
+      }
+
+      td {
+        padding: 1.25rem 1rem;
+        vertical-align: middle;
+        color: rgba(255, 255, 255, 0.9);
+        
+        &:first-child {
+          padding-left: 1.5rem;
+        }
+        
+        &:last-child {
+          padding-right: 1.5rem;
+        }
+      }
+    }
+
+    .event-name-cell {
+      .event-name {
+        font-weight: 600;
+        color: #ffffff;
+        font-size: 1rem;
+        line-height: 1.4;
+      }
+    }
+
+    .contribution-cell {
+      .contribution-amount {
+        font-weight: 700;
+        color: #3b82f6;
+        font-size: 1.125rem;
+        text-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+      }
+    }
+
+    .date-cell {
+      .contribution-date {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.875rem;
+        font-weight: 500;
+      }
+    }
+
+    .status-cell {
+      .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        transition: all 0.2s ease;
+
+        &.status-completed {
+          background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(34, 197, 94, 0.1));
+          color: #22c55e;
+          border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        &.status-pending {
+          background: linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(251, 191, 36, 0.1));
+          color: #fbbf24;
+          border: 1px solid rgba(251, 191, 36, 0.3);
+        }
+
+        &.status-cancelled {
+          background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.1));
+          color: #ef4444;
+          border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        &:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+      }
+    }
+  }
+
+  // Enhanced responsive design for mobile
+  @media (max-width: 968px) {
+    .history-table-container {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .history-table {
+      min-width: 700px;
+      
+      thead th {
+        padding: 1rem 0.75rem;
+        font-size: 0.8rem;
+        
+        &:first-child {
+          padding-left: 1rem;
+        }
+        
+        &:last-child {
+          padding-right: 1rem;
+        }
+      }
+      
+      tbody td {
+        padding: 1rem 0.75rem;
+        
+        &:first-child {
+          padding-left: 1rem;
+        }
+        
+        &:last-child {
+          padding-right: 1rem;
+        }
+      }
+    }
+  }
+
+  @media (max-width: 640px) {
+    .history-table {
+      min-width: 600px;
+      font-size: 0.875rem;
+      
+      .contribution-cell .contribution-amount {
+        font-size: 1rem;
+      }
+      
+      .status-cell .status-badge {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.7rem;
+      }
+    }
+  }
 }
 
 // Empty State

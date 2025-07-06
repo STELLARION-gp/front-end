@@ -467,24 +467,37 @@ const Sponsorships: React.FC = () => {
 
         {activeTab === 'history' && (
           <div className="history-section">
-            <div className="history-grid">
-              {sponsorshipHistory.map((item) => (
-                <Card key={item.id} variant="outlined" className="history-card">
-                  <div className="history-content">
-                    <div className="history-main">
-                      <h3 className="history-event-name">{item.eventName}</h3>
-                      <p className="history-date">{formatDate(item.date)}</p>
-                    </div>
-                    
-                    <div className="history-details">
-                      <div className="history-amount">{formatCurrency(item.amount)}</div>
-                      <div className={`history-status ${getStatusColor(item.status)}`}>
-                        {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-              ))}
+            <div className="history-table-container">
+              <table className="history-table">
+                <thead>
+                  <tr>
+                    <th>Event Name</th>
+                    <th>Contribution</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sponsorshipHistory.map((item) => (
+                    <tr key={item.id} className="history-row">
+                      <td className="event-name-cell">
+                        <span className="event-name">{item.eventName}</span>
+                      </td>
+                      <td className="contribution-cell">
+                        <span className="contribution-amount">{formatCurrency(item.amount)}</span>
+                      </td>
+                      <td className="date-cell">
+                        <span className="contribution-date">{formatDate(item.date)}</span>
+                      </td>
+                      <td className="status-cell">
+                        <span className={`status-badge status-${item.status}`}>
+                          {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
             
             {sponsorshipHistory.length === 0 && (

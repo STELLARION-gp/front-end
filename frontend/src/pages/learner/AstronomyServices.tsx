@@ -163,6 +163,10 @@ const filterOptions = [
   { label: "Guide Name", value: "guideName" },
   { label: "Location", value: "location" },
 ];
+const priceOrderOptions = [
+  { label: "Price: Low to High", value: "asc" },
+  { label: "Price: High to Low", value: "desc" },
+];
 
 type Service = typeof services[number];
 type FilterKey = "title" | "guideName" | "location";
@@ -170,14 +174,20 @@ type FilterKey = "title" | "guideName" | "location";
 const AstronomyServices: React.FC = () => {
   const [search, setSearch] = useState("");
   const [filterBy, setFilterBy] = useState<FilterKey>("title");
+  const [priceOrder, setPriceOrder] = useState<"asc" | "desc">("asc");
 
-  const filteredServices = services.filter((service) => {
-    let value = "";
-    if (filterBy === "title") value = service.title;
-    else if (filterBy === "guideName") value = service.guideName;
-    else if (filterBy === "location") value = service.location;
-    return value.toLowerCase().includes(search.toLowerCase());
-  });
+  const filteredServices = services
+    .filter((service) => {
+      let value = "";
+      if (filterBy === "title") value = service.title;
+      else if (filterBy === "guideName") value = service.guideName;
+      else if (filterBy === "location") value = service.location;
+      return value.toLowerCase().includes(search.toLowerCase());
+    })
+    .sort((a, b) => {
+      if (priceOrder === "asc") return a.price - b.price;
+      else return b.price - a.price;
+    });
 
 	return (
 		<div className="astronomy-services-container">
@@ -197,6 +207,15 @@ const AstronomyServices: React.FC = () => {
           className="services-filter-select"
         >
           {filterOptions.map(opt => (
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
+          ))}
+        </select>
+        <select
+          value={priceOrder}
+          onChange={e => setPriceOrder(e.target.value as "asc" | "desc")}
+          className="services-filter-select"
+        >
+          {priceOrderOptions.map(opt => (
             <option key={opt.value} value={opt.value}>{opt.label}</option>
           ))}
         </select>

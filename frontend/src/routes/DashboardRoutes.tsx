@@ -37,9 +37,9 @@ import Sponsorships from '../pages/enthuasist/Sponsorships';
 import RecordedSessionPage from '../pages/learner/Recorded_Session_Page';
 import NightCampDetails from '../pages/learner/NightCampDetails';
 import Influencers from '../pages/enthuasist/Influencers';
-import Sponsorships from '../pages/enthusiast/Sponsorships';
 import Mentors from '../pages/learner/Mentors';
 import ApplyMentor from '../pages/learner/ApplyMentor';
+import AstronomyServices from '../pages/learner/AstronomyServices';
 
 // Create placeholder components for different pages - all memoized
 // const BlogsPage = memo(() => (
@@ -208,6 +208,14 @@ const DashboardRoutes = () => {
                 element={
                     <RoleGuard allowedRoles={['learner']}>
                         <NightCampDetails />
+                    </RoleGuard>
+                }
+            />
+            <Route
+                path='astronomy-services'
+                element={
+                    <RoleGuard allowedRoles={['learner']}>
+                        <AstronomyServices />
                     </RoleGuard>
                 }
             />

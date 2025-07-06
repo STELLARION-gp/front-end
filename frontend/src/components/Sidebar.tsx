@@ -22,7 +22,8 @@ import {
   StarIcon,
   RocketLaunchIcon,
   SparklesIcon,
-  HandRaisedIcon
+  HandRaisedIcon,
+  CurrencyDollarIcon
 } from '@heroicons/react/24/outline';
 
 // Define interfaces for menu items
@@ -52,7 +53,8 @@ const iconMap = {
   StarIcon,
   RocketLaunchIcon,
   SparklesIcon,
-  HandRaisedIcon
+  HandRaisedIcon,
+  CurrencyDollarIcon
 };
 
 // Memoize the icon components to prevent re-renders

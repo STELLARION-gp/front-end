@@ -33,6 +33,7 @@ import AstroHub from '../pages/enthuasist/AstroHub';
 import CelestialEventsPage from '../pages/learner/Celestial_Events_Page';
 import Volunteering from '../pages/enthuasist/Volunteering';
 import AstronomySessionsPage from '../pages/learner/AstronomySessionsPage';
+import Sponsorships from '../pages/enthuasist/Sponsorships';
 import RecordedSessionPage from '../pages/learner/Recorded_Session_Page';
 import NightCampDetails from '../pages/learner/NightCampDetails';
 import Mentors from '../pages/learner/Mentors';
@@ -355,6 +356,15 @@ const DashboardRoutes = () => {
                 element={
                     <RoleGuard allowedRoles={['enthusiast']}>
                         <Volunteering />
+                    </RoleGuard>
+                }
+            />
+
+            <Route
+                path="sponsorships"
+                element={
+                    <RoleGuard allowedRoles={['enthusiast']}>
+                        <Sponsorships />
                     </RoleGuard>
                 }
             />

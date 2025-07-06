@@ -76,7 +76,8 @@ export const ROLE_BASED_MENU_ITEMS = {
         { label: 'Night Camps', icon: 'MoonIcon', href: '/dashboard/night-camps' },
         { label: 'Stargazing Spot', icon: 'StarIcon', href: '/dashboard/stargazing' },
         { label: 'Astro Hub', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/astrohub' },
-        { label: 'Influencers', icon: 'MegaphoneIcon', href: '/dashboard/influencers' },
+        { label: 'Services', icon: 'MegaphoneIcon', href: '/dashboard/astronomy-services' },
+
 
 
 

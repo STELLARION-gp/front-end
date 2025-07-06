@@ -487,7 +487,17 @@ const Influencers = () => {
       )}
 
       <div className="tab-content">
-        {activeTab === 'events' ? renderEventsContent() : renderInfluencerCards()}
+        {activeTab === 'events' ? renderEventsContent() : (
+          <>
+            {activeTab === 'followings' && (
+              <div className="section-header">
+                <h2>Your Following</h2>
+                
+              </div>
+            )}
+            {renderInfluencerCards()}
+          </>
+        )}
         
         {activeTab === 'followings' && getFilteredInfluencers().length === 0 && !searchQuery.trim() && (
           <div className="empty-state">

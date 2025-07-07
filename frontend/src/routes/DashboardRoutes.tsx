@@ -27,6 +27,7 @@ import GuideMediaDashboard from '../pages/guide/GuideMediaDashboard';
 // import MentorProfile from '../pages/mentor/MentorProfile';
 // import BookingRequests from '../pages/guide/BookingRequests';
 import ConfirmedBookings from '../pages/guide/ConfirmedBookings';
+import TourChat from '../pages/guide/TourChat';
 
 import BookingRequests from '../pages/guide/BookingRequests';
 import AstroHub from '../pages/enthuasist/AstroHub';
@@ -41,6 +42,7 @@ import Mentors from '../pages/learner/Mentors';
 import ApplyMentor from '../pages/learner/ApplyMentor';
 import AstronomyServices from '../pages/learner/AstronomyServices';
 import AstronomyServiceDetails from '../pages/learner/AstronomyServiceDetails';
+import Quizzes from '../pages/enthuasist/Quizzes';
 
 // Create placeholder components for different pages - all memoized
 // const BlogsPage = memo(() => (
@@ -191,7 +193,7 @@ const DashboardRoutes = () => {
             <Route
                 path='mentors'
                 element={
-                    <RoleGuard allowedRoles={['learner']}>
+                    <RoleGuard allowedRoles={['learner','enthusiast']}>
                         <Mentors />
                     </RoleGuard>
                 }
@@ -259,6 +261,15 @@ const DashboardRoutes = () => {
             <Route
                 path="confirmed-bookings"
                 element={<ConfirmedBookings />}
+            />
+
+            <Route
+                path="tour-chat"
+                element={
+                    <RoleGuard allowedRoles={['guide', 'admin']}>
+                        <TourChat />
+                    </RoleGuard>
+                }
             />
 
             <Route
@@ -402,8 +413,17 @@ const DashboardRoutes = () => {
             <Route
                 path="apply-mentor/:mentorId"
                 element={
-                    <RoleGuard allowedRoles={['learner']}>
+                    <RoleGuard allowedRoles={['learner','enthusiast']}>
                         <ApplyMentor />
+                    </RoleGuard>
+                }
+            />
+
+            <Route
+                path="quizzes"
+                element={
+                    <RoleGuard allowedRoles={['enthusiast']}>
+                        <Quizzes />
                     </RoleGuard>
                 }
             />

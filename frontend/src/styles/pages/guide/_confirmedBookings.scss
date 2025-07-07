@@ -376,13 +376,14 @@
               letter-spacing: 0.05em;
               white-space: nowrap;
 
-              &:nth-child(1) { width: 12%; } // Status
-              &:nth-child(2) { width: 20%; } // Participant
-              &:nth-child(3) { width: 20%; } // Service
-              &:nth-child(4) { width: 18%; } // Date & Time
-              &:nth-child(5) { width: 10%; } // Duration
-              &:nth-child(6) { width: 12%; } // Participants
+              &:nth-child(1) { width: 10%; } // Status
+              &:nth-child(2) { width: 18%; } // Participant
+              &:nth-child(3) { width: 18%; } // Service
+              &:nth-child(4) { width: 16%; } // Date & Time
+              &:nth-child(5) { width: 8%; }  // Duration
+              &:nth-child(6) { width: 10%; } // Participants
               &:nth-child(7) { width: 8%; }  // Rating
+              &:nth-child(8) { width: 12%; } // Actions
             }
           }
 
@@ -488,6 +489,26 @@
 
                   .no-rating {
                     color: #6b7280;
+                  }
+                }
+
+                &.actions-cell {
+                  text-align: center;
+                  
+                  .chat-button {
+                    transition: all 0.3s ease;
+                    border: 1px solid rgba(147, 51, 234, 0.3);
+                    
+                    &:hover {
+                      background: rgba(147, 51, 234, 0.1);
+                      border-color: rgba(147, 51, 234, 0.5);
+                      transform: translateY(-1px);
+                      box-shadow: 0 4px 12px rgba(147, 51, 234, 0.2);
+                    }
+                    
+                    svg {
+                      color: #a855f7;
+                    }
                   }
                 }
               }

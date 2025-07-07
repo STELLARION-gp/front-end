@@ -34,6 +34,7 @@ const Quizzes = () => {
   const [showReview, setShowReview] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [editingQuizId, setEditingQuizId] = useState<string | null>(null)
+  const [editingQuestionIndex, setEditingQuestionIndex] = useState<number | null>(null)
   
   // Create Quiz Form State
   const [createQuizForm, setCreateQuizForm] = useState({
@@ -314,10 +315,22 @@ const Quizzes = () => {
 
   const handleAddQuestion = () => {
     if (currentQuestion.question.trim() && currentQuestion.options.every(opt => opt.trim())) {
-      setCreateQuizForm(prev => ({
-        ...prev,
-        questions: [...prev.questions, { ...currentQuestion }]
-      }))
+      if (editingQuestionIndex !== null) {
+        // Update existing question
+        setCreateQuizForm(prev => ({
+          ...prev,
+          questions: prev.questions.map((q, index) => 
+            index === editingQuestionIndex ? { ...currentQuestion } : q
+          )
+        }))
+        setEditingQuestionIndex(null)
+      } else {
+        // Add new question
+        setCreateQuizForm(prev => ({
+          ...prev,
+          questions: [...prev.questions, { ...currentQuestion }]
+        }))
+      }
       setCurrentQuestion({
         question: '',
         options: ['', '', '', ''],
@@ -332,6 +345,37 @@ const Quizzes = () => {
       ...prev,
       questions: prev.questions.filter((_, i) => i !== index)
     }))
+    // If we're editing this question, cancel the edit
+    if (editingQuestionIndex === index) {
+      setEditingQuestionIndex(null)
+      setCurrentQuestion({
+        question: '',
+        options: ['', '', '', ''],
+        correctAnswer: 0,
+        explanation: ''
+      })
+    }
+  }
+
+  const handleEditQuestion = (index: number) => {
+    const questionToEdit = createQuizForm.questions[index]
+    setCurrentQuestion({
+      question: questionToEdit.question,
+      options: [...questionToEdit.options],
+      correctAnswer: questionToEdit.correctAnswer,
+      explanation: questionToEdit.explanation
+    })
+    setEditingQuestionIndex(index)
+  }
+
+  const handleCancelQuestionEdit = () => {
+    setEditingQuestionIndex(null)
+    setCurrentQuestion({
+      question: '',
+      options: ['', '', '', ''],
+      correctAnswer: 0,
+      explanation: ''
+    })
   }
 
   const renderCreateQuizContent = () => (
@@ -483,8 +527,18 @@ const Quizzes = () => {
               disabled={!currentQuestion.question.trim() || !currentQuestion.options.every(opt => opt.trim())}
               className="add-question-btn"
             >
-              Add Question
+              {editingQuestionIndex !== null ? 'Update Question' : 'Add Question'}
             </Button>
+
+            {editingQuestionIndex !== null && (
+              <Button 
+                onClick={handleCancelQuestionEdit}
+                variant="secondary"
+                className="cancel-edit-btn"
+              >
+                Cancel Edit
+              </Button>
+            )}
           </div>
         </div>
 
@@ -499,12 +553,21 @@ const Quizzes = () => {
                 <div key={index} className="question-preview">
                   <div className="question-header">
                     <span className="question-number">Question {index + 1}</span>
-                    <button
-                      onClick={() => handleRemoveQuestion(index)}
-                      className="remove-question-btn"
-                    >
-                      Remove
-                    </button>
+                    <div className="question-actions">
+                      <button
+                        onClick={() => handleEditQuestion(index)}
+                        className="edit-question-btn"
+                        disabled={editingQuestionIndex === index}
+                      >
+                        {editingQuestionIndex === index ? 'Editing...' : 'Edit'}
+                      </button>
+                      <button
+                        onClick={() => handleRemoveQuestion(index)}
+                        className="remove-question-btn"
+                      >
+                        Remove
+                      </button>
+                    </div>
                   </div>
                   <p className="question-text">{q.question}</p>
                   <div className="options-preview">
@@ -659,13 +722,15 @@ const Quizzes = () => {
                     </div>
                     
                     <div className="event-actions">
-                      <Button 
-                        className="participate-btn"
-                        onClick={() => handleParticipate(quiz)}
-                        variant="secondary"
-                      >
-                        Participate
-                      </Button>
+                      {activeTab !== 'my' && (
+                        <Button 
+                          className="participate-btn"
+                          onClick={() => handleParticipate(quiz)}
+                          variant="secondary"
+                        >
+                          Participate
+                        </Button>
+                      )}
                       
                       {quiz.isMyQuiz && (
                         <Button 

@@ -165,7 +165,7 @@
 .chat-messages {
   position: relative;
   flex: 1;
-  padding: 1.5rem;
+  padding: 1.5rem 1rem 1.5rem 1.5rem; // Reduced right padding for less empty space
   overflow-y: auto;
   overflow-x: hidden;
   min-height: 0; // Important for flex scrolling
@@ -178,35 +178,24 @@
     min-height: min-content; // Allow natural height
   }
   
-  // Show scrollbar for testing
+  // Hide scrollbar for clean look
+  scrollbar-width: none; // Firefox
+  -ms-overflow-style: none; // Internet Explorer 10+
+  
   &::-webkit-scrollbar {
-    width: 8px;
-  }
-  
-  &::-webkit-scrollbar-track {
-    background: rgba(148, 163, 184, 0.1);
-    border-radius: 4px;
-  }
-  
-  &::-webkit-scrollbar-thumb {
-    background: rgba(147, 51, 234, 0.6);
-    border-radius: 4px;
-    
-    &:hover {
-      background: rgba(147, 51, 234, 0.8);
-    }
+    display: none; // Safari and Chrome
   }
 }
 
 // Scroll to bottom button
 .scroll-to-bottom-btn {
   position: absolute;
-  bottom: 1rem;
-  right: 1rem;
-  width: 40px;
-  height: 40px;
-  background: rgba(147, 51, 234, 0.9);
-  border: 1px solid rgba(147, 51, 234, 0.3);
+  bottom: 1.5rem;
+  right: 1rem; // Adjusted to match the reduced right padding
+  width: 44px;
+  height: 44px;
+  background: rgba(147, 51, 234, 0.95);
+  border: 1px solid rgba(147, 51, 234, 0.4);
   border-radius: 50%;
   color: #ffffff;
   display: flex;
@@ -214,17 +203,42 @@
   justify-content: center;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(147, 51, 234, 0.4);
-  z-index: 10;
+  box-shadow: 
+    0 4px 16px rgba(147, 51, 234, 0.5),
+    0 2px 8px rgba(0, 0, 0, 0.3);
+  z-index: 100;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
   
   &:hover {
     background: rgba(147, 51, 234, 1);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(147, 51, 234, 0.6);
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 
+      0 8px 24px rgba(147, 51, 234, 0.7),
+      0 4px 12px rgba(0, 0, 0, 0.4);
   }
   
   &:active {
-    transform: translateY(0);
+    transform: translateY(-1px) scale(1.02);
+  }
+  
+  // Add a subtle glow effect
+  &::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(135deg, rgba(147, 51, 234, 0.6), rgba(168, 85, 247, 0.6));
+    border-radius: 50%;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  &:hover::before {
+    opacity: 1;
   }
 }
 
@@ -335,7 +349,7 @@
   flex: 1;
   border-radius: 16px;
   padding: 0.75rem 1rem;
-  max-width: calc(100% - 60px);
+  max-width: calc(100% - 50px); // Reduced from 60px to allow more space
   -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   
@@ -824,7 +838,7 @@
   }
   
   .chat-messages {
-    padding: 1rem;
+    padding: 1rem 0.75rem 1rem 1rem; // Reduced right padding on mobile too
   }
   
   .chat-input-area {
@@ -832,7 +846,7 @@
   }
   
   .message-content {
-    max-width: calc(100% - 50px);
+    max-width: calc(100% - 40px); // Further reduced for mobile
   }
   
   .members-panel,

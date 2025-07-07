@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import '../../styles/pages/enthusiast/Quizzes.scss'
+import '../../styles/pages/enthusiast/Leaderboard.scss'
 import Button from '../../components/Button'
 
 interface Quiz {
@@ -21,8 +22,19 @@ interface QuizQuestion {
   explanation?: string
 }
 
+interface LeaderboardEntry {
+  id: string
+  username: string
+  avatar?: string
+  totalScore: number
+  quizzesCompleted: number
+  averageScore: number
+  rank: number
+  badges: string[]
+}
+
 const Quizzes = () => {
-  const [activeTab, setActiveTab] = useState<'all' | 'my' | 'create'>('all')
+  const [activeTab, setActiveTab] = useState<'all' | 'my' | 'create' | 'leaderboard'>('all')
   const [selectedQuiz, setSelectedQuiz] = useState<Quiz | null>(null)
   const [showQuizModal, setShowQuizModal] = useState(false)
   const [isQuizStarted, setIsQuizStarted] = useState(false)
@@ -132,6 +144,89 @@ const Quizzes = () => {
       options: ['Jupiter', 'Saturn', 'Uranus', 'Neptune'],
       correctAnswer: 1,
       explanation: 'Saturn has the most extensive and visible ring system in our solar system.'
+    }
+  ]
+
+  const sampleLeaderboard: LeaderboardEntry[] = [
+    {
+      id: '1',
+      username: 'StarGazer2024',
+      avatar: '🚀',
+      totalScore: 2847,
+      quizzesCompleted: 47,
+      averageScore: 85.2,
+      rank: 1,
+      badges: ['Quiz Master', 'Space Expert', 'Top Scorer']
+    },
+    {
+      id: '2',
+      username: 'CosmicExplorer',
+      avatar: '🌌',
+      totalScore: 2634,
+      quizzesCompleted: 42,
+      averageScore: 82.7,
+      rank: 2,
+      badges: ['Space Expert', 'Consistent Learner']
+    },
+    {
+      id: '3',
+      username: 'AstroNinja',
+      avatar: '🛸',
+      totalScore: 2489,
+      quizzesCompleted: 39,
+      averageScore: 81.4,
+      rank: 3,
+      badges: ['Quiz Master', 'Fast Learner']
+    },
+    {
+      id: '4',
+      username: 'SpaceWalker',
+      avatar: '👨‍🚀',
+      totalScore: 2256,
+      quizzesCompleted: 35,
+      averageScore: 79.8,
+      rank: 4,
+      badges: ['Space Expert']
+    },
+    {
+      id: '5',
+      username: 'GalaxyHunter',
+      avatar: '🌟',
+      totalScore: 2145,
+      quizzesCompleted: 33,
+      averageScore: 78.2,
+      rank: 5,
+      badges: ['Consistent Learner']
+    },
+    {
+      id: '6',
+      username: 'NebulaSeeker',
+      avatar: '☄️',
+      totalScore: 1987,
+      quizzesCompleted: 31,
+      averageScore: 76.9,
+      rank: 6,
+      badges: ['Fast Learner']
+    },
+    {
+      id: '7',
+      username: 'You',
+      avatar: '👤',
+      totalScore: 1823,
+      quizzesCompleted: 28,
+      averageScore: 75.1,
+      rank: 7,
+      badges: ['Rising Star']
+    },
+    {
+      id: '8',
+      username: 'MeteorMaster',
+      avatar: '🌠',
+      totalScore: 1674,
+      quizzesCompleted: 25,
+      averageScore: 73.8,
+      rank: 8,
+      badges: []
     }
   ]
 
@@ -643,6 +738,116 @@ const Quizzes = () => {
     </div>
   )
 
+  const renderLeaderboardContent = () => (
+    <div className="leaderboard-section">
+      <div className="leaderboard-header">
+        <h3 className="section-title">Quiz Champions</h3>
+        <p className="section-subtitle">
+          Top performers across all space exploration quizzes
+        </p>
+      </div>
+
+      <div className="leaderboard-stats">
+        <div className="stat-card">
+          <h4>Total Participants</h4>
+          <span className="stat-number">1,247</span>
+        </div>
+        <div className="stat-card">
+          <h4>Quizzes Completed</h4>
+          <span className="stat-number">3,842</span>
+        </div>
+        <div className="stat-card">
+          <h4>Average Score</h4>
+          <span className="stat-number">76.4%</span>
+        </div>
+      </div>
+
+      <div className="leaderboard-table">
+        <div className="leaderboard-table-header">
+          <div className="rank-col">Rank</div>
+          <div className="user-col">User</div>
+          <div className="score-col">Total Score</div>
+          <div className="quizzes-col">Quizzes</div>
+          <div className="average-col">Average</div>
+          <div className="badges-col">Badges</div>
+        </div>
+
+        <div className="leaderboard-entries">
+          {sampleLeaderboard.map((entry) => (
+            <div 
+              key={entry.id} 
+              className={`leaderboard-entry ${entry.username === 'You' ? 'current-user' : ''}`}
+            >
+              <div className="rank-col">
+                <div className={`rank-badge ${entry.rank <= 3 ? `rank-${entry.rank}` : ''}`}>
+                  {entry.rank <= 3 && (
+                    <svg className="trophy-icon" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M6 2h12v3h2a1 1 0 011 1v6a3 3 0 01-3 3h-2.17l1.79 4.47A1 1 0 0116.82 21H7.18a1 1 0 01-.89-1.53L8.17 15H6a3 3 0 01-3-3V6a1 1 0 011-1h2V2zm2 3v10h8V5H8zm6 11H10l-.5 1.25h4l-.5-1.25z"/>
+                    </svg>
+                  )}
+                  #{entry.rank}
+                </div>
+              </div>
+
+              <div className="user-col">
+                <div className="user-info">
+                  <span className="user-avatar">{entry.avatar}</span>
+                  <div className="user-details">
+                    <span className="username">{entry.username}</span>
+                    {entry.username === 'You' && (
+                      <span className="current-user-badge">You</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="score-col">
+                <span className="score-number">{entry.totalScore.toLocaleString()}</span>
+              </div>
+
+              <div className="quizzes-col">
+                <span className="quiz-count">{entry.quizzesCompleted}</span>
+              </div>
+
+              <div className="average-col">
+                <span className="average-score">{entry.averageScore}%</span>
+              </div>
+
+              <div className="badges-col">
+                <div className="badges-list">
+                  {entry.badges.length > 0 ? (
+                    entry.badges.slice(0, 2).map((badge, index) => (
+                      <span key={index} className="badge">
+                        {badge}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="no-badges">-</span>
+                  )}
+                  {entry.badges.length > 2 && (
+                    <span className="more-badges">+{entry.badges.length - 2}</span>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="leaderboard-footer">
+        <div className="ranking-info">
+          <h4>How Rankings Work</h4>
+          <ul>
+            <li>Rankings are based on total points earned across all completed quizzes</li>
+            <li>Points are awarded based on quiz difficulty and completion time</li>
+            <li>Badges are earned for various achievements and milestones</li>
+            <li>Rankings are updated in real-time as new quizzes are completed</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  )
+
   return (
     <div className="quizzes-container">
         <div className="quizzes-header">
@@ -672,10 +877,16 @@ const Quizzes = () => {
           >
             Create Quiz
           </Button>
+          <Button
+            onClick={() => setActiveTab('leaderboard')}
+            variant={activeTab === 'leaderboard' ? 'primary' : 'secondary'}
+          >
+            Leaderboard
+          </Button>
         </div>
 
         {/* Tab Content */}
-        {activeTab !== 'create' && (
+        {activeTab !== 'create' && activeTab !== 'leaderboard' && (
           <>
             {/* Section Title */}
             <div className="section-header">
@@ -726,7 +937,7 @@ const Quizzes = () => {
                         <Button 
                           className="participate-btn"
                           onClick={() => handleParticipate(quiz)}
-                          variant="secondary"
+                          variant="primary"
                         >
                           Participate
                         </Button>
@@ -736,7 +947,7 @@ const Quizzes = () => {
                         <Button 
                           className="edit-quiz-btn"
                           onClick={() => handleEditQuiz(quiz)}
-                          variant="primary"
+                          variant="secondary"
                         >
                           Edit Quiz
                         </Button>
@@ -762,6 +973,8 @@ const Quizzes = () => {
         )}
 
         {activeTab === 'create' && renderCreateQuizContent()}
+
+        {activeTab === 'leaderboard' && renderLeaderboardContent()}
 
         {/* Quiz Participation Modal */}
         {showQuizModal && selectedQuiz && (

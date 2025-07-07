@@ -130,7 +130,7 @@
   display: flex;
   height: calc(100vh - 120px);
   gap: 1rem;
-  padding: 1rem;
+  padding: 1rem 0; // Only top and bottom padding for full width
 }
 
 // Main Chat Area
@@ -139,6 +139,8 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
+  width: 100%; // Ensure full width
+  margin: 0 1rem; // Add horizontal margin for some spacing from screen edges
 
   .chat-container {
     background: rgba(30, 41, 59, 0.8);
@@ -149,6 +151,7 @@
     display: flex;
     flex-direction: column;
     height: 100%;
+    width: 100%; // Ensure full width
     overflow: hidden;
     
     // Glassmorphic effect
@@ -167,23 +170,12 @@
   flex-direction: column;
   gap: 1rem;
   
-  // Custom scrollbar
+  // Hide scrollbar completely
+  scrollbar-width: none; // Firefox
+  -ms-overflow-style: none; // Internet Explorer 10+
+  
   &::-webkit-scrollbar {
-    width: 8px;
-  }
-  
-  &::-webkit-scrollbar-track {
-    background: rgba(148, 163, 184, 0.1);
-    border-radius: 4px;
-  }
-  
-  &::-webkit-scrollbar-thumb {
-    background: rgba(147, 51, 234, 0.6);
-    border-radius: 4px;
-    
-    &:hover {
-      background: rgba(147, 51, 234, 0.8);
-    }
+    display: none; // Safari and Chrome
   }
 }
 
@@ -529,6 +521,14 @@
   flex-direction: column;
   gap: 0.75rem;
   
+  // Hide scrollbar completely
+  scrollbar-width: none; // Firefox
+  -ms-overflow-style: none; // Internet Explorer 10+
+  
+  &::-webkit-scrollbar {
+    display: none; // Safari and Chrome
+  }
+  
   .member-item {
     display: flex;
     align-items: center;
@@ -766,8 +766,12 @@
   }
   
   .tour-chat-layout {
-    padding: 0.5rem;
+    padding: 0.5rem 0; // Keep only top/bottom padding on mobile
     gap: 0.5rem;
+    
+    .chat-main {
+      margin: 0 0.5rem; // Smaller margins on mobile
+    }
   }
   
   .chat-messages {

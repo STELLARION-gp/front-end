@@ -1243,6 +1243,19 @@ to {
 
       .form-input {
         flex: 1;
+        background: transparent !important;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+
+        &:focus {
+          background: transparent !important;
+          border-color: #3b82f6;
+          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        &:hover {
+          background: transparent !important;
+          border-color: rgba(255, 255, 255, 0.3);
+        }
       }
 
       .correct-radio {

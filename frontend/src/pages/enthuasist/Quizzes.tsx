@@ -62,27 +62,27 @@ const Quizzes = () => {
 
   return (
     <div className="quizzes-container">
-      <div className="quizzes-wrapper">
-        <h1 className="page-title">Space Explorer Quizzes</h1>
+        <div className="quizzes-header">
+          <h1 className="page-title">Space Explorer Quizzes</h1>
+          <p className="page-subtitle">
+            Test your knowledge about space exploration and astronomy with our interactive quizzes.
+          </p>
+        </div>
         
         {/* Tab Navigation */}
-        <div className="tabs-container">
-          <div className="tabs-nav">
-            <nav className="tab-buttons">
-              <Button
-                onClick={() => setActiveTab('all')}
-                className={`tab-button ${activeTab === 'all' ? 'active' : ''}`}
-              >
-                All Quizzes
-              </Button>
-              <Button
-                onClick={() => setActiveTab('my')}
-                className={`tab-button ${activeTab === 'my' ? 'active' : ''}`}
-              >
-                My Quizzes
-              </Button>
-            </nav>
-          </div>
+        <div className="quizzes-tabs">
+          <Button
+            onClick={() => setActiveTab('all')}
+            className={`tab-button ${activeTab === 'all' ? 'active' : ''}`}
+          >
+            All Quizzes
+          </Button>
+          <Button
+            onClick={() => setActiveTab('my')}
+            className={`tab-button ${activeTab === 'my' ? 'active' : ''}`}
+          >
+            My Quizzes
+          </Button>
         </div>
 
         {/* Quiz Cards Grid */}
@@ -142,8 +142,11 @@ const Quizzes = () => {
           </div>
         )}
       </div>
-    </div>
+  
   )
 }
 
 export default Quizzes
+
+
+

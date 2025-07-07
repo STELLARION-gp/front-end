@@ -197,4 +197,21 @@ interface TourInfo {
 - Optimized re-renders with React.memo
 - Efficient state updates with proper dependency arrays
 
+## Troubleshooting
+
+### SCSS Import Errors
+If you encounter SCSS import errors like "Can't find stylesheet to import", ensure the import paths are correct:
+
+```scss
+// Correct import paths for guide pages
+@import '../../abstracts/variables';
+@import '../../abstracts/mixins';
+```
+
+### Browser Compatibility
+The Tour Chat page uses modern CSS features with proper fallbacks:
+- All `backdrop-filter` properties include `-webkit-backdrop-filter` prefixes for Safari support
+- CSS Grid and Flexbox with fallback layouts
+- Modern color functions with hex fallbacks
+
 This implementation provides a solid foundation for tour communication while maintaining the futuristic, space-themed aesthetic of the STELLARION platform.

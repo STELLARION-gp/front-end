@@ -56,7 +56,7 @@ export const PAGE_ACCESS_CONTROL = {
     '/dashboard/volunteering': ['enthusiast'] as UserRole[],
     '/dashboard/sponsorships': ['enthusiast', 'influencer',] as UserRole[],
     '/dashboard/influencers': ['enthusiast', 'learner'] as UserRole[],
-
+    '/dashboard/quizzes': ['enthusiast'] as UserRole[],
     
 
 };
@@ -93,6 +93,7 @@ export const ROLE_BASED_MENU_ITEMS = {
         { label: 'Sponsorships', icon: 'CurrencyDollarIcon', href: '/dashboard/sponsorships' },
         { label: 'Influencers', icon: 'MegaphoneIcon', href: '/dashboard/influencers' },
         { label: 'Mentors' , icon: 'AcademicCapIcon', href: '/dashboard/mentors' },
+        { label: 'Quizzes' , icon: 'DocumentTextIcon', href: '/dashboard/quizzes' },
         { label: 'Settings', icon: 'Cog6ToothIcon', href: '/dashboard/settings' },
 
     ],

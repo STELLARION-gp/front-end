@@ -115,7 +115,6 @@ export const ROLE_BASED_MENU_ITEMS = {
         { label: 'Services', icon: 'AcademicCapIcon', href: '/dashboard/services' },
         { label: 'Blogs', icon: 'BookOpenIcon', href: '/dashboard/blogs' },
         { label: 'Requests', icon: 'MoonIcon', href: '/dashboard/booking-requests' },
-        { label: 'Confirmed Bookings', icon: 'CalendarDaysIcon', href: '/dashboard/confirmed-bookings' },
         { label: 'Stargazing', icon: 'StarIcon', href: '/dashboard/stargazing' },
         { label: 'Events', icon: 'CalendarDaysIcon', href: '/dashboard/events' },
         { label: 'Media', icon: 'PhotoIcon', href: '/dashboard/media' },

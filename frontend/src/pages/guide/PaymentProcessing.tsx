@@ -223,7 +223,7 @@ const PaymentProcessing: React.FC = () => {
 
         {/* Charts Section */}
         <div className="payment-charts-section">
-          <Card className="payment-chart-card">
+          <div className="payment-chart-card">
             <h3>Revenue Trend (Last 30 Days)</h3>
             <div className="payment-chart-placeholder">
               <div className="payment-chart-bars">
@@ -235,9 +235,9 @@ const PaymentProcessing: React.FC = () => {
                 ))}
               </div>
             </div>
-          </Card>
+          </div>
 
-          <Card className="payment-chart-card">
+          <div className="payment-chart-card">
             <h3>Payment Gateway Distribution</h3>
             <div className="payment-pie-chart-placeholder">
               <div className="payment-gateway-stats">
@@ -259,12 +259,12 @@ const PaymentProcessing: React.FC = () => {
                 </div>
               </div>
             </div>
-          </Card>
+          </div>
         </div>
       </div>
 
       {/* Filters and Controls */}
-      <Card className="payment-filters-section">
+      <div className="payment-filters-section">
         <div className="payment-filters-header">
           <h3>Transaction Filters</h3>
           <Button 
@@ -345,10 +345,10 @@ const PaymentProcessing: React.FC = () => {
             />
           </div>
         </div>
-      </Card>
+      </div>
 
       {/* Transactions Table */}
-      <Card className="payment-transactions-table-section">
+      <div className="payment-transactions-table-section">
         <div className="payment-table-header">
           <h3>Recent Transactions ({filteredAndSortedTransactions.length} results)</h3>
           <div className="payment-table-controls">
@@ -470,10 +470,10 @@ const PaymentProcessing: React.FC = () => {
             </Button>
           </div>
         </div>
-      </Card>
+      </div>
 
       {/* Quick Actions */}
-      <Card className="payment-quick-actions-section">
+      <div className="payment-quick-actions-section">
         <h3>Quick Actions</h3>
         <div className="payment-action-buttons-grid">
           <Button variant="primary" icon={<span>📊</span>}>
@@ -489,7 +489,7 @@ const PaymentProcessing: React.FC = () => {
             Investigate Transaction
           </Button>
         </div>
-      </Card>
+      </div>
     </div>
   );
 };

@@ -31,6 +31,7 @@ const Quizzes = () => {
   const [timeRemaining, setTimeRemaining] = useState(0)
   const [isQuizCompleted, setIsQuizCompleted] = useState(false)
   const [score, setScore] = useState(0)
+  const [showReview, setShowReview] = useState(false)
 
   const sampleQuizzes: Quiz[] = [
     {
@@ -173,6 +174,14 @@ const Quizzes = () => {
     setIsQuizCompleted(true)
   }
 
+  const handleShowReview = () => {
+    setShowReview(true)
+  }
+
+  const handleBackToResults = () => {
+    setShowReview(false)
+  }
+
   const closeModal = () => {
     setShowQuizModal(false)
     setSelectedQuiz(null)
@@ -182,6 +191,7 @@ const Quizzes = () => {
     setTimeRemaining(0)
     setIsQuizCompleted(false)
     setScore(0)
+    setShowReview(false)
   }
 
   const formatTime = (seconds: number) => {
@@ -339,14 +349,23 @@ const Quizzes = () => {
                 <>
                   <div className="quiz-modal-header">
                     <h2>{selectedQuiz.name}</h2>
-                    <div className="quiz-progress">
-                      <span className="question-counter">
-                        Question {currentQuestionIndex + 1} of {sampleQuestions.length}
-                      </span>
-                      <span className="quiz-timer">
-                        Time: {formatTime(timeRemaining)}
-                      </span>
-                    </div>
+                    {!isQuizCompleted && !showReview && (
+                      <div className="quiz-progress">
+                        <span className="question-counter">
+                          Question {currentQuestionIndex + 1} of {sampleQuestions.length}
+                        </span>
+                        <span className="quiz-timer">
+                          Time: {formatTime(timeRemaining)}
+                        </span>
+                      </div>
+                    )}
+                    {(isQuizCompleted || showReview) && (
+                      <div className="quiz-progress">
+                        <span className="review-mode">
+                          {showReview ? 'Review Mode' : 'Quiz Completed'}
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   <div className="quiz-modal-body">
@@ -400,6 +419,108 @@ const Quizzes = () => {
                           </Button>
                         </div>
                       </div>
+                    ) : showReview ? (
+                      // Quiz Review Section
+                      <div className="quiz-review">
+                        <div className="review-header">
+                          <h3>Quiz Review</h3>
+                          <p>Review all questions with correct answers and explanations</p>
+                        </div>
+
+                        <div className="review-questions">
+                          {sampleQuestions.map((question, index) => {
+                            const userAnswer = selectedAnswers[index]
+                            const isCorrect = userAnswer === question.correctAnswer
+                            
+                            return (
+                              <div key={question.id} className="review-question">
+                                <div className="review-question-header">
+                                  <div className="question-number">
+                                    Question {index + 1}
+                                  </div>
+                                  <div className={`question-result ${isCorrect ? 'correct' : 'incorrect'}`}>
+                                    {isCorrect ? (
+                                      <>
+                                        <svg className="result-icon" fill="currentColor" viewBox="0 0 24 24">
+                                          <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                                        </svg>
+                                        Correct
+                                      </>
+                                    ) : (
+                                      <>
+                                        <svg className="result-icon" fill="currentColor" viewBox="0 0 24 24">
+                                          <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                                        </svg>
+                                        Incorrect
+                                      </>
+                                    )}
+                                  </div>
+                                </div>
+
+                                <div className="review-question-content">
+                                  <h4 className="question-text">{question.question}</h4>
+
+                                  <div className="review-options">
+                                    {question.options.map((option, optionIndex) => {
+                                      const isUserSelected = userAnswer === optionIndex
+                                      const isCorrectAnswer = question.correctAnswer === optionIndex
+                                      
+                                      let optionClass = 'review-option'
+                                      if (isCorrectAnswer) {
+                                        optionClass += ' correct-answer'
+                                      } else if (isUserSelected && !isCorrectAnswer) {
+                                        optionClass += ' user-wrong-answer'
+                                      } else if (isUserSelected) {
+                                        optionClass += ' user-selected'
+                                      }
+
+                                      return (
+                                        <div key={optionIndex} className={optionClass}>
+                                          <span className="option-letter">
+                                            {String.fromCharCode(65 + optionIndex)}
+                                          </span>
+                                          <span className="option-text">{option}</span>
+                                          <div className="option-indicators">
+                                            {isCorrectAnswer && (
+                                              <span className="correct-indicator">
+                                                <svg className="indicator-icon" fill="currentColor" viewBox="0 0 24 24">
+                                                  <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                                                </svg>
+                                                Correct Answer
+                                              </span>
+                                            )}
+                                            {isUserSelected && !isCorrectAnswer && (
+                                              <span className="user-indicator">
+                                                Your Answer
+                                              </span>
+                                            )}
+                                          </div>
+                                        </div>
+                                      )
+                                    })}
+                                  </div>
+
+                                  {question.explanation && (
+                                    <div className="explanation-section">
+                                      <h5>Explanation:</h5>
+                                      <p>{question.explanation}</p>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            )
+                          })}
+                        </div>
+
+                        <div className="review-actions">
+                          <Button variant="secondary" onClick={handleBackToResults}>
+                            Back to Results
+                          </Button>
+                          <Button variant="primary" onClick={closeModal}>
+                            Close Quiz
+                          </Button>
+                        </div>
+                      </div>
                     ) : (
                       // Quiz Results
                       <div className="quiz-results">
@@ -432,10 +553,7 @@ const Quizzes = () => {
                           <Button variant="secondary" onClick={closeModal}>
                             Close
                           </Button>
-                          <Button variant="primary" onClick={() => {
-                            setIsQuizStarted(false)
-                            setIsQuizCompleted(false)
-                          }}>
+                          <Button variant="primary" onClick={handleShowReview}>
                             Review Questions
                           </Button>
                         </div>

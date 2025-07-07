@@ -32,6 +32,8 @@ const Quizzes = () => {
   const [isQuizCompleted, setIsQuizCompleted] = useState(false)
   const [score, setScore] = useState(0)
   const [showReview, setShowReview] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
+  const [editingQuizId, setEditingQuizId] = useState<string | null>(null)
   
   // Create Quiz Form State
   const [createQuizForm, setCreateQuizForm] = useState({
@@ -250,6 +252,66 @@ const Quizzes = () => {
     setActiveTab('my')
   }
 
+  const handleEditQuiz = (quiz: Quiz) => {
+    // Populate form with existing quiz data
+    setCreateQuizForm({
+      name: quiz.name,
+      description: quiz.description,
+      level: quiz.level,
+      time: quiz.time,
+      category: 'Astronomy', // Default category for editing
+      questions: [] // In real app, load actual questions
+    })
+    setIsEditing(true)
+    setEditingQuizId(quiz.id)
+    setActiveTab('create')
+  }
+
+  const handleUpdateQuiz = () => {
+    // Here you would typically update the quiz in your backend
+    console.log('Updating quiz:', editingQuizId, createQuizForm)
+    
+    // Reset form and editing state
+    setCreateQuizForm({
+      name: '',
+      description: '',
+      level: 'Beginner',
+      time: 15,
+      category: '',
+      questions: []
+    })
+    setCurrentQuestion({
+      question: '',
+      options: ['', '', '', ''],
+      correctAnswer: 0,
+      explanation: ''
+    })
+    setIsEditing(false)
+    setEditingQuizId(null)
+    alert('Quiz updated successfully!')
+    setActiveTab('my')
+  }
+
+  const handleCancelEdit = () => {
+    setCreateQuizForm({
+      name: '',
+      description: '',
+      level: 'Beginner',
+      time: 15,
+      category: '',
+      questions: []
+    })
+    setCurrentQuestion({
+      question: '',
+      options: ['', '', '', ''],
+      correctAnswer: 0,
+      explanation: ''
+    })
+    setIsEditing(false)
+    setEditingQuizId(null)
+    setActiveTab('my')
+  }
+
   const handleAddQuestion = () => {
     if (currentQuestion.question.trim() && currentQuestion.options.every(opt => opt.trim())) {
       setCreateQuizForm(prev => ({
@@ -276,7 +338,9 @@ const Quizzes = () => {
     <div className="create-quiz-section">
       <div className="create-quiz-form">
         <div className="form-section">
-          <h3 className="section-title">Quiz Information</h3>
+          <h3 className="section-title">
+            {isEditing ? 'Edit Quiz Information' : 'Quiz Information'}
+          </h3>
           
           <div className="form-grid">
             <div className="form-group">
@@ -466,34 +530,51 @@ const Quizzes = () => {
         )}
 
         <div className="form-actions">
-          <Button
-            onClick={() => {
-              setCreateQuizForm({
-                name: '',
-                description: '',
-                level: 'Beginner',
-                time: 15,
-                category: '',
-                questions: []
-              })
-              setCurrentQuestion({
-                question: '',
-                options: ['', '', '', ''],
-                correctAnswer: 0,
-                explanation: ''
-              })
-            }}
-            variant="secondary"
-          >
-            Reset Form
-          </Button>
-          <Button
-            onClick={handleCreateQuiz}
-            disabled={!createQuizForm.name.trim() || !createQuizForm.description.trim() || createQuizForm.questions.length === 0}
-            variant="primary"
-          >
-            Create Quiz
-          </Button>
+          {isEditing ? (
+            <>
+              <Button onClick={handleCancelEdit} variant="secondary">
+                Cancel Edit
+              </Button>
+              <Button
+                onClick={handleUpdateQuiz}
+                disabled={!createQuizForm.name.trim() || !createQuizForm.description.trim() || createQuizForm.questions.length === 0}
+                variant="primary"
+              >
+                Update Quiz
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                onClick={() => {
+                  setCreateQuizForm({
+                    name: '',
+                    description: '',
+                    level: 'Beginner',
+                    time: 15,
+                    category: '',
+                    questions: []
+                  })
+                  setCurrentQuestion({
+                    question: '',
+                    options: ['', '', '', ''],
+                    correctAnswer: 0,
+                    explanation: ''
+                  })
+                }}
+                variant="secondary"
+              >
+                Reset Form
+              </Button>
+              <Button
+                onClick={handleCreateQuiz}
+                disabled={!createQuizForm.name.trim() || !createQuizForm.description.trim() || createQuizForm.questions.length === 0}
+                variant="primary"
+              >
+                Create Quiz
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </div>
@@ -577,12 +658,25 @@ const Quizzes = () => {
                       </div>
                     </div>
                     
-                    <Button 
-                      className="participate-btn"
-                      onClick={() => handleParticipate(quiz)}
-                    >
-                      Participate
-                    </Button>
+                    <div className="event-actions">
+                      <Button 
+                        className="participate-btn"
+                        onClick={() => handleParticipate(quiz)}
+                        variant="secondary"
+                      >
+                        Participate
+                      </Button>
+                      
+                      {quiz.isMyQuiz && (
+                        <Button 
+                          className="edit-quiz-btn"
+                          onClick={() => handleEditQuiz(quiz)}
+                          variant="primary"
+                        >
+                          Edit Quiz
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}

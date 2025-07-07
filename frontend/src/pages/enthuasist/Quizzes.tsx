@@ -15,6 +15,8 @@ interface Quiz {
 
 const Quizzes = () => {
   const [activeTab, setActiveTab] = useState<'all' | 'my'>('all')
+  const [selectedQuiz, setSelectedQuiz] = useState<Quiz | null>(null)
+  const [showQuizModal, setShowQuizModal] = useState(false)
 
   const sampleQuizzes: Quiz[] = [
     {
@@ -59,6 +61,25 @@ const Quizzes = () => {
   const filteredQuizzes = activeTab === 'all' 
     ? sampleQuizzes 
     : sampleQuizzes.filter(quiz => quiz.isMyQuiz)
+
+  const handleParticipate = (quiz: Quiz) => {
+    setSelectedQuiz(quiz)
+    setShowQuizModal(true)
+  }
+
+  const handleStartQuiz = () => {
+    if (selectedQuiz) {
+      console.log(`Starting quiz: ${selectedQuiz.name}`)
+      // Here you would typically navigate to the quiz page or start the quiz
+      setShowQuizModal(false)
+      setSelectedQuiz(null)
+    }
+  }
+
+  const closeModal = () => {
+    setShowQuizModal(false)
+    setSelectedQuiz(null)
+  }
 
   return (
     <div className="quizzes-container">
@@ -130,7 +151,10 @@ const Quizzes = () => {
                   </div>
                 </div>
                 
-                <Button className="participate-btn">
+                <Button 
+                  className="participate-btn"
+                  onClick={() => handleParticipate(quiz)}
+                >
                   Participate
                 </Button>
               </div>
@@ -147,6 +171,50 @@ const Quizzes = () => {
             <p className="empty-text">
               {activeTab === 'my' ? "You haven't created any quizzes yet." : "No quizzes available at the moment."}
             </p>
+          </div>
+        )}
+
+        {/* Quiz Participation Modal */}
+        {showQuizModal && selectedQuiz && (
+          <div className="quiz-modal-overlay" onClick={closeModal}>
+            <div className="quiz-modal" onClick={(e) => e.stopPropagation()}>
+              <div className="quiz-modal-header">
+                <h2>{selectedQuiz.name}</h2>
+                <button className="close-button" onClick={closeModal}>
+                  ×
+                </button>
+              </div>
+              
+              <div className="quiz-modal-body">
+                <div className="quiz-summary">
+                  <p><strong>Description:</strong> {selectedQuiz.description}</p>
+                  <p><strong>Level:</strong> {selectedQuiz.level}</p>
+                  <p><strong>Duration:</strong> {selectedQuiz.time} minutes</p>
+                  <p><strong>Questions:</strong> {selectedQuiz.questionCount}</p>
+                  <p><strong>Participants:</strong> {selectedQuiz.participantsCount.toLocaleString()}</p>
+                </div>
+
+                <div className="quiz-instructions">
+                  <h3>Quiz Instructions</h3>
+                  <ul>
+                    <li>Read each question carefully before selecting your answer</li>
+                    <li>You have {selectedQuiz.time} minutes to complete all {selectedQuiz.questionCount} questions</li>
+                    <li>Once you start, you cannot pause the quiz</li>
+                    <li>Make sure you have a stable internet connection</li>
+                    <li>Your progress will be automatically saved</li>
+                  </ul>
+                </div>
+
+                <div className="quiz-actions">
+                  <Button variant="secondary" onClick={closeModal}>
+                    Cancel
+                  </Button>
+                  <Button variant="primary" onClick={handleStartQuiz}>
+                    Start Quiz
+                  </Button>
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>

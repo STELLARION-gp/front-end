@@ -73,16 +73,24 @@ const Quizzes = () => {
         <div className="quizzes-tabs">
           <Button
             onClick={() => setActiveTab('all')}
-            className={`tab-button ${activeTab === 'all' ? 'active' : ''}`}
+            className={activeTab === 'all' ? 'tab-button primary' : 'tab-button secondary'}
           >
             All Quizzes
           </Button>
           <Button
             onClick={() => setActiveTab('my')}
-            className={`tab-button ${activeTab === 'my' ? 'active' : ''}`}
+            className={activeTab === 'my' ? 'tab-button primary' : 'tab-button secondary'}
           >
             My Quizzes
           </Button>
+        </div>
+
+        {/* Section Title */}
+        <div className="section-header">
+          <h2 className="section-title">
+            {activeTab === 'all' ? 'All Available Quizzes' : 'My Created Quizzes'}
+          </h2>
+
         </div>
 
         {/* Quiz Cards Grid */}

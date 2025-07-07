@@ -188,6 +188,13 @@
               &:hover {
                 opacity: 1;
               }
+
+              // Dynamic height classes for chart bars
+              &.chart-bar-1 { height: 20%; }
+              &.chart-bar-2 { height: 45%; }
+              &.chart-bar-3 { height: 70%; }
+              &.chart-bar-4 { height: 85%; }
+              &.chart-bar-5 { height: 100%; }
             }
           }
         }

@@ -10,7 +10,8 @@ import {
   Star, 
   MessageCircle, 
   Settings,
-  Info
+  Info,
+  ChevronDown
 } from 'lucide-react';
 import Button from '../../components/Button';
 import Card from '../../components/Card';
@@ -63,6 +64,7 @@ const TourChat: React.FC = () => {
   const [isTyping] = useState<string[]>([]);
   const [showMembersList, setShowMembersList] = useState(false);
   const [showTourInfo, setShowTourInfo] = useState(false);
+  const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
 
   // Mock data initialization
   useEffect(() => {
@@ -135,8 +137,68 @@ const TourChat: React.FC = () => {
     ];
     setMembers(mockMembers);
 
-    // Mock messages
+    // Mock messages - Add more previous messages for better chat history
     const mockMessages: ChatMessage[] = [
+      {
+        id: '0',
+        senderId: 'guide-1',
+        senderName: 'Dr. Sarah Mitchell',
+        senderRole: 'guide',
+        content: 'Hello everyone! I\'ve created this chat group for our upcoming Deep Space Observation Tour. Please introduce yourselves and let me know your experience level with stargazing! 🌟',
+        timestamp: new Date(Date.now() - 7200000), // 2 hours ago
+        type: 'text',
+        isRead: true
+      },
+      {
+        id: '0.5',
+        senderId: 'member-1',
+        senderName: 'Emily Chen',
+        senderRole: 'member',
+        content: 'Hi Dr. Mitchell! I\'m Emily, and I\'m super excited for this tour. I\'ve done some basic stargazing with binoculars but never through a proper telescope.',
+        timestamp: new Date(Date.now() - 7000000),
+        type: 'text',
+        isRead: true
+      },
+      {
+        id: '0.6',
+        senderId: 'member-2',
+        senderName: 'Marcus Rodriguez',
+        senderRole: 'member',
+        content: 'Marcus here! I\'ve been to a few observatory visits but this is my first guided tour. Really looking forward to learning more about deep-sky objects.',
+        timestamp: new Date(Date.now() - 6800000),
+        type: 'text',
+        isRead: true
+      },
+      {
+        id: '0.7',
+        senderId: 'member-4',
+        senderName: 'Alex Kim',
+        senderRole: 'member',
+        content: 'Hi everyone! I\'m Alex and this is my very first time doing anything astronomy-related. Feeling a bit nervous but excited!',
+        timestamp: new Date(Date.now() - 6600000),
+        type: 'text',
+        isRead: true
+      },
+      {
+        id: '0.8',
+        senderId: 'guide-1',
+        senderName: 'Dr. Sarah Mitchell',
+        senderRole: 'guide',
+        content: 'Wonderful! It\'s great to have people with different experience levels. Alex, don\'t worry at all - everyone was a beginner once, and I\'ll make sure you feel comfortable throughout the tour.',
+        timestamp: new Date(Date.now() - 6400000),
+        type: 'text',
+        isRead: true
+      },
+      {
+        id: '0.9',
+        senderId: 'member-6',
+        senderName: 'David Johnson',
+        senderRole: 'member',
+        content: 'Hey all! David here. I\'ve got a small telescope at home but never seen Saturn\'s rings clearly. Really hoping we can spot them tonight!',
+        timestamp: new Date(Date.now() - 6200000),
+        type: 'text',
+        isRead: true
+      },
       {
         id: '1',
         senderId: 'guide-1',
@@ -209,15 +271,34 @@ const TourChat: React.FC = () => {
       }
     ];
     setMessages(mockMessages);
+    
+    // Scroll to bottom on initial load
+    setTimeout(() => {
+      scrollToBottom();
+    }, 100);
   }, [tourId]);
 
-  // Auto scroll to bottom when new messages arrive
+  // Auto scroll to bottom when new messages arrive (only if user is near bottom)
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    if (shouldAutoScroll) {
+      scrollToBottom();
+    }
+  }, [messages, shouldAutoScroll]);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ 
+      behavior: 'smooth',
+      block: 'end',
+      inline: 'nearest'
+    });
+  };
+
+  // Check if user is near bottom of chat
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const element = e.currentTarget;
+    const threshold = 50; // pixels from bottom - reduced for better sensitivity
+    const isNearBottom = element.scrollHeight - element.scrollTop - element.clientHeight < threshold;
+    setShouldAutoScroll(isNearBottom);
   };
 
   const handleSendMessage = () => {
@@ -236,6 +317,9 @@ const TourChat: React.FC = () => {
 
     setMessages(prev => [...prev, message]);
     setNewMessage('');
+    
+    // Always auto-scroll when user sends a message
+    setShouldAutoScroll(true);
     
     // Focus back to input
     setTimeout(() => inputRef.current?.focus(), 100);
@@ -347,7 +431,7 @@ const TourChat: React.FC = () => {
         >
           <Card className="chat-container" variant="outlined">
             {/* Messages */}
-            <div className="chat-messages">
+            <div className="chat-messages" onScroll={handleScroll}>
               {messages.length > 0 ? (
                 messages.map((message, index) => {
                   const showDateSeparator = index === 0 || 
@@ -420,6 +504,23 @@ const TourChat: React.FC = () => {
               )}
               
               <div ref={messagesEndRef} />
+              
+              {/* Scroll to bottom button */}
+              {!shouldAutoScroll && (
+                <motion.button
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  onClick={() => {
+                    setShouldAutoScroll(true);
+                    scrollToBottom();
+                  }}
+                  className="scroll-to-bottom-btn"
+                  title="Scroll to bottom"
+                >
+                  <ChevronDown className="w-4 h-4" />
+                </motion.button>
+              )}
             </div>
 
             {/* Message Input */}

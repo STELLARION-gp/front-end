@@ -183,6 +183,8 @@ const Influencers = () => {
         filtered = influencers.filter(influencer => influencer.isFollowing)
         break
       case 'discover':
+        filtered = influencers.filter(influencer => !influencer.isFollowing)
+        break
       default:
         filtered = influencers
         break

@@ -3,6 +3,7 @@ import "../../styles/components/learner/ServiceCard.scss";
 import Button from "../Button";
 
 interface ServiceCardProps {
+  id: number;
   title: string;
   description: string;
   icon?: React.ReactNode;
@@ -14,10 +15,11 @@ interface ServiceCardProps {
   duration: string;
   tags: string[];
   price: number;
-  onClick?: () => void;
+  
 }
 
 const ServiceCard: React.FC<ServiceCardProps> = ({
+  id,
   title,
   description,
   image,
@@ -28,15 +30,17 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   duration,
   tags,
   price,
-  onClick
 }) => {
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, i) => (
       <span key={i} className={`star-icon${i < Math.floor(rating) ? ' filled' : ''}`}>★</span>
     ));
   };
+  const handleGotoService = (serviceId: number) => {
+    window.location.href = `/dashboard/astronomy-services/${serviceId}`;
+  };
   return (
-    <div className="service-card" onClick={onClick} tabIndex={0} role="button">
+    <div className="service-card" tabIndex={0} role="button">
       {image && (
         <div className="service-card__image">
           <img src={image} alt={title} />
@@ -61,7 +65,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
           <img src={guideImage} alt={guideName} className="service-card__guide-img" />
           <span className="service-card__guide-name">{guideName}</span>
         </div>
-        <Button onClick={() => {}}>Book Now</Button>
+        <Button onClick={() => handleGotoService(id)}>Book Now</Button>
       </div>
     </div>
   );

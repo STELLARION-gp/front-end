@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import '../../styles/pages/enthusiast/Quizzes.scss'
+import Button from '../../components/Button'
 
 interface Quiz {
   id: string
@@ -68,18 +69,18 @@ const Quizzes = () => {
         <div className="tabs-container">
           <div className="tabs-nav">
             <nav className="tab-buttons">
-              <button
+              <Button
                 onClick={() => setActiveTab('all')}
                 className={`tab-button ${activeTab === 'all' ? 'active' : ''}`}
               >
                 All Quizzes
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => setActiveTab('my')}
                 className={`tab-button ${activeTab === 'my' ? 'active' : ''}`}
               >
                 My Quizzes
-              </button>
+              </Button>
             </nav>
           </div>
         </div>
@@ -121,9 +122,9 @@ const Quizzes = () => {
                   </div>
                 </div>
                 
-                <button className="participate-btn">
+                <Button className="participate-btn">
                   Participate
-                </button>
+                </Button>
               </div>
             </div>
           ))}

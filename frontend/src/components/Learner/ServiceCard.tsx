@@ -1,5 +1,6 @@
 import React from "react";
 import "../../styles/components/learner/ServiceCard.scss";
+import Button from "../Button";
 
 interface ServiceCardProps {
   title: string;
@@ -60,6 +61,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
           <img src={guideImage} alt={guideName} className="service-card__guide-img" />
           <span className="service-card__guide-name">{guideName}</span>
         </div>
+        <Button onClick={() => {}}>Book Now</Button>
       </div>
     </div>
   );

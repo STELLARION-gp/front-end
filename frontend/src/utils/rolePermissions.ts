@@ -52,6 +52,8 @@ export const PAGE_ACCESS_CONTROL = {
     '/dashboard/night-camps': ['enthusiast', 'influencer','learner','moderator', 'admin','mentor'] as UserRole[],
     '/dashboard/stargazing': ['enthusiast', 'influencer','admin', 'learner','mentor','moderator'] as UserRole[],
     '/dashboard/booking-requests': ['guide'] as UserRole[],
+    '/dashboard/confirmed-bookings': ['guide'] as UserRole[],
+    '/dashboard/tour-chat': ['guide'] as UserRole[],
     '/dashboard/astrohub': ['enthusiast'] as UserRole[],
     '/dashboard/volunteering': ['enthusiast'] as UserRole[],
     '/dashboard/sponsorships': ['enthusiast', 'influencer',] as UserRole[],

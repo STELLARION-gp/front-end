@@ -1,7 +1,7 @@
 // Tour Chat Page - Futuristic and Stylish Design
 // Imports existing theme variables and mixins
-@import '../../../styles/variables';
-@import '../../../styles/mixins';
+@import '../../abstracts/variables';
+@import '../../abstracts/mixins';
 
 .tour-chat-page {
   padding: 0;
@@ -55,6 +55,7 @@
   background: rgba(30, 41, 59, 0.8);
   border-bottom: 1px solid rgba(148, 163, 184, 0.2);
   padding: 1rem 1.5rem;
+  -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
   display: flex;
   justify-content: space-between;
@@ -143,6 +144,7 @@
     background: rgba(30, 41, 59, 0.8);
     border: 1px solid rgba(148, 163, 184, 0.2);
     border-radius: 16px;
+    -webkit-backdrop-filter: blur(12px);
     backdrop-filter: blur(12px);
     display: flex;
     flex-direction: column;
@@ -293,6 +295,7 @@
   border-radius: 16px;
   padding: 0.75rem 1rem;
   max-width: calc(100% - 60px);
+  -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   
   .message-header {
@@ -399,6 +402,7 @@
       min-height: 44px;
       max-height: 120px;
       transition: all 0.3s ease;
+      -webkit-backdrop-filter: blur(8px);
       backdrop-filter: blur(8px);
       
       &:focus {
@@ -452,6 +456,7 @@
     background: rgba(30, 41, 59, 0.8);
     border: 1px solid rgba(148, 163, 184, 0.2);
     border-radius: 16px;
+    -webkit-backdrop-filter: blur(12px);
     backdrop-filter: blur(12px);
     height: 100%;
     display: flex;

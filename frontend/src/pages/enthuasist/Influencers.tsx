@@ -292,7 +292,6 @@ const Influencers = () => {
               <Button
                 variant="primary"
                 size="small"
-                className="join-event-btn"
               >
                 Join Event
               </Button>
@@ -310,7 +309,6 @@ const Influencers = () => {
               <Button
                 variant="primary"
                 size="small"
-                className="join-event-btn"
               >
                 Join Event
               </Button>

@@ -271,6 +271,7 @@ const TourChat: React.FC = () => {
       }
     ];
     setMessages(mockMessages);
+    console.log('Messages loaded:', mockMessages.length); // Debug log
     
     // Scroll to bottom on initial load
     setTimeout(() => {
@@ -429,7 +430,7 @@ const TourChat: React.FC = () => {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="chat-main"
         >
-          <Card className="chat-container" variant="outlined">
+          <div className="chat-container">
             {/* Messages */}
             <div className="chat-messages" onScroll={handleScroll}>
               <div className="messages-wrapper">
@@ -555,7 +556,7 @@ const TourChat: React.FC = () => {
                 </div>
               )}
             </div>
-          </Card>
+          </div>
         </motion.div>
 
         {/* Side Panels */}

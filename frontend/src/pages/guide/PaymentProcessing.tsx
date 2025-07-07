@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import Card from '../components/Card';
-import Button from '../components/Button';
-import InputField from '../components/InputField';
-import LoadingSpinner from '../components/LoadingSpinner';
-import '../styles/pages/PaymentProcessing.scss';
+import Card from '../../components/Card';
+import Button from '../../components/Button';
+import InputField from '../../components/InputField';
+import LoadingSpinner from '../../components/LoadingSpinner';
+import '../styles/pages/guide/PaymentProcessing.scss';
 
 // Types for payment data
 interface Transaction {
@@ -182,79 +182,79 @@ const PaymentProcessing: React.FC = () => {
       </div>
 
       {/* Payment Statistics Charts */}
-      <div className="stats-section">
-        <div className="stats-grid">
-          <Card className="stat-card revenue">
-            <div className="stat-icon">💰</div>
-            <div className="stat-content">
+      <div className="payment-stats-section">
+        <div className="payment-stats-grid">
+          <Card className="payment-stat-card payment-revenue">
+            <div className="payment-stat-icon">💰</div>
+            <div className="payment-stat-content">
               <h3>Total Revenue</h3>
-              <div className="stat-value">{formatCurrency(paymentStats?.totalRevenue || 0)}</div>
-              <div className="stat-change positive">+{paymentStats?.monthlyGrowth}% this month</div>
+              <div className="payment-stat-value">{formatCurrency(paymentStats?.totalRevenue || 0)}</div>
+              <div className="payment-stat-change positive">+{paymentStats?.monthlyGrowth}% this month</div>
             </div>
           </Card>
 
-          <Card className="stat-card transactions">
-            <div className="stat-icon">📊</div>
-            <div className="stat-content">
+          <Card className="payment-stat-card payment-transactions">
+            <div className="payment-stat-icon">📊</div>
+            <div className="payment-stat-content">
               <h3>Total Transactions</h3>
-              <div className="stat-value">{paymentStats?.totalTransactions.toLocaleString()}</div>
-              <div className="stat-change neutral">Last 90 days</div>
+              <div className="payment-stat-value">{paymentStats?.totalTransactions.toLocaleString()}</div>
+              <div className="payment-stat-change neutral">Last 90 days</div>
             </div>
           </Card>
 
-          <Card className="stat-card success-rate">
-            <div className="stat-icon">✅</div>
-            <div className="stat-content">
+          <Card className="payment-stat-card payment-success-rate">
+            <div className="payment-stat-icon">✅</div>
+            <div className="payment-stat-content">
               <h3>Success Rate</h3>
-              <div className="stat-value">{paymentStats?.successRate}%</div>
-              <div className="stat-change positive">Above average</div>
+              <div className="payment-stat-value">{paymentStats?.successRate}%</div>
+              <div className="payment-stat-change positive">Above average</div>
             </div>
           </Card>
 
-          <Card className="stat-card pending">
-            <div className="stat-icon">⏳</div>
-            <div className="stat-content">
+          <Card className="payment-stat-card payment-pending">
+            <div className="payment-stat-icon">⏳</div>
+            <div className="payment-stat-content">
               <h3>Pending Amount</h3>
-              <div className="stat-value">{formatCurrency(paymentStats?.pendingAmount || 0)}</div>
-              <div className="stat-change neutral">Awaiting processing</div>
+              <div className="payment-stat-value">{formatCurrency(paymentStats?.pendingAmount || 0)}</div>
+              <div className="payment-stat-change neutral">Awaiting processing</div>
             </div>
           </Card>
         </div>
 
         {/* Charts Section */}
-        <div className="charts-section">
-          <Card className="chart-card">
+        <div className="payment-charts-section">
+          <Card className="payment-chart-card">
             <h3>Revenue Trend (Last 30 Days)</h3>
-            <div className="chart-placeholder">
-              <div className="chart-bars">
+            <div className="payment-chart-placeholder">
+              <div className="payment-chart-bars">
                 {Array.from({ length: 30 }, (_, i) => (
                   <div 
                     key={i} 
-                    className={`chart-bar chart-bar-${Math.floor(Math.random() * 5) + 1}`}
+                    className={`payment-chart-bar payment-chart-bar-${Math.floor(Math.random() * 5) + 1}`}
                   />
                 ))}
               </div>
             </div>
           </Card>
 
-          <Card className="chart-card">
+          <Card className="payment-chart-card">
             <h3>Payment Gateway Distribution</h3>
-            <div className="pie-chart-placeholder">
-              <div className="gateway-stats">
-                <div className="gateway-item">
-                  <span className="gateway-color stripe"></span>
+            <div className="payment-pie-chart-placeholder">
+              <div className="payment-gateway-stats">
+                <div className="payment-gateway-item">
+                  <span className="payment-gateway-color stripe"></span>
                   <span>Stripe (45%)</span>
                 </div>
-                <div className="gateway-item">
-                  <span className="gateway-color paypal"></span>
+                <div className="payment-gateway-item">
+                  <span className="payment-gateway-color paypal"></span>
                   <span>PayPal (30%)</span>
                 </div>
-                <div className="gateway-item">
-                  <span className="gateway-color razorpay"></span>
+                <div className="payment-gateway-item">
+                  <span className="payment-gateway-color razorpay"></span>
                   <span>Razorpay (15%)</span>
                 </div>
-                <div className="gateway-item">
-                  <span className="gateway-color square"></span>
+                <div className="payment-gateway-item">
+                  <span className="payment-gateway-color square"></span>
                   <span>Square (10%)</span>
                 </div>
               </div>
@@ -264,8 +264,8 @@ const PaymentProcessing: React.FC = () => {
       </div>
 
       {/* Filters and Controls */}
-      <Card className="filters-section">
-        <div className="filters-header">
+      <Card className="payment-filters-section">
+        <div className="payment-filters-header">
           <h3>Transaction Filters</h3>
           <Button 
             variant="secondary" 
@@ -282,13 +282,13 @@ const PaymentProcessing: React.FC = () => {
           </Button>
         </div>
         
-        <div className="filters-grid">
-          <div className="filter-group">
+        <div className="payment-filters-grid">
+          <div className="payment-filter-group">
             <label>Payment Gateway</label>
             <select 
               value={selectedGateway} 
               onChange={(e) => setSelectedGateway(e.target.value)}
-              className="filter-select"
+              className="payment-filter-select"
               title="Select payment gateway"
               aria-label="Payment Gateway Filter"
             >
@@ -300,12 +300,12 @@ const PaymentProcessing: React.FC = () => {
             </select>
           </div>
 
-          <div className="filter-group">
+          <div className="payment-filter-group">
             <label>Status</label>
             <select 
               value={statusFilter} 
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="filter-select"
+              className="payment-filter-select"
               title="Select status filter"
               aria-label="Status Filter"
             >
@@ -317,12 +317,12 @@ const PaymentProcessing: React.FC = () => {
             </select>
           </div>
 
-          <div className="filter-group">
+          <div className="payment-filter-group">
             <label>Date Range</label>
             <select 
               value={dateRange} 
               onChange={(e) => setDateRange(e.target.value)}
-              className="filter-select"
+              className="payment-filter-select"
               title="Select date range"
               aria-label="Date Range Filter"
             >
@@ -333,7 +333,7 @@ const PaymentProcessing: React.FC = () => {
             </select>
           </div>
 
-          <div className="filter-group">
+          <div className="payment-filter-group">
             <label>Search</label>
             <InputField
               id="search-transactions"
@@ -348,16 +348,16 @@ const PaymentProcessing: React.FC = () => {
       </Card>
 
       {/* Transactions Table */}
-      <Card className="transactions-table-section">
-        <div className="table-header">
+      <Card className="payment-transactions-table-section">
+        <div className="payment-table-header">
           <h3>Recent Transactions ({filteredAndSortedTransactions.length} results)</h3>
-          <div className="table-controls">
-            <div className="sort-controls">
+          <div className="payment-table-controls">
+            <div className="payment-sort-controls">
               <label>Sort by:</label>
               <select 
                 value={sortBy} 
                 onChange={(e) => setSortBy(e.target.value as 'date' | 'amount' | 'status')}
-                className="sort-select"
+                className="payment-sort-select"
                 title="Sort by field"
                 aria-label="Sort By"
               >
@@ -376,8 +376,8 @@ const PaymentProcessing: React.FC = () => {
           </div>
         </div>
 
-        <div className="table-container">
-          <table className="transactions-table">
+        <div className="payment-table-container">
+          <table className="payment-transactions-table">
             <thead>
               <tr>
                 <th>Transaction ID</th>
@@ -393,28 +393,28 @@ const PaymentProcessing: React.FC = () => {
             <tbody>
               {paginatedTransactions.map((transaction) => (
                 <tr key={transaction.id}>
-                  <td className="transaction-id">{transaction.id}</td>
+                  <td className="payment-transaction-id">{transaction.id}</td>
                   <td>{new Date(transaction.date).toLocaleDateString()}</td>
                   <td>
-                    <div className="customer-info">
-                      <div className="customer-name">{transaction.customerName}</div>
-                      <div className="customer-email">{transaction.customerEmail}</div>
+                    <div className="payment-customer-info">
+                      <div className="payment-customer-name">{transaction.customerName}</div>
+                      <div className="payment-customer-email">{transaction.customerEmail}</div>
                     </div>
                   </td>
-                  <td className="amount">{formatCurrency(transaction.amount)}</td>
+                  <td className="payment-amount">{formatCurrency(transaction.amount)}</td>
                   <td>
-                    <span className={`gateway-badge ${transaction.gateway}`}>
+                    <span className={`payment-gateway-badge ${transaction.gateway}`}>
                       {transaction.gateway}
                     </span>
                   </td>
                   <td>
-                    <span className={`status-badge ${getStatusBadgeClass(transaction.status)}`}>
+                    <span className={`payment-status-badge ${getStatusBadgeClass(transaction.status)}`}>
                       {transaction.status}
                     </span>
                   </td>
-                  <td className="transaction-type">{transaction.type}</td>
+                  <td className="payment-transaction-type">{transaction.type}</td>
                   <td>
-                    <div className="action-buttons">
+                    <div className="payment-action-buttons">
                       <Button variant="ghost" size="small">View</Button>
                       {transaction.status === 'completed' && (
                         <Button variant="ghost" size="small">Refund</Button>
@@ -428,13 +428,13 @@ const PaymentProcessing: React.FC = () => {
         </div>
 
         {/* Pagination */}
-        <div className="pagination">
-          <div className="pagination-info">
+        <div className="payment-pagination">
+          <div className="payment-pagination-info">
             Showing {(currentPage - 1) * itemsPerPage + 1} to{' '}
             {Math.min(currentPage * itemsPerPage, filteredAndSortedTransactions.length)} of{' '}
             {filteredAndSortedTransactions.length} transactions
           </div>
-          <div className="pagination-controls">
+          <div className="payment-pagination-controls">
             <Button
               variant="ghost"
               size="small"
@@ -473,9 +473,9 @@ const PaymentProcessing: React.FC = () => {
       </Card>
 
       {/* Quick Actions */}
-      <Card className="quick-actions-section">
+      <Card className="payment-quick-actions-section">
         <h3>Quick Actions</h3>
-        <div className="action-buttons-grid">
+        <div className="payment-action-buttons-grid">
           <Button variant="primary" icon={<span>📊</span>}>
             Export Report
           </Button>

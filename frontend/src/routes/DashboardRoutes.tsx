@@ -414,7 +414,7 @@ const DashboardRoutes = () => {
             <Route
                 path="payments"
                 element={
-                    <RoleGuard allowedRoles={['guide']}>
+                    <RoleGuard allowedRoles={['guide', 'admin', 'moderator']}>
                         <PaymentProcessing />
                     </RoleGuard>
                 }

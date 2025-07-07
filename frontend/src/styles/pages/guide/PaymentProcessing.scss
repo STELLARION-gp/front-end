@@ -40,16 +40,16 @@
   }
 
   // Stats Section
-  .stats-section {
+  .payment-stats-section {
     margin-bottom: 2rem;
 
-    .stats-grid {
+    .payment-stats-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
       gap: 1.5rem;
       margin-bottom: 2rem;
 
-      .stat-card {
+      .payment-stat-card {
         background: linear-gradient(135deg, rgba(56, 189, 248, 0.1), rgba(125, 211, 252, 0.05));
         border: 1px solid rgba(56, 189, 248, 0.2);
         padding: 1.5rem;
@@ -64,7 +64,7 @@
           box-shadow: 0 8px 25px rgba(56, 189, 248, 0.15);
         }
 
-        .stat-icon {
+        .payment-stat-icon {
           font-size: 2.5rem;
           width: 60px;
           height: 60px;
@@ -76,7 +76,7 @@
           border: 2px solid rgba(56, 189, 248, 0.3);
         }
 
-        .stat-content {
+        .payment-stat-content {
           flex: 1;
 
           h3 {
@@ -87,14 +87,14 @@
             letter-spacing: 0.5px;
           }
 
-          .stat-value {
+          .payment-stat-value {
             font-size: 2rem;
             font-weight: 700;
             color: var(--text-primary, #e2e8f0);
             margin-bottom: 0.25rem;
           }
 
-          .stat-change {
+          .payment-stat-change {
             font-size: 0.8rem;
             padding: 0.25rem 0.5rem;
             border-radius: 0.5rem;
@@ -118,29 +118,29 @@
         }
 
         // Specific card styling
-        &.revenue {
+        &.payment-revenue {
           background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(34, 197, 94, 0.05));
           border-color: rgba(34, 197, 94, 0.2);
         }
 
-        &.transactions {
+        &.payment-transactions {
           background: linear-gradient(135deg, rgba(147, 51, 234, 0.1), rgba(147, 51, 234, 0.05));
           border-color: rgba(147, 51, 234, 0.2);
         }
 
-        &.success-rate {
+        &.payment-success-rate {
           background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(59, 130, 246, 0.05));
           border-color: rgba(59, 130, 246, 0.2);
         }
 
-        &.pending {
+        &.payment-pending {
           background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(245, 158, 11, 0.05));
           border-color: rgba(245, 158, 11, 0.2);
         }
       }
     }
 
-    .charts-section {
+    .payment-charts-section {
       display: grid;
       grid-template-columns: 2fr 1fr;
       gap: 1.5rem;
@@ -149,7 +149,7 @@
         grid-template-columns: 1fr;
       }
 
-      .chart-card {
+      .payment-chart-card {
         background: rgba(30, 41, 59, 0.8);
         border: 1px solid rgba(56, 189, 248, 0.2);
         padding: 1.5rem;
@@ -162,7 +162,7 @@
           font-weight: 600;
         }
 
-        .chart-placeholder {
+        .payment-chart-placeholder {
           height: 200px;
           background: rgba(15, 23, 42, 0.5);
           border-radius: 0.5rem;
@@ -170,14 +170,14 @@
           display: flex;
           align-items: end;
 
-          .chart-bars {
+          .payment-chart-bars {
             display: flex;
             align-items: end;
             gap: 4px;
             height: 100%;
             width: 100%;
 
-            .chart-bar {
+            .payment-chart-bar {
               flex: 1;
               background: linear-gradient(to top, #38bdf8, #7dd3fc);
               min-height: 10px;
@@ -190,33 +190,33 @@
               }
 
               // Dynamic height classes for chart bars
-              &.chart-bar-1 { height: 20%; }
-              &.chart-bar-2 { height: 45%; }
-              &.chart-bar-3 { height: 70%; }
-              &.chart-bar-4 { height: 85%; }
-              &.chart-bar-5 { height: 100%; }
+              &.payment-chart-bar-1 { height: 20%; }
+              &.payment-chart-bar-2 { height: 45%; }
+              &.payment-chart-bar-3 { height: 70%; }
+              &.payment-chart-bar-4 { height: 85%; }
+              &.payment-chart-bar-5 { height: 100%; }
             }
           }
         }
 
-        .pie-chart-placeholder {
+        .payment-pie-chart-placeholder {
           height: 200px;
           display: flex;
           align-items: center;
           justify-content: center;
 
-          .gateway-stats {
+          .payment-gateway-stats {
             display: flex;
             flex-direction: column;
             gap: 1rem;
 
-            .gateway-item {
+            .payment-gateway-item {
               display: flex;
               align-items: center;
               gap: 0.75rem;
               font-size: 0.9rem;
 
-              .gateway-color {
+              .payment-gateway-color {
                 width: 16px;
                 height: 16px;
                 border-radius: 50%;
@@ -245,14 +245,14 @@
   }
 
   // Filters Section
-  .filters-section {
+  .payment-filters-section {
     background: rgba(30, 41, 59, 0.8);
     border: 1px solid rgba(56, 189, 248, 0.2);
     padding: 1.5rem;
     border-radius: 1rem;
     margin-bottom: 2rem;
 
-    .filters-header {
+    .payment-filters-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -265,12 +265,12 @@
       }
     }
 
-    .filters-grid {
+    .payment-filters-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 1.5rem;
 
-      .filter-group {
+      .payment-filter-group {
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
@@ -283,7 +283,7 @@
           letter-spacing: 0.5px;
         }
 
-        .filter-select {
+        .payment-filter-select {
           background: rgba(15, 23, 42, 0.8);
           border: 1px solid rgba(56, 189, 248, 0.3);
           color: var(--text-primary, #e2e8f0);
@@ -308,14 +308,14 @@
   }
 
   // Transactions Table Section
-  .transactions-table-section {
+  .payment-transactions-table-section {
     background: rgba(30, 41, 59, 0.8);
     border: 1px solid rgba(56, 189, 248, 0.2);
     padding: 1.5rem;
     border-radius: 1rem;
     margin-bottom: 2rem;
 
-    .table-header {
+    .payment-table-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -333,12 +333,12 @@
         font-weight: 600;
       }
 
-      .table-controls {
+      .payment-table-controls {
         display: flex;
         gap: 1rem;
         align-items: center;
 
-        .sort-controls {
+        .payment-sort-controls {
           display: flex;
           align-items: center;
           gap: 0.5rem;
@@ -348,7 +348,7 @@
             color: var(--text-secondary, #64748b);
           }
 
-          .sort-select {
+          .payment-sort-select {
             background: rgba(15, 23, 42, 0.8);
             border: 1px solid rgba(56, 189, 248, 0.3);
             color: var(--text-primary, #e2e8f0);
@@ -370,12 +370,12 @@
       }
     }
 
-    .table-container {
+    .payment-table-container {
       overflow-x: auto;
       border-radius: 0.5rem;
       border: 1px solid rgba(56, 189, 248, 0.2);
 
-      .transactions-table {
+      .payment-transactions-table {
         width: 100%;
         border-collapse: collapse;
         background: rgba(15, 23, 42, 0.5);
@@ -410,35 +410,35 @@
               font-size: 0.9rem;
               vertical-align: middle;
 
-              &.transaction-id {
+              &.payment-transaction-id {
                 font-family: 'Courier New', monospace;
                 font-weight: 600;
                 color: var(--accent-color, #38bdf8);
               }
 
-              &.amount {
+              &.payment-amount {
                 font-weight: 600;
                 text-align: right;
               }
 
-              &.transaction-type {
+              &.payment-transaction-type {
                 text-transform: capitalize;
               }
 
-              .customer-info {
-                .customer-name {
+              .payment-customer-info {
+                .payment-customer-name {
                   font-weight: 500;
                   color: var(--text-primary, #e2e8f0);
                 }
 
-                .customer-email {
+                .payment-customer-email {
                   font-size: 0.8rem;
                   color: var(--text-secondary, #64748b);
                   margin-top: 0.25rem;
                 }
               }
 
-              .gateway-badge {
+              .payment-gateway-badge {
                 padding: 0.25rem 0.75rem;
                 border-radius: 1rem;
                 font-size: 0.8rem;
@@ -471,7 +471,7 @@
                 }
               }
 
-              .status-badge {
+              .payment-status-badge {
                 padding: 0.25rem 0.75rem;
                 border-radius: 1rem;
                 font-size: 0.8rem;
@@ -504,7 +504,7 @@
                 }
               }
 
-              .action-buttons {
+              .payment-action-buttons {
                 display: flex;
                 gap: 0.5rem;
               }
@@ -514,7 +514,7 @@
       }
     }
 
-    .pagination {
+    .payment-pagination {
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -527,12 +527,12 @@
         gap: 1rem;
       }
 
-      .pagination-info {
+      .payment-pagination-info {
         color: var(--text-secondary, #64748b);
         font-size: 0.9rem;
       }
 
-      .pagination-controls {
+      .payment-pagination-controls {
         display: flex;
         gap: 0.5rem;
         align-items: center;
@@ -541,7 +541,7 @@
   }
 
   // Quick Actions Section
-  .quick-actions-section {
+  .payment-quick-actions-section {
     background: rgba(30, 41, 59, 0.8);
     border: 1px solid rgba(56, 189, 248, 0.2);
     padding: 1.5rem;
@@ -554,7 +554,7 @@
       font-weight: 600;
     }
 
-    .action-buttons-grid {
+    .payment-action-buttons-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 1rem;
@@ -571,27 +571,27 @@
       }
     }
 
-    .stats-section {
-      .stats-grid {
+    .payment-stats-section {
+      .payment-stats-grid {
         grid-template-columns: 1fr;
       }
 
-      .charts-section {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .filters-section {
-      .filters-grid {
+      .payment-charts-section {
         grid-template-columns: 1fr;
       }
     }
 
-    .transactions-table-section {
-      .table-container {
+    .payment-filters-section {
+      .payment-filters-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .payment-transactions-table-section {
+      .payment-table-container {
         font-size: 0.8rem;
 
-        .transactions-table {
+        .payment-transactions-table {
           thead th,
           tbody td {
             padding: 0.5rem;

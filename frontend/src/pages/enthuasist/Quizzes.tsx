@@ -475,6 +475,12 @@ const Quizzes = () => {
 
   const renderCreateQuizContent = () => (
     <div className="create-quiz-section">
+      <div className="section-header">
+        <h2 className="section-title">
+          {isEditing ? 'Edit Your Quiz' : 'Create New Quiz'}
+        </h2>
+      </div>
+      
       <div className="create-quiz-form">
         <div className="form-section">
           <h3 className="section-title">
@@ -740,13 +746,6 @@ const Quizzes = () => {
 
   const renderLeaderboardContent = () => (
     <div className="leaderboard-section">
-      <div className="leaderboard-header">
-        <h3 className="section-title">Quiz Champions</h3>
-        <p className="section-subtitle">
-          Top performers across all space exploration quizzes
-        </p>
-      </div>
-
       <div className="leaderboard-stats">
         <div className="stat-card">
           <h4>Total Participants</h4>
@@ -974,7 +973,15 @@ const Quizzes = () => {
 
         {activeTab === 'create' && renderCreateQuizContent()}
 
-        {activeTab === 'leaderboard' && renderLeaderboardContent()}
+        {activeTab === 'leaderboard' && (
+          <>
+            {/* Section Title */}
+            <div className="section-header">
+              <h2 className="section-title">Quiz Champions</h2>
+            </div>
+            {renderLeaderboardContent()}
+          </>
+        )}
 
         {/* Quiz Participation Modal */}
         {showQuizModal && selectedQuiz && (

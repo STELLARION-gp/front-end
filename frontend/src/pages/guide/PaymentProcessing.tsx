@@ -3,7 +3,7 @@ import Card from '../../components/Card';
 import Button from '../../components/Button';
 import InputField from '../../components/InputField';
 import LoadingSpinner from '../../components/LoadingSpinner';
-import '../styles/pages/guide/PaymentProcessing.scss';
+import '../../styles/pages/guide/PaymentProcessing.scss';
 
 // Types for payment data
 interface Transaction {

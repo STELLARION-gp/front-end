@@ -4,7 +4,7 @@ import { RoleGuard } from '../components/RoleGuard';
 import Profile from '../pages/Profile';
 import Settings from '../pages/Settings';
 import DashboardOverview from '../pages/DashboardOverview';
-import PaymentProcessing from '../pages/PaymentProcessing';
+import PaymentProcessing from '../pages/guide/PaymentProcessing';
 import Button from '../components/Button';
 
 import Preview from '../pages/learner/Preview';

@@ -151,6 +151,7 @@
     display: flex;
     flex-direction: column;
     height: 100%;
+    max-height: 100%; // Ensure container doesn't exceed parent
     width: 100%; // Ensure full width
     overflow: hidden;
     
@@ -164,19 +165,39 @@
 // Messages Area
 .chat-messages {
   position: relative; // Add for absolute positioning of scroll button
-  flex: 1;
+  flex: 1 1 0; // Flex grow, shrink, and basis 0 for proper sizing
   padding: 1.5rem;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  overflow-y: auto; // Enable scrolling
+  overflow-x: hidden;
+  height: 0; // Force flex item to respect container height
+  min-height: 0; // Allow shrinking below content size
+  max-height: 100%; // Don't exceed container
   
-  // Hide scrollbar completely
-  scrollbar-width: none; // Firefox
-  -ms-overflow-style: none; // Internet Explorer 10+
+  // Messages wrapper for flex layout
+  .messages-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    min-height: 100%; // Ensure content takes at least full height
+  }
   
+  // Temporarily show scrollbar for testing
   &::-webkit-scrollbar {
-    display: none; // Safari and Chrome
+    width: 8px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: rgba(148, 163, 184, 0.1);
+    border-radius: 4px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: rgba(147, 51, 234, 0.6);
+    border-radius: 4px;
+    
+    &:hover {
+      background: rgba(147, 51, 234, 0.8);
+    }
   }
 }
 

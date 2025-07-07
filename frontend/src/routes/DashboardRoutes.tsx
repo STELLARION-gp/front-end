@@ -4,6 +4,7 @@ import { RoleGuard } from '../components/RoleGuard';
 import Profile from '../pages/Profile';
 import Settings from '../pages/Settings';
 import DashboardOverview from '../pages/DashboardOverview';
+import PaymentProcessing from '../pages/guide/PaymentProcessing';
 import Button from '../components/Button';
 
 import Preview from '../pages/learner/Preview';
@@ -410,6 +411,14 @@ const DashboardRoutes = () => {
                 }
             />
 
+            <Route
+                path="payments"
+                element={
+                    <RoleGuard allowedRoles={['guide', 'admin', 'moderator']}>
+                        <PaymentProcessing />
+                    </RoleGuard>
+                }
+            />
 
             {/* Default redirect to overview */}
             <Route path="" element={<Navigate to="overview" replace />} />

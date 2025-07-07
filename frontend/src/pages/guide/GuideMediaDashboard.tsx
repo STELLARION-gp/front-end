@@ -542,7 +542,7 @@ const GuideMediaDashboard: React.FC = () => {
       <div className="stats-grid">
         <Card className="stat-card images" variant="outlined">
           <div className="stat-content">
-            <div className="stat-icon">
+            <div className="stat-icon2">
               <Image className="w-6 h-6" />
             </div>
             <div className="stat-info">
@@ -554,7 +554,7 @@ const GuideMediaDashboard: React.FC = () => {
         
         <Card className="stat-card videos" variant="outlined">
           <div className="stat-content">
-            <div className="stat-icon">
+            <div className="stat-icon2">
               <Video className="w-6 h-6" />
             </div>
             <div className="stat-info">
@@ -566,7 +566,7 @@ const GuideMediaDashboard: React.FC = () => {
         
         <Card className="stat-card views" variant="outlined">
           <div className="stat-content">
-            <div className="stat-icon">
+            <div className="stat-icon2">
               <Eye className="w-6 h-6" />
             </div>
             <div className="stat-info">
@@ -578,7 +578,7 @@ const GuideMediaDashboard: React.FC = () => {
         
         <Card className="stat-card likes" variant="outlined">
           <div className="stat-content">
-            <div className="stat-icon">
+            <div className="stat-icon2">
               <Heart className="w-6 h-6" />
             </div>
             <div className="stat-info">

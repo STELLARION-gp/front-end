@@ -130,7 +130,7 @@
   display: flex;
   height: calc(100vh - 120px);
   gap: 1rem;
-  padding: 1rem 0; // Only top and bottom padding for full width
+  padding: 1rem;
 }
 
 // Main Chat Area
@@ -139,8 +139,8 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
-  width: 100%; // Ensure full width
-  margin: 0 1rem; // Add horizontal margin for some spacing from screen edges
+  width: 100%;
+  height: 100%;
 
   .chat-container {
     background: rgba(30, 41, 59, 0.8);
@@ -151,8 +151,7 @@
     display: flex;
     flex-direction: column;
     height: 100%;
-    max-height: 100%; // Ensure container doesn't exceed parent
-    width: 100%; // Ensure full width
+    width: 100%;
     overflow: hidden;
     
     // Glassmorphic effect
@@ -164,24 +163,22 @@
 
 // Messages Area
 .chat-messages {
-  position: relative; // Add for absolute positioning of scroll button
-  flex: 1 1 0; // Flex grow, shrink, and basis 0 for proper sizing
+  position: relative;
+  flex: 1;
   padding: 1.5rem;
-  overflow-y: auto; // Enable scrolling
+  overflow-y: auto;
   overflow-x: hidden;
-  height: 0; // Force flex item to respect container height
-  min-height: 0; // Allow shrinking below content size
-  max-height: 100%; // Don't exceed container
+  min-height: 0; // Important for flex scrolling
   
   // Messages wrapper for flex layout
   .messages-wrapper {
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    min-height: 100%; // Ensure content takes at least full height
+    min-height: min-content; // Allow natural height
   }
   
-  // Temporarily show scrollbar for testing
+  // Show scrollbar for testing
   &::-webkit-scrollbar {
     width: 8px;
   }

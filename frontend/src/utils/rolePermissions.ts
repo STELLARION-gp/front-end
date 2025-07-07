@@ -53,6 +53,10 @@ export const PAGE_ACCESS_CONTROL = {
     '/dashboard/stargazing': ['enthusiast', 'influencer','admin', 'learner','mentor','moderator'] as UserRole[],
     '/dashboard/booking-requests': ['guide'] as UserRole[],
     '/dashboard/astrohub': ['enthusiast'] as UserRole[],
+    '/dashboard/volunteering': ['enthusiast'] as UserRole[],
+    '/dashboard/sponsorships': ['enthusiast', 'influencer',] as UserRole[],
+    '/dashboard/influencers': ['enthusiast', 'learner'] as UserRole[],
+
     
 
 };
@@ -63,12 +67,16 @@ export const ROLE_BASED_MENU_ITEMS = {
         { label: 'Overview', icon: 'HomeIcon', href: '/dashboard/overview' },
         { label: 'Profile', icon: 'UserCircleIcon', href: '/dashboard/profile' },
         { label: 'Blogs', icon: 'BookOpenIcon', href: '/dashboard/blogs' },
+        {label: 'Sessions', icon: 'UsersIcon', href: '/dashboard/sessions'},
         { label: 'NASA content', icon: 'RocketLaunchIcon', href: '/dashboard/nasa-content' },
-        { label: 'Celestial Events', icon: 'SparklesIcon', href: '/dashboard/celestial-events' },
-        { label: 'Chat', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/chat' },
+        // { label: 'Celestial Events', icon: 'SparklesIcon', href: '/dashboard/celestial-events' },
+        // { label: 'Chat', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/chat' },
         // { label: 'Settings', icon: 'Cog6ToothIcon', href: '/dashboard/settings' },
+        { label: 'Mentors' , icon: 'AcademicCapIcon', href: '/dashboard/mentors' },
         { label: 'Night Camps', icon: 'MoonIcon', href: '/dashboard/night-camps' },
         { label: 'Stargazing Spot', icon: 'StarIcon', href: '/dashboard/stargazing' },
+        { label: 'Astro Hub', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/astrohub' },
+        { label: 'Influencers', icon: 'MegaphoneIcon', href: '/dashboard/influencers' },
 
 
 
@@ -81,7 +89,12 @@ export const ROLE_BASED_MENU_ITEMS = {
         { label: 'Stargazing Spot', icon: 'StarIcon', href: '/dashboard/stargazing' },
         { label: 'Blogs', icon: 'BookOpenIcon', href: '/dashboard/blogs' },
         { label: 'Astro Hub', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/astrohub' },
+        { label: 'Volunteering', icon: 'HandRaisedIcon', href: '/dashboard/volunteering' },
+        { label: 'Sponsorships', icon: 'CurrencyDollarIcon', href: '/dashboard/sponsorships' },
+        { label: 'Influencers', icon: 'MegaphoneIcon', href: '/dashboard/influencers' },
+        { label: 'Mentors' , icon: 'AcademicCapIcon', href: '/dashboard/mentors' },
         { label: 'Settings', icon: 'Cog6ToothIcon', href: '/dashboard/settings' },
+
     ],
     influencer: [
         { label: 'Overview', icon: 'HomeIcon', href: '/dashboard/overview' },
@@ -90,6 +103,8 @@ export const ROLE_BASED_MENU_ITEMS = {
         { label: 'Night Camps', icon: 'MoonIcon', href: '/dashboard/night-camps' },
         { label: 'Stargazing Spot', icon: 'StarIcon', href: '/dashboard/stargazing' },
         { label: 'Chat', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/chat' },
+        { label: 'Astro Hub', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/astrohub' },
+        { label: 'Sponsorships', icon: 'CurrencyDollarIcon', href: '/dashboard/sponsorships' },
         { label: 'Settings', icon: 'Cog6ToothIcon', href: '/dashboard/settings' },
     ],
     guide: [
@@ -100,7 +115,7 @@ export const ROLE_BASED_MENU_ITEMS = {
         { label: 'Requests', icon: 'MoonIcon', href: '/dashboard/booking-requests' },
         { label: 'Stargazing', icon: 'StarIcon', href: '/dashboard/stargazing' },
         { label: 'Events', icon: 'CalendarDaysIcon', href: '/dashboard/events' },
-        { label: 'Media Gallery', icon: 'PhotoIcon', href: '/dashboard/media' },
+        { label: 'Media', icon: 'PhotoIcon', href: '/dashboard/media' },
         { label: 'Chat', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/chat' },
         { label: 'Settings', icon: 'Cog6ToothIcon', href: '/dashboard/settings' },
     ],

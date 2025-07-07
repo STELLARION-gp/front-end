@@ -29,5 +29,14 @@ const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 googleProvider.addScope('profile');
 googleProvider.addScope('email');
+// Add additional parameters for better compatibility
+googleProvider.setCustomParameters({
+  prompt: 'select_account'
+});
+
+console.log('🔧 Firebase initialized with config:', {
+  projectId: firebaseConfig.projectId,
+  authDomain: firebaseConfig.authDomain
+});
 
 export { app, auth, analytics, googleProvider };

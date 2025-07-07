@@ -1,4 +1,4 @@
-import { memo, useRef, useEffect, useState } from 'react';
+import { memo, useRef, useEffect } from 'react';
 import { StarIcon } from '@heroicons/react/24/solid';
 import avatarImg from '../../assets/world.png'; // Use your actual avatar asset path
 import Button from '../../components/Button';
@@ -8,7 +8,6 @@ import { useNavigate, useLocation } from 'react-router-dom';
 const MentorProfile = memo(() => {
   const avatarRef = useRef<HTMLDivElement>(null);
   const videoBoxRef = useRef<HTMLDivElement>(null);
-  const [videoMarginTop, setVideoMarginTop] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -33,8 +32,9 @@ const MentorProfile = memo(() => {
   useEffect(() => {
     if (avatarRef.current && videoBoxRef.current) {
       // Subtract 16px to lift the video up
-      const margin = avatarRef.current.offsetTop + avatarRef.current.offsetHeight - 0;
-      setVideoMarginTop(margin > 0 ? margin : 0);
+      // Removed setVideoMarginTop usage since state is removed
+      // const margin = avatarRef.current.offsetTop + avatarRef.current.offsetHeight - 0;
+      // setVideoMarginTop(margin > 0 ? margin : 0);
     }
   }, []);
 
@@ -136,4 +136,3 @@ const MentorProfile = memo(() => {
 
 export default MentorProfile;
 
-  

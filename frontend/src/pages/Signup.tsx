@@ -4,6 +4,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useLoading } from '../hooks/useLoading';
 import { getDashboardRoute } from '../utils/dashboardUtils';
 import { getFirebaseErrorMessage, getValidationErrorMessage } from '../utils/errorMessages';
+import { debugAuthConfiguration, testFirebaseConnection } from '../utils/authDebug';
 //import type { UserRole } from '../AuthContext';
 import Button from '../components/Button';
 import InputField from '../components/InputField';
@@ -32,6 +33,11 @@ const Signup: React.FC = () => {
 
   const handleGoogleSignIn = useCallback(async () => {
     setLoadingType('google');
+    
+    // Add debug information
+    debugAuthConfiguration();
+    await testFirebaseConnection();
+    
     await withLoading(async () => {
       try {
         setError('');

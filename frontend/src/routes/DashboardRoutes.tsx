@@ -23,9 +23,22 @@ import MediaUploadPanel from '../pages/guide/MediaUploadPanel';
 import MentorProfile from '../pages/mentor/MentorProfile';
 import EditMentor from '../pages/mentor/EditMentor';
 
+import GuideMediaDashboard from '../pages/guide/GuideMediaDashboard';
+// import MentorProfile from '../pages/mentor/MentorProfile';
+// import BookingRequests from '../pages/guide/BookingRequests';
+import ConfirmedBookings from '../pages/guide/ConfirmedBookings';
+
 import BookingRequests from '../pages/guide/BookingRequests';
 import AstroHub from '../pages/enthuasist/AstroHub';
 import CelestialEventsPage from '../pages/learner/Celestial_Events_Page';
+import Volunteering from '../pages/enthuasist/Volunteering';
+import AstronomySessionsPage from '../pages/learner/AstronomySessionsPage';
+import Sponsorships from '../pages/enthuasist/Sponsorships';
+import RecordedSessionPage from '../pages/learner/Recorded_Session_Page';
+import NightCampDetails from '../pages/learner/NightCampDetails';
+import Influencers from '../pages/enthuasist/Influencers';
+import Mentors from '../pages/learner/Mentors';
+import ApplyMentor from '../pages/learner/ApplyMentor';
 
 // Create placeholder components for different pages - all memoized
 // const BlogsPage = memo(() => (
@@ -72,12 +85,7 @@ const ChatPage = memo(() => (
     </div>
 ));
 
-const SessionsPage = memo(() => (
-    <div className="dashboard-page">
-        <h2>Learning Sessions</h2>
-        <p>Manage your learning and teaching sessions.</p>
-    </div>
-));
+
 
 const ModerationPage = memo(() => (
     <div className="dashboard-page">
@@ -154,7 +162,23 @@ const DashboardRoutes = () => {
                     </RoleGuard>
                 }
             />
+            <Route 
+                path="sessions"
+                element={
+                    <RoleGuard allowedRoles={['learner']}>
+                        <AstronomySessionsPage />
+                    </RoleGuard>
+                }
+            />
             <Route
+                path='sessions/recorded-sessions/:id'
+                element={
+                    <RoleGuard allowedRoles={['learner']}>
+                        <RecordedSessionPage />
+                    </RoleGuard>
+                }
+            />
+                <Route
                 path="nasa-content"
                 element={
                     <RoleGuard allowedRoles={['learner']}>
@@ -163,10 +187,26 @@ const DashboardRoutes = () => {
                 }
             />
             <Route
+                path='mentors'
+                element={
+                    <RoleGuard allowedRoles={['learner','enthusiast']}>
+                        <Mentors />
+                    </RoleGuard>
+                }
+            />
+            <Route
                 path="celestial-events"
                 element={
                     <RoleGuard allowedRoles={['learner']}>
                         <CelestialEventsPage />
+                    </RoleGuard>
+                }
+            />
+            <Route
+                path="night-camps/:campId"
+                element={
+                    <RoleGuard allowedRoles={['learner']}>
+                        <NightCampDetails />
                     </RoleGuard>
                 }
             />
@@ -192,10 +232,15 @@ const DashboardRoutes = () => {
             <Route
                 path="booking-requests"
                 element={
-                    <RoleGuard allowedRoles={['learner', 'enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin']}>
+                    <RoleGuard allowedRoles={['influencer', 'guide', 'moderator', 'admin']}>
                         <BookingRequests />
                     </RoleGuard>
                 }
+            />
+
+            <Route
+                path="confirmed-bookings"
+                element={<ConfirmedBookings />}
             />
 
             <Route
@@ -216,6 +261,15 @@ const DashboardRoutes = () => {
                 path="media"
                 element={
                     <RoleGuard allowedRoles={['guide', 'admin']}>
+                        <GuideMediaDashboard />
+                    </RoleGuard>
+                }
+            />
+
+            <Route
+                path="media/upload"
+                element={
+                    <RoleGuard allowedRoles={['guide', 'admin']}>
                         <MediaUploadPanel />
                     </RoleGuard>
                 }
@@ -224,15 +278,7 @@ const DashboardRoutes = () => {
 
             <Route path="chat" element={<ChatPage />} />
 
-            <Route
-                path="sessions"
-                element={
-                    <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
-                        <SessionsPage />
-                    </RoleGuard>
-                }
-            />
-
+            
             <Route
                 path="moderation"
                 element={
@@ -281,7 +327,7 @@ const DashboardRoutes = () => {
             <Route
                 path="night-camps"
                 element={
-                    <RoleGuard allowedRoles={['enthusiast', 'influencer','learner','moderator', 'admin','guide', 'mentor']}>
+                    <RoleGuard allowedRoles={['enthusiast','learner','guide']}>
                         <NightCamps />
                     </RoleGuard>
                 }
@@ -290,12 +336,21 @@ const DashboardRoutes = () => {
                 <Route
                 path="stargazing"
                 element={
-                    <RoleGuard allowedRoles={['enthusiast', 'influencer','admin', 'learner','guide','mentor']}>
+                    <RoleGuard allowedRoles={['enthusiast', 'influencer','learner']}>
                         <Stargazing />
                     </RoleGuard>
                 }
             />
 
+            
+                <Route
+                path="astrohub"
+                element={
+                    <RoleGuard allowedRoles={['enthusiast']}>
+                        <AstroHub />
+                    </RoleGuard>
+                }
+            />
 
 
             {/* Default redirect to overview */}

@@ -27,6 +27,7 @@ import GuideMediaDashboard from '../pages/guide/GuideMediaDashboard';
 // import MentorProfile from '../pages/mentor/MentorProfile';
 // import BookingRequests from '../pages/guide/BookingRequests';
 import ConfirmedBookings from '../pages/guide/ConfirmedBookings';
+import TourChat from '../pages/guide/TourChat';
 
 import BookingRequests from '../pages/guide/BookingRequests';
 import AstroHub from '../pages/enthuasist/AstroHub';
@@ -241,6 +242,15 @@ const DashboardRoutes = () => {
             <Route
                 path="confirmed-bookings"
                 element={<ConfirmedBookings />}
+            />
+
+            <Route
+                path="tour-chat"
+                element={
+                    <RoleGuard allowedRoles={['guide', 'admin']}>
+                        <TourChat />
+                    </RoleGuard>
+                }
             />
 
             <Route

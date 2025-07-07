@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import '../../styles/pages/enthusiast/Quizzes.scss'
 import Button from '../../components/Button'
 
@@ -13,10 +13,24 @@ interface Quiz {
   isMyQuiz?: boolean
 }
 
+interface QuizQuestion {
+  id: string
+  question: string
+  options: string[]
+  correctAnswer: number
+  explanation?: string
+}
+
 const Quizzes = () => {
   const [activeTab, setActiveTab] = useState<'all' | 'my'>('all')
   const [selectedQuiz, setSelectedQuiz] = useState<Quiz | null>(null)
   const [showQuizModal, setShowQuizModal] = useState(false)
+  const [isQuizStarted, setIsQuizStarted] = useState(false)
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
+  const [selectedAnswers, setSelectedAnswers] = useState<number[]>([])
+  const [timeRemaining, setTimeRemaining] = useState(0)
+  const [isQuizCompleted, setIsQuizCompleted] = useState(false)
+  const [score, setScore] = useState(0)
 
   const sampleQuizzes: Quiz[] = [
     {
@@ -58,9 +72,59 @@ const Quizzes = () => {
     }
   ]
 
+  const sampleQuestions: QuizQuestion[] = [
+    {
+      id: '1',
+      question: 'Which planet is known as the "Red Planet"?',
+      options: ['Venus', 'Mars', 'Jupiter', 'Saturn'],
+      correctAnswer: 1,
+      explanation: 'Mars is called the Red Planet due to iron oxide (rust) on its surface.'
+    },
+    {
+      id: '2',
+      question: 'What is the largest planet in our solar system?',
+      options: ['Saturn', 'Neptune', 'Jupiter', 'Uranus'],
+      correctAnswer: 2,
+      explanation: 'Jupiter is the largest planet in our solar system, with a mass greater than all other planets combined.'
+    },
+    {
+      id: '3',
+      question: 'How many moons does Earth have?',
+      options: ['0', '1', '2', '3'],
+      correctAnswer: 1,
+      explanation: 'Earth has one natural satellite, the Moon.'
+    },
+    {
+      id: '4',
+      question: 'What is the closest star to Earth?',
+      options: ['Alpha Centauri', 'Sirius', 'The Sun', 'Proxima Centauri'],
+      correctAnswer: 2,
+      explanation: 'The Sun is the closest star to Earth at about 93 million miles away.'
+    },
+    {
+      id: '5',
+      question: 'Which planet has the most extensive ring system?',
+      options: ['Jupiter', 'Saturn', 'Uranus', 'Neptune'],
+      correctAnswer: 1,
+      explanation: 'Saturn has the most extensive and visible ring system in our solar system.'
+    }
+  ]
+
   const filteredQuizzes = activeTab === 'all' 
     ? sampleQuizzes 
     : sampleQuizzes.filter(quiz => quiz.isMyQuiz)
+
+  // Timer effect
+  useEffect(() => {
+    if (isQuizStarted && timeRemaining > 0 && !isQuizCompleted) {
+      const timer = setTimeout(() => {
+        setTimeRemaining(timeRemaining - 1)
+      }, 1000)
+      return () => clearTimeout(timer)
+    } else if (timeRemaining === 0 && isQuizStarted) {
+      handleQuizSubmit()
+    }
+  }, [timeRemaining, isQuizStarted, isQuizCompleted])
 
   const handleParticipate = (quiz: Quiz) => {
     setSelectedQuiz(quiz)
@@ -69,16 +133,68 @@ const Quizzes = () => {
 
   const handleStartQuiz = () => {
     if (selectedQuiz) {
-      console.log(`Starting quiz: ${selectedQuiz.name}`)
-      // Here you would typically navigate to the quiz page or start the quiz
-      setShowQuizModal(false)
-      setSelectedQuiz(null)
+      setIsQuizStarted(true)
+      setTimeRemaining(selectedQuiz.time * 60) // Convert minutes to seconds
+      setCurrentQuestionIndex(0)
+      setSelectedAnswers(new Array(sampleQuestions.length).fill(-1))
+      setIsQuizCompleted(false)
+      setScore(0)
     }
+  }
+
+  const handleAnswerSelect = (answerIndex: number) => {
+    const newAnswers = [...selectedAnswers]
+    newAnswers[currentQuestionIndex] = answerIndex
+    setSelectedAnswers(newAnswers)
+  }
+
+  const handleNextQuestion = () => {
+    if (currentQuestionIndex < sampleQuestions.length - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1)
+    } else {
+      handleQuizSubmit()
+    }
+  }
+
+  const handlePreviousQuestion = () => {
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(currentQuestionIndex - 1)
+    }
+  }
+
+  const handleQuizSubmit = () => {
+    let correctAnswers = 0
+    selectedAnswers.forEach((answer, index) => {
+      if (answer === sampleQuestions[index].correctAnswer) {
+        correctAnswers++
+      }
+    })
+    setScore(correctAnswers)
+    setIsQuizCompleted(true)
   }
 
   const closeModal = () => {
     setShowQuizModal(false)
     setSelectedQuiz(null)
+    setIsQuizStarted(false)
+    setCurrentQuestionIndex(0)
+    setSelectedAnswers([])
+    setTimeRemaining(0)
+    setIsQuizCompleted(false)
+    setScore(0)
+  }
+
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60)
+    const remainingSeconds = seconds % 60
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`
+  }
+
+  const getScoreColor = (score: number, total: number) => {
+    const percentage = (score / total) * 100
+    if (percentage >= 80) return 'text-green-400'
+    if (percentage >= 60) return 'text-yellow-400'
+    return 'text-red-400'
   }
 
   return (
@@ -176,44 +292,158 @@ const Quizzes = () => {
 
         {/* Quiz Participation Modal */}
         {showQuizModal && selectedQuiz && (
-          <div className="quiz-modal-overlay" onClick={closeModal}>
+          <div className="quiz-modal-overlay" onClick={!isQuizStarted ? closeModal : undefined}>
             <div className="quiz-modal" onClick={(e) => e.stopPropagation()}>
-              <div className="quiz-modal-header">
-                <h2>{selectedQuiz.name}</h2>
-                <button className="close-button" onClick={closeModal}>
-                  ×
-                </button>
-              </div>
-              
-              <div className="quiz-modal-body">
-                <div className="quiz-summary">
-                  <p><strong>Description:</strong> {selectedQuiz.description}</p>
-                  <p><strong>Level:</strong> {selectedQuiz.level}</p>
-                  <p><strong>Duration:</strong> {selectedQuiz.time} minutes</p>
-                  <p><strong>Questions:</strong> {selectedQuiz.questionCount}</p>
-                  <p><strong>Participants:</strong> {selectedQuiz.participantsCount.toLocaleString()}</p>
-                </div>
+              {!isQuizStarted ? (
+                // Quiz Instructions Modal
+                <>
+                  <div className="quiz-modal-header">
+                    <h2>{selectedQuiz.name}</h2>
+                    <button className="close-button" onClick={closeModal}>
+                      ×
+                    </button>
+                  </div>
+                  
+                  <div className="quiz-modal-body">
+                    <div className="quiz-summary">
+                      <p><strong>Description:</strong> {selectedQuiz.description}</p>
+                      <p><strong>Level:</strong> {selectedQuiz.level}</p>
+                      <p><strong>Duration:</strong> {selectedQuiz.time} minutes</p>
+                      <p><strong>Questions:</strong> {selectedQuiz.questionCount}</p>
+                      <p><strong>Participants:</strong> {selectedQuiz.participantsCount.toLocaleString()}</p>
+                    </div>
 
-                <div className="quiz-instructions">
-                  <h3>Quiz Instructions</h3>
-                  <ul>
-                    <li>Read each question carefully before selecting your answer</li>
-                    <li>You have {selectedQuiz.time} minutes to complete all {selectedQuiz.questionCount} questions</li>
-                    <li>Once you start, you cannot pause the quiz</li>
-                    <li>Make sure you have a stable internet connection</li>
-                    <li>Your progress will be automatically saved</li>
-                  </ul>
-                </div>
+                    <div className="quiz-instructions">
+                      <h3>Quiz Instructions</h3>
+                      <ul>
+                        <li>Read each question carefully before selecting your answer</li>
+                        <li>You have {selectedQuiz.time} minutes to complete all {selectedQuiz.questionCount} questions</li>
+                        <li>Once you start, you cannot pause the quiz</li>
+                        <li>Make sure you have a stable internet connection</li>
+                        <li>Your progress will be automatically saved</li>
+                      </ul>
+                    </div>
 
-                <div className="quiz-actions">
-                  <Button variant="secondary" onClick={closeModal}>
-                    Cancel
-                  </Button>
-                  <Button variant="primary" onClick={handleStartQuiz}>
-                    Start Quiz
-                  </Button>
-                </div>
-              </div>
+                    <div className="quiz-actions">
+                      <Button variant="secondary" onClick={closeModal}>
+                        Cancel
+                      </Button>
+                      <Button variant="primary" onClick={handleStartQuiz}>
+                        Start Quiz
+                      </Button>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                // Quiz Interface
+                <>
+                  <div className="quiz-modal-header">
+                    <h2>{selectedQuiz.name}</h2>
+                    <div className="quiz-progress">
+                      <span className="question-counter">
+                        Question {currentQuestionIndex + 1} of {sampleQuestions.length}
+                      </span>
+                      <span className="quiz-timer">
+                        Time: {formatTime(timeRemaining)}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="quiz-modal-body">
+                    {!isQuizCompleted ? (
+                      <div className="quiz-question-container">
+                        <div className="progress-bar">
+                          <div 
+                            className="progress-fill" 
+                            style={{ width: `${((currentQuestionIndex + 1) / sampleQuestions.length) * 100}%` }}
+                          ></div>
+                        </div>
+
+                        <div className="question-section">
+                          <h3 className="question-text">
+                            {sampleQuestions[currentQuestionIndex].question}
+                          </h3>
+
+                          <div className="options-container">
+                            {sampleQuestions[currentQuestionIndex].options.map((option, index) => (
+                              <button
+                                key={index}
+                                className={`option-button ${
+                                  selectedAnswers[currentQuestionIndex] === index ? 'selected' : ''
+                                }`}
+                                onClick={() => handleAnswerSelect(index)}
+                              >
+                                <span className="option-letter">
+                                  {String.fromCharCode(65 + index)}
+                                </span>
+                                <span className="option-text">{option}</span>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="quiz-navigation">
+                          <Button 
+                            variant="secondary" 
+                            onClick={handlePreviousQuestion}
+                            disabled={currentQuestionIndex === 0}
+                          >
+                            Previous
+                          </Button>
+                          
+                          <Button 
+                            variant="primary" 
+                            onClick={handleNextQuestion}
+                            disabled={selectedAnswers[currentQuestionIndex] === -1}
+                          >
+                            {currentQuestionIndex === sampleQuestions.length - 1 ? 'Submit Quiz' : 'Next'}
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      // Quiz Results
+                      <div className="quiz-results">
+                        <div className="results-header">
+                          <h3>Quiz Completed!</h3>
+                          <div className={`final-score ${getScoreColor(score, sampleQuestions.length)}`}>
+                            {score} / {sampleQuestions.length}
+                          </div>
+                          <div className="score-percentage">
+                            {Math.round((score / sampleQuestions.length) * 100)}%
+                          </div>
+                        </div>
+
+                        <div className="results-summary">
+                          <div className="summary-item">
+                            <span>Correct Answers:</span>
+                            <span className="text-green-400">{score}</span>
+                          </div>
+                          <div className="summary-item">
+                            <span>Incorrect Answers:</span>
+                            <span className="text-red-400">{sampleQuestions.length - score}</span>
+                          </div>
+                          <div className="summary-item">
+                            <span>Total Questions:</span>
+                            <span>{sampleQuestions.length}</span>
+                          </div>
+                        </div>
+
+                        <div className="results-actions">
+                          <Button variant="secondary" onClick={closeModal}>
+                            Close
+                          </Button>
+                          <Button variant="primary" onClick={() => {
+                            setIsQuizStarted(false)
+                            setIsQuizCompleted(false)
+                          }}>
+                            Review Questions
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
             </div>
           </div>
         )}

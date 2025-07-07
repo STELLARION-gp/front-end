@@ -40,6 +40,7 @@ import NightCampDetails from '../pages/learner/NightCampDetails';
 import Influencers from '../pages/enthuasist/Influencers';
 import Mentors from '../pages/learner/Mentors';
 import ApplyMentor from '../pages/learner/ApplyMentor';
+import Quizzes from '../pages/enthuasist/Quizzes';
 
 // Create placeholder components for different pages - all memoized
 // const BlogsPage = memo(() => (
@@ -394,8 +395,17 @@ const DashboardRoutes = () => {
             <Route
                 path="apply-mentor/:mentorId"
                 element={
-                    <RoleGuard allowedRoles={['learner']}>
+                    <RoleGuard allowedRoles={['learner','enthusiast']}>
                         <ApplyMentor />
+                    </RoleGuard>
+                }
+            />
+
+            <Route
+                path="quizzes"
+                element={
+                    <RoleGuard allowedRoles={['enthusiast']}>
+                        <Quizzes />
                     </RoleGuard>
                 }
             />

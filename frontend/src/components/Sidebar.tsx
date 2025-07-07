@@ -24,7 +24,9 @@ import {
   SparklesIcon,
   HandRaisedIcon,
   CurrencyDollarIcon,
-  MegaphoneIcon
+  MegaphoneIcon,
+  UserGroupIcon,
+  DocumentTextIcon
 
 } from '@heroicons/react/24/outline';
 
@@ -57,7 +59,9 @@ const iconMap = {
   SparklesIcon,
   HandRaisedIcon,
   CurrencyDollarIcon,
-  MegaphoneIcon
+  MegaphoneIcon,
+  UserGroupIcon,
+  DocumentTextIcon
 
 };
 

@@ -165,7 +165,7 @@
 .chat-messages {
   position: relative;
   flex: 1;
-  padding: 1.5rem 0.5rem 1.5rem 1.5rem; // Further reduced right padding for full width
+  padding: 1.5rem 0.25rem 1.5rem 1.5rem; // Minimal right padding for maximum width
   overflow-y: auto;
   overflow-x: hidden;
   min-height: 0; // Important for flex scrolling
@@ -294,7 +294,7 @@
   flex: 1;
   border-radius: 16px;
   padding: 0.75rem 1rem;
-  max-width: calc(100% - 45px); // Further reduced for more space
+  max-width: calc(100% - 40px); // Reduced even further for maximum width
   -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   
@@ -783,7 +783,7 @@
   }
   
   .chat-messages {
-    padding: 1rem 0.5rem 1rem 1rem; // Even less right padding on mobile
+    padding: 1rem 0.25rem 1rem 1rem; // Minimal right padding on mobile
   }
   
   .chat-input-area {
@@ -791,7 +791,7 @@
   }
   
   .message-content {
-    max-width: calc(100% - 35px); // Even more space on mobile
+    max-width: calc(100% - 30px); // Maximum width on mobile
   }
   
   .members-panel,
@@ -825,7 +825,7 @@
     }
     
     .message-content {
-      max-width: calc(100% - 40px);
+      max-width: calc(100% - 35px); // Optimized for small screens
       padding: 0.625rem 0.875rem;
     }
   }

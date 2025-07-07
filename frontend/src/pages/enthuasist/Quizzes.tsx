@@ -73,13 +73,13 @@ const Quizzes = () => {
         <div className="quizzes-tabs">
           <Button
             onClick={() => setActiveTab('all')}
-            className={activeTab === 'all' ? 'tab-button primary' : 'tab-button secondary'}
+            variant={activeTab === 'all' ? 'primary' : 'secondary'}
           >
             All Quizzes
           </Button>
           <Button
             onClick={() => setActiveTab('my')}
-            className={activeTab === 'my' ? 'tab-button primary' : 'tab-button secondary'}
+            variant={activeTab === 'my' ? 'primary' : 'secondary'}
           >
             My Quizzes
           </Button>

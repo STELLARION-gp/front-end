@@ -58,7 +58,7 @@
 
 }
 
-// Tab Navigation - Match Night Camps style exactly
+// Tab Navigation - Match Night Camps and Sponsorships style exactly
 .quizzes-tabs {
   display: flex;
   flex-wrap: wrap;
@@ -72,44 +72,8 @@
   }
 }
 
-.tab-button {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  background: rgba(255, 255, 255, 0.08) !important;
-  border: 1px solid rgba(255, 255, 255, 0.15) !important;
-  backdrop-filter: blur(10px);
-  font-weight: 500;
-  font-size: 0.875rem;
-  color: rgba(255, 255, 255, 0.7);
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border-radius: 8px;
-  min-width: 120px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-
-  &:hover {
-    color: #ffffff;
-    background: rgba(255, 255, 255, 0.12) !important;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), 0 0 20px rgba(59, 130, 246, 0.2);
-    border-color: rgba(59, 130, 246, 0.3);
-  }
-
-  &.primary {
-    color: #1a202c !important;
-    background: rgba(255, 255, 255, 0.9) !important;
-    border: 1px solid rgba(255, 255, 255, 0.3) !important;
-    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
-    font-weight: 600;
-
-    &:hover {
-      background: rgba(255, 255, 255, 1) !important;
-      color: #000000 !important;
-      border-color: rgba(255, 255, 255, 0.5) !important;
-      box-shadow: 0 8px 24px rgba(255, 255, 255, 0.3);
-    }
-  }
-}
+// Remove all the complex tab-button styling and use the standard Button component styling
+// The buttons will inherit the proper styling from the Button component with primary/secondary variants
 
 // Quiz Cards Grid
 .quiz-grid {
@@ -334,6 +298,55 @@
     border-radius: inherit;
     pointer-events: none;
   }
+}
+
+// Enhanced hover effects
+.quiz-card:hover {
+  .quiz-title {
+    color: #ffffff;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+  }
+
+  .stat-icon {
+    color: #60a5fa;
+  }
+
+  .level-badge {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  }
+}
+
+// Loading and transition states
+.quiz-grid {
+  animation: fadeIn 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.quiz-card {
+  animation: slideIn 0.6s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+  opacity: 0;
+  transform: translateX(-20px);
+}
+to {
+  opacity: 1;
+  transform: translateX(0);
+}
+
 }
 
 // Enhanced hover effects

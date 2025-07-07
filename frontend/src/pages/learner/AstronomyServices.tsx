@@ -91,8 +91,9 @@ const CommentsIcon = () => (
 	</svg>
 );
 
-const services = [
+export const services = [
 	{
+		id: 1,
 		title: "Event Booking",
         price: 20,
 		description:
@@ -109,6 +110,7 @@ const services = [
 		icon: <CalendarIcon />,
 	},
 	{
+		id: 2,
 		title: "Telescope Rental",
         price: 15,
 		description:
@@ -125,6 +127,7 @@ const services = [
 		icon: <StarIcon />,
 	},
 	{
+		id: 3,
 		title: "Astronomy Guides",
         price: 30,
 		description:
@@ -141,6 +144,7 @@ const services = [
 		icon: <MapIcon />,
 	},
 	{
+		id: 4,
 		title: "Ask an Expert",
         price: 10,
 		description:

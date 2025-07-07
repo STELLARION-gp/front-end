@@ -22,7 +22,7 @@ interface QuizQuestion {
 }
 
 const Quizzes = () => {
-  const [activeTab, setActiveTab] = useState<'all' | 'my'>('all')
+  const [activeTab, setActiveTab] = useState<'all' | 'my' | 'create'>('all')
   const [selectedQuiz, setSelectedQuiz] = useState<Quiz | null>(null)
   const [showQuizModal, setShowQuizModal] = useState(false)
   const [isQuizStarted, setIsQuizStarted] = useState(false)
@@ -32,6 +32,27 @@ const Quizzes = () => {
   const [isQuizCompleted, setIsQuizCompleted] = useState(false)
   const [score, setScore] = useState(0)
   const [showReview, setShowReview] = useState(false)
+  
+  // Create Quiz Form State
+  const [createQuizForm, setCreateQuizForm] = useState({
+    name: '',
+    description: '',
+    level: 'Beginner' as 'Beginner' | 'Intermediate' | 'Advanced',
+    time: 15,
+    category: '',
+    questions: [] as {
+      question: string;
+      options: string[];
+      correctAnswer: number;
+      explanation: string;
+    }[]
+  })
+  const [currentQuestion, setCurrentQuestion] = useState({
+    question: '',
+    options: ['', '', '', ''],
+    correctAnswer: 0,
+    explanation: ''
+  })
 
   const sampleQuizzes: Quiz[] = [
     {
@@ -207,6 +228,277 @@ const Quizzes = () => {
     return 'text-red-400'
   }
 
+  const handleCreateQuiz = () => {
+    // Here you would typically send the quiz data to your backend
+    console.log('Creating quiz:', createQuizForm)
+    // Reset form and show success message
+    setCreateQuizForm({
+      name: '',
+      description: '',
+      level: 'Beginner',
+      time: 15,
+      category: '',
+      questions: []
+    })
+    setCurrentQuestion({
+      question: '',
+      options: ['', '', '', ''],
+      correctAnswer: 0,
+      explanation: ''
+    })
+    alert('Quiz created successfully!')
+    setActiveTab('my')
+  }
+
+  const handleAddQuestion = () => {
+    if (currentQuestion.question.trim() && currentQuestion.options.every(opt => opt.trim())) {
+      setCreateQuizForm(prev => ({
+        ...prev,
+        questions: [...prev.questions, { ...currentQuestion }]
+      }))
+      setCurrentQuestion({
+        question: '',
+        options: ['', '', '', ''],
+        correctAnswer: 0,
+        explanation: ''
+      })
+    }
+  }
+
+  const handleRemoveQuestion = (index: number) => {
+    setCreateQuizForm(prev => ({
+      ...prev,
+      questions: prev.questions.filter((_, i) => i !== index)
+    }))
+  }
+
+  const renderCreateQuizContent = () => (
+    <div className="create-quiz-section">
+      <div className="create-quiz-form">
+        <div className="form-section">
+          <h3 className="section-title">Quiz Information</h3>
+          
+          <div className="form-grid">
+            <div className="form-group">
+              <label htmlFor="quiz-name">Quiz Name *</label>
+              <input
+                id="quiz-name"
+                type="text"
+                value={createQuizForm.name}
+                onChange={(e) => setCreateQuizForm(prev => ({ ...prev, name: e.target.value }))
+                }
+                placeholder="Enter quiz name"
+                className="form-input"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="quiz-category">Category *</label>
+              <input
+                id="quiz-category"
+                type="text"
+                value={createQuizForm.category}
+                onChange={(e) => setCreateQuizForm(prev => ({ ...prev, category: e.target.value }))
+                }
+                placeholder="e.g., Astronomy, Physics"
+                className="form-input"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="quiz-level">Difficulty Level</label>
+              <select
+                id="quiz-level"
+                value={createQuizForm.level}
+                onChange={(e) => setCreateQuizForm(prev => ({ 
+                  ...prev, 
+                  level: e.target.value as 'Beginner' | 'Intermediate' | 'Advanced' 
+                }))
+                }
+                className="form-select"
+              >
+                <option value="Beginner">Beginner</option>
+                <option value="Intermediate">Intermediate</option>
+                <option value="Advanced">Advanced</option>
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="quiz-time">Time Limit (minutes)</label>
+              <input
+                id="quiz-time"
+                type="number"
+                min="5"
+                max="180"
+                value={createQuizForm.time}
+                onChange={(e) => setCreateQuizForm(prev => ({ ...prev, time: parseInt(e.target.value) }))
+                }
+                className="form-input"
+              />
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="quiz-description">Description *</label>
+            <textarea
+              id="quiz-description"
+              value={createQuizForm.description}
+              onChange={(e) => setCreateQuizForm(prev => ({ ...prev, description: e.target.value }))
+              }
+              placeholder="Describe what this quiz covers..."
+              className="form-textarea"
+              rows={3}
+            />
+          </div>
+        </div>
+
+        <div className="form-section">
+          <h3 className="section-title">Add Questions</h3>
+          
+          <div className="question-form">
+            <div className="form-group">
+              <label htmlFor="current-question">Question *</label>
+              <textarea
+                id="current-question"
+                value={currentQuestion.question}
+                onChange={(e) => setCurrentQuestion(prev => ({ ...prev, question: e.target.value }))
+                }
+                placeholder="Enter your question here..."
+                className="form-textarea"
+                rows={2}
+              />
+            </div>
+
+            <div className="options-grid">
+              {currentQuestion.options.map((option, index) => (
+                <div key={index} className="option-group">
+                  <label htmlFor={`option-${index}`}>
+                    Option {String.fromCharCode(65 + index)} *
+                  </label>
+                  <div className="option-input-group">
+                    <input
+                      id={`option-${index}`}
+                      type="text"
+                      value={option}
+                      onChange={(e) => {
+                        const newOptions = [...currentQuestion.options]
+                        newOptions[index] = e.target.value
+                        setCurrentQuestion(prev => ({ ...prev, options: newOptions }))
+                      }}
+                      placeholder={`Enter option ${String.fromCharCode(65 + index)}`}
+                      className="form-input"
+                    />
+                    <input
+                      type="radio"
+                      name="correct-answer"
+                      checked={currentQuestion.correctAnswer === index}
+                      onChange={() => setCurrentQuestion(prev => ({ ...prev, correctAnswer: index }))
+                      }
+                      className="correct-radio"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="explanation">Explanation (Optional)</label>
+              <textarea
+                id="explanation"
+                value={currentQuestion.explanation}
+                onChange={(e) => setCurrentQuestion(prev => ({ ...prev, explanation: e.target.value }))
+                }
+                placeholder="Explain why this answer is correct..."
+                className="form-textarea"
+                rows={2}
+              />
+            </div>
+
+            <Button 
+              onClick={handleAddQuestion}
+              disabled={!currentQuestion.question.trim() || !currentQuestion.options.every(opt => opt.trim())}
+              className="add-question-btn"
+            >
+              Add Question
+            </Button>
+          </div>
+        </div>
+
+        {createQuizForm.questions.length > 0 && (
+          <div className="form-section">
+            <h3 className="section-title">
+              Questions Added ({createQuizForm.questions.length})
+            </h3>
+            
+            <div className="questions-list">
+              {createQuizForm.questions.map((q, index) => (
+                <div key={index} className="question-preview">
+                  <div className="question-header">
+                    <span className="question-number">Question {index + 1}</span>
+                    <button
+                      onClick={() => handleRemoveQuestion(index)}
+                      className="remove-question-btn"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                  <p className="question-text">{q.question}</p>
+                  <div className="options-preview">
+                    {q.options.map((option, optIndex) => (
+                      <div
+                        key={optIndex}
+                        className={`option-preview ${optIndex === q.correctAnswer ? 'correct' : ''}`}
+                      >
+                        <span className="option-letter">
+                          {String.fromCharCode(65 + optIndex)}
+                        </span>
+                        <span>{option}</span>
+                        {optIndex === q.correctAnswer && (
+                          <span className="correct-indicator">✓</span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="form-actions">
+          <Button
+            onClick={() => {
+              setCreateQuizForm({
+                name: '',
+                description: '',
+                level: 'Beginner',
+                time: 15,
+                category: '',
+                questions: []
+              })
+              setCurrentQuestion({
+                question: '',
+                options: ['', '', '', ''],
+                correctAnswer: 0,
+                explanation: ''
+              })
+            }}
+            variant="secondary"
+          >
+            Reset Form
+          </Button>
+          <Button
+            onClick={handleCreateQuiz}
+            disabled={!createQuizForm.name.trim() || !createQuizForm.description.trim() || createQuizForm.questions.length === 0}
+            variant="primary"
+          >
+            Create Quiz
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
+
   return (
     <div className="quizzes-container">
         <div className="quizzes-header">
@@ -230,75 +522,87 @@ const Quizzes = () => {
           >
             My Quizzes
           </Button>
+          <Button
+            onClick={() => setActiveTab('create')}
+            variant={activeTab === 'create' ? 'primary' : 'secondary'}
+          >
+            Create Quiz
+          </Button>
         </div>
 
-        {/* Section Title */}
-        <div className="section-header">
-          <h2 className="section-title">
-            {activeTab === 'all' ? 'All Available Quizzes' : 'My Created Quizzes'}
-          </h2>
-
-        </div>
-
-        {/* Quiz Cards Grid */}
-        <div className="quiz-grid">
-          {filteredQuizzes.map((quiz) => (
-            <div key={quiz.id} className="quiz-card">
-              <div className="card-content">
-                <div className="card-header">
-                  <h3 className="quiz-title">{quiz.name}</h3>
-                  <span className={`level-badge ${quiz.level.toLowerCase()}`}>
-                    {quiz.level}
-                  </span>
-                </div>
-                
-                <p className="quiz-description">{quiz.description}</p>
-                
-                <div className="quiz-stats">
-                  <div className="stat-item">
-                    <svg className="stat-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <span>{quiz.time} minutes</span>
-                  </div>
-                  
-                  <div className="stat-item">
-                    <svg className="stat-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <span>{quiz.questionCount} questions</span>
-                  </div>
-                  
-                  <div className="stat-item">
-                    <svg className="stat-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                    <span>{quiz.participantsCount.toLocaleString()} participants</span>
-                  </div>
-                </div>
-                
-                <Button 
-                  className="participate-btn"
-                  onClick={() => handleParticipate(quiz)}
-                >
-                  Participate
-                </Button>
-              </div>
+        {/* Tab Content */}
+        {activeTab !== 'create' && (
+          <>
+            {/* Section Title */}
+            <div className="section-header">
+              <h2 className="section-title">
+                {activeTab === 'all' ? 'All Available Quizzes' : 'My Created Quizzes'}
+              </h2>
             </div>
-          ))}
-        </div>
 
-        {filteredQuizzes.length === 0 && (
-          <div className="empty-state">
-            <svg className="empty-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-            </svg>
-            <h3 className="empty-title">No quizzes found</h3>
-            <p className="empty-text">
-              {activeTab === 'my' ? "You haven't created any quizzes yet." : "No quizzes available at the moment."}
-            </p>
-          </div>
+            {/* Quiz Cards Grid */}
+            <div className="quiz-grid">
+              {filteredQuizzes.map((quiz) => (
+                <div key={quiz.id} className="quiz-card">
+                  <div className="card-content">
+                    <div className="card-header">
+                      <h3 className="quiz-title">{quiz.name}</h3>
+                      <span className={`level-badge ${quiz.level.toLowerCase()}`}>
+                        {quiz.level}
+                      </span>
+                    </div>
+                    
+                    <p className="quiz-description">{quiz.description}</p>
+                    
+                    <div className="quiz-stats">
+                      <div className="stat-item">
+                        <svg className="stat-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>{quiz.time} minutes</span>
+                      </div>
+                      
+                      <div className="stat-item">
+                        <svg className="stat-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>{quiz.questionCount} questions</span>
+                      </div>
+                      
+                      <div className="stat-item">
+                        <svg className="stat-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        <span>{quiz.participantsCount.toLocaleString()} participants</span>
+                      </div>
+                    </div>
+                    
+                    <Button 
+                      className="participate-btn"
+                      onClick={() => handleParticipate(quiz)}
+                    >
+                      Participate
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {filteredQuizzes.length === 0 && (
+              <div className="empty-state">
+                <svg className="empty-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+                <h3 className="empty-title">No quizzes found</h3>
+                <p className="empty-text">
+                  {activeTab === 'my' ? "You haven't created any quizzes yet." : "No quizzes available at the moment."}
+                </p>
+              </div>
+            )}
+          </>
         )}
+
+        {activeTab === 'create' && renderCreateQuizContent()}
 
         {/* Quiz Participation Modal */}
         {showQuizModal && selectedQuiz && (

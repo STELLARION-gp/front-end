@@ -432,78 +432,80 @@ const TourChat: React.FC = () => {
           <Card className="chat-container" variant="outlined">
             {/* Messages */}
             <div className="chat-messages" onScroll={handleScroll}>
-              {messages.length > 0 ? (
-                messages.map((message, index) => {
-                  const showDateSeparator = index === 0 || 
-                    formatDate(message.timestamp) !== formatDate(messages[index - 1].timestamp);
-                  
-                  return (
-                    <div key={message.id}>
-                      {showDateSeparator && (
-                        <div className="date-separator">
-                          <span>{formatDate(message.timestamp)}</span>
-                        </div>
-                      )}
-                      
-                      <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3 }}
-                        className={`message ${message.senderRole === 'guide' ? 'own-message' : 'other-message'}`}
-                      >
-                        <div className="message-avatar">
-                          <div className={`avatar ${message.senderRole}`}>
-                            {getInitials(message.senderName)}
-                            {message.senderRole === 'guide' && (
-                              <div className="guide-badge">
-                                <Star className="w-3 h-3" />
-                              </div>
-                            )}
+              <div className="messages-wrapper">
+                {messages.length > 0 ? (
+                  messages.map((message, index) => {
+                    const showDateSeparator = index === 0 || 
+                      formatDate(message.timestamp) !== formatDate(messages[index - 1].timestamp);
+                    
+                    return (
+                      <div key={message.id}>
+                        {showDateSeparator && (
+                          <div className="date-separator">
+                            <span>{formatDate(message.timestamp)}</span>
                           </div>
-                        </div>
+                        )}
                         
-                        <div className="message-content">
-                          <div className="message-header">
-                            <span className={`sender-name ${message.senderRole}`}>
-                              {message.senderName}
-                            </span>
-                            <span className="message-time">
-                              {formatTime(message.timestamp)}
-                            </span>
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.3 }}
+                          className={`message ${message.senderRole === 'guide' ? 'own-message' : 'other-message'}`}
+                        >
+                          <div className="message-avatar">
+                            <div className={`avatar ${message.senderRole}`}>
+                              {getInitials(message.senderName)}
+                              {message.senderRole === 'guide' && (
+                                <div className="guide-badge">
+                                  <Star className="w-3 h-3" />
+                                </div>
+                              )}
+                            </div>
                           </div>
-                          <div className="message-text">
-                            {message.content}
+                          
+                          <div className="message-content">
+                            <div className="message-header">
+                              <span className={`sender-name ${message.senderRole}`}>
+                                {message.senderName}
+                              </span>
+                              <span className="message-time">
+                                {formatTime(message.timestamp)}
+                              </span>
+                            </div>
+                            <div className="message-text">
+                              {message.content}
+                            </div>
                           </div>
-                        </div>
-                      </motion.div>
-                    </div>
-                  );
-                })
-              ) : (
-                <div className="chat-empty">
-                  <MessageCircle className="w-12 h-12 text-slate-400" />
-                  <h3>Start the conversation</h3>
-                  <p>Send a message to begin chatting with your tour members</p>
-                </div>
-              )}
-              
-              {/* Typing indicators */}
-              {isTyping.length > 0 && (
-                <div className="typing-indicators">
-                  {isTyping.map(memberName => (
-                    <div key={memberName} className="typing-indicator">
-                      <span>{memberName} is typing</span>
-                      <div className="typing-dots">
-                        <span></span>
-                        <span></span>
-                        <span></span>
+                        </motion.div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-              
-              <div ref={messagesEndRef} />
+                    );
+                  })
+                ) : (
+                  <div className="chat-empty">
+                    <MessageCircle className="w-12 h-12 text-slate-400" />
+                    <h3>Start the conversation</h3>
+                    <p>Send a message to begin chatting with your tour members</p>
+                  </div>
+                )}
+                
+                {/* Typing indicators */}
+                {isTyping.length > 0 && (
+                  <div className="typing-indicators">
+                    {isTyping.map(memberName => (
+                      <div key={memberName} className="typing-indicator">
+                        <span>{memberName} is typing</span>
+                        <div className="typing-dots">
+                          <span></span>
+                          <span></span>
+                          <span></span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                
+                <div ref={messagesEndRef} />
+              </div>
               
               {/* Scroll to bottom button */}
               {!shouldAutoScroll && (

@@ -19,7 +19,6 @@ interface ServiceCardProps {
 const ServiceCard: React.FC<ServiceCardProps> = ({
   title,
   description,
-  icon,
   image,
   guideName,
   guideImage,

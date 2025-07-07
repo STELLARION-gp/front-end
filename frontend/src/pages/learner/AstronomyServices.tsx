@@ -168,7 +168,7 @@ const priceOrderOptions = [
   { label: "Price: High to Low", value: "desc" },
 ];
 
-type Service = typeof services[number];
+
 type FilterKey = "title" | "guideName" | "location";
 
 const AstronomyServices: React.FC = () => {

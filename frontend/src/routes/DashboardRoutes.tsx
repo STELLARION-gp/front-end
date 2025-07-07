@@ -189,7 +189,7 @@ const DashboardRoutes = () => {
             <Route
                 path='mentors'
                 element={
-                    <RoleGuard allowedRoles={['learner']}>
+                    <RoleGuard allowedRoles={['learner','enthusiast']}>
                         <Mentors />
                     </RoleGuard>
                 }

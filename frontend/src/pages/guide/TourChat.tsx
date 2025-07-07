@@ -9,8 +9,6 @@ import {
   Calendar, 
   Star, 
   MessageCircle, 
-  MoreVertical,
-  UserPlus,
   Settings,
   Info
 } from 'lucide-react';
@@ -62,7 +60,7 @@ const TourChat: React.FC = () => {
   const [newMessage, setNewMessage] = useState('');
   const [members, setMembers] = useState<TourMember[]>([]);
   const [tourInfo, setTourInfo] = useState<TourInfo | null>(null);
-  const [isTyping, setIsTyping] = useState<string[]>([]);
+  const [isTyping] = useState<string[]>([]);
   const [showMembersList, setShowMembersList] = useState(false);
   const [showTourInfo, setShowTourInfo] = useState(false);
 

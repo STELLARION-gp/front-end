@@ -384,7 +384,7 @@ const DashboardRoutes = () => {
             <Route
                 path="apply-mentor/:mentorId"
                 element={
-                    <RoleGuard allowedRoles={['learner']}>
+                    <RoleGuard allowedRoles={['learner','enthusiast']}>
                         <ApplyMentor />
                     </RoleGuard>
                 }

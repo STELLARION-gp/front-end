@@ -41,7 +41,7 @@ export const PAGE_ACCESS_CONTROL = {
     '/dashboard/profile': ['learner', 'enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin'] as UserRole[],
     '/dashboard/settings': ['learner', 'enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin'] as UserRole[],
     '/dashboard/blogs': ['enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin'] as UserRole[],
-    '/dashboard/mentor': ['mentor', 'moderator', 'admin'] as UserRole[],
+    '/dashboard/mentors': ['mentor', 'moderator', 'admin','enthusiast'] as UserRole[],
     '/dashboard/events': ['guide', 'mentor', 'moderator', 'admin'] as UserRole[],
     '/dashboard/services': ['guide'] as UserRole[],
     '/dashboard/chat': ['learner', 'enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin'] as UserRole[],

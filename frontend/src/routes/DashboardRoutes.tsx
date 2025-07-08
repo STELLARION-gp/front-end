@@ -41,6 +41,8 @@ import NightCampDetails from '../pages/learner/NightCampDetails';
 import Influencers from '../pages/enthuasist/Influencers';
 import Mentors from '../pages/learner/Mentors';
 import ApplyMentor from '../pages/learner/ApplyMentor';
+import AstronomyServices from '../pages/learner/AstronomyServices';
+import AstronomyServiceDetails from '../pages/learner/AstronomyServiceDetails';
 import Quizzes from '../pages/enthuasist/Quizzes';
 
 // Create placeholder components for different pages - all memoized
@@ -210,6 +212,22 @@ const DashboardRoutes = () => {
                 element={
                     <RoleGuard allowedRoles={['learner']}>
                         <NightCampDetails />
+                    </RoleGuard>
+                }
+            />
+            <Route
+                path='astronomy-services'
+                element={
+                    <RoleGuard allowedRoles={['learner']}>
+                        <AstronomyServices />
+                    </RoleGuard>
+                }
+            />
+            <Route
+                path='astronomy-services/:id'
+                element={
+                    <RoleGuard allowedRoles={['learner']}>
+                        <AstronomyServiceDetails />
                     </RoleGuard>
                 }
             />

@@ -114,10 +114,10 @@ const Sessions = () => {
         </Button>
       </div>
 
-      <div className="sessions-grid">
+      <div className="sessions-container">
         <div className="sessions-section">
           <h3>Upcoming Live Sessions</h3>
-          <div className="sessions-list">
+          <div className="sessions-grid">
             {upcomingSessions.map(session => (
               <div key={session.id} className="session-card own-session">
                 <div className="session-header">
@@ -143,7 +143,7 @@ const Sessions = () => {
 
         <div className="sessions-section">
           <h3>Recorded Sessions</h3>
-          <div className="sessions-list">
+          <div className="sessions-grid">
             {recordedSessions.map(session => (
               <div key={session.id} className="session-card recorded-session">
                 <div className="session-header">
@@ -427,13 +427,6 @@ const Sessions = () => {
     <div className="sessions-page">
       <div className="sessions-header">
         <h1>Astronomy Sessions</h1>
-        <div className="header-actions">
-          <Button 
-            onClick={() => setActiveTab('new-session')}
-          >
-            + Create New Session
-          </Button>
-        </div>
       </div>
 
       <div className="sessions-tabs">

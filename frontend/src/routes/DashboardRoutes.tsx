@@ -44,6 +44,7 @@ import ApplyMentor from '../pages/learner/ApplyMentor';
 import AstronomyServices from '../pages/learner/AstronomyServices';
 import AstronomyServiceDetails from '../pages/learner/AstronomyServiceDetails';
 import Quizzes from '../pages/enthuasist/Quizzes';
+import GuideDetails from '../pages/learner/GuideDetails';
 
 // Create placeholder components for different pages - all memoized
 // const BlogsPage = memo(() => (
@@ -228,6 +229,14 @@ const DashboardRoutes = () => {
                 element={
                     <RoleGuard allowedRoles={['learner']}>
                         <AstronomyServiceDetails />
+                    </RoleGuard>
+                }
+            />
+            <Route
+                path='guide-profile'
+                element={
+                    <RoleGuard allowedRoles={['learner']}>
+                        <GuideDetails />
                     </RoleGuard>
                 }
             />

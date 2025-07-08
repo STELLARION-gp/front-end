@@ -21,8 +21,17 @@ const Sessions = () => {
 
   // Mock data
   const upcomingSessions = [
-    { id: 1, title: 'Deep Space Photography', date: '2024-01-15', time: '20:00', participants: 12, maxParticipants: 20, price: 45 },
-    { id: 2, title: 'Planetary Observation', date: '2024-01-18', time: '21:30', participants: 8, maxParticipants: 15, price: 35 }
+    { id: 1, title: 'Deep Space Photography', date: '2024-01-15', time: '20:00', participants: 12, maxParticipants: 20, price: 45, isOwn: true, instructor: 'You' },
+    { id: 2, title: 'Planetary Observation', date: '2024-01-18', time: '21:30', participants: 8, maxParticipants: 15, price: 35, isOwn: true, instructor: 'You' }
+  ]
+
+  // Only show sessions from other influencers in overview
+  const otherInfluencerSessions = [
+    { id: 3, title: 'Introduction to Astrophotography', date: '2024-01-20', time: '19:00', participants: 15, maxParticipants: 25, price: 40, isOwn: false, instructor: 'Dr. Sarah Mitchell', isLive: true },
+    { id: 4, title: 'Solar System Exploration', date: '2024-01-22', time: '20:30', participants: 22, maxParticipants: 30, price: 50, isOwn: false, instructor: 'Prof. Mark Johnson', isLive: false },
+    { id: 5, title: 'Nebula Photography Workshop', date: '2024-01-25', time: '21:00', participants: 18, maxParticipants: 20, price: 60, isOwn: false, instructor: 'Alexandra Chen', isLive: true },
+    { id: 6, title: 'Telescope Maintenance Guide', date: '2024-01-28', time: '18:30', participants: 10, maxParticipants: 15, price: 30, isOwn: false, instructor: 'Michael Torres', isLive: false },
+    { id: 7, title: 'Advanced Star Navigation', date: '2024-01-30', time: '20:00', participants: 12, maxParticipants: 18, price: 45, isOwn: false, instructor: 'Dr. Elena Rodriguez', isLive: true }
   ]
 
   const recordedSessions = [
@@ -37,7 +46,7 @@ const Sessions = () => {
           <div className="stat-icon">🌟</div>
           <div className="stat-content">
             <h3>24</h3>
-            <p>Total Sessions</p>
+            <p>Your Sessions</p>
           </div>
         </div>
         <div className="stat-card">
@@ -55,23 +64,28 @@ const Sessions = () => {
           </div>
         </div>
         <div className="stat-card">
-          <div className="stat-icon">⭐</div>
+          <div className="stat-icon">📚</div>
           <div className="stat-content">
-            <h3>4.7</h3>
-            <p>Average Rating</p>
+            <h3>{otherInfluencerSessions.length}</h3>
+            <p>Available Sessions</p>
           </div>
         </div>
       </div>
 
       <div className="sessions-grid">
-        <div className="sessions-section">
-          <h2>Upcoming Live Sessions</h2>
-          <div className="sessions-list">
-            {upcomingSessions.map(session => (
-              <div key={session.id} className="session-card live-session">
+        <div className="sessions-section full-width">
+          <h2>Upcoming Sessions</h2>
+          <div className="all-sessions-list">
+            {otherInfluencerSessions.map(session => (
+              <div key={session.id} className="session-card other-session">
                 <div className="session-header">
-                  <h3>{session.title}</h3>
-                  <span className="session-status live">LIVE</span>
+                  <div className="session-title-info">
+                    <h3>{session.title}</h3>
+                    <p className="session-instructor">by {session.instructor}</p>
+                  </div>
+                  <span className={`session-status ${session.isLive ? 'live' : 'scheduled'}`}>
+                    {session.isLive ? 'LIVE' : 'SCHEDULED'}
+                  </span>
                 </div>
                 <div className="session-details">
                   <p><span className="icon">📅</span> {session.date} at {session.time}</p>
@@ -79,32 +93,7 @@ const Sessions = () => {
                   <p><span className="icon">💰</span> ${session.price}</p>
                 </div>
                 <div className="session-actions">
-                  <Button>Manage Session</Button>
-                  <Button>Upload Materials</Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="sessions-section">
-          <h2>Recorded Sessions</h2>
-          <div className="sessions-list">
-            {recordedSessions.map(session => (
-              <div key={session.id} className="session-card recorded-session">
-                <div className="session-header">
-                  <h3>{session.title}</h3>
-                  <span className="session-status recorded">RECORDED</span>
-                </div>
-                <div className="session-details">
-                  <p><span className="icon">💰</span> ${session.price}</p>
-                  <p><span className="icon">📊</span> {session.purchases} purchases</p>
-                  <p><span className="icon">⭐</span> {session.rating}/5.0</p>
-                  <p><span className="icon">💵</span> ${session.earnings} earned</p>
-                </div>
-                <div className="session-actions">
-                  <Button>Edit Pricing</Button>
-                  <Button>View Analytics</Button>
+                  <Button>Join Session</Button>
                 </div>
               </div>
             ))}
@@ -410,5 +399,9 @@ const Sessions = () => {
 }
 
 
+
+
+
 export default Sessions
+
 

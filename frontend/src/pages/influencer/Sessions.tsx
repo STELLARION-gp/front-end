@@ -4,6 +4,10 @@ import Button from '../../components/Button';
 
 const Sessions = () => {
   const [activeTab, setActiveTab] = useState('overview')
+  const [showManageModal, setShowManageModal] = useState(false)
+  const [showUploadModal, setShowUploadModal] = useState(false)
+  const [selectedSession, setSelectedSession] = useState(null)
+  const [uploadFiles, setUploadFiles] = useState([])
   const [newSession, setNewSession] = useState({
     title: '',
     description: '',
@@ -104,6 +108,200 @@ const Sessions = () => {
     </div>
   )
 
+  const handleManageSession = (session) => {
+    setSelectedSession(session)
+    setShowManageModal(true)
+  }
+
+  const handleUploadMaterials = (session) => {
+    setSelectedSession(session)
+    setShowUploadModal(true)
+  }
+
+  const handleFileUpload = (e) => {
+    const files = Array.from(e.target.files)
+    setUploadFiles(prev => [...prev, ...files])
+  }
+
+  const removeFile = (index) => {
+    setUploadFiles(prev => prev.filter((_, i) => i !== index))
+  }
+
+  const renderManageSessionModal = () => {
+    if (!showManageModal || !selectedSession) return null
+
+    return (
+      <div className="modal-overlay" onClick={() => setShowManageModal(false)}>
+        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-header">
+            <h3>Manage Session: {selectedSession.title}</h3>
+            <button className="close-btn" onClick={() => setShowManageModal(false)}>×</button>
+          </div>
+          
+          <div className="modal-body">
+            <div className="session-info">
+              <h4>Session Details</h4>
+              <div className="info-grid">
+                <div className="info-item">
+                  <label>Date & Time:</label>
+                  <span>{selectedSession.date} at {selectedSession.time}</span>
+                </div>
+                <div className="info-item">
+                  <label>Participants:</label>
+                  <span>{selectedSession.participants}/{selectedSession.maxParticipants}</span>
+                </div>
+                <div className="info-item">
+                  <label>Price:</label>
+                  <span>LKR {selectedSession.price}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="session-controls">
+              <h4>Session Controls</h4>
+              <div className="control-buttons">
+                <Button>Start Session</Button>
+                <Button variant="secondary">Edit Details</Button>
+                <Button variant="secondary">Send Reminder</Button>
+                <Button variant="secondary">View Participants</Button>
+              </div>
+            </div>
+
+            <div className="session-settings">
+              <h4>Settings</h4>
+              <div className="settings-grid">
+                <div className="setting-item">
+                  <label>
+                    <input type="checkbox" defaultChecked />
+                    Allow late joins
+                  </label>
+                </div>
+                <div className="setting-item">
+                  <label>
+                    <input type="checkbox" defaultChecked />
+                    Record session
+                  </label>
+                </div>
+                <div className="setting-item">
+                  <label>
+                    <input type="checkbox" />
+                    Require camera
+                  </label>
+                </div>
+                <div className="setting-item">
+                  <label>
+                    <input type="checkbox" />
+                    Mute participants
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="modal-footer">
+            <Button variant="secondary" onClick={() => setShowManageModal(false)}>
+              Close
+            </Button>
+            <Button>Save Changes</Button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const renderUploadMaterialsModal = () => {
+    if (!showUploadModal || !selectedSession) return null
+
+    return (
+      <div className="modal-overlay" onClick={() => setShowUploadModal(false)}>
+        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-header">
+            <h3>Upload Materials: {selectedSession.title}</h3>
+            <button className="close-btn" onClick={() => setShowUploadModal(false)}>×</button>
+          </div>
+          
+          <div className="modal-body">
+            <div className="upload-section">
+              <h4>Add Materials</h4>
+              <div className="upload-area">
+                <input 
+                  type="file" 
+                  id="file-upload" 
+                  multiple 
+                  onChange={handleFileUpload}
+                  accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.jpg,.jpeg,.png,.gif,.mp4,.avi,.mov"
+                />
+                <label htmlFor="file-upload" className="upload-label">
+                  <span className="upload-icon">📁</span>
+                  <span>Click to upload files or drag and drop</span>
+                  <span className="upload-hint">PDF, DOC, PPT, Images, Videos</span>
+                </label>
+              </div>
+            </div>
+
+            {uploadFiles.length > 0 && (
+              <div className="uploaded-files">
+                <h4>Uploaded Files</h4>
+                <div className="files-list">
+                  {uploadFiles.map((file, index) => (
+                    <div key={index} className="file-item">
+                      <span className="file-icon">📎</span>
+                      <span className="file-name">{file.name}</span>
+                      <span className="file-size">{(file.size / 1024 / 1024).toFixed(2)} MB</span>
+                      <button 
+                        className="remove-file"
+                        onClick={() => removeFile(index)}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="material-types">
+              <h4>Material Categories</h4>
+              <div className="category-grid">
+                <label className="category-item">
+                  <input type="checkbox" />
+                  <span>Presentation Slides</span>
+                </label>
+                <label className="category-item">
+                  <input type="checkbox" />
+                  <span>Reference Materials</span>
+                </label>
+                <label className="category-item">
+                  <input type="checkbox" />
+                  <span>Homework/Assignments</span>
+                </label>
+                <label className="category-item">
+                  <input type="checkbox" />
+                  <span>Additional Resources</span>
+                </label>
+              </div>
+            </div>
+
+            <div className="material-notes">
+              <h4>Notes for Participants</h4>
+              <textarea 
+                placeholder="Add any notes about these materials..."
+                rows={3}
+              />
+            </div>
+          </div>
+
+          <div className="modal-footer">
+            <Button variant="secondary" onClick={() => setShowUploadModal(false)}>
+              Cancel
+            </Button>
+            <Button>Upload Materials</Button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   const renderMyServices = () => (
     <div className="my-sessions-section">
       <div className="section-header">
@@ -145,8 +343,12 @@ const Sessions = () => {
                   </div>
                 </div>
                 <div className="session-actions">
-                  <Button>Manage Session</Button>
-                  <Button>Upload Materials</Button>
+                  <Button onClick={() => handleManageSession(session)}>
+                    Manage Session
+                  </Button>
+                  <Button onClick={() => handleUploadMaterials(session)}>
+                    Upload Materials
+                  </Button>
                 </div>
               </div>
             ))}
@@ -180,7 +382,6 @@ const Sessions = () => {
                       readOnly
                       className="session-link-input"
                     />
-                  
                   </div>
                 </div>
                 <div className="session-actions">
@@ -367,26 +568,6 @@ const Sessions = () => {
             <Button>Apply Discount</Button>
           </div>
         </div>
-
-        <div className="pricing-card">
-          <h3>Availability Settings</h3>
-          <div className="availability-settings">
-            <div className="toggle-group">
-              <label className="toggle-switch">
-                <input type="checkbox" defaultChecked />
-                <span className="toggle-slider"></span>
-                Allow New Bookings
-              </label>
-            </div>
-            <p className="toggle-description">
-              Temporarily disable session bookings for maintenance or schedule changes
-            </p>
-            <div className="availability-status active">
-              <span className="status-indicator"></span>
-              Bookings Currently Active
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   )
@@ -499,13 +680,12 @@ const Sessions = () => {
         {activeTab === 'pricing' && renderPricing()}
         {activeTab === 'analytics' && renderAnalytics()}
       </div>
+
+      {renderManageSessionModal()}
+      {renderUploadMaterialsModal()}
     </div>
   )
 }
-
-
-
-
 
 export default Sessions
 

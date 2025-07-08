@@ -21,22 +21,22 @@ const Sessions = () => {
 
   // Mock data
   const upcomingSessions = [
-    { id: 1, title: 'Deep Space Photography', date: '2024-01-15', time: '20:00', participants: 12, maxParticipants: 20, price: 45, isOwn: true, instructor: 'You' },
-    { id: 2, title: 'Planetary Observation', date: '2024-01-18', time: '21:30', participants: 8, maxParticipants: 15, price: 35, isOwn: true, instructor: 'You' }
+    { id: 1, title: 'Deep Space Photography', date: '2024-01-15', time: '20:00', participants: 12, maxParticipants: 20, price: 13500, isOwn: true, instructor: 'You' },
+    { id: 2, title: 'Planetary Observation', date: '2024-01-18', time: '21:30', participants: 8, maxParticipants: 15, price: 10500, isOwn: true, instructor: 'You' }
   ]
 
   // Only show sessions from other influencers in overview
   const otherInfluencerSessions = [
-    { id: 3, title: 'Introduction to Astrophotography', date: '2024-01-20', time: '19:00', participants: 15, maxParticipants: 25, price: 40, isOwn: false, instructor: 'Dr. Sarah Mitchell', isLive: true },
-    { id: 4, title: 'Solar System Exploration', date: '2024-01-22', time: '20:30', participants: 22, maxParticipants: 30, price: 50, isOwn: false, instructor: 'Prof. Mark Johnson', isLive: false },
-    { id: 5, title: 'Nebula Photography Workshop', date: '2024-01-25', time: '21:00', participants: 18, maxParticipants: 20, price: 60, isOwn: false, instructor: 'Alexandra Chen', isLive: true },
-    { id: 6, title: 'Telescope Maintenance Guide', date: '2024-01-28', time: '18:30', participants: 10, maxParticipants: 15, price: 30, isOwn: false, instructor: 'Michael Torres', isLive: false },
-    { id: 7, title: 'Advanced Star Navigation', date: '2024-01-30', time: '20:00', participants: 12, maxParticipants: 18, price: 45, isOwn: false, instructor: 'Dr. Elena Rodriguez', isLive: true }
+    { id: 3, title: 'Introduction to Astrophotography', date: '2024-01-20', time: '19:00', participants: 15, maxParticipants: 25, price: 2500, isOwn: false, instructor: 'Dr. Samantha Perera', isLive: true },
+    { id: 4, title: 'Solar System Exploration', date: '2024-01-22', time: '20:30', participants: 22, maxParticipants: 30, price: 3200, isOwn: false, instructor: 'Prof. Nuwan Jayasinghe', isLive: false },
+    { id: 5, title: 'Nebula Photography Workshop', date: '2024-01-25', time: '21:00', participants: 18, maxParticipants: 20, price: 4500, isOwn: false, instructor: 'Priyanka Fernando', isLive: true },
+    { id: 6, title: 'Telescope Maintenance Guide', date: '2024-01-28', time: '18:30', participants: 10, maxParticipants: 15, price: 1800, isOwn: false, instructor: 'Roshan Silva', isLive: false },
+    { id: 7, title: 'Advanced Star Navigation', date: '2024-01-30', time: '20:00', participants: 12, maxParticipants: 18, price: 2800, isOwn: false, instructor: 'Dr. Kavitha Rathnayake', isLive: true }
   ]
 
   const recordedSessions = [
-    { id: 1, title: 'Beginner Stargazing', price: 25, purchases: 156, rating: 4.8, earnings: 3900 },
-    { id: 2, title: 'Telescope Setup Guide', price: 30, purchases: 89, rating: 4.9, earnings: 2670 }
+    { id: 1, title: 'Beginner Stargazing', price: 1500, purchases: 156, rating: 4.8, earnings: 234000 },
+    { id: 2, title: 'Telescope Setup Guide', price: 2000, purchases: 89, rating: 4.9, earnings: 178000 }
   ]
 
   const renderOverview = () => (
@@ -52,14 +52,14 @@ const Sessions = () => {
         <div className="stat-card">
           <div className="stat-icon">💰</div>
           <div className="stat-content">
-            <h3>$12,450</h3>
+            <h3>LKR 747,000</h3>
             <p>Total Earnings</p>
           </div>
         </div>
         <div className="stat-card">
           <div className="stat-icon">👥</div>
           <div className="stat-content">
-            <h3>342</h3>
+            <h3>2,050</h3>
             <p>Total Participants</p>
           </div>
         </div>
@@ -83,17 +83,85 @@ const Sessions = () => {
                     <h3>{session.title}</h3>
                     <p className="session-instructor">by {session.instructor}</p>
                   </div>
-                  <span className={`session-status ${session.isLive ? 'live' : 'scheduled'}`}>
-                    {session.isLive ? 'LIVE' : 'SCHEDULED'}
+                  <span className={`session-status ${session.isLive ? 'live' : 'recorded'}`}>
+                    {session.isLive ? 'LIVE' : 'RECORDED'}
                   </span>
                 </div>
                 <div className="session-details">
                   <p><span className="icon">📅</span> {session.date} at {session.time}</p>
                   <p><span className="icon">👥</span> {session.participants}/{session.maxParticipants} participants</p>
-                  <p><span className="icon">💰</span> ${session.price}</p>
+                  <p><span className="icon">💰</span> LKR {session.price}</p>
                 </div>
                 <div className="session-actions">
-                  <Button>Join Session</Button>
+                  <Button>Register</Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+
+  const renderMyServices = () => (
+    <div className="my-sessions-section">
+      <div className="section-header">
+        <h2>My Sessions</h2>
+        <Button 
+          onClick={() => setActiveTab('new-session')}
+        >
+          + Create New Session
+        </Button>
+      </div>
+
+      <div className="sessions-grid">
+        <div className="sessions-section">
+          <h3>Upcoming Live Sessions</h3>
+          <div className="sessions-list">
+            {upcomingSessions.map(session => (
+              <div key={session.id} className="session-card own-session">
+                <div className="session-header">
+                  <div className="session-title-info">
+                    <h3>{session.title}</h3>
+                    <p className="session-instructor">by {session.instructor}</p>
+                  </div>
+                  <span className="session-status own">YOUR SESSION</span>
+                </div>
+                <div className="session-details">
+                  <p><span className="icon">📅</span> {session.date} at {session.time}</p>
+                  <p><span className="icon">👥</span> {session.participants}/{session.maxParticipants} participants</p>
+                  <p><span className="icon">💰</span> LKR {session.price}</p>
+                </div>
+                <div className="session-actions">
+                  <Button>Manage Session</Button>
+                  <Button>Upload Materials</Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="sessions-section">
+          <h3>Recorded Sessions</h3>
+          <div className="sessions-list">
+            {recordedSessions.map(session => (
+              <div key={session.id} className="session-card recorded-session">
+                <div className="session-header">
+                  <div className="session-title-info">
+                    <h3>{session.title}</h3>
+                    <p className="session-instructor">by You</p>
+                  </div>
+                  <span className="session-status recorded">RECORDED</span>
+                </div>
+                <div className="session-details">
+                  <p><span className="icon">💰</span> LKR {session.price}</p>
+                  <p><span className="icon">📊</span> {session.purchases} purchases</p>
+                  <p><span className="icon">⭐</span> {session.rating}/5.0</p>
+                  <p><span className="icon">💵</span> LKR {session.earnings} earned</p>
+                </div>
+                <div className="session-actions">
+                  <Button>Edit Pricing</Button>
+                  <Button>View Analytics</Button>
                 </div>
               </div>
             ))}
@@ -105,6 +173,13 @@ const Sessions = () => {
 
   const renderNewSession = () => (
     <div className="new-session-form">
+      <div className="form-header">
+        <Button 
+          onClick={() => setActiveTab('my-sessions')}
+        >
+          ← Back to My Sessions
+        </Button>
+      </div>
       <h2>Create New Session</h2>
       <form className="session-form">
         <div className="form-grid">
@@ -130,12 +205,12 @@ const Sessions = () => {
           </div>
 
           <div className="form-group">
-            <label>Price ($)</label>
+            <label>Price (LKR)</label>
             <input 
               type="number" 
               value={newSession.price}
               onChange={(e) => setNewSession({...newSession, price: e.target.value})}
-              placeholder="0.00"
+              placeholder="2500"
             />
           </div>
 
@@ -227,12 +302,12 @@ const Sessions = () => {
           <h3>Default Pricing</h3>
           <div className="price-settings">
             <div className="form-group">
-              <label>Live Session Rate</label>
-              <input type="number" placeholder="45.00" />
+              <label>Live Session Rate (LKR)</label>
+              <input type="number" placeholder="3000" />
             </div>
             <div className="form-group">
-              <label>Recorded Session Rate</label>
-              <input type="number" placeholder="25.00" />
+              <label>Recorded Session Rate (LKR)</label>
+              <input type="number" placeholder="1500" />
             </div>
             <Button>Update Rates</Button>
           </div>
@@ -318,7 +393,7 @@ const Sessions = () => {
               <span className="metric-label">Total Reviews</span>
             </div>
             <div className="metric-item">
-              <span className="metric-value">$2,340</span>
+              <span className="metric-value">LKR 140,400</span>
               <span className="metric-label">This Month</span>
             </div>
           </div>
@@ -369,10 +444,10 @@ const Sessions = () => {
           Overview
         </Button>
         <Button 
-          variant={activeTab === 'new-session' ? 'primary' : 'secondary'}
-          onClick={() => setActiveTab('new-session')}
+          variant={activeTab === 'my-sessions' ? 'primary' : 'secondary'}
+          onClick={() => setActiveTab('my-sessions')}
         >
-          New Session
+          My Sessions
         </Button>
         <Button 
           variant={activeTab === 'pricing' ? 'primary' : 'secondary'}
@@ -390,6 +465,7 @@ const Sessions = () => {
 
       <div className="sessions-content">
         {activeTab === 'overview' && renderOverview()}
+        {activeTab === 'my-sessions' && renderMyServices()}
         {activeTab === 'new-session' && renderNewSession()}
         {activeTab === 'pricing' && renderPricing()}
         {activeTab === 'analytics' && renderAnalytics()}

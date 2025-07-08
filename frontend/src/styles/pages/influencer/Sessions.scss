@@ -136,6 +136,7 @@
 
   .sessions-section.full-width {
     grid-column: 1;
+    
   }
 }
 
@@ -143,6 +144,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: 1.5rem;
+  margin-top: 2rem;
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
@@ -222,13 +224,13 @@
   }
 
   &.live {
-    background: linear-gradient(135deg, #10b981, #059669);
+    background: linear-gradient(135deg, #059669, #047857);
     color: white;
     box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
     border: 1px solid rgba(16, 185, 129, 0.5);
 
     &:hover {
-      background: linear-gradient(135deg, #059669, #047857);
+      background: linear-gradient(135deg, #10b981, #059669);;
       box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
       transform: translateY(-1px);
     }
@@ -887,6 +889,59 @@ input:checked + .toggle-slider:before {
   label {
     font-weight: 500;
     cursor: pointer;
+  }
+}
+
+// My Sessions Section
+.my-sessions-section {
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+
+    h2 {
+      color: var(--text-primary);
+      font-size: 2rem;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+
+  .sessions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .sessions-section {
+    h3 {
+      color: var(--text-primary);
+      margin-bottom: 1.5rem;
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+  }
+}
+
+.form-header {
+  margin-bottom: 1.5rem;
+  
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
   }
 }
 

@@ -20,7 +20,7 @@ const AstronomyServiceDetails: React.FC = () => {
 
   return (
     <div className="service-details-container">
-      <div className="service-details-card">
+      <div className="service-details-card service-details-card--vertical">
         <img
           src={service.image}
           alt={service.title}

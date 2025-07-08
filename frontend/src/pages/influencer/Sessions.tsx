@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import '../../styles/pages/influencer/Sessions.scss';
+import Button from '../../components/Button';
 
 const Sessions = () => {
   const [activeTab, setActiveTab] = useState('overview')
@@ -78,8 +79,8 @@ const Sessions = () => {
                   <p><span className="icon">💰</span> ${session.price}</p>
                 </div>
                 <div className="session-actions">
-                  <button className="btn-primary">Manage Session</button>
-                  <button className="btn-secondary">Upload Materials</button>
+                  <Button>Manage Session</Button>
+                  <Button>Upload Materials</Button>
                 </div>
               </div>
             ))}
@@ -102,8 +103,8 @@ const Sessions = () => {
                   <p><span className="icon">💵</span> ${session.earnings} earned</p>
                 </div>
                 <div className="session-actions">
-                  <button className="btn-primary">Edit Pricing</button>
-                  <button className="btn-secondary">View Analytics</button>
+                  <Button>Edit Pricing</Button>
+                  <Button>View Analytics</Button>
                 </div>
               </div>
             ))}
@@ -221,8 +222,8 @@ const Sessions = () => {
         </div>
 
         <div className="form-actions">
-          <button type="button" className="btn-secondary">Save as Draft</button>
-          <button type="submit" className="btn-primary">Create Session</button>
+          <Button type="button">Save as Draft</Button>
+          <Button type="submit">Create Session</Button>
         </div>
       </form>
     </div>
@@ -244,7 +245,7 @@ const Sessions = () => {
               <label>Recorded Session Rate</label>
               <input type="number" placeholder="25.00" />
             </div>
-            <button className="btn-primary">Update Rates</button>
+            <Button>Update Rates</Button>
           </div>
         </div>
 
@@ -263,7 +264,7 @@ const Sessions = () => {
               <input type="checkbox" id="freeAccess" />
               <label htmlFor="freeAccess">Enable Free Access</label>
             </div>
-            <button className="btn-primary">Apply Discount</button>
+            <Button>Apply Discount</Button>
           </div>
         </div>
 
@@ -363,40 +364,39 @@ const Sessions = () => {
       <div className="sessions-header">
         <h1>Astronomy Sessions</h1>
         <div className="header-actions">
-          <button 
-            className="btn-primary"
+          <Button 
             onClick={() => setActiveTab('new-session')}
           >
             + Create New Session
-          </button>
+          </Button>
         </div>
       </div>
 
       <div className="sessions-tabs">
-        <button 
-          className={`tab ${activeTab === 'overview' ? 'active' : ''}`}
+        <Button 
+          variant={activeTab === 'overview' ? 'primary' : 'secondary'}
           onClick={() => setActiveTab('overview')}
         >
           Overview
-        </button>
-        <button 
-          className={`tab ${activeTab === 'new-session' ? 'active' : ''}`}
+        </Button>
+        <Button 
+          variant={activeTab === 'new-session' ? 'primary' : 'secondary'}
           onClick={() => setActiveTab('new-session')}
         >
           New Session
-        </button>
-        <button 
-          className={`tab ${activeTab === 'pricing' ? 'active' : ''}`}
+        </Button>
+        <Button 
+          variant={activeTab === 'pricing' ? 'primary' : 'secondary'}
           onClick={() => setActiveTab('pricing')}
         >
           Pricing & Settings
-        </button>
-        <button 
-          className={`tab ${activeTab === 'analytics' ? 'active' : ''}`}
+        </Button>
+        <Button 
+          variant={activeTab === 'analytics' ? 'primary' : 'secondary'}
           onClick={() => setActiveTab('analytics')}
         >
           Analytics
-        </button>
+        </Button>
       </div>
 
       <div className="sessions-content">
@@ -409,4 +409,6 @@ const Sessions = () => {
   )
 }
 
+
 export default Sessions
+

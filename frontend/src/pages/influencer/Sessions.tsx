@@ -14,6 +14,7 @@ const Sessions = () => {
     time: '',
     maxParticipants: '',
     difficulty: 'beginner',
+    link: '',
     category: 'observation',
     materials: [],
     notes: ''
@@ -114,10 +115,10 @@ const Sessions = () => {
         </Button>
       </div>
 
-      <div className="sessions-container">
+      <div className="sessions-grid">
         <div className="sessions-section">
           <h3>Upcoming Live Sessions</h3>
-          <div className="sessions-grid">
+          <div className="sessions-list">
             {upcomingSessions.map(session => (
               <div key={session.id} className="session-card own-session">
                 <div className="session-header">
@@ -132,6 +133,17 @@ const Sessions = () => {
                   <p><span className="icon">👥</span> {session.participants}/{session.maxParticipants} participants</p>
                   <p><span className="icon">💰</span> LKR {session.price}</p>
                 </div>
+                <div className="session-link">
+                  <p className="link-label">Session Link:</p>
+                  <div className="link-container">
+                    <input 
+                      type="text" 
+                      value={`https://stellarion.com/session/${session.id}`}
+                      readOnly
+                      className="session-link-input"
+                    />
+                  </div>
+                </div>
                 <div className="session-actions">
                   <Button>Manage Session</Button>
                   <Button>Upload Materials</Button>
@@ -143,7 +155,7 @@ const Sessions = () => {
 
         <div className="sessions-section">
           <h3>Recorded Sessions</h3>
-          <div className="sessions-grid">
+          <div className="sessions-list">
             {recordedSessions.map(session => (
               <div key={session.id} className="session-card recorded-session">
                 <div className="session-header">
@@ -158,6 +170,18 @@ const Sessions = () => {
                   <p><span className="icon">📊</span> {session.purchases} purchases</p>
                   <p><span className="icon">⭐</span> {session.rating}/5.0</p>
                   <p><span className="icon">💵</span> LKR {session.earnings} earned</p>
+                </div>
+                <div className="session-link">
+                  <p className="link-label">Session Link:</p>
+                  <div className="link-container">
+                    <input 
+                      type="text" 
+                      value={`https://stellarion.com/session/${session.id}`}
+                      readOnly
+                      className="session-link-input"
+                    />
+                  
+                  </div>
                 </div>
                 <div className="session-actions">
                   <Button>Edit Pricing</Button>
@@ -263,7 +287,19 @@ const Sessions = () => {
               <option value="advanced">Advanced</option>
             </select>
           </div>
+
+           <div className="form-group">
+            <label>Session Link</label>
+            <input 
+              type="text" 
+              value={newSession.link}
+              onChange={(e) => setNewSession({...newSession, link: e.target.value})}
+              placeholder="link to your session"
+            />
+          </div>
         </div>
+
+       
 
         <div className="form-group full-width">
           <label>Description</label>

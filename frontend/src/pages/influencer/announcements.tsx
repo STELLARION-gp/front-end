@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import '../../styles/pages/influencer/Announcements.scss';
+
 type Announcement = {
     id: string;
     title: string;

@@ -242,8 +242,8 @@ const AnnouncementsPage: React.FC = () => {
                                 value={replyForms[a.id] || ''}
                                 onChange={(e) => handleReplyFormChange(a.id, e.target.value)}
                                 required
-                                rows={2}
-                                style={{ width: '100%', marginBottom: 8, padding: 8, backgroundColor: 'transparent', color: 'white', border: '1px solid white' }}
+                                rows={1}
+                                style={{ width: '100%', marginBottom: 8, padding: 8, backgroundColor: 'white', color: 'blue', border: '1px solid white' }}
                             />
                             <button type="submit" disabled={loading} style={{ marginRight: 8, backgroundColor: 'transparent', border: '1px solid white', color: 'white' }}>
                                 {editingReply && editingReply.announcementId === a.id ? 'Update' : 'Reply'}

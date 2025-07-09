@@ -404,7 +404,7 @@ const PreviousTours: React.FC = () => {
               exit={{ opacity: 0, y: -20 }}
               transition={{ delay: index * 0.1 }}
             >
-              <Card className="tour-card" variant="outlined" hover>
+              <div className="tour-card">
                 <div className="tour-header">
                   <div className="tour-image">
                     <img 
@@ -481,7 +481,7 @@ const PreviousTours: React.FC = () => {
                     icon={<Eye className="w-4 h-4" />}
                     onClick={() => handleViewDetails(tour)}
                   >
-                    View Details
+                    View
                   </Button>
                   <Button
                     variant="ghost"
@@ -489,7 +489,7 @@ const PreviousTours: React.FC = () => {
                     icon={<MessageCircle className="w-4 h-4" />}
                     onClick={() => handleViewReviews(tour)}
                   >
-                    Reviews ({tour.totalReviews})
+                    Reviews
                   </Button>
                   <Button
                     variant="ghost"
@@ -499,7 +499,7 @@ const PreviousTours: React.FC = () => {
                     Share
                   </Button>
                 </div>
-              </Card>
+              </div>
             </motion.div>
           ))}
         </AnimatePresence>

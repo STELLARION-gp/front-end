@@ -21,6 +21,11 @@ const Sessions = () => {
   })
 
   // Mock data
+  const liveSessions = [
+    { id: 1, title: 'Deep Space Photography', date: '2024-01-15', time: '20:00', participants: 12, maxParticipants: 20, price: 13500, status: 'upcoming' },
+    { id: 2, title: 'Planetary Observation', date: '2024-01-18', time: '21:30', participants: 8, maxParticipants: 15, price: 10500, status: 'upcoming' }
+  ]
+
   const recordedSessions = [
     { id: 1, title: 'Beginner Stargazing', price: 1500, purchases: 156, rating: 4.8, earnings: 234000 },
     { id: 2, title: 'Telescope Setup Guide', price: 2000, purchases: 89, rating: 4.9, earnings: 178000 }
@@ -38,6 +43,43 @@ const Sessions = () => {
       </div>
 
       <div className="sessions-grid">
+        <div className="sessions-section">
+          <h3>Live Sessions</h3>
+          <div className="sessions-list">
+            {liveSessions.map(session => (
+              <div key={session.id} className="session-card live-session">
+                <div className="session-header">
+                  <div className="session-title-info">
+                    <h3>{session.title}</h3>
+                    <p className="session-instructor">by You</p>
+                  </div>
+                  <span className="session-status live">LIVE</span>
+                </div>
+                <div className="session-details">
+                  <p><span className="icon">📅</span> {session.date} at {session.time}</p>
+                  <p><span className="icon">👥</span> {session.participants}/{session.maxParticipants} participants</p>
+                  <p><span className="icon">💰</span> LKR {session.price}</p>
+                </div>
+                <div className="session-link">
+                  <p className="link-label">Session Link:</p>
+                  <div className="link-container">
+                    <input 
+                      type="text" 
+                      value={`https://stellarion.com/session/${session.id}`}
+                      readOnly
+                      className="session-link-input"
+                    />
+                  </div>
+                </div>
+                <div className="session-actions">
+                  <Button>Manage Session</Button>
+                  <Button>View Details</Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
         <div className="sessions-section">
           <h3>Recorded Sessions</h3>
           <div className="sessions-list">
@@ -599,5 +641,5 @@ const Sessions = () => {
 }
 
 export default Sessions
-      
+
 

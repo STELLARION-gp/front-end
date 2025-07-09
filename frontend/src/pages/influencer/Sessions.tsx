@@ -574,11 +574,11 @@ const Sessions = () => {
 
   const renderAnalytics = () => (
     <div className="analytics-dashboard">
-      <h2>Session Analytics</h2>
+      <h2>My Sessions Analytics</h2>
       
       <div className="analytics-grid">
         <div className="chart-container">
-          <h3>Earnings Trend</h3>
+          <h3>My Sessions Earnings Trend</h3>
           <div className="chart-placeholder">
             <div className="chart-bars">
               <div className="bar" style={{height: '60%'}}></div>
@@ -595,29 +595,29 @@ const Sessions = () => {
         </div>
 
         <div className="analytics-stats">
-          <h3>Performance Metrics</h3>
+          <h3>My Performance Metrics</h3>
           <div className="metrics-grid">
             <div className="metric-item">
               <span className="metric-value">89%</span>
-              <span className="metric-label">Attendance Rate</span>
+              <span className="metric-label">My Attendance Rate</span>
             </div>
             <div className="metric-item">
               <span className="metric-value">4.8</span>
-              <span className="metric-label">Avg Rating</span>
+              <span className="metric-label">My Avg Rating</span>
             </div>
             <div className="metric-item">
               <span className="metric-value">156</span>
-              <span className="metric-label">Total Reviews</span>
+              <span className="metric-label">My Total Reviews</span>
             </div>
             <div className="metric-item">
               <span className="metric-value">LKR 140,400</span>
-              <span className="metric-label">This Month</span>
+              <span className="metric-label">My Earnings This Month</span>
             </div>
           </div>
         </div>
 
         <div className="reviews-section">
-          <h3>Recent Reviews</h3>
+          <h3>Recent Reviews for My Sessions</h3>
           <div className="reviews-list">
             <div className="review-item">
               <div className="review-rating">⭐⭐⭐⭐⭐</div>
@@ -669,7 +669,7 @@ const Sessions = () => {
           variant={activeTab === 'analytics' ? 'primary' : 'secondary'}
           onClick={() => setActiveTab('analytics')}
         >
-          Analytics
+          My Analytics
         </Button>
       </div>
 

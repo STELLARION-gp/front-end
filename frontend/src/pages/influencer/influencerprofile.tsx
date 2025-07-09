@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Star, MessageCircle, Share2, Bookmark, MoreHorizontal, Camera, Edit3, Check, X, User, Calendar, MapPin, Plus, Image } from 'lucide-react';
+import { color } from 'framer-motion';
 
 // Enhanced feed data with more realistic social media content
 const enhancedFeed = [
@@ -143,7 +144,7 @@ function ProfilePage() {
         }}>
             {/* Header */}
             <div style={{ 
-                backgroundColor: "rgba(255, 255, 255, 0.95)", 
+                backgroundColor: "transparent", 
                 backdropFilter: "blur(10px)",
                 borderBottom: "1px solid rgba(224, 224, 224, 0.5)",
                 padding: "16px 24px",
@@ -152,17 +153,17 @@ function ProfilePage() {
                 zIndex: 100
             }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <h1 style={{ margin: 0, fontSize: 24, fontWeight: 600, color: "#262626" }}>
+                    <h1 style={{ margin: 0, fontSize: 24, fontWeight: 600, color: "white" }}>
                         {name}
                     </h1>
                     <button 
                         onClick={() => setShowCreatePost(true)}
                         style={{
-                            backgroundColor: "#0095f6",
+                            backgroundColor: "transparent",
                             color: "white",
-                            border: "none",
+                            border: '2px solid white',
                             padding: "8px 16px",
-                            borderRadius: 20,
+                            borderRadius: 10,
                             fontSize: 14,
                             fontWeight: 600,
                             cursor: "pointer",
@@ -179,7 +180,7 @@ function ProfilePage() {
 
             {/* Profile Section */}
             <div style={{ 
-                backgroundColor: "rgba(255, 255, 255, 0.9)", 
+                backgroundColor: "transparent", 
                 backdropFilter: "blur(10px)",
                 padding: 24, 
                 borderBottom: "1px solid rgba(224, 224, 224, 0.5)",
@@ -298,7 +299,7 @@ function ProfilePage() {
                             <button 
                                 onClick={() => setEditingPic(!editingPic)}
                                 style={{
-                                    backgroundColor: "#fafafa",
+                                    backgroundColor: "transparent",
                                     color: "#262626",
                                     border: "1px solid #ddd",
                                     padding: "8px 16px",
@@ -346,7 +347,7 @@ function ProfilePage() {
                                 <button 
                                     onClick={() => setEditingBio(false)}
                                     style={{
-                                        backgroundColor: "#0095f6",
+                                        backgroundColor: "transparent",
                                         color: "white",
                                         border: "none",
                                         padding: "6px 12px",
@@ -360,7 +361,7 @@ function ProfilePage() {
                                 <button 
                                     onClick={() => setEditingBio(false)}
                                     style={{
-                                        backgroundColor: "#fafafa",
+                                        backgroundColor: "transparent",
                                         color: "#262626",
                                         border: "1px solid #ddd",
                                         padding: "6px 12px",
@@ -422,14 +423,14 @@ function ProfilePage() {
                     left: 0,
                     right: 0,
                     bottom: 0,
-                    backgroundColor: "rgba(0, 0, 0, 0.5)",
+                    backgroundColor: "transparent",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     zIndex: 1000
                 }}>
                     <div style={{
-                        backgroundColor: "white",
+                        backgroundColor: "transparent",
                         borderRadius: 12,
                         padding: 24,
                         width: "90%",
@@ -517,7 +518,7 @@ function ProfilePage() {
                                         top: 8,
                                         right: 8,
                                         background: "rgba(0, 0, 0, 0.5)",
-                                        color: "white",
+                                        color: "transparent",
                                         border: "none",
                                         borderRadius: "50%",
                                         width: 24,
@@ -558,7 +559,7 @@ function ProfilePage() {
                             disabled={!newPostContent.trim()}
                             style={{
                                 width: "100%",
-                                backgroundColor: newPostContent.trim() ? "#0095f6" : "#e0e0e0",
+                                backgroundColor: newPostContent.trim() ? "#0095f6" : "transparent",
                                 color: newPostContent.trim() ? "white" : "#8e8e8e",
                                 border: "none",
                                 padding: "12px",
@@ -578,7 +579,7 @@ function ProfilePage() {
             <div style={{ backgroundColor: "transparent" }}>
                 {feedData.map(post => (
                     <div key={post.id} style={{ 
-                        backgroundColor: "rgba(255, 255, 255, 0.9)", 
+                        backgroundColor: "transparent", 
                         backdropFilter: "blur(10px)",
                         marginBottom: 12,
                         border: "1px solid rgba(224, 224, 224, 0.5)",
@@ -655,18 +656,18 @@ function ProfilePage() {
                                         <Star size={24} fill={post.liked ? "#ed4956" : "none"} />
                                     </button>
                                     <button style={{ 
-                                        background: "none", 
+                                        background: "transparent", 
                                         border: "none", 
                                         cursor: "pointer",
-                                        color: "#262626"
+                                        color: "white"
                                     }}>
                                         <MessageCircle size={24} />
                                     </button>
                                     <button style={{ 
-                                        background: "none", 
+                                        background: "transparent", 
                                         border: "none", 
                                         cursor: "pointer",
-                                        color: "#262626"
+                                        color: "white"
                                     }}>
                                         <Share2 size={24} />
                                     </button>
@@ -674,10 +675,10 @@ function ProfilePage() {
                                 <button 
                                     onClick={() => handleBookmark(post.id)}
                                     style={{ 
-                                        background: "none", 
+                                        background: "transparent", 
                                         border: "none", 
                                         cursor: "pointer",
-                                        color: "#262626"
+                                        color: "white"
                                     }}
                                 >
                                     <Bookmark size={24} fill={post.bookmarked ? "#262626" : "none"} />
@@ -688,14 +689,14 @@ function ProfilePage() {
                             <div style={{ 
                                 fontWeight: 600, 
                                 fontSize: 14, 
-                                color: "#262626",
+                                color: "transparent",
                                 marginBottom: 8
                             }}>
                                 {post.likes.toLocaleString()} likes
                             </div>
 
                             {/* Caption */}
-                            <div style={{ fontSize: 14, color: "#262626", lineHeight: 1.4 }}>
+                            <div style={{ fontSize: 14, color: "white", lineHeight: 1.4 }}>
                                 <span style={{ fontWeight: 600 }}>{name}</span> {post.content}
                             </div>
 

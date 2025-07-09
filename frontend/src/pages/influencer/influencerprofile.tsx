@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Star, MessageCircle, Share2, Bookmark, MoreHorizontal, Camera, Edit3, Check, X, User, Calendar, MapPin, Plus, Image } from 'lucide-react';
+import { Star, MessageCircle, Bookmark, MoreHorizontal, Camera, Edit3, Check, X, User, Calendar, MapPin, Plus, Image } from 'lucide-react';
 import { color } from 'framer-motion';
 
-// Enhanced feed data with more realistic social media content
+
 const enhancedFeed = [
     {
         id: 1,
@@ -237,7 +237,7 @@ function ProfilePage() {
                                             background: "none", 
                                             border: "none", 
                                             cursor: "pointer",
-                                            color: "#0095f6"
+                                            color: "transparent"
                                         }}
                                     >
                                         <Check size={16} />
@@ -284,7 +284,7 @@ function ProfilePage() {
                             <button 
                                 onClick={handleFollow}
                                 style={{
-                                    backgroundColor: isFollowing ? "#fafafa" : "#0095f6",
+                                    backgroundColor: isFollowing ? "#fafafa" : "transparent",
                                     color: isFollowing ? "white" : "white",
                                     border: isFollowing ? "1px solid #ddd" : "none",
                                     padding: "8px 16px",
@@ -390,7 +390,7 @@ function ProfilePage() {
                                 style={{
                                     background: "none",
                                     border: "none",
-                                    color: "#0095f6",
+                                    color: "transparent",
                                     fontSize: 12,
                                     cursor: "pointer",
                                     padding: 0
@@ -559,7 +559,7 @@ function ProfilePage() {
                             disabled={!newPostContent.trim()}
                             style={{
                                 width: "100%",
-                                backgroundColor: newPostContent.trim() ? "#0095f6" : "transparent",
+                                backgroundColor: newPostContent.trim() ? "transparent" : "transparent",
                                 color: newPostContent.trim() ? "white" : "#8e8e8e",
                                 border: "none",
                                 padding: "12px",
@@ -669,7 +669,7 @@ function ProfilePage() {
                                         cursor: "pointer",
                                         color: "white"
                                     }}>
-                                        <Share2 size={24} />
+                                        
                                     </button>
                                 </div>
                                 <button 

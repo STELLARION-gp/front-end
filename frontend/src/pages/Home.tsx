@@ -19,7 +19,7 @@ const Home: React.FC = () => {
           { label: "navbar.contact", href: "/contact" }
         ]}
         navItemsL={[
-          { label: "navbar.profile", href: "/profile" },
+          { label: "navbar.profileNav", href: "/profile" },
           { label: "navbar.settings", href: "/settings" }
         ]}
       />

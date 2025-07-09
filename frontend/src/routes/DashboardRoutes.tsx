@@ -140,16 +140,6 @@ const DashboardRoutes = () => {
             />
 
             <Route path="profile" element={<Profile />} />
-            
-            
-            <Route
-                path="profile"
-                element={
-                    <RoleGuard allowedRoles={['learner', 'enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin']}>
-                        <Profile />
-                    </RoleGuard>
-                }
-                />
             <Route path="settings" element={<Settings />} />
 
             <Route

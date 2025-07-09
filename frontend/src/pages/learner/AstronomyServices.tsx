@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import ServiceCard from "../../components/Learner/ServiceCard";
 import "../../styles/pages/learner/AstronomyServices.scss";
 
@@ -179,6 +180,7 @@ const AstronomyServices: React.FC = () => {
   const [search, setSearch] = useState("");
   const [filterBy, setFilterBy] = useState<FilterKey>("title");
   const [priceOrder, setPriceOrder] = useState<"asc" | "desc">("asc");
+  const navigate = useNavigate();
 
   const filteredServices = services
     .filter((service) => {
@@ -192,6 +194,10 @@ const AstronomyServices: React.FC = () => {
       if (priceOrder === "asc") return a.price - b.price;
       else return b.price - a.price;
     });
+
+  const handleCardClick = (id: number) => {
+    navigate(`/dashboard/astronomy-services/${id}`);
+  };
 
 	return (
 		<div className="astronomy-services-container">
@@ -227,7 +233,7 @@ const AstronomyServices: React.FC = () => {
 			<div className="astronomy-services-sections">
         {filteredServices.length > 0 ? (
           filteredServices.map((service, idx) => (
-            <ServiceCard key={idx} {...service} />
+            <ServiceCard key={idx} {...service} onCardClick={() => handleCardClick(service.id)} />
           ))
         ) : (
           <div className="no-services-found">No services found.</div>

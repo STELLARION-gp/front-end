@@ -1,5 +1,5 @@
 import React from "react";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useParams, useNavigate } from "react-router-dom";
 import Chat from "../../components/Learner/Chat";
 import "../../styles/pages/learner/AstronomyServiceDetails.scss";
 import { services } from "./AstronomyServices";
@@ -8,6 +8,7 @@ import Button from "../../components/Button";
 const AstronomyServiceDetails: React.FC = () => {
   const location = useLocation();
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   // Try to get service from navigation state, else from static array
   let service = location.state?.service;
   if (!service && id) {
@@ -18,9 +19,13 @@ const AstronomyServiceDetails: React.FC = () => {
     return <div className="service-details-container">Service not found.</div>;
   }
 
+  const handleGuideClick = () => {
+    navigate("/dashboard/guide-profile");
+  };
+
   return (
     <div className="service-details-container">
-      <div className="service-details-card">
+      <div className="service-details-card service-details-card--vertical">
         <img
           src={service.image}
           alt={service.title}
@@ -30,9 +35,20 @@ const AstronomyServiceDetails: React.FC = () => {
           <h2>{service.title}</h2>
           <p className="service-details-desc">{service.description}</p>
           <div className="service-details-meta">
-            <span>
-              <strong>Guide:</strong> {service.guideName}
-            </span>
+            {/* <span>
+              <strong>Guide:</strong>{" "}
+              <span
+                className="guide-name-link"
+                onClick={handleGuideClick}
+                style={{
+                  color: "#4f8cff",
+                  cursor: "pointer",
+                  textDecoration: "underline",
+                }}
+              >
+                {service.guideName}
+              </span>
+            </span> */}
             <span>
               <strong>Location:</strong> {service.location}
             </span>
@@ -53,7 +69,17 @@ const AstronomyServiceDetails: React.FC = () => {
               ))}
             </div>
           </div>
-          <div className="guide-details">
+          <div
+            className="guide-details"
+            onClick={handleGuideClick}
+            style={{ cursor: "pointer" }}
+            tabIndex={0}
+            role="button"
+            aria-label={`View profile of ${service.guideName}`}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") handleGuideClick();
+            }}
+          >
             <img
               src={service.guideImage}
               alt={service.guideName}

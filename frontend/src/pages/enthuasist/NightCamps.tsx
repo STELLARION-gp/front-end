@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import Button from '../../components/Button'
 import Card, { CardActions, CardContent, CardSubtitle, CardTitle } from '../../components/Card'
 import ProgressBar from '../../components/ProgressBar'
@@ -97,6 +97,8 @@ case 'upcoming': {
                 </div>
                 <ProgressBar 
                   className="progress-bar--participants"
+                  current={camp.participants}
+                  max={camp.maxParticipants}
                 />
               </div>
             </CardContent>

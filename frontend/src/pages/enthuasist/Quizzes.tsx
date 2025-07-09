@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import  { useState, useEffect } from 'react'
 import '../../styles/pages/enthusiast/Quizzes.scss'
 import '../../styles/pages/enthusiast/Leaderboard.scss'
 import Button from '../../components/Button'

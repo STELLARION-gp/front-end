@@ -138,6 +138,9 @@ const DashboardRoutes = () => {
                     <DashboardOverview />
                 </RoleGuard>} 
             />
+
+            <Route path="profile" element={<Profile />} />
+            
             <Route 
 
             path="InfluencerProfile" 

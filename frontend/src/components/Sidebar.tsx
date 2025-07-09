@@ -26,7 +26,8 @@ import {
   CurrencyDollarIcon,
   MegaphoneIcon,
   UserGroupIcon,
-  DocumentTextIcon
+  DocumentTextIcon,
+  VideoCameraIcon,
 
 } from '@heroicons/react/24/outline';
 
@@ -61,7 +62,8 @@ const iconMap = {
   CurrencyDollarIcon,
   MegaphoneIcon,
   UserGroupIcon,
-  DocumentTextIcon
+  DocumentTextIcon,
+  VideoCameraIcon
 
 };
 

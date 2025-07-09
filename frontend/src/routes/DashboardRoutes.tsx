@@ -44,6 +44,8 @@ import ApplyMentor from '../pages/learner/ApplyMentor';
 import AstronomyServices from '../pages/learner/AstronomyServices';
 import AstronomyServiceDetails from '../pages/learner/AstronomyServiceDetails';
 import Quizzes from '../pages/enthuasist/Quizzes';
+//import { Session } from 'inspector/promises';
+import Sessions from '../pages/influencer/Sessions';
 import GuideDetails from '../pages/learner/GuideDetails';
 import CompetitionPage from '../pages/learner/CompetitionPage';
 
@@ -455,6 +457,16 @@ const DashboardRoutes = () => {
                     </RoleGuard>
                 }
             />
+
+            <Route
+                path="sessions-making"
+                element={
+                    <RoleGuard allowedRoles={['influencer']}>
+                        <Sessions />
+                    </RoleGuard>
+                }
+            />
+        
 
             {/* Default redirect to overview */}
             <Route path="" element={<Navigate to="overview" replace />} />

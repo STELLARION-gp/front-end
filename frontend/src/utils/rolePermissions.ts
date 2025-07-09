@@ -60,6 +60,7 @@ export const PAGE_ACCESS_CONTROL = {
     '/dashboard/influencers': ['enthusiast', 'learner'] as UserRole[],
     '/dashboard/quizzes': ['enthusiast'] as UserRole[],
     '/dashboard/payments': ['guide', 'admin', 'moderator'] as UserRole[],
+    '/dashboard/sessions-making': ['influencer'] as UserRole[],
     
 
 };
@@ -106,8 +107,8 @@ export const ROLE_BASED_MENU_ITEMS = {
         { label: 'Profile', icon: 'UserCircleIcon', href: '/dashboard/profile' },
         { label: 'Blogs', icon: 'BookOpenIcon', href: '/dashboard/blogs' },
         { label: 'Night Camps', icon: 'MoonIcon', href: '/dashboard/night-camps' },
+        { label: 'Sessions', icon: 'VideoCameraIcon', href: '/dashboard/sessions-making' },
         { label: 'Stargazing Spot', icon: 'StarIcon', href: '/dashboard/stargazing' },
-        { label: 'Chat', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/chat' },
         { label: 'Astro Hub', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/astrohub' },
         { label: 'Sponsorships', icon: 'CurrencyDollarIcon', href: '/dashboard/sponsorships' },
         { label: 'Settings', icon: 'Cog6ToothIcon', href: '/dashboard/settings' },

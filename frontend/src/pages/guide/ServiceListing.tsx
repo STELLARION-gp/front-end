@@ -101,10 +101,10 @@ const CloseIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
 
 const CalendarIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
   <svg className={className} width="16" height="16" viewBox="0 0 24 24" fill="none">
-    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="currentColor" strokeWidth="2"/>
-    <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" strokeWidth="2"/>
-    <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" strokeWidth="2"/>
-    <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" strokeWidth="2"/>
+    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="currentColor" strokeWidth="2" />
+    <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" strokeWidth="2" />
+    <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" strokeWidth="2" />
+    <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" strokeWidth="2" />
   </svg>
 );
 
@@ -260,7 +260,7 @@ const ServiceListing: React.FC = () => {
   const [sortBy, setSortBy] = useState<'rating' | 'price' | 'date' | 'popularity'>('rating');
   const [showFeaturedOnly, setShowFeaturedOnly] = useState(false);
   const [services, setServices] = useState<Service[]>(dummyServices);
-  
+
   // Modal states
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -271,12 +271,12 @@ const ServiceListing: React.FC = () => {
   const filteredServices = useMemo(() => {
     const filtered = services.filter(service => {
       const matchesSearch = service.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          service.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          service.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
-      
+        service.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        service.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+
       const matchesCategory = selectedCategory === 'all' || service.category === selectedCategory;
       const matchesFeatured = !showFeaturedOnly || service.featured;
-      
+
       return matchesSearch && matchesCategory && matchesFeatured;
     });
 
@@ -320,8 +320,8 @@ const ServiceListing: React.FC = () => {
 
   const handleSaveEdit = () => {
     if (editForm) {
-      setServices(prevServices => 
-        prevServices.map(service => 
+      setServices(prevServices =>
+        prevServices.map(service =>
           service.id === editForm.id ? editForm : service
         )
       );
@@ -370,157 +370,158 @@ const ServiceListing: React.FC = () => {
       <div className="service-listing-container">
         {/* Header */}
         <div className="service-listing__header">
-        <div className="header-content">
-          <div className="title-section">
-            <h1 className="page-title">Guide Services</h1>
-            <p className="page-subtitle">
-              Share your expertise and guide others through the wonders of the cosmos
-            </p>
-          </div>
-          <div className="header-actions">
-            <Button
-              variant="secondary"
-              size="medium"
-              icon={<CalendarIcon />}
-              iconPosition="left"
-              onClick={() => navigate('/dashboard/services/availability')}
-            >
-              Manage Availability
-            </Button>
-            <Button
-              variant="primary"
-              size="medium"
-              icon={<PlusIcon />}
-              iconPosition="left"
-              onClick={() => navigate('/dashboard/services/create')}
-            >
-              Create New Service
-            </Button>
+          <div className="header-content">
+            <div className="title-section">
+              <h1 className="page-title">Guide Services</h1>
+              <p className="page-subtitle">
+                Share your expertise and guide others through the wonders of the cosmos
+              </p>
+            </div>
+            <div className="header-actions">
+              <Button
+                variant="secondary"
+                size="medium"
+                icon={<CalendarIcon />}
+                iconPosition="left"
+                onClick={() => navigate('/dashboard/services/availability')}
+              >
+                Manage Availability
+              </Button>
+              <Button
+                variant="primary"
+                size="medium"
+                icon={<PlusIcon />}
+                iconPosition="left"
+                onClick={() => navigate('/dashboard/services/create')}
+              >
+                Create New Service
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Stats Dashboard */}
-      <div className="stats-dashboard">
-        <div className="stats-grid">
-          <Card className="stat-card" variant="elevated">
-            <div className="stat-content">
-              {/* <div className="stat-icon">
-                <ServiceIcon className="icon" />
-              </div> */}
-              <div className="stat-info">
-                <h3 className="stat-number">24</h3>
-                <p className="stat-label">Active Services</p>
-                <span className="stat-change positive">+3 this month</span>
-              </div>
-            </div>
-          </Card>
-          <Card className="stat-card" variant="elevated">
-            <div className="stat-content">
-              {/* <div className="stat-icon">
-                <StarIcon className="icon star-icon" filled />
-              </div> */}
-              <div className="stat-info">
-                <h3 className="stat-number">4.8</h3>
-                <p className="stat-label">Average Rating</p>
-                <div className="stat-stars">
-                  {renderStars(4.8)}
+        {/* Stats Dashboard */}
+        <div className="stats-dashboard">
+          <div className="stats-grid">
+            <Card className="stat-card" variant="elevated">
+              <div className="stat-content">
+                <div className="stat-icon">
+                  <ServiceIcon className="icon" />
+                </div>
+                <div className="stat-info">
+                  <h3 className="stat-number">24</h3>
+                  <p className="stat-label">Active Services</p>
+                  <span className="stat-change positive">+3 this month</span>
                 </div>
               </div>
-            </div>
-          </Card>
-          <Card className="stat-card" variant="elevated">
-            <div className="stat-content">
-              {/* <div className="stat-icon">
-                <BookingIcon className="icon" />
+            </Card>
+            <Card className="stat-card" variant="elevated">
+              <div className="stat-content">
+                {/* <div className="stat-icon">
+                <StarIcon className="icon star-icon" filled />
               </div> */}
-              <div className="stat-info">
-                <h3 className="stat-number">156</h3>
-                <p className="stat-label">Total Bookings</p>
-                <span className="stat-change positive">+12 this week</span>
+                <div className="stat-info">
+                  <h3 className="stat-number">4.8</h3>
+                  <p className="stat-label">Average Rating</p>
+                  <div className="stat-stars">
+                    {renderStars(4.8)}
+                  </div>
+                </div>
               </div>
-            </div>
-          </Card>
-          <Card className="stat-card" variant="elevated">
-            <div className="stat-content">
-              {/* <div className="stat-icon">
-                <RevenueIcon className="icon" />
-              </div> */}
-              <div className="stat-info">
-                <h3 className="stat-number">$3,240</h3>
-                <p className="stat-label">Monthly Revenue</p>
-                <span className="stat-change positive">+18%</span>
+            </Card>
+            <Card className="stat-card" variant="elevated">
+              <div className="stat-content">
+                <div className="stat-icon">
+                  <BookingIcon className="icon" />
+                </div>
+                <div className="stat-info">
+                  <h3 className="stat-number">156</h3>
+                  <p className="stat-label">Total Bookings</p>
+                  <span className="stat-change positive">+12 this week</span>
+                </div>
               </div>
-            </div>
-          </Card>
+            </Card>
+            <Card className="stat-card" variant="elevated">
+              <div className="stat-content">
+                <div className="stat-icon">
+                  <RevenueIcon className="icon" />
+                </div>
+                <div className="stat-info">
+                  <h3 className="stat-number">$3,240</h3>
+                  <p className="stat-label">Monthly Revenue</p>
+                  <span className="stat-change positive">+18%</span>
+                </div>
+              </div>
+            </Card>
+          </div>
         </div>
-      </div>
 
-      {/* Filters and Search */}
-      <div className="service-filters">
-        <div className="filters-container">
-          <div className="filters-content">
-            {/* Search */}
-            <div className="search-section">
-              <div className="search-input-wrapper">
-                <SearchIcon className="search-icon" />
-                <input
-                  type="text"
-                  placeholder="Search services, tags, or descriptions..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="search-input"
-                />
+        {/* Filters and Search */}
+        <div className="service-filters">
+          <div className="filters-container">
+            <div className="filters-content">
+              {/* Search */}
+              <div className="search-section">
+                <div className="search-input-wrapper">
+                  <SearchIcon className="search-icon" />
+                  <input
+                    type="text"
+                    placeholder="Search services, tags, or descriptions..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="search-input"
+                  />
+                </div>
               </div>
-            </div>
 
-            {/* Category Filter */}
-            <div className="filter-section">
-              <label className="filter-label">Category:</label>
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="filter-select"
-                title="Filter by category"
-              >
-                {categories.map(cat => (
-                  <option key={cat.value} value={cat.value}>
-                    {cat.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+              {/* Category Filter */}
+              <div className="filter-section">
+                <label className="filter-label">Category:</label>
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="filter-select"
+                  title="Filter by category"
+                >
+                  {categories.map(cat => (
+                    <option key={cat.value} value={cat.value}>
+                      {cat.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-            {/* Sort By */}
-            <div className="filter-section">
-              <label className="filter-label">Sort by:</label>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as 'rating' | 'price' | 'date' | 'popularity')}
-                className="filter-select"
-                title="Sort services by"
-              >
-                <option value="rating">Highest Rated</option>
-                <option value="price">Lowest Price</option>
-                <option value="date">Soonest Available</option>
-                <option value="popularity">Most Popular</option>
-              </select>
-            </div>
+              {/* Sort By */}
+              <div className="filter-section">
+                <label className="filter-label">Sort by:</label>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as 'rating' | 'price' | 'date' | 'popularity')}
+                  className="filter-select"
+                  title="Sort services by"
+                >
+                  <option value="rating">Highest Rated</option>
+                  <option value="price">Lowest Price</option>
+                  <option value="date">Soonest Available</option>
+                  <option value="popularity">Most Popular</option>
+                </select>
+              </div>
 
-            {/* Featured Toggle */}
-            <div className="filter-section">
-              <label className="featured-toggle">
-                <input
-                  type="checkbox"
-                  checked={showFeaturedOnly}
-                  onChange={(e) => setShowFeaturedOnly(e.target.checked)}
-                />
-                <span className="toggle-text">Featured Only</span>
-              </label>
+              {/* Featured Toggle */}
+              <div className="filter-section">
+                <label className="featured-toggle">
+                  <input
+                    type="checkbox"
+                    checked={showFeaturedOnly}
+                    onChange={(e) => setShowFeaturedOnly(e.target.checked)}
+                  />
+                  <span className="toggle-text">Featured Only</span>
+                </label>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+
 
       {/* Services Grid */}
       <div className="services-grid">
@@ -534,90 +535,101 @@ const ServiceListing: React.FC = () => {
                   <StarIcon className="featured-star" filled />
                   <span>Featured</span>
                 </div>
-              )}
-              <div className="category-badge">
-                <span className="category-icon">{getCategoryIcon(service.category)}</span>
-                <span className="category-text">{service.category}</span>
               </div>
+
+              {/* Service Content */}
+              <div className="service-content">
+                <div className="service-header">
+                  <h3 className="service-title">{service.title}</h3>
+                  <div className="service-rating">
+                    {renderStars(service.rating)}
+                    <span className="rating-text">
+                      {service.rating} ({service.totalReviews})
+                    </span>
+                  </div>
+                </div>
+
+                <p className="service-description">{service.description}</p>
+
+                {/* Service Details */}
+                <div className="service-details">
+                  <div className="detail-item">
+                    <LocationIcon className="detail-icon" />
+                    <span>{service.location}</span>
+                  </div>
+                  <div className="detail-item">
+                    <ClockIcon className="detail-icon" />
+                    <span>{service.duration}</span>
+                  </div>
+                  <div className="detail-item">
+                    <UsersIcon className="detail-icon" />
+                    <span>{service.currentBookings}/{service.maxParticipants}</span>
+                  </div>
+                </div>
+
+                {/* Tags */}
+                <div className="service-tags">
+                  {service.tags.slice(0, 3).map(tag => (
+                    <span key={tag} className="tag">{tag}</span>
+                  ))}
+                  {service.tags.length > 3 && (
+                    <span className="tag-more">+{service.tags.length - 3}</span>
+                  )}
+                </div>
+
+                {/* Service Footer */}
+                <div className="service-footer">
+                  <div className="price-section">
+                    <span className="price">${service.price}</span>
+                    <span className="difficulty-badge" data-difficulty={service.difficulty.toLowerCase()}>
+                      {service.difficulty}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card Actions */}
+              <div className="card-actions">
+                <Button
+                  variant="secondary"
+                  size="small"
+                  onClick={() => handleEditService(service)}
+                >
+                  Edit
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="small"
+                  icon={<CalendarIcon />}
+                  iconPosition="left"
+                  onClick={() => navigate(`/dashboard/services/${service.id}/availability`)}
+                >
+                  Availability
+                </Button>
+                <Button
+                  variant="primary"
+                  size="small"
+                  onClick={() => handleViewService(service)}
+                >
+                  View Details
+                </Button>
+              </div>
+            </Card>
+          ))}
+        </div>
+
+        {/* Empty State */}
+        {filteredServices.length === 0 && (
+          <div className="empty-state">
+            <div className="empty-content">
+              <div className="empty-icon">🔍</div>
+              <h3>No services found</h3>
+              <p>Try adjusting your search criteria or create a new service to get started.</p>
+              <Button variant="primary" size="medium">
+                Create Your First Service
+              </Button>
             </div>
 
-            {/* Service Content */}
-            <div className="service-content">
-              <div className="service-header">
-                <h3 className="service-title">{service.title}</h3>
-                <div className="service-rating">
-                  {renderStars(service.rating)}
-                  <span className="rating-text">
-                    {service.rating} ({service.totalReviews})
-                  </span>
-                </div>
-              </div>
-
-              <p className="service-description">{service.description}</p>
-
-              {/* Service Details */}
-              <div className="service-details">
-                <div className="detail-item">
-                  <LocationIcon className="detail-icon" />
-                  <span>{service.location}</span>
-                </div>
-                <div className="detail-item">
-                  <ClockIcon className="detail-icon" />
-                  <span>{service.duration}</span>
-                </div>
-                <div className="detail-item">
-                  <UsersIcon className="detail-icon" />
-                  <span>{service.currentBookings}/{service.maxParticipants}</span>
-                </div>
-              </div>
-
-              {/* Tags */}
-              <div className="service-tags">
-                {service.tags.slice(0, 3).map(tag => (
-                  <span key={tag} className="tag">{tag}</span>
-                ))}
-                {service.tags.length > 3 && (
-                  <span className="tag-more">+{service.tags.length - 3}</span>
-                )}
-              </div>
-
-              {/* Service Footer */}
-              <div className="service-footer">
-                <div className="price-section">
-                  <span className="price">${service.price}</span>
-                  <span className="difficulty-badge" data-difficulty={service.difficulty.toLowerCase()}>
-                    {service.difficulty}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Card Actions */}
-            <div className="card-actions">
-              <Button 
-                variant="secondary" 
-                size="small"
-                onClick={() => handleEditService(service)}
-              >
-                Edit
-              </Button>
-              <Button 
-                variant="secondary" 
-                size="small"
-                icon={<CalendarIcon />}
-                iconPosition="left"
-                onClick={() => navigate(`/dashboard/services/${service.id}/availability`)}
-              >
-                Availability
-              </Button>
-              <Button 
-                variant="primary" 
-                size="small"
-                onClick={() => handleViewService(service)}
-              >
-                View Details
-              </Button>
-            </div>
           </div>
         ))}
       </div>
@@ -658,112 +670,125 @@ const ServiceListing: React.FC = () => {
                 )}
               </div>
 
-              <div className="service-info">
-                <div className="service-title-rating">
-                  <h3>{selectedService.title}</h3>
-                  <div className="rating-section">
-                    <div className="stars">
-                      {renderStars(selectedService.rating)}
+              <div className="modal-content">
+                <div className="service-image-large">
+                  <img src={selectedService.image} alt={selectedService.title} />
+                  {selectedService.featured && (
+                    <div className="featured-badge">
+                      <StarIcon className="featured-star" filled />
+                      <span>Featured Service</span>
                     </div>
-                    <span className="rating-text">
-                      {selectedService.rating} ({selectedService.totalReviews} reviews)
-                    </span>
-                  </div>
+                  )}
                 </div>
 
-                <p className="service-description-full">{selectedService.description}</p>
-
-                <div className="service-details-grid">
-                  <div className="detail-group">
-                    <h4>Pricing & Duration</h4>
-                    <div className="detail-item">
-                      <span className="label">Price:</span>
-                      <span className="value">${selectedService.price}</span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="label">Duration:</span>
-                      <span className="value">{selectedService.duration}</span>
-                    </div>
-                  </div>
-
-                  <div className="detail-group">
-                    <h4>Availability</h4>
-                    <div className="detail-item">
-                      <span className="label">Next Available:</span>
-                      <span className="value">{new Date(selectedService.nextAvailable).toLocaleDateString()}</span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="label">Bookings:</span>
-                      <span className="value">{selectedService.currentBookings}/{selectedService.maxParticipants} spots</span>
-                    </div>
-                  </div>
-
-                  <div className="detail-group">
-                    <h4>Service Info</h4>
-                    <div className="detail-item">
-                      <span className="label">Category:</span>
-                      <span className="value">{selectedService.category}</span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="label">Difficulty:</span>
-                      <span className={`difficulty-badge-modal ${selectedService.difficulty.toLowerCase()}`}>
-                        {selectedService.difficulty}
+                <div className="service-info">
+                  <div className="service-title-rating">
+                    <h3>{selectedService.title}</h3>
+                    <div className="rating-section">
+                      <div className="stars">
+                        {renderStars(selectedService.rating)}
+                      </div>
+                      <span className="rating-text">
+                        {selectedService.rating} ({selectedService.totalReviews} reviews)
                       </span>
                     </div>
-                    <div className="detail-item">
-                      <span className="label">Location:</span>
-                      <span className="value">{selectedService.location}</span>
+                  </div>
+
+                  <p className="service-description-full">{selectedService.description}</p>
+
+                  <div className="service-details-grid">
+                    <div className="detail-group">
+                      <h4>Pricing & Duration</h4>
+                      <div className="detail-item">
+                        <span className="label">Price:</span>
+                        <span className="value">${selectedService.price}</span>
+                      </div>
+                      <div className="detail-item">
+                        <span className="label">Duration:</span>
+                        <span className="value">{selectedService.duration}</span>
+                      </div>
+                    </div>
+
+                    <div className="detail-group">
+                      <h4>Availability</h4>
+                      <div className="detail-item">
+                        <span className="label">Next Available:</span>
+                        <span className="value">{new Date(selectedService.nextAvailable).toLocaleDateString()}</span>
+                      </div>
+                      <div className="detail-item">
+                        <span className="label">Bookings:</span>
+                        <span className="value">{selectedService.currentBookings}/{selectedService.maxParticipants} spots</span>
+                      </div>
+                    </div>
+
+                    <div className="detail-group">
+                      <h4>Service Info</h4>
+                      <div className="detail-item">
+                        <span className="label">Category:</span>
+                        <span className="value">{selectedService.category}</span>
+                      </div>
+                      <div className="detail-item">
+                        <span className="label">Difficulty:</span>
+                        <span className={`difficulty-badge-modal ${selectedService.difficulty.toLowerCase()}`}>
+                          {selectedService.difficulty}
+                        </span>
+                      </div>
+                      <div className="detail-item">
+                        <span className="label">Location:</span>
+                        <span className="value">{selectedService.location}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="equipment-section">
-                  <h4>Equipment Provided</h4>
-                  <div className="equipment-list">
-                    {selectedService.equipment.map((item, index) => (
-                      <span key={index} className="equipment-item">
-                        {item}
-                      </span>
-                    ))}
+                  <div className="equipment-section">
+                    <h4>Equipment Provided</h4>
+                    <div className="equipment-list">
+                      {selectedService.equipment.map((item, index) => (
+                        <span key={index} className="equipment-item">
+                          {item}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                </div>
 
-                <div className="tags-section">
-                  <h4>Tags</h4>
-                  <div className="tags-list">
-                    {selectedService.tags.map((tag, index) => (
-                      <span key={index} className="tag-modal">
-                        {tag}
-                      </span>
-                    ))}
+                  <div className="tags-section">
+                    <h4>Tags</h4>
+                    <div className="tags-list">
+                      {selectedService.tags.map((tag, index) => (
+                        <span key={index} className="tag-modal">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            <div className="modal-footer">
-              <Button variant="secondary" onClick={handleCloseModals}>
-                Close
-              </Button>
-              <Button 
-                variant="secondary"
-                icon={<CalendarIcon />}
-                iconPosition="left"
-                onClick={() => {
+              <div className="modal-footer">
+                <Button variant="secondary" onClick={handleCloseModals}>
+                  Close
+                </Button>
+                <Button
+                  variant="secondary"
+                  icon={<CalendarIcon />}
+                  iconPosition="left"
+                  onClick={() => {
+                    handleCloseModals();
+                    navigate(`/dashboard/services/${selectedService.id}/availability`);
+                  }}
+                >
+                  Set Availability
+                </Button>
+                <Button variant="primary" onClick={() => {
                   handleCloseModals();
-                  navigate(`/dashboard/services/${selectedService.id}/availability`);
-                }}
-              >
-                Set Availability
-              </Button>
-              <Button variant="primary" onClick={() => {
-                handleCloseModals();
-                handleEditService(selectedService);
-              }}>
-                Edit Service
-              </Button>
+                  handleEditService(selectedService);
+                }}>
+                  Edit Service
+                </Button>
+              </div>
             </div>
           </div>
+
         </div>
       )}
 
@@ -793,177 +818,192 @@ const ServiceListing: React.FC = () => {
                     />
                   </div>
 
-                  <div className="form-group">
-                    <label htmlFor="category">Category</label>
-                    <select
-                      id="category"
-                      value={editForm.category}
-                      onChange={(e) => handleEditFormChange('category', e.target.value)}
-                      className="form-select"
-                      required
-                    >
-                      <option value="stargazing">Stargazing</option>
-                      <option value="astrophotography">Astrophotography</option>
-                      <option value="telescope">Telescope</option>
-                      <option value="planetarium">Planetarium</option>
-                      <option value="workshop">Workshop</option>
-                      <option value="expedition">Expedition</option>
-                    </select>
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="price">Price ($)</label>
-                    <input
-                      id="price"
-                      type="number"
-                      value={editForm.price}
-                      onChange={(e) => handleEditFormChange('price', parseFloat(e.target.value))}
-                      className="form-input"
-                      min="0"
-                      step="0.01"
-                      required
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="duration">Duration</label>
-                    <input
-                      id="duration"
-                      type="text"
-                      value={editForm.duration}
-                      onChange={(e) => handleEditFormChange('duration', e.target.value)}
-                      className="form-input"
-                      placeholder="e.g., 3 hours, 2 days"
-                      required
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="maxParticipants">Max Participants</label>
-                    <input
-                      id="maxParticipants"
-                      type="number"
-                      value={editForm.maxParticipants}
-                      onChange={(e) => handleEditFormChange('maxParticipants', parseInt(e.target.value))}
-                      className="form-input"
-                      min="1"
-                      required
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="difficulty">Difficulty Level</label>
-                    <select
-                      id="difficulty"
-                      value={editForm.difficulty}
-                      onChange={(e) => handleEditFormChange('difficulty', e.target.value)}
-                      className="form-select"
-                      required
-                    >
-                      <option value="Beginner">Beginner</option>
-                      <option value="Intermediate">Intermediate</option>
-                      <option value="Advanced">Advanced</option>
-                    </select>
-                  </div>
-
-                  <div className="form-group full-width">
-                    <label htmlFor="location">Location</label>
-                    <input
-                      id="location"
-                      type="text"
-                      value={editForm.location}
-                      onChange={(e) => handleEditFormChange('location', e.target.value)}
-                      className="form-input"
-                      required
-                    />
-                  </div>
-
-                  <div className="form-group full-width">
-                    <label htmlFor="description">Description</label>
-                    <textarea
-                      id="description"
-                      value={editForm.description}
-                      onChange={(e) => handleEditFormChange('description', e.target.value)}
-                      className="form-textarea"
-                      rows={4}
-                      required
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="nextAvailable">Next Available Date</label>
-                    <input
-                      id="nextAvailable"
-                      type="date"
-                      value={editForm.nextAvailable}
-                      onChange={(e) => handleEditFormChange('nextAvailable', e.target.value)}
-                      className="form-input"
-                      required
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="image">Image URL</label>
-                    <input
-                      id="image"
-                      type="url"
-                      value={editForm.image}
-                      onChange={(e) => handleEditFormChange('image', e.target.value)}
-                      className="form-input"
-                      required
-                    />
-                  </div>
-
-                  <div className="form-group full-width">
-                    <label htmlFor="equipment">Equipment (comma-separated)</label>
-                    <input
-                      id="equipment"
-                      type="text"
-                      value={editForm.equipment.join(', ')}
-                      onChange={(e) => handleEditFormChange('equipment', e.target.value.split(',').map(item => item.trim()))}
-                      className="form-input"
-                      placeholder="Professional Telescope, Star Charts, Red Light Flashlight"
-                    />
-                  </div>
-
-                  <div className="form-group full-width">
-                    <label htmlFor="tags">Tags (comma-separated)</label>
-                    <input
-                      id="tags"
-                      type="text"
-                      value={editForm.tags.join(', ')}
-                      onChange={(e) => handleEditFormChange('tags', e.target.value.split(',').map(item => item.trim()))}
-                      className="form-input"
-                      placeholder="Deep Space, Galaxies, Nebulae"
-                    />
-                  </div>
-
-                  <div className="form-group checkbox-group">
-                    <label className="checkbox-label">
+              <div className="modal-content">
+                <form className="edit-form" onSubmit={(e) => { e.preventDefault(); handleSaveEdit(); }}>
+                  <div className="form-grid">
+                    <div className="form-group">
+                      <label htmlFor="title">Service Title</label>
                       <input
-                        type="checkbox"
-                        checked={editForm.featured}
-                        onChange={(e) => handleEditFormChange('featured', e.target.checked)}
-                        className="form-checkbox"
+                        id="title"
+                        type="text"
+                        value={editForm.title}
+                        onChange={(e) => handleEditFormChange('title', e.target.value)}
+                        className="form-input"
+                        required
                       />
-                      <span className="checkbox-text">Featured Service</span>
-                    </label>
-                  </div>
-                </div>
-              </form>
-            </div>
+                    </div>
 
-            <div className="modal-footer">
-              <Button variant="secondary" onClick={handleCloseModals}>
-                Cancel
-              </Button>
-              <Button variant="primary" onClick={handleSaveEdit}>
-                Save Changes
-              </Button>
+                    <div className="form-group">
+                      <label htmlFor="category">Category</label>
+                      <select
+                        id="category"
+                        value={editForm.category}
+                        onChange={(e) => handleEditFormChange('category', e.target.value)}
+                        className="form-select"
+                        required
+                      >
+                        <option value="stargazing">Stargazing</option>
+                        <option value="astrophotography">Astrophotography</option>
+                        <option value="telescope">Telescope</option>
+                        <option value="planetarium">Planetarium</option>
+                        <option value="workshop">Workshop</option>
+                        <option value="expedition">Expedition</option>
+                      </select>
+                    </div>
+
+                    <div className="form-group">
+                      <label htmlFor="price">Price ($)</label>
+                      <input
+                        id="price"
+                        type="number"
+                        value={editForm.price}
+                        onChange={(e) => handleEditFormChange('price', parseFloat(e.target.value))}
+                        className="form-input"
+                        min="0"
+                        step="0.01"
+                        required
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label htmlFor="duration">Duration</label>
+                      <input
+                        id="duration"
+                        type="text"
+                        value={editForm.duration}
+                        onChange={(e) => handleEditFormChange('duration', e.target.value)}
+                        className="form-input"
+                        placeholder="e.g., 3 hours, 2 days"
+                        required
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label htmlFor="maxParticipants">Max Participants</label>
+                      <input
+                        id="maxParticipants"
+                        type="number"
+                        value={editForm.maxParticipants}
+                        onChange={(e) => handleEditFormChange('maxParticipants', parseInt(e.target.value))}
+                        className="form-input"
+                        min="1"
+                        required
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label htmlFor="difficulty">Difficulty Level</label>
+                      <select
+                        id="difficulty"
+                        value={editForm.difficulty}
+                        onChange={(e) => handleEditFormChange('difficulty', e.target.value)}
+                        className="form-select"
+                        required
+                      >
+                        <option value="Beginner">Beginner</option>
+                        <option value="Intermediate">Intermediate</option>
+                        <option value="Advanced">Advanced</option>
+                      </select>
+                    </div>
+
+                    <div className="form-group full-width">
+                      <label htmlFor="location">Location</label>
+                      <input
+                        id="location"
+                        type="text"
+                        value={editForm.location}
+                        onChange={(e) => handleEditFormChange('location', e.target.value)}
+                        className="form-input"
+                        required
+                      />
+                    </div>
+
+                    <div className="form-group full-width">
+                      <label htmlFor="description">Description</label>
+                      <textarea
+                        id="description"
+                        value={editForm.description}
+                        onChange={(e) => handleEditFormChange('description', e.target.value)}
+                        className="form-textarea"
+                        rows={4}
+                        required
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label htmlFor="nextAvailable">Next Available Date</label>
+                      <input
+                        id="nextAvailable"
+                        type="date"
+                        value={editForm.nextAvailable}
+                        onChange={(e) => handleEditFormChange('nextAvailable', e.target.value)}
+                        className="form-input"
+                        required
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label htmlFor="image">Image URL</label>
+                      <input
+                        id="image"
+                        type="url"
+                        value={editForm.image}
+                        onChange={(e) => handleEditFormChange('image', e.target.value)}
+                        className="form-input"
+                        required
+                      />
+                    </div>
+
+                    <div className="form-group full-width">
+                      <label htmlFor="equipment">Equipment (comma-separated)</label>
+                      <input
+                        id="equipment"
+                        type="text"
+                        value={editForm.equipment.join(', ')}
+                        onChange={(e) => handleEditFormChange('equipment', e.target.value.split(',').map(item => item.trim()))}
+                        className="form-input"
+                        placeholder="Professional Telescope, Star Charts, Red Light Flashlight"
+                      />
+                    </div>
+
+                    <div className="form-group full-width">
+                      <label htmlFor="tags">Tags (comma-separated)</label>
+                      <input
+                        id="tags"
+                        type="text"
+                        value={editForm.tags.join(', ')}
+                        onChange={(e) => handleEditFormChange('tags', e.target.value.split(',').map(item => item.trim()))}
+                        className="form-input"
+                        placeholder="Deep Space, Galaxies, Nebulae"
+                      />
+                    </div>
+
+                    <div className="form-group checkbox-group">
+                      <label className="checkbox-label">
+                        <input
+                          type="checkbox"
+                          checked={editForm.featured}
+                          onChange={(e) => handleEditFormChange('featured', e.target.checked)}
+                          className="form-checkbox"
+                        />
+                        <span className="checkbox-text">Featured Service</span>
+                      </label>
+                    </div>
+                  </div>
+                </form>
+              </div>
+
+              <div className="modal-footer">
+                <Button variant="secondary" onClick={handleCloseModals}>
+                  Cancel
+                </Button>
+                <Button variant="primary" onClick={handleSaveEdit}>
+                  Save Changes
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
       </div>
     </div>
   );

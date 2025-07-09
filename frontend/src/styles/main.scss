@@ -11,9 +11,11 @@
 @use './components/progress-bar';
 @use './components/modern-auth'; // Added modern auth styles
 
+// Pages
+@use './pages/profile'; // Added profile page styles
+
 // Importing styles for the media upload panel
 @use './pages/guide/mediaUploadPanel';
 @use './pages/guide/serviceListing';
 @use './pages/enthusiast/Sponsorships'; // Added sponsorships page styles
 @use './utilities/helpers';
-

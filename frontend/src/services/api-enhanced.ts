@@ -139,9 +139,10 @@ class ApiService {
     }
 
     // Industry Standard Login Flow - Backend Validation (Modified for current backend)
-    async validateUserSession(_firebaseUser: { uid: string; email: string | null; displayName: string | null }) {
+    async validateUserSession(firebaseUser: { uid: string; email: string | null; displayName: string | null }) {
         try {
             console.log('🔐 Validating user session with backend...');
+            console.log('Firebase user:', firebaseUser);
 
             // Since /api/auth/validate doesn't exist, we'll use getUserProfile instead
             // This serves the same purpose - if user exists in backend, validation succeeds

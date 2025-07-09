@@ -4,7 +4,7 @@
         "about": "எங்களைப் பற்றி",
         "contact": "தொடர்பு",
         "dashboard": "கட்டுப்பாட்டு பலகம்",
-        "profile": "சுயவிவரம்",
+        "profileNav": "சுயவிவரம்",
         "settings": "அமைப்புகள்",
         "features": "அம்சங்கள்",
         "team": "குழு",
@@ -49,10 +49,6 @@
         "dashboard": {
             "title": "டாஷ்போர்டு",
             "welcome": "வரவேற்கிறோம்"
-        },
-        "profile": {
-            "title": "சுயவிவரம்",
-            "editProfile": "சுயவிவரத்தைத் திருத்து"
         },
         "settings": {
             "title": "அமைப்புகள்",
@@ -124,5 +120,135 @@
         "message": "நீங்கள் நிச்சயமாக வெளியேற விரும்புகிறீர்களா?",
         "confirmButton": "வெளியேறு",
         "cancelButton": "ரத்து செய்"
+    },
+    "profile": {
+        "title": "சுயவிவரம்",
+        "editProfile": "சுயவிவரத்தைத் திருத்து",
+        "cancel": "ரத்து செய்",
+        "saveChanges": "மாற்றங்களைச் சேமி",
+        "saveSettings": "அமைப்புகளைச் சேமி",
+        "tabs": {
+            "details": "சுயவிவர விவரங்கள்",
+            "settings": "அமைப்புகள்"
+        },
+        "sections": {
+            "basicInfo": "அடிப்படை தகவல்",
+            "astronomyInfo": "வானியல் தகவல்",
+            "roleSpecific": "பதவி சார்ந்த தகவல்",
+            "socialLinks": "சமூக இணைப்புகள்",
+            "achievements": "சாதனைகள் மற்றும் பங்களிப்புகள்",
+            "notifications": "அறிவிப்புகள்",
+            "privacy": "தனியுரிமை",
+            "security": "பாதுகாப்பு",
+            "dangerZone": "ஆபத்து மண்டலம்"
+        },
+        "fields": {
+            "firstName": "முதல் பெயர்",
+            "lastName": "கடைசி பெயர்",
+            "displayName": "காட்சி பெயர்",
+            "email": "மின்னஞ்சல்",
+            "bio": "வாழ்க்கை வரலாறு",
+            "bioPlaceholder": "உங்களைப் பற்றி எங்களிடம் சொல்லுங்கள்...",
+            "location": "இடம்",
+            "locationPlaceholder": "உங்கள் இடம்",
+            "website": "இணையதளம்",
+            "websitePlaceholder": "உங்கள் இணையதளம்",
+            "github": "GitHub பயனர் பெயர்",
+            "githubPlaceholder": "GitHub பயனர் பெயர்",
+            "linkedin": "LinkedIn சுயவிவரம்",
+            "linkedinPlaceholder": "LinkedIn சுயவிவரம்",
+            "astronomyExperience": "வானியல் அனுபவம்",
+            "favoriteFields": "விருப்பமான வானியல் துறைகள்",
+            "telescopeOwned": "உங்களிடம் தொலைநோக்கி உள்ளதா?",
+            "telescopeType": "தொலைநோக்கி வகை",
+            "observationExperience": "கண்காணிப்பு அனுபவ ஆண்டுகள்",
+            "certifications": "சான்றிதழ்கள்",
+            "achievements": "சாதனைகள்",
+            "achievementsPlaceholder": "உங்கள் சாதனைகளைப் பட்டியலிடுங்கள் (ஒரு வரியில் ஒன்று)",
+            "contributions": "பங்களிப்புகள்",
+            "contributionsPlaceholder": "உங்கள் பங்களிப்புகளைப் பட்டியலிடுங்கள் (ஒரு வரியில் ஒன்று)",
+            "joinedCommunities": "சேர்ந்த சமூகங்கள்",
+            "mentoringAreas": "வழிகாட்டும் பகுதிகள்",
+            "yearsOfExperience": "அனுபவ ஆண்டுகள்",
+            "socialMediaFollowers": "சமூக ஊடக பின்பற்றுபவர்கள்",
+            "contentPlatforms": "உள்ளடக்க தளங்கள்",
+            "learningGoals": "கற்றல் இலக்குகள்",
+            "currentProjects": "தற்போதைய திட்டங்கள்"
+        },
+        "experienceLevels": {
+            "beginner": "தொடக்கநிலை",
+            "intermediate": "நடுத்தர நிலை",
+            "advanced": "மேம்பட்ட நிலை",
+            "expert": "வல்லுநர்"
+        },
+        "astronomyFields": {
+            "astrophysics": "வானியல் இயற்பியல்",
+            "cosmology": "பிரபஞ்சவியல்",
+            "planetaryscience": "கோள் அறிவியல்",
+            "stellarastronomy": "நட்சத்திர வானியல்",
+            "galacticastronomy": "விண்மீன் வானியல்",
+            "exoplanets": "வெளி கோள்கள்",
+            "solarsystem": "சூரிய குடும்பம்",
+            "deepskyobjects": "ஆழமான வானப் பொருள்கள்",
+            "astrophotography": "வானியல் புகைப்படக்கலை",
+            "radioastronomy": "வானொலி வானியல்",
+            "xrayastronomy": "எக்ஸ்-ரே வானியல்",
+            "gravitationalwaves": "ஈர்ப்பு அலைகள்"
+        },
+        "settings": {
+            "language": "மொழி",
+            "emailNotifications": "மின்னஞ்சல் அறிவிப்புகள்",
+            "pushNotifications": "புஷ் அறிவிப்புகள்",
+            "profileVisibility": "சுயவிவர தெரிவுநிலை",
+            "allowDirectMessages": "நேரடி செய்திகளை அனுமதி",
+            "showOnlineStatus": "ஆன்லைன் நிலையைக் காட்டு"
+        },
+        "visibility": {
+            "public": "பொது",
+            "community": "சமூகம் மட்டும்",
+            "private": "தனிப்பட்ட"
+        },
+        "actions": {
+            "changePassword": "கடவுச்சொல்லை மாற்று",
+            "downloadData": "எனது தரவை பதிவிறக்கு",
+            "deleteAccount": "கணக்கை நீக்கு",
+            "upgradeRole": "பதவியை மேம்படுத்து"
+        },
+        "modals": {
+            "changePassword": {
+                "title": "கடவுச்சொல்லை மாற்று",
+                "currentPassword": "தற்போதைய கடவுச்சொல்",
+                "newPassword": "புதிய கடவுச்சொல்",
+                "confirmPassword": "புதிய கடவுச்சொல்லை உறுதிப்படுத்து"
+            },
+            "roleUpgrade": {
+                "title": "பதவி மேம்பாட்டு கோரிக்கை",
+                "selectRole": "பதவியைத் தேர்ந்தெடு",
+                "reason": "மேம்பாட்டு கோரிக்கையின் காரணம்",
+                "reasonPlaceholder": "இந்த பதவி மேம்பாடு ஏன் வேண்டும் என்பதை விளக்கவும்...",
+                "submitRequest": "கோரிக்கையை சமர்ப்பி",
+                "description": "நீங்கள் {{currentRole}} இலிருந்து {{nextRole}} க்கு மேம்படுத்த கோரிக்கை செய்கிறீர்கள்.",
+                "reviewNote": "உங்கள் கோரிக்கை எங்கள் மதிப்பீட்டு குழுவால் ஆய்வு செய்யப்படும் மற்றும் ஆய்வு முடிந்ததும் உங்களுக்கு அறிவிக்கப்படும்."
+            },
+            "deleteAccount": {
+                "title": "கணக்கை நீக்கு",
+                "warning": "இந்த செயல்பாட்டை மாற்ற முடியாது",
+                "details": "உங்கள் அனைத்து தரவுகளும், சுயவிவர தகவல், இடுகைகள் மற்றும் சாதனைகள் உட்பட நிரந்தரமாக நீக்கப்படும்.",
+                "confirmation": "உறுதிப்படுத்த 'DELETE' என தட்டச்சு செய்யுங்கள்"
+            }
+        },
+        "roles": {
+            "learner": "கற்றுக்கொள்பவர்",
+            "enthusiast": "ஆர்வலர்",
+            "guide": "வழிகாட்டி",
+            "mentor": "வழிகாட்டுநர்",
+            "influencer": "செல்வாக்குடையவர்",
+            "moderator": "மிதவாதி",
+            "admin": "நிர்வாகி"
+        },
+        "status": {
+            "active": "செயலில்",
+            "inactive": "செயலற்ற"
+        }
     }
 }

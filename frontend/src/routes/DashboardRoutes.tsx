@@ -28,6 +28,7 @@ import GuideMediaDashboard from '../pages/guide/GuideMediaDashboard';
 // import MentorProfile from '../pages/mentor/MentorProfile';
 // import BookingRequests from '../pages/guide/BookingRequests';
 import ConfirmedBookings from '../pages/guide/ConfirmedBookings';
+import PreviousTours from '../pages/guide/PreviousTours';
 import TourChat from '../pages/guide/TourChat';
 
 import BookingRequests from '../pages/guide/BookingRequests';
@@ -282,6 +283,11 @@ const DashboardRoutes = () => {
             <Route
                 path="confirmed-bookings"
                 element={<ConfirmedBookings />}
+            />
+
+            <Route
+                path="previous-tours"
+                element={<PreviousTours />}
             />
 
             <Route

@@ -236,23 +236,34 @@ const AnnouncementsPage: React.FC = () => {
                             } else {
                                 handleReply(a.id, replyForms[a.id] || '');
                             }
-                        }} style={{ marginBottom: 24, display: 'flex', alignItems: 'center' }}>
+                        }} style={{ marginBottom: 24 }}>
                             <textarea
                                 placeholder={editingReply && editingReply.announcementId === a.id ? "Edit reply" : "Reply"}
                                 value={replyForms[a.id] || ''}
                                 onChange={(e) => handleReplyFormChange(a.id, e.target.value)}
                                 required
                                 rows={1}
-                                style={{ width: '100%', marginBottom: 8, padding: 8, backgroundColor: 'white', color: 'blue', border: '1px solid white' }}
+                                style={{ 
+                                    width: '100%', 
+                                    marginBottom: 12, 
+                                    padding: 8, 
+                                    backgroundColor: 'white', 
+                                    color: '#AAABBB', 
+                                    border: '1px solid white',
+                                    resize: 'vertical',
+                                    minHeight: '40px'
+                                }}
                             />
-                            <button type="submit" disabled={loading} style={{ marginRight: 8, backgroundColor: 'transparent', border: '1px solid white', color: 'white' }}>
-                                {editingReply && editingReply.announcementId === a.id ? 'Update' : 'Reply'}
-                            </button>
-                            {editingReply && editingReply.announcementId === a.id && (
-                                <button type="button" onClick={() => handleCancelReplyEdit(a.id)} disabled={loading} style={{ backgroundColor: 'transparent', border: '1px solid white', color: 'white' }}>
-                                    Cancel
+                            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                                <button type="submit" disabled={loading} style={{ backgroundColor: 'transparent', border: '1px solid white', color: 'white', padding: '8px 16px' }}>
+                                    {editingReply && editingReply.announcementId === a.id ? 'Update' : 'Reply'}
                                 </button>
-                            )}
+                                {editingReply && editingReply.announcementId === a.id && (
+                                    <button type="button" onClick={() => handleCancelReplyEdit(a.id)} disabled={loading} style={{ backgroundColor: 'transparent', border: '1px solid white', color: 'white', padding: '8px 16px' }}>
+                                        Cancel
+                                    </button>
+                                )}
+                            </div>
                         </form>
                         <br/>
                         <br/>
@@ -268,10 +279,10 @@ const AnnouncementsPage: React.FC = () => {
                                         <button 
                                             onClick={() => handleLikeReply(a.id, r.id)} 
                                             disabled={loading}
-                                            style={{ backgroundColor: 'transparent', border: '1px solid white', color: 'white', fontSize: '12px' }}
+                                            style={{ backgroundColor: 'transparent', border: '1px solid white', color: 'white', fontSize: '12px', marginRight: '10px' }}
                                         >
-                                            ❤️ {r.likes}
-                                        </button>
+                                            ⭐ {r.likes}
+                                        </button> 
                                         <button 
                                             onClick={() => handleEditReply(r)} 
                                             disabled={loading}

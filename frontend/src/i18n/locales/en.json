@@ -4,7 +4,7 @@
         "about": "About",
         "contact": "Contact",
         "dashboard": "Dashboard",
-        "profile": "Profile",
+        "profileNav": "Profile",
         "settings": "Settings",
         "features": "Features",
         "team": "Team",
@@ -50,15 +50,138 @@
             "title": "Dashboard",
             "welcome": "Welcome"
         },
-        "profile": {
-            "title": "Profile",
-            "editProfile": "Edit Profile"
-        },
         "settings": {
             "title": "Settings",
             "language": "Language",
             "theme": "Theme",
             "notifications": "Notifications"
+        }
+    },
+    "profile": {
+        "title": "Profile",
+        "editProfile": "Edit Profile",
+        "cancel": "Cancel",
+        "saveChanges": "Save Changes",
+        "saveSettings": "Save Settings",
+        "tabs": {
+            "details": "Profile Details",
+            "settings": "Settings"
+        },
+        "sections": {
+            "basicInfo": "Basic Information",
+            "astronomyInfo": "Astronomy Experience",
+            "roleSpecific": "Role-Specific Information",
+            "socialLinks": "Social Links",
+            "achievements": "Achievements & Contributions",
+            "notifications": "Notifications",
+            "security": "Security",
+            "dangerZone": "Danger Zone"
+        },
+        "fields": {
+            "firstName": "First Name",
+            "lastName": "Last Name",
+            "displayName": "Display Name",
+            "email": "Email",
+            "bio": "Bio",
+            "bioPlaceholder": "Tell us about yourself...",
+            "astronomyExperience": "Astronomy Experience",
+            "observationExperience": "Years of Observation Experience",
+            "favoriteFields": "Favorite Astronomy Fields",
+            "telescopeOwned": "I own a telescope",
+            "telescopeType": "Telescope Type",
+            "yearsOfExperience": "Years of Experience",
+            "mentoringAreas": "Mentoring Areas",
+            "socialMediaFollowers": "Social Media Followers",
+            "contentPlatforms": "Content Platforms",
+            "learningGoals": "Learning Goals",
+            "currentProjects": "Current Projects",
+            "achievements": "Achievements",
+            "achievementsPlaceholder": "List your achievements (one per line)",
+            "contributions": "Contributions",
+            "contributionsPlaceholder": "List your contributions (one per line)",
+            "location": "Location",
+            "locationPlaceholder": "Your location",
+            "website": "Website",
+            "websitePlaceholder": "Your website",
+            "github": "GitHub",
+            "githubPlaceholder": "GitHub username",
+            "linkedin": "LinkedIn",
+            "linkedinPlaceholder": "LinkedIn profile"
+        },
+        "experienceLevels": {
+            "beginner": "Beginner",
+            "intermediate": "Intermediate",
+            "advanced": "Advanced",
+            "expert": "Expert"
+        },
+        "astronomyFields": {
+            "astrophysics": "Astrophysics",
+            "cosmology": "Cosmology",
+            "planetaryscience": "Planetary Science",
+            "stellarastronomy": "Stellar Astronomy",
+            "galacticastronomy": "Galactic Astronomy",
+            "exoplanets": "Exoplanets",
+            "solarsystem": "Solar System",
+            "deepskyobjects": "Deep Sky Objects",
+            "astrophotography": "Astrophotography",
+            "radioastronomy": "Radio Astronomy",
+            "xrayastronomy": "X-ray Astronomy",
+            "gravitationalwaves": "Gravitational Waves"
+        },
+        "settings": {
+            "language": "Language",
+            "profileVisibility": "Profile Visibility",
+            "emailNotifications": "Email Notifications",
+            "pushNotifications": "Push Notifications",
+            "showOnlineStatus": "Show Online Status",
+            "allowDirectMessages": "Allow Direct Messages"
+        },
+        "visibility": {
+            "public": "Public",
+            "community": "Community Only",
+            "private": "Private"
+        },
+        "actions": {
+            "upgradeRole": "Upgrade Role",
+            "changePassword": "Change Password",
+            "downloadData": "Download Data",
+            "deleteAccount": "Delete Account"
+        },
+        "modals": {
+            "changePassword": {
+                "title": "Change Password",
+                "currentPassword": "Current Password",
+                "newPassword": "New Password",
+                "confirmPassword": "Confirm Password"
+            },
+            "roleUpgrade": {
+                "title": "Request Role Upgrade",
+                "selectRole": "Select Role",
+                "description": "Request upgrade from {{currentRole}} to {{nextRole}}",
+                "reason": "Reason for upgrade",
+                "reasonPlaceholder": "Please explain why you want this role upgrade...",
+                "reviewNote": "Your request will be reviewed by administrators.",
+                "submitRequest": "Submit Request"
+            },
+            "deleteAccount": {
+                "title": "Delete Account",
+                "warning": "This action cannot be undone. This will permanently delete your account and remove your data from our servers.",
+                "details": "Please download your data before proceeding if you want to keep it.",
+                "confirmation": "Type DELETE to confirm"
+            }
+        },
+        "roles": {
+            "learner": "Learner",
+            "enthusiast": "Enthusiast",
+            "guide": "Guide",
+            "mentor": "Mentor",
+            "influencer": "Influencer",
+            "moderator": "Moderator",
+            "admin": "Admin"
+        },
+        "status": {
+            "active": "Active",
+            "inactive": "Inactive"
         }
     },
     "common": {

@@ -245,7 +245,7 @@ function ProfilePage() {
                                 </div>
                             ) : (
                                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                                    <h2 style={{ margin: 0, fontSize: 20, fontWeight: 600, color: "#262626" }}>
+                                    <h2 style={{ margin: 0, fontSize: 20, fontWeight: 600, color: "white" }}>
                                         {name}
                                     </h2>
                                     <button 
@@ -266,15 +266,15 @@ function ProfilePage() {
                         {/* Stats */}
                         <div style={{ display: "flex", gap: 24, marginBottom: 16 }}>
                             <div style={{ textAlign: "center" }}>
-                                <div style={{ fontWeight: 600, color: "#262626" }}>{posts}</div>
+                                <div style={{ fontWeight: 600, color: "white" }}>{posts}</div>
                                 <div style={{ fontSize: 14, color: "#8e8e8e" }}>posts</div>
                             </div>
                             <div style={{ textAlign: "center" }}>
-                                <div style={{ fontWeight: 600, color: "#262626" }}>{followers.toLocaleString()}</div>
+                                <div style={{ fontWeight: 600, color: "white" }}>{followers.toLocaleString()}</div>
                                 <div style={{ fontSize: 14, color: "#8e8e8e" }}>followers</div>
                             </div>
                             <div style={{ textAlign: "center" }}>
-                                <div style={{ fontWeight: 600, color: "#262626" }}>{following}</div>
+                                <div style={{ fontWeight: 600, color: "white" }}>{following}</div>
                                 <div style={{ fontSize: 14, color: "#8e8e8e" }}>following</div>
                             </div>
                         </div>
@@ -285,7 +285,7 @@ function ProfilePage() {
                                 onClick={handleFollow}
                                 style={{
                                     backgroundColor: isFollowing ? "#fafafa" : "#0095f6",
-                                    color: isFollowing ? "#262626" : "white",
+                                    color: isFollowing ? "white" : "white",
                                     border: isFollowing ? "1px solid #ddd" : "none",
                                     padding: "8px 16px",
                                     borderRadius: 4,
@@ -300,7 +300,7 @@ function ProfilePage() {
                                 onClick={() => setEditingPic(!editingPic)}
                                 style={{
                                     backgroundColor: "transparent",
-                                    color: "#262626",
+                                    color: "white",
                                     border: "1px solid #ddd",
                                     padding: "8px 16px",
                                     borderRadius: 4,
@@ -362,7 +362,7 @@ function ProfilePage() {
                                     onClick={() => setEditingBio(false)}
                                     style={{
                                         backgroundColor: "transparent",
-                                        color: "#262626",
+                                        color: "white",
                                         border: "1px solid #ddd",
                                         padding: "6px 12px",
                                         borderRadius: 4,
@@ -380,7 +380,7 @@ function ProfilePage() {
                                 margin: 0, 
                                 fontSize: 14, 
                                 lineHeight: 1.4, 
-                                color: "#262626",
+                                color: "white",
                                 marginBottom: 8
                             }}>
                                 {bio}
@@ -444,7 +444,7 @@ function ProfilePage() {
                             justifyContent: "space-between",
                             marginBottom: 20
                         }}>
-                            <h2 style={{ margin: 0, fontSize: 18, fontWeight: 600, color: "#262626" }}>
+                            <h2 style={{ margin: 0, fontSize: 18, fontWeight: 600, color: "white" }}>
                                 Create New Post
                             </h2>
                             <button 
@@ -474,7 +474,7 @@ function ProfilePage() {
                                     }}
                                 />
                                 <div>
-                                    <div style={{ fontWeight: 600, fontSize: 14, color: "#262626" }}>
+                                    <div style={{ fontWeight: 600, fontSize: 14, color: "white" }}>
                                         {name}
                                     </div>
                                     <div style={{ fontSize: 12, color: "#8e8e8e" }}>
@@ -540,7 +540,7 @@ function ProfilePage() {
                             borderRadius: 8,
                             marginBottom: 16
                         }}>
-                            <span style={{ fontSize: 14, color: "#262626" }}>
+                            <span style={{ fontSize: 14, color: "white" }}>
                                 Add to your post
                             </span>
                             <label style={{ cursor: "pointer" }}>
@@ -604,7 +604,7 @@ function ProfilePage() {
                                 }}
                             />
                             <div style={{ flex: 1 }}>
-                                <div style={{ fontWeight: 600, fontSize: 14, color: "#262626" }}>
+                                <div style={{ fontWeight: 600, fontSize: 14, color: "white" }}>
                                     {name}
                                 </div>
                                 <div style={{ fontSize: 12, color: "#8e8e8e" }}>
@@ -650,7 +650,7 @@ function ProfilePage() {
                                             background: "none", 
                                             border: "none", 
                                             cursor: "pointer",
-                                            color: post.liked ? "#ed4956" : "#262626"
+                                            color: post.liked ? "#ed4956" : "white"
                                         }}
                                     >
                                         <Star size={24} fill={post.liked ? "#ed4956" : "none"} />
@@ -681,7 +681,7 @@ function ProfilePage() {
                                         color: "white"
                                     }}
                                 >
-                                    <Bookmark size={24} fill={post.bookmarked ? "#262626" : "none"} />
+                                    <Bookmark size={24} fill={post.bookmarked ? "white" : "none"} />
                                 </button>
                             </div>
 

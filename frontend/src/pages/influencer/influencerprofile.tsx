@@ -254,7 +254,7 @@ function ProfilePage() {
                                             background: "none", 
                                             border: "none", 
                                             cursor: "pointer",
-                                            color: "#666"
+                                            color: "#ffffff"
                                         }}
                                     >
                                         <Edit3 size={16} />
@@ -285,8 +285,8 @@ function ProfilePage() {
                                 onClick={handleFollow}
                                 style={{
                                     backgroundColor: isFollowing ? "#fafafa" : "transparent",
-                                    color: isFollowing ? "white" : "white",
-                                    border: isFollowing ? "1px solid #ddd" : "none",
+                                    color: isFollowing ? "black" : "white",
+                                    border: isFollowing ? "1px solid black" : "1px sild white",
                                     padding: "8px 16px",
                                     borderRadius: 4,
                                     fontSize: 14,

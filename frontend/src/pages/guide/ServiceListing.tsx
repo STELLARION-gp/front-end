@@ -15,30 +15,30 @@ const StarIcon: React.FC<{ className?: string; filled?: boolean }> = ({ classNam
   </svg>
 );
 
-// const ServiceIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
-//   <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none">
-//     <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2"/>
-//     <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
-//     <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1" stroke="currentColor" strokeWidth="2"/>
-//   </svg>
-// );
+const ServiceIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
+  <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none">
+    <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2" />
+    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
+    <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1" stroke="currentColor" strokeWidth="2" />
+  </svg>
+);
 
-// const BookingIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
-//   <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none">
-//     <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="currentColor" strokeWidth="2"/>
-//     <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" strokeWidth="2"/>
-//     <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" strokeWidth="2"/>
-//     <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" strokeWidth="2"/>
-//     <path d="M8 14l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-//   </svg>
-// );
+const BookingIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
+  <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none">
+    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="currentColor" strokeWidth="2" />
+    <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" strokeWidth="2" />
+    <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" strokeWidth="2" />
+    <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" strokeWidth="2" />
+    <path d="M8 14l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
 
-// const RevenueIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
-//   <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none">
-//     <line x1="12" y1="1" x2="12" y2="23" stroke="currentColor" strokeWidth="2"/>
-//     <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" stroke="currentColor" strokeWidth="2"/>
-//   </svg>
-// );
+const RevenueIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
+  <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none">
+    <line x1="12" y1="1" x2="12" y2="23" stroke="currentColor" strokeWidth="2" />
+    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" stroke="currentColor" strokeWidth="2" />
+  </svg>
+);
 
 const LocationIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
   <svg className={className} width="16" height="16" viewBox="0 0 20 20" fill="none">
@@ -345,18 +345,6 @@ const ServiceListing: React.FC = () => {
     { value: 'expedition', label: 'Expedition' }
   ];
 
-  const getCategoryIcon = (category: string) => {
-    switch (category) {
-      case 'stargazing': return '🔭';
-      case 'astrophotography': return '📸';
-      case 'telescope': return '🔬';
-      case 'planetarium': return '🌌';
-      case 'workshop': return '🛠️';
-      case 'expedition': return '🏔️';
-      default: return '⭐';
-    }
-  };
-
 
 
   const renderStars = (rating: number) => {
@@ -417,9 +405,9 @@ const ServiceListing: React.FC = () => {
             </Card>
             <Card className="stat-card" variant="elevated">
               <div className="stat-content">
-                {/* <div className="stat-icon">
-                <StarIcon className="icon star-icon" filled />
-              </div> */}
+                <div className="stat-icon">
+                  <StarIcon className="icon star-icon" filled />
+                </div>
                 <div className="stat-info">
                   <h3 className="stat-number">4.8</h3>
                   <p className="stat-label">Average Rating</p>
@@ -523,18 +511,19 @@ const ServiceListing: React.FC = () => {
         </div>
 
 
-      {/* Services Grid */}
-      <div className="services-grid">
-        {filteredServices.map(service => (
-          <div key={service.id} className="service-card1">
-            {/* Service Image */}
-            <div className="service-image">
-              <img src={service.image} alt={service.title} />
-              {service.featured && (
-                <div className="featured-badge">
-                  <StarIcon className="featured-star" filled />
-                  <span>Featured</span>
-                </div>
+        {/* Services Grid */}
+        <div className="services-grid">
+          {filteredServices.map(service => (
+            <Card key={service.id} className="service-card1">
+              {/* Service Image */}
+              <div className="service-image">
+                <img src={service.image} alt={service.title} />
+                {service.featured && (
+                  <div className="featured-badge">
+                    <StarIcon className="featured-star" filled />
+                    <span>Featured</span>
+                  </div>
+                )}
               </div>
 
               {/* Service Content */}
@@ -629,24 +618,9 @@ const ServiceListing: React.FC = () => {
                 Create Your First Service
               </Button>
             </div>
-
           </div>
-        ))}
+        )}
       </div>
-
-      {/* Empty State */}
-      {filteredServices.length === 0 && (
-        <div className="empty-state">
-          <div className="empty-content">
-            <div className="empty-icon">🔍</div>
-            <h3>No services found</h3>
-            <p>Try adjusting your search criteria or create a new service to get started.</p>
-            <Button variant="primary" size="medium">
-              Create Your First Service
-            </Button>
-          </div>
-        </div>
-      )}
 
       {/* View Service Modal */}
       {isViewModalOpen && selectedService && (
@@ -658,7 +632,7 @@ const ServiceListing: React.FC = () => {
                 <CloseIcon />
               </button>
             </div>
-            
+
             <div className="modal-content1">
               <div className="service-image-large">
                 <img src={selectedService.image} alt={selectedService.title} />
@@ -802,8 +776,8 @@ const ServiceListing: React.FC = () => {
                 <CloseIcon />
               </button>
             </div>
-            
-            <div className="modal-content1">
+
+            <div className="modal-content">
               <form className="edit-form" onSubmit={(e) => { e.preventDefault(); handleSaveEdit(); }}>
                 <div className="form-grid">
                   <div className="form-group">
@@ -818,193 +792,177 @@ const ServiceListing: React.FC = () => {
                     />
                   </div>
 
-              <div className="modal-content">
-                <form className="edit-form" onSubmit={(e) => { e.preventDefault(); handleSaveEdit(); }}>
-                  <div className="form-grid">
-                    <div className="form-group">
-                      <label htmlFor="title">Service Title</label>
-                      <input
-                        id="title"
-                        type="text"
-                        value={editForm.title}
-                        onChange={(e) => handleEditFormChange('title', e.target.value)}
-                        className="form-input"
-                        required
-                      />
-                    </div>
-
-                    <div className="form-group">
-                      <label htmlFor="category">Category</label>
-                      <select
-                        id="category"
-                        value={editForm.category}
-                        onChange={(e) => handleEditFormChange('category', e.target.value)}
-                        className="form-select"
-                        required
-                      >
-                        <option value="stargazing">Stargazing</option>
-                        <option value="astrophotography">Astrophotography</option>
-                        <option value="telescope">Telescope</option>
-                        <option value="planetarium">Planetarium</option>
-                        <option value="workshop">Workshop</option>
-                        <option value="expedition">Expedition</option>
-                      </select>
-                    </div>
-
-                    <div className="form-group">
-                      <label htmlFor="price">Price ($)</label>
-                      <input
-                        id="price"
-                        type="number"
-                        value={editForm.price}
-                        onChange={(e) => handleEditFormChange('price', parseFloat(e.target.value))}
-                        className="form-input"
-                        min="0"
-                        step="0.01"
-                        required
-                      />
-                    </div>
-
-                    <div className="form-group">
-                      <label htmlFor="duration">Duration</label>
-                      <input
-                        id="duration"
-                        type="text"
-                        value={editForm.duration}
-                        onChange={(e) => handleEditFormChange('duration', e.target.value)}
-                        className="form-input"
-                        placeholder="e.g., 3 hours, 2 days"
-                        required
-                      />
-                    </div>
-
-                    <div className="form-group">
-                      <label htmlFor="maxParticipants">Max Participants</label>
-                      <input
-                        id="maxParticipants"
-                        type="number"
-                        value={editForm.maxParticipants}
-                        onChange={(e) => handleEditFormChange('maxParticipants', parseInt(e.target.value))}
-                        className="form-input"
-                        min="1"
-                        required
-                      />
-                    </div>
-
-                    <div className="form-group">
-                      <label htmlFor="difficulty">Difficulty Level</label>
-                      <select
-                        id="difficulty"
-                        value={editForm.difficulty}
-                        onChange={(e) => handleEditFormChange('difficulty', e.target.value)}
-                        className="form-select"
-                        required
-                      >
-                        <option value="Beginner">Beginner</option>
-                        <option value="Intermediate">Intermediate</option>
-                        <option value="Advanced">Advanced</option>
-                      </select>
-                    </div>
-
-                    <div className="form-group full-width">
-                      <label htmlFor="location">Location</label>
-                      <input
-                        id="location"
-                        type="text"
-                        value={editForm.location}
-                        onChange={(e) => handleEditFormChange('location', e.target.value)}
-                        className="form-input"
-                        required
-                      />
-                    </div>
-
-                    <div className="form-group full-width">
-                      <label htmlFor="description">Description</label>
-                      <textarea
-                        id="description"
-                        value={editForm.description}
-                        onChange={(e) => handleEditFormChange('description', e.target.value)}
-                        className="form-textarea"
-                        rows={4}
-                        required
-                      />
-                    </div>
-
-                    <div className="form-group">
-                      <label htmlFor="nextAvailable">Next Available Date</label>
-                      <input
-                        id="nextAvailable"
-                        type="date"
-                        value={editForm.nextAvailable}
-                        onChange={(e) => handleEditFormChange('nextAvailable', e.target.value)}
-                        className="form-input"
-                        required
-                      />
-                    </div>
-
-                    <div className="form-group">
-                      <label htmlFor="image">Image URL</label>
-                      <input
-                        id="image"
-                        type="url"
-                        value={editForm.image}
-                        onChange={(e) => handleEditFormChange('image', e.target.value)}
-                        className="form-input"
-                        required
-                      />
-                    </div>
-
-                    <div className="form-group full-width">
-                      <label htmlFor="equipment">Equipment (comma-separated)</label>
-                      <input
-                        id="equipment"
-                        type="text"
-                        value={editForm.equipment.join(', ')}
-                        onChange={(e) => handleEditFormChange('equipment', e.target.value.split(',').map(item => item.trim()))}
-                        className="form-input"
-                        placeholder="Professional Telescope, Star Charts, Red Light Flashlight"
-                      />
-                    </div>
-
-                    <div className="form-group full-width">
-                      <label htmlFor="tags">Tags (comma-separated)</label>
-                      <input
-                        id="tags"
-                        type="text"
-                        value={editForm.tags.join(', ')}
-                        onChange={(e) => handleEditFormChange('tags', e.target.value.split(',').map(item => item.trim()))}
-                        className="form-input"
-                        placeholder="Deep Space, Galaxies, Nebulae"
-                      />
-                    </div>
-
-                    <div className="form-group checkbox-group">
-                      <label className="checkbox-label">
-                        <input
-                          type="checkbox"
-                          checked={editForm.featured}
-                          onChange={(e) => handleEditFormChange('featured', e.target.checked)}
-                          className="form-checkbox"
-                        />
-                        <span className="checkbox-text">Featured Service</span>
-                      </label>
-                    </div>
+                  <div className="form-group">
+                    <label htmlFor="category">Category</label>
+                    <select
+                      id="category"
+                      value={editForm.category}
+                      onChange={(e) => handleEditFormChange('category', e.target.value)}
+                      className="form-select"
+                      required
+                    >
+                      <option value="stargazing">Stargazing</option>
+                      <option value="astrophotography">Astrophotography</option>
+                      <option value="telescope">Telescope</option>
+                      <option value="planetarium">Planetarium</option>
+                      <option value="workshop">Workshop</option>
+                      <option value="expedition">Expedition</option>
+                    </select>
                   </div>
-                </form>
-              </div>
 
-              <div className="modal-footer">
-                <Button variant="secondary" onClick={handleCloseModals}>
-                  Cancel
-                </Button>
-                <Button variant="primary" onClick={handleSaveEdit}>
-                  Save Changes
-                </Button>
-              </div>
+                  <div className="form-group">
+                    <label htmlFor="price">Price ($)</label>
+                    <input
+                      id="price"
+                      type="number"
+                      value={editForm.price}
+                      onChange={(e) => handleEditFormChange('price', parseFloat(e.target.value))}
+                      className="form-input"
+                      min="0"
+                      step="0.01"
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="duration">Duration</label>
+                    <input
+                      id="duration"
+                      type="text"
+                      value={editForm.duration}
+                      onChange={(e) => handleEditFormChange('duration', e.target.value)}
+                      className="form-input"
+                      placeholder="e.g., 3 hours, 2 days"
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="maxParticipants">Max Participants</label>
+                    <input
+                      id="maxParticipants"
+                      type="number"
+                      value={editForm.maxParticipants}
+                      onChange={(e) => handleEditFormChange('maxParticipants', parseInt(e.target.value))}
+                      className="form-input"
+                      min="1"
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="difficulty">Difficulty Level</label>
+                    <select
+                      id="difficulty"
+                      value={editForm.difficulty}
+                      onChange={(e) => handleEditFormChange('difficulty', e.target.value)}
+                      className="form-select"
+                      required
+                    >
+                      <option value="Beginner">Beginner</option>
+                      <option value="Intermediate">Intermediate</option>
+                      <option value="Advanced">Advanced</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group full-width">
+                    <label htmlFor="location">Location</label>
+                    <input
+                      id="location"
+                      type="text"
+                      value={editForm.location}
+                      onChange={(e) => handleEditFormChange('location', e.target.value)}
+                      className="form-input"
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group full-width">
+                    <label htmlFor="description">Description</label>
+                    <textarea
+                      id="description"
+                      value={editForm.description}
+                      onChange={(e) => handleEditFormChange('description', e.target.value)}
+                      className="form-textarea"
+                      rows={4}
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="nextAvailable">Next Available Date</label>
+                    <input
+                      id="nextAvailable"
+                      type="date"
+                      value={editForm.nextAvailable}
+                      onChange={(e) => handleEditFormChange('nextAvailable', e.target.value)}
+                      className="form-input"
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="image">Image URL</label>
+                    <input
+                      id="image"
+                      type="url"
+                      value={editForm.image}
+                      onChange={(e) => handleEditFormChange('image', e.target.value)}
+                      className="form-input"
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group full-width">
+                    <label htmlFor="equipment">Equipment (comma-separated)</label>
+                    <input
+                      id="equipment"
+                      type="text"
+                      value={editForm.equipment.join(', ')}
+                      onChange={(e) => handleEditFormChange('equipment', e.target.value.split(',').map(item => item.trim()))}
+                      className="form-input"
+                      placeholder="Professional Telescope, Star Charts, Red Light Flashlight"
+                    />
+                  </div>
+
+                  <div className="form-group full-width">
+                    <label htmlFor="tags">Tags (comma-separated)</label>
+                    <input
+                      id="tags"
+                      type="text"
+                      value={editForm.tags.join(', ')}
+                      onChange={(e) => handleEditFormChange('tags', e.target.value.split(',').map(item => item.trim()))}
+                      className="form-input"
+                      placeholder="Deep Space, Galaxies, Nebulae"
+                    />
+                  </div>
+
+                  <div className="form-group checkbox-group">
+                    <label className="checkbox-label">
+                      <input
+                        type="checkbox"
+                        checked={editForm.featured}
+                        onChange={(e) => handleEditFormChange('featured', e.target.checked)}
+                        className="form-checkbox"
+                      />
+                      <span className="checkbox-text">Featured Service</span>
+                    </label>
+                  </div>
+                </div>
+              </form>
+            </div>
+
+            <div className="modal-footer">
+              <Button variant="secondary" onClick={handleCloseModals}>
+                Cancel
+              </Button>
+              <Button variant="primary" onClick={handleSaveEdit}>
+                Save Changes
+              </Button>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };

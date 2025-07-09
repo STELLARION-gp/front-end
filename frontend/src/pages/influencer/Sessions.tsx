@@ -3,11 +3,7 @@ import '../../styles/pages/influencer/Sessions.scss';
 import Button from '../../components/Button';
 
 const Sessions = () => {
-  const [activeTab, setActiveTab] = useState('overview')
-  const [showManageModal, setShowManageModal] = useState(false)
-  const [showUploadModal, setShowUploadModal] = useState(false)
-  const [selectedSession, setSelectedSession] = useState(null)
-  const [uploadFiles, setUploadFiles] = useState([])
+  const [activeTab, setActiveTab] = useState('my-sessions')
   const [newSession, setNewSession] = useState({
     title: '',
     description: '',
@@ -25,282 +21,10 @@ const Sessions = () => {
   })
 
   // Mock data
-  const upcomingSessions = [
-    { id: 1, title: 'Deep Space Photography', date: '2024-01-15', time: '20:00', participants: 12, maxParticipants: 20, price: 13500, isOwn: true, instructor: 'You' },
-    { id: 2, title: 'Planetary Observation', date: '2024-01-18', time: '21:30', participants: 8, maxParticipants: 15, price: 10500, isOwn: true, instructor: 'You' }
-  ]
-
-  // Only show sessions from other influencers in overview
-  const otherInfluencerSessions = [
-    { id: 3, title: 'Introduction to Astrophotography', date: '2024-01-20', time: '19:00', participants: 15, maxParticipants: 25, price: 2500, isOwn: false, instructor: 'Dr. Samantha Perera', isLive: true },
-    { id: 4, title: 'Solar System Exploration', date: '2024-01-22', time: '20:30', participants: 22, maxParticipants: 30, price: 3200, isOwn: false, instructor: 'Prof. Nuwan Jayasinghe', isLive: false },
-    { id: 5, title: 'Nebula Photography Workshop', date: '2024-01-25', time: '21:00', participants: 18, maxParticipants: 20, price: 4500, isOwn: false, instructor: 'Priyanka Fernando', isLive: true },
-    { id: 6, title: 'Telescope Maintenance Guide', date: '2024-01-28', time: '18:30', participants: 10, maxParticipants: 15, price: 1800, isOwn: false, instructor: 'Roshan Silva', isLive: false },
-    { id: 7, title: 'Advanced Star Navigation', date: '2024-01-30', time: '20:00', participants: 12, maxParticipants: 18, price: 2800, isOwn: false, instructor: 'Dr. Kavitha Rathnayake', isLive: true }
-  ]
-
   const recordedSessions = [
     { id: 1, title: 'Beginner Stargazing', price: 1500, purchases: 156, rating: 4.8, earnings: 234000 },
     { id: 2, title: 'Telescope Setup Guide', price: 2000, purchases: 89, rating: 4.9, earnings: 178000 }
   ]
-
-  const renderOverview = () => (
-    <div className="sessions-overview">
-      <div className="overview-stats">
-        <div className="stat-card">
-          <div className="stat-icon">🌟</div>
-          <div className="stat-content">
-            <h3>24</h3>
-            <p>Your Sessions</p>
-          </div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-icon">💰</div>
-          <div className="stat-content">
-            <h3>LKR 747,000</h3>
-            <p>Total Earnings</p>
-          </div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-icon">👥</div>
-          <div className="stat-content">
-            <h3>2,050</h3>
-            <p>Total Participants</p>
-          </div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-icon">📚</div>
-          <div className="stat-content">
-            <h3>{otherInfluencerSessions.length}</h3>
-            <p>Available Sessions</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="sessions-grid">
-        <div className="sessions-section full-width">
-          <h2>Upcoming Sessions</h2>
-          <div className="all-sessions-list">
-            {otherInfluencerSessions.map(session => (
-              <div key={session.id} className="session-card other-session">
-                <div className="session-header">
-                  <div className="session-title-info">
-                    <h3>{session.title}</h3>
-                    <p className="session-instructor">by {session.instructor}</p>
-                  </div>
-                  <span className={`session-status ${session.isLive ? 'live' : 'recorded'}`}>
-                    {session.isLive ? 'LIVE' : 'RECORDED'}
-                  </span>
-                </div>
-                <div className="session-details">
-                  <p><span className="icon">📅</span> {session.date} at {session.time}</p>
-                  <p><span className="icon">👥</span> {session.participants}/{session.maxParticipants} participants</p>
-                  <p><span className="icon">💰</span> LKR {session.price}</p>
-                </div>
-                <div className="session-actions">
-                  <Button>Register</Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-
-  const handleManageSession = (session) => {
-    setSelectedSession(session)
-    setShowManageModal(true)
-  }
-
-  const handleUploadMaterials = (session) => {
-    setSelectedSession(session)
-    setShowUploadModal(true)
-  }
-
-  const handleFileUpload = (e) => {
-    const files = Array.from(e.target.files)
-    setUploadFiles(prev => [...prev, ...files])
-  }
-
-  const removeFile = (index) => {
-    setUploadFiles(prev => prev.filter((_, i) => i !== index))
-  }
-
-  const renderManageSessionModal = () => {
-    if (!showManageModal || !selectedSession) return null
-
-    return (
-      <div className="modal-overlay" onClick={() => setShowManageModal(false)}>
-        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-          <div className="modal-header">
-            <h3>Manage Session: {selectedSession.title}</h3>
-            <button className="close-btn" onClick={() => setShowManageModal(false)}>×</button>
-          </div>
-          
-          <div className="modal-body">
-            <div className="session-info">
-              <h4>Session Details</h4>
-              <div className="info-grid">
-                <div className="info-item">
-                  <label>Date & Time:</label>
-                  <span>{selectedSession.date} at {selectedSession.time}</span>
-                </div>
-                <div className="info-item">
-                  <label>Participants:</label>
-                  <span>{selectedSession.participants}/{selectedSession.maxParticipants}</span>
-                </div>
-                <div className="info-item">
-                  <label>Price:</label>
-                  <span>LKR {selectedSession.price}</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="session-controls">
-              <h4>Session Controls</h4>
-              <div className="control-buttons">
-                <Button>Start Session</Button>
-                <Button variant="secondary">Edit Details</Button>
-                <Button variant="secondary">Send Reminder</Button>
-                <Button variant="secondary">View Participants</Button>
-              </div>
-            </div>
-
-            <div className="session-settings">
-              <h4>Settings</h4>
-              <div className="settings-grid">
-                <div className="setting-item">
-                  <label>
-                    <input type="checkbox" defaultChecked />
-                    Allow late joins
-                  </label>
-                </div>
-                <div className="setting-item">
-                  <label>
-                    <input type="checkbox" defaultChecked />
-                    Record session
-                  </label>
-                </div>
-                <div className="setting-item">
-                  <label>
-                    <input type="checkbox" />
-                    Require camera
-                  </label>
-                </div>
-                <div className="setting-item">
-                  <label>
-                    <input type="checkbox" />
-                    Mute participants
-                  </label>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="modal-footer">
-            <Button variant="secondary" onClick={() => setShowManageModal(false)}>
-              Close
-            </Button>
-            <Button>Save Changes</Button>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  const renderUploadMaterialsModal = () => {
-    if (!showUploadModal || !selectedSession) return null
-
-    return (
-      <div className="modal-overlay" onClick={() => setShowUploadModal(false)}>
-        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-          <div className="modal-header">
-            <h3>Upload Materials: {selectedSession.title}</h3>
-            <button className="close-btn" onClick={() => setShowUploadModal(false)}>×</button>
-          </div>
-          
-          <div className="modal-body">
-            <div className="upload-section">
-              <h4>Add Materials</h4>
-              <div className="upload-area">
-                <input 
-                  type="file" 
-                  id="file-upload" 
-                  multiple 
-                  onChange={handleFileUpload}
-                  accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.jpg,.jpeg,.png,.gif,.mp4,.avi,.mov"
-                />
-                <label htmlFor="file-upload" className="upload-label">
-                  <span className="upload-icon">📁</span>
-                  <span>Click to upload files or drag and drop</span>
-                  <span className="upload-hint">PDF, DOC, PPT, Images, Videos</span>
-                </label>
-              </div>
-            </div>
-
-            {uploadFiles.length > 0 && (
-              <div className="uploaded-files">
-                <h4>Uploaded Files</h4>
-                <div className="files-list">
-                  {uploadFiles.map((file, index) => (
-                    <div key={index} className="file-item">
-                      <span className="file-icon">📎</span>
-                      <span className="file-name">{file.name}</span>
-                      <span className="file-size">{(file.size / 1024 / 1024).toFixed(2)} MB</span>
-                      <button 
-                        className="remove-file"
-                        onClick={() => removeFile(index)}
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div className="material-types">
-              <h4>Material Categories</h4>
-              <div className="category-grid">
-                <label className="category-item">
-                  <input type="checkbox" />
-                  <span>Presentation Slides</span>
-                </label>
-                <label className="category-item">
-                  <input type="checkbox" />
-                  <span>Reference Materials</span>
-                </label>
-                <label className="category-item">
-                  <input type="checkbox" />
-                  <span>Homework/Assignments</span>
-                </label>
-                <label className="category-item">
-                  <input type="checkbox" />
-                  <span>Additional Resources</span>
-                </label>
-              </div>
-            </div>
-
-            <div className="material-notes">
-              <h4>Notes for Participants</h4>
-              <textarea 
-                placeholder="Add any notes about these materials..."
-                rows={3}
-              />
-            </div>
-          </div>
-
-          <div className="modal-footer">
-            <Button variant="secondary" onClick={() => setShowUploadModal(false)}>
-              Cancel
-            </Button>
-            <Button>Upload Materials</Button>
-          </div>
-        </div>
-      </div>
-    )
-  }
 
   const renderMyServices = () => (
     <div className="my-sessions-section">
@@ -314,47 +38,6 @@ const Sessions = () => {
       </div>
 
       <div className="sessions-grid">
-        <div className="sessions-section">
-          <h3>Upcoming Live Sessions</h3>
-          <div className="sessions-list">
-            {upcomingSessions.map(session => (
-              <div key={session.id} className="session-card own-session">
-                <div className="session-header">
-                  <div className="session-title-info">
-                    <h3>{session.title}</h3>
-                    <p className="session-instructor">by {session.instructor}</p>
-                  </div>
-                  <span className="session-status own">YOUR SESSION</span>
-                </div>
-                <div className="session-details">
-                  <p><span className="icon">📅</span> {session.date} at {session.time}</p>
-                  <p><span className="icon">👥</span> {session.participants}/{session.maxParticipants} participants</p>
-                  <p><span className="icon">💰</span> LKR {session.price}</p>
-                </div>
-                <div className="session-link">
-                  <p className="link-label">Session Link:</p>
-                  <div className="link-container">
-                    <input 
-                      type="text" 
-                      value={`https://stellarion.com/session/${session.id}`}
-                      readOnly
-                      className="session-link-input"
-                    />
-                  </div>
-                </div>
-                <div className="session-actions">
-                  <Button onClick={() => handleManageSession(session)}>
-                    Manage Session
-                  </Button>
-                  <Button onClick={() => handleUploadMaterials(session)}>
-                    Upload Materials
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
         <div className="sessions-section">
           <h3>Recorded Sessions</h3>
           <div className="sessions-list">
@@ -786,6 +469,7 @@ const Sessions = () => {
                     <input type="time" defaultValue="22:00" />
                   </div>
                 </div>
+
                 <div className="day-schedule">
                   <label>
                     <input type="checkbox" />
@@ -885,12 +569,6 @@ const Sessions = () => {
 
       <div className="sessions-tabs">
         <Button 
-          variant={activeTab === 'overview' ? 'primary' : 'secondary'}
-          onClick={() => setActiveTab('overview')}
-        >
-          Overview
-        </Button>
-        <Button 
           variant={activeTab === 'my-sessions' ? 'primary' : 'secondary'}
           onClick={() => setActiveTab('my-sessions')}
         >
@@ -911,19 +589,15 @@ const Sessions = () => {
       </div>
 
       <div className="sessions-content">
-        {activeTab === 'overview' && renderOverview()}
         {activeTab === 'my-sessions' && renderMyServices()}
         {activeTab === 'new-session' && renderNewSession()}
         {activeTab === 'pricing' && renderPricing()}
         {activeTab === 'analytics' && renderAnalytics()}
       </div>
-
-      {renderManageSessionModal()}
-      {renderUploadMaterialsModal()}
     </div>
   )
 }
 
 export default Sessions
-
+      
 

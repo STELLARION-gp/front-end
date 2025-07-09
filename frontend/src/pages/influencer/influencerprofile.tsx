@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Heart, MessageCircle, Share2, Bookmark, MoreHorizontal, Camera, Edit3, Check, X, User, Calendar, MapPin, Plus, Image } from 'lucide-react';
+import { Star, MessageCircle, Share2, Bookmark, MoreHorizontal, Camera, Edit3, Check, X, User, Calendar, MapPin, Plus, Image } from 'lucide-react';
 
 // Enhanced feed data with more realistic social media content
 const enhancedFeed = [
@@ -652,7 +652,7 @@ function ProfilePage() {
                                             color: post.liked ? "#ed4956" : "#262626"
                                         }}
                                     >
-                                        <Heart size={24} fill={post.liked ? "#ed4956" : "none"} />
+                                        <Star size={24} fill={post.liked ? "#ed4956" : "none"} />
                                     </button>
                                     <button style={{ 
                                         background: "none", 

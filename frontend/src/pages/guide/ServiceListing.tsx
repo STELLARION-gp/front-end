@@ -525,7 +525,7 @@ const ServiceListing: React.FC = () => {
       {/* Services Grid */}
       <div className="services-grid">
         {filteredServices.map(service => (
-          <Card key={service.id} className="service-card" variant="elevated" hover clickable>
+          <div key={service.id} className="service-card">
             {/* Service Image */}
             <div className="service-image">
               <img src={service.image} alt={service.title} />
@@ -618,7 +618,7 @@ const ServiceListing: React.FC = () => {
                 View Details
               </Button>
             </div>
-          </Card>
+          </div>
         ))}
       </div>
 

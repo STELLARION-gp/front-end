@@ -647,7 +647,7 @@ const ServiceListing: React.FC = () => {
               </button>
             </div>
             
-            <div className="modal-content">
+            <div className="modal-content1">
               <div className="service-image-large">
                 <img src={selectedService.image} alt={selectedService.title} />
                 {selectedService.featured && (
@@ -778,7 +778,7 @@ const ServiceListing: React.FC = () => {
               </button>
             </div>
             
-            <div className="modal-content">
+            <div className="modal-content1">
               <form className="edit-form" onSubmit={(e) => { e.preventDefault(); handleSaveEdit(); }}>
                 <div className="form-grid">
                   <div className="form-group">

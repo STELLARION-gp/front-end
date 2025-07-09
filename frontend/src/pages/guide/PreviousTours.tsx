@@ -258,7 +258,7 @@ const PreviousTours: React.FC = () => {
         <div className="header-content">
           <div className="header-top">
             <Button
-              variant="ghost"
+              variant="primary"
               size="medium"
               icon={<ArrowLeft className="w-4 h-4" />}
               onClick={() => navigate('/dashboard/booking-requests')}
@@ -326,7 +326,7 @@ const PreviousTours: React.FC = () => {
 
       {/* Filters and Search */}
       <div className="filters-section">
-        <Card className="filters-container" variant="outlined">
+        <div className="filters-container">
           <div className="filters-content">
             <div className="search-section">
               <div className="search-input-wrapper">
@@ -375,7 +375,7 @@ const PreviousTours: React.FC = () => {
               </div>
             </div>
           </div>
-        </Card>
+        </div>
       </div>
 
       {/* Tours Grid */}

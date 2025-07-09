@@ -650,10 +650,10 @@ function ProfilePage() {
                                             background: "none", 
                                             border: "none", 
                                             cursor: "pointer",
-                                            color: post.liked ? "#ed4956" : "white"
+                                            color: post.liked ? "#fed000" : "white"
                                         }}
                                     >
-                                        <Star size={24} fill={post.liked ? "#ed4956" : "none"} />
+                                        <Star size={24} fill={post.liked ? "#fed000" : "none"} />
                                     </button>
                                     <button style={{ 
                                         background: "transparent", 

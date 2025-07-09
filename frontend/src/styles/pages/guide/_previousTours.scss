@@ -50,6 +50,7 @@
       border: 1px solid rgba(148, 163, 184, 0.25);
       border-radius: 16px;
       padding: 1.5rem;
+      -webkit-backdrop-filter: blur(12px);
       backdrop-filter: blur(12px);
       transition: all 0.3s ease;
 
@@ -133,6 +134,7 @@
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid rgba(255, 255, 255, 0.15);
       border-radius: 16px;
+      -webkit-backdrop-filter: blur(10px);
       backdrop-filter: blur(10px);
       
       .filters-content {
@@ -239,6 +241,7 @@
       border: 1px solid rgba(148, 163, 184, 0.25);
       border-radius: 20px;
       overflow: hidden;
+      -webkit-backdrop-filter: blur(12px);
       backdrop-filter: blur(12px);
       transition: all 0.3s ease;
 
@@ -270,6 +273,7 @@
             top: 1rem;
             left: 1rem;
             background: rgba(0, 0, 0, 0.7);
+            -webkit-backdrop-filter: blur(10px);
             backdrop-filter: blur(10px);
             color: white;
             padding: 0.5rem 1rem;
@@ -299,6 +303,7 @@
             top: 1rem;
             right: 1rem;
             background: rgba(0, 0, 0, 0.7);
+            -webkit-backdrop-filter: blur(10px);
             backdrop-filter: blur(10px);
             color: white;
             padding: 0.3rem 0.6rem;
@@ -481,6 +486,7 @@
     right: 0;
     bottom: 0;
     background: rgba(0, 0, 0, 0.8);
+    -webkit-backdrop-filter: blur(5px);
     backdrop-filter: blur(5px);
     display: flex;
     align-items: center;
@@ -498,6 +504,7 @@
     max-height: 90vh;
     display: flex;
     flex-direction: column;
+    -webkit-backdrop-filter: blur(20px);
     backdrop-filter: blur(20px);
     box-shadow: 
       0 25px 50px rgba(0, 0, 0, 0.5),

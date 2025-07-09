@@ -4,7 +4,7 @@
         "about": "අපි ගැන",
         "contact": "අප අමතන්න",
         "dashboard": "පාලක පුවරුව",
-        "profile": "පැතිකඩ",
+        "profileNav": "පැතිකඩ",
         "settings": "සැකසුම්",
         "features": "විශේෂාංග",
         "team": "කණ්ඩායම",
@@ -49,10 +49,6 @@
         "dashboard": {
             "title": "ඩෑෂ්බෝඩ්",
             "welcome": "පිළිගනිමු"
-        },
-        "profile": {
-            "title": "පැතිකඩ",
-            "editProfile": "පැතිකඩ සංස්කරණය කරන්න"
         },
         "settings": {
             "title": "සැකසුම්",
@@ -124,5 +120,135 @@
         "message": "ඔබට නිසැකවම ඉවත්වීමට අවශ්‍යද?",
         "confirmButton": "ඉවත්වන්න",
         "cancelButton": "අවලංගු කරන්න"
+    },
+    "profile": {
+        "title": "පැතිකඩ",
+        "editProfile": "පැතිකඩ සංස්කරණය කරන්න",
+        "cancel": "අවලංගු කරන්න",
+        "saveChanges": "වෙනස්කම් සුරකින්න",
+        "saveSettings": "සැකසුම් සුරකින්න",
+        "tabs": {
+            "details": "පැතිකඩ විස්තර",
+            "settings": "සැකසුම්"
+        },
+        "sections": {
+            "basicInfo": "මූලික තොරතුරු",
+            "astronomyInfo": "තාරකා විද්‍යා තොරතුරු",
+            "roleSpecific": "භූමිකාව සඳහා විශේෂිත තොරතුරු",
+            "socialLinks": "සමාජ සබැඳි",
+            "achievements": "ජයග්‍රහණ සහ දායකත්ව",
+            "notifications": "දැනුම්දීම්",
+            "privacy": "පෞද්ගලිකත්වය",
+            "security": "ආරක්ෂාව",
+            "dangerZone": "අන්තරායකර කලාපය"
+        },
+        "fields": {
+            "firstName": "මුල් නම",
+            "lastName": "වාසගම",
+            "displayName": "ප්‍රදර්ශන නම",
+            "email": "ඊමේල්",
+            "bio": "ජීවන කථාව",
+            "bioPlaceholder": "ඔබ ගැන අපට කියන්න...",
+            "location": "ස්ථානය",
+            "locationPlaceholder": "ඔබේ ස්ථානය",
+            "website": "වෙබ් අඩවිය",
+            "websitePlaceholder": "ඔබේ වෙබ් අඩවිය",
+            "github": "GitHub පරිශීලක නාමය",
+            "githubPlaceholder": "GitHub පරිශීලක නාමය",
+            "linkedin": "LinkedIn පැතිකඩ",
+            "linkedinPlaceholder": "LinkedIn පැතිකඩ",
+            "astronomyExperience": "තාරකා විද්‍යා අත්දැකීම්",
+            "favoriteFields": "ප්‍රියතම තාරකා විද්‍යා ක්ෂේත්‍ර",
+            "telescopeOwned": "ඔබ සතුව දුරේක්ෂයක් තිබේද?",
+            "telescopeType": "දුරේක්ෂ වර්ගය",
+            "observationExperience": "නිරීක්ෂණ අත්දැකීම් වර්ෂ",
+            "certifications": "සහතික",
+            "achievements": "ජයග්‍රහණ",
+            "achievementsPlaceholder": "ඔබේ ජයග්‍රහණ ලැයිස්තුගත කරන්න (සෑම පේළියකටම එකක්)",
+            "contributions": "දායකත්ව",
+            "contributionsPlaceholder": "ඔබේ දායකත්ව ලැයිස්තුගත කරන්න (සෑම පේළියකටම එකක්)",
+            "joinedCommunities": "සම්බන්ධ වූ ප්‍රජාවන්",
+            "mentoringAreas": "මගපෙන්වීමේ ක්ෂේත්‍ර",
+            "yearsOfExperience": "අත්දැකීම් වර්ෂ",
+            "socialMediaFollowers": "සමාජ මාධ්‍ය අනුගාමිකයින්",
+            "contentPlatforms": "අන්තර්ගත වේදිකා",
+            "learningGoals": "ඉගෙනීමේ ඉලක්ක",
+            "currentProjects": "වර්තමාන ව්‍යාපෘති"
+        },
+        "experienceLevels": {
+            "beginner": "ආරම්භක",
+            "intermediate": "මධ්‍යස්ථ",
+            "advanced": "උසස්",
+            "expert": "ප්‍රවීණ"
+        },
+        "astronomyFields": {
+            "astrophysics": "තාරකා භෞතික විද්‍යාව",
+            "cosmology": "විශ්ව විද්‍යාව",
+            "planetaryscience": "ග්‍රහ විද්‍යාව",
+            "stellarastronomy": "තරු තාරකා විද්‍යාව",
+            "galacticastronomy": "මන්දාකිනි තාරකා විද්‍යාව",
+            "exoplanets": "බාහිර ග්‍රහලෝක",
+            "solarsystem": "සෞරගෝලය",
+            "deepskyobjects": "ගැඹුරු අහස් වස්තු",
+            "astrophotography": "තාරකා ඡායාරූපකරණය",
+            "radioastronomy": "ගුවන්විදුලි තාරකා විද්‍යාව",
+            "xrayastronomy": "එක්ස්-කිරණ තාරකා විද්‍යාව",
+            "gravitationalwaves": "ගුරුත්වාකර්ෂණ තරංග"
+        },
+        "settings": {
+            "language": "භාෂාව",
+            "emailNotifications": "ඊමේල් දැනුම්දීම්",
+            "pushNotifications": "පුෂ් දැනුම්දීම්",
+            "profileVisibility": "පැතිකඩ දෘශ්‍යතාව",
+            "allowDirectMessages": "සෘජු පණිවිඩවලට ඉඩ දෙන්න",
+            "showOnlineStatus": "සබැඳි තත්ත්වය පෙන්වන්න"
+        },
+        "visibility": {
+            "public": "පොදු",
+            "community": "ප්‍රජාව පමණක්",
+            "private": "පුද්ගලික"
+        },
+        "actions": {
+            "changePassword": "මුරපදය වෙනස් කරන්න",
+            "downloadData": "මගේ දත්ත බාගන්න",
+            "deleteAccount": "ගිණුම මකන්න",
+            "upgradeRole": "භූමිකාව උසස් කරන්න"
+        },
+        "modals": {
+            "changePassword": {
+                "title": "මුරපදය වෙනස් කරන්න",
+                "currentPassword": "වර්තමාන මුරපදය",
+                "newPassword": "නව මුරපදය",
+                "confirmPassword": "නව මුරපදය තහවුරු කරන්න"
+            },
+            "roleUpgrade": {
+                "title": "භූමිකාව උසස් කිරීමේ ඉල්ලීම",
+                "selectRole": "භූමිකාව තෝරන්න",
+                "reason": "උසස් කිරීමේ ඉල්ලීමේ හේතුව",
+                "reasonPlaceholder": "ඔබට මෙම භූමිකාව උසස් කිරීම අවශ්‍ය වන්නේ ඇයිද කරුණාකර පැහැදිලි කරන්න...",
+                "submitRequest": "ඉල්ලීම ඉදිරිපත් කරන්න",
+                "description": "ඔබ {{currentRole}} සිට {{nextRole}} දක්වා උසස් කිරීමට ඉල්ලීම් කරන්නේ.",
+                "reviewNote": "ඔබේ ඉල්ලීම අපගේ මධ්‍යස්ථ කණ්ඩායම විසින් සමාලෝචනය කරනු ලබන අතර සමාලෝචනය අවසන් වූ පසු ඔබට දැනුම් දෙනු ලැබේ."
+            },
+            "deleteAccount": {
+                "title": "ගිණුම මකන්න",
+                "warning": "මෙම ක්‍රියාව අවලංගු කළ නොහැක",
+                "details": "ඔබේ සියලුම දත්ත, පැතිකඩ තොරතුරු, පළ කිරීම් සහ ජයග්‍රහණ ඇතුළුව ස්ථිරවම මකා දමනු ලැබේ.",
+                "confirmation": "තහවුරු කිරීමට 'DELETE' ටයිප් කරන්න"
+            }
+        },
+        "roles": {
+            "learner": "ඉගෙන ගන්නා",
+            "enthusiast": "ආදරකරු",
+            "guide": "මාර්ගෝපදේශක",
+            "mentor": "උපදේශක",
+            "influencer": "බලපෑම්කරු",
+            "moderator": "උපපරිපාලක",
+            "admin": "පරිපාලක"
+        },
+        "status": {
+            "active": "සක්‍රීය",
+            "inactive": "අක්‍රීය"
+        }
     }
 }

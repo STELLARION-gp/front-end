@@ -525,7 +525,7 @@ const ServiceListing: React.FC = () => {
       {/* Services Grid */}
       <div className="services-grid">
         {filteredServices.map(service => (
-          <Card key={service.id} className="service-card" variant="elevated" hover clickable>
+          <div key={service.id} className="service-card1">
             {/* Service Image */}
             <div className="service-image">
               <img src={service.image} alt={service.title} />
@@ -618,7 +618,7 @@ const ServiceListing: React.FC = () => {
                 View Details
               </Button>
             </div>
-          </Card>
+          </div>
         ))}
       </div>
 
@@ -647,7 +647,7 @@ const ServiceListing: React.FC = () => {
               </button>
             </div>
             
-            <div className="modal-content">
+            <div className="modal-content1">
               <div className="service-image-large">
                 <img src={selectedService.image} alt={selectedService.title} />
                 {selectedService.featured && (
@@ -778,7 +778,7 @@ const ServiceListing: React.FC = () => {
               </button>
             </div>
             
-            <div className="modal-content">
+            <div className="modal-content1">
               <form className="edit-form" onSubmit={(e) => { e.preventDefault(); handleSaveEdit(); }}>
                 <div className="form-grid">
                   <div className="form-group">

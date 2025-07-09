@@ -87,7 +87,6 @@ const Profile: React.FC = () => {
   const [showRoleUpgradeModal, setShowRoleUpgradeModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [uploadProgress, setUploadProgress] = useState(0);
   const [loadedProfile, setLoadedProfile] = useState<ApiProfileData | null>(null);
 
   const [profileData, setProfileData] = useState<ProfileData>({
@@ -321,7 +320,6 @@ const Profile: React.FC = () => {
 
     try {
       setLoading(true);
-      setUploadProgress(0);
 
       const response = await profileService.uploadProfilePicture(file);
 
@@ -331,7 +329,6 @@ const Profile: React.FC = () => {
           ...prev,
           profilePicture: response.data!.profile_picture_url
         }));
-        setUploadProgress(100);
       } else {
         setErrors({ avatar: response.message || 'Failed to upload avatar' });
       }

@@ -1,8 +1,14 @@
 import { auth } from '../firebase';
 
-const API_BASE_URL = 'http://localhost:5000/api';
-
 // Mock data for testing
+interface RoleUpgradeRequest {
+    id: number;
+    requested_role: string;
+    status: string;
+    created_at: string;
+    updated_at: string;
+}
+
 const MOCK_PROFILE_DATA = {
     id: 123,
     firebase_uid: 'mock-user-123',
@@ -130,8 +136,6 @@ interface ApiResponse<T> {
  * Use this while the backend is being implemented
  */
 class MockProfileService {
-    private useMockData = true; // Set to false when backend is ready
-
     private async getAuthToken(): Promise<string | null> {
         const user = auth.currentUser;
         if (!user) return null;
@@ -317,8 +321,8 @@ class MockProfileService {
         });
     }
 
-    async getRoleUpgradeStatus(): Promise<ApiResponse<{ current_requests: any[]; request_history: any[] }>> {
-        return this.makeRequest<{ current_requests: any[]; request_history: any[] }>('/user/role-upgrade/status');
+    async getRoleUpgradeStatus(): Promise<ApiResponse<{ current_requests: RoleUpgradeRequest[]; request_history: RoleUpgradeRequest[] }>> {
+        return this.makeRequest<{ current_requests: RoleUpgradeRequest[]; request_history: RoleUpgradeRequest[] }>('/user/role-upgrade/status');
     }
 
     async deleteAccount(data: AccountDeletionData): Promise<ApiResponse<void>> {

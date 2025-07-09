@@ -101,13 +101,13 @@ const Sponsorships: React.FC = () => {
           expiryDate,
           cvv,
           cardholderName
-        } : null,
+        } : undefined,
         sponsorDetails: {
           name: sponsorName,
           email: sponsorEmail,
           message: sponsorMessage
         },
-        eventId: selectedEvent?.id
+        eventId: selectedEvent?.id ? parseInt(selectedEvent.id) : undefined
       });
 
       // Payment successful
@@ -122,7 +122,22 @@ const Sponsorships: React.FC = () => {
     }
   };
 
-  const processPayment = async (paymentData: any): Promise<void> => {
+  const processPayment = async (paymentData: {
+    amount: number;
+    paymentMethod: string;
+    cardDetails?: {
+      cardNumber: string;
+      expiryDate: string;
+      cvv: string;
+      cardholderName: string;
+    };
+    sponsorDetails?: {
+      name: string;
+      email: string;
+      message: string;
+    };
+    eventId?: number;
+  }): Promise<void> => {
     // Simulate API call to payment gateway (replace with actual implementation)
     return new Promise((resolve, reject) => {
       setTimeout(() => {
@@ -140,7 +155,7 @@ const Sponsorships: React.FC = () => {
         
         // Simulate 95% success rate
         if (Math.random() > 0.05) {
-          resolve(paymentData);
+          resolve();
         } else {
           reject(new Error('Payment processing failed. Please try again.'));
         }

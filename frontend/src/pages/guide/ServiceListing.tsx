@@ -405,9 +405,9 @@ const ServiceListing: React.FC = () => {
         <div className="stats-grid">
           <Card className="stat-card" variant="elevated">
             <div className="stat-content">
-              {/* <div className="stat-icon">
+              <div className="stat-icon">
                 <ServiceIcon className="icon" />
-              </div> */}
+              </div>
               <div className="stat-info">
                 <h3 className="stat-number">24</h3>
                 <p className="stat-label">Active Services</p>
@@ -431,9 +431,9 @@ const ServiceListing: React.FC = () => {
           </Card>
           <Card className="stat-card" variant="elevated">
             <div className="stat-content">
-              {/* <div className="stat-icon">
+              <div className="stat-icon">
                 <BookingIcon className="icon" />
-              </div> */}
+              </div>
               <div className="stat-info">
                 <h3 className="stat-number">156</h3>
                 <p className="stat-label">Total Bookings</p>
@@ -443,9 +443,9 @@ const ServiceListing: React.FC = () => {
           </Card>
           <Card className="stat-card" variant="elevated">
             <div className="stat-content">
-              {/* <div className="stat-icon">
+              <div className="stat-icon">
                 <RevenueIcon className="icon" />
-              </div> */}
+              </div>
               <div className="stat-info">
                 <h3 className="stat-number">$3,240</h3>
                 <p className="stat-label">Monthly Revenue</p>

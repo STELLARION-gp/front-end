@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import '../../styles/pages/influencer/announcements.scss';
-
+import '../../styles/pages/influencer/Announcements.scss';
 type Announcement = {
     id: string;
     title: string;
@@ -9,8 +8,9 @@ type Announcement = {
 
 const mockFetchAnnouncements = (): Promise<Announcement[]> =>
     Promise.resolve([
-        { id: '1', title: 'Welcome!', content: 'Thanks for joining our platform.' },
-        { id: '2', title: 'Update', content: 'New features have been added.' },
+        { id: '1', title: 'Welcome to Space&Me!', content: 'Hi! This is my official account.' },
+        
+        { id: '2', title: 'Session on Constellations', content: 'Would you like a session on contellations this Sunday?' },
     ]);
 
 const mockAddAnnouncement = (announcement: Omit<Announcement, 'id'>): Promise<Announcement> =>
@@ -84,7 +84,7 @@ const AnnouncementsPage: React.FC = () => {
                     value={form.title}
                     onChange={handleChange}
                     required
-                    style={{ width: '100%', marginBottom: 8, padding: 8 }}
+                    style={{ width: '100%', marginBottom: 8, padding: 8, backgroundColor: 'transparent', color: 'white', border: '1px solid white' }}
                 />
                 <textarea
                     name="content"
@@ -93,9 +93,10 @@ const AnnouncementsPage: React.FC = () => {
                     onChange={handleChange}
                     required
                     rows={4}
-                    style={{ width: '100%', marginBottom: 8, padding: 8 }}
+                    style={{ width: '100%', marginBottom: 8, padding: 8, backgroundColor: 'transparent', color: 'white', border: '1px solid white' }}
+                    
                 />
-                <button type="submit" disabled={loading} style={{ marginRight: 8 }}>
+                <button type="submit" disabled={loading} style={{ marginRight: 8, backgroundColor: 'transparent', border: '1px solid white', color: 'white' }}>
                     {editing ? 'Update' : 'Add'} Announcement
                 </button>
                 {editing && (
@@ -110,10 +111,10 @@ const AnnouncementsPage: React.FC = () => {
                     <li key={a.id} style={{ border: '1px solid #ccc', padding: 16, marginBottom: 12 }}>
                         <h3>{a.title}</h3>
                         <p>{a.content}</p>
-                        <button onClick={() => handleEdit(a)} style={{ marginRight: 8 }}>
+                        <button onClick={() => handleEdit(a)} style={{ marginRight: 8, backgroundColor: 'transparent', border: '1px solid white', color: 'white' }}>
                             Edit
                         </button>
-                        <button onClick={() => handleDelete(a.id)}>
+                        <button onClick={() => handleDelete(a.id)} style={{ marginRight: 8, backgroundColor: 'transparent', border: '1px solid white', color: 'white' }}>
                             Delete
                         </button>
                     </li>

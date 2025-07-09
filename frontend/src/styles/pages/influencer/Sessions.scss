@@ -578,7 +578,7 @@
 
 .pricing-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
   gap: 2rem;
 
   @media (max-width: 768px) {
@@ -1339,6 +1339,105 @@ input:checked + .toggle-slider:before {
 
     &::placeholder {
       color: var(--text-secondary);
+    }
+  }
+}
+
+// Enhanced pricing and settings styles
+.create-session-quick {
+  .date-time-row {
+    display: flex;
+    gap: 0.5rem;
+
+    input {
+      flex: 1;
+    }
+  }
+}
+
+.session-default-settings {
+  h4 {
+    color: var(--text-primary);
+    margin: 1.5rem 0 1rem 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    
+    &:first-child {
+      margin-top: 0;
+    }
+  }
+
+  .settings-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .template-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+
+    @media (max-width: 480px) {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+.schedule-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.day-schedule {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+
+  label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 100px;
+    color: var(--text-primary);
+    font-weight: 500;
+
+    input[type="checkbox"] {
+      accent-color: var(--primary-color);
+    }
+  }
+
+  .time-slots {
+    display: flex;
+    gap: 0.5rem;
+    flex: 1;
+
+    input[type="time"] {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 6px;
+      padding: 0.5rem;
+      color: var(--text-primary);
+      font-size: 0.9rem;
+
+      &:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      &::placeholder {
+        color: var(--text-secondary);
+      }
     }
   }
 }

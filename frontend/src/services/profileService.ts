@@ -104,7 +104,12 @@ class ProfileService {
         const token = await this.getAuthToken();
 
         if (!token) {
-            throw new Error('Authentication required');
+            console.error('❌ No authentication token available');
+            return {
+                success: false,
+                error: 'authentication_required',
+                message: 'User must be logged in to access this resource'
+            };
         }
 
         const headers: Record<string, string> = {
@@ -122,7 +127,38 @@ class ProfileService {
 
             console.log(`📨 Response status: ${response.status}`);
 
-            const data = await response.json();
+            let data;
+            const contentType = response.headers.get('content-type');
+
+            try {
+                // Try to parse as JSON first
+                data = await response.json();
+            } catch {
+                // If JSON parsing fails, get as text
+                const textResponse = await response.text();
+                console.error(`❌ Non-JSON response received:`, textResponse);
+
+                // Handle common authentication errors
+                if (textResponse.includes('Invalid token') || textResponse.includes('Unauthorized')) {
+                    return {
+                        success: false,
+                        error: 'authentication_error',
+                        message: 'Authentication token is invalid or expired. Please log in again.'
+                    };
+                }
+
+                // Handle other non-JSON responses
+                return {
+                    success: false,
+                    error: 'invalid_response',
+                    message: `Server returned non-JSON response: ${textResponse}`,
+                    details: {
+                        status: response.status,
+                        contentType: contentType,
+                        rawResponse: textResponse
+                    }
+                };
+            }
 
             if (!response.ok) {
                 console.error(`❌ API Error ${response.status}:`, data);
@@ -155,7 +191,12 @@ class ProfileService {
         const token = await this.getAuthToken();
 
         if (!token) {
-            throw new Error('Authentication required');
+            console.error('❌ No authentication token available for file upload');
+            return {
+                success: false,
+                error: 'authentication_required',
+                message: 'User must be logged in to upload files'
+            };
         }
 
         const headers: Record<string, string> = {
@@ -173,7 +214,38 @@ class ProfileService {
 
             console.log(`📨 Upload response status: ${response.status}`);
 
-            const data = await response.json();
+            let data;
+            const contentType = response.headers.get('content-type');
+
+            try {
+                // Try to parse as JSON first
+                data = await response.json();
+            } catch {
+                // If JSON parsing fails, get as text
+                const textResponse = await response.text();
+                console.error(`❌ Non-JSON upload response:`, textResponse);
+
+                // Handle common authentication errors
+                if (textResponse.includes('Invalid token') || textResponse.includes('Unauthorized')) {
+                    return {
+                        success: false,
+                        error: 'authentication_error',
+                        message: 'Authentication token is invalid or expired. Please log in again.'
+                    };
+                }
+
+                // Handle other non-JSON responses
+                return {
+                    success: false,
+                    error: 'invalid_response',
+                    message: `Server returned non-JSON response: ${textResponse}`,
+                    details: {
+                        status: response.status,
+                        contentType: contentType,
+                        rawResponse: textResponse
+                    }
+                };
+            }
 
             if (!response.ok) {
                 console.error(`❌ Upload Error ${response.status}:`, data);

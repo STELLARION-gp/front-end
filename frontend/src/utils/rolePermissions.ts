@@ -86,7 +86,7 @@ export const ROLE_BASED_MENU_ITEMS = {
     ],
     influencer: [
         { label: 'Overview', icon: 'HomeIcon', href: '/dashboard/overview' },
-        { label: 'Profile', icon: 'UserCircleIcon', href: '/dashboard/profile' },
+        { label: 'Profile', icon: 'UserCircleIcon', href: '/dashboard/InfluencerProfile' },
         { label: 'Blogs', icon: 'BookOpenIcon', href: '/dashboard/blogs' },
         { label: 'Night Camps', icon: 'MoonIcon', href: '/dashboard/night-camps' },
         { label: 'Stargazing Spot', icon: 'StarIcon', href: '/dashboard/stargazing' },

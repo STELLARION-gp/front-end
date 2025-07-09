@@ -28,6 +28,7 @@ import AstroHub from '../pages/enthuasist/AstroHub';
 import CelestialEventsPage from '../pages/learner/Celestial_Events_Page';
 
 import Announcements from '../pages/influencer/announcements';
+import InfluencerProfile from '../pages/influencer/influencerprofile';
 
 // Create placeholder components for different pages - all memoized
 // const BlogsPage = memo(() => (
@@ -137,7 +138,22 @@ const DashboardRoutes = () => {
                     <DashboardOverview />
                 </RoleGuard>} 
             />
-            <Route path="profile" element={<Profile />} />
+            <Route 
+
+            path="InfluencerProfile" 
+            element={
+                <RoleGuard allowedRoles={['influencer']}>
+                    <InfluencerProfile />
+                </RoleGuard>} 
+            />
+            <Route
+                path="profile"
+                element={
+                    <RoleGuard allowedRoles={['learner', 'enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin']}>
+                        <Profile />
+                    </RoleGuard>
+                }
+                />
             <Route path="settings" element={<Settings />} />
 
             <Route
@@ -200,14 +216,14 @@ const DashboardRoutes = () => {
                 }
             />
 
-                <Route
-  path="announcements"
-  element={
-    <RoleGuard allowedRoles={['influencer']}>
-      <Announcements />
-    </RoleGuard>
-  }
-/>
+            <Route
+                path="announcements"
+                element={
+                    <RoleGuard allowedRoles={['influencer']}>
+                    <Announcements />
+                    </RoleGuard>
+                }
+                />
             <Route
                 path="services/*"
                 element={

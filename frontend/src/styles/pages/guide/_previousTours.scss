@@ -540,7 +540,8 @@
         border: none;
         color: #94a3b8;
         cursor: pointer;
-        padding: 0.5rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
         border-radius: 8px;
         transition: all 0.3s ease;
         font-size: 1.5rem;
@@ -552,7 +553,7 @@
       }
     }
 
-    .modal-content {
+    .modal-content1 {
       padding: 2rem;
       overflow-y: auto;
       flex: 1;

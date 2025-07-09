@@ -534,7 +534,7 @@ const PreviousTours: React.FC = () => {
                 </button>
               </div>
 
-              <div className="modal-content">
+              <div className="modal-content1">
                 <div className="tour-details-content">
                   <div className="tour-images">
                     {selectedTour.photos.map((photo, index) => (
@@ -636,7 +636,7 @@ const PreviousTours: React.FC = () => {
                 </button>
               </div>
 
-              <div className="modal-content">
+              <div className="modal-content1">
                 <div className="reviews-summary">
                   <div className="rating-overview">
                     <div className="average-rating">

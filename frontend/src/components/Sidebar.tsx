@@ -50,7 +50,8 @@ const iconMap = {
   PhotoIcon,
   StarIcon,
   RocketLaunchIcon,
-  SparklesIcon
+  SparklesIcon,
+  
 };
 
 // Memoize the icon components to prevent re-renders

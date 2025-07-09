@@ -1,3 +1,4 @@
+import { label } from 'framer-motion/client';
 import { type UserRole } from '../AuthContext';
 
 // Define permission types
@@ -53,7 +54,7 @@ export const PAGE_ACCESS_CONTROL = {
     '/dashboard/stargazing': ['enthusiast', 'influencer','admin', 'learner','mentor','moderator'] as UserRole[],
     '/dashboard/booking-requests': ['guide'] as UserRole[],
     '/dashboard/astrohub': ['enthusiast'] as UserRole[],
-    
+    '/dashboard/announcements': ['influencer'] as UserRole[],
 
 };
 
@@ -89,6 +90,7 @@ export const ROLE_BASED_MENU_ITEMS = {
         { label: 'Blogs', icon: 'BookOpenIcon', href: '/dashboard/blogs' },
         { label: 'Night Camps', icon: 'MoonIcon', href: '/dashboard/night-camps' },
         { label: 'Stargazing Spot', icon: 'StarIcon', href: '/dashboard/stargazing' },
+        {label: 'Announcements', icon: 'RocketLaunchIcon', href: '/dashboard/announcements' },
         { label: 'Chat', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/chat' },
         { label: 'Settings', icon: 'Cog6ToothIcon', href: '/dashboard/settings' },
     ],

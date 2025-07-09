@@ -27,6 +27,8 @@ import BookingRequests from '../pages/guide/BookingRequests';
 import AstroHub from '../pages/enthuasist/AstroHub';
 import CelestialEventsPage from '../pages/learner/Celestial_Events_Page';
 
+import Announcements from '../pages/influencer/announcements';
+
 // Create placeholder components for different pages - all memoized
 // const BlogsPage = memo(() => (
 //     <div className="dashboard-page">
@@ -198,6 +200,14 @@ const DashboardRoutes = () => {
                 }
             />
 
+                <Route
+  path="announcements"
+  element={
+    <RoleGuard allowedRoles={['influencer']}>
+      <Announcements />
+    </RoleGuard>
+  }
+/>
             <Route
                 path="services/*"
                 element={

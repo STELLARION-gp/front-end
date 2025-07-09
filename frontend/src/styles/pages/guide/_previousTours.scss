@@ -5,6 +5,7 @@
 
 .previous-tours-page {
   padding: 2rem;
+  padding-bottom: 4rem; // Add extra space at bottom
   width: 100%;
   min-height: 100vh;
   color: #e2e8f0;
@@ -234,7 +235,8 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
     gap: 2rem;
-    margin-bottom: 2rem;
+    margin-bottom: 4rem; 
+    padding-bottom: 15px;
     
     .tour-card {
       background: rgba(30, 41, 59, 0.8);
@@ -452,6 +454,7 @@
   .empty-state {
     text-align: center;
     padding: 4rem 2rem;
+    margin-bottom: 4rem; // Add bottom margin to empty state
     
     .empty-content {
       max-width: 400px;
@@ -833,6 +836,7 @@
   // Responsive Design
   @media (max-width: 768px) {
     padding: 1rem;
+    padding-bottom: 3rem; // Adjust bottom padding for mobile
 
     .page-header .title-section h2 {
       font-size: 2rem;
@@ -923,6 +927,7 @@
 
   @media (max-width: 480px) {
     padding: 0.5rem;
+    padding-bottom: 2rem; // Adjust bottom padding for small mobile
 
     .page-header .title-section h2 {
       font-size: 1.8rem;

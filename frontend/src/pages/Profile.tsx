@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import LoadingSpinner from '../components/LoadingSpinner';
 import Button from '../components/Button';
@@ -200,12 +200,26 @@ const Profile: React.FC = () => {
   };
 
   // API Integration Functions
-  const loadUserProfile = async () => {
+  const loadUserProfile = useCallback(async () => {
     try {
       setLoading(true);
+      setErrors({}); // Clear previous errors
+      console.log('🔄 Loading user profile...');
+      console.log('👤 Current user:', user);
+      console.log('🔐 User authenticated:', !!user);
+
+      // Check if user is authenticated
+      if (!user) {
+        console.error('❌ No user authenticated when trying to load profile');
+        setErrors({ profile: 'User not authenticated. Please log in.' });
+        return;
+      }
+
       const response = await profileService.getUserProfile();
+      console.log('📡 Profile API Response:', response);
 
       if (response.success && response.data) {
+        console.log('✅ Profile loaded successfully');
         const apiProfile = response.data;
         setLoadedProfile(apiProfile);
 
@@ -245,21 +259,35 @@ const Profile: React.FC = () => {
           });
         }
       } else {
+        console.error('❌ Profile API failed:', response);
         setErrors({ profile: response.message || 'Failed to load profile' });
       }
     } catch (error) {
-      console.error('Error loading profile:', error);
-      setErrors({ profile: 'Failed to load profile data' });
+      console.error('❌ Error loading profile:', error);
+      setErrors({ profile: `Failed to load profile data: ${error instanceof Error ? error.message : 'Unknown error'}` });
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
 
-  const loadUserSettings = async () => {
+  const loadUserSettings = useCallback(async () => {
     try {
+      console.log('🔄 Loading user settings...');
+      console.log('👤 Current user:', user);
+      console.log('🔐 User authenticated:', !!user);
+
+      // Check if user is authenticated
+      if (!user) {
+        console.error('❌ No user authenticated when trying to load settings');
+        setErrors({ settings: 'User not authenticated. Please log in.' });
+        return;
+      }
+
       const response = await profileService.getUserSettings();
+      console.log('📡 Settings API Response:', response);
 
       if (response.success && response.data) {
+        console.log('✅ Settings loaded successfully');
         const apiSettings = response.data;
         setSettings({
           language: apiSettings.language,
@@ -270,13 +298,14 @@ const Profile: React.FC = () => {
           showOnlineStatus: apiSettings.show_online_status
         });
       } else {
+        console.error('❌ Settings API failed:', response);
         setErrors({ settings: response.message || 'Failed to load settings' });
       }
     } catch (error) {
-      console.error('Error loading settings:', error);
-      setErrors({ settings: 'Failed to load settings data' });
+      console.error('❌ Error loading settings:', error);
+      setErrors({ settings: `Failed to load settings data: ${error instanceof Error ? error.message : 'Unknown error'}` });
     }
-  };
+  }, [user]);
 
   // Load data on component mount
   useEffect(() => {
@@ -284,7 +313,7 @@ const Profile: React.FC = () => {
       loadUserProfile();
       loadUserSettings();
     }
-  }, [user]);
+  }, [user, loadUserProfile, loadUserSettings]);
 
   const handleProfilePictureChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];

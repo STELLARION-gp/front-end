@@ -35,11 +35,6 @@ const Sessions = () => {
     <div className="my-sessions-section">
       <div className="section-header">
         <h2>My Sessions</h2>
-        <Button 
-          onClick={() => setActiveTab('new-session')}
-        >
-          + Create New Session
-        </Button>
       </div>
 
       <div className="sessions-grid">
@@ -255,286 +250,6 @@ const Sessions = () => {
     </div>
   )
 
-  const renderPricing = () => (
-    <div className="pricing-panel">
-      <h2>Pricing & Session Management</h2>
-      
-      <div className="pricing-grid">
-        <div className="pricing-card">
-          <h3>Create New Session</h3>
-          <div className="create-session-quick">
-            <p>Quick session creation with your default settings</p>
-            <div className="form-group">
-              <label>Session Title</label>
-              <input type="text" placeholder="Enter session title" />
-            </div>
-            <div className="form-group">
-              <label>Session Type</label>
-              <select>
-                <option value="live">Live Session</option>
-                <option value="recorded">Recorded Session</option>
-              </select>
-            </div>
-            <div className="form-group">
-              <label>Date & Time</label>
-              <div className="date-time-row">
-                <input type="date" />
-                <input type="time" />
-              </div>
-            </div>
-            <div className="form-group">
-              <label>Duration (minutes)</label>
-              <input type="number" placeholder="60" />
-            </div>
-            <Button 
-              onClick={() => setActiveTab('new-session')}
-            >
-              Create Full Session
-            </Button>
-          </div>
-        </div>
-
-        <div className="pricing-card">
-          <h3>Default Pricing</h3>
-          <div className="price-settings">
-            <div className="form-group">
-              <label>Live Session Rate (LKR)</label>
-              <input type="number" placeholder="3000" />
-            </div>
-            <div className="form-group">
-              <label>Recorded Session Rate (LKR)</label>
-              <input type="number" placeholder="1500" />
-            </div>
-            <div className="form-group">
-              <label>Default Duration (minutes)</label>
-              <input type="number" placeholder="60" />
-            </div>
-            <div className="form-group">
-              <label>Default Max Participants</label>
-              <input type="number" placeholder="20" />
-            </div>
-            <Button>Update Default Settings</Button>
-          </div>
-        </div>
-
-        <div className="pricing-card">
-          <h3>Discount Management</h3>
-          <div className="discount-settings">
-            <div className="form-group">
-              <label>Discount Percentage</label>
-              <input type="number" placeholder="20" />
-            </div>
-            <div className="form-group">
-              <label>Valid Until</label>
-              <input type="date" />
-            </div>
-            <div className="form-group">
-              <label>Apply to Session Type</label>
-              <select>
-                <option value="all">All Sessions</option>
-                <option value="live">Live Sessions Only</option>
-                <option value="recorded">Recorded Sessions Only</option>
-              </select>
-            </div>
-            <div className="checkbox-group">
-              <input type="checkbox" id="freeAccess" />
-              <label htmlFor="freeAccess">Enable Free Access</label>
-            </div>
-            <Button>Apply Discount</Button>
-          </div>
-        </div>
-
-        <div className="pricing-card">
-          <h3>Session Settings</h3>
-          <div className="session-default-settings">
-            <h4>Default Session Configuration</h4>
-            <div className="settings-grid">
-              <div className="setting-item">
-                <label>
-                  <input type="checkbox" defaultChecked />
-                  Auto-accept registrations
-                </label>
-              </div>
-              <div className="setting-item">
-                <label>
-                  <input type="checkbox" defaultChecked />
-                  Send reminder emails
-                </label>
-              </div>
-              <div className="setting-item">
-                <label>
-                  <input type="checkbox" />
-                  Require camera for participants
-                </label>
-              </div>
-              <div className="setting-item">
-                <label>
-                  <input type="checkbox" defaultChecked />
-                  Record sessions by default
-                </label>
-              </div>
-              <div className="setting-item">
-                <label>
-                  <input type="checkbox" defaultChecked />
-                  Allow late joins (up to 10 min)
-                </label>
-              </div>
-              <div className="setting-item">
-                <label>
-                  <input type="checkbox" />
-                  Mute participants on join
-                </label>
-              </div>
-            </div>
-            
-            <h4>Notification Settings</h4>
-            <div className="settings-grid">
-              <div className="setting-item">
-                <label>
-                  <input type="checkbox" defaultChecked />
-                  Email me when someone registers
-                </label>
-              </div>
-              <div className="setting-item">
-                <label>
-                  <input type="checkbox" defaultChecked />
-                  Send session reminders to participants
-                </label>
-              </div>
-              <div className="setting-item">
-                <label>
-                  <input type="checkbox" />
-                  SMS notifications for urgent updates
-                </label>
-              </div>
-            </div>
-
-            <h4>Session Templates</h4>
-            <div className="template-options">
-              <div className="form-group">
-                <label>Default Session Category</label>
-                <select>
-                  <option value="observation">Observation</option>
-                  <option value="photography">Astrophotography</option>
-                  <option value="theory">Theory & Concepts</option>
-                  <option value="equipment">Equipment & Setup</option>
-                </select>
-              </div>
-              <div className="form-group">
-                <label>Default Difficulty Level</label>
-                <select>
-                  <option value="beginner">Beginner</option>
-                  <option value="intermediate">Intermediate</option>
-                  <option value="advanced">Advanced</option>
-                </select>
-              </div>
-            </div>
-
-            <Button>Save Settings</Button>
-          </div>
-        </div>
-
-        <div className="pricing-card">
-          <h3>Availability Settings</h3>
-          <div className="availability-settings">
-            <div className="toggle-group">
-              <label className="toggle-switch">
-                <input type="checkbox" defaultChecked />
-                <span className="toggle-slider"></span>
-              </label>
-              <span>Allow New Bookings</span>
-            </div>
-            <p className="toggle-description">
-              Temporarily disable session bookings for maintenance or schedule changes
-            </p>
-            
-            <div className="form-group">
-              <label>Weekly Schedule</label>
-              <div className="schedule-grid">
-                <div className="day-schedule">
-                  <label>
-                    <input type="checkbox" />
-                    <span>Monday</span>
-                  </label>
-                  <div className="time-slots">
-                    <input type="time" placeholder="Start" />
-                    <input type="time" placeholder="End" />
-                  </div>
-                </div>
-                <div className="day-schedule">
-                  <label>
-                    <input type="checkbox" />
-                    <span>Tuesday</span>
-                  </label>
-                  <div className="time-slots">
-                    <input type="time" placeholder="Start" />
-                    <input type="time" placeholder="End" />
-                  </div>
-                </div>
-                <div className="day-schedule">
-                  <label>
-                    <input type="checkbox" defaultChecked />
-                    <span>Wednesday</span>
-                  </label>
-                  <div className="time-slots">
-                    <input type="time" defaultValue="19:00" />
-                    <input type="time" defaultValue="22:00" />
-                  </div>
-                </div>
-                <div className="day-schedule">
-                  <label>
-                    <input type="checkbox" />
-                    <span>Thursday</span>
-                  </label>
-                  <div className="time-slots">
-                    <input type="time" placeholder="Start" />
-                    <input type="time" placeholder="End" />
-                  </div>
-                </div>
-                <div className="day-schedule">
-                  <label>
-                    <input type="checkbox" defaultChecked />
-                    <span>Friday</span>
-                  </label>
-                  <div className="time-slots">
-                    <input type="time" defaultValue="20:00" />
-                    <input type="time" defaultValue="23:00" />
-                  </div>
-                </div>
-                <div className="day-schedule">
-                  <label>
-                    <input type="checkbox" defaultChecked />
-                    <span>Saturday</span>
-                  </label>
-                  <div className="time-slots">
-                    <input type="time" defaultValue="18:00" />
-                    <input type="time" defaultValue="22:00" />
-                  </div>
-                </div>
-
-                <div className="day-schedule">
-                  <label>
-                    <input type="checkbox" />
-                    <span>Sunday</span>
-                  </label>
-                  <div className="time-slots">
-                    <input type="time" placeholder="Start" />
-                    <input type="time" placeholder="End" />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="availability-status active">
-              <span className="status-indicator"></span>
-              Bookings Currently Active
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-
   const renderAnalytics = () => (
     <div className="analytics-dashboard">
       <h2>My Sessions Analytics</h2>
@@ -617,10 +332,10 @@ const Sessions = () => {
           My Sessions
         </Button>
         <Button 
-          variant={activeTab === 'pricing' ? 'primary' : 'secondary'}
-          onClick={() => setActiveTab('pricing')}
+          variant={activeTab === 'new-session' ? 'primary' : 'secondary'}
+          onClick={() => setActiveTab('new-session')}
         >
-          Settings & Pricing
+          Create Session
         </Button>
         <Button 
           variant={activeTab === 'analytics' ? 'primary' : 'secondary'}
@@ -633,7 +348,6 @@ const Sessions = () => {
       <div className="sessions-content">
         {activeTab === 'my-sessions' && renderMyServices()}
         {activeTab === 'new-session' && renderNewSession()}
-        {activeTab === 'pricing' && renderPricing()}
         {activeTab === 'analytics' && renderAnalytics()}
       </div>
     </div>
@@ -641,5 +355,4 @@ const Sessions = () => {
 }
 
 export default Sessions
-
-
+              

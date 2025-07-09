@@ -77,7 +77,11 @@ const PreviousTours: React.FC = () => {
         averageRating: 4.8,
         totalReviews: 4,
         earnings: 480,
-        photos: ['/api/placeholder/400/300', '/api/placeholder/400/300'],
+        photos: [
+          'https://images.unsplash.com/photo-1446776877081-d282a0f896e2?w=400&h=300&fit=crop',
+          'https://images.unsplash.com/photo-1502134249126-9f3755a50d78?w=400&h=300&fit=crop',
+          'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=400&h=300&fit=crop'
+        ],
         weatherConditions: 'Clear skies, 15°C',
         equipmentUsed: ['Celestron NexStar 8SE', 'Orion SkyQuest XT10'],
         highlights: ['Saturn rings clearly visible', 'Andromeda Galaxy photography'],
@@ -115,7 +119,12 @@ const PreviousTours: React.FC = () => {
         averageRating: 4.9,
         totalReviews: 6,
         earnings: 720,
-        photos: ['/api/placeholder/400/300', '/api/placeholder/400/300', '/api/placeholder/400/300'],
+        photos: [
+          'https://images.unsplash.com/photo-1464207687429-7505649dae38?w=400&h=300&fit=crop',
+          'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop',
+          'https://images.unsplash.com/photo-1545156521-77bd85671d30?w=400&h=300&fit=crop',
+          'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop'
+        ],
         weatherConditions: 'Perfect conditions, 12°C',
         equipmentUsed: ['Canon EOS Ra', 'Sky-Watcher Star Adventurer', 'Various lenses'],
         highlights: ['Milky Way core shots', 'Long exposure techniques', 'Post-processing workshop'],
@@ -145,7 +154,10 @@ const PreviousTours: React.FC = () => {
         averageRating: 4.7,
         totalReviews: 4,
         earnings: 600,
-        photos: ['/api/placeholder/400/300'],
+        photos: [
+          'https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?w=400&h=300&fit=crop',
+          'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop'
+        ],
         weatherConditions: 'Indoor workshop',
         equipmentUsed: ['Dobsonian telescope kits', 'Various tools'],
         highlights: ['Built functional telescopes', 'Understanding optics', 'First light success'],
@@ -166,7 +178,10 @@ const PreviousTours: React.FC = () => {
         averageRating: 4.5,
         totalReviews: 2,
         earnings: 200,
-        photos: ['/api/placeholder/400/300'],
+        photos: [
+          'https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?w=400&h=300&fit=crop',
+          'https://images.unsplash.com/photo-1614728263952-84ea256f9679?w=400&h=300&fit=crop'
+        ],
         weatherConditions: 'Partly cloudy, 18°C',
         equipmentUsed: ['Refractor telescope'],
         highlights: ['Jupiter and moons', 'Mars observation'],
@@ -256,7 +271,12 @@ const PreviousTours: React.FC = () => {
       {/* Header */}
       <div className="page-header">
         <div className="header-content">
-          <div className="header-top">
+          <div className="title-section">
+            <h2>Previous Tours</h2>
+            <p>View your completed tours and manage reviews</p>
+          </div>
+        </div>
+        <div className="header-top">
             <Button
               variant="primary"
               size="medium"
@@ -266,11 +286,6 @@ const PreviousTours: React.FC = () => {
               Back to Booking Requests
             </Button>
           </div>
-          <div className="title-section">
-            <h2>Previous Tours</h2>
-            <p>View your completed tours and manage reviews</p>
-          </div>
-        </div>
       </div>
 
       {/* Statistics Dashboard */}
@@ -393,7 +408,7 @@ const PreviousTours: React.FC = () => {
                 <div className="tour-header">
                   <div className="tour-image">
                     <img 
-                      src={tour.photos[0] || '/api/placeholder/400/200'} 
+                      src={tour.photos[0] || 'https://images.unsplash.com/photo-1446776877081-d282a0f896e2?w=400&h=200&fit=crop'} 
                       alt={tour.serviceName}
                     />
                     <div className="category-badge">

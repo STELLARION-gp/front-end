@@ -16,7 +16,7 @@ import {
 } from 'chart.js';
 import Button from '../../components/Button';
 import Card from '../../components/Card';
-import { Calendar, Clock, Users, Star, TrendingUp, Activity, ArrowLeft } from 'lucide-react';
+import { Calendar, Clock, Users, Star, TrendingUp, Activity, ArrowLeft, MessageCircle } from 'lucide-react';
 import '../../styles/pages/guide/_confirmedBookings.scss';
 
 // Register Chart.js components
@@ -506,6 +506,7 @@ const ConfirmedBookings: React.FC = () => {
                   <th>Duration</th>
                   <th>Participants</th>
                   <th>Rating</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -562,6 +563,17 @@ const ConfirmedBookings: React.FC = () => {
                         ) : (
                           <span className="no-rating">-</span>
                         )}
+                      </td>
+                      <td className="actions-cell">
+                        <Button
+                          variant="ghost"
+                          size="small"
+                          icon={<MessageCircle className="w-4 h-4" />}
+                          onClick={() => navigate(`/dashboard/tour-chat?tourId=${booking.id}`)}
+                          className="chat-button"
+                        >
+                          Chat
+                        </Button>
                       </td>
                     </motion.tr>
                   ))}

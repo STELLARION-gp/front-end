@@ -4,6 +4,7 @@ import { RoleGuard } from '../components/RoleGuard';
 import Profile from '../pages/Profile';
 import Settings from '../pages/Settings';
 import DashboardOverview from '../pages/DashboardOverview';
+import PaymentProcessing from '../pages/guide/PaymentProcessing';
 import Button from '../components/Button';
 
 import Preview from '../pages/learner/Preview';
@@ -27,6 +28,8 @@ import GuideMediaDashboard from '../pages/guide/GuideMediaDashboard';
 // import MentorProfile from '../pages/mentor/MentorProfile';
 // import BookingRequests from '../pages/guide/BookingRequests';
 import ConfirmedBookings from '../pages/guide/ConfirmedBookings';
+import PreviousTours from '../pages/guide/PreviousTours';
+import TourChat from '../pages/guide/TourChat';
 
 import BookingRequests from '../pages/guide/BookingRequests';
 import AstroHub from '../pages/enthuasist/AstroHub';
@@ -36,6 +39,16 @@ import AstronomySessionsPage from '../pages/learner/AstronomySessionsPage';
 import Sponsorships from '../pages/enthuasist/Sponsorships';
 import RecordedSessionPage from '../pages/learner/Recorded_Session_Page';
 import NightCampDetails from '../pages/learner/NightCampDetails';
+import Influencers from '../pages/enthuasist/Influencers';
+import Mentors from '../pages/learner/Mentors';
+import ApplyMentor from '../pages/learner/ApplyMentor';
+import AstronomyServices from '../pages/learner/AstronomyServices';
+import AstronomyServiceDetails from '../pages/learner/AstronomyServiceDetails';
+import Quizzes from '../pages/enthuasist/Quizzes';
+//import { Session } from 'inspector/promises';
+import Sessions from '../pages/influencer/Sessions';
+import GuideDetails from '../pages/learner/GuideDetails';
+import CompetitionPage from '../pages/learner/CompetitionPage';
 
 // Create placeholder components for different pages - all memoized
 // const BlogsPage = memo(() => (
@@ -184,6 +197,14 @@ const DashboardRoutes = () => {
                 }
             />
             <Route
+                path='mentors'
+                element={
+                    <RoleGuard allowedRoles={['learner','enthusiast']}>
+                        <Mentors />
+                    </RoleGuard>
+                }
+            />
+            <Route
                 path="celestial-events"
                 element={
                     <RoleGuard allowedRoles={['learner']}>
@@ -196,6 +217,38 @@ const DashboardRoutes = () => {
                 element={
                     <RoleGuard allowedRoles={['learner']}>
                         <NightCampDetails />
+                    </RoleGuard>
+                }
+            />
+            <Route
+                path='astronomy-services'
+                element={
+                    <RoleGuard allowedRoles={['learner']}>
+                        <AstronomyServices />
+                    </RoleGuard>
+                }
+            />
+            <Route
+                path='astronomy-services/:id'
+                element={
+                    <RoleGuard allowedRoles={['learner']}>
+                        <AstronomyServiceDetails />
+                    </RoleGuard>
+                }
+            />
+            <Route
+                path='guide-profile'
+                element={
+                    <RoleGuard allowedRoles={['learner']}>
+                        <GuideDetails />
+                    </RoleGuard>
+                }
+            />
+            <Route
+                path="competition"
+                element={
+                    <RoleGuard allowedRoles={['learner']}>
+                        <CompetitionPage />
                     </RoleGuard>
                 }
             />
@@ -230,6 +283,20 @@ const DashboardRoutes = () => {
             <Route
                 path="confirmed-bookings"
                 element={<ConfirmedBookings />}
+            />
+
+            <Route
+                path="previous-tours"
+                element={<PreviousTours />}
+            />
+
+            <Route
+                path="tour-chat"
+                element={
+                    <RoleGuard allowedRoles={['guide', 'admin']}>
+                        <TourChat />
+                    </RoleGuard>
+                }
             />
 
             <Route
@@ -357,8 +424,55 @@ const DashboardRoutes = () => {
                         <Sponsorships />
                     </RoleGuard>
                 }
+            />  
+    
+            <Route
+                path="influencers"
+                element={
+                    <RoleGuard allowedRoles={['enthusiast','learner']}>
+                        <Influencers />
+                    </RoleGuard>
+                }
+            />
+                
+
+
+            <Route
+                path="apply-mentor/:mentorId"
+                element={
+                    <RoleGuard allowedRoles={['learner','enthusiast']}>
+                        <ApplyMentor />
+                    </RoleGuard>
+                }
             />
 
+            <Route
+                path="quizzes"
+                element={
+                    <RoleGuard allowedRoles={['enthusiast']}>
+                        <Quizzes />
+                    </RoleGuard>
+                }
+            />
+
+            <Route
+                path="payments"
+                element={
+                    <RoleGuard allowedRoles={['guide', 'admin', 'moderator']}>
+                        <PaymentProcessing />
+                    </RoleGuard>
+                }
+            />
+
+            <Route
+                path="sessions-making"
+                element={
+                    <RoleGuard allowedRoles={['influencer']}>
+                        <Sessions />
+                    </RoleGuard>
+                }
+            />
+        
 
             {/* Default redirect to overview */}
             <Route path="" element={<Navigate to="overview" replace />} />

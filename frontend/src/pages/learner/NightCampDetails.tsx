@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useParams } from "react-router-dom";
+
 import '../../styles/pages/learner/NightCampDetails.scss';
 import Button from "../../components/Button";
 
@@ -40,7 +40,7 @@ const initialComments = [
 ];
 
 const NightCampDetails: React.FC = () => {
-  const { campId } = useParams();
+  
   const [comments, setComments] = useState(initialComments);
   const [newComment, setNewComment] = useState("");
 

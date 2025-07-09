@@ -41,8 +41,13 @@ const NasaImageModal: React.FC<NasaImageModalProps> = ({ open, onClose, image, c
 
   return (
     <div className="nasa-image-modal-overlay">
-      <div className="nasa-image-modal">
-        <button className="nasa-image-modal__close" onClick={onClose}>&times;</button>
+      <div className="nasa-image-modal nasa-image-modal--vertical">
+        <button
+          className="nasa-image-modal__close"
+          onClick={onClose}
+        >
+          &times;
+        </button>
         <div className="nasa-image-modal__img-section">
           <img src={image.url} alt={image.title} className="nasa-image-modal__img" />
           <div className="nasa-image-modal__img-actions">

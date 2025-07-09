@@ -76,7 +76,7 @@ const AnnouncementsPage: React.FC = () => {
 
     return (
         <div style={{ maxWidth: 600, margin: '0 auto', padding: 24 }}>
-            <h1>Announcements</h1>
+            <h1>Add Announcements</h1> <br/>
             <form onSubmit={handleSubmit} style={{ marginBottom: 24 }}>
                 <input
                     name="title"
@@ -85,7 +85,7 @@ const AnnouncementsPage: React.FC = () => {
                     onChange={handleChange}
                     required
                     style={{ width: '100%', marginBottom: 8, padding: 8, backgroundColor: 'transparent', color: 'white', border: '1px solid white' }}
-                />
+                /> 
                 <textarea
                     name="content"
                     placeholder="Content"
@@ -99,6 +99,10 @@ const AnnouncementsPage: React.FC = () => {
                 <button type="submit" disabled={loading} style={{ marginRight: 8, backgroundColor: 'transparent', border: '1px solid white', color: 'white' }}>
                     {editing ? 'Update' : 'Add'} Announcement
                 </button>
+
+                <br/>
+                <br/>
+                <h1>Placed Announcements</h1>
                 {editing && (
                     <button type="button" onClick={handleCancelEdit} disabled={loading}>
                         Cancel

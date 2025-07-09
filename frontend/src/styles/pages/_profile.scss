@@ -12,7 +12,7 @@ $danger-color: $danger-color;
 $danger-color-hover: $danger-color-dark;
 
 // --- Typography ---
-$font-size-base: 1rem; // 16px
+$font-size-base: 14px; 
 $line-height-base: 1.5;
 
 // --- Spacing & Sizing ---
@@ -95,12 +95,12 @@ $transition-duration: 0.2s;
 }
 
 // Profile Avatar
-.profile-avatar-container {
+.profile-avatar-pr-container {
   position: relative;
   flex-shrink: 0;
 }
 
-.profile-avatar {
+.profile-avatar-pr {
   width: 180px;
   height: 180px;
   border-radius: 50%;
@@ -1078,7 +1078,7 @@ $transition-duration: 0.2s;
     display: none !important;
   }
 
-  .profile-avatar {
+  .profile-avatar-pr {
     border: 2px solid #ccc !important;
   }
 }

@@ -639,8 +639,8 @@ const Profile: React.FC = () => {
           <div className="p-8">
             <div className="profile-header flex items-start gap-8">
               {/* Profile Picture */}
-              <div className="profile-avatar-container">
-                <div className="profile-avatar overflow-hidden">
+              <div className="profile-avatar-pr-container">
+                <div className="profile-avatar-pr overflow-hidden">
                   {profileData.profilePicture ? (
                     <img src={profileData.profilePicture} alt="Profile" className="w-full h-full object-cover" />
                   ) : (

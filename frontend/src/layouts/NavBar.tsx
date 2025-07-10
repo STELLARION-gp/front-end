@@ -3,7 +3,6 @@ import styles from "../styles/components/_navBar.module.scss";
 import { useNavigate } from "react-router-dom";
 import { useI18n } from "../i18n/useI18n";
 import Button from "../components/Button";
-import LanguageSwitcher from "../components/LanguageSwitcher";
 
 type NavItem = {
     label: string; // label should be the i18n key
@@ -44,9 +43,6 @@ const Navbar: React.FC<NavbarProps> = ({ logo, navItemsR, navItemsL }) => {
                         <a href={item.href}>{t(item.label)}</a>
                     </li>
                 ))}
-                <li>
-                    <LanguageSwitcher variant="dropdown" />
-                </li>
                 <li>
                     <Button
                         className="hidden"

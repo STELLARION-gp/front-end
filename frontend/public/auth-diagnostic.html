@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentication Diagnostic</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+
+        .test-section {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 16px 0;
+        }
+
+        .success {
+            color: #10b981;
+        }
+
+        .error {
+            color: #ef4444;
+        }
+
+        .warning {
+            color: #f59e0b;
+        }
+
+        .info {
+            color: #3b82f6;
+        }
+
+        pre {
+            background: #0f172a;
+            padding: 12px;
+            border-radius: 4px;
+            overflow: auto;
+            font-size: 12px;
+            max-height: 300px;
+        }
+
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 4px;
+        }
+
+        button:hover {
+            background: #2563eb;
+        }
+
+        .auth-info {
+            background: #334155;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 8px 0;
+        }
+
+        .token-display {
+            background: #0f172a;
+            border: 1px solid #475569;
+            border-radius: 4px;
+            padding: 12px;
+            margin: 8px 0;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 11px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🔐 Authentication Diagnostic Tool</h1>
+    <p>This tool checks the current authentication state and token validity.</p>
+
+    <div class="test-section">
+        <h3>🔍 Current Authentication Status</h3>
+        <div id="authStatus" class="auth-info">
+            <p>Checking authentication state...</p>
+        </div>
+        <button onclick="checkAuthState()">🔄 Refresh Auth Status</button>
+        <button onclick="testTokenValidity()">🔑 Test Token</button>
+        <button onclick="forceTokenRefresh()">🔄 Force Token Refresh</button>
+    </div>
+
+    <div class="test-section">
+        <h3>🎯 Quick Solutions</h3>
+        <div id="solutionsArea">
+            <button onclick="signOut()">🚪 Sign Out</button>
+            <button onclick="enableMockMode()">🧪 Enable Mock Mode</button>
+            <button onclick="goToLogin()">🔐 Go to Login</button>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h3>🔑 Firebase Token Details</h3>
+        <div id="tokenInfo" class="token-display">
+            Click "Test Token" to see token details...
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h3>📝 Debug Logs</h3>
+        <pre id="debugLogs">Authentication diagnostic ready...\n</pre>
+        <button onclick="clearLogs()">Clear Logs</button>
+    </div>
+
+    <script>
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            document.getElementById('debugLogs').textContent += `[${timestamp}] ${message}\n`;
+            document.getElementById('debugLogs').scrollTop = document.getElementById('debugLogs').scrollHeight;
+        }
+
+        function clearLogs() {
+            document.getElementById('debugLogs').textContent = 'Logs cleared...\n';
+        }
+
+        async function checkAuthState() {
+            log('🔍 Checking authentication state...');
+
+            try {
+                // Try to access Firebase auth from parent window (main app)
+                const firebase = window.parent?.firebase || window.firebase;
+
+                if (!firebase?.auth) {
+                    document.getElementById('authStatus').innerHTML = `
+                        <div class="error">❌ Firebase Auth Not Available</div>
+                        <div>Please visit the main app first: <a href="http://localhost:5174" target="_blank">http://localhost:5174</a></div>
+                    `;
+                    log('❌ Firebase auth not available');
+                    return;
+                }
+
+                const auth = firebase.auth();
+                const currentUser = auth.currentUser;
+
+                if (!currentUser) {
+                    document.getElementById('authStatus').innerHTML = `
+                        <div class="warning">⚠️ No User Logged In</div>
+                        <div>Status: Not authenticated</div>
+                        <div>Action needed: Log in to the application</div>
+                    `;
+                    log('⚠️ No user currently logged in');
+                    return;
+                }
+
+                const userInfo = {
+                    uid: currentUser.uid,
+                    email: currentUser.email,
+                    displayName: currentUser.displayName,
+                    emailVerified: currentUser.emailVerified,
+                    isAnonymous: currentUser.isAnonymous
+                };
+
+                document.getElementById('authStatus').innerHTML = `
+                    <div class="success">✅ User Authenticated</div>
+                    <div><strong>UID:</strong> ${userInfo.uid}</div>
+                    <div><strong>Email:</strong> ${userInfo.email || 'Not provided'}</div>
+                    <div><strong>Display Name:</strong> ${userInfo.displayName || 'Not set'}</div>
+                    <div><strong>Email Verified:</strong> ${userInfo.emailVerified ? 'Yes' : 'No'}</div>
+                    <div><strong>Anonymous:</strong> ${userInfo.isAnonymous ? 'Yes' : 'No'}</div>
+                `;
+
+                log(`✅ User authenticated: ${userInfo.email}`);
+                log(`User details: ${JSON.stringify(userInfo, null, 2)}`);
+
+            } catch (error) {
+                document.getElementById('authStatus').innerHTML = `
+                    <div class="error">❌ Error Checking Auth State</div>
+                    <div>Error: ${error.message}</div>
+                `;
+                log(`❌ Error checking auth state: ${error.message}`);
+            }
+        }
+
+        async function testTokenValidity() {
+            log('🔑 Testing Firebase token validity...');
+
+            try {
+                const firebase = window.parent?.firebase || window.firebase;
+
+                if (!firebase?.auth) {
+                    log('❌ Firebase auth not available');
+                    return;
+                }
+
+                const auth = firebase.auth();
+                const currentUser = auth.currentUser;
+
+                if (!currentUser) {
+                    document.getElementById('tokenInfo').textContent = 'No user logged in - no token available';
+                    log('❌ No user to get token from');
+                    return;
+                }
+
+                log('🔄 Getting Firebase ID token...');
+                const token = await currentUser.getIdToken();
+
+                // Decode token payload (basic info only)
+                const tokenParts = token.split('.');
+                const payload = JSON.parse(atob(tokenParts[1]));
+
+                const now = Math.floor(Date.now() / 1000);
+                const expiresIn = payload.exp - now;
+
+                document.getElementById('tokenInfo').innerHTML = `
+                    <div><strong>Token Status:</strong> <span class="success">Valid</span></div>
+                    <div><strong>Issued:</strong> ${new Date(payload.iat * 1000).toLocaleString()}</div>
+                    <div><strong>Expires:</strong> ${new Date(payload.exp * 1000).toLocaleString()}</div>
+                    <div><strong>Expires in:</strong> ${Math.floor(expiresIn / 60)} minutes</div>
+                    <div><strong>Issuer:</strong> ${payload.iss}</div>
+                    <div><strong>Audience:</strong> ${payload.aud}</div>
+                    <div><strong>Subject (UID):</strong> ${payload.sub}</div>
+                    <br>
+                    <div><strong>Token Preview:</strong></div>
+                    <div style="font-size: 10px; color: #64748b;">${token.substring(0, 100)}...</div>
+                `;
+
+                log('✅ Token obtained and decoded successfully');
+                log(`Token expires in ${Math.floor(expiresIn / 60)} minutes`);
+
+                // Test the token with backend
+                await testTokenWithBackend(token);
+
+            } catch (error) {
+                document.getElementById('tokenInfo').innerHTML = `
+                    <div class="error">Error getting token: ${error.message}</div>
+                `;
+                log(`❌ Error getting/testing token: ${error.message}`);
+            }
+        }
+
+        async function testTokenWithBackend(token) {
+            log('📡 Testing token with backend...');
+
+            try {
+                const response = await fetch('http://localhost:5000/api/user/profile', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                log(`📨 Backend response: ${response.status} ${response.statusText}`);
+
+                if (response.ok) {
+                    const data = await response.json();
+                    log('✅ Backend accepts token - API call successful');
+                    document.getElementById('tokenInfo').innerHTML += `
+                        <div class="success"><br><strong>Backend Test:</strong> ✅ Token Accepted</div>
+                    `;
+                } else {
+                    const errorText = await response.text();
+                    log(`❌ Backend rejected token: ${errorText}`);
+                    document.getElementById('tokenInfo').innerHTML += `
+                        <div class="error"><br><strong>Backend Test:</strong> ❌ Token Rejected</div>
+                        <div class="error">Response: ${errorText}</div>
+                    `;
+                }
+            } catch (error) {
+                log(`❌ Backend test failed: ${error.message}`);
+                document.getElementById('tokenInfo').innerHTML += `
+                    <div class="error"><br><strong>Backend Test:</strong> ❌ Connection Failed</div>
+                    <div class="error">Error: ${error.message}</div>
+                `;
+            }
+        }
+
+        async function forceTokenRefresh() {
+            log('🔄 Forcing token refresh...');
+
+            try {
+                const firebase = window.parent?.firebase || window.firebase;
+                const auth = firebase.auth();
+                const currentUser = auth.currentUser;
+
+                if (!currentUser) {
+                    log('❌ No user to refresh token for');
+                    return;
+                }
+
+                log('🔄 Getting fresh token...');
+                const newToken = await currentUser.getIdToken(true); // Force refresh
+                log('✅ Token refreshed successfully');
+
+                // Test the new token
+                await testTokenWithBackend(newToken);
+
+            } catch (error) {
+                log(`❌ Token refresh failed: ${error.message}`);
+            }
+        }
+
+        async function signOut() {
+            log('🚪 Signing out...');
+
+            try {
+                const firebase = window.parent?.firebase || window.firebase;
+                const auth = firebase.auth();
+
+                await auth.signOut();
+                log('✅ Signed out successfully');
+
+                setTimeout(() => {
+                    checkAuthState();
+                }, 1000);
+
+            } catch (error) {
+                log(`❌ Sign out failed: ${error.message}`);
+            }
+        }
+
+        function enableMockMode() {
+            log('🧪 Mock mode needs to be enabled in AuthContext.tsx');
+            log('Set USE_MOCK_PROFILE = true in AuthContext.tsx');
+
+            document.getElementById('solutionsArea').innerHTML += `
+                <div class="info" style="margin-top: 10px;">
+                    <p><strong>To enable mock mode:</strong></p>
+                    <p>1. Edit <code>src/AuthContext.tsx</code></p>
+                    <p>2. Change <code>USE_MOCK_PROFILE = false</code> to <code>USE_MOCK_PROFILE = true</code></p>
+                    <p>3. Save and refresh the app</p>
+                </div>
+            `;
+        }
+
+        function goToLogin() {
+            window.open('http://localhost:5174/login', '_blank');
+        }
+
+        // Initialize
+        log('🔐 Authentication diagnostic tool ready');
+        checkAuthState();
+    </script>
+</body>
+
+</html>

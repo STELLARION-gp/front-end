@@ -106,7 +106,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       console.log('🔄 Auth state changed:', { user: !!firebaseUser, email: firebaseUser?.email });
-      
+
       // Check for redirect result first
       try {
         const redirectResult = await getRedirectResult(auth);
@@ -118,7 +118,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       } catch (redirectError) {
         console.error('❌ Error handling redirect result:', redirectError);
       }
-      
+
       setUser(firebaseUser);
 
       if (firebaseUser) {
@@ -361,9 +361,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       } catch (popupError: unknown) {
         const popupAuthError = popupError as { code?: string; message?: string };
         console.warn('⚠️ Popup failed, attempting redirect:', popupAuthError.code);
-        
-        if (popupAuthError.code === 'auth/popup-blocked' || 
-            popupAuthError.code === 'auth/popup-closed-by-user') {
+
+        if (popupAuthError.code === 'auth/popup-blocked' ||
+          popupAuthError.code === 'auth/popup-closed-by-user') {
           console.log('🔄 Using redirect method as fallback...');
           await signInWithRedirect(auth, googleProvider);
           return null; // Redirect will reload the page
@@ -389,24 +389,43 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       if (isNewUser) {
         console.log('👤 New user detected, registering with backend...');
 
-        // Extract names from displayName
-        const nameParts = user.displayName?.split(' ') || [];
-        const firstName = nameParts[0] || '';
-        const lastName = nameParts.slice(1).join(' ') || '';
+        try {
+          // Extract names from displayName
+          const nameParts = user.displayName?.split(' ') || [];
+          const firstName = nameParts[0] || '';
+          const lastName = nameParts.slice(1).join(' ') || '';
 
-        // Register new user with backend
-        await apiService.registerUser({
-          email: user.email || '',
-          displayName: user.displayName || '',
-          firstName,
-          lastName,
-          role: 'learner' // Default role
-        });
+          // Register new user with backend
+          await apiService.registerUser({
+            email: user.email || '',
+            displayName: user.displayName || '',
+            firstName,
+            lastName,
+            role: 'learner' // Default role
+          });
+
+          console.log('✅ Backend registration successful');
+
+        } catch (registrationError) {
+          console.error('❌ Backend registration failed:', registrationError);
+          console.error('🔍 Registration error details:', JSON.stringify(registrationError, null, 2));
+
+          // Continue anyway - user is created in Firebase
+          console.log('⚠️ Continuing with Firebase-only user (backend will sync later)...');
+        }
       }
 
       // Fetch user profile from backend
       console.log('📡 Fetching user profile from backend...');
-      const profile = await fetchUserProfile();
+      let profile;
+
+      try {
+        profile = await fetchUserProfile();
+      } catch (profileError) {
+        console.error('❌ Profile fetch failed:', profileError);
+        console.error('🔍 Profile error details:', JSON.stringify(profileError, null, 2));
+        profile = null;
+      }
 
       if (!profile) {
         console.log('⚠️ Backend profile fetch failed, creating basic profile');

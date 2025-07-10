@@ -55,6 +55,13 @@ const BookingRequests: React.FC = () => {
         <h2>Booking Requests</h2>
         <div className="header-actions">
           <Button 
+            variant="secondary" 
+            size="medium"
+            onClick={() => navigate('/dashboard/previous-tours')}
+          >
+            Previous Tours
+          </Button>
+          <Button 
             variant="primary" 
             size="medium"
             onClick={() => navigate('/dashboard/confirmed-bookings')}
@@ -67,7 +74,7 @@ const BookingRequests: React.FC = () => {
       <div className="stats-grid">
         <Card className="stat-card total" variant="outlined">
           <div className="stat-content">
-            <div className="stat-icon">
+            <div className="stat-icon1">
               <Users className="w-6 h-6" />
             </div>
             <div className="stat-info">
@@ -79,7 +86,7 @@ const BookingRequests: React.FC = () => {
         
         <Card className="stat-card pending" variant="outlined">
           <div className="stat-content">
-            <div className="stat-icon">
+            <div className="stat-icon1">
               <Calendar className="w-6 h-6" />
             </div>
             <div className="stat-info">
@@ -91,7 +98,7 @@ const BookingRequests: React.FC = () => {
         
         <Card className="stat-card accepted" variant="outlined">
           <div className="stat-content">
-            <div className="stat-icon">
+            <div className="stat-icon1">
               <CheckCircle className="w-6 h-6" />
             </div>
             <div className="stat-info">
@@ -103,7 +110,7 @@ const BookingRequests: React.FC = () => {
         
         <Card className="stat-card rejected" variant="outlined">
           <div className="stat-content">
-            <div className="stat-icon">
+            <div className="stat-icon1">
               <XCircle className="w-6 h-6" />
             </div>
             <div className="stat-info">

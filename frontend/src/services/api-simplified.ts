@@ -124,8 +124,9 @@ class ApiService {
     }
 
     // Simplified session validation - just check if backend is available
-    async validateUserSession(_firebaseUser: { uid: string; email: string | null; displayName: string | null }) {
+    async validateUserSession(firebaseUser: { uid: string; email: string | null; displayName: string | null }) {
         console.log('🔐 Simplified session validation - checking backend availability...');
+        console.log('Firebase user:', firebaseUser);
 
         const isAvailable = await this.isBackendAvailable();
         if (isAvailable) {

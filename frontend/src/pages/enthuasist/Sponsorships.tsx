@@ -27,6 +27,27 @@ interface SponsorshipHistory {
   status: 'completed' | 'pending' | 'cancelled';
 }
 
+interface CardDetails {
+  cardNumber: string;
+  expiryDate: string;
+  cvv: string;
+  cardholderName: string;
+}
+
+interface SponsorDetails {
+  name: string;
+  email: string;
+  message: string;
+}
+
+interface PaymentData {
+  amount: number;
+  paymentMethod: 'card' | 'bank' | 'paypal';
+  cardDetails: CardDetails | null;
+  sponsorDetails: SponsorDetails;
+  eventId?: string;
+}
+
 const Sponsorships: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'seeking' | 'history'>('seeking');
   const [showSponsorForm, setShowSponsorForm] = useState(false);
@@ -35,7 +56,7 @@ const Sponsorships: React.FC = () => {
   const [sponsorMessage, setSponsorMessage] = useState<string>('');
   const [sponsorName, setSponsorName] = useState<string>('');
   const [sponsorEmail, setSponsorEmail] = useState<string>('');
-  
+
   // Payment Gateway States
   const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'bank' | 'paypal'>('card');
@@ -53,7 +74,7 @@ const Sponsorships: React.FC = () => {
 
   const handleSponsorSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validate form data
     if (!sponsorName || !sponsorEmail || !sponsorAmount) {
       alert('Please fill in all required fields.');
@@ -82,11 +103,11 @@ const Sponsorships: React.FC = () => {
         if (!cardNumber || !expiryDate || !cvv || !cardholderName) {
           throw new Error('Please fill in all card details.');
         }
-        
+
         if (cardNumber.replace(/\s/g, '').length < 16) {
           throw new Error('Please enter a valid card number.');
         }
-        
+
         if (cvv.length < 3) {
           throw new Error('Please enter a valid CVV.');
         }
@@ -101,13 +122,13 @@ const Sponsorships: React.FC = () => {
           expiryDate,
           cvv,
           cardholderName
-        } : null,
+        } : undefined,
         sponsorDetails: {
           name: sponsorName,
           email: sponsorEmail,
           message: sponsorMessage
         },
-        eventId: selectedEvent?.id
+        eventId: selectedEvent?.id ? parseInt(selectedEvent.id) : undefined
       });
 
       // Payment successful
@@ -122,7 +143,7 @@ const Sponsorships: React.FC = () => {
     }
   };
 
-  const processPayment = async (paymentData: any): Promise<void> => {
+  const processPayment = async (paymentData: PaymentData): Promise<void> => {
     // Simulate API call to payment gateway (replace with actual implementation)
     return new Promise((resolve, reject) => {
       setTimeout(() => {
@@ -131,16 +152,16 @@ const Sponsorships: React.FC = () => {
           reject(new Error('Amount too low'));
           return;
         }
-        
-        if (paymentData.paymentMethod === 'card' && 
-            paymentData.cardDetails?.cardNumber === '4000000000000002') {
+
+        if (paymentData.paymentMethod === 'card' &&
+          paymentData.cardDetails?.cardNumber === '4000000000000002') {
           reject(new Error('Card declined. Please use a different card.'));
           return;
         }
-        
+
         // Simulate 95% success rate
         if (Math.random() > 0.05) {
-          resolve(paymentData);
+          resolve();
         } else {
           reject(new Error('Payment processing failed. Please try again.'));
         }
@@ -292,7 +313,7 @@ const Sponsorships: React.FC = () => {
   const totalContributions = sponsorshipHistory
     .filter(item => item.status === 'completed')
     .reduce((sum, item) => sum + item.amount, 0);
-  
+
   const eventsSponsored = sponsorshipHistory.filter(item => item.status === 'completed').length;
 
   const formatCurrency = (amount: number) => {
@@ -323,7 +344,7 @@ const Sponsorships: React.FC = () => {
       <div className="sponsorships-header">
         <h1 className="page-title">Sponsorships</h1>
         <p className="page-subtitle">Support amazing astronomy events and track your contributions to the space community</p>
-        
+
         {/* Statistics Cards */}
         <div className="stats-grid">
           <Card variant="elevated" className="stats-card">
@@ -337,7 +358,7 @@ const Sponsorships: React.FC = () => {
               </div>
             </div>
           </Card>
-          
+
           <Card variant="elevated" className="stats-card">
             <div className="stat-content">
               <div className="stat-icon">
@@ -378,31 +399,31 @@ const Sponsorships: React.FC = () => {
                   <h3 className="event-title">{event.name}</h3>
                   <span className="event-category">{event.category}</span>
                 </div>
-                
+
                 <div className="event-details">
                   <div className="detail-item">
                     <CalendarDaysIcon className="detail-icon" />
                     <span>{formatDate(event.date)}</span>
                   </div>
-                  
+
                   <div className="detail-item">
                     <MapPinIcon className="detail-icon" />
                     <span>{event.location}</span>
                   </div>
-                  
+
                   <div className="detail-item">
                     <EnvelopeIcon className="detail-icon" />
                     <span>{event.contact}</span>
                   </div>
-                  
+
                   <div className="detail-item">
                     <UserGroupIcon className="detail-icon" />
                     <span>{event.attendees} expected attendees</span>
                   </div>
                 </div>
-                
+
                 <p className="event-description">{event.description}</p>
-                
+
                 <div className="funding-section">
                   <div className="funding-header">
                     <span className="funding-label">Fundraising Progress</span>
@@ -410,22 +431,22 @@ const Sponsorships: React.FC = () => {
                       {formatCurrency(event.amountRaised)} / {formatCurrency(event.fundraisingGoal)}
                     </span>
                   </div>
-                  
+
                   <ProgressBar
                     current={event.amountRaised}
                     max={event.fundraisingGoal}
                     showNumbers={false}
                     className="funding-progress"
                   />
-                  
+
                   <div className="progress-percentage">
                     {getProgressPercentage(event.amountRaised, event.fundraisingGoal).toFixed(1)}% funded
                   </div>
                 </div>
-                
+
                 <div className="event-actions">
-                  <Button 
-                    variant="primary" 
+                  <Button
+                    variant="primary"
                     size="medium"
                     onClick={() => handleSponsorClick(event)}
                   >
@@ -471,7 +492,7 @@ const Sponsorships: React.FC = () => {
                 </tbody>
               </table>
             </div>
-            
+
             {sponsorshipHistory.length === 0 && (
               <div className="empty-state">
                 <CurrencyDollarIcon className="empty-icon" />
@@ -496,7 +517,7 @@ const Sponsorships: React.FC = () => {
                 ×
               </button>
             </div>
-            
+
             <div className="sponsor-modal-body">
               {!showPaymentForm ? (
                 <>
@@ -557,15 +578,15 @@ const Sponsorships: React.FC = () => {
                     </div>
 
                     <div className="form-actions">
-                      <Button 
-                        type="button" 
-                        variant="border" 
+                      <Button
+                        type="button"
+                        variant="border"
                         onClick={resetForm}
                       >
                         Cancel
                       </Button>
-                      <Button 
-                        type="submit" 
+                      <Button
+                        type="submit"
                         variant="primary"
                       >
                         Continue to Payment
@@ -607,7 +628,7 @@ const Sponsorships: React.FC = () => {
                         <CreditCardIcon className="payment-icon" />
                         <span>Credit/Debit Card</span>
                       </label>
-                      
+
                       <label className={`payment-option ${paymentMethod === 'bank' ? 'selected' : ''}`}>
                         <input
                           type="radio"
@@ -618,7 +639,7 @@ const Sponsorships: React.FC = () => {
                         <CreditCardIcon className="payment-icon" />
                         <span>Bank Transfer</span>
                       </label>
-                      
+
                       <label className={`payment-option ${paymentMethod === 'paypal' ? 'selected' : ''}`}>
                         <input
                           type="radio"
@@ -734,22 +755,22 @@ const Sponsorships: React.FC = () => {
                     </div>
 
                     <div className="form-actions">
-                      <Button 
-                        type="button" 
-                        variant="border" 
+                      <Button
+                        type="button"
+                        variant="border"
                         onClick={goBackToSponsorForm}
                         disabled={isProcessingPayment}
                       >
                         Back
                       </Button>
-                      <Button 
-                        type="submit" 
+                      <Button
+                        type="submit"
                         variant="primary"
                         disabled={isProcessingPayment}
                       >
                         {isProcessingPayment ? (
                           <span className="processing">
-                            Processing... 
+                            Processing...
                             <div className="spinner"></div>
                           </span>
                         ) : (

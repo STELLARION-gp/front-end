@@ -50,6 +50,9 @@ import Sessions from '../pages/influencer/Sessions';
 import GuideDetails from '../pages/learner/GuideDetails';
 import CompetitionPage from '../pages/learner/CompetitionPage';
 
+import Competitions from '../pages/influencer/competitions';
+
+
 // Create placeholder components for different pages - all memoized
 // const BlogsPage = memo(() => (
 //     <div className="dashboard-page">
@@ -153,6 +156,7 @@ const DashboardRoutes = () => {
                     <DashboardOverview />
                 </RoleGuard>} 
             />
+
             <Route path="profile" element={<Profile />} />
             <Route path="settings" element={<Settings />} />
 
@@ -280,6 +284,15 @@ const DashboardRoutes = () => {
                 }
             />
 
+            <Route
+                path="competitions"
+                element={
+                    <RoleGuard allowedRoles={['influencer']}>
+                    <Competitions />
+                    </RoleGuard>
+                }
+             />
+        
             <Route
                 path="confirmed-bookings"
                 element={<ConfirmedBookings />}

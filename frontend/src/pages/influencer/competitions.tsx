@@ -306,7 +306,7 @@ const CompetitionsPage: React.FC = () => {
     return (
         <div className="competitions-page">
             <div className="header">
-                <h1>Space & Me Competitions</h1>
+                <h1>Competitions</h1>
                 <button 
                     className="btn-primary"
                     onClick={() => setShowAddForm(!showAddForm)}

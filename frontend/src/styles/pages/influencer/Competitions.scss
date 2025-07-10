@@ -39,8 +39,8 @@
     // Button Styles
     .btn-primary {
         background-color: transparent;
-        border: 2px solid #4A90E2;
-        color: #4A90E2;
+        border: 2px solid white;
+        color: white;
         padding: 12px 24px;
         cursor: pointer;
         border-radius: 8px;
@@ -53,8 +53,8 @@
         flex-shrink: 0;
 
         &:hover {
-            background-color: #4A90E2;
-            color: white;
+            background-color: white;
+            color: black;
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
         }
@@ -89,8 +89,8 @@
 
     .btn-edit {
         background-color: transparent;
-        border: 1px solid #28A745;
-        color: #28A745;
+        border: 1px solid #ffffff;
+        color: #ffffff;
         padding: 6px 12px;
         cursor: pointer;
         border-radius: 4px;
@@ -99,15 +99,15 @@
         transition: all 0.3s ease;
 
         &:hover {
-            background-color: #28A745;
-            color: white;
+            background-color: #fcfcfc;
+            color: black;
         }
     }
 
     .btn-delete {
         background-color: transparent;
-        border: 1px solid #DC3545;
-        color: #DC3545;
+        border: 1px solid white;
+        color: white;
         padding: 6px 12px;
         cursor: pointer;
         border-radius: 4px;
@@ -115,8 +115,8 @@
         transition: all 0.3s ease;
 
         &:hover {
-            background-color: #DC3545;
-            color: white;
+            background-color: white;
+            color: black;
         }
     }
 

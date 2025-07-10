@@ -2,7 +2,27 @@ import React, { useState, useEffect } from 'react';
 import { Star, Edit2, Trash2, MessageCircle, Eye, Heart, Plus, Save, X, Send } from 'lucide-react';
 import '../../styles/pages/influencer/myblogs.scss'
 
-const mockBlogs = [
+type Comment = {
+    id: number;
+    user: string;
+    text: string;
+    date: string;
+};
+
+type Blog = {
+    id: number;
+    title: string;
+    content: string;
+    image: string | null;
+    author: string;
+    date: string;
+    reach: number;
+    likes: number;
+    rating: number;
+    comments: Comment[];
+};
+
+const mockBlogs: Blog[] = [
     {
         id: 1,
         title: 'The Orion Nebula: A Stellar Nursery',
@@ -35,13 +55,13 @@ const mockBlogs = [
 ];
 
 export default function MyBlogs() {
-    const [blogs, setBlogs] = useState([]);
-    const [newBlog, setNewBlog] = useState({ title: '', content: '', image: null });
-    const [editingId, setEditingId] = useState(null);
+    const [blogs, setBlogs] = useState<Blog[]>([]);
+    const [newBlog, setNewBlog] = useState<{ title: string; content: string; image: File | null }>({ title: '', content: '', image: null });
+    const [editingId, setEditingId] = useState<number | null>(null);
     const [showCreateForm, setShowCreateForm] = useState(false);
-    const [selectedBlog, setSelectedBlog] = useState(null);
+    const [selectedBlog, setSelectedBlog] = useState<Blog | null>(null);
     const [newComment, setNewComment] = useState('');
-    const [editingComment, setEditingComment] = useState(null);
+    const [editingComment, setEditingComment] = useState<number | null>(null);
 
     useEffect(() => {
         setBlogs(mockBlogs);

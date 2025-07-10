@@ -17,12 +17,18 @@
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
+        text-align: center;
     }
 
     p {
         font-size: 1.2rem;
         opacity: 0.8;
         margin-bottom: 2rem;
+        text-align: center !important;
+        display: block;
+        width: 100%;
+        margin-left: auto;
+        margin-right: auto;
     }
 }
 

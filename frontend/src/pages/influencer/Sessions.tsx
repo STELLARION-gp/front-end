@@ -41,16 +41,6 @@ const Sessions = () => {
     setShowEditModal(true)
   }
 
-  const handleViewDetails = (session) => {
-    setSelectedSession(session)
-    setShowDetailsModal(true)
-  }
-
-  const handleManageSession = (session) => {
-    setSelectedSession(session)
-    setShowManageModal(true)
-  }
-
   const handleViewAnalytics = (session) => {
     setSelectedSession(session)
     setShowAnalyticsModal(true)
@@ -92,8 +82,8 @@ const Sessions = () => {
                   </div>
                 </div>
                 <div className="session-actions">
-                  <Button onClick={() => handleManageSession(session)}>Manage Session</Button>
-                  <Button onClick={() => handleViewDetails(session)}>View Details</Button>
+                  <Button onClick={() => handleEditSession(session)}>Edit Session</Button>
+                  <Button onClick={() => handleViewAnalytics(session)}>View Analytics</Button>
                 </div>
               </div>
             ))}

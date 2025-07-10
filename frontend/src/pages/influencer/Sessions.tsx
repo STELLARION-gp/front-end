@@ -31,6 +31,26 @@ const Sessions = () => {
     { id: 2, title: 'Telescope Setup Guide', price: 2000, purchases: 89, rating: 4.9, earnings: 178000 }
   ]
 
+  const handleEditSession = (session) => {
+    // Navigate to edit session page or open edit modal
+    console.log('Edit session:', session)
+  }
+
+  const handleViewDetails = (session) => {
+    // Navigate to session details page
+    console.log('View details:', session)
+  }
+
+  const handleManageSession = (session) => {
+    // Navigate to session management page
+    console.log('Manage session:', session)
+  }
+
+  const handleViewAnalytics = (session) => {
+    // Navigate to session analytics page
+    console.log('View analytics:', session)
+  }
+
   const renderMyServices = () => (
     <div className="my-sessions-section">
       <div className="section-header">
@@ -67,8 +87,8 @@ const Sessions = () => {
                   </div>
                 </div>
                 <div className="session-actions">
-                  <Button>Manage Session</Button>
-                  <Button>View Details</Button>
+                  <Button onClick={() => handleManageSession(session)}>Manage Session</Button>
+                  <Button onClick={() => handleViewDetails(session)}>View Details</Button>
                 </div>
               </div>
             ))}
@@ -105,8 +125,8 @@ const Sessions = () => {
                   </div>
                 </div>
                 <div className="session-actions">
-                  <Button>Edit Pricing</Button>
-                  <Button>View Analytics</Button>
+                  <Button onClick={() => handleEditSession(session)}>Edit Session</Button>
+                  <Button onClick={() => handleViewAnalytics(session)}>View Analytics</Button>
                 </div>
               </div>
             ))}
@@ -355,4 +375,3 @@ const Sessions = () => {
 }
 
 export default Sessions
-              

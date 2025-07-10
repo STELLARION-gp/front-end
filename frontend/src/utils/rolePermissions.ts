@@ -63,6 +63,7 @@ export const PAGE_ACCESS_CONTROL = {
     '/dashboard/payments': ['guide', 'admin', 'moderator'] as UserRole[],
     '/dashboard/sessions-making': ['influencer'] as UserRole[],
     
+    '/dashboard/myblogs': ['influencer'] as UserRole[],
 
 };
 
@@ -107,11 +108,11 @@ export const ROLE_BASED_MENU_ITEMS = {
         { label: 'Overview', icon: 'HomeIcon', href: '/dashboard/overview' },
         { label: 'Profile', icon: 'UserCircleIcon', href: '/dashboard/profile' },
         { label: 'Blogs', icon: 'BookOpenIcon', href: '/dashboard/blogs' },
+        { label: 'My Blogs', icon: 'PencilIcon', href: '/dashboard/myblogs' },
         { label: 'Night Camps', icon: 'MoonIcon', href: '/dashboard/night-camps' },
         { label: 'Sessions', icon: 'VideoCameraIcon', href: '/dashboard/sessions-making' },
         { label: 'Stargazing Spot', icon: 'StarIcon', href: '/dashboard/stargazing' },
         {label: 'Competitions', icon: 'TrophyIcon', href: '/dashboard/competitions' },
-        { label: 'Chat', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/chat' },
         { label: 'Astro Hub', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/astrohub' },
         { label: 'Sponsorships', icon: 'CurrencyDollarIcon', href: '/dashboard/sponsorships' },
         { label: 'Settings', icon: 'Cog6ToothIcon', href: '/dashboard/settings' },

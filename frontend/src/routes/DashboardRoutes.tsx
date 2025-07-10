@@ -51,6 +51,7 @@ import GuideDetails from '../pages/learner/GuideDetails';
 import CompetitionPage from '../pages/learner/CompetitionPage';
 
 import Competitions from '../pages/influencer/competitions';
+import MyBlogs from '../pages/influencer/myblogs';
 
 
 // Create placeholder components for different pages - all memoized
@@ -292,6 +293,35 @@ const DashboardRoutes = () => {
                     </RoleGuard>
                 }
              />
+        
+            <Route
+                path="myblogs"
+                element={
+                    <RoleGuard allowedRoles={['influencer']}>
+                    <MyBlogs />
+                    </RoleGuard>
+                }
+             />    
+
+            <Route
+                path="confirmed-bookings"
+                element={<ConfirmedBookings />}
+            />
+
+            <Route
+                path="previous-tours"
+                element={<PreviousTours />}
+            />
+
+            <Route
+                path="tour-chat"
+                element={
+                    <RoleGuard allowedRoles={['guide', 'admin']}>
+                        <TourChat />
+                    </RoleGuard>
+                }
+            />
+
         
             <Route
                 path="confirmed-bookings"

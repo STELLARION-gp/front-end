@@ -23,6 +23,8 @@ import MediaUploadPanel from '../pages/guide/MediaUploadPanel';
 
 import MentorProfile from '../pages/mentor/MentorProfile';
 import EditMentor from '../pages/mentor/EditMentor';
+import MentorDashboard from '../pages/mentor/MentorDashboard';
+
 
 import GuideMediaDashboard from '../pages/guide/GuideMediaDashboard';
 // import MentorProfile from '../pages/mentor/MentorProfile';
@@ -326,14 +328,14 @@ const DashboardRoutes = () => {
                         </RoleGuard>
                     }
                 />
-                {/* <Route
+                <Route
                     path="mentordashboard"
                     element={
                         <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
                             <MentorDashboard />
                         </RoleGuard>
                     }
-                /> */}
+                />
                 {/* <Route
                     path="recommended-contents"
                     element={

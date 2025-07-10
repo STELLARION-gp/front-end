@@ -1,17 +1,39 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 import '../../styles/pages/influencer/Sessions.scss';
 import Button from '../../components/Button';
 
+interface LiveSession {
+  id: number;
+  title: string;
+  date: string;
+  time: string;
+  participants: number;
+  maxParticipants: number;
+  price: number;
+  registrationEnabled: boolean;
+}
+
+interface RecordedSession {
+  id: number;
+  title: string;
+  price: number;
+  purchases: number;
+  rating: number;
+  earnings: number;
+  registrationEnabled: boolean;
+}
+
+type Session = LiveSession | RecordedSession;
+
 const Sessions = () => {
-  const [activeTab, setActiveTab] = useState('my-sessions')
-  const [showManageModal, setShowManageModal] = useState(false)
-  const [showDetailsModal, setShowDetailsModal] = useState(false)
-  const [showEditModal, setShowEditModal] = useState(false)
-  const [showAnalyticsModal, setShowAnalyticsModal] = useState(false)
-  const [selectedSession, setSelectedSession] = useState(null)
+  const [activeTab, setActiveTab] = useState('my-sessions');
+  const [selectedSession, setSelectedSession] = useState<Session | null>(null);
+  const [showManageModal, setShowManageModal] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showAnalyticsModal, setShowAnalyticsModal] = useState(false);
   const [newSession, setNewSession] = useState({
     title: '',
-    description: '',
     type: 'live',
     price: '',
     duration: '',
@@ -20,37 +42,48 @@ const Sessions = () => {
     maxParticipants: '',
     difficulty: 'beginner',
     link: '',
-    category: 'observation',
-    materials: [],
-    notes: ''
-  })
+    description: '',
+    notes: '',
+    materials: [] as Array<{
+      id: number;
+      name: string;
+      type: string;
+      file: File | null;
+      url: string;
+    }>
+  });
 
-  // Mock data
+  const handleEditSession = (session: Session) => {
+    setSelectedSession(session);
+    setShowEditModal(true);
+  };
+
+  const handleViewAnalytics = (session: Session) => {
+    setSelectedSession(session);
+    setShowAnalyticsModal(true);
+  };
+
   const liveSessions = [
-    { id: 1, title: 'Deep Space Photography', date: '2024-01-15', time: '20:00', participants: 12, maxParticipants: 20, price: 13500, status: 'upcoming', registrationEnabled: true },
-    { id: 2, title: 'Planetary Observation', date: '2024-01-18', time: '21:30', participants: 8, maxParticipants: 15, price: 10500, status: 'upcoming', registrationEnabled: false }
-  ]
+    { id: 1, title: 'Deep Space Photography', date: '2024-01-15', time: '20:00', participants: 12, maxParticipants: 20, price: 13500, registrationEnabled: true },
+    { id: 2, title: 'Planetary Observation', date: '2024-01-18', time: '21:30', participants: 8, maxParticipants: 15, price: 10500, registrationEnabled: false }
+  ];
 
   const recordedSessions = [
     { id: 1, title: 'Beginner Stargazing', price: 1500, purchases: 156, rating: 4.8, earnings: 234000, registrationEnabled: true },
     { id: 2, title: 'Telescope Setup Guide', price: 2000, purchases: 89, rating: 4.9, earnings: 178000, registrationEnabled: false }
-  ]
+  ];
 
-  const handleEditSession = (session) => {
-    setSelectedSession(session)
-    setShowEditModal(true)
-  }
-
-  const handleViewAnalytics = (session) => {
-    setSelectedSession(session)
-    setShowAnalyticsModal(true)
-  }
-
-  const handleStartSession = (session) => {
-    // For real integration, use Google Calendar API to create an event with a Meet link.
-    // For demo, open a new Google Meet room (random code).
-    const meetUrl = `https://meet.google.com/new`;
+  const handleStartSession = (session: { id: number; title: string; date: string; time: string; participants: number; maxParticipants: number; price: number; registrationEnabled: boolean; }) => {
+    const meetUrl = `https://meet.google.com/session-${session.id}`;
     window.open(meetUrl, '_blank');
+  };
+
+ 
+
+  const handleRegistrationChange = (sessionId: number, isEnabled: boolean) => {
+    // Handle registration status change
+    console.log(`Setting registration for session ${sessionId} to ${isEnabled}`)
+    // Here you would update the session status in your state/database
   }
 
   const handleAddMaterial = () => {
@@ -60,53 +93,43 @@ const Sessions = () => {
       type: 'pdf',
       file: null,
       url: ''
-    }
+    };
     setNewSession({
       ...newSession,
       materials: [...newSession.materials, newMaterial]
-    })
-  }
+    });
+  };
 
-  const handleRemoveMaterial = (materialId) => {
+  const handleRemoveMaterial = (materialId: number) => {
     setNewSession({
       ...newSession,
-      materials: newSession.materials.filter(material => material.id !== materialId)
-    })
-  }
+      materials: newSession.materials.filter(m => m.id !== materialId)
+    });
+  };
 
-  const handleMaterialChange = (materialId, field, value) => {
+  type MaterialField = 'name' | 'type' | 'file' | 'url';
+
+  const handleMaterialChange = (
+    materialId: number,
+    field: MaterialField,
+    value: string | File | null
+  ) => {
     setNewSession({
       ...newSession,
-      materials: newSession.materials.map(material =>
-        material.id === materialId
-          ? { ...material, [field]: value }
-          : material
+      materials: newSession.materials.map(m => 
+        m.id === materialId ? { ...m, [field]: value } : m
       )
-    })
-  }
+    });
+  };
 
-  const handleFileUpload = (materialId, file) => {
+  const handleFileUpload = (materialId: number, file: File) => {
     setNewSession({
       ...newSession,
-      materials: newSession.materials.map(material =>
-        material.id === materialId
-          ? { ...material, file: file, name: file.name }
-          : material
+      materials: newSession.materials.map(m => 
+        m.id === materialId ? { ...m, file } : m
       )
-    })
-  }
-
-  const handleToggleRegistration = (sessionId, currentStatus) => {
-    // Toggle registration status for live sessions
-    console.log(`Toggling registration for session ${sessionId} from ${currentStatus}`)
-    // Here you would update the session status in your state/database
-  }
-
-  const handleRegistrationChange = (sessionId, isEnabled) => {
-    // Handle registration status change
-    console.log(`Setting registration for session ${sessionId} to ${isEnabled}`)
-    // Here you would update the session status in your state/database
-  }
+    });
+  };
 
   const renderMyServices = () => (
     <div className="my-sessions-section">
@@ -448,7 +471,7 @@ const Sessions = () => {
                     <label>Upload File</label>
                     <input
                       type="file"
-                      onChange={(e) => handleFileUpload(material.id, e.target.files[0])}
+                      onChange={(e) => e.target.files && handleFileUpload(material.id, e.target.files[0])}
                       accept={
                         material.type === 'pdf' ? '.pdf' :
                         material.type === 'video' ? '.mp4,.mov,.avi' :
@@ -685,12 +708,12 @@ const Sessions = () => {
                     <div key={index} className="table-row">
                       <div className="cell">{session.title}</div>
                       <div className="cell">
-                        <span className={`session-type ${session.date ? 'live' : 'recorded'}`}>
-                          {session.date ? 'LIVE' : 'RECORDED'}
+                        <span className={`session-type ${'date' in session ? 'live' : 'recorded'}`}>
+                          {'date' in session ? 'LIVE' : 'RECORDED'}
                         </span>
                       </div>
                       <div className="cell">
-                        {session.date ? `${session.participants}/${session.maxParticipants}` : session.purchases}
+                        {'date' in session ? `${session.participants}/${session.maxParticipants}` : session.purchases}
                       </div>
                       <div className="cell">
                         LKR {('earnings' in session ? session.earnings : session.price * session.participants).toLocaleString()}
@@ -771,11 +794,19 @@ const Sessions = () => {
               <div className="info-grid">
                 <div className="info-item">
                   <label>Date & Time:</label>
-                  <span>{selectedSession.date} at {selectedSession.time}</span>
+                  {'date' in selectedSession && 'time' in selectedSession ? (
+                    <span>{selectedSession.date} at {selectedSession.time}</span>
+                  ) : (
+                    <span>N/A</span>
+                  )}
                 </div>
                 <div className="info-item">
                   <label>Participants:</label>
-                  <span>{selectedSession.participants}/{selectedSession.maxParticipants}</span>
+                  <span>
+                    {'participants' in selectedSession && 'maxParticipants' in selectedSession
+                      ? `${selectedSession.participants}/${selectedSession.maxParticipants}`
+                      : 'N/A'}
+                  </span>
                 </div>
                 <div className="info-item">
                   <label>Price:</label>
@@ -854,15 +885,21 @@ const Sessions = () => {
               <div className="overview-stats">
                 <div className="stat-item">
                   <span className="stat-label">Status:</span>
-                  <span className="stat-value">{selectedSession.date ? 'Scheduled' : 'Recorded'}</span>
+                  <span className="stat-value">{'date' in selectedSession ? 'Scheduled' : 'Recorded'}</span>
                 </div>
                 <div className="stat-item">
                   <span className="stat-label">Current Participants:</span>
-                  <span className="stat-value">{selectedSession.participants || selectedSession.purchases || 0}</span>
+                  <span className="stat-value">{'participants' in selectedSession ? selectedSession.participants : selectedSession.purchases || 0}</span>
                 </div>
                 <div className="stat-item">
                   <span className="stat-label">Revenue:</span>
-                  <span className="stat-value">LKR {selectedSession.earnings || (selectedSession.participants * selectedSession.price) || 0}</span>
+                  <span className="stat-value">
+                    LKR {
+                      'earnings' in selectedSession
+                        ? selectedSession.earnings
+                        : (selectedSession.participants * selectedSession.price) || 0
+                    }
+                  </span>
                 </div>
               </div>
             </div>
@@ -1016,7 +1053,7 @@ const Sessions = () => {
   const renderAnalyticsModal = () => {
     if (!showAnalyticsModal || !selectedSession) return null
 
-    const isLiveSession = selectedSession.date && selectedSession.time
+    const isLiveSession = 'date' in selectedSession && 'time' in selectedSession
     
     return (
       <div className="modal-overlay" onClick={() => setShowAnalyticsModal(false)}>
@@ -1031,15 +1068,23 @@ const Sessions = () => {
               <h4>Performance Overview</h4>
               <div className="metrics-row">
                 <div className="metric-card">
-                  <span className="metric-value">{selectedSession.purchases || selectedSession.participants}</span>
+                  <span className="metric-value">
+                    {'purchases' in selectedSession ? selectedSession.purchases : selectedSession.participants}
+                  </span>
                   <span className="metric-label">{isLiveSession ? 'Registered Participants' : 'Total Purchases'}</span>
                 </div>
                 <div className="metric-card">
-                  <span className="metric-value">LKR {selectedSession.earnings || (selectedSession.participants * selectedSession.price)}</span>
+                  <span className="metric-value">
+                    LKR {
+                      'earnings' in selectedSession
+                        ? selectedSession.earnings
+                        : selectedSession.participants * selectedSession.price
+                    }
+                  </span>
                   <span className="metric-label">Revenue Generated</span>
                 </div>
                 <div className="metric-card">
-                  <span className="metric-value">{selectedSession.rating || 'N/A'}/5.0</span>
+                  <span className="metric-value">{'rating' in selectedSession ? selectedSession.rating : 'N/A'}/5.0</span>
                   <span className="metric-label">Average Rating</span>
                 </div>
                 <div className="metric-card">
@@ -1059,7 +1104,7 @@ const Sessions = () => {
                   </div>
                   <div className="registration-item">
                     <span className="registration-label">Days Until Session:</span>
-                    <span className="registration-value">{Math.ceil((new Date(selectedSession.date) - new Date()) / (1000 * 60 * 60 * 24))} days</span>
+                    <span className="registration-value">{Math.ceil((new Date((selectedSession as LiveSession).date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} days</span>
                   </div>
                   <div className="registration-item">
                     <span className="registration-label">Current Registrations:</span>
@@ -1102,7 +1147,7 @@ const Sessions = () => {
                 </div>
                 <div className="revenue-item">
                   <span className="revenue-label">Net Earnings:</span>
-                  <span className="revenue-value">LKR {selectedSession.earnings || Math.round((selectedSession.price * (selectedSession.purchases || selectedSession.participants || 0)) * 0.9)}</span>
+                  <span className="revenue-value">LKR {('earnings' in selectedSession ? selectedSession.earnings : Math.round((selectedSession.price * (selectedSession.purchases || selectedSession.participants || 0)) * 0.9))}</span>
                 </div>
               </div>
             </div>

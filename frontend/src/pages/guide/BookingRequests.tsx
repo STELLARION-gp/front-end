@@ -55,6 +55,13 @@ const BookingRequests: React.FC = () => {
         <h2>Booking Requests</h2>
         <div className="header-actions">
           <Button 
+            variant="secondary" 
+            size="medium"
+            onClick={() => navigate('/dashboard/previous-tours')}
+          >
+            Previous Tours
+          </Button>
+          <Button 
             variant="primary" 
             size="medium"
             onClick={() => navigate('/dashboard/confirmed-bookings')}

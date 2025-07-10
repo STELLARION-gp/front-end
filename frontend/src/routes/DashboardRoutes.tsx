@@ -28,6 +28,7 @@ import GuideMediaDashboard from '../pages/guide/GuideMediaDashboard';
 // import MentorProfile from '../pages/mentor/MentorProfile';
 // import BookingRequests from '../pages/guide/BookingRequests';
 import ConfirmedBookings from '../pages/guide/ConfirmedBookings';
+import PreviousTours from '../pages/guide/PreviousTours';
 import TourChat from '../pages/guide/TourChat';
 
 import BookingRequests from '../pages/guide/BookingRequests';
@@ -48,6 +49,10 @@ import Quizzes from '../pages/enthuasist/Quizzes';
 import Sessions from '../pages/influencer/Sessions';
 import GuideDetails from '../pages/learner/GuideDetails';
 import CompetitionPage from '../pages/learner/CompetitionPage';
+
+import Competitions from '../pages/influencer/competitions';
+import MyBlogs from '../pages/influencer/myblogs';
+
 
 // Create placeholder components for different pages - all memoized
 // const BlogsPage = memo(() => (
@@ -152,6 +157,7 @@ const DashboardRoutes = () => {
                     <DashboardOverview />
                 </RoleGuard>} 
             />
+
             <Route path="profile" element={<Profile />} />
             <Route path="settings" element={<Settings />} />
 
@@ -280,8 +286,51 @@ const DashboardRoutes = () => {
             />
 
             <Route
+                path="competitions"
+                element={
+                    <RoleGuard allowedRoles={['influencer']}>
+                    <Competitions />
+                    </RoleGuard>
+                }
+             />
+        
+            <Route
+                path="myblogs"
+                element={
+                    <RoleGuard allowedRoles={['influencer']}>
+                    <MyBlogs />
+                    </RoleGuard>
+                }
+             />    
+
+            <Route
                 path="confirmed-bookings"
                 element={<ConfirmedBookings />}
+            />
+
+            <Route
+                path="previous-tours"
+                element={<PreviousTours />}
+            />
+
+            <Route
+                path="tour-chat"
+                element={
+                    <RoleGuard allowedRoles={['guide', 'admin']}>
+                        <TourChat />
+                    </RoleGuard>
+                }
+            />
+
+        
+            <Route
+                path="confirmed-bookings"
+                element={<ConfirmedBookings />}
+            />
+
+            <Route
+                path="previous-tours"
+                element={<PreviousTours />}
             />
 
             <Route

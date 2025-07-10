@@ -184,7 +184,7 @@ const NavBarComponent = () => {
               </div>
               <div className="profile-actions">
                 <Link to="/dashboard/overview" className="dropdown-link">{t('navbar.dashboard')}</Link>
-                <Link to="/dashboard/profile" className="dropdown-link">{t('navbar.profile')}</Link>
+                <Link to="/dashboard/profile" className="dropdown-link">{t('navbar.profileNav')}</Link>
                 <button onClick={handleLogout} className="dropdown-link logout">
                   {t('auth.signOut')}
                 </button>

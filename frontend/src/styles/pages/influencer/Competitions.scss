@@ -167,40 +167,89 @@
         }
     }
 
+    .btn-like-reply {
+        background-color: transparent;
+        border: none;
+        color: rgba(255, 193, 7, 0.7);
+        padding: 8px 12px;
+        cursor: pointer;
+        font-size: 14px;
+        margin-right: 12px;
+        transition: all 0.3s ease;
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        // Star icon using CSS
+        &::before {
+            content: "☆";
+            font-size: 20px;
+            color: rgba(255, 193, 7, 0.7);
+            transition: all 0.3s ease;
+        }
+
+        &:hover {
+            color: #FFC107;
+            transform: scale(1.1);
+
+            &::before {
+                color: #FFC107;
+            }
+        }
+
+        &.liked {
+            color: #FFC107;
+
+            &::before {
+                content: "★";
+                color: #FFC107;
+            }
+        }
+
+        &:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+    }
+
     
     .btn-learn-more {
         background-color: transparent;
-        border: 1px solid #17A2B8;
-        color: #17A2B8;
+        border: 1px solid white;
+        color: white;
         padding: 8px 16px;
         cursor: pointer;
         border-radius: 6px;
         font-size: 14px;
+        font-weight: 500;
+        text-transform: uppercase;
         margin-right: 12px;
         transition: all 0.3s ease;
 
         &:hover {
-            background-color: #17A2B8;
-            color: white;
+            background-color: white;
+            color: black;
         }
     }
 
     .btn-apply {
-        background-color: #FF6B35;
-        border: 2px solid #FF6B35;
+        background-color: transparent;
+        border: 1px solid white;
         color: white;
-        padding: 10px 20px;
-        text-decoration: none;
+        padding: 8px 16px;
+        cursor: pointer;
         border-radius: 6px;
         font-size: 14px;
-        font-weight: 600;
+        font-weight: 500;
+        text-transform: uppercase;
+        margin-right: 12px;
         transition: all 0.3s ease;
-        display: inline-block;
 
         &:hover {
-            background-color: #E55A2B;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+            background-color: white;
+            color: black;
         }
     }
 
@@ -559,29 +608,6 @@
                 padding-top: 12px;
                 border-top: 1px solid rgba(255, 255, 255, 0.1);
                 flex-wrap: wrap;
-            }
-
-            .btn-like-reply {
-                background-color: transparent;
-                border: 1px solid #FFC107;
-                color: #FFC107;
-                padding: 6px 12px;
-                cursor: pointer;
-                border-radius: 4px;
-                font-size: 12px;
-                transition: all 0.3s ease;
-
-                &:hover,
-                &.liked {
-                    background-color: #FFC107;
-                    color: #1a1a1a;
-                    border: 1px solid #FFC107;
-                }
-
-                &:disabled {
-                    opacity: 0.5;
-                    cursor: not-allowed;
-                }
             }
 
             .btn-edit-reply {

@@ -32,29 +32,6 @@
     }
 }
 
-.create-blog-btn {
-    background: transparent;
-    color: #64b5f6;
-    border: 2px solid #64b5f6;
-    padding: 1rem 2rem;
-    border-radius: 50px;
-    font-size: 1.1rem;
-    font-weight: 600;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    transition: all 0.3s ease;
-
-
-    &:hover {
-        transform: translateY(-2px);
-        background:#2196f3;
-        color:aliceblue;
-
-    }
-}
-
 .blog-form-overlay {
     position: fixed;
     top: 0;
@@ -92,20 +69,6 @@
     }
 }
 
-.close-btn {
-    background: none;
-    border: none;
-    color: white;
-    cursor: pointer;
-    padding: 0.5rem;
-    border-radius: 50%;
-    transition: background 0.3s ease;
-
-    &:hover {
-        background: rgba(255, 255, 255, 0.1);
-    }
-}
-
 .form-group {
     margin-bottom: 1.5rem;
 
@@ -116,8 +79,26 @@
         color: #64b5f6;
     }
 
-    input,
     textarea {
+        width: 100%;
+        padding: 1rem;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.05);
+        color: rgb(255, 255, 255);
+        font-size: 1rem;
+        resize: vertical;
+        min-height: 120px;
+        transition: border-color 0.3s ease;
+
+        &:focus {
+            outline: none;
+            border-color: #2196f3;
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+        }
+    }
+
+    input[type="file"] {
         width: 100%;
         padding: 1rem;
         border: 1px solid rgba(255, 255, 255, 0.2);
@@ -132,31 +113,6 @@
             border-color: #2196f3;
             box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
         }
-    }
-
-    textarea {
-        resize: vertical;
-        min-height: 120px;
-    }
-}
-
-.submit-btn {
-    background: linear-gradient(45deg, #2196f3, #42a5f5);
-    color: white;
-    border: none;
-    padding: 1rem 2rem;
-    border-radius: 10px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    transition: all 0.3s ease;
-
-    &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 25px rgba(33, 150, 243, 0.4);
     }
 }
 
@@ -211,24 +167,6 @@
     gap: 0.5rem;
     opacity: 0;
     transition: opacity 0.3s ease;
-}
-
-.action-btn {
-    background: rgba(0, 0, 0, 0.7);
-    border: none;
-    color: white;
-    padding: 0.5rem;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: all 0.3s ease;
-
-    &.edit:hover {
-        background: rgba(33, 150, 243, 0.8);
-    }
-
-    &.delete:hover {
-        background: rgba(244, 67, 54, 0.8);
-    }
 }
 
 .blog-content {
@@ -305,61 +243,6 @@
     gap: 1rem;
 }
 
-.like-btn,
-.read-more-btn {
-    padding: 0.75rem 1.5rem;
-    border:#ffd700 1px solid;
-    border-radius: 25px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.like-btn {
-    padding: 0.75rem 1.5rem;
-    border: 1px solid gold;
-    border-radius: 25px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    background: transparent;
-    color: gold;
-
-    &:hover {
-        background: rgba(207, 214, 132, 0.475);
-        color: #ffd700;
-        border-color: #ffd700;
-    }
-
-    &.liked {
-        background: rgba(255, 215, 0, 0.2);
-        color: #ffd700;
-        border-color: #ffd700;
-        
-        &:hover {
-            background: rgba(255, 215, 0, 0.3);
-        }
-    }
-}
-
-.read-more-btn {
-    background: transparent;
-    color: #2196f3;
-    border: 1px solid rgba(33, 150, 243, 0.3);
-    flex: 1;
-    justify-content: center;
-
-    &:hover {
-        background: rgba(33, 150, 243, 0.3);
-    }
-}
-
 .empty-state {
     text-align: center;
     padding: 4rem 2rem;
@@ -377,24 +260,6 @@
     margin-bottom: 1rem;
 }
 
-.create-first-blog-btn {
-    background: linear-gradient(45deg, #2196f3, #42a5f5);
-    color: white;
-    border: none;
-    padding: 1rem 2rem;
-    border-radius: 50px;
-    font-size: 1.1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    margin-top: 1rem;
-
-    &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 25px rgba(33, 150, 243, 0.4);
-    }
-}
-
 .blog-modal-overlay {
     position: fixed;
     top: 0;
@@ -410,7 +275,6 @@
 }
 
 .blog-modal {
-    
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
     border-radius: 20px;
     max-width: 800px;
@@ -507,23 +371,6 @@
             box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
         }
     }
-
-    button {
-        background: linear-gradient(45deg, #2196f3, #42a5f5);
-        color: white;
-        border: none;
-        padding: 1rem 2rem;
-        border-radius: 50px;
-        font-size: 1.1rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-
-        &:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 25px rgba(33, 150, 243, 0.4);
-        }
-    }
 }
 
 .comments-list {
@@ -539,10 +386,12 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 0.5rem;
+            
             .comment-author {
                 font-weight: 600;
                 color: #64b5f6;
             }
+            
             .comment-timestamp {
                 font-size: 0.9rem;
                 opacity: 0.8;

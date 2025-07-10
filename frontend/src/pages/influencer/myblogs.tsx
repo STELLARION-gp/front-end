@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Star, Edit2, Trash2, MessageCircle, Eye, Heart, Plus, Save, X, Send } from 'lucide-react';
+import Button from '../../components/Button';
+import InputField from '../../components/InputField';
 import '../../styles/pages/influencer/myblogs.scss'
 
 type Comment = {
@@ -20,7 +22,7 @@ type Blog = {
     likes: number;
     rating: number;
     comments: Comment[];
-    liked: boolean; // Added to track if user has liked this blog
+    liked: boolean;
 };
 
 const mockBlogs: Blog[] = [
@@ -34,7 +36,7 @@ const mockBlogs: Blog[] = [
         reach: 1247,
         likes: 89,
         rating: 4.7,
-        liked: false, // Initialize as not liked
+        liked: false,
         comments: [
             { id: 1, user: 'Alice Cooper', text: 'Fascinating insights about stellar formation!', date: '2025-06-21' },
             { id: 2, user: 'Bob Universe', text: 'The images are absolutely breathtaking.', date: '2025-06-22' },
@@ -50,7 +52,7 @@ const mockBlogs: Blog[] = [
         reach: 892,
         likes: 67,
         rating: 4.9,
-        liked: false, // Initialize as not liked
+        liked: false,
         comments: [
             { id: 3, user: 'Maria Galaxy', text: 'The explanation of red shift is excellent!', date: '2025-06-19' },
         ],
@@ -64,21 +66,21 @@ export default function MyBlogs() {
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [selectedBlog, setSelectedBlog] = useState<Blog | null>(null);
     const [newComment, setNewComment] = useState('');
-    const [editingComment, setEditingComment] = useState<number | null>(null);
 
     useEffect(() => {
         setBlogs(mockBlogs);
     }, []);
 
-    const handleInputChange = (e) => {
-        const { name, value, files } = e.target;
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const { name, value } = e.target;
+        const files = (e.target as HTMLInputElement).files;
         setNewBlog((prev) => ({
             ...prev,
             [name]: files ? files[0] : value,
         }));
     };
 
-    const handleCreateBlog = (e) => {
+    const handleCreateBlog = (e: React.FormEvent) => {
         e.preventDefault();
         const newId = blogs.length ? Math.max(...blogs.map(b => b.id)) + 1 : 1;
         const newBlogPost = {
@@ -90,7 +92,7 @@ export default function MyBlogs() {
             likes: 0,
             rating: 0,
             comments: [],
-            liked: false, // Initialize new blogs as not liked
+            liked: false,
             image: newBlog.image ? URL.createObjectURL(newBlog.image) : null,
         };
         setBlogs([newBlogPost, ...blogs]);
@@ -98,21 +100,23 @@ export default function MyBlogs() {
         setShowCreateForm(false);
     };
 
-    const handleDelete = (id) => {
+    const handleDelete = (id: number) => {
         setBlogs(blogs.filter((b) => b.id !== id));
         if (selectedBlog?.id === id) {
             setSelectedBlog(null);
         }
     };
 
-    const handleEdit = (id) => {
+    const handleEdit = (id: number) => {
         setEditingId(id);
         const blog = blogs.find((b) => b.id === id);
-        setNewBlog({ title: blog.title, content: blog.content, image: null });
-        setShowCreateForm(true);
+        if (blog) {
+            setNewBlog({ title: blog.title, content: blog.content, image: null });
+            setShowCreateForm(true);
+        }
     };
 
-    const handleUpdateBlog = (e) => {
+    const handleUpdateBlog = (e: React.FormEvent) => {
         e.preventDefault();
         setBlogs(
             blogs.map((b) =>
@@ -131,8 +135,7 @@ export default function MyBlogs() {
         setShowCreateForm(false);
     };
 
-    // Fixed like functionality - toggles like/unlike
-    const handleLike = (id) => {
+    const handleLike = (id: number) => {
         setBlogs(blogs.map(blog => 
             blog.id === id 
                 ? { 
@@ -143,7 +146,6 @@ export default function MyBlogs() {
                 : blog
         ));
         
-        // Update selectedBlog if it's the one being liked
         if (selectedBlog?.id === id) {
             setSelectedBlog(prev => prev ? {
                 ...prev,
@@ -153,7 +155,7 @@ export default function MyBlogs() {
         }
     };
 
-    const handleAddComment = (blogId) => {
+    const handleAddComment = (blogId: number) => {
         if (!newComment.trim()) return;
         
         const comment = {
@@ -169,7 +171,6 @@ export default function MyBlogs() {
                 : blog
         ));
         
-        // Update selectedBlog if it's the one getting the comment
         if (selectedBlog?.id === blogId) {
             setSelectedBlog(prev => prev ? {
                 ...prev,
@@ -180,14 +181,13 @@ export default function MyBlogs() {
         setNewComment('');
     };
 
-    const handleDeleteComment = (blogId, commentId) => {
+    const handleDeleteComment = (blogId: number, commentId: number) => {
         setBlogs(blogs.map(blog => 
             blog.id === blogId 
                 ? { ...blog, comments: blog.comments.filter(c => c.id !== commentId) }
                 : blog
         ));
         
-        // Update selectedBlog if it's the one losing the comment
         if (selectedBlog?.id === blogId) {
             setSelectedBlog(prev => prev ? {
                 ...prev,
@@ -196,7 +196,7 @@ export default function MyBlogs() {
         }
     };
 
-    const renderStars = (rating) => {
+    const renderStars = (rating: number) => {
         const stars = [];
         const fullStars = Math.floor(rating);
         const hasHalfStar = rating % 1 !== 0;
@@ -222,13 +222,10 @@ export default function MyBlogs() {
             <div className="blogs-header">
                 <h1>My Astronomy Blogs</h1>
                 <p>Share your cosmic discoveries and insights with the world.</p>
-                <button 
-                    className="create-blog-btn"
-                    onClick={() => setShowCreateForm(true)}
-                >
+                <Button onClick={() => setShowCreateForm(true)}>
                     <Plus size={20} />
                     Create New Blog
-                </button>
+                </Button>
             </div>
 
             {showCreateForm && (
@@ -236,8 +233,7 @@ export default function MyBlogs() {
                     <div className="blog-form">
                         <div className="form-header">
                             <h2>{editingId ? 'Edit Blog' : 'Create New Blog'}</h2>
-                            <button 
-                                className="close-btn"
+                            <Button 
                                 onClick={() => {
                                     setShowCreateForm(false);
                                     setEditingId(null);
@@ -245,13 +241,13 @@ export default function MyBlogs() {
                                 }}
                             >
                                 <X size={20} />
-                            </button>
+                            </Button>
                         </div>
                         
                         <form onSubmit={editingId ? handleUpdateBlog : handleCreateBlog}>
                             <div className="form-group">
                                 <label>Blog Title</label>
-                                <input
+                                <InputField
                                     type="text"
                                     name="title"
                                     placeholder="Enter your blog title..."
@@ -284,10 +280,10 @@ export default function MyBlogs() {
                             </div>
                             
                             <div className="form-actions">
-                                <button type="submit" className="submit-btn">
+                                <Button type="submit">
                                     <Save size={16} />
                                     {editingId ? 'Update Blog' : 'Publish Blog'}
-                                </button>
+                                </Button>
                             </div>
                         </form>
                     </div>
@@ -302,12 +298,12 @@ export default function MyBlogs() {
                                 <img src={blog.image} alt={blog.title} />
                             )}
                             <div className="blog-actions">
-                                <button onClick={() => handleEdit(blog.id)} className="action-btn edit">
+                                <Button onClick={() => handleEdit(blog.id)}>
                                     <Edit2 size={16} />
-                                </button>
-                                <button onClick={() => handleDelete(blog.id)} className="action-btn delete">
+                                </Button>
+                                <Button onClick={() => handleDelete(blog.id)}>
                                     <Trash2 size={16} />
-                                </button>
+                                </Button>
                             </div>
                         </div>
                         
@@ -344,19 +340,19 @@ export default function MyBlogs() {
                             </div>
                             
                             <div className="blog-actions-bottom">
-                                <button 
-                                    className={`like-btn ${blog.liked ? 'liked' : ''}`}
+                                <Button 
                                     onClick={() => handleLike(blog.id)}
+                                    variant={blog.liked ? 'secondary' : 'outline'}
                                 >
                                     <Heart size={16} fill={blog.liked ? 'currentColor' : 'none'} />
                                     {blog.liked ? 'Liked' : 'Like'}
-                                </button>
-                                <button 
-                                    className="read-more-btn"
+                                </Button>
+                                <Button 
                                     onClick={() => setSelectedBlog(blog)}
+                                    variant="outline"
                                 >
                                     Read More
-                                </button>
+                                </Button>
                             </div>
                         </div>
                     </div>
@@ -368,12 +364,9 @@ export default function MyBlogs() {
                     <div className="empty-icon">📝</div>
                     <h3>No blogs yet</h3>
                     <p>Start sharing your astronomical discoveries with the world!</p>
-                    <button 
-                        className="create-first-blog-btn"
-                        onClick={() => setShowCreateForm(true)}
-                    >
+                    <Button onClick={() => setShowCreateForm(true)}>
                         Create Your First Blog
-                    </button>
+                    </Button>
                 </div>
             )}
 
@@ -382,12 +375,9 @@ export default function MyBlogs() {
                     <div className="blog-modal">
                         <div className="modal-header">
                             <h2>{selectedBlog.title}</h2>
-                            <button 
-                                className="close-btn"
-                                onClick={() => setSelectedBlog(null)}
-                            >
+                            <Button onClick={() => setSelectedBlog(null)}>
                                 <X size={20} />
-                            </button>
+                            </Button>
                         </div>
                         
                         <div className="modal-content">
@@ -425,12 +415,9 @@ export default function MyBlogs() {
                                         onChange={(e) => setNewComment(e.target.value)}
                                         onKeyPress={(e) => e.key === 'Enter' && handleAddComment(selectedBlog.id)}
                                     />
-                                    <button 
-                                        onClick={() => handleAddComment(selectedBlog.id)}
-                                        className="send-comment-btn"
-                                    >
+                                    <Button onClick={() => handleAddComment(selectedBlog.id)}>
                                         <Send size={16} />
-                                    </button>
+                                    </Button>
                                 </div>
                                 
                                 <div className="comments-list">
@@ -439,12 +426,13 @@ export default function MyBlogs() {
                                             <div className="comment-header">
                                                 <span className="comment-author">{comment.user}</span>
                                                 <span className="comment-timestamp">{comment.date}</span>
-                                                <button 
-                                                    className="delete-comment-btn"
+                                                <Button 
                                                     onClick={() => handleDeleteComment(selectedBlog.id, comment.id)}
+                                                    variant="ghost"
+                                                    size="sm"
                                                 >
                                                     <Trash2 size={14} />
-                                                </button>
+                                                </Button>
                                             </div>
                                             <p>{comment.text}</p>
                                         </div>

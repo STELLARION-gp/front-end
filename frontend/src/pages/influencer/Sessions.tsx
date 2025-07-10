@@ -1,39 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState } from 'react'
 import '../../styles/pages/influencer/Sessions.scss';
 import Button from '../../components/Button';
 
-interface LiveSession {
-  id: number;
-  title: string;
-  date: string;
-  time: string;
-  participants: number;
-  maxParticipants: number;
-  price: number;
-  registrationEnabled: boolean;
-}
-
-interface RecordedSession {
-  id: number;
-  title: string;
-  price: number;
-  purchases: number;
-  rating: number;
-  earnings: number;
-  registrationEnabled: boolean;
-}
-
-type Session = LiveSession | RecordedSession;
-
 const Sessions = () => {
-  const [activeTab, setActiveTab] = useState('my-sessions');
-  const [selectedSession, setSelectedSession] = useState<Session | null>(null);
-  const [showManageModal, setShowManageModal] = useState(false);
-  const [showDetailsModal, setShowDetailsModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [showAnalyticsModal, setShowAnalyticsModal] = useState(false);
-  const [newSession, setNewSession] = useState({
+  const [activeTab, setActiveTab] = useState('my-sessions')
+  const [showManageModal, setShowManageModal] = useState(false)
+  const [showDetailsModal, setShowDetailsModal] = useState(false)
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [showAnalyticsModal, setShowAnalyticsModal] = useState(false)
+  const [selectedSession, setSelectedSession] = useState<Session | null>(null)
+  type Material = {
+    id: number
+    name: string
+    type: string
+    file: File | null
+    url: string
+  }
+
+  const [newSession, setNewSession] = useState<{
+    title: string
+    description: string
+    type: string
+    price: string
+    duration: string
+    date: string
+    time: string
+    maxParticipants: string
+    difficulty: string
+    link: string
+    category: string
+    materials: Material[]
+    notes: string
+  }>({
     title: '',
+    description: '',
     type: 'live',
     price: '',
     duration: '',
@@ -42,48 +42,53 @@ const Sessions = () => {
     maxParticipants: '',
     difficulty: 'beginner',
     link: '',
-    description: '',
-    notes: '',
-    materials: [] as Array<{
-      id: number;
-      name: string;
-      type: string;
-      file: File | null;
-      url: string;
-    }>
-  });
+    category: 'observation',
+    materials: [],
+    notes: ''
+  })
 
-  const handleEditSession = (session: Session) => {
-    setSelectedSession(session);
-    setShowEditModal(true);
-  };
-
-  const handleViewAnalytics = (session: Session) => {
-    setSelectedSession(session);
-    setShowAnalyticsModal(true);
-  };
-
+  // Mock data
   const liveSessions = [
-    { id: 1, title: 'Deep Space Photography', date: '2024-01-15', time: '20:00', participants: 12, maxParticipants: 20, price: 13500, registrationEnabled: true },
-    { id: 2, title: 'Planetary Observation', date: '2024-01-18', time: '21:30', participants: 8, maxParticipants: 15, price: 10500, registrationEnabled: false }
-  ];
+    { id: 1, title: 'Deep Space Photography', date: '2024-01-15', time: '20:00', participants: 12, maxParticipants: 20, price: 13500, status: 'upcoming', registrationEnabled: true },
+    { id: 2, title: 'Planetary Observation', date: '2024-01-18', time: '21:30', participants: 8, maxParticipants: 15, price: 10500, status: 'upcoming', registrationEnabled: false }
+  ]
 
   const recordedSessions = [
     { id: 1, title: 'Beginner Stargazing', price: 1500, purchases: 156, rating: 4.8, earnings: 234000, registrationEnabled: true },
     { id: 2, title: 'Telescope Setup Guide', price: 2000, purchases: 89, rating: 4.9, earnings: 178000, registrationEnabled: false }
-  ];
+  ]
 
-  const handleStartSession = (session: { id: number; title: string; date: string; time: string; participants: number; maxParticipants: number; price: number; registrationEnabled: boolean; }) => {
-    const meetUrl = `https://meet.google.com/session-${session.id}`;
-    window.open(meetUrl, '_blank');
-  };
+  type Session = {
+    id: number
+    title: string
+    date?: string
+    time?: string
+    participants?: number
+    maxParticipants?: number
+    price: number
+    status?: string
+    registrationEnabled?: boolean
+    purchases?: number
+    rating?: number
+    earnings?: number
+    // Add other fields as needed
+  }
 
- 
+  const handleEditSession = (session: Session) => {
+    setSelectedSession(session)
+    setShowEditModal(true)
+  }
 
-  const handleRegistrationChange = (sessionId: number, isEnabled: boolean) => {
-    // Handle registration status change
-    console.log(`Setting registration for session ${sessionId} to ${isEnabled}`)
-    // Here you would update the session status in your state/database
+  const handleViewAnalytics = (session:Session) => {
+    setSelectedSession(session)
+    setShowAnalyticsModal(true)
+  }
+
+  const handleStartSession = (session:Session) => {
+    // Handle starting the live session
+    console.log('Starting session:', session.title)
+    // You can add navigation to the session room or open a new window
+    // window.open(`https://stellarion.com/session/${session.id}/room`, '_blank')
   }
 
   const handleAddMaterial = () => {
@@ -93,43 +98,52 @@ const Sessions = () => {
       type: 'pdf',
       file: null,
       url: ''
-    };
+    }
     setNewSession({
       ...newSession,
       materials: [...newSession.materials, newMaterial]
-    });
-  };
+    })
+  }
 
   const handleRemoveMaterial = (materialId: number) => {
     setNewSession({
       ...newSession,
-      materials: newSession.materials.filter(m => m.id !== materialId)
-    });
-  };
-
-  type MaterialField = 'name' | 'type' | 'file' | 'url';
+      materials: newSession.materials.filter(material => material.id !== materialId)
+    })
+  }
 
   const handleMaterialChange = (
     materialId: number,
-    field: MaterialField,
+    field: keyof Material,
     value: string | File | null
   ) => {
     setNewSession({
       ...newSession,
-      materials: newSession.materials.map(m => 
-        m.id === materialId ? { ...m, [field]: value } : m
+      materials: newSession.materials.map(material =>
+        material.id === materialId
+          ? { ...material, [field]: value }
+          : material
       )
-    });
-  };
+    })
+  }
 
   const handleFileUpload = (materialId: number, file: File) => {
     setNewSession({
       ...newSession,
-      materials: newSession.materials.map(m => 
-        m.id === materialId ? { ...m, file } : m
+      materials: newSession.materials.map(material =>
+        material.id === materialId
+          ? { ...material, file: file, name: file.name }
+          : material
       )
-    });
-  };
+    })
+  }
+
+
+  const handleRegistrationChange = (sessionId: number, isEnabled: boolean) => {
+    // Handle registration status change
+    console.log(`Setting registration for session ${sessionId} to ${isEnabled}`)
+    // Here you would update the session status in your state/database
+  }
 
   const renderMyServices = () => (
     <div className="my-sessions-section">
@@ -140,7 +154,7 @@ const Sessions = () => {
       <div className="sessions-grid">
         <div className="sessions-section">
           <h3>Live Sessions</h3>
-          <div className="all-sessions-list">
+          <div className="sessions-list">
             {liveSessions.map(session => (
               <div key={session.id} className={`session-card live-session ${!session.registrationEnabled ? 'registration-disabled' : ''}`}>
                 <div className="session-header">
@@ -177,6 +191,7 @@ const Sessions = () => {
                 <div className="registration-control-section">
                   <div className="control-header">
                     <h4>Registration Settings</h4>
+                    <p className="control-description">Allow new participants to register for this session</p>
                   </div>
                   <div className="registration-toggle">
                     <div className="toggle-options">
@@ -186,13 +201,11 @@ const Sessions = () => {
                           name={`registration-${session.id}`}
                           checked={session.registrationEnabled === true}
                           onChange={() => handleRegistrationChange(session.id, true)}
-                          className="radio-input"
                         />
-                        <div className="radio-design">
-                          <div className="radio-inner"></div>
-                        </div>
+                        <span className="option-icon">✅</span>
                         <span className="option-text">
                           <strong>Open</strong>
+                          <small>Accept new registrations</small>
                         </span>
                       </label>
                       <label className={`toggle-option ${!session.registrationEnabled ? 'active' : ''}`}>
@@ -201,22 +214,20 @@ const Sessions = () => {
                           name={`registration-${session.id}`}
                           checked={session.registrationEnabled === false}
                           onChange={() => handleRegistrationChange(session.id, false)}
-                          className="radio-input"
                         />
-                        <div className="radio-design">
-                          <div className="radio-inner"></div>
-                        </div>
+                        <span className="option-icon">🚫</span>
                         <span className="option-text">
                           <strong>Closed</strong>
+                          <small>No new registrations</small>
                         </span>
                       </label>
                     </div>
                   </div>
                 </div>
                 <div className="session-actions">
-                  <Button onClick={() => handleStartSession(session)} variant="primary">Start </Button>
-                  <Button onClick={() => handleEditSession(session)}>Edit </Button>
-                  <Button onClick={() => handleViewAnalytics(session)}>View</Button>
+                  <Button onClick={() => handleStartSession(session)} variant="primary">Start Session</Button>
+                  <Button onClick={() => handleEditSession(session)}>Edit Session</Button>
+                  <Button onClick={() => handleViewAnalytics(session)}>View Analytics</Button>
                 </div>
               </div>
             ))}
@@ -225,7 +236,7 @@ const Sessions = () => {
 
         <div className="sessions-section">
           <h3>Recorded Sessions</h3>
-          <div className="all-sessions-list">
+          <div className="sessions-list">
             {recordedSessions.map(session => (
               <div key={session.id} className={`session-card recorded-session ${!session.registrationEnabled ? 'registration-disabled' : ''}`}>
                 <div className="session-header">
@@ -263,6 +274,7 @@ const Sessions = () => {
                 <div className="registration-control-section">
                   <div className="control-header">
                     <h4>Availability Settings</h4>
+                    <p className="control-description">Control whether users can purchase this session</p>
                   </div>
                   <div className="registration-toggle">
                     <div className="toggle-options">
@@ -272,13 +284,11 @@ const Sessions = () => {
                           name={`availability-${session.id}`}
                           checked={session.registrationEnabled === true}
                           onChange={() => handleRegistrationChange(session.id, true)}
-                          className="radio-input"
                         />
-                        <div className="radio-design">
-                          <div className="radio-inner"></div>
-                        </div>
+                        <span className="option-icon">🟢</span>
                         <span className="option-text">
                           <strong>Available</strong>
+                          <small>Users can purchase</small>
                         </span>
                       </label>
                       <label className={`toggle-option ${!session.registrationEnabled ? 'active' : ''}`}>
@@ -287,13 +297,11 @@ const Sessions = () => {
                           name={`availability-${session.id}`}
                           checked={session.registrationEnabled === false}
                           onChange={() => handleRegistrationChange(session.id, false)}
-                          className="radio-input"
                         />
-                        <div className="radio-design">
-                          <div className="radio-inner"></div>
-                        </div>
+                        <span className="option-icon">🔴</span>
                         <span className="option-text">
                           <strong>Unavailable</strong>
+                          <small>Hidden from users</small>
                         </span>
                       </label>
                     </div>
@@ -301,7 +309,7 @@ const Sessions = () => {
                 </div>
                 <div className="session-actions">
                   <Button onClick={() => handleEditSession(session)}>Edit Session</Button>
-                  <Button onClick={() => handleViewAnalytics(session)}>View </Button>
+                  <Button onClick={() => handleViewAnalytics(session)}>View Analytics</Button>
                 </div>
               </div>
             ))}
@@ -471,7 +479,11 @@ const Sessions = () => {
                     <label>Upload File</label>
                     <input
                       type="file"
-                      onChange={(e) => e.target.files && handleFileUpload(material.id, e.target.files[0])}
+                      onChange={(e) => {
+                        if (e.target.files && e.target.files[0]) {
+                          handleFileUpload(material.id, e.target.files[0]);
+                        }
+                      }}
                       accept={
                         material.type === 'pdf' ? '.pdf' :
                         material.type === 'video' ? '.mp4,.mov,.avi' :
@@ -524,258 +536,73 @@ const Sessions = () => {
     </div>
   )
 
-  const renderAnalytics = () => {
-    // Calculate summary metrics
-    const totalLiveSessions = liveSessions.length; // Fixed variable name
-    const totalRecordedSessions = recordedSessions.length;
-    const totalParticipants = liveSessions.reduce((sum, session) => sum + session.participants, 0);
-    const totalPurchases = recordedSessions.reduce((sum, session) => sum + session.purchases, 0);
-    const totalRevenue = [...liveSessions, ...recordedSessions].reduce((sum, session) => {
-      if ('earnings' in session) {
-        return sum + session.earnings;
-      } else {
-        return sum + (session.price * session.participants);
-      }
-    }, 0);
-    
-    // Calculate average rating
-    const totalRatings = recordedSessions.reduce((sum, session) => sum + (session.rating || 0), 0);
-    const avgRating = totalRatings / (recordedSessions.length || 1);
-    
-    return (
-      <div className="analytics-dashboard">
-        <h2>My Analytics Dashboard</h2>
-        
-        <div className="analytics-overview-cards">
-          <div className="overview-card">
-            <div className="card-icon">🔴</div>
-            <div className="card-content">
-              <h3>{totalLiveSessions + totalRecordedSessions}</h3>
-              <p>Total Sessions</p>
+  const renderAnalytics = () => (
+    <div className="analytics-dashboard">
+      <h2>My Sessions Analytics</h2>
+      
+      <div className="analytics-grid">
+        <div className="chart-container">
+          <h3>My Sessions Earnings Trend</h3>
+          <div className="chart-placeholder">
+            <div className="chart-bars">
+              <div className="bar" style={{height: '60%'}}></div>
+              <div className="bar" style={{height: '80%'}}></div>
+              <div className="bar" style={{height: '45%'}}></div>
+              <div className="bar" style={{height: '90%'}}></div>
+              <div className="bar" style={{height: '70%'}}></div>
+              <div className="bar" style={{height: '95%'}}></div>
             </div>
-          </div>
-          <div className="overview-card">
-            <div className="card-icon">👥</div>
-            <div className="card-content">
-              <h3>{totalParticipants + totalPurchases}</h3>
-              <p>Total Students</p>
-            </div>
-          </div>
-          <div className="overview-card">
-            <div className="card-icon">💰</div>
-            <div className="card-content">
-              <h3>LKR {totalRevenue.toLocaleString()}</h3>
-              <p>Total Revenue</p>
-            </div>
-          </div>
-          <div className="overview-card">
-            <div className="card-icon">⭐</div>
-            <div className="card-content">
-              <h3>{avgRating.toFixed(1)}</h3>
-              <p>Average Rating</p>
+            <div className="chart-labels">
+              <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span>
             </div>
           </div>
         </div>
-        
-        <div className="analytics-tabs">
-          <button className="analytics-tab active">Overview</button>
-          <button className="analytics-tab">Revenue</button>
-          <button className="analytics-tab">Engagement</button>
-          <button className="analytics-tab">Feedback</button>
+
+        <div className="analytics-stats">
+          <h3>My Performance Metrics</h3>
+          <div className="metrics-grid">
+            <div className="metric-item">
+              <span className="metric-value">89%</span>
+              <span className="metric-label">My Attendance Rate</span>
+            </div>
+            <div className="metric-item">
+              <span className="metric-value">4.8</span>
+              <span className="metric-label">My Avg Rating</span>
+            </div>
+            <div className="metric-item">
+              <span className="metric-value">156</span>
+              <span className="metric-label">My Total Reviews</span>
+            </div>
+            <div className="metric-item">
+              <span className="metric-value">LKR 140,400</span>
+              <span className="metric-label">My Earnings This Month</span>
+            </div>
+          </div>
         </div>
-        
-        <div className="analytics-content">
-          <div className="analytics-grid">
-            <div className="chart-container">
-              <div className="chart-header">
-                <h3>Revenue Trends</h3>
-                <div className="chart-controls">
-                  <select className="time-period-selector">
-                    <option>Last 30 days</option>
-                    <option>Last 3 months</option>
-                    <option>Last 6 months</option>
-                    <option>Last year</option>
-                  </select>
-                </div>
-              </div>
-              <div className="chart-placeholder">
-                <div className="chart-bars">
-                  <div className="bar" style={{height: '60%'}}>
-                    <div className="bar-tooltip">LKR 45,000</div>
-                  </div>
-                  <div className="bar" style={{height: '80%'}}>
-                    <div className="bar-tooltip">LKR 60,000</div>
-                  </div>
-                  <div className="bar" style={{height: '45%'}}>
-                    <div className="bar-tooltip">LKR 33,750</div>
-                  </div>
-                  <div className="bar" style={{height: '90%'}}>
-                    <div className="bar-tooltip">LKR 67,500</div>
-                  </div>
-                  <div className="bar" style={{height: '70%'}}>
-                    <div className="bar-tooltip">LKR 52,500</div>
-                  </div>
-                  <div className="bar" style={{height: '95%'}}>
-                    <div className="bar-tooltip">LKR 71,250</div>
-                  </div>
-                </div>
-                <div className="chart-labels">
-                  <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span>
-                </div>
-              </div>
-            </div>
 
-            <div className="performance-metrics">
-              <h3>Key Performance Indicators</h3>
-              <div className="metrics-container">
-                <div className="metric-card interactive">
-                  <div className="metric-header">
-                    <span className="metric-icon">📈</span>
-                    <span className="metric-trend positive">+12%</span>
-                  </div>
-                  <span className="metric-value">89%</span>
-                  <span className="metric-label">Attendance Rate</span>
-                  <div className="metric-progress">
-                    <div className="progress-bar" style={{width: '89%'}}></div>
-                  </div>
-                </div>
-                
-                <div className="metric-card interactive">
-                  <div className="metric-header">
-                    <span className="metric-icon">⭐</span>
-                    <span className="metric-trend positive">+0.2</span>
-                  </div>
-                  <span className="metric-value">4.8</span>
-                  <span className="metric-label">Average Rating</span>
-                  <div className="rating-stars">
-                    <span className="filled">★★★★</span><span className="partial">★</span>
-                  </div>
-                </div>
-                
-                <div className="metric-card interactive">
-                  <div className="metric-header">
-                    <span className="metric-icon">💬</span>
-                    <span className="metric-trend positive">+23</span>
-                  </div>
-                  <span className="metric-value">156</span>
-                  <span className="metric-label">Total Reviews</span>
-                  <div className="metric-progress">
-                    <div className="progress-bar" style={{width: '78%'}}></div>
-                  </div>
-                </div>
-                
-                <div className="metric-card interactive">
-                  <div className="metric-header">
-                    <span className="metric-icon">💰</span>
-                    <span className="metric-trend positive">+18%</span>
-                  </div>
-                  <span className="metric-value">LKR 140,400</span>
-                  <span className="metric-label">Monthly Earnings</span>
-                  <div className="metric-progress">
-                    <div className="progress-bar" style={{width: '85%'}}></div>
-                  </div>
-                </div>
-              </div>
+        <div className="reviews-section">
+          <h3>Recent Reviews for My Sessions</h3>
+          <div className="reviews-list">
+            <div className="review-item">
+              <div className="review-rating">⭐⭐⭐⭐⭐</div>
+              <p>"Amazing session on deep space photography!"</p>
+              <span className="review-author">- Sarah K.</span>
             </div>
-            
-            <div className="top-sessions">
-              <div className="section-header">
-                <h3>Top Performing Sessions</h3>
-                <select className="metric-selector">
-                  <option>By Revenue</option>
-                  <option>By Attendees</option>
-                  <option>By Rating</option>
-                </select>
-              </div>
-              
-              <div className="sessions-table">
-                <div className="table-header">
-                  <div className="header-cell">Session</div>
-                  <div className="header-cell">Type</div>
-                  <div className="header-cell">Students</div>
-                  <div className="header-cell">Revenue</div>
-                  <div className="header-cell">Rating</div>
-                </div>
-                
-                {[...liveSessions, ...recordedSessions]
-                  .sort((a, b) => {
-                    const aEarnings = 'earnings' in a ? a.earnings : a.price * a.participants;
-                    const bEarnings = 'earnings' in b ? b.earnings : b.price * b.participants;
-                    return bEarnings - aEarnings;
-                  })
-                  .slice(0, 5)
-                  .map((session, index) => (
-                    <div key={index} className="table-row">
-                      <div className="cell">{session.title}</div>
-                      <div className="cell">
-                        <span className={`session-type ${'date' in session ? 'live' : 'recorded'}`}>
-                          {'date' in session ? 'LIVE' : 'RECORDED'}
-                        </span>
-                      </div>
-                      <div className="cell">
-                        {'date' in session ? `${session.participants}/${session.maxParticipants}` : session.purchases}
-                      </div>
-                      <div className="cell">
-                        LKR {('earnings' in session ? session.earnings : session.price * session.participants).toLocaleString()}
-                      </div>
-                      <div className="cell rating">
-                        {'rating' in session ? `${session.rating} ★` : 'N/A'}
-                      </div>
-                    </div>
-                  ))
-                }
-              </div>
+            <div className="review-item">
+              <div className="review-rating">⭐⭐⭐⭐⭐</div>
+              <p>"Very informative and well structured."</p>
+              <span className="review-author">- Mike D.</span>
             </div>
-
-            <div className="reviews-section">
-              <h3>Recent Reviews</h3>
-              <div className="reviews-list interactive">
-                <div className="review-item">
-                  <div className="review-header">
-                    <div className="review-session">Deep Space Photography</div>
-                    <div className="review-rating">⭐⭐⭐⭐⭐</div>
-                  </div>
-                  <p className="review-text">"Amazing session on deep space photography! The instructor was very knowledgeable and explained complex concepts in an easy-to-understand way."</p>
-                  <div className="review-footer">
-                    <span className="review-author">- Sarah K.</span>
-                    <span className="review-date">2 days ago</span>
-                  </div>
-                </div>
-                
-                <div className="review-item">
-                  <div className="review-header">
-                    <div className="review-session">Beginner Stargazing</div>
-                    <div className="review-rating">⭐⭐⭐⭐⭐</div>
-                  </div>
-                  <p className="review-text">"Very informative and well structured. Perfect for beginners like me!"</p>
-                  <div className="review-footer">
-                    <span className="review-author">- Mike D.</span>
-                    <span className="review-date">1 week ago</span>
-                  </div>
-                </div>
-                
-                <div className="review-item">
-                  <div className="review-header">
-                    <div className="review-session">Telescope Setup Guide</div>
-                    <div className="review-rating">⭐⭐⭐⭐</div>
-                  </div>
-                  <p className="review-text">"Great for beginners, highly recommend! Would love more details on advanced setups in the future."</p>
-                  <div className="review-footer">
-                    <span className="review-author">- Lisa M.</span>
-                    <span className="review-date">2 weeks ago</span>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="see-more-container">
-                <button className="see-more-btn">See All Reviews</button>
-              </div>
+            <div className="review-item">
+              <div className="review-rating">⭐⭐⭐⭐</div>
+              <p>"Great for beginners, highly recommend!"</p>
+              <span className="review-author">- Lisa M.</span>
             </div>
           </div>
         </div>
       </div>
-    )
-  }
+    </div>
+  )
 
   const renderManageSessionModal = () => {
     if (!showManageModal || !selectedSession) return null
@@ -794,19 +621,11 @@ const Sessions = () => {
               <div className="info-grid">
                 <div className="info-item">
                   <label>Date & Time:</label>
-                  {'date' in selectedSession && 'time' in selectedSession ? (
-                    <span>{selectedSession.date} at {selectedSession.time}</span>
-                  ) : (
-                    <span>N/A</span>
-                  )}
+                  <span>{selectedSession.date} at {selectedSession.time}</span>
                 </div>
                 <div className="info-item">
                   <label>Participants:</label>
-                  <span>
-                    {'participants' in selectedSession && 'maxParticipants' in selectedSession
-                      ? `${selectedSession.participants}/${selectedSession.maxParticipants}`
-                      : 'N/A'}
-                  </span>
+                  <span>{selectedSession.participants}/{selectedSession.maxParticipants}</span>
                 </div>
                 <div className="info-item">
                   <label>Price:</label>
@@ -885,21 +704,15 @@ const Sessions = () => {
               <div className="overview-stats">
                 <div className="stat-item">
                   <span className="stat-label">Status:</span>
-                  <span className="stat-value">{'date' in selectedSession ? 'Scheduled' : 'Recorded'}</span>
+                  <span className="stat-value">{selectedSession.date ? 'Scheduled' : 'Recorded'}</span>
                 </div>
                 <div className="stat-item">
                   <span className="stat-label">Current Participants:</span>
-                  <span className="stat-value">{'participants' in selectedSession ? selectedSession.participants : selectedSession.purchases || 0}</span>
+                  <span className="stat-value">{selectedSession.participants || selectedSession.purchases || 0}</span>
                 </div>
                 <div className="stat-item">
                   <span className="stat-label">Revenue:</span>
-                  <span className="stat-value">
-                    LKR {
-                      'earnings' in selectedSession
-                        ? selectedSession.earnings
-                        : (selectedSession.participants * selectedSession.price) || 0
-                    }
-                  </span>
+                  <span className="stat-value">LKR {selectedSession.earnings || ((selectedSession.participants ?? 0) * selectedSession.price) || 0}</span>
                 </div>
               </div>
             </div>
@@ -1053,7 +866,7 @@ const Sessions = () => {
   const renderAnalyticsModal = () => {
     if (!showAnalyticsModal || !selectedSession) return null
 
-    const isLiveSession = 'date' in selectedSession && 'time' in selectedSession
+    const isLiveSession = selectedSession.date && selectedSession.time
     
     return (
       <div className="modal-overlay" onClick={() => setShowAnalyticsModal(false)}>
@@ -1068,27 +881,19 @@ const Sessions = () => {
               <h4>Performance Overview</h4>
               <div className="metrics-row">
                 <div className="metric-card">
-                  <span className="metric-value">
-                    {'purchases' in selectedSession ? selectedSession.purchases : selectedSession.participants}
-                  </span>
+                  <span className="metric-value">{selectedSession.purchases || selectedSession.participants}</span>
                   <span className="metric-label">{isLiveSession ? 'Registered Participants' : 'Total Purchases'}</span>
                 </div>
                 <div className="metric-card">
-                  <span className="metric-value">
-                    LKR {
-                      'earnings' in selectedSession
-                        ? selectedSession.earnings
-                        : selectedSession.participants * selectedSession.price
-                    }
-                  </span>
+                  <span className="metric-value">LKR {selectedSession.earnings || ((selectedSession.participants ?? 0) * selectedSession.price)}</span>
                   <span className="metric-label">Revenue Generated</span>
                 </div>
                 <div className="metric-card">
-                  <span className="metric-value">{'rating' in selectedSession ? selectedSession.rating : 'N/A'}/5.0</span>
+                  <span className="metric-value">{selectedSession.rating || 'N/A'}/5.0</span>
                   <span className="metric-label">Average Rating</span>
                 </div>
                 <div className="metric-card">
-                  <span className="metric-value">{isLiveSession ? `${selectedSession.maxParticipants - selectedSession.participants} spots` : '92%'}</span>
+                  <span className="metric-value">{isLiveSession ? `${(selectedSession.maxParticipants ?? 0) - (selectedSession.participants ?? 0)} spots` : '92%'}</span>
                   <span className="metric-label">{isLiveSession ? 'Available Spots' : 'Completion Rate'}</span>
                 </div>
               </div>
@@ -1100,11 +905,15 @@ const Sessions = () => {
                 <div className="registration-stats">
                   <div className="registration-item">
                     <span className="registration-label">Registration Rate:</span>
-                    <span className="registration-value">{Math.round((selectedSession.participants / selectedSession.maxParticipants) * 100)}%</span>
+                    <span className="registration-value">{Math.round(((selectedSession.participants ?? 0) / (selectedSession.maxParticipants ?? 1)) * 100)}%</span>
                   </div>
                   <div className="registration-item">
                     <span className="registration-label">Days Until Session:</span>
-                    <span className="registration-value">{Math.ceil((new Date((selectedSession as LiveSession).date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} days</span>
+                    <span className="registration-value">
+                      {selectedSession.date
+                        ? Math.ceil((new Date(selectedSession.date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
+                        : 'N/A'} days
+                    </span>
                   </div>
                   <div className="registration-item">
                     <span className="registration-label">Current Registrations:</span>
@@ -1147,7 +956,7 @@ const Sessions = () => {
                 </div>
                 <div className="revenue-item">
                   <span className="revenue-label">Net Earnings:</span>
-                  <span className="revenue-value">LKR {('earnings' in selectedSession ? selectedSession.earnings : Math.round((selectedSession.price * (selectedSession.purchases || selectedSession.participants || 0)) * 0.9))}</span>
+                  <span className="revenue-value">LKR {selectedSession.earnings || Math.round((selectedSession.price * (selectedSession.purchases || selectedSession.participants || 0)) * 0.9)}</span>
                 </div>
               </div>
             </div>

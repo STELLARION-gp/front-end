@@ -27,6 +27,27 @@ interface SponsorshipHistory {
   status: 'completed' | 'pending' | 'cancelled';
 }
 
+interface CardDetails {
+  cardNumber: string;
+  expiryDate: string;
+  cvv: string;
+  cardholderName: string;
+}
+
+interface SponsorDetails {
+  name: string;
+  email: string;
+  message: string;
+}
+
+interface PaymentData {
+  amount: number;
+  paymentMethod: 'card' | 'bank' | 'paypal';
+  cardDetails: CardDetails | null;
+  sponsorDetails: SponsorDetails;
+  eventId?: string;
+}
+
 const Sponsorships: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'seeking' | 'history'>('seeking');
   const [showSponsorForm, setShowSponsorForm] = useState(false);
@@ -122,22 +143,7 @@ const Sponsorships: React.FC = () => {
     }
   };
 
-  const processPayment = async (paymentData: {
-    amount: number;
-    paymentMethod: string;
-    cardDetails?: {
-      cardNumber: string;
-      expiryDate: string;
-      cvv: string;
-      cardholderName: string;
-    };
-    sponsorDetails?: {
-      name: string;
-      email: string;
-      message: string;
-    };
-    eventId?: number;
-  }): Promise<void> => {
+  const processPayment = async (paymentData: PaymentData): Promise<void> => {
     // Simulate API call to payment gateway (replace with actual implementation)
     return new Promise((resolve, reject) => {
       setTimeout(() => {

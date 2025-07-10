@@ -47,10 +47,10 @@ const Sessions = () => {
   }
 
   const handleStartSession = (session) => {
-    // Handle starting the live session
-    console.log('Starting session:', session.title)
-    // You can add navigation to the session room or open a new window
-    // window.open(`https://stellarion.com/session/${session.id}/room`, '_blank')
+    // For real integration, use Google Calendar API to create an event with a Meet link.
+    // For demo, open a new Google Meet room (random code).
+    const meetUrl = `https://meet.google.com/new`;
+    window.open(meetUrl, '_blank');
   }
 
   const handleAddMaterial = () => {

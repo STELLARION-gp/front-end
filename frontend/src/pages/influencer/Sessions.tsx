@@ -603,6 +603,8 @@ const Sessions = () => {
   const renderAnalyticsModal = () => {
     if (!showAnalyticsModal || !selectedSession) return null
 
+    const isLiveSession = selectedSession.date && selectedSession.time
+    
     return (
       <div className="modal-overlay" onClick={() => setShowAnalyticsModal(false)}>
         <div className="modal-content large" onClick={(e) => e.stopPropagation()}>
@@ -617,7 +619,7 @@ const Sessions = () => {
               <div className="metrics-row">
                 <div className="metric-card">
                   <span className="metric-value">{selectedSession.purchases || selectedSession.participants}</span>
-                  <span className="metric-label">Total Participants</span>
+                  <span className="metric-label">{isLiveSession ? 'Registered Participants' : 'Total Purchases'}</span>
                 </div>
                 <div className="metric-card">
                   <span className="metric-value">LKR {selectedSession.earnings || (selectedSession.participants * selectedSession.price)}</span>
@@ -628,29 +630,51 @@ const Sessions = () => {
                   <span className="metric-label">Average Rating</span>
                 </div>
                 <div className="metric-card">
-                  <span className="metric-value">92%</span>
-                  <span className="metric-label">Completion Rate</span>
+                  <span className="metric-value">{isLiveSession ? `${selectedSession.maxParticipants - selectedSession.participants} spots` : '92%'}</span>
+                  <span className="metric-label">{isLiveSession ? 'Available Spots' : 'Completion Rate'}</span>
                 </div>
               </div>
             </div>
 
-            <div className="engagement-analytics">
-              <h4>Engagement Metrics</h4>
-              <div className="engagement-stats">
-                <div className="engagement-item">
-                  <span className="engagement-label">Average Watch Time:</span>
-                  <span className="engagement-value">45 minutes</span>
-                </div>
-                <div className="engagement-item">
-                  <span className="engagement-label">Questions Asked:</span>
-                  <span className="engagement-value">23</span>
-                </div>
-                <div className="engagement-item">
-                  <span className="engagement-label">Interaction Rate:</span>
-                  <span className="engagement-value">78%</span>
+            {isLiveSession && (
+              <div className="current-registrations">
+                <h4>Session Status</h4>
+                <div className="registration-stats">
+                  <div className="registration-item">
+                    <span className="registration-label">Registration Rate:</span>
+                    <span className="registration-value">{Math.round((selectedSession.participants / selectedSession.maxParticipants) * 100)}%</span>
+                  </div>
+                  <div className="registration-item">
+                    <span className="registration-label">Days Until Session:</span>
+                    <span className="registration-value">{Math.ceil((new Date(selectedSession.date) - new Date()) / (1000 * 60 * 60 * 24))} days</span>
+                  </div>
+                  <div className="registration-item">
+                    <span className="registration-label">Current Registrations:</span>
+                    <span className="registration-value">{selectedSession.participants}/{selectedSession.maxParticipants}</span>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
+
+            {!isLiveSession && (
+              <div className="engagement-analytics">
+                <h4>Engagement Metrics</h4>
+                <div className="engagement-stats">
+                  <div className="engagement-item">
+                    <span className="engagement-label">Average Watch Time:</span>
+                    <span className="engagement-value">45 minutes</span>
+                  </div>
+                  <div className="engagement-item">
+                    <span className="engagement-label">Questions Asked:</span>
+                    <span className="engagement-value">23</span>
+                  </div>
+                  <div className="engagement-item">
+                    <span className="engagement-label">Interaction Rate:</span>
+                    <span className="engagement-value">78%</span>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div className="revenue-breakdown">
               <h4>Revenue Breakdown</h4>
@@ -740,3 +764,4 @@ const Sessions = () => {
 }
 
 export default Sessions
+                

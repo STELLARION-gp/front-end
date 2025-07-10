@@ -115,34 +115,59 @@
         transition: all 0.3s ease;
 
         &:hover {
-            background-color: white;
+            background-color: rgb(255, 255, 255);
             color: black;
         }
     }
 
     .btn-like {
         background-color: transparent;
-        border: 1px solid #FFC107;
-        color: #FFC107;
-        padding: 8px 16px;
+        border: none;
+        color: rgba(255, 193, 7, 0.7);
+        padding: 8px 12px;
         cursor: pointer;
-        border-radius: 6px;
         font-size: 14px;
         margin-right: 12px;
         transition: all 0.3s ease;
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 8px;
 
-        &:hover,
+        // Star icon using CSS
+        &::before {
+            content: "☆";
+            font-size: 20px;
+            color: rgba(255, 193, 7, 0.7);
+            transition: all 0.3s ease;
+        }
+
+        &:hover {
+            color: #FFC107;
+            transform: scale(1.1);
+
+            &::before {
+                color: #FFC107;
+            }
+        }
+
         &.liked {
-            background-color: #FFC107;
-            color: #1a1a1a;
+            color: #FFC107;
+
+            &::before {
+                content: "★";
+                color: #FFC107;
+            }
         }
 
         &:disabled {
             opacity: 0.5;
             cursor: not-allowed;
+            transform: none;
         }
     }
 
+    
     .btn-learn-more {
         background-color: transparent;
         border: 1px solid #17A2B8;
@@ -550,6 +575,7 @@
                 &.liked {
                     background-color: #FFC107;
                     color: #1a1a1a;
+                    border: 1px solid #FFC107;
                 }
 
                 &:disabled {

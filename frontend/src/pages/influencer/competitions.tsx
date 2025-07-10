@@ -37,7 +37,7 @@ const mockFetchCompetitions = (): Promise<Competition[]> =>
             prizes: '$500 First Prize, $300 Second Prize, $200 Third Prize',
             requirements: 'Original photos only, high resolution (min 2048x2048), include capture details',
             applicationLink: 'https://example.com/apply-photo-contest',
-            likes: 24,
+            likes: 0,
             replies: [],
             isLiked: false,
             timestamp: new Date().toISOString()
@@ -51,7 +51,7 @@ const mockFetchCompetitions = (): Promise<Competition[]> =>
             prizes: 'Telescope, Star Charts, Astronomy Books',
             requirements: 'Open to all ages, basic astronomy knowledge helpful',
             applicationLink: 'https://example.com/apply-constellation-quiz',
-            likes: 18,
+            likes: 0,
             replies: [],
             isLiked: false,
             timestamp: new Date().toISOString()
@@ -453,7 +453,7 @@ const CompetitionsPage: React.FC = () => {
                                 className={`btn-like ${competition.isLiked ? 'liked' : ''}`}
                                 disabled={loading}
                             >
-                                ⭐ {competition.likes}
+                                {competition.likes}
                             </button>
                             
                             <button className="btn-learn-more">
@@ -517,7 +517,7 @@ const CompetitionsPage: React.FC = () => {
                                                 className={`btn-like-reply ${reply.isLiked ? 'liked' : ''}`}
                                                 disabled={loading}
                                             >
-                                                ⭐ {reply.likes}
+                                                {reply.likes}
                                             </button>
                                             <button 
                                                 onClick={() => handleEditReply(reply)} 

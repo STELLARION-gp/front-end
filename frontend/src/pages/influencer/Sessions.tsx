@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import '../../styles/pages/influencer/Sessions.scss';
 import Button from '../../components/Button';
 

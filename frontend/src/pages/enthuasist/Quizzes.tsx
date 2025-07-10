@@ -1,4 +1,4 @@
-import  { useState, useEffect } from 'react'
+import  { useState, useEffect, useCallback, useMemo } from 'react'
 import '../../styles/pages/enthusiast/Quizzes.scss'
 import '../../styles/pages/enthusiast/Leaderboard.scss'
 import Button from '../../components/Button'
@@ -112,7 +112,7 @@ const Quizzes = () => {
     }
   ]
 
-  const sampleQuestions: QuizQuestion[] = [
+  const sampleQuestions: QuizQuestion[] = useMemo(() => [
     {
       id: '1',
       question: 'Which planet is known as the "Red Planet"?',
@@ -148,7 +148,7 @@ const Quizzes = () => {
       correctAnswer: 1,
       explanation: 'Saturn has the most extensive and visible ring system in our solar system.'
     }
-  ]
+  ], [])
 
   const sampleLeaderboard: LeaderboardEntry[] = [
     {
@@ -237,7 +237,19 @@ const Quizzes = () => {
     ? sampleQuizzes 
     : sampleQuizzes.filter(quiz => quiz.isMyQuiz)
 
-  // Timer effect
+  // Memoize handleQuizSubmit with useCallback
+  const handleQuizSubmit = useCallback(() => {
+    let correctAnswers = 0
+    selectedAnswers.forEach((answer, index) => {
+      if (answer === sampleQuestions[index].correctAnswer) {
+        correctAnswers++
+      }
+    })
+    setScore(correctAnswers)
+    setIsQuizCompleted(true)
+  }, [selectedAnswers, sampleQuestions])
+
+  // Timer effect with fixed dependency array
   useEffect(() => {
     if (isQuizStarted && timeRemaining > 0 && !isQuizCompleted) {
       const timer = setTimeout(() => {
@@ -247,7 +259,7 @@ const Quizzes = () => {
     } else if (timeRemaining === 0 && isQuizStarted) {
       handleQuizSubmit()
     }
-  }, [timeRemaining, isQuizStarted, isQuizCompleted])
+  }, [timeRemaining, isQuizStarted, isQuizCompleted, handleQuizSubmit])
 
   const handleParticipate = (quiz: Quiz) => {
     setSelectedQuiz(quiz)
@@ -283,17 +295,6 @@ const Quizzes = () => {
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex(currentQuestionIndex - 1)
     }
-  }
-
-  const handleQuizSubmit = () => {
-    let correctAnswers = 0
-    selectedAnswers.forEach((answer, index) => {
-      if (answer === sampleQuestions[index].correctAnswer) {
-        correctAnswers++
-      }
-    })
-    setScore(correctAnswers)
-    setIsQuizCompleted(true)
   }
 
   const handleShowReview = () => {

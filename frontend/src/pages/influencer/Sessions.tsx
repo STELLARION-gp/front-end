@@ -117,7 +117,7 @@ const Sessions = () => {
       <div className="sessions-grid">
         <div className="sessions-section">
           <h3>Live Sessions</h3>
-          <div className="sessions-list">
+          <div className="all-sessions-list">
             {liveSessions.map(session => (
               <div key={session.id} className={`session-card live-session ${!session.registrationEnabled ? 'registration-disabled' : ''}`}>
                 <div className="session-header">
@@ -202,7 +202,7 @@ const Sessions = () => {
 
         <div className="sessions-section">
           <h3>Recorded Sessions</h3>
-          <div className="sessions-list">
+          <div className="all-sessions-list">
             {recordedSessions.map(session => (
               <div key={session.id} className={`session-card recorded-session ${!session.registrationEnabled ? 'registration-disabled' : ''}`}>
                 <div className="session-header">
@@ -503,7 +503,7 @@ const Sessions = () => {
 
   const renderAnalytics = () => {
     // Calculate summary metrics
-    const totalLiveSessions = liveSessions.length;
+    const totalLiveSessions = liveSessions.length; // Fixed variable name
     const totalRecordedSessions = recordedSessions.length;
     const totalParticipants = liveSessions.reduce((sum, session) => sum + session.participants, 0);
     const totalPurchases = recordedSessions.reduce((sum, session) => sum + session.purchases, 0);

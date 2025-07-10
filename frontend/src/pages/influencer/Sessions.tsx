@@ -46,6 +46,13 @@ const Sessions = () => {
     setShowAnalyticsModal(true)
   }
 
+  const handleStartSession = (session) => {
+    // Handle starting the live session
+    console.log('Starting session:', session.title)
+    // You can add navigation to the session room or open a new window
+    // window.open(`https://stellarion.com/session/${session.id}/room`, '_blank')
+  }
+
   const renderMyServices = () => (
     <div className="my-sessions-section">
       <div className="section-header">
@@ -82,6 +89,7 @@ const Sessions = () => {
                   </div>
                 </div>
                 <div className="session-actions">
+                  <Button onClick={() => handleStartSession(session)} variant="primary">Start Session</Button>
                   <Button onClick={() => handleEditSession(session)}>Edit Session</Button>
                   <Button onClick={() => handleViewAnalytics(session)}>View Analytics</Button>
                 </div>

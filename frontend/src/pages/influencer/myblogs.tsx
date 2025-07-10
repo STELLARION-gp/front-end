@@ -20,6 +20,7 @@ type Blog = {
     likes: number;
     rating: number;
     comments: Comment[];
+    liked: boolean; // Added to track if user has liked this blog
 };
 
 const mockBlogs: Blog[] = [
@@ -28,11 +29,12 @@ const mockBlogs: Blog[] = [
         title: 'The Orion Nebula: A Stellar Nursery',
         content: 'The Orion Nebula is one of the brightest nebulae visible to the naked eye. Located approximately 1,344 light-years from Earth, this stellar nursery is where new stars are born from cosmic dust and gas. The nebula spans about 24 light-years and contains enough material to form thousands of stars.',
         image: 'https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?w=800&h=400&fit=crop',
-        author: 'Dr. Jane Skywalker',
+        author: 'Astro Infleuencer',
         date: '2025-06-20',
         reach: 1247,
         likes: 89,
         rating: 4.7,
+        liked: false, // Initialize as not liked
         comments: [
             { id: 1, user: 'Alice Cooper', text: 'Fascinating insights about stellar formation!', date: '2025-06-21' },
             { id: 2, user: 'Bob Universe', text: 'The images are absolutely breathtaking.', date: '2025-06-22' },
@@ -43,11 +45,12 @@ const mockBlogs: Blog[] = [
         title: 'Exploring the Expanding Universe',
         content: 'Ever since Edwin Hubble\'s discovery, the expanding universe has intrigued cosmologists worldwide. This phenomenon suggests that galaxies are moving away from us, and the farther they are, the faster they recede. Understanding this expansion helps us comprehend the age and fate of our universe.',
         image: 'https://images.unsplash.com/photo-1502134249126-9f3755a50d78?w=800&h=400&fit=crop',
-        author: 'Prof. John Cosmos',
+        author: 'Astro Influencer',
         date: '2025-06-18',
         reach: 892,
         likes: 67,
         rating: 4.9,
+        liked: false, // Initialize as not liked
         comments: [
             { id: 3, user: 'Maria Galaxy', text: 'The explanation of red shift is excellent!', date: '2025-06-19' },
         ],
@@ -87,6 +90,7 @@ export default function MyBlogs() {
             likes: 0,
             rating: 0,
             comments: [],
+            liked: false, // Initialize new blogs as not liked
             image: newBlog.image ? URL.createObjectURL(newBlog.image) : null,
         };
         setBlogs([newBlogPost, ...blogs]);
@@ -127,10 +131,26 @@ export default function MyBlogs() {
         setShowCreateForm(false);
     };
 
+    // Fixed like functionality - toggles like/unlike
     const handleLike = (id) => {
         setBlogs(blogs.map(blog => 
-            blog.id === id ? { ...blog, likes: blog.likes + 1 } : blog
+            blog.id === id 
+                ? { 
+                    ...blog, 
+                    likes: blog.liked ? blog.likes - 1 : blog.likes + 1,
+                    liked: !blog.liked 
+                }
+                : blog
         ));
+        
+        // Update selectedBlog if it's the one being liked
+        if (selectedBlog?.id === id) {
+            setSelectedBlog(prev => prev ? {
+                ...prev,
+                likes: prev.liked ? prev.likes - 1 : prev.likes + 1,
+                liked: !prev.liked
+            } : null);
+        }
     };
 
     const handleAddComment = (blogId) => {
@@ -148,6 +168,15 @@ export default function MyBlogs() {
                 ? { ...blog, comments: [...blog.comments, comment] }
                 : blog
         ));
+        
+        // Update selectedBlog if it's the one getting the comment
+        if (selectedBlog?.id === blogId) {
+            setSelectedBlog(prev => prev ? {
+                ...prev,
+                comments: [...prev.comments, comment]
+            } : null);
+        }
+        
         setNewComment('');
     };
 
@@ -157,6 +186,14 @@ export default function MyBlogs() {
                 ? { ...blog, comments: blog.comments.filter(c => c.id !== commentId) }
                 : blog
         ));
+        
+        // Update selectedBlog if it's the one losing the comment
+        if (selectedBlog?.id === blogId) {
+            setSelectedBlog(prev => prev ? {
+                ...prev,
+                comments: prev.comments.filter(c => c.id !== commentId)
+            } : null);
+        }
     };
 
     const renderStars = (rating) => {
@@ -308,11 +345,11 @@ export default function MyBlogs() {
                             
                             <div className="blog-actions-bottom">
                                 <button 
-                                    className="like-btn"
+                                    className={`like-btn ${blog.liked ? 'liked' : ''}`}
                                     onClick={() => handleLike(blog.id)}
                                 >
-                                    <Heart size={16} />
-                                    Like
+                                    <Heart size={16} fill={blog.liked ? 'currentColor' : 'none'} />
+                                    {blog.liked ? 'Liked' : 'Like'}
                                 </button>
                                 <button 
                                     className="read-more-btn"
@@ -400,8 +437,8 @@ export default function MyBlogs() {
                                     {selectedBlog.comments.map((comment) => (
                                         <div key={comment.id} className="comment">
                                             <div className="comment-header">
-                                                <strong>{comment.user}</strong>
-                                                <span className="comment-date">{comment.date}</span>
+                                                <span className="comment-author">{comment.user}</span>
+                                                <span className="comment-timestamp">{comment.date}</span>
                                                 <button 
                                                     className="delete-comment-btn"
                                                     onClick={() => handleDeleteComment(selectedBlog.id, comment.id)}

@@ -1,0 +1,208 @@
+// NightCampDetails.scss
+.night-camp-details {
+  width: 80%;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  background: linear-gradient(120deg, #1e293b99 10%, #36476499 100%);
+  border-radius: 18px;
+  box-shadow: 0 4px 32px 0 rgba(0,0,0,0.12);
+  color: #f3f4f6;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    .camp-image {
+      width: 180px;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px 0 rgba(0,0,0,0.18);
+    }
+    .camp-meta {
+      flex: 1;
+      h2 {
+        margin: 0 0 0.5rem 0;
+        font-size: 2rem;
+        font-weight: 700;
+      }
+      .meta-list {
+        display: flex;
+        gap: 1.5rem;
+        font-size: 1rem;
+        color: #b3b8c5;
+        .meta-item {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+        }
+      }
+    }
+  }
+
+  &__volunteers {
+    margin: 2rem 0 1.5rem 0;
+    h3 {
+      font-size: 1.2rem;
+      margin-bottom: 0.7rem;
+    }
+    .volunteer-list {
+      display: flex;
+      gap: 1.2rem;
+      flex-wrap: wrap;
+      .volunteer-card {
+        background: #23283a;
+        border-radius: 10px;
+        padding: 0.8rem 1.2rem;
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        min-width: 180px;
+        box-shadow: 0 2px 8px 0 rgba(0,0,0,0.10);
+        .avatar {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          object-fit: cover;
+          border: 2px solid #3b82f6;
+        }
+        .vol-info {
+          .name {
+            font-weight: 600;
+            color: #fff;
+          }
+          .role {
+            font-size: 0.95rem;
+            color: #b3b8c5;
+          }
+        }
+      }
+    }
+  }
+
+  &__photos {
+    margin: 2rem 0 1.5rem 0;
+    h3 {
+      font-size: 1.2rem;
+      margin-bottom: 0.7rem;
+    }
+    .photo-gallery {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      .photo {
+        width: 120px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 8px;
+        box-shadow: 0 1px 6px 0 rgba(0,0,0,0.10);
+      }
+    }
+  }
+
+  &__description {
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+    color: #e5e7eb;
+    line-height: 1.7;
+  }
+
+  &__pay-section {
+    margin: 2rem 0 1.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    .price {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #3b82f6;
+    }
+    .pay-btn {
+      background: linear-gradient(90deg, #3b82f6 0%, #06b6d4 100%);
+      color: #fff;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      padding: 0.7rem 2.2rem;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+      &:hover {
+        background: linear-gradient(90deg, #2563eb 0%, #0891b2 100%);
+      }
+    }
+  }
+
+  &__comments {
+    margin: 2.5rem 0 0 0;
+    h3 {
+      font-size: 1.2rem;
+      margin-bottom: 0.7rem;
+    }
+    .comment-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      .comment {
+        background: #23283a;
+        border-radius: 10px;
+        padding: 1rem 1.2rem;
+        .comment-header {
+          display: flex;
+          align-items: center;
+          gap: 0.7rem;
+          margin-bottom: 0.3rem;
+          .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #3b82f6;
+          }
+          .name {
+            font-weight: 600;
+            color: #fff;
+          }
+          .date {
+            font-size: 0.9rem;
+            color: #b3b8c5;
+          }
+        }
+        .comment-body {
+          color: #e5e7eb;
+          font-size: 1rem;
+        }
+      }
+    }
+    .add-comment {
+      margin-top: 1.5rem;
+      display: flex;
+      gap: 1rem;
+      textarea {
+        flex: 1;
+        border-radius: 8px;
+        border: 1px solid #374151;
+        background: #181c24;
+        color: #fff;
+        padding: 0.7rem 1rem;
+        font-size: 1rem;
+        resize: none;
+      }
+      button {
+        background: #3b82f6;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 0.7rem 1.5rem;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+        &:hover {
+          background: #2563eb;
+        }
+      }
+    }
+  }
+}

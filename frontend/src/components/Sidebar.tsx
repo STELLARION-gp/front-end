@@ -22,8 +22,14 @@ import {
   StarIcon,
   RocketLaunchIcon,
   SparklesIcon,
+  TrophyIcon,
+  HandRaisedIcon,
+  CurrencyDollarIcon,
   MegaphoneIcon,
-  TrophyIcon
+  UserGroupIcon,
+  DocumentTextIcon,
+  VideoCameraIcon,
+
 } from '@heroicons/react/24/outline';
 
 // Define interfaces for menu items
@@ -53,8 +59,14 @@ const iconMap = {
   StarIcon,
   RocketLaunchIcon,
   SparklesIcon,
+  TrophyIcon,
+  HandRaisedIcon,
+  CurrencyDollarIcon,
   MegaphoneIcon,
-  TrophyIcon
+  UserGroupIcon,
+  DocumentTextIcon,
+  VideoCameraIcon
+
 };
 
 // Memoize the icon components to prevent re-renders

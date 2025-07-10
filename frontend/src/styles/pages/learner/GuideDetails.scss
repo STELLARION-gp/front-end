@@ -1,0 +1,155 @@
+.guide-details-page {
+  width: 100%;
+  margin: 0rem auto;
+  background: #181f2a;
+  border-radius: 18px;
+  box-shadow: 0 2px 16px rgba(37,99,235,0.08);
+  padding: 2rem 2.5rem;
+  color: #e5e7eb;
+}
+.guide-header {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+.guide-avatar-lg {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #4f8cff;
+  background: #232b3b;
+}
+.guide-header-info {
+  flex: 1;
+}
+.guide-header-info h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.3rem;
+}
+.guide-role {
+  color: #60a5fa;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+.guide-rating {
+  display: flex;
+  align-items: center;
+  font-size: 1.2rem;
+}
+.guide-tabs {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+.guide-tabs button {
+  background: none;
+  border: none;
+  color: #a1a1aa;
+  font-size: 1.1rem;
+  font-weight: 600;
+  padding: 0.5rem 1.2rem;
+  border-radius: 8px 8px 0 0;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+}
+.guide-tabs button.active {
+  color: #4f8cff;
+  background: #232b3b;
+}
+.guide-tab-content {
+  background: #232b3b;
+  border-radius: 0 0 12px 12px;
+  padding: 2rem 1.5rem;
+  min-height: 300px;
+}
+.guide-services-grid {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+.guide-media-grid {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+.media-card {
+  width: 400px;
+  background: #181f2a;
+  border-radius: 10px;
+  box-shadow: 0 1px 4px rgba(37,99,235,0.06);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.media-thumb {
+  width: 100%;
+  height: 170px;
+  object-fit: cover;
+  background: #232b3b;
+}
+.media-info {
+  padding: 1rem;
+}
+.media-title {
+  font-weight: 600;
+  color: #4f8cff;
+  margin-bottom: 0.3rem;
+}
+.media-date {
+  color: #a1a1aa;
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+}
+.media-desc {
+  color: #e5e7eb;
+  font-size: 1.05rem;
+}
+.guide-reviews-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+.review-item {
+  background: #181f2a;
+  border-radius: 10px;
+  padding: 1.2rem 1.5rem;
+  box-shadow: 0 1px 4px rgba(37,99,235,0.06);
+}
+.review-header {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  margin-bottom: 0.3rem;
+}
+.review-user {
+  color: #60a5fa;
+  font-weight: 600;
+}
+.review-rating {
+  font-size: 1.1rem;
+}
+.review-date {
+  color: #a1a1aa;
+  font-size: 0.95rem;
+}
+.review-text {
+  color: #e5e7eb;
+  font-size: 1.05rem;
+  line-height: 1.5;
+}
+@media (max-width: 700px) {
+  .guide-details-page {
+    padding: 1rem 0.5rem;
+  }
+  .guide-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.2rem;
+  }
+  .guide-tab-content {
+    padding: 1rem 0.2rem;
+  }
+}

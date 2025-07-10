@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Token Diagnostic Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #1a1a1a;
+            color: #fff;
+        }
+
+        .container {
+            background: #2a2a2a;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        .button:hover {
+            background-color: #45a049;
+        }
+
+        .error {
+            background-color: #f44336;
+            color: white;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+
+        .success {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+
+        .info {
+            background-color: #2196F3;
+            color: white;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+
+        .token-display {
+            background-color: #333;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        .section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #555;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🔍 Token Diagnostic Tool</h1>
+    <p>This tool will help diagnose authentication token issues.</p>
+
+    <div class="container">
+        <h2>Current Authentication Status</h2>
+        <div id="authStatus">Loading...</div>
+
+        <button class="button" onclick="checkAuthStatus()">Refresh Auth Status</button>
+        <button class="button" onclick="getNewToken()">Get New Token</button>
+        <button class="button" onclick="testTokenWithProfile()">Test Token with Profile API</button>
+        <button class="button" onclick="testTokenWithHealth()">Test Token with Health API</button>
+    </div>
+
+    <div class="container">
+        <h2>Current Token Information</h2>
+        <div id="tokenInfo">No token loaded</div>
+        <button class="button" onclick="decodeToken()">Decode Token</button>
+    </div>
+
+    <div class="container">
+        <h2>API Test Results</h2>
+        <div id="apiResults">No tests run yet</div>
+    </div>
+
+    <div class="container">
+        <h2>Token Validation</h2>
+        <div id="tokenValidation">Click 'Validate Token' to check</div>
+        <button class="button" onclick="validateToken()">Validate Token</button>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+
+        // Firebase config
+        const firebaseConfig = {
+            apiKey: "AIzaSyBadpzMDQbSPAUm7ZnVg5JrTx4aYI9Fw9M",
+            authDomain: "stellarion-b76d6.firebaseapp.com",
+            projectId: "stellarion-b76d6",
+            storageBucket: "stellarion-b76d6.firebasestorage.app",
+            messagingSenderId: "878329880283",
+            appId: "1:878329880283:web:657ca38190719f2b5036fe"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // Global variables
+        window.firebaseAuth = auth;
+        window.currentToken = null;
+
+        // Auth state listener
+        onAuthStateChanged(auth, (user) => {
+            console.log('Auth state changed:', user);
+            window.currentUser = user;
+            checkAuthStatus();
+        });
+
+        // Global functions
+        window.checkAuthStatus = async function () {
+            const statusDiv = document.getElementById('authStatus');
+            const user = window.currentUser;
+
+            if (!user) {
+                statusDiv.innerHTML = '<div class="error">❌ No user logged in</div>';
+                return;
+            }
+
+            try {
+                const token = await user.getIdToken();
+                window.currentToken = token;
+
+                statusDiv.innerHTML = `
+                    <div class="success">✅ User logged in: ${user.email}</div>
+                    <div class="info">🔑 Token obtained successfully</div>
+                    <div class="info">📅 Token expires: ${new Date(user.stsTokenManager.expirationTime).toLocaleString()}</div>
+                `;
+
+                // Update token display
+                document.getElementById('tokenInfo').innerHTML = `
+                    <div class="token-display">
+                        <strong>Token (first 100 chars):</strong><br>
+                        ${token.substring(0, 100)}...
+                    </div>
+                    <div class="info">Token length: ${token.length} characters</div>
+                `;
+
+            } catch (error) {
+                statusDiv.innerHTML = `<div class="error">❌ Error getting token: ${error.message}</div>`;
+            }
+        };
+
+        window.getNewToken = async function () {
+            const user = window.currentUser;
+            if (!user) {
+                alert('No user logged in');
+                return;
+            }
+
+            try {
+                const token = await user.getIdToken(true); // Force refresh
+                window.currentToken = token;
+
+                document.getElementById('tokenInfo').innerHTML = `
+                    <div class="success">✅ New token obtained</div>
+                    <div class="token-display">
+                        <strong>New Token (first 100 chars):</strong><br>
+                        ${token.substring(0, 100)}...
+                    </div>
+                    <div class="info">Token length: ${token.length} characters</div>
+                `;
+
+            } catch (error) {
+                document.getElementById('tokenInfo').innerHTML = `
+                    <div class="error">❌ Error getting new token: ${error.message}</div>
+                `;
+            }
+        };
+
+        window.testTokenWithProfile = async function () {
+            const token = window.currentToken;
+            if (!token) {
+                document.getElementById('apiResults').innerHTML = '<div class="error">❌ No token available</div>';
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:5000/api/user/profile', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const responseText = await response.text();
+
+                document.getElementById('apiResults').innerHTML = `
+                    <div class="section">
+                        <h3>Profile API Test Results</h3>
+                        <div class="info">Status: ${response.status}</div>
+                        <div class="info">Content-Type: ${response.headers.get('content-type')}</div>
+                        <div class="token-display">
+                            <strong>Response:</strong><br>
+                            ${responseText}
+                        </div>
+                    </div>
+                `;
+
+            } catch (error) {
+                document.getElementById('apiResults').innerHTML = `
+                    <div class="error">❌ Profile API test failed: ${error.message}</div>
+                `;
+            }
+        };
+
+        window.testTokenWithHealth = async function () {
+            try {
+                const response = await fetch('http://localhost:5000/api/health', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const responseText = await response.text();
+
+                document.getElementById('apiResults').innerHTML = `
+                    <div class="section">
+                        <h3>Health API Test Results</h3>
+                        <div class="info">Status: ${response.status}</div>
+                        <div class="info">Content-Type: ${response.headers.get('content-type')}</div>
+                        <div class="token-display">
+                            <strong>Response:</strong><br>
+                            ${responseText}
+                        </div>
+                    </div>
+                `;
+
+            } catch (error) {
+                document.getElementById('apiResults').innerHTML = `
+                    <div class="error">❌ Health API test failed: ${error.message}</div>
+                `;
+            }
+        };
+
+        window.decodeToken = function () {
+            const token = window.currentToken;
+            if (!token) {
+                document.getElementById('tokenInfo').innerHTML = '<div class="error">❌ No token available</div>';
+                return;
+            }
+
+            try {
+                // Decode JWT token
+                const parts = token.split('.');
+                if (parts.length !== 3) {
+                    throw new Error('Invalid JWT token format');
+                }
+
+                const header = JSON.parse(atob(parts[0]));
+                const payload = JSON.parse(atob(parts[1]));
+
+                document.getElementById('tokenInfo').innerHTML = `
+                    <div class="section">
+                        <h3>Token Header</h3>
+                        <div class="token-display">${JSON.stringify(header, null, 2)}</div>
+                    </div>
+                    <div class="section">
+                        <h3>Token Payload</h3>
+                        <div class="token-display">${JSON.stringify(payload, null, 2)}</div>
+                    </div>
+                    <div class="info">Token expires: ${new Date(payload.exp * 1000).toLocaleString()}</div>
+                    <div class="info">Token issued: ${new Date(payload.iat * 1000).toLocaleString()}</div>
+                `;
+
+            } catch (error) {
+                document.getElementById('tokenInfo').innerHTML = `
+                    <div class="error">❌ Error decoding token: ${error.message}</div>
+                `;
+            }
+        };
+
+        window.validateToken = async function () {
+            const token = window.currentToken;
+            if (!token) {
+                document.getElementById('tokenValidation').innerHTML = '<div class="error">❌ No token available</div>';
+                return;
+            }
+
+            try {
+                // Decode and validate token
+                const parts = token.split('.');
+                if (parts.length !== 3) {
+                    throw new Error('Invalid JWT token format');
+                }
+
+                const payload = JSON.parse(atob(parts[1]));
+                const now = Math.floor(Date.now() / 1000);
+
+                let validationResult = '<div class="section"><h3>Token Validation Results</h3>';
+
+                // Check expiration
+                if (payload.exp < now) {
+                    validationResult += '<div class="error">❌ Token is expired</div>';
+                } else {
+                    validationResult += '<div class="success">✅ Token is not expired</div>';
+                }
+
+                // Check issued time
+                if (payload.iat > now) {
+                    validationResult += '<div class="error">❌ Token issued in the future</div>';
+                } else {
+                    validationResult += '<div class="success">✅ Token issued time is valid</div>';
+                }
+
+                // Check required fields
+                const requiredFields = ['sub', 'email', 'aud', 'iss'];
+                requiredFields.forEach(field => {
+                    if (payload[field]) {
+                        validationResult += `<div class="success">✅ ${field}: ${payload[field]}</div>`;
+                    } else {
+                        validationResult += `<div class="error">❌ Missing ${field}</div>`;
+                    }
+                });
+
+                validationResult += '</div>';
+
+                document.getElementById('tokenValidation').innerHTML = validationResult;
+
+            } catch (error) {
+                document.getElementById('tokenValidation').innerHTML = `
+                    <div class="error">❌ Token validation failed: ${error.message}</div>
+                `;
+            }
+        };
+    </script>
+</body>
+
+</html>

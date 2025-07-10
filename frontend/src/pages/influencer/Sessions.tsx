@@ -163,9 +163,11 @@ const Sessions = () => {
                           name={`registration-${session.id}`}
                           checked={session.registrationEnabled === true}
                           onChange={() => handleRegistrationChange(session.id, true)}
-                          className="interactive-radio"
+                          className="radio-input"
                         />
-                        <span className="radio-custom"></span>
+                        <div className="radio-design">
+                          <div className="radio-inner"></div>
+                        </div>
                         <span className="option-text">
                           <strong>Open</strong>
                         </span>
@@ -176,9 +178,11 @@ const Sessions = () => {
                           name={`registration-${session.id}`}
                           checked={session.registrationEnabled === false}
                           onChange={() => handleRegistrationChange(session.id, false)}
-                          className="interactive-radio"
+                          className="radio-input"
                         />
-                        <span className="radio-custom"></span>
+                        <div className="radio-design">
+                          <div className="radio-inner"></div>
+                        </div>
                         <span className="option-text">
                           <strong>Closed</strong>
                         </span>
@@ -187,9 +191,9 @@ const Sessions = () => {
                   </div>
                 </div>
                 <div className="session-actions">
-                  <Button onClick={() => handleStartSession(session)} variant="primary">Start Session</Button>
-                  <Button onClick={() => handleEditSession(session)}>Edit Session</Button>
-                  <Button onClick={() => handleViewAnalytics(session)}>View Analytics</Button>
+                  <Button onClick={() => handleStartSession(session)} variant="primary">Start </Button>
+                  <Button onClick={() => handleEditSession(session)}>Edit </Button>
+                  <Button onClick={() => handleViewAnalytics(session)}>View</Button>
                 </div>
               </div>
             ))}
@@ -268,7 +272,7 @@ const Sessions = () => {
                 </div>
                 <div className="session-actions">
                   <Button onClick={() => handleEditSession(session)}>Edit Session</Button>
-                  <Button onClick={() => handleViewAnalytics(session)}>View Analytics</Button>
+                  <Button onClick={() => handleViewAnalytics(session)}>View </Button>
                 </div>
               </div>
             ))}

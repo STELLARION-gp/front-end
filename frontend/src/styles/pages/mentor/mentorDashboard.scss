@@ -1,0 +1,114 @@
+.mentor-dashboard-container {
+  min-height: 120vh;
+  width: 100%;
+  background: rgba(59,130,246,0.07);
+  border-radius: 16px;
+  padding: 2.5rem 4vw;
+  box-sizing: border-box;
+  max-width: 1800px;
+  margin: 0 auto;
+}
+.mentor-dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+.mentor-dashboard-layout {
+  display: flex;
+  gap: 2.5rem;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+.mentor-dashboard-left {
+  min-width: 540px;
+  max-width: 900px;
+  flex: 1 1 700px;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+.mentee-of-month-card {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2.2rem 2rem;
+  transition: box-shadow 0.3s, border-color 0.3s, transform 0.2s;
+  cursor: pointer;
+}
+.mentee-of-month-list {
+  display: flex;
+  gap: 32px;
+  justify-content: center;
+  width: 100%;
+}
+.mentee-of-month-profile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.mentee-gold-hover {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #1a202c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border: 3px solid #334155;
+  transition: border-color 0.2s;
+}
+.mentee-gold-hover:hover {
+  border-color: #fbbf24 !important;
+  box-shadow: 0 0 0 4px rgba(251,191,36,0.18);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.mentor-dashboard-right {
+  flex: 1 1 700px;
+  min-width: 420px;
+  max-width: 900px;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin-left: 2.5rem;
+}
+.mentor-dashboard-stats {
+  display: flex;
+  gap: 18px;
+  margin-top: 8px;
+}
+.mentor-dashboard-stat-card {
+  min-width: 120px;
+  max-width: 220px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.mentor-dashboard-toggle {
+  width: 36px;
+  height: 20px;
+  border-radius: 12px;
+  background: #22c55e;
+  display: flex;
+  align-items: center;
+  padding: 2px;
+  cursor: pointer;
+  transition: background 0.2s;
+  box-sizing: border-box;
+}
+.mentor-dashboard-toggle.paused {
+  background: #ef4444;
+}
+.mentor-dashboard-toggle > div {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  transition: margin 0.2s;
+} 

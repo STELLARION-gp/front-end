@@ -249,8 +249,11 @@ const Sessions = () => {
                           name={`availability-${session.id}`}
                           checked={session.registrationEnabled === true}
                           onChange={() => handleRegistrationChange(session.id, true)}
+                          className="radio-input"
                         />
-                       
+                        <div className="radio-design">
+                          <div className="radio-inner"></div>
+                        </div>
                         <span className="option-text">
                           <strong>Available</strong>
                         </span>
@@ -261,8 +264,11 @@ const Sessions = () => {
                           name={`availability-${session.id}`}
                           checked={session.registrationEnabled === false}
                           onChange={() => handleRegistrationChange(session.id, false)}
+                          className="radio-input"
                         />
-                        
+                        <div className="radio-design">
+                          <div className="radio-inner"></div>
+                        </div>
                         <span className="option-text">
                           <strong>Unavailable</strong>
                         </span>
@@ -495,73 +501,258 @@ const Sessions = () => {
     </div>
   )
 
-  const renderAnalytics = () => (
-    <div className="analytics-dashboard">
-      <h2>My Sessions Analytics</h2>
-      
-      <div className="analytics-grid">
-        <div className="chart-container">
-          <h3>My Sessions Earnings Trend</h3>
-          <div className="chart-placeholder">
-            <div className="chart-bars">
-              <div className="bar" style={{height: '60%'}}></div>
-              <div className="bar" style={{height: '80%'}}></div>
-              <div className="bar" style={{height: '45%'}}></div>
-              <div className="bar" style={{height: '90%'}}></div>
-              <div className="bar" style={{height: '70%'}}></div>
-              <div className="bar" style={{height: '95%'}}></div>
+  const renderAnalytics = () => {
+    // Calculate summary metrics
+    const totalLiveSessions = liveSessions.length;
+    const totalRecordedSessions = recordedSessions.length;
+    const totalParticipants = liveSessions.reduce((sum, session) => sum + session.participants, 0);
+    const totalPurchases = recordedSessions.reduce((sum, session) => sum + session.purchases, 0);
+    const totalRevenue = [...liveSessions, ...recordedSessions].reduce((sum, session) => {
+      if ('earnings' in session) {
+        return sum + session.earnings;
+      } else {
+        return sum + (session.price * session.participants);
+      }
+    }, 0);
+    
+    // Calculate average rating
+    const totalRatings = recordedSessions.reduce((sum, session) => sum + (session.rating || 0), 0);
+    const avgRating = totalRatings / (recordedSessions.length || 1);
+    
+    return (
+      <div className="analytics-dashboard">
+        <h2>My Analytics Dashboard</h2>
+        
+        <div className="analytics-overview-cards">
+          <div className="overview-card">
+            <div className="card-icon">🔴</div>
+            <div className="card-content">
+              <h3>{totalLiveSessions + totalRecordedSessions}</h3>
+              <p>Total Sessions</p>
             </div>
-            <div className="chart-labels">
-              <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span>
+          </div>
+          <div className="overview-card">
+            <div className="card-icon">👥</div>
+            <div className="card-content">
+              <h3>{totalParticipants + totalPurchases}</h3>
+              <p>Total Students</p>
+            </div>
+          </div>
+          <div className="overview-card">
+            <div className="card-icon">💰</div>
+            <div className="card-content">
+              <h3>LKR {totalRevenue.toLocaleString()}</h3>
+              <p>Total Revenue</p>
+            </div>
+          </div>
+          <div className="overview-card">
+            <div className="card-icon">⭐</div>
+            <div className="card-content">
+              <h3>{avgRating.toFixed(1)}</h3>
+              <p>Average Rating</p>
             </div>
           </div>
         </div>
-
-        <div className="analytics-stats">
-          <h3>My Performance Metrics</h3>
-          <div className="metrics-grid">
-            <div className="metric-item">
-              <span className="metric-value">89%</span>
-              <span className="metric-label">My Attendance Rate</span>
-            </div>
-            <div className="metric-item">
-              <span className="metric-value">4.8</span>
-              <span className="metric-label">My Avg Rating</span>
-            </div>
-            <div className="metric-item">
-              <span className="metric-value">156</span>
-              <span className="metric-label">My Total Reviews</span>
-            </div>
-            <div className="metric-item">
-              <span className="metric-value">LKR 140,400</span>
-              <span className="metric-label">My Earnings This Month</span>
-            </div>
-          </div>
+        
+        <div className="analytics-tabs">
+          <button className="analytics-tab active">Overview</button>
+          <button className="analytics-tab">Revenue</button>
+          <button className="analytics-tab">Engagement</button>
+          <button className="analytics-tab">Feedback</button>
         </div>
+        
+        <div className="analytics-content">
+          <div className="analytics-grid">
+            <div className="chart-container">
+              <div className="chart-header">
+                <h3>Revenue Trends</h3>
+                <div className="chart-controls">
+                  <select className="time-period-selector">
+                    <option>Last 30 days</option>
+                    <option>Last 3 months</option>
+                    <option>Last 6 months</option>
+                    <option>Last year</option>
+                  </select>
+                </div>
+              </div>
+              <div className="chart-placeholder">
+                <div className="chart-bars">
+                  <div className="bar" style={{height: '60%'}}>
+                    <div className="bar-tooltip">LKR 45,000</div>
+                  </div>
+                  <div className="bar" style={{height: '80%'}}>
+                    <div className="bar-tooltip">LKR 60,000</div>
+                  </div>
+                  <div className="bar" style={{height: '45%'}}>
+                    <div className="bar-tooltip">LKR 33,750</div>
+                  </div>
+                  <div className="bar" style={{height: '90%'}}>
+                    <div className="bar-tooltip">LKR 67,500</div>
+                  </div>
+                  <div className="bar" style={{height: '70%'}}>
+                    <div className="bar-tooltip">LKR 52,500</div>
+                  </div>
+                  <div className="bar" style={{height: '95%'}}>
+                    <div className="bar-tooltip">LKR 71,250</div>
+                  </div>
+                </div>
+                <div className="chart-labels">
+                  <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span>
+                </div>
+              </div>
+            </div>
 
-        <div className="reviews-section">
-          <h3>Recent Reviews for My Sessions</h3>
-          <div className="reviews-list">
-            <div className="review-item">
-              <div className="review-rating">⭐⭐⭐⭐⭐</div>
-              <p>"Amazing session on deep space photography!"</p>
-              <span className="review-author">- Sarah K.</span>
+            <div className="performance-metrics">
+              <h3>Key Performance Indicators</h3>
+              <div className="metrics-container">
+                <div className="metric-card interactive">
+                  <div className="metric-header">
+                    <span className="metric-icon">📈</span>
+                    <span className="metric-trend positive">+12%</span>
+                  </div>
+                  <span className="metric-value">89%</span>
+                  <span className="metric-label">Attendance Rate</span>
+                  <div className="metric-progress">
+                    <div className="progress-bar" style={{width: '89%'}}></div>
+                  </div>
+                </div>
+                
+                <div className="metric-card interactive">
+                  <div className="metric-header">
+                    <span className="metric-icon">⭐</span>
+                    <span className="metric-trend positive">+0.2</span>
+                  </div>
+                  <span className="metric-value">4.8</span>
+                  <span className="metric-label">Average Rating</span>
+                  <div className="rating-stars">
+                    <span className="filled">★★★★</span><span className="partial">★</span>
+                  </div>
+                </div>
+                
+                <div className="metric-card interactive">
+                  <div className="metric-header">
+                    <span className="metric-icon">💬</span>
+                    <span className="metric-trend positive">+23</span>
+                  </div>
+                  <span className="metric-value">156</span>
+                  <span className="metric-label">Total Reviews</span>
+                  <div className="metric-progress">
+                    <div className="progress-bar" style={{width: '78%'}}></div>
+                  </div>
+                </div>
+                
+                <div className="metric-card interactive">
+                  <div className="metric-header">
+                    <span className="metric-icon">💰</span>
+                    <span className="metric-trend positive">+18%</span>
+                  </div>
+                  <span className="metric-value">LKR 140,400</span>
+                  <span className="metric-label">Monthly Earnings</span>
+                  <div className="metric-progress">
+                    <div className="progress-bar" style={{width: '85%'}}></div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="review-item">
-              <div className="review-rating">⭐⭐⭐⭐⭐</div>
-              <p>"Very informative and well structured."</p>
-              <span className="review-author">- Mike D.</span>
+            
+            <div className="top-sessions">
+              <div className="section-header">
+                <h3>Top Performing Sessions</h3>
+                <select className="metric-selector">
+                  <option>By Revenue</option>
+                  <option>By Attendees</option>
+                  <option>By Rating</option>
+                </select>
+              </div>
+              
+              <div className="sessions-table">
+                <div className="table-header">
+                  <div className="header-cell">Session</div>
+                  <div className="header-cell">Type</div>
+                  <div className="header-cell">Students</div>
+                  <div className="header-cell">Revenue</div>
+                  <div className="header-cell">Rating</div>
+                </div>
+                
+                {[...liveSessions, ...recordedSessions]
+                  .sort((a, b) => {
+                    const aEarnings = 'earnings' in a ? a.earnings : a.price * a.participants;
+                    const bEarnings = 'earnings' in b ? b.earnings : b.price * b.participants;
+                    return bEarnings - aEarnings;
+                  })
+                  .slice(0, 5)
+                  .map((session, index) => (
+                    <div key={index} className="table-row">
+                      <div className="cell">{session.title}</div>
+                      <div className="cell">
+                        <span className={`session-type ${session.date ? 'live' : 'recorded'}`}>
+                          {session.date ? 'LIVE' : 'RECORDED'}
+                        </span>
+                      </div>
+                      <div className="cell">
+                        {session.date ? `${session.participants}/${session.maxParticipants}` : session.purchases}
+                      </div>
+                      <div className="cell">
+                        LKR {('earnings' in session ? session.earnings : session.price * session.participants).toLocaleString()}
+                      </div>
+                      <div className="cell rating">
+                        {'rating' in session ? `${session.rating} ★` : 'N/A'}
+                      </div>
+                    </div>
+                  ))
+                }
+              </div>
             </div>
-            <div className="review-item">
-              <div className="review-rating">⭐⭐⭐⭐</div>
-              <p>"Great for beginners, highly recommend!"</p>
-              <span className="review-author">- Lisa M.</span>
+
+            <div className="reviews-section">
+              <h3>Recent Reviews</h3>
+              <div className="reviews-list interactive">
+                <div className="review-item">
+                  <div className="review-header">
+                    <div className="review-session">Deep Space Photography</div>
+                    <div className="review-rating">⭐⭐⭐⭐⭐</div>
+                  </div>
+                  <p className="review-text">"Amazing session on deep space photography! The instructor was very knowledgeable and explained complex concepts in an easy-to-understand way."</p>
+                  <div className="review-footer">
+                    <span className="review-author">- Sarah K.</span>
+                    <span className="review-date">2 days ago</span>
+                  </div>
+                </div>
+                
+                <div className="review-item">
+                  <div className="review-header">
+                    <div className="review-session">Beginner Stargazing</div>
+                    <div className="review-rating">⭐⭐⭐⭐⭐</div>
+                  </div>
+                  <p className="review-text">"Very informative and well structured. Perfect for beginners like me!"</p>
+                  <div className="review-footer">
+                    <span className="review-author">- Mike D.</span>
+                    <span className="review-date">1 week ago</span>
+                  </div>
+                </div>
+                
+                <div className="review-item">
+                  <div className="review-header">
+                    <div className="review-session">Telescope Setup Guide</div>
+                    <div className="review-rating">⭐⭐⭐⭐</div>
+                  </div>
+                  <p className="review-text">"Great for beginners, highly recommend! Would love more details on advanced setups in the future."</p>
+                  <div className="review-footer">
+                    <span className="review-author">- Lisa M.</span>
+                    <span className="review-date">2 weeks ago</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="see-more-container">
+                <button className="see-more-btn">See All Reviews</button>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  )
+    )
+  }
 
   const renderManageSessionModal = () => {
     if (!showManageModal || !selectedSession) return null

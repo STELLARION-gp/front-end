@@ -1251,6 +1251,129 @@ input:checked + .toggle-slider:before {
   }
 }
 
+/* Fixed Radio Button Styling */
+.toggle-options {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.toggle-option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 100px;
+  justify-content: center;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+  }
+  
+  &.active {
+    background: rgba(124, 58, 237, 0.25);
+    border-color: var(--primary-color, #7c3aed);
+    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
+  }
+  
+  .radio-input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  
+  .radio-design {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    margin-right: 10px;
+    position: relative;
+    
+    .radio-inner {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--primary-color, #7c3aed);
+      transition: transform 0.2s ease;
+    }
+  }
+  
+  &.active .radio-design {
+    border-color: var(--primary-color, #7c3aed);
+    
+    .radio-inner {
+      transform: translate(-50%, -50%) scale(1);
+    }
+  }
+  
+  .option-text {
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.8);
+    
+    strong {
+      display: block;
+      font-size: 0.95rem;
+    }
+  }
+  
+  &.active .option-text {
+    color: white;
+    
+    strong {
+      color: white;
+    }
+  }
+}
+
+/* Enhance registration control section styling */
+.registration-control-section {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  padding: 15px;
+  margin: 1rem 0;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  
+  .control-header h4 {
+    margin: 0 0 10px 0;
+    font-size: 1rem;
+    color: var(--text-primary, #e2e8f0);
+  }
+}
+
+/* Make sure the session card has proper spacing */
+.session-card {
+  margin-bottom: 20px;
+  
+  // ...existing code...
+}
+
+/* Fix the session actions */
+.session-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  
+  button {
+    flex: 1;
+    justify-content: center;
+  }
+}
+
 // Responsive Design
 @media (max-width: 768px) {
   .sessions-page {
@@ -2288,154 +2411,31 @@ input:checked + .toggle-slider:before {
   }
 }
 
-// Responsive Design
-@media (max-width: 768px) {
-  .sessions-page {
-    padding: 1rem;
-  }
-
-  .sessions-header {
-    h1 {
-      font-size: 2.5rem;
-    }
-  }
-
-  .session-actions {
-    justify-content: center;
-  }
-
-  .form-actions {
-    flex-direction: column;
-  }
+/* Fixed Radio Button Styling */
+.toggle-options {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
 }
 
-@media (max-width: 480px) {
-  .sessions-page {
-    padding: 0.5rem;
-  }
-
-  .sessions-header h1 {
-    font-size: 2rem;
-  }
-
-  .tab {
-    padding: 0.75rem;
-    font-size: 0.9rem;
-  }
-
-  .session-card,
-  .new-session-form,
-  .pricing-panel,
-  .analytics-dashboard {
-    margin: 0 0.5rem;
-  }
-}
-
-.session-link {
-  margin: 1rem 0 1.5rem 0;
-  padding: 1rem;
+.toggle-option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
   border-radius: 8px;
-  transition: all 0.3s ease;
-
-  .link-label {
-    margin: 0 0 0.5rem 0;
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-    font-weight: 500;
-  }
-
-  .link-container {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-
-    @media (max-width: 480px) {
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-  }
-
-  .session-link-input {
-    flex: 1;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 6px;
-    padding: 0.5rem 0.75rem;
-    color: var(--text-primary);
-    font-size: 0.9rem;
-    font-family: 'Courier New', monospace;
-    transition: all 0.3s ease;
-    background: transparent;
-
-    &:focus {
-      outline: none;
-      border-color: var(--primary-color);
-      box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.2);
-    }
-
-    @media (max-width: 480px) {
-      width: 100%;
-      text-align: center;
-    }
-  }
-}
-
-// Modal Styles
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  backdrop-filter: blur(5px);
-}
-
-.modal-content {
   background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 16px;
-  padding: 0;
-  max-width: 600px;
-  width: 90%;
-  max-height: 90vh;
-  overflow-y: auto;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-
-  h3 {
-    color: var(--text-primary);
-    margin: 0;
-    font-size: 1.5rem;
-    font-weight: 600;
-  }
-
-  .close-btn {
-    background: none;
-    border: none;
-    color: var(--text-secondary);
-    font-size: 1.5rem;
-    cursor: pointer;
-    padding: 0.25rem;
-    border-radius: 4px;
-    transition: all 0.3s ease;
-
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 100px;
+  justify-content: center;
+  
+  &:hover
     &:hover {
       color: var(--text-primary);
       background: rgba(255, 255, 255, 0.1);
     }
   }
-}
+
 

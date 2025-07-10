@@ -612,8 +612,8 @@
 
             .btn-edit-reply {
                 background-color: transparent;
-                border: 1px solid #28A745;
-                color: #28A745;
+                border: 1px solid white;
+                color: white;
                 padding: 6px 12px;
                 cursor: pointer;
                 border-radius: 4px;
@@ -621,8 +621,8 @@
                 transition: all 0.3s ease;
 
                 &:hover {
-                    background-color: #28A745;
-                    color: white;
+                    background-color: white;
+                    color: black;
                 }
 
                 &:disabled {
@@ -633,8 +633,8 @@
 
             .btn-delete-reply {
                 background-color: transparent;
-                border: 1px solid #DC3545;
-                color: #DC3545;
+                border: 1px solid white;
+                color: white;
                 padding: 6px 12px;
                 cursor: pointer;
                 border-radius: 4px;
@@ -642,8 +642,8 @@
                 transition: all 0.3s ease;
 
                 &:hover {
-                    background-color: #DC3545;
-                    color: white;
+                    background-color: white;
+                    color: black;
                 }
 
                 &:disabled {

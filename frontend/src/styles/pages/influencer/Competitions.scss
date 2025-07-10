@@ -1,5 +1,5 @@
 .competitions-page {
-    max-width: 1200px;
+    max-width: 2400px; // Changed from 1200px to 2400px (2x width)
     margin: 0 auto;
     padding: 20px;
     color: white;
@@ -13,14 +13,19 @@
         align-items: center;
         margin-bottom: 40px;
         padding: 0 20px;
+        gap: 40px;
         
         h1 {
             margin: 0;
             font-size: 2.5rem;
             font-weight: 700;
             color: white;
-            text-align: center;
+            text-align: left;
             flex-grow: 1;
+        }
+
+        .btn-primary {
+            margin-left: auto; // Added to ensure button stays on the right
         }
     }
 
@@ -44,6 +49,8 @@
         transition: all 0.3s ease;
         text-transform: uppercase;
         letter-spacing: 0.5px;
+        white-space: nowrap;
+        flex-shrink: 0;
 
         &:hover {
             background-color: #4A90E2;
@@ -180,6 +187,8 @@
         margin-bottom: 40px;
         border: 1px solid rgba(74, 144, 226, 0.2);
         backdrop-filter: blur(10px);
+        width: 100%;
+        max-width: none;
 
         h2 {
             margin-top: 0;
@@ -262,6 +271,7 @@
         flex-direction: column;
         gap: 32px;
         padding: 0 20px;
+        width: 100%;
     }
 
     .competition-card {
@@ -271,6 +281,11 @@
         padding: 32px;
         backdrop-filter: blur(10px);
         transition: all 0.3s ease;
+        overflow: hidden;
+        word-wrap: break-word;
+        width: 100%;
+        max-width: none;
+        box-sizing: border-box;
 
         &:hover {
             border-color: rgba(74, 144, 226, 0.5);
@@ -283,6 +298,8 @@
             justify-content: space-between;
             align-items: flex-start;
             margin-bottom: 24px;
+            gap: 20px;
+            width: 100%;
 
             h3 {
                 margin: 0;
@@ -291,6 +308,9 @@
                 color: white;
                 flex-grow: 1;
                 line-height: 1.2;
+                word-wrap: break-word;
+                overflow-wrap: break-word;
+                max-width: calc(100% - 250px); // Ensure title doesn't push meta too far
             }
 
             .competition-meta {
@@ -298,28 +318,36 @@
                 flex-direction: column;
                 align-items: flex-end;
                 gap: 12px;
+                flex-shrink: 0;
+                min-width: 200px;
 
                 .timestamp {
                     color: #8B9DC3;
                     font-size: 0.9rem;
                     font-weight: 500;
+                    white-space: nowrap;
                 }
 
                 .admin-actions {
                     display: flex;
                     gap: 8px;
+                    white-space: nowrap;
                 }
             }
         }
 
         .competition-content {
             margin-bottom: 24px;
+            width: 100%;
 
             .brief-content {
                 font-size: 1.2rem;
                 margin-bottom: 20px;
                 color: #E8F0FE;
                 line-height: 1.6;
+                word-wrap: break-word;
+                overflow-wrap: break-word;
+                width: 100%;
             }
 
             .competition-details {
@@ -327,11 +355,18 @@
                 padding: 24px;
                 border-radius: 12px;
                 border-left: 4px solid #4A90E2;
+                overflow: hidden;
+                word-wrap: break-word;
+                width: 100%;
+                box-sizing: border-box;
 
                 p {
                     margin: 12px 0;
                     line-height: 1.7;
                     color: #E8F0FE;
+                    word-wrap: break-word;
+                    overflow-wrap: break-word;
+                    width: 100%;
 
                     strong {
                         color: #4A90E2;
@@ -373,15 +408,19 @@
             padding: 20px 0;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            flex-wrap: wrap;
+            width: 100%;
         }
     }
 
     // Replies Section
     .replies-section {
         margin-top: 24px;
+        width: 100%;
 
         .reply-form {
             margin-bottom: 24px;
+            width: 100%;
 
             .reply-textarea {
                 width: 100%;
@@ -440,6 +479,7 @@
             display: flex;
             flex-direction: column;
             gap: 16px;
+            width: 100%;
         }
 
         .reply-item {
@@ -448,6 +488,10 @@
             border-radius: 12px;
             padding: 20px;
             transition: all 0.3s ease;
+            overflow: hidden;
+            word-wrap: break-word;
+            width: 100%;
+            box-sizing: border-box;
 
             &:hover {
                 background: rgba(255, 255, 255, 0.08);
@@ -469,6 +513,7 @@
                 .reply-timestamp {
                     color: #8B9DC3;
                     font-size: 0.8rem;
+                    white-space: nowrap;
                 }
             }
 
@@ -476,6 +521,9 @@
                 margin: 12px 0;
                 line-height: 1.6;
                 color: #E8F0FE;
+                word-wrap: break-word;
+                overflow-wrap: break-word;
+                width: 100%;
             }
 
             .reply-item-actions {
@@ -485,6 +533,7 @@
                 margin-top: 16px;
                 padding-top: 12px;
                 border-top: 1px solid rgba(255, 255, 255, 0.1);
+                flex-wrap: wrap;
             }
 
             .btn-like-reply {
@@ -587,6 +636,7 @@
 
                 h3 {
                     font-size: 1.6rem;
+                    max-width: 100%;
                 }
 
                 .competition-meta {
@@ -594,6 +644,7 @@
                     flex-direction: row;
                     justify-content: space-between;
                     align-items: center;
+                    min-width: auto;
                 }
             }
 

@@ -45,7 +45,7 @@ const NightCampDetails: React.FC = () => {
   const [newComment, setNewComment] = useState("");
 
   // TODO: Use campId when implementing backend integration
-  console.log('Camp ID:', campId);
+  // console.log('Camp ID:', campId);
 
   const handleAddComment = () => {
     if (newComment.trim()) {

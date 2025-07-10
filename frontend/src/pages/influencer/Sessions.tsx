@@ -4,6 +4,11 @@ import Button from '../../components/Button';
 
 const Sessions = () => {
   const [activeTab, setActiveTab] = useState('my-sessions')
+  const [showManageModal, setShowManageModal] = useState(false)
+  const [showDetailsModal, setShowDetailsModal] = useState(false)
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [showAnalyticsModal, setShowAnalyticsModal] = useState(false)
+  const [selectedSession, setSelectedSession] = useState(null)
   const [newSession, setNewSession] = useState({
     title: '',
     description: '',
@@ -32,23 +37,23 @@ const Sessions = () => {
   ]
 
   const handleEditSession = (session) => {
-    // Navigate to edit session page or open edit modal
-    console.log('Edit session:', session)
+    setSelectedSession(session)
+    setShowEditModal(true)
   }
 
   const handleViewDetails = (session) => {
-    // Navigate to session details page
-    console.log('View details:', session)
+    setSelectedSession(session)
+    setShowDetailsModal(true)
   }
 
   const handleManageSession = (session) => {
-    // Navigate to session management page
-    console.log('Manage session:', session)
+    setSelectedSession(session)
+    setShowManageModal(true)
   }
 
   const handleViewAnalytics = (session) => {
-    // Navigate to session analytics page
-    console.log('View analytics:', session)
+    setSelectedSession(session)
+    setShowAnalyticsModal(true)
   }
 
   const renderMyServices = () => (
@@ -338,6 +343,363 @@ const Sessions = () => {
     </div>
   )
 
+  const renderManageSessionModal = () => {
+    if (!showManageModal || !selectedSession) return null
+
+    return (
+      <div className="modal-overlay" onClick={() => setShowManageModal(false)}>
+        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-header">
+            <h3>Manage Session: {selectedSession.title}</h3>
+            <button className="close-btn" onClick={() => setShowManageModal(false)}>×</button>
+          </div>
+          
+          <div className="modal-body">
+            <div className="session-info">
+              <h4>Session Details</h4>
+              <div className="info-grid">
+                <div className="info-item">
+                  <label>Date & Time:</label>
+                  <span>{selectedSession.date} at {selectedSession.time}</span>
+                </div>
+                <div className="info-item">
+                  <label>Participants:</label>
+                  <span>{selectedSession.participants}/{selectedSession.maxParticipants}</span>
+                </div>
+                <div className="info-item">
+                  <label>Price:</label>
+                  <span>LKR {selectedSession.price}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="session-controls">
+              <h4>Session Controls</h4>
+              <div className="control-buttons">
+                <Button>Start Session</Button>
+                <Button variant="secondary">Edit Details</Button>
+                <Button variant="secondary">Send Reminder</Button>
+                <Button variant="secondary">View Participants</Button>
+                <Button variant="secondary">Cancel Session</Button>
+              </div>
+            </div>
+
+            <div className="session-settings">
+              <h4>Settings</h4>
+              <div className="settings-grid">
+                <div className="setting-item">
+                  <label>
+                    <input type="checkbox" defaultChecked />
+                    Allow late joins
+                  </label>
+                </div>
+                <div className="setting-item">
+                  <label>
+                    <input type="checkbox" defaultChecked />
+                    Record session
+                  </label>
+                </div>
+                <div className="setting-item">
+                  <label>
+                    <input type="checkbox" />
+                    Require camera
+                  </label>
+                </div>
+                <div className="setting-item">
+                  <label>
+                    <input type="checkbox" />
+                    Mute participants on join
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="modal-footer">
+            <Button variant="secondary" onClick={() => setShowManageModal(false)}>
+              Close
+            </Button>
+            <Button>Save Changes</Button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const renderDetailsModal = () => {
+    if (!showDetailsModal || !selectedSession) return null
+
+    return (
+      <div className="modal-overlay" onClick={() => setShowDetailsModal(false)}>
+        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-header">
+            <h3>Session Details: {selectedSession.title}</h3>
+            <button className="close-btn" onClick={() => setShowDetailsModal(false)}>×</button>
+          </div>
+          
+          <div className="modal-body">
+            <div className="session-overview">
+              <h4>Overview</h4>
+              <div className="overview-stats">
+                <div className="stat-item">
+                  <span className="stat-label">Status:</span>
+                  <span className="stat-value">{selectedSession.date ? 'Scheduled' : 'Recorded'}</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-label">Current Participants:</span>
+                  <span className="stat-value">{selectedSession.participants || selectedSession.purchases || 0}</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-label">Revenue:</span>
+                  <span className="stat-value">LKR {selectedSession.earnings || (selectedSession.participants * selectedSession.price) || 0}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="participants-section">
+              <h4>Participants List</h4>
+              <div className="participants-list">
+                <div className="participant-item">
+                  <span className="participant-name">John Doe</span>
+                  <span className="participant-email">john@example.com</span>
+                  <span className="participant-status">Confirmed</span>
+                </div>
+                <div className="participant-item">
+                  <span className="participant-name">Jane Smith</span>
+                  <span className="participant-email">jane@example.com</span>
+                  <span className="participant-status">Confirmed</span>
+                </div>
+                <div className="participant-item">
+                  <span className="participant-name">Mike Johnson</span>
+                  <span className="participant-email">mike@example.com</span>
+                  <span className="participant-status">Pending</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="session-materials">
+              <h4>Session Materials</h4>
+              <div className="materials-list">
+                <div className="material-item">
+                  <span className="material-icon">📄</span>
+                  <span className="material-name">Introduction to Deep Space.pdf</span>
+                  <Button variant="secondary" size="small">Download</Button>
+                </div>
+                <div className="material-item">
+                  <span className="material-icon">🎥</span>
+                  <span className="material-name">Setup Tutorial.mp4</span>
+                  <Button variant="secondary" size="small">View</Button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="modal-footer">
+            <Button variant="secondary" onClick={() => setShowDetailsModal(false)}>
+              Close
+            </Button>
+            <Button>Export Details</Button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const renderEditModal = () => {
+    if (!showEditModal || !selectedSession) return null
+
+    return (
+      <div className="modal-overlay" onClick={() => setShowEditModal(false)}>
+        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-header">
+            <h3>Edit Session: {selectedSession.title}</h3>
+            <button className="close-btn" onClick={() => setShowEditModal(false)}>×</button>
+          </div>
+          
+          <div className="modal-body">
+            <form className="edit-session-form">
+              <div className="form-grid">
+                <div className="form-group">
+                  <label>Session Title</label>
+                  <input type="text" defaultValue={selectedSession.title} />
+                </div>
+                <div className="form-group">
+                  <label>Price (LKR)</label>
+                  <input type="number" defaultValue={selectedSession.price} />
+                </div>
+                <div className="form-group">
+                  <label>Description</label>
+                  <textarea rows={3} placeholder="Session description..."></textarea>
+                </div>
+                <div className="form-group">
+                  <label>Category</label>
+                  <select>
+                    <option value="observation">Observation</option>
+                    <option value="photography">Astrophotography</option>
+                    <option value="theory">Theory & Concepts</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="pricing-options">
+                <h4>Pricing Options</h4>
+                <div className="pricing-grid">
+                  <div className="pricing-item">
+                    <label>
+                      <input type="checkbox" />
+                      Enable Early Bird Discount (20% off)
+                    </label>
+                  </div>
+                  <div className="pricing-item">
+                    <label>
+                      <input type="checkbox" />
+                      Bulk Purchase Discount (3+ sessions)
+                    </label>
+                  </div>
+                  <div className="pricing-item">
+                    <label>
+                      <input type="checkbox" />
+                      Student Discount (15% off)
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div className="visibility-settings">
+                <h4>Visibility Settings</h4>
+                <div className="settings-grid">
+                  <div className="setting-item">
+                    <label>
+                      <input type="checkbox" defaultChecked />
+                      Visible to public
+                    </label>
+                  </div>
+                  <div className="setting-item">
+                    <label>
+                      <input type="checkbox" />
+                      Featured session
+                    </label>
+                  </div>
+                  <div className="setting-item">
+                    <label>
+                      <input type="checkbox" defaultChecked />
+                      Allow reviews
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <div className="modal-footer">
+            <Button variant="secondary" onClick={() => setShowEditModal(false)}>
+              Cancel
+            </Button>
+            <Button>Save Changes</Button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const renderAnalyticsModal = () => {
+    if (!showAnalyticsModal || !selectedSession) return null
+
+    return (
+      <div className="modal-overlay" onClick={() => setShowAnalyticsModal(false)}>
+        <div className="modal-content large" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-header">
+            <h3>Analytics: {selectedSession.title}</h3>
+            <button className="close-btn" onClick={() => setShowAnalyticsModal(false)}>×</button>
+          </div>
+          
+          <div className="modal-body">
+            <div className="analytics-overview">
+              <h4>Performance Overview</h4>
+              <div className="metrics-row">
+                <div className="metric-card">
+                  <span className="metric-value">{selectedSession.purchases || selectedSession.participants}</span>
+                  <span className="metric-label">Total Participants</span>
+                </div>
+                <div className="metric-card">
+                  <span className="metric-value">LKR {selectedSession.earnings || (selectedSession.participants * selectedSession.price)}</span>
+                  <span className="metric-label">Revenue Generated</span>
+                </div>
+                <div className="metric-card">
+                  <span className="metric-value">{selectedSession.rating || 'N/A'}/5.0</span>
+                  <span className="metric-label">Average Rating</span>
+                </div>
+                <div className="metric-card">
+                  <span className="metric-value">92%</span>
+                  <span className="metric-label">Completion Rate</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="engagement-analytics">
+              <h4>Engagement Metrics</h4>
+              <div className="engagement-stats">
+                <div className="engagement-item">
+                  <span className="engagement-label">Average Watch Time:</span>
+                  <span className="engagement-value">45 minutes</span>
+                </div>
+                <div className="engagement-item">
+                  <span className="engagement-label">Questions Asked:</span>
+                  <span className="engagement-value">23</span>
+                </div>
+                <div className="engagement-item">
+                  <span className="engagement-label">Interaction Rate:</span>
+                  <span className="engagement-value">78%</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="revenue-breakdown">
+              <h4>Revenue Breakdown</h4>
+              <div className="revenue-stats">
+                <div className="revenue-item">
+                  <span className="revenue-label">Base Price Revenue:</span>
+                  <span className="revenue-value">LKR {(selectedSession.price * (selectedSession.purchases || selectedSession.participants || 0))}</span>
+                </div>
+                <div className="revenue-item">
+                  <span className="revenue-label">Platform Fee (10%):</span>
+                  <span className="revenue-value">-LKR {Math.round((selectedSession.price * (selectedSession.purchases || selectedSession.participants || 0)) * 0.1)}</span>
+                </div>
+                <div className="revenue-item">
+                  <span className="revenue-label">Net Earnings:</span>
+                  <span className="revenue-value">LKR {selectedSession.earnings || Math.round((selectedSession.price * (selectedSession.purchases || selectedSession.participants || 0)) * 0.9)}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="feedback-section">
+              <h4>Recent Feedback</h4>
+              <div className="feedback-list">
+                <div className="feedback-item">
+                  <div className="feedback-rating">⭐⭐⭐⭐⭐</div>
+                  <p>"Excellent session with clear explanations!"</p>
+                  <span className="feedback-author">- Sarah K.</span>
+                </div>
+                <div className="feedback-item">
+                  <div className="feedback-rating">⭐⭐⭐⭐</div>
+                  <p>"Very informative, would recommend to others."</p>
+                  <span className="feedback-author">- Mike D.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="modal-footer">
+            <Button variant="secondary" onClick={() => setShowAnalyticsModal(false)}>
+              Close
+            </Button>
+            <Button>Export Report</Button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="sessions-page">
       <div className="sessions-header">
@@ -370,6 +732,11 @@ const Sessions = () => {
         {activeTab === 'new-session' && renderNewSession()}
         {activeTab === 'analytics' && renderAnalytics()}
       </div>
+
+      {renderManageSessionModal()}
+      {renderDetailsModal()}
+      {renderEditModal()}
+      {renderAnalyticsModal()}
     </div>
   )
 }

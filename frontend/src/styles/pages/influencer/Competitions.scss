@@ -499,8 +499,8 @@
             .reply-textarea {
                 width: 100%;
                 padding: 16px;
-                background: rgba(255, 255, 255, 0.9);
-                color: #333;
+                background: transparent;
+                color: #ddd;
                 border: 1px solid rgba(255, 255, 255, 0.3);
                 border-radius: 8px;
                 font-size: 14px;
@@ -510,7 +510,7 @@
                 transition: all 0.3s ease;
 
                 &::placeholder {
-                    color: #666;
+                    color: #999;
                 }
 
                 &:focus {

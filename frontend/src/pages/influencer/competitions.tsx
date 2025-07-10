@@ -513,12 +513,12 @@ const CompetitionsPage: React.FC = () => {
                                         <p className="reply-content">{reply.content}</p>
                                         <div className="reply-item-actions">
                                             <button 
-                                                onClick={() => handleLikeReply(competition.id, reply.id)} 
-                                                className={`btn-like-reply ${reply.isLiked ? 'liked' : ''}`}
-                                                disabled={loading}
-                                            >
-                                                {reply.likes}
-                                            </button>
+                                            onClick={() => handleLikeReply(competition.id, reply.id)} 
+                                            className={`btn-like-reply ${reply.isLiked ? 'liked' : ''}`}
+                                            disabled={loading}
+                                        >
+                                            {reply.likes}
+                                        </button>
                                             <button 
                                                 onClick={() => handleEditReply(reply)} 
                                                 className="btn-edit-reply"

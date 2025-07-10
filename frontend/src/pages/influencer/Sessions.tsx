@@ -27,13 +27,13 @@ const Sessions = () => {
 
   // Mock data
   const liveSessions = [
-    { id: 1, title: 'Deep Space Photography', date: '2024-01-15', time: '20:00', participants: 12, maxParticipants: 20, price: 13500, status: 'upcoming' },
-    { id: 2, title: 'Planetary Observation', date: '2024-01-18', time: '21:30', participants: 8, maxParticipants: 15, price: 10500, status: 'upcoming' }
+    { id: 1, title: 'Deep Space Photography', date: '2024-01-15', time: '20:00', participants: 12, maxParticipants: 20, price: 13500, status: 'upcoming', registrationEnabled: true },
+    { id: 2, title: 'Planetary Observation', date: '2024-01-18', time: '21:30', participants: 8, maxParticipants: 15, price: 10500, status: 'upcoming', registrationEnabled: false }
   ]
 
   const recordedSessions = [
-    { id: 1, title: 'Beginner Stargazing', price: 1500, purchases: 156, rating: 4.8, earnings: 234000 },
-    { id: 2, title: 'Telescope Setup Guide', price: 2000, purchases: 89, rating: 4.9, earnings: 178000 }
+    { id: 1, title: 'Beginner Stargazing', price: 1500, purchases: 156, rating: 4.8, earnings: 234000, registrationEnabled: true },
+    { id: 2, title: 'Telescope Setup Guide', price: 2000, purchases: 89, rating: 4.9, earnings: 178000, registrationEnabled: false }
   ]
 
   const handleEditSession = (session) => {
@@ -53,6 +53,61 @@ const Sessions = () => {
     // window.open(`https://stellarion.com/session/${session.id}/room`, '_blank')
   }
 
+  const handleAddMaterial = () => {
+    const newMaterial = {
+      id: Date.now(),
+      name: '',
+      type: 'pdf',
+      file: null,
+      url: ''
+    }
+    setNewSession({
+      ...newSession,
+      materials: [...newSession.materials, newMaterial]
+    })
+  }
+
+  const handleRemoveMaterial = (materialId) => {
+    setNewSession({
+      ...newSession,
+      materials: newSession.materials.filter(material => material.id !== materialId)
+    })
+  }
+
+  const handleMaterialChange = (materialId, field, value) => {
+    setNewSession({
+      ...newSession,
+      materials: newSession.materials.map(material =>
+        material.id === materialId
+          ? { ...material, [field]: value }
+          : material
+      )
+    })
+  }
+
+  const handleFileUpload = (materialId, file) => {
+    setNewSession({
+      ...newSession,
+      materials: newSession.materials.map(material =>
+        material.id === materialId
+          ? { ...material, file: file, name: file.name }
+          : material
+      )
+    })
+  }
+
+  const handleToggleRegistration = (sessionId, currentStatus) => {
+    // Toggle registration status for live sessions
+    console.log(`Toggling registration for session ${sessionId} from ${currentStatus}`)
+    // Here you would update the session status in your state/database
+  }
+
+  const handleRegistrationChange = (sessionId, isEnabled) => {
+    // Handle registration status change
+    console.log(`Setting registration for session ${sessionId} to ${isEnabled}`)
+    // Here you would update the session status in your state/database
+  }
+
   const renderMyServices = () => (
     <div className="my-sessions-section">
       <div className="section-header">
@@ -64,18 +119,26 @@ const Sessions = () => {
           <h3>Live Sessions</h3>
           <div className="sessions-list">
             {liveSessions.map(session => (
-              <div key={session.id} className="session-card live-session">
+              <div key={session.id} className={`session-card live-session ${!session.registrationEnabled ? 'registration-disabled' : ''}`}>
                 <div className="session-header">
                   <div className="session-title-info">
                     <h3>{session.title}</h3>
                     <p className="session-instructor">by You</p>
                   </div>
-                  <span className="session-status live">LIVE</span>
+                  <div className="session-status-container">
+                    <span className="session-status live">LIVE</span>
+                    {!session.registrationEnabled && (
+                      <span className="registration-status disabled">Registration Closed</span>
+                    )}
+                  </div>
                 </div>
                 <div className="session-details">
                   <p><span className="icon">📅</span> {session.date} at {session.time}</p>
                   <p><span className="icon">👥</span> {session.participants}/{session.maxParticipants} participants</p>
                   <p><span className="icon">💰</span> LKR {session.price}</p>
+                  {!session.registrationEnabled && (
+                    <p className="registration-note">⚠️ New registrations are currently disabled</p>
+                  )}
                 </div>
                 <div className="session-link">
                   <p className="link-label">Session Link:</p>
@@ -86,6 +149,41 @@ const Sessions = () => {
                       readOnly
                       className="session-link-input"
                     />
+                  </div>
+                </div>
+                <div className="registration-control-section">
+                  <div className="control-header">
+                    <h4>Registration Settings</h4>
+                  </div>
+                  <div className="registration-toggle">
+                    <div className="toggle-options">
+                      <label className={`toggle-option ${session.registrationEnabled ? 'active' : ''}`}>
+                        <input 
+                          type="radio" 
+                          name={`registration-${session.id}`}
+                          checked={session.registrationEnabled === true}
+                          onChange={() => handleRegistrationChange(session.id, true)}
+                          className="interactive-radio"
+                        />
+                        <span className="radio-custom"></span>
+                        <span className="option-text">
+                          <strong>Open</strong>
+                        </span>
+                      </label>
+                      <label className={`toggle-option ${!session.registrationEnabled ? 'active' : ''}`}>
+                        <input 
+                          type="radio" 
+                          name={`registration-${session.id}`}
+                          checked={session.registrationEnabled === false}
+                          onChange={() => handleRegistrationChange(session.id, false)}
+                          className="interactive-radio"
+                        />
+                        <span className="radio-custom"></span>
+                        <span className="option-text">
+                          <strong>Closed</strong>
+                        </span>
+                      </label>
+                    </div>
                   </div>
                 </div>
                 <div className="session-actions">
@@ -102,19 +200,27 @@ const Sessions = () => {
           <h3>Recorded Sessions</h3>
           <div className="sessions-list">
             {recordedSessions.map(session => (
-              <div key={session.id} className="session-card recorded-session">
+              <div key={session.id} className={`session-card recorded-session ${!session.registrationEnabled ? 'registration-disabled' : ''}`}>
                 <div className="session-header">
                   <div className="session-title-info">
                     <h3>{session.title}</h3>
                     <p className="session-instructor">by You</p>
                   </div>
-                  <span className="session-status recorded">RECORDED</span>
+                  <div className="session-status-container">
+                    <span className="session-status recorded">RECORDED</span>
+                    {!session.registrationEnabled && (
+                      <span className="registration-status disabled">Unavailable</span>
+                    )}
+                  </div>
                 </div>
                 <div className="session-details">
                   <p><span className="icon">💰</span> LKR {session.price}</p>
                   <p><span className="icon">📊</span> {session.purchases} purchases</p>
                   <p><span className="icon">⭐</span> {session.rating}/5.0</p>
                   <p><span className="icon">💵</span> LKR {session.earnings} earned</p>
+                  {!session.registrationEnabled && (
+                    <p className="registration-note">⚠️ This session is currently unavailable for purchase</p>
+                  )}
                 </div>
                 <div className="session-link">
                   <p className="link-label">Session Link:</p>
@@ -125,6 +231,39 @@ const Sessions = () => {
                       readOnly
                       className="session-link-input"
                     />
+                  </div>
+                </div>
+                <div className="registration-control-section">
+                  <div className="control-header">
+                    <h4>Availability Settings</h4>
+                  </div>
+                  <div className="registration-toggle">
+                    <div className="toggle-options">
+                      <label className={`toggle-option ${session.registrationEnabled ? 'active' : ''}`}>
+                        <input 
+                          type="radio" 
+                          name={`availability-${session.id}`}
+                          checked={session.registrationEnabled === true}
+                          onChange={() => handleRegistrationChange(session.id, true)}
+                        />
+                       
+                        <span className="option-text">
+                          <strong>Available</strong>
+                        </span>
+                      </label>
+                      <label className={`toggle-option ${!session.registrationEnabled ? 'active' : ''}`}>
+                        <input 
+                          type="radio" 
+                          name={`availability-${session.id}`}
+                          checked={session.registrationEnabled === false}
+                          onChange={() => handleRegistrationChange(session.id, false)}
+                        />
+                        
+                        <span className="option-text">
+                          <strong>Unavailable</strong>
+                        </span>
+                      </label>
+                    </div>
                   </div>
                 </div>
                 <div className="session-actions">
@@ -243,8 +382,6 @@ const Sessions = () => {
           </div>
         </div>
 
-       
-
         <div className="form-group full-width">
           <label>Description</label>
           <textarea 
@@ -253,6 +390,87 @@ const Sessions = () => {
             placeholder="Describe your session..."
             rows={4}
           />
+        </div>
+
+        <div className="materials-section">
+          <h3>Session Materials</h3>
+          <p className="materials-description">Add materials that participants will receive with this session</p>
+          
+          {newSession.materials.map((material) => (
+            <div key={material.id} className="material-item-form">
+              <div className="material-form-grid">
+                <div className="form-group">
+                  <label>Material Name</label>
+                  <input
+                    type="text"
+                    value={material.name}
+                    onChange={(e) => handleMaterialChange(material.id, 'name', e.target.value)}
+                    placeholder="Enter material name"
+                  />
+                </div>
+                
+                <div className="form-group">
+                  <label>Material Type</label>
+                  <select
+                    value={material.type}
+                    onChange={(e) => handleMaterialChange(material.id, 'type', e.target.value)}
+                  >
+                    <option value="pdf">PDF Document</option>
+                    <option value="video">Video</option>
+                    <option value="image">Image</option>
+                    <option value="audio">Audio</option>
+                    <option value="link">External Link</option>
+                  </select>
+                </div>
+
+                {material.type === 'link' ? (
+                  <div className="form-group">
+                    <label>URL</label>
+                    <input
+                      type="url"
+                      value={material.url}
+                      onChange={(e) => handleMaterialChange(material.id, 'url', e.target.value)}
+                      placeholder="https://example.com"
+                    />
+                  </div>
+                ) : (
+                  <div className="form-group">
+                    <label>Upload File</label>
+                    <input
+                      type="file"
+                      onChange={(e) => handleFileUpload(material.id, e.target.files[0])}
+                      accept={
+                        material.type === 'pdf' ? '.pdf' :
+                        material.type === 'video' ? '.mp4,.mov,.avi' :
+                        material.type === 'image' ? '.jpg,.jpeg,.png,.gif' :
+                        material.type === 'audio' ? '.mp3,.wav,.ogg' : '*'
+                      }
+                    />
+                  </div>
+                )}
+
+                <div className="material-actions">
+                  <Button 
+                    type="button"
+                    variant="secondary"
+                    onClick={() => handleRemoveMaterial(material.id)}
+                  >
+                    Remove
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ))}
+
+          <div className="add-material-section">
+            <Button 
+              type="button"
+              variant="secondary"
+              onClick={handleAddMaterial}
+            >
+              + Add Material
+            </Button>
+          </div>
         </div>
 
         <div className="form-group full-width">
@@ -764,4 +982,4 @@ const Sessions = () => {
 }
 
 export default Sessions
-                
+

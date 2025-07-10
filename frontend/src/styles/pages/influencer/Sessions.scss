@@ -1148,6 +1148,90 @@ input:checked + .toggle-slider:before {
   }
 }
 
+/* Interactive Radio Button Styles */
+.toggle-option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-right: 10px;
+  
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+  
+  &.active {
+    background-color: rgba(66, 133, 244, 0.1);
+    border: 1px solid rgba(66, 133, 244, 0.5);
+  }
+  
+  .interactive-radio {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+  }
+  
+  .radio-custom {
+    position: relative;
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border: 2px solid #ccc;
+    border-radius: 50%;
+    margin-right: 10px;
+    transition: all 0.2s ease;
+    
+    &:after {
+      content: "";
+      position: absolute;
+      display: none;
+      top: 3px;
+      left: 3px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #4285f4;
+    }
+  }
+  
+  .interactive-radio:checked ~ .radio-custom {
+    border-color: #4285f4;
+    
+    &:after {
+      display: block;
+      animation: pulse 0.2s linear;
+    }
+  }
+  
+  &:hover .radio-custom {
+    border-color: #999;
+  }
+  
+  .option-text {
+    transition: color 0.2s ease;
+  }
+  
+  &.active .option-text {
+    color: #4285f4;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
 // Responsive Design
 @media (max-width: 768px) {
   .sessions-page {

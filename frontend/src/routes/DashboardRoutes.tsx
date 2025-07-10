@@ -27,7 +27,7 @@ import BookingRequests from '../pages/guide/BookingRequests';
 import AstroHub from '../pages/enthuasist/AstroHub';
 import CelestialEventsPage from '../pages/learner/Celestial_Events_Page';
 
-import Announcements from '../pages/influencer/announcements';
+import Competitions from '../pages/influencer/competitions';
 
 
 // Create placeholder components for different pages - all memoized
@@ -203,10 +203,10 @@ const DashboardRoutes = () => {
             />
 
             <Route
-                path="announcements"
+                path="competitions"
                 element={
                     <RoleGuard allowedRoles={['influencer']}>
-                    <Announcements />
+                    <Competitions />
                     </RoleGuard>
                 }
                 />

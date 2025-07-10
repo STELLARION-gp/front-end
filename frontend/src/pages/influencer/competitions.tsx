@@ -16,7 +16,7 @@ type Reply = {
     timestamp: string;
 };
 
-const mockFetchAnnouncements = (): Promise<Announcement[]> =>
+const mockFetchCompetitions = (): Promise<Announcement[]> =>
     Promise.resolve([
         { id: '1', title: 'Welcome to Space&Me!', content: 'Hi! This is my official account.', replies: [] },
         { id: '2', title: 'Session on Constellations', content: 'Would you like a session on contellations this Sunday?', replies: [] },
@@ -48,8 +48,8 @@ const mockDeleteReply = (): Promise<void> =>
 const mockLikeReply = (replyId: string): Promise<void> =>
     Promise.resolve();
 
-const AnnouncementsPage: React.FC = () => {
-    const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+const CompetitionsPage: React.FC = () => {
+    const [competitions, setCompetitions] = useState<Announcement[]>([]);
     const [editing, setEditing] = useState<Announcement | null>(null);
     const [editingReply, setEditingReply] = useState<Reply | null>(null);
     const [form, setForm] = useState<{ title: string; content: string }>({ title: '', content: '' });
@@ -58,8 +58,8 @@ const AnnouncementsPage: React.FC = () => {
 
     useEffect(() => {
         setLoading(true);
-        mockFetchAnnouncements().then(data => {
-            setAnnouncements(data);
+        mockFetchCompetitions().then(data => {
+            setCompetitions(data);
             setLoading(false);
         });
     }, []);
@@ -77,13 +77,13 @@ const AnnouncementsPage: React.FC = () => {
         setLoading(true);
         if (editing) {
             const updated = await mockUpdateAnnouncement({ ...editing, ...form });
-            setAnnouncements(anns =>
+            setCompetitions(anns =>
                 anns.map(a => (a.id === updated.id ? updated : a))
             );
             setEditing(null);
         } else {
             const added = await mockAddAnnouncement({ ...form, replies: [] });
-            setAnnouncements(anns => [added, ...anns]);
+            setCompetitions(anns => [added, ...anns]);
         }
         setForm({ title: '', content: '' });
         setLoading(false);
@@ -97,7 +97,7 @@ const AnnouncementsPage: React.FC = () => {
     const handleDelete = async (id: string) => {
         setLoading(true);
         await mockDeleteAnnouncement();
-        setAnnouncements(anns => anns.filter(a => a.id !== id));
+        setCompetitions(anns => anns.filter(a => a.id !== id));
         setLoading(false);
     };
 
@@ -115,7 +115,7 @@ const AnnouncementsPage: React.FC = () => {
             content,
             authorName: 'User' // In a real app, this would come from the authenticated user
         });
-        setAnnouncements(anns =>
+        setCompetitions(anns =>
             anns.map(a =>
                 a.id === announcementId ? { ...a, replies: [...a.replies, reply] } : a
             )
@@ -137,7 +137,7 @@ const AnnouncementsPage: React.FC = () => {
             ...editingReply!, 
             content 
         });
-        setAnnouncements(anns =>
+        setCompetitions(anns =>
             anns.map(a =>
                 a.id === announcementId 
                     ? { ...a, replies: a.replies.map(r => r.id === replyId ? updatedReply : r) }
@@ -152,7 +152,7 @@ const AnnouncementsPage: React.FC = () => {
     const handleDeleteReply = async (announcementId: string, replyId: string) => {
         setLoading(true);
         await mockDeleteReply();
-        setAnnouncements(anns =>
+        setCompetitions(anns =>
             anns.map(a =>
                 a.id === announcementId 
                     ? { ...a, replies: a.replies.filter(r => r.id !== replyId) }
@@ -165,7 +165,7 @@ const AnnouncementsPage: React.FC = () => {
     const handleLikeReply = async (announcementId: string, replyId: string) => {
         setLoading(true);
         await mockLikeReply(replyId);
-        setAnnouncements(anns =>
+        setCompetitions(anns =>
             anns.map(a =>
                 a.id === announcementId 
                     ? { ...a, replies: a.replies.map(r => r.id === replyId ? { ...r, likes: r.likes + 1 } : r) }
@@ -182,7 +182,7 @@ const AnnouncementsPage: React.FC = () => {
 
     return (
         <div style={{ maxWidth: 600, margin: '0 auto', padding: 24 }}>
-            <h1>Add Announcements</h1> <br/>
+            <h1>Add Competitions</h1> <br/>
             <form onSubmit={handleSubmit} style={{ marginBottom: 24 }}>
                 <input
                     name="title"
@@ -208,7 +208,7 @@ const AnnouncementsPage: React.FC = () => {
 
                 <br/>
                 <br/>
-                <h1>Placed Announcements</h1>
+                <h1>Placed Competitions</h1>
                 {editing && (
                     <button type="button" onClick={handleCancelEdit} disabled={loading}>
                         Cancel
@@ -217,7 +217,7 @@ const AnnouncementsPage: React.FC = () => {
             </form>
             {loading && <div>Loading...</div>}
             <ul style={{ listStyle: 'none', padding: 0 }}>
-                {announcements.map(a => (
+                {competitions.map(a => (
                     <li key={a.id} style={{ border: '1px solid #ccc', padding: 16, marginBottom: 12 }}>
                         <h3>{a.title}</h3>
                         <p>{a.content}</p>
@@ -308,4 +308,4 @@ const AnnouncementsPage: React.FC = () => {
     );
 };
 
-export default AnnouncementsPage;
+export default CompetitionsPage;

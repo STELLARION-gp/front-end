@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import Button from '../../components/Button';
-import Card from '../../components/Card';
 import { 
   User, 
   MapPin, 
@@ -422,19 +421,19 @@ const CampGuideApplication: React.FC = () => {
       case 1:
         return (
           <div className="step-content">
-            <div className="step-header">
+            <div className="camp-guide-application__step-header">
               <div className="step-icon">
                 <User className="w-8 h-8" />
               </div>
               <div className="step-info">
-                <h3>Personal Information</h3>
+                <h2>Personal Information</h2>
                 <p>Tell us about yourself to get started</p>
               </div>
             </div>
 
-            <div className="form-grid">
-              <div className="form-group">
-                <label htmlFor="fullName">Full Name *</label>
+            <div className="camp-guide-application__form-grid">
+              <div className="camp-guide-application__form-group">
+                <label htmlFor="fullName">Full Name <span className="required">*</span></label>
                 <input
                   id="fullName"
                   type="text"
@@ -446,8 +445,8 @@ const CampGuideApplication: React.FC = () => {
                 {errors.fullName && <span className="error-message">{errors.fullName}</span>}
               </div>
 
-              <div className="form-group">
-                <label htmlFor="email">Email Address *</label>
+              <div className="camp-guide-application__form-group">
+                <label htmlFor="email">Email Address <span className="required">*</span></label>
                 <input
                   id="email"
                   type="email"
@@ -459,8 +458,8 @@ const CampGuideApplication: React.FC = () => {
                 {errors.email && <span className="error-message">{errors.email}</span>}
               </div>
 
-              <div className="form-group">
-                <label htmlFor="phone">Phone Number *</label>
+              <div className="camp-guide-application__form-group">
+                <label htmlFor="phone">Phone Number <span className="required">*</span></label>
                 <input
                   id="phone"
                   type="tel"
@@ -472,8 +471,8 @@ const CampGuideApplication: React.FC = () => {
                 {errors.phone && <span className="error-message">{errors.phone}</span>}
               </div>
 
-              <div className="form-group">
-                <label htmlFor="dateOfBirth">Date of Birth *</label>
+              <div className="camp-guide-application__form-group">
+                <label htmlFor="dateOfBirth">Date of Birth <span className="required">*</span></label>
                 <input
                   id="dateOfBirth"
                   type="date"
@@ -484,8 +483,8 @@ const CampGuideApplication: React.FC = () => {
                 {errors.dateOfBirth && <span className="error-message">{errors.dateOfBirth}</span>}
               </div>
 
-              <div className="form-group full-width">
-                <label htmlFor="address">Address *</label>
+              <div className="camp-guide-application__form-group camp-guide-application__form-group--full-width">
+                <label htmlFor="address">Address <span className="required">*</span></label>
                 <input
                   id="address"
                   type="text"
@@ -497,8 +496,8 @@ const CampGuideApplication: React.FC = () => {
                 {errors.address && <span className="error-message">{errors.address}</span>}
               </div>
 
-              <div className="form-group">
-                <label htmlFor="city">City *</label>
+              <div className="camp-guide-application__form-group">
+                <label htmlFor="city">City <span className="required">*</span></label>
                 <input
                   id="city"
                   type="text"
@@ -630,17 +629,18 @@ const CampGuideApplication: React.FC = () => {
               </div>
 
               <div className="form-section">
-                <h4>Astronomy Skills *</h4>
-                <div className="checkbox-grid">
+                <h4>Astronomy Skills <span className="required">*</span></h4>
+                <div className="camp-guide-application__checkbox-group camp-guide-application__checkbox-group--inline">
                   {predefinedOptions.astronomySkills.map(skill => (
-                    <label key={skill} className="checkbox-item">
+                    <div key={skill} className="checkbox-item">
                       <input
                         type="checkbox"
+                        id={`skill-${skill}`}
                         checked={formData.astronomySkills.includes(skill)}
                         onChange={() => handleArrayToggle('astronomySkills', skill)}
                       />
-                      <span className="checkbox-text">{skill}</span>
-                    </label>
+                      <label htmlFor={`skill-${skill}`}>{skill}</label>
+                    </div>
                   ))}
                 </div>
                 {errors.astronomySkills && <span className="error-message">{errors.astronomySkills}</span>}
@@ -922,44 +922,40 @@ const CampGuideApplication: React.FC = () => {
               <div className="form-section">
                 <h4>Available Camps</h4>
                 <p className="section-description">Select the camps you'd like to guide:</p>
-                <div className="camps-grid">
+                <div className="camp-guide-application__camp-grid">
                   {availableCamps.map(camp => (
-                    <Card 
+                    <div 
                       key={camp.id} 
-                      className={`camp-card ${selectedCamps.includes(camp.id) ? 'selected' : ''}`}
+                      className={`camp-guide-application__camp-card ${selectedCamps.includes(camp.id) ? 'camp-guide-application__camp-card--selected' : ''}`}
                       onClick={() => handleCampSelection(camp.id)}
                     >
                       <div className="camp-header">
                         <div className="camp-title">
-                          <h5>{camp.title}</h5>
+                          <h3>{camp.title}</h3>
                           <span className={`camp-type camp-type--${camp.type}`}>
                             {camp.type}
                           </span>
                         </div>
-                        <div className="camp-selection">
-                          {selectedCamps.includes(camp.id) ? (
-                            <Check className="w-5 h-5 text-green-500" />
-                          ) : (
-                            <div className="selection-circle"></div>
-                          )}
+                        <div className={`selection-indicator ${selectedCamps.includes(camp.id) ? 'selection-indicator--visible' : ''}`}>
+                          <Check className="check-icon" />
                         </div>
                       </div>
                       
-                      <div className="camp-details">
-                        <div className="camp-info-item">
-                          <Calendar className="w-4 h-4" />
+                      <div className="camp-meta">
+                        <div className="meta-item">
+                          <Calendar className="icon" />
                           <span>{new Date(camp.date).toLocaleDateString()}</span>
                         </div>
-                        <div className="camp-info-item">
-                          <MapPin className="w-4 h-4" />
+                        <div className="meta-item">
+                          <MapPin className="icon" />
                           <span>{camp.location}</span>
                         </div>
-                        <div className="camp-info-item">
-                          <Clock className="w-4 h-4" />
+                        <div className="meta-item">
+                          <Clock className="icon" />
                           <span>{camp.duration}</span>
                         </div>
-                        <div className="camp-info-item">
-                          <Users className="w-4 h-4" />
+                        <div className="meta-item">
+                          <Users className="icon" />
                           <span>{camp.participants} participants</span>
                         </div>
                       </div>
@@ -967,14 +963,14 @@ const CampGuideApplication: React.FC = () => {
                       <p className="camp-description">{camp.description}</p>
                       
                       <div className="camp-requirements">
-                        <h6>Requirements:</h6>
-                        <ul>
+                        <div className="requirements-title">Requirements:</div>
+                        <div className="requirements-list">
                           {camp.requirements.map((req, index) => (
-                            <li key={index}>{req}</li>
+                            <span key={index} className="requirement-tag">{req}</span>
                           ))}
-                        </ul>
+                        </div>
                       </div>
-                    </Card>
+                    </div>
                   ))}
                 </div>
                 {errors.selectedCamps && <span className="error-message">{errors.selectedCamps}</span>}
@@ -983,8 +979,10 @@ const CampGuideApplication: React.FC = () => {
               <div className="form-section">
                 <h4>Document Upload (Optional)</h4>
                 <div className="upload-grid">
-                  <div className="upload-item">
-                    <label>Resume/CV</label>
+                  <div className="camp-guide-application__file-upload">
+                    <div className="upload-icon">📄</div>
+                    <div className="upload-text">Resume/CV</div>
+                    <div className="upload-hint">Upload your resume or CV</div>
                     <input
                       type="file"
                       accept=".pdf,.doc,.docx"
@@ -992,8 +990,10 @@ const CampGuideApplication: React.FC = () => {
                       onChange={(e) => handleFileUpload('resume', e.target.files?.[0] || null)}
                     />
                   </div>
-                  <div className="upload-item">
-                    <label>Certifications</label>
+                  <div className="camp-guide-application__file-upload">
+                    <div className="upload-icon">🏆</div>
+                    <div className="upload-text">Certifications</div>
+                    <div className="upload-hint">Upload your certifications</div>
                     <input
                       type="file"
                       accept=".pdf,.jpg,.jpeg,.png"
@@ -1001,8 +1001,10 @@ const CampGuideApplication: React.FC = () => {
                       onChange={(e) => handleFileUpload('certifications', e.target.files?.[0] || null)}
                     />
                   </div>
-                  <div className="upload-item">
-                    <label>Portfolio/Photos</label>
+                  <div className="camp-guide-application__file-upload">
+                    <div className="upload-icon">📷</div>
+                    <div className="upload-text">Portfolio/Photos</div>
+                    <div className="upload-hint">Upload your portfolio or sample photos</div>
                     <input
                       type="file"
                       accept=".pdf,.jpg,.jpeg,.png"
@@ -1010,8 +1012,10 @@ const CampGuideApplication: React.FC = () => {
                       onChange={(e) => handleFileUpload('portfolio', e.target.files?.[0] || null)}
                     />
                   </div>
-                  <div className="upload-item">
-                    <label>References</label>
+                  <div className="camp-guide-application__file-upload">
+                    <div className="upload-icon">📋</div>
+                    <div className="upload-text">References</div>
+                    <div className="upload-hint">Upload your references</div>
                     <input
                       type="file"
                       accept=".pdf,.doc,.docx"
@@ -1061,22 +1065,22 @@ const CampGuideApplication: React.FC = () => {
 
   return (
     <div className="camp-guide-application">
-      <div className="application-container">
+      <div className="camp-guide-application__container">
         {/* Header */}
-        <div className="application-header">
+        <div className="camp-guide-application__header">
           <div className="header-content">
-            {/* <Button
+            <Button
               variant="ghost"
               size="medium"
               icon={<ArrowLeft className="w-4 h-4" />}
               onClick={() => navigate('/dashboard')}
             >
               Back to Dashboard
-            </Button> */}
+            </Button>
             
             <div className="header-info">
-              <h1>Camp Guide Application</h1>
-              <p>Apply to become an astronomy camp guide and share your passion for the stars</p>
+              <h1 className="camp-guide-application__header-title">Camp Guide Application</h1>
+              <p className="camp-guide-application__header-subtitle">Apply to become an astronomy camp guide and share your passion for the stars</p>
             </div>
           </div>
         </div>
@@ -1105,7 +1109,7 @@ const CampGuideApplication: React.FC = () => {
         </div>
 
         {/* Form Content */}
-        <div className="form-container">
+        <div className="camp-guide-application__content">
           <AnimatePresence mode="wait">
             <motion.div
               key={currentStep}
@@ -1113,6 +1117,7 @@ const CampGuideApplication: React.FC = () => {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.3 }}
+              className="fade-in"
             >
               {renderStepContent()}
             </motion.div>
@@ -1120,7 +1125,7 @@ const CampGuideApplication: React.FC = () => {
         </div>
 
         {/* Navigation */}
-        <div className="form-navigation">
+        <div className="camp-guide-application__navigation">
           <div className="nav-buttons">
             {currentStep > 1 && (
               <Button
@@ -1155,6 +1160,9 @@ const CampGuideApplication: React.FC = () => {
                 {isSubmitting ? 'Submitting...' : 'Submit Application'}
               </Button>
             )}
+          </div>
+          <div className="step-info">
+            Step {currentStep} of {totalSteps}
           </div>
         </div>
       </div>

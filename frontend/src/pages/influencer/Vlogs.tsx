@@ -29,7 +29,7 @@ const mockVlogs: Vlog[] = [
         id: 1,
         title: 'Journey Through the Milky Way',
         description: 'Explore the wonders of our galaxy in this immersive video tour. From the spiral arms to the galactic core, discover the secrets of the Milky Way.',
-        video: 'https://www.youtube.com/watch?v=knuQHuYlhd0&list=RDknuQHuYlhd0&start_radio=1',
+        video: 'https://www.w3schools.com/html/mov_bbb.mp4',
         author: 'Astro Influencer',
         date: '2025-06-20',
         views: 1547,

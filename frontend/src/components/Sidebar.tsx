@@ -29,7 +29,8 @@ import {
   DocumentTextIcon,
   VideoCameraIcon,
   TrophyIcon,
-  PencilIcon
+  PencilIcon,
+  ClipboardDocumentListIcon
 
 } from '@heroicons/react/24/outline';
 
@@ -68,6 +69,7 @@ const iconMap = {
   UserGroupIcon,
   DocumentTextIcon,
   VideoCameraIcon,
+  ClipboardDocumentListIcon,
 };
 
 // Memoize the icon components to prevent re-renders

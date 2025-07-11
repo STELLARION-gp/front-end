@@ -26,6 +26,9 @@ import EditMentor from '../pages/mentor/EditMentor';
 import MentorDashboard from '../pages/mentor/MentorDashboard';
 import MentorshipRequest from '../pages/mentor/MentorshipRequest';
 import MenteeRequest from '../pages/mentor/MenteeRequest';
+import MenteeProfile from '../pages/mentor/MenteeProfile';
+import Mentees from '../pages/mentor/Mentees';
+
 
 
 import GuideMediaDashboard from '../pages/guide/GuideMediaDashboard';
@@ -392,14 +395,48 @@ const DashboardRoutes = () => {
                         </RoleGuard>
                     }
                 />
-                {/* <Route
+                <Route
                     path="mentordashboard"
                     element={
                         <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
                             <MentorDashboard />
                         </RoleGuard>
                     }
-                /> */}
+                />
+                <Route
+                    path="mentorshiprequest"
+                    element={
+                        <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
+                            <MentorshipRequest />
+                        </RoleGuard>
+                    }
+                />
+                <Route
+                    path="mentees"
+                    element={
+                        <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
+                            <Mentees/>
+                        </RoleGuard>
+                    }
+                />
+                
+                <Route
+                    path="mentee-profile"
+                    element={
+                        <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
+                            <MenteeProfile/>
+                        </RoleGuard>
+                    }
+                />
+                <Route
+                    path="menteerequest"
+                    element={
+                        <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
+                            <MenteeRequest />
+                        </RoleGuard>
+                    }
+                />
+
                 {/* <Route
                     path="recommended-contents"
                     element={
@@ -424,39 +461,11 @@ const DashboardRoutes = () => {
                         </RoleGuard>
                     }
                 />
-                <Route
-                    path="mentorshiprequest"
-                    element={
-                        <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
-                            <MentorshipRequest />
-                        </RoleGuard>
-                    }
-                />
-                <Route
-                    path="menteerequest"
-                    element={
-                        <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
-                            <MenteeRequest />
-                        </RoleGuard>
-                    }
-                />
-                <Route
-                    path="mentees"
-                    element={
-                        <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
-                            <Mentees/>
-                        </RoleGuard>
-                    }
+                
                 />
                 
-                <Route
-                    path="mentee-profile"
-                    element={
-                        <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
-                            <MenteeProfile/>
-                        </RoleGuard>
-                    }
-                />
+                
+                 */}
                 <Route
                     path="night-camps"
                     element={
@@ -464,7 +473,7 @@ const DashboardRoutes = () => {
                             <NightCamps />
                         </RoleGuard>
                     }
-                /> */}
+                />
 
                 <Route
                 path="stargazing"

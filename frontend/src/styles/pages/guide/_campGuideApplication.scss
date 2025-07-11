@@ -1,0 +1,744 @@
+@use '../../abstracts/variables' as *;
+@use '../../abstracts/mixins' as *;
+
+// Camp Guide Application Form Styles
+// ==================================
+
+.camp-guide-application {
+  height: 100%;
+  padding: 1rem;
+  overflow-y: auto;
+  box-sizing: border-box;
+
+  &__container {
+    max-width: 90rem;
+    margin: 0 auto;
+    padding-bottom: 4rem;
+    min-height: calc(100vh - 200px);
+  }
+
+  &__header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding: 2rem 0;
+
+    &-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: $text-color;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    &-subtitle {
+      font-size: 1.125rem;
+      color: $text-color-secondary;
+      max-width: 60rem;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+  }
+
+  // Progress Indicator
+  &__progress {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 3rem;
+    padding: 0 2rem;
+
+    .step-indicator {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+
+      @media (max-width: 768px) {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem;
+      }
+
+      &__item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        .step-number {
+          width: 2.5rem;
+          height: 2.5rem;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 600;
+          font-size: 0.875rem;
+          transition: all 0.3s ease;
+          border: 2px solid rgba(255, 255, 255, 0.2);
+          color: rgba(255, 255, 255, 0.6);
+          background: rgba(255, 255, 255, 0.05);
+
+          &--active {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+          }
+
+          &--completed {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border-color: #10b981;
+          }
+        }
+
+        .step-title {
+          font-size: 0.875rem;
+          font-weight: 500;
+          color: rgba(255, 255, 255, 0.7);
+          white-space: nowrap;
+
+          &--active {
+            color: #6366f1;
+            font-weight: 600;
+          }
+
+          &--completed {
+            color: #10b981;
+          }
+
+          @media (max-width: 768px) {
+            display: none;
+          }
+        }
+      }
+
+      &__separator {
+        width: 2rem;
+        height: 2px;
+        background: rgba(255, 255, 255, 0.2);
+        margin: 0 0.5rem;
+
+        &--completed {
+          background: linear-gradient(90deg, #10b981, #059669);
+        }
+
+        @media (max-width: 768px) {
+          display: none;
+        }
+      }
+    }
+  }
+
+  // Form Content
+  &__content {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 1rem;
+    padding: 2.5rem;
+    margin-bottom: 2rem;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+
+    @media (max-width: 768px) {
+      padding: 1.5rem;
+      border-radius: 0.75rem;
+    }
+  }
+
+  // Step Header
+  &__step-header {
+    text-align: center;
+    margin-bottom: 2rem;
+
+    h2 {
+      font-size: 1.75rem;
+      font-weight: 600;
+      color: $text-color;
+      margin-bottom: 0.5rem;
+    }
+
+    p {
+      font-size: 1rem;
+      color: $text-color-secondary;
+      max-width: 50rem;
+      margin: 0 auto;
+      line-height: 1.5;
+    }
+  }
+
+  // Form Grid
+  &__form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+
+    &--single {
+      grid-template-columns: 1fr;
+    }
+
+    &--two-cols {
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    }
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+  }
+
+  // Form Groups
+  &__form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    &--full-width {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: $text-light;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+
+      .required {
+        color: #ef4444;
+        font-size: 0.75rem;
+      }
+
+      .icon {
+        color: #6366f1;
+        width: 1rem;
+        height: 1rem;
+      }
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 2px solid rgba(255, 255, 255, 0.15);
+      border-radius: 0.5rem;
+      background: rgba(255, 255, 255, 0.05);
+      color: $text-light;
+      font-family: $font-outfit;
+      font-size: 0.875rem;
+      transition: all 0.3s ease;
+
+      &:focus {
+        outline: none;
+        border-color: #6366f1;
+        background: rgba(255, 255, 255, 0.1);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+      }
+
+      &::placeholder {
+        color: rgba(255, 255, 255, 0.4);
+      }
+
+      &:invalid {
+        border-color: #ef4444;
+      }
+    }
+
+    textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    .error-message {
+      font-size: 0.75rem;
+      color: #ef4444;
+      margin-top: 0.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .help-text {
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.6);
+      margin-top: 0.25rem;
+    }
+  }
+
+  // Checkbox and Radio Groups
+  &__checkbox-group,
+  &__radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+
+    &--inline {
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .checkbox-item,
+    .radio-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem;
+      border-radius: 0.375rem;
+      transition: all 0.2s ease;
+      cursor: pointer;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      input {
+        width: auto;
+        margin: 0;
+        accent-color: #6366f1;
+      }
+
+      label {
+        margin: 0;
+        cursor: pointer;
+        font-weight: 400;
+        font-size: 0.875rem;
+      }
+    }
+  }
+
+  // Skills Tags
+  &__skills-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+
+    .skill-tag {
+      padding: 0.375rem 0.75rem;
+      background: rgba(99, 102, 241, 0.1);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: 0.375rem;
+      font-size: 0.75rem;
+      color: #a5b4fc;
+      transition: all 0.2s ease;
+
+      &--selected {
+        background: rgba(99, 102, 241, 0.2);
+        border-color: #6366f1;
+        color: #c7d2fe;
+      }
+    }
+  }
+
+  // File Upload
+  &__file-upload {
+    border: 2px dashed rgba(255, 255, 255, 0.2);
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.02);
+
+    &:hover {
+      border-color: rgba(99, 102, 241, 0.5);
+      background: rgba(99, 102, 241, 0.05);
+    }
+
+    &--has-file {
+      border-color: #10b981;
+      background: rgba(16, 185, 129, 0.05);
+    }
+
+    .upload-icon {
+      color: rgba(255, 255, 255, 0.4);
+      margin-bottom: 0.5rem;
+    }
+
+    .upload-text {
+      font-size: 0.875rem;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 0.25rem;
+    }
+
+    .upload-hint {
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+  }
+
+  // Camp Selection
+  &__camp-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  &__camp-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+
+    &:hover {
+      border-color: rgba(99, 102, 241, 0.3);
+      background: rgba(99, 102, 241, 0.05);
+      transform: translateY(-2px);
+    }
+
+    &--selected {
+      border-color: #6366f1;
+      background: rgba(99, 102, 241, 0.1);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+
+    .camp-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+
+      h3 {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: $text-color;
+        margin: 0;
+      }
+
+      .camp-type {
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.375rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+
+        &--stargazing {
+          background: rgba(99, 102, 241, 0.2);
+          color: #a5b4fc;
+        }
+
+        &--astrophotography {
+          background: rgba(139, 92, 246, 0.2);
+          color: #c4b5fd;
+        }
+
+        &--workshop {
+          background: rgba(16, 185, 129, 0.2);
+          color: #6ee7b7;
+        }
+
+        &--expedition {
+          background: rgba(245, 158, 11, 0.2);
+          color: #fbbf24;
+        }
+      }
+    }
+
+    .camp-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+
+      .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        color: $text-color-secondary;
+
+        .icon {
+          color: #6366f1;
+          width: 1rem;
+          height: 1rem;
+        }
+      }
+    }
+
+    .camp-description {
+      font-size: 0.875rem;
+      color: $text-color-secondary;
+      line-height: 1.5;
+      margin-bottom: 1rem;
+    }
+
+    .camp-requirements {
+      .requirements-title {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: $text-light;
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .requirements-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.25rem;
+
+        .requirement-tag {
+          padding: 0.25rem 0.5rem;
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 0.25rem;
+          font-size: 0.75rem;
+          color: rgba(255, 255, 255, 0.8);
+        }
+      }
+    }
+
+    .selection-indicator {
+      position: absolute;
+      top: -1px;
+      right: -1px;
+      width: 1.5rem;
+      height: 1.5rem;
+      background: #10b981;
+      border-radius: 0 0.75rem 0 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+
+      &--visible {
+        opacity: 1;
+      }
+
+      .check-icon {
+        color: white;
+        width: 0.75rem;
+        height: 0.75rem;
+      }
+    }
+  }
+
+  // Navigation
+  &__navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 0;
+    margin-top: 2rem;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .nav-buttons {
+      display: flex;
+      gap: 1rem;
+
+      @media (max-width: 768px) {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+
+    .step-info {
+      font-size: 0.875rem;
+      color: $text-color-secondary;
+      text-align: center;
+
+      @media (max-width: 768px) {
+        order: -1;
+      }
+    }
+  }
+
+  // Submission
+  &__submission {
+    text-align: center;
+    padding: 2rem;
+
+    .success-icon {
+      color: #10b981;
+      margin-bottom: 1rem;
+    }
+
+    .success-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: $text-color;
+      margin-bottom: 0.5rem;
+    }
+
+    .success-message {
+      font-size: 1rem;
+      color: $text-color-secondary;
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+    }
+
+    .reference-number {
+      background: rgba(99, 102, 241, 0.1);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: 0.5rem;
+      padding: 1rem;
+      margin: 1rem 0;
+      font-family: 'Courier New', monospace;
+      font-size: 1.125rem;
+      color: #a5b4fc;
+      letter-spacing: 0.1em;
+    }
+  }
+
+  // Responsive Adjustments
+  @media (max-width: 1024px) {
+    &__container {
+      max-width: 75rem;
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding: 0.5rem;
+
+    &__header {
+      padding: 1rem 0;
+
+      &-title {
+        font-size: 2rem;
+      }
+
+      &-subtitle {
+        font-size: 1rem;
+      }
+    }
+
+    &__content {
+      padding: 1rem;
+    }
+
+    &__step-header {
+      h2 {
+        font-size: 1.5rem;
+      }
+    }
+
+    &__form-grid {
+      gap: 0.75rem;
+    }
+  }
+
+  // Animation Classes
+  .fade-in {
+    animation: fadeIn 0.5s ease-in;
+  }
+
+  .slide-in {
+    animation: slideIn 0.5s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  // Loading State
+  &__loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    gap: 1rem;
+
+    .spinner {
+      width: 2rem;
+      height: 2rem;
+      border: 3px solid rgba(99, 102, 241, 0.3);
+      border-top: 3px solid #6366f1;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    .loading-text {
+      color: $text-color-secondary;
+      font-size: 0.875rem;
+    }
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+}
+
+// Accessibility Improvements
+.camp-guide-application {
+  button:focus,
+  input:focus,
+  select:focus,
+  textarea:focus {
+    outline: 2px solid #6366f1;
+    outline-offset: 2px;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+}
+
+// Custom Scrollbar
+.camp-guide-application::-webkit-scrollbar {
+  width: 8px;
+}
+
+.camp-guide-application::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.camp-guide-application::-webkit-scrollbar-thumb {
+  background: rgba(99, 102, 241, 0.3);
+  border-radius: 4px;
+  
+  &:hover {
+    background: rgba(99, 102, 241, 0.5);
+  }
+}

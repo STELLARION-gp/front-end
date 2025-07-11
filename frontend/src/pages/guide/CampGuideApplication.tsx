@@ -8,22 +8,12 @@ import {
   MapPin, 
   Calendar, 
   Clock, 
-  Star, 
   Award, 
-  Camera, 
-  Shield, 
   Users, 
   BookOpen, 
   Telescope, 
-  Moon, 
-  Globe,
-  Upload,
   Check,
-  X,
-  AlertCircle,
-  ArrowLeft,
-  Mail,
-  Phone
+  ArrowLeft
 } from 'lucide-react';
 import '../../styles/pages/guide/_campGuideApplication.scss';
 

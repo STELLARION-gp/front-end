@@ -12,7 +12,7 @@ import {
   BookOpen, 
   Telescope, 
   Check,
-  ArrowLeft
+//   ArrowLeft
 } from 'lucide-react';
 import '../../styles/pages/guide/_campGuideApplication.scss';
 
@@ -187,14 +187,14 @@ const CampGuideApplication: React.FC = () => {
   }, []);
 
   const totalSteps = 6;
-  const stepNames = [
-    'Personal Info',
-    'Background', 
-    'Skills',
-    'Experience',
-    'Preferences',
-    'Review'
-  ];
+//   const stepNames = [
+//     'Personal Info',
+//     'Background', 
+//     'Skills',
+//     'Experience',
+//     'Preferences',
+//     'Review'
+//   ];
 
   const predefinedOptions = {
     educationLevels: [
@@ -1093,14 +1093,14 @@ const CampGuideApplication: React.FC = () => {
         {/* Header */}
         <div className="camp-guide-application__header">
           <div className="header-content">
-            <Button
+            {/* <Button
               variant="ghost"
               size="medium"
               icon={<ArrowLeft className="w-4 h-4" />}
               onClick={() => navigate('/dashboard')}
             >
               Back to Dashboard
-            </Button>
+            </Button> */}
             
             <div className="header-info">
               <h1 className="camp-guide-application__header-title">Camp Guide Application</h1>

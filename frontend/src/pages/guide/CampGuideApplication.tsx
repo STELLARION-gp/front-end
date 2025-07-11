@@ -1086,7 +1086,7 @@ const CampGuideApplication: React.FC = () => {
           <div className="progress-bar">
             <div 
               className="progress-fill" 
-              style={{ width: `${(currentStep / totalSteps) * 100}%` }}
+              data-progress={`${(currentStep / totalSteps) * 100}%`}
             ></div>
           </div>
           <div className="progress-steps">

@@ -47,6 +47,12 @@ import NightCampDetails from '../pages/learner/NightCampDetails';
 import Influencers from '../pages/enthuasist/Influencers';
 import Mentors from '../pages/learner/Mentors';
 import ApplyMentor from '../pages/learner/ApplyMentor';
+import AstronomyServices from '../pages/learner/AstronomyServices';
+import AstronomyServiceDetails from '../pages/learner/AstronomyServiceDetails';
+import GuideDetails from '../pages/learner/GuideDetails';
+import CompetitionPage from '../pages/learner/CompetitionPage';
+import Quizzes from '../pages/enthuasist/Quizzes';
+import Sessions from '../pages/influencer/Sessions';
 
 // Create placeholder components for different pages - all memoized
 // const BlogsPage = memo(() => (

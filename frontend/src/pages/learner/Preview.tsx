@@ -78,6 +78,7 @@ const spaceEvents = [
     event: "Perseid Meteor Shower Peak",
     date: "2025-08-12",
     category: "meteor",
+    imageUrl: "https://cata.cl/wp-content/uploads/2024/08/perseids-radiant-credit-preston-dyches-cc-by-nc-2-0.webp",
     description: "A prolific meteor shower with up to 100 meteors per hour.",
     visibility: "Northern Hemisphere",
     bestTime: "2:00 AM - 4:00 AM",
@@ -88,6 +89,7 @@ const spaceEvents = [
     event: "Total Lunar Eclipse",
     date: "2025-09-07",
     category: "eclipse",
+    imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQLFZiyInZT896tZ8u7c0a1_8EDuhJ5STRTzA&s",
     description: "Experience the beauty of a full lunar eclipse as the moon turns red.",
     visibility: "Worldwide",
     bestTime: "9:00 PM - 11:00 PM",
@@ -98,6 +100,7 @@ const spaceEvents = [
     event: "International Observe the Moon Night",
     date: "2025-10-04",
     category: "moon",
+    imageUrl: "https://static.vecteezy.com/system/resources/thumbnails/022/751/189/small_2x/full-moon-over-the-river-in-the-forest-at-night-nature-background-photo.jpg",
     description: "Join a global celebration of lunar science and exploration.",
     visibility: "Global",
     bestTime: "8:00 PM local time",
@@ -108,12 +111,14 @@ const spaceEvents = [
     event: "Next Stargazing Meetup",
     date: "2025-08-30",
     category: "meetup",
+    imageUrl: "https://as1.ftcdn.net/v2/jpg/01/01/42/64/1000_F_101426449_2mhwexDmrvGW7JWT94jPeOZble75zFmr.jpg",
     description: "Gather with fellow enthusiasts to stargaze and share knowledge.",
     visibility: "Local Clubs",
     bestTime: "8:30 PM",
     duration: "3 hours"
   }
 ];
+
 const competitions = [
   {
     id: 1,
@@ -171,15 +176,16 @@ const Preview = () => {
       {spaceEvents.map(ev => (
         // <UpcomingEventCard key={ev.id} event={ev} />
         <UpcomingSpaceEventCard
-            key={ev.id}
-            event={ev.event}
-            date={ev.date}
-            category={ev.category}
-            description={ev.description}
-            visibility={ev.visibility}
-            bestTime={ev.bestTime}
-            duration={ev.duration}
-          />
+      key={ev.id}
+      event={ev.event}
+      date={ev.date}
+      category={ev.category}
+      description={ev.description}
+      visibility={ev.visibility}
+      bestTime={ev.bestTime}
+      duration={ev.duration}
+      imageUrl={ev.imageUrl} // ✅ pass image
+    />
       ))}
     </div>
 

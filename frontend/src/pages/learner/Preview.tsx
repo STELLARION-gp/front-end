@@ -4,6 +4,7 @@ import AstronomyBlogCard from "../../components/Learner/blogcard";
 import NasaImageCard from "../../components/Learner/NasaImageCard";
 import UpcomingEventCard from "../../components/Learner/SpaceEvent";
 import '../../styles/pages/learner/preview.scss'
+import UpcomingSpaceEventCard from "../../components/Learner/UpcomingSpaceEventCard";
 
 const blogs = [
   {
@@ -77,25 +78,41 @@ const spaceEvents = [
     event: "Perseid Meteor Shower Peak",
     date: "2025-08-12",
     category: "meteor",
+    description: "A prolific meteor shower with up to 100 meteors per hour.",
+    visibility: "Northern Hemisphere",
+    bestTime: "2:00 AM - 4:00 AM",
+    duration: "2 hours"
   },
   {
     id: 2,
     event: "Total Lunar Eclipse",
     date: "2025-09-07",
     category: "eclipse",
+    description: "Experience the beauty of a full lunar eclipse as the moon turns red.",
+    visibility: "Worldwide",
+    bestTime: "9:00 PM - 11:00 PM",
+    duration: "1 hour 40 minutes"
   },
   {
     id: 3,
     event: "International Observe the Moon Night",
     date: "2025-10-04",
     category: "moon",
+    description: "Join a global celebration of lunar science and exploration.",
+    visibility: "Global",
+    bestTime: "8:00 PM local time",
+    duration: "Evening"
   },
   {
     id: 4,
     event: "Next Stargazing Meetup",
     date: "2025-08-30",
     category: "meetup",
-  },
+    description: "Gather with fellow enthusiasts to stargaze and share knowledge.",
+    visibility: "Local Clubs",
+    bestTime: "8:30 PM",
+    duration: "3 hours"
+  }
 ];
 const competitions = [
   {
@@ -152,7 +169,17 @@ const Preview = () => {
     <h2 style={{ marginTop: "2rem" }}>Upcoming Space Events</h2>
     <div className="space-events-container">
       {spaceEvents.map(ev => (
-        <UpcomingEventCard key={ev.id} event={ev} />
+        // <UpcomingEventCard key={ev.id} event={ev} />
+        <UpcomingSpaceEventCard
+            key={ev.id}
+            event={ev.event}
+            date={ev.date}
+            category={ev.category}
+            description={ev.description}
+            visibility={ev.visibility}
+            bestTime={ev.bestTime}
+            duration={ev.duration}
+          />
       ))}
     </div>
 

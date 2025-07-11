@@ -539,19 +539,19 @@ const CampGuideApplication: React.FC = () => {
       case 2:
         return (
           <div className="step-content">
-            <div className="step-header">
+            <div className="camp-guide-application__step-header">
               <div className="step-icon">
                 <BookOpen className="w-8 h-8" />
               </div>
               <div className="step-info">
-                <h3>Professional Background</h3>
+                <h2>Professional Background</h2>
                 <p>Share your education and experience</p>
               </div>
             </div>
 
-            <div className="form-grid">
-              <div className="form-group">
-                <label htmlFor="currentOccupation">Current Occupation *</label>
+            <div className="camp-guide-application__form-grid">
+              <div className="camp-guide-application__form-group">
+                <label htmlFor="currentOccupation">Current Occupation <span className="required">*</span></label>
                 <input
                   id="currentOccupation"
                   type="text"
@@ -563,8 +563,8 @@ const CampGuideApplication: React.FC = () => {
                 {errors.currentOccupation && <span className="error-message">{errors.currentOccupation}</span>}
               </div>
 
-              <div className="form-group">
-                <label htmlFor="educationLevel">Education Level *</label>
+              <div className="camp-guide-application__form-group">
+                <label htmlFor="educationLevel">Education Level <span className="required">*</span></label>
                 <select
                   id="educationLevel"
                   value={formData.educationLevel}
@@ -579,7 +579,7 @@ const CampGuideApplication: React.FC = () => {
                 {errors.educationLevel && <span className="error-message">{errors.educationLevel}</span>}
               </div>
 
-              <div className="form-group full-width">
+              <div className="camp-guide-application__form-group full-width">
                 <label htmlFor="astronomyEducation">Astronomy Education & Training</label>
                 <textarea
                   id="astronomyEducation"
@@ -591,8 +591,8 @@ const CampGuideApplication: React.FC = () => {
                 />
               </div>
 
-              <div className="form-group">
-                <label htmlFor="totalExperience">Years of Experience *</label>
+              <div className="camp-guide-application__form-group">
+                <label htmlFor="totalExperience">Years of Experience <span className="required">*</span></label>
                 <input
                   id="totalExperience"
                   type="number"
@@ -605,8 +605,8 @@ const CampGuideApplication: React.FC = () => {
                 {errors.totalExperience && <span className="error-message">{errors.totalExperience}</span>}
               </div>
 
-              <div className="form-group full-width">
-                <label htmlFor="guideExperience">Guide Experience *</label>
+              <div className="camp-guide-application__form-group full-width">
+                <label htmlFor="guideExperience">Guide Experience <span className="required">*</span></label>
                 <textarea
                   id="guideExperience"
                   value={formData.guideExperience}
@@ -625,12 +625,12 @@ const CampGuideApplication: React.FC = () => {
       case 3:
         return (
           <div className="step-content">
-            <div className="step-header">
+            <div className="camp-guide-application__step-header">
               <div className="step-icon">
                 <Award className="w-8 h-8" />
               </div>
               <div className="step-info">
-                <h3>Certifications & Skills</h3>
+                <h2>Certifications & Skills</h2>
                 <p>Select your qualifications and expertise</p>
               </div>
             </div>
@@ -718,46 +718,48 @@ const CampGuideApplication: React.FC = () => {
       case 4:
         return (
           <div className="step-content">
-            <div className="step-header">
+            <div className="camp-guide-application__step-header">
               <div className="step-icon">
                 <Telescope className="w-8 h-8" />
               </div>
               <div className="step-info">
-                <h3>Camp Experience</h3>
+                <h2>Camp Experience</h2>
                 <p>Tell us about your camping and group leadership experience</p>
               </div>
             </div>
 
             <div className="form-sections">
               <div className="form-section">
-                <h4>Preferred Camp Types *</h4>
-                <div className="checkbox-grid">
+                <h4>Preferred Camp Types <span className="required">*</span></h4>
+                <div className="camp-guide-application__checkbox-group">
                   {predefinedOptions.campTypes.map(type => (
-                    <label key={type} className="checkbox-item">
+                    <div key={type} className="checkbox-item">
                       <input
                         type="checkbox"
+                        id={`camp-type-${type}`}
                         checked={formData.campTypes.includes(type)}
                         onChange={() => handleArrayToggle('campTypes', type)}
                       />
-                      <span className="checkbox-text">{type}</span>
-                    </label>
+                      <label htmlFor={`camp-type-${type}`}>{type}</label>
+                    </div>
                   ))}
                 </div>
                 {errors.campTypes && <span className="error-message">{errors.campTypes}</span>}
               </div>
 
               <div className="form-section">
-                <h4>Comfortable Group Sizes *</h4>
-                <div className="checkbox-grid">
+                <h4>Comfortable Group Sizes <span className="required">*</span></h4>
+                <div className="camp-guide-application__checkbox-group">
                   {predefinedOptions.groupSizes.map(size => (
-                    <label key={size} className="checkbox-item">
+                    <div key={size} className="checkbox-item">
                       <input
                         type="checkbox"
+                        id={`group-size-${size}`}
                         checked={formData.groupSizes.includes(size)}
                         onChange={() => handleArrayToggle('groupSizes', size)}
                       />
-                      <span className="checkbox-text">{size}</span>
-                    </label>
+                      <label htmlFor={`group-size-${size}`}>{size}</label>
+                    </div>
                   ))}
                 </div>
                 {errors.groupSizes && <span className="error-message">{errors.groupSizes}</span>}
@@ -765,23 +767,24 @@ const CampGuideApplication: React.FC = () => {
 
               <div className="form-section">
                 <h4>Equipment Familiarity</h4>
-                <div className="checkbox-grid">
+                <div className="camp-guide-application__checkbox-group">
                   {predefinedOptions.equipment.map(equipment => (
-                    <label key={equipment} className="checkbox-item">
+                    <div key={equipment} className="checkbox-item">
                       <input
                         type="checkbox"
+                        id={`equipment-${equipment}`}
                         checked={formData.equipmentFamiliarity.includes(equipment)}
                         onChange={() => handleArrayToggle('equipmentFamiliarity', equipment)}
                       />
-                      <span className="checkbox-text">{equipment}</span>
-                    </label>
+                      <label htmlFor={`equipment-${equipment}`}>{equipment}</label>
+                    </div>
                   ))}
                 </div>
               </div>
 
               <div className="form-section">
-                <div className="form-group full-width">
-                  <label htmlFor="outdoorExperience">Outdoor & Camping Experience *</label>
+                <div className="camp-guide-application__form-group full-width">
+                  <label htmlFor="outdoorExperience">Outdoor & Camping Experience <span className="required">*</span></label>
                   <textarea
                     id="outdoorExperience"
                     value={formData.outdoorExperience}
@@ -801,37 +804,38 @@ const CampGuideApplication: React.FC = () => {
       case 5:
         return (
           <div className="step-content">
-            <div className="step-header">
+            <div className="camp-guide-application__step-header">
               <div className="step-icon">
                 <MapPin className="w-8 h-8" />
               </div>
               <div className="step-info">
-                <h3>Availability & Preferences</h3>
+                <h2>Availability & Preferences</h2>
                 <p>Let us know your availability and location preferences</p>
               </div>
             </div>
 
             <div className="form-sections">
               <div className="form-section">
-                <h4>Preferred Locations *</h4>
-                <div className="checkbox-grid">
+                <h4>Preferred Locations <span className="required">*</span></h4>
+                <div className="camp-guide-application__checkbox-group">
                   {predefinedOptions.locations.map(location => (
-                    <label key={location} className="checkbox-item">
+                    <div key={location} className="checkbox-item">
                       <input
                         type="checkbox"
+                        id={`location-${location}`}
                         checked={formData.preferredLocations.includes(location)}
                         onChange={() => handleArrayToggle('preferredLocations', location)}
                       />
-                      <span className="checkbox-text">{location}</span>
-                    </label>
+                      <label htmlFor={`location-${location}`}>{location}</label>
+                    </div>
                   ))}
                 </div>
                 {errors.preferredLocations && <span className="error-message">{errors.preferredLocations}</span>}
               </div>
 
               <div className="form-section">
-                <div className="form-grid">
-                  <div className="form-group">
+                <div className="camp-guide-application__form-grid">
+                  <div className="camp-guide-application__form-group">
                     <label htmlFor="accommodationNeeds">Accommodation Needs</label>
                     <textarea
                       id="accommodationNeeds"

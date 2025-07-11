@@ -284,6 +284,18 @@ export default function MyBlogs() {
                                     <Save size={16} />
                                     {editingId ? 'Update Blog' : 'Publish Blog'}
                                 </Button>
+                                <Button type="Submit"
+                                    onClick={() => {
+                                        setShowCreateForm(false);
+                                        setEditingId(null);
+                                        setNewBlog({ title: '', content: '', image: null });
+                                    }}
+                                >
+                                    <Save size={16} />
+                                    Save Draft
+                                </Button>
+                                
+                            
                             </div>
                         </form>
                     </div>

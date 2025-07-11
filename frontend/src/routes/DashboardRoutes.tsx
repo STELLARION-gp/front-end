@@ -24,6 +24,7 @@ import MediaUploadPanel from '../pages/guide/MediaUploadPanel';
 import MentorProfile from '../pages/mentor/MentorProfile';
 import EditMentor from '../pages/mentor/EditMentor';
 import MentorDashboard from '../pages/mentor/MentorDashboard';
+import MentorshipRequest from '../pages/mentor/MentorshipRequest';
 
 
 import GuideMediaDashboard from '../pages/guide/GuideMediaDashboard';
@@ -336,6 +337,23 @@ const DashboardRoutes = () => {
                         </RoleGuard>
                     }
                 />
+                <Route
+                    path="mentorshiprequest"
+                    element={
+                        <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
+                            <MentorshipRequest />
+                        </RoleGuard>
+                    }
+                />
+                {/* <Route
+                    path="menteerequest"
+                    element={
+                        <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
+                            <MenteeRequest />
+                        </RoleGuard>
+                    }
+                /> */}
+
                 {/* <Route
                     path="recommended-contents"
                     element={
@@ -357,22 +375,6 @@ const DashboardRoutes = () => {
                     element={
                         <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
                             <RecommendEventsPage />
-                        </RoleGuard>
-                    }
-                />
-                <Route
-                    path="mentorshiprequest"
-                    element={
-                        <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
-                            <MentorshipRequest />
-                        </RoleGuard>
-                    }
-                />
-                <Route
-                    path="menteerequest"
-                    element={
-                        <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
-                            <MenteeRequest />
                         </RoleGuard>
                     }
                 />

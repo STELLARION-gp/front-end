@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
 import Chat from "../../components/Learner/Chat";
 import "../../styles/pages/learner/AstronomyServiceDetails.scss";
@@ -9,6 +9,9 @@ const AstronomyServiceDetails: React.FC = () => {
   const location = useLocation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+
+  const [showChat, setShowChat] = useState(false);
+
   // Try to get service from navigation state, else from static array
   let service = location.state?.service;
   if (!service && id) {
@@ -21,6 +24,9 @@ const AstronomyServiceDetails: React.FC = () => {
 
   const handleGuideClick = () => {
     navigate("/dashboard/guide-profile");
+  };
+const handleBookNow = () => {
+    setShowChat(true); // Show chat when Book Now is clicked
   };
 
   return (
@@ -90,12 +96,14 @@ const AstronomyServiceDetails: React.FC = () => {
               <div className="guide-role">Astronomy Guide</div>
             </div>
           </div>
-          <Button>Pay Now</Button>
+          <Button onClick={handleBookNow}>Book Now</Button>
         </div>
       </div>
-      <div className="service-details-chat">
-        <Chat guideName={service.guideName} />
-      </div>
+      {showChat && (
+        <div className="service-details-chat">
+          <Chat guideName={service.guideName} />
+        </div>
+      )}
     </div>
   );
 };

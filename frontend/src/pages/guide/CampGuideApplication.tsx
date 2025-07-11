@@ -12,7 +12,7 @@ import {
   BookOpen, 
   Telescope, 
   Check,
-  ArrowLeft
+//   ArrowLeft
 } from 'lucide-react';
 import '../../styles/pages/guide/_campGuideApplication.scss';
 
@@ -847,7 +847,7 @@ const CampGuideApplication: React.FC = () => {
                     />
                   </div>
 
-                  <div className="form-group">
+                  <div className="camp-guide-application__form-group">
                     <label htmlFor="transportationNeeds">Transportation Needs</label>
                     <textarea
                       id="transportationNeeds"
@@ -862,8 +862,8 @@ const CampGuideApplication: React.FC = () => {
               </div>
 
               <div className="form-section">
-                <div className="form-group full-width">
-                  <label htmlFor="motivation">Why do you want to be a camp guide? *</label>
+                <div className="camp-guide-application__form-group full-width">
+                  <label htmlFor="motivation">Why do you want to be a camp guide? <span className="required">*</span></label>
                   <textarea
                     id="motivation"
                     value={formData.motivation}
@@ -876,7 +876,7 @@ const CampGuideApplication: React.FC = () => {
                   {errors.motivation && <span className="error-message">{errors.motivation}</span>}
                 </div>
 
-                <div className="form-group full-width">
+                <div className="camp-guide-application__form-group full-width">
                   <label htmlFor="specialSkills">Special Skills or Talents</label>
                   <textarea
                     id="specialSkills"
@@ -890,10 +890,10 @@ const CampGuideApplication: React.FC = () => {
               </div>
 
               <div className="form-section">
-                <h4>Emergency Contact *</h4>
-                <div className="form-grid">
-                  <div className="form-group">
-                    <label htmlFor="emergencyName">Contact Name *</label>
+                <h4>Emergency Contact <span className="required">*</span></h4>
+                <div className="camp-guide-application__form-grid">
+                  <div className="camp-guide-application__form-group">
+                    <label htmlFor="emergencyName">Contact Name <span className="required">*</span></label>
                     <input
                       id="emergencyName"
                       type="text"
@@ -905,7 +905,7 @@ const CampGuideApplication: React.FC = () => {
                     {errors.emergencyContactName && <span className="error-message">{errors.emergencyContactName}</span>}
                   </div>
 
-                  <div className="form-group">
+                  <div className="camp-guide-application__form-group">
                     <label htmlFor="emergencyRelationship">Relationship</label>
                     <input
                       id="emergencyRelationship"
@@ -917,8 +917,8 @@ const CampGuideApplication: React.FC = () => {
                     />
                   </div>
 
-                  <div className="form-group">
-                    <label htmlFor="emergencyPhone">Phone Number *</label>
+                  <div className="camp-guide-application__form-group">
+                    <label htmlFor="emergencyPhone">Phone Number <span className="required">*</span></label>
                     <input
                       id="emergencyPhone"
                       type="tel"
@@ -938,12 +938,12 @@ const CampGuideApplication: React.FC = () => {
       case 6:
         return (
           <div className="step-content">
-            <div className="step-header">
+            <div className="camp-guide-application__step-header">
               <div className="step-icon">
                 <Check className="w-8 h-8" />
               </div>
               <div className="step-info">
-                <h3>Review & Submit</h3>
+                <h2>Review & Submit</h2>
                 <p>Review your application and select camps to apply for</p>
               </div>
             </div>
@@ -1099,14 +1099,14 @@ const CampGuideApplication: React.FC = () => {
         {/* Header */}
         <div className="camp-guide-application__header">
           <div className="header-content">
-            <Button
+            {/* <Button
               variant="ghost"
               size="medium"
               icon={<ArrowLeft className="w-4 h-4" />}
               onClick={() => navigate('/dashboard')}
             >
               Back to Dashboard
-            </Button>
+            </Button> */}
             
             <div className="header-info">
               <h1 className="camp-guide-application__header-title">Camp Guide Application</h1>

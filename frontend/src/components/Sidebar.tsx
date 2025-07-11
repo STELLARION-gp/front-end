@@ -22,13 +22,15 @@ import {
   StarIcon,
   RocketLaunchIcon,
   SparklesIcon,
-  TrophyIcon,
   HandRaisedIcon,
   CurrencyDollarIcon,
   MegaphoneIcon,
   UserGroupIcon,
   DocumentTextIcon,
   VideoCameraIcon,
+  TrophyIcon,
+  PencilIcon,
+  ClipboardDocumentListIcon
 
 } from '@heroicons/react/24/outline';
 
@@ -63,10 +65,11 @@ const iconMap = {
   HandRaisedIcon,
   CurrencyDollarIcon,
   MegaphoneIcon,
+  PencilIcon,
   UserGroupIcon,
   DocumentTextIcon,
-  VideoCameraIcon
-
+  VideoCameraIcon,
+  ClipboardDocumentListIcon,
 };
 
 // Memoize the icon components to prevent re-renders

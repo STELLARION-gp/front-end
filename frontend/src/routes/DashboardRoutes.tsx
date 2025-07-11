@@ -32,6 +32,7 @@ import PreviousTours from '../pages/guide/PreviousTours';
 import TourChat from '../pages/guide/TourChat';
 
 import BookingRequests from '../pages/guide/BookingRequests';
+import CampGuideApplication from '../pages/guide/CampGuideApplication';
 import AstroHub from '../pages/enthuasist/AstroHub';
 import CelestialEventsPage from '../pages/learner/Celestial_Events_Page';
 import Volunteering from '../pages/enthuasist/Volunteering';
@@ -49,9 +50,6 @@ import Quizzes from '../pages/enthuasist/Quizzes';
 import Sessions from '../pages/influencer/Sessions';
 import GuideDetails from '../pages/learner/GuideDetails';
 import CompetitionPage from '../pages/learner/CompetitionPage';
-
-import Competitions from '../pages/influencer/competitions';
-
 
 // Create placeholder components for different pages - all memoized
 // const BlogsPage = memo(() => (
@@ -156,7 +154,6 @@ const DashboardRoutes = () => {
                     <DashboardOverview />
                 </RoleGuard>} 
             />
-
             <Route path="profile" element={<Profile />} />
             <Route path="settings" element={<Settings />} />
 
@@ -274,6 +271,15 @@ const DashboardRoutes = () => {
                 }
             />
 
+            <Route
+                path="camp-guide-application"
+                element={
+                    <RoleGuard allowedRoles={['guide']}>
+                        <CampGuideApplication />
+                    </RoleGuard>
+                }
+            />
+
 
             <Route
                 path="booking-requests"
@@ -284,15 +290,6 @@ const DashboardRoutes = () => {
                 }
             />
 
-            <Route
-                path="competitions"
-                element={
-                    <RoleGuard allowedRoles={['influencer']}>
-                    <Competitions />
-                    </RoleGuard>
-                }
-             />
-        
             <Route
                 path="confirmed-bookings"
                 element={<ConfirmedBookings />}

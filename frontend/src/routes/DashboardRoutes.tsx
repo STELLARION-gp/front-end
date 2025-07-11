@@ -25,6 +25,7 @@ import MentorProfile from '../pages/mentor/MentorProfile';
 import EditMentor from '../pages/mentor/EditMentor';
 import MentorDashboard from '../pages/mentor/MentorDashboard';
 import MentorshipRequest from '../pages/mentor/MentorshipRequest';
+import MenteeRequest from '../pages/mentor/MenteeRequest';
 
 
 import GuideMediaDashboard from '../pages/guide/GuideMediaDashboard';
@@ -345,14 +346,14 @@ const DashboardRoutes = () => {
                         </RoleGuard>
                     }
                 />
-                {/* <Route
+                <Route
                     path="menteerequest"
                     element={
                         <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
                             <MenteeRequest />
                         </RoleGuard>
                     }
-                /> */}
+                />
 
                 {/* <Route
                     path="recommended-contents"

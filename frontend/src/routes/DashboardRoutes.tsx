@@ -32,6 +32,7 @@ import PreviousTours from '../pages/guide/PreviousTours';
 import TourChat from '../pages/guide/TourChat';
 
 import BookingRequests from '../pages/guide/BookingRequests';
+import CampGuideApplication from '../pages/guide/CampGuideApplication';
 import AstroHub from '../pages/enthuasist/AstroHub';
 import CelestialEventsPage from '../pages/learner/Celestial_Events_Page';
 import Volunteering from '../pages/enthuasist/Volunteering';
@@ -266,6 +267,15 @@ const DashboardRoutes = () => {
                 element={
                     <RoleGuard allowedRoles={['guide', 'mentor', 'moderator', 'admin']}>
                         <EventsPage />
+                    </RoleGuard>
+                }
+            />
+
+            <Route
+                path="camp-guide-application"
+                element={
+                    <RoleGuard allowedRoles={['guide']}>
+                        <CampGuideApplication />
                     </RoleGuard>
                 }
             />

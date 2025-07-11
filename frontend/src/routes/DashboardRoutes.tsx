@@ -357,12 +357,12 @@ const DashboardRoutes = () => {
                         </RoleGuard>
                     }
                 />
-                
+
                 <Route
                     path="mentornotification"
                     element={
                         <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
-                            <MentorNotification avatar="" name="" message="" />
+                            <MentorNotification />
                         </RoleGuard>
                     }
                 />

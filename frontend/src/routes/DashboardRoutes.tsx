@@ -47,6 +47,9 @@ import Influencers from '../pages/enthuasist/Influencers';
 import Mentors from '../pages/learner/Mentors';
 import ApplyMentor from '../pages/learner/ApplyMentor';
 
+import MentorNotification from '../pages/mentor/MentorNotification';
+import { useState } from 'react';
+
 // Create placeholder components for different pages - all memoized
 // const BlogsPage = memo(() => (
 //     <div className="dashboard-page">
@@ -351,6 +354,15 @@ const DashboardRoutes = () => {
                     element={
                         <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
                             <MenteeRequest />
+                        </RoleGuard>
+                    }
+                />
+                
+                <Route
+                    path="mentornotification"
+                    element={
+                        <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
+                            <MentorNotification avatar="" name="" message="" />
                         </RoleGuard>
                     }
                 />

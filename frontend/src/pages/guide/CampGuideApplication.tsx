@@ -1065,14 +1065,14 @@ const CampGuideApplication: React.FC = () => {
         {/* Header */}
         <div className="application-header">
           <div className="header-content">
-            <Button
+            {/* <Button
               variant="ghost"
               size="medium"
               icon={<ArrowLeft className="w-4 h-4" />}
               onClick={() => navigate('/dashboard')}
             >
               Back to Dashboard
-            </Button>
+            </Button> */}
             
             <div className="header-info">
               <h1>Camp Guide Application</h1>

@@ -274,7 +274,7 @@ const CampGuideApplication: React.FC = () => {
     ]
   };
 
-  const handleInputChange = (field: string, value: any) => {
+  const handleInputChange = (field: string, value: string | number | boolean) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -289,11 +289,11 @@ const CampGuideApplication: React.FC = () => {
     }
   };
 
-  const handleNestedInputChange = (parent: string, field: string, value: any) => {
+  const handleNestedInputChange = (parent: string, field: string, value: string) => {
     setFormData(prev => ({
       ...prev,
       [parent]: {
-        ...prev[parent as keyof ApplicationForm] as any,
+        ...(prev[parent as keyof ApplicationForm] as Record<string, unknown>),
         [field]: value
       }
     }));
@@ -988,6 +988,7 @@ const CampGuideApplication: React.FC = () => {
                     <input
                       type="file"
                       accept=".pdf,.doc,.docx"
+                      title="Upload your resume or CV"
                       onChange={(e) => handleFileUpload('resume', e.target.files?.[0] || null)}
                     />
                   </div>
@@ -996,6 +997,7 @@ const CampGuideApplication: React.FC = () => {
                     <input
                       type="file"
                       accept=".pdf,.jpg,.jpeg,.png"
+                      title="Upload your certifications"
                       onChange={(e) => handleFileUpload('certifications', e.target.files?.[0] || null)}
                     />
                   </div>
@@ -1004,6 +1006,7 @@ const CampGuideApplication: React.FC = () => {
                     <input
                       type="file"
                       accept=".pdf,.jpg,.jpeg,.png"
+                      title="Upload your portfolio or sample photos"
                       onChange={(e) => handleFileUpload('portfolio', e.target.files?.[0] || null)}
                     />
                   </div>
@@ -1012,6 +1015,7 @@ const CampGuideApplication: React.FC = () => {
                     <input
                       type="file"
                       accept=".pdf,.doc,.docx"
+                      title="Upload your references"
                       onChange={(e) => handleFileUpload('references', e.target.files?.[0] || null)}
                     />
                   </div>

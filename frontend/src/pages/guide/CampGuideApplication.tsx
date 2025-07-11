@@ -12,7 +12,7 @@ import {
   BookOpen, 
   Telescope, 
   Check,
-//   ArrowLeft
+  ArrowLeft
 } from 'lucide-react';
 import '../../styles/pages/guide/_campGuideApplication.scss';
 
@@ -638,16 +638,17 @@ const CampGuideApplication: React.FC = () => {
             <div className="form-sections">
               <div className="form-section">
                 <h4>Certifications</h4>
-                <div className="checkbox-grid">
+                <div className="camp-guide-application__checkbox-group">
                   {predefinedOptions.certifications.map(cert => (
-                    <label key={cert} className="checkbox-item">
+                    <div key={cert} className="checkbox-item">
                       <input
                         type="checkbox"
+                        id={`cert-${cert}`}
                         checked={formData.certifications.includes(cert)}
                         onChange={() => handleArrayToggle('certifications', cert)}
                       />
-                      <span className="checkbox-text">{cert}</span>
-                    </label>
+                      <label htmlFor={`cert-${cert}`}>{cert}</label>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -671,17 +672,18 @@ const CampGuideApplication: React.FC = () => {
               </div>
 
               <div className="form-section">
-                <h4>Languages *</h4>
-                <div className="checkbox-grid">
+                <h4>Languages <span className="required">*</span></h4>
+                <div className="camp-guide-application__checkbox-group camp-guide-application__checkbox-group--inline">
                   {predefinedOptions.languages.map(lang => (
-                    <label key={lang} className="checkbox-item">
+                    <div key={lang} className="checkbox-item">
                       <input
                         type="checkbox"
+                        id={`language-${lang}`}
                         checked={formData.languages.includes(lang)}
                         onChange={() => handleArrayToggle('languages', lang)}
                       />
-                      <span className="checkbox-text">{lang}</span>
-                    </label>
+                      <label htmlFor={`language-${lang}`}>{lang}</label>
+                    </div>
                   ))}
                 </div>
                 {errors.languages && <span className="error-message">{errors.languages}</span>}
@@ -1093,14 +1095,14 @@ const CampGuideApplication: React.FC = () => {
         {/* Header */}
         <div className="camp-guide-application__header">
           <div className="header-content">
-            {/* <Button
+            <Button
               variant="ghost"
               size="medium"
               icon={<ArrowLeft className="w-4 h-4" />}
               onClick={() => navigate('/dashboard')}
             >
               Back to Dashboard
-            </Button> */}
+            </Button>
             
             <div className="header-info">
               <h1 className="camp-guide-application__header-title">Camp Guide Application</h1>

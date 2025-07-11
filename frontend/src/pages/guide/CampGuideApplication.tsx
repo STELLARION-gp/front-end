@@ -187,6 +187,14 @@ const CampGuideApplication: React.FC = () => {
   }, []);
 
   const totalSteps = 6;
+  const stepNames = [
+    'Personal Info',
+    'Background', 
+    'Skills',
+    'Experience',
+    'Preferences',
+    'Review'
+  ];
 
   const predefinedOptions = {
     educationLevels: [
@@ -405,8 +413,24 @@ const CampGuideApplication: React.FC = () => {
       });
       
       // Show success message and redirect
-      alert('Your camp guide application has been submitted successfully! We will review your application and contact you within 5-7 business days.');
-      navigate('/dashboard');
+      const submissionSuccess = () => {
+        const successDiv = document.createElement('div');
+        successDiv.className = 'camp-guide-application__submission fade-in';
+        successDiv.innerHTML = `
+          <div class="success-icon">✅</div>
+          <h3 class="success-title">Application Submitted Successfully!</h3>
+          <p class="success-message">We will review your application and contact you within 5-7 business days.</p>
+          <div class="reference-number">Reference: CGA-${Date.now().toString().slice(-6)}</div>
+        `;
+        
+        document.querySelector('.camp-guide-application__content')?.appendChild(successDiv);
+        
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 3000);
+      };
+      
+      submissionSuccess();
       
     } catch (error) {
       console.error('Submission error:', error);

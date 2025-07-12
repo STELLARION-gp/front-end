@@ -49,6 +49,9 @@ import AstronomyServices from '../pages/learner/AstronomyServices';
 import AstronomyServiceDetails from '../pages/learner/AstronomyServiceDetails';
 import GuideDetails from '../pages/learner/GuideDetails';
 import CompetitionPage from '../pages/learner/CompetitionPage';
+import Competitions from '../pages/influencer/competitions';
+import MyBlogs from '../pages/influencer/myblogs';
+import Vlogs from '../pages/influencer/Vlogs';
 import Quizzes from '../pages/enthuasist/Quizzes';
 import Sessions from '../pages/influencer/Sessions';
 
@@ -551,6 +554,15 @@ const DashboardRoutes = () => {
                 element={
                     <RoleGuard allowedRoles={['influencer']}>
                         <Sessions />
+                    </RoleGuard>
+                }
+            />
+
+            <Route
+                path="vlogs"
+                element={
+                    <RoleGuard allowedRoles={['influencer']}>
+                        <Vlogs />
                     </RoleGuard>
                 }
             />

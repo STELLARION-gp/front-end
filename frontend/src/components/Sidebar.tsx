@@ -30,6 +30,7 @@ import {
   VideoCameraIcon,
   TrophyIcon,
   PencilIcon,
+  FilmIcon,
   ClipboardDocumentListIcon
 
 } from '@heroicons/react/24/outline';
@@ -69,6 +70,7 @@ const iconMap = {
   UserGroupIcon,
   DocumentTextIcon,
   VideoCameraIcon,
+  FilmIcon,
   ClipboardDocumentListIcon,
 };
 

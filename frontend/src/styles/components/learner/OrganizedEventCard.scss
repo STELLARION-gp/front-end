@@ -1,0 +1,123 @@
+.organized-events-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2rem;
+  margin-top: 1.5rem;
+
+  .organized-event-card {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 1.5rem;
+    border-radius: 16px;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.08);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4), 0 0 12px rgba(56, 189, 248, 0.3);
+    }
+
+    .organized-event-image {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 12px;
+      margin-bottom: 1rem;
+    }
+
+    .organized-event-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+
+      .organized-event-name {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+
+      .organized-event-category {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 500;
+      }
+    }
+
+    .organized-event-details {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+
+      .organized-detail {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.8);
+
+        svg {
+          color: #3b82f6;
+          width: 18px;
+          height: 18px;
+        }
+      }
+    }
+
+    .organized-event-description {
+      font-size: 0.95rem;
+      color: rgba(255, 255, 255, 0.75);
+      margin-bottom: 1rem;
+      line-height: 1.5;
+    }
+
+    .organized-event-sponsors {
+      margin-bottom: 1rem;
+
+      .organized-sponsor-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.85);
+        margin-bottom: 0.5rem;
+      }
+
+      .organized-sponsor-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+
+        .organized-sponsor {
+          background: rgba(255, 255, 255, 0.1);
+          padding: 0.3rem 0.75rem;
+          border-radius: 9999px;
+          font-size: 0.8rem;
+          font-weight: 500;
+          color: #ffffff;
+          border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+      }
+    }
+
+    .organized-register-btn {
+      margin-top: auto;
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background 0.3s ease;
+
+      &:hover {
+        background: #2563eb;
+      }
+    }
+  }
+}

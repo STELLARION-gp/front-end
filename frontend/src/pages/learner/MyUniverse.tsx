@@ -13,7 +13,7 @@ import {
 import QuizCard from '../../components/Learner/QuizCard';
 import Button from '../../components/Button';
 import QuizModal from '../../components/Learner/QuizModal';
-import ParticipatedQuizCard from '../../components/Learner/ParticipatedQuizCard';
+
 
 const tabs = [
   { name: 'Quizzes', icon: <BookOpen size={16} /> },
@@ -199,27 +199,27 @@ const MyUniverse = () => {
 
             {/* Participated Quizzes Table */}
             <div className="participated-quizzes-table mt-12">
-              <h3>Participated Quizzes</h3>
-              <table>
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Level</th>
-                    <th>Score</th>
-                    <th>Total</th>
-                    <th>Time Taken (min)</th>
-                    <th>Date Completed</th>
+              <h3 className='participated-quizzes-table-h3'>Participated Quizzes</h3>
+              <table className='participated-quizzes-table-table'>
+                <thead className='participated-quizzes-table-thead'>
+                  <tr className='participated-quizzes-table-tr'>
+                    <th className='participated-quizzes-table-th'>Name</th>
+                    <th className='participated-quizzes-table-th'>Level</th>
+                    <th className='participated-quizzes-table-th'>Score</th>
+                    <th className='participated-quizzes-table-th'>Total</th>
+                    <th className='participated-quizzes-table-th'>Time Taken (min)</th>
+                    <th className='participated-quizzes-table-th'>Date Completed</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className='participated-quizzes-table-tbody'>
                   {participatedQuizzes.map((quiz) => (
-                    <tr key={quiz.id}>
-                      <td data-label="Name">{quiz.name}</td>
-                      <td data-label="Level">{quiz.level}</td>
-                      <td data-label="Score">{quiz.score}</td>
-                      <td data-label="Total">{quiz.total}</td>
-                      <td data-label="Time Taken">{quiz.timeTaken}</td>
-                      <td data-label="Date Completed">{quiz.date}</td>
+                    <tr key={quiz.id} className='participated-quizzes-table-tr'>
+                      <td data-label="Name" className='participated-quizzes-table-td'>{quiz.name}</td>
+                      <td data-label="Level" className='participated-quizzes-table-td'>{quiz.level}</td>
+                      <td data-label="Score" className='participated-quizzes-table-td'>{quiz.score}</td>
+                      <td data-label="Total" className='participated-quizzes-table-td'>{quiz.total}</td>
+                      <td data-label="Time Taken" className='participated-quizzes-table-td'>{quiz.timeTaken}</td>
+                      <td data-label="Date Completed" className='participated-quizzes-table-td'>{quiz.date}</td>
                     </tr>
                   ))}
                 </tbody>

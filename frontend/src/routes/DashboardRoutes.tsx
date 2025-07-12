@@ -24,11 +24,6 @@ import MediaUploadPanel from '../pages/guide/MediaUploadPanel';
 import MentorProfile from '../pages/mentor/MentorProfile';
 import EditMentor from '../pages/mentor/EditMentor';
 import MentorDashboard from '../pages/mentor/MentorDashboard';
-import MentorshipRequest from '../pages/mentor/MentorshipRequest';
-import MenteeRequest from '../pages/mentor/MenteeRequest';
-import MenteeProfile from '../pages/mentor/MenteeProfile';
-import Mentees from '../pages/mentor/Mentees';
-
 
 
 import GuideMediaDashboard from '../pages/guide/GuideMediaDashboard';
@@ -403,6 +398,7 @@ const DashboardRoutes = () => {
                         </RoleGuard>
                     }
                 />
+
                 <Route
                     path="mentorshiprequest"
                     element={

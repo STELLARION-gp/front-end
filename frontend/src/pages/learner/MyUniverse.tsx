@@ -13,6 +13,7 @@ import {
 import QuizCard from '../../components/Learner/QuizCard';
 import Button from '../../components/Button';
 import QuizModal from '../../components/Learner/QuizModal';
+import ParticipatedQuizCard from '../../components/Learner/ParticipatedQuizCard';
 
 const tabs = [
   { name: 'Quizzes', icon: <BookOpen size={16} /> },
@@ -32,6 +33,19 @@ interface Quiz {
   time: number;
   questionCount: number;
   participantsCount: number;
+}
+
+export interface ParticipatedQuiz {
+  id: number;
+  name: string;
+  description: string;
+  level: string;
+  time: number;          // total allowed time for quiz
+  questionCount: number;
+  total: number;         // total score possible (max)
+  date: string;          // date completed
+  timeTaken: number;     // time user took to finish quiz (minutes)
+  score: number;         // user's score
 }
 
 const sampleQuizzes: Quiz[] = [
@@ -96,6 +110,33 @@ const sampleLeaderboard = [
     badges: ['Quiz Warrior', 'Time Challenger', 'Fast Learner']
   }
 ];
+// Sample participated quizzes data
+const participatedQuizzes: ParticipatedQuiz[] = [
+  {
+    id: 101,
+    name: 'Solar System Exploration',
+    description: 'Learn the basics of our solar system.',
+    level: 'Beginner',
+    time: 15,                 // max allowed time
+    questionCount: 12,
+    total: 100,               // max points possible
+    date: '2025-07-10',       // date completed
+    timeTaken: 14,            // minutes actually taken
+    score: 85                 // user score
+  },
+  {
+    id: 102,
+    name: 'Star Formation',
+    description: 'Understand how stars are born and evolve.',
+    level: 'Intermediate',
+    time: 20,
+    questionCount: 18,
+    total: 100,
+    date: '2025-07-08',
+    timeTaken: 19,
+    score: 92
+  }
+];
 
 const MyUniverse = () => {
   const [activeTab, setActiveTab] = useState('Quizzes');
@@ -154,6 +195,35 @@ const MyUniverse = () => {
                   isMyQuiz={false}
                 />
               ))}
+            </div>
+
+            {/* Participated Quizzes Table */}
+            <div className="participated-quizzes-table mt-12">
+              <h3>Participated Quizzes</h3>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Level</th>
+                    <th>Score</th>
+                    <th>Total</th>
+                    <th>Time Taken (min)</th>
+                    <th>Date Completed</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {participatedQuizzes.map((quiz) => (
+                    <tr key={quiz.id}>
+                      <td data-label="Name">{quiz.name}</td>
+                      <td data-label="Level">{quiz.level}</td>
+                      <td data-label="Score">{quiz.score}</td>
+                      <td data-label="Total">{quiz.total}</td>
+                      <td data-label="Time Taken">{quiz.timeTaken}</td>
+                      <td data-label="Date Completed">{quiz.date}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
 
             <div className="leaderboard-section mt-10">

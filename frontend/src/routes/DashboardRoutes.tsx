@@ -54,6 +54,10 @@ import MyBlogs from '../pages/influencer/myblogs';
 import Vlogs from '../pages/influencer/Vlogs';
 import Quizzes from '../pages/enthuasist/Quizzes';
 import Sessions from '../pages/influencer/Sessions';
+import MentorshipRequest from '../pages/mentor/MentorshipRequest';
+import Mentees from '../pages/mentor/Mentees';
+import MenteeProfile from '../pages/mentor/MenteeProfile';
+import MenteeRequest from '../pages/mentor/MenteeRequest';
 
 // Create placeholder components for different pages - all memoized
 // const BlogsPage = memo(() => (

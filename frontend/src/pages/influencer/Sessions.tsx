@@ -591,19 +591,26 @@ const Sessions = () => {
           </div>
           <div className="analytics-grid">
             <div className="chart-container">
-              <h4>Attendance Trend</h4>
+              <h4>
+                Attendance Trend
+                <div className="chart-legend">
+                  <span className="legend-item">Weekly attendance</span>
+                </div>
+              </h4>
               <div className="interactive-chart">
                 <div className="chart-bars">
                   {[65, 80, 75, 90, 85, 95].map((height, index) => (
                     <div 
                       key={index} 
                       className="bar-wrapper"
-                      data-value={`${height}%`}
+                      
                     >
                       <div 
                         className="bar" 
                         style={{height: `${height}%`}}
-                      ></div>
+                      >
+                        <span className="bar-tooltip">{height}%</span>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -620,11 +627,18 @@ const Sessions = () => {
             <div className="metrics-container">
               <div className="metric-card">
                 <h5>Completion Rate</h5>
-                <div className="circular-progress" data-progress="92">
+                <div className="circular-progress">
                   <svg viewBox="0 0 36 36">
-                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                    <circle cx="18" cy="18" r="15.9155" className="progress-bg" />
+                    <circle 
+                      cx="18" 
+                      cy="18" 
+                      r="15.9155" 
+                      className="progress" 
+                      style={{ strokeDashoffset: `${100 - 92}` }}
+                    />
                   </svg>
-                  <span className="percentage">92%</span>
+                  <span className="progress-value">92%</span>
                 </div>
               </div>
               <div className="metric-card">
@@ -645,19 +659,26 @@ const Sessions = () => {
           </div>
           <div className="analytics-grid">
             <div className="chart-container">
-              <h4>Purchase Trend</h4>
+              <h4>
+                Purchase Trend
+                <div className="chart-legend">
+                  <span className="legend-item secondary">Weekly purchases</span>
+                </div>
+              </h4>
               <div className="interactive-chart">
                 <div className="chart-bars">
                   {[45, 60, 75, 85, 70, 90].map((height, index) => (
                     <div 
                       key={index} 
                       className="bar-wrapper"
-                      data-value={`${height}%`}
+                      
                     >
                       <div 
                         className="bar secondary" 
                         style={{height: `${height}%`}}
-                      ></div>
+                      >
+                        <span className="bar-tooltip">{height}%</span>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -674,11 +695,18 @@ const Sessions = () => {
             <div className="metrics-container">
               <div className="metric-card">
                 <h5>Watch Rate</h5>
-                <div className="circular-progress" data-progress="85">
+                <div className="circular-progress">
                   <svg viewBox="0 0 36 36">
-                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                    <circle cx="18" cy="18" r="15.9155" className="progress-bg" />
+                    <circle 
+                      cx="18" 
+                      cy="18" 
+                      r="15.9155" 
+                      className="progress" 
+                      style={{ strokeDashoffset: `${100 - 85}` }}
+                    />
                   </svg>
-                  <span className="percentage">85%</span>
+                  <span className="progress-value">85%</span>
                 </div>
               </div>
               <div className="metric-card">

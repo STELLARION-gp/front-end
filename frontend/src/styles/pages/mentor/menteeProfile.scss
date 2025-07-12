@@ -1,0 +1,365 @@
+.mentee-profile-page {
+  min-height: 120vh;
+  background: rgba(59,130,246,0.07);
+  border-radius: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2.5rem 4vw;
+  box-sizing: border-box;
+  display: flex;
+  align-items: flex-start;
+}
+.mentee-profile-layout {
+  display: flex;
+  gap: 2.5rem;
+  width: 100%;
+}
+.mentee-profile-left {
+  min-width: 320px;
+  max-width: 340px;
+  flex: 0 0 320px;
+  border-radius: 12px;
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #232b3b;
+  box-shadow: 0 2px 12px rgba(59,130,246,0.08);
+}
+.mentee-profile-avatar {
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: #1a202c;
+  overflow: hidden;
+  img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+  }
+}
+.mentee-profile-info-list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.mentee-profile-info-item {
+  label {
+    color: #60a5fa;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.2rem;
+    display: block;
+  }
+  .value {
+    font-weight: 600;
+    color: #fff;
+    font-size: 1.08rem;
+    background: #181f2a;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    margin-top: 0.2rem;
+  }
+}
+.mentee-profile-info-item.rating {
+  label {
+    color: #60a5fa;
+  }
+  .star {
+    color: #fbbf24;
+    font-size: 1.2rem;
+    margin-right: 2px;
+    vertical-align: middle;
+  }
+  .star.empty {
+    color: #cbd5e1;
+  }
+  .rating-number {
+    color: #a0aec0;
+    font-weight: 500;
+    margin-left: 8px;
+    font-size: 1rem;
+  }
+}
+.mentee-profile-right {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.mentee-profile-docs-box {
+  background: #232b3b;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(59,130,246,0.08);
+  padding: 1.5rem 2rem 1.2rem 2rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  flex-direction: column;
+}
+.mentee-profile-docs-title {
+  color: #60a5fa;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+.mentee-profile-docs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  margin-bottom: 1.2rem;
+}
+.mentee-profile-doc-link {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  background: #181f2a;
+  color: #fff;
+  border-radius: 8px;
+  padding: 0.6rem 1.1rem;
+  font-size: 1rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+.mentee-profile-doc-link:hover {
+  background: #232b3b;
+}
+.mentee-profile-doc-icon {
+  width: 22px;
+  height: 22px;
+  color: #60a5fa;
+}
+.mentee-profile-doc-title {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mentee-profile-docs-seemore {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  height: 35px;
+  width: 160px;
+  font-size: 1.08rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: 0.5rem;
+  align-self: flex-end;
+  &:hover {
+    background: #1d4ed8;
+  }
+}
+.mentee-profile-stats-box {
+  background: #232b3b;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(59,130,246,0.08);
+  padding: 1.5rem 1.2rem 1.2rem 2rem;
+  padding-top: 1rem;
+}
+.mentee-profile-stats-title {
+  color: #60a5fa;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1.2rem;
+}
+.mentee-profile-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.2rem 2rem;
+  margin-bottom: 1.5rem;
+}
+.mentee-profile-stat-card {
+  /* poll-item mentor-request-card styles will apply */
+  margin-bottom: 0;
+}
+.stat-label {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #60a5fa;
+  margin-bottom: 0.3rem;
+}
+.stat-desc {
+  font-size: 1rem;
+  color: #a0aec0;
+}
+.mentee-profile-stats-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: flex-end;
+  margin-top: 18px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.mentee-profile-stats-actions button {
+  min-width: 110px;
+  height: 38px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  margin: 0;
+}
+@media (max-width: 600px) {
+  .mentee-profile-stats-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    justify-content: center;
+  }
+  .mentee-profile-stats-actions button {
+    width: 100%;
+    min-width: 0;
+  }
+}
+.mentee-profile-rate-btn, .mentee-profile-remove-btn {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.7rem 2.2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.mentee-profile-remove-btn {
+  background: #ef4444;
+  &:hover {
+    background: #b91c1c;
+  }
+}
+.mentee-profile-rate-btn:hover {
+  background: #1d4ed8;
+}
+.mentee-profile-privatechat-icon {
+  position: fixed;
+  bottom: 6.5rem;
+  right: 1.5rem;
+  z-index: 100;
+  background: #aebac8;
+  border-radius: 50%;
+  box-shadow: 0 2px 12px rgba(59,130,246,0.13);
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: box-shadow 0.2s, background 0.2s;
+}
+.mentee-profile-privatechat-icon img {
+  width: 38px;
+  height: 38px;
+  display: block;
+}
+.mentee-profile-privatechat-icon:hover {
+  background: #e0e7ff;
+  box-shadow: 0 6px 24px rgba(59,130,246,0.18);
+}
+.mentee-modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(20, 24, 40, 0.82);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mentee-modal {
+  background: #232b3b;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(30,41,59,0.18);
+  padding: 2.5rem 2.8rem 2.2rem 2.8rem;
+  min-width: 340px;
+  max-width: 95vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.mentee-modal-title {
+  color: #fff;
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 1.2rem;
+  text-align: center;
+}
+.mentee-modal-stars {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 1.2rem;
+  justify-content: center;
+}
+.mentee-modal-textarea {
+  width: 100%;
+  min-width: 220px;
+  max-width: 600px;
+  min-height: 80px;
+  background: #181f2a;
+  color: #fff;
+  border: 1.5px solid #3b82f6;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  padding: 0.7rem 1rem;
+  margin-bottom: 1.2rem;
+  resize: vertical;
+  outline: none;
+  transition: border 0.2s;
+}
+.mentee-modal-textarea:focus {
+  border: 1.5px solid #60a5fa;
+}
+.mentee-modal-actions {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  width: 100%;
+}
+.mentor-btn-blue, .mentor-btn-red, .mentor-btn-small {
+  font-size: 1.13rem !important;
+  min-width: 120px !important;
+  height: 44px !important;
+  padding: 0 2.2rem !important;
+}
+.mentee-profile-review-box {
+  background: #232b3b;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(59,130,246,0.08);
+  margin-top: 2.2rem;
+  padding: 1.2rem 2.5rem 1.2rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 900px;
+  width: 100%;
+}
+.mentee-profile-review-title {
+  color: #60a5fa;
+  font-size: 1.18rem;
+  font-weight: 600;
+  margin-bottom: 0.7rem;
+  text-align: left;
+}
+.mentee-profile-review-stars {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 0.7rem;
+}
+.mentee-profile-review-text {
+  color: #fff;
+  font-size: 1.13rem;
+  line-height: 1.5;
+  word-break: break-word;
+  text-align: left;
+} 

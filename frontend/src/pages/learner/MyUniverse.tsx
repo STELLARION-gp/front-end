@@ -1,23 +1,29 @@
-import React, { useState } from "react";
-; // adjust path as needed
-import '../../styles/pages/learner/MyUniverse.scss'
+// pages/learner/MyUniverse.tsx
+import React, { useState } from 'react';
+import '../../styles/pages/learner/MyUniverse.scss';
 import {
-  Star, BookOpen, CalendarDays, Users, User, ImageIcon, Trophy
-} from "lucide-react";
-import QuizCard from "../../components/Learner/QuizCard";
-import Button from "../../components/Button";
-import QuizModal from "../../components/Learner/QuizModal";
-
+  Star,
+  BookOpen,
+  CalendarDays,
+  Users,
+  User,
+  ImageIcon,
+  Trophy
+} from 'lucide-react';
+import QuizCard from '../../components/Learner/QuizCard';
+import Button from '../../components/Button';
+import QuizModal from '../../components/Learner/QuizModal';
 
 const tabs = [
-  { name: "Quizzes", icon: <BookOpen size={16} /> },
-  { name: "Favorites", icon: <Star size={16} /> },
-  { name: "Competitions", icon: <Trophy size={16} /> },
-  { name: "Services", icon: <CalendarDays size={16} /> },
-  { name: "Mentors", icon: <User size={16} /> },
-  { name: "Influencers", icon: <Users size={16} /> },
-  { name: "My Content", icon: <ImageIcon size={16} /> },
+  { name: 'Quizzes', icon: <BookOpen size={16} /> },
+  { name: 'Favorites', icon: <Star size={16} /> },
+  { name: 'Competitions', icon: <Trophy size={16} /> },
+  { name: 'Services', icon: <CalendarDays size={16} /> },
+  { name: 'Mentors', icon: <User size={16} /> },
+  { name: 'Influencers', icon: <Users size={16} /> },
+  { name: 'My Content', icon: <ImageIcon size={16} /> }
 ];
+
 interface Quiz {
   id: number;
   name: string;
@@ -27,95 +33,91 @@ interface Quiz {
   questionCount: number;
   participantsCount: number;
 }
-// Sample quiz data
-const sampleQuizzes = [
+
+const sampleQuizzes: Quiz[] = [
   {
     id: 1,
-    name: "Galaxies & Clusters",
-    description: "Test your knowledge about galaxies and star clusters.",
-    level: "Intermediate",
+    name: 'Galaxies & Clusters',
+    description: 'Test your knowledge about galaxies and star clusters.',
+    level: 'Intermediate',
     time: 20,
     questionCount: 15,
-    participantsCount: 1234,
+    participantsCount: 1234
   },
   {
     id: 2,
-    name: "Astrobiology Basics",
-    description: "Explore the basics of life beyond Earth.",
-    level: "Beginner",
+    name: 'Astrobiology Basics',
+    description: 'Explore the basics of life beyond Earth.',
+    level: 'Beginner',
     time: 15,
     questionCount: 10,
-    participantsCount: 890,
+    participantsCount: 890
   },
   {
     id: 3,
-    name: "Black Holes Quiz",
-    description: "Dive into the mysteries of black holes.",
-    level: "Advanced",
+    name: 'Black Holes Quiz',
+    description: 'Dive into the mysteries of black holes.',
+    level: 'Advanced',
     time: 25,
     questionCount: 20,
-    participantsCount: 456,
-  },
+    participantsCount: 456
+  }
 ];
+
 const sampleLeaderboard = [
   {
     id: 1,
-    username: "Alice",
-    avatar: "🧑‍🚀",
+    username: 'Alice',
+    avatar: '🧑‍🚀',
     rank: 1,
     totalScore: 9800,
     quizzesCompleted: 45,
     averageScore: 92,
-    badges: ["Galaxy Master", "Quiz Streak"],
+    badges: ['Galaxy Master', 'Quiz Streak']
   },
   {
     id: 2,
-    username: "Bob",
-    avatar: "👨‍🔬",
+    username: 'Bob',
+    avatar: '👨‍🔬',
     rank: 2,
     totalScore: 9000,
     quizzesCompleted: 40,
     averageScore: 88,
-    badges: ["Stellar Student"],
+    badges: ['Stellar Student']
   },
   {
     id: 3,
-    username: "You",
-    avatar: "🧑‍💻",
+    username: 'You',
+    avatar: '🧑‍💻',
     rank: 3,
     totalScore: 8700,
     quizzesCompleted: 38,
     averageScore: 90,
-    badges: ["Quiz Warrior", "Time Challenger", "Fast Learner"],
-  },
+    badges: ['Quiz Warrior', 'Time Challenger', 'Fast Learner']
+  }
 ];
 
 const MyUniverse = () => {
-  const [activeTab, setActiveTab] = useState("Quizzes");
+  const [activeTab, setActiveTab] = useState('Quizzes');
   const [showQuizModal, setShowQuizModal] = useState(false);
-const [selectedQuiz, setSelectedQuiz] = useState<Quiz | null>(null);
+  const [selectedQuiz, setSelectedQuiz] = useState<Quiz | null>(null);
 
-const handleParticipate = (quiz: Quiz) => {
-  setSelectedQuiz(quiz);
-  setShowQuizModal(true);
-};
+  const handleParticipate = (quiz: Quiz) => {
+    setSelectedQuiz(quiz);
+    setShowQuizModal(true);
+  };
 
-const handleStartQuiz = () => {
-  console.log("Start quiz:", selectedQuiz?.name);
-  setShowQuizModal(false);
-};
-
-const handleCloseModal = () => {
-  setShowQuizModal(false);
-  setSelectedQuiz(null);
-};
+  const handleCloseModal = () => {
+    setShowQuizModal(false);
+    setSelectedQuiz(null);
+  };
 
   const handleEdit = (quiz: Quiz) => {
     alert(`Edit clicked for quiz: ${quiz.name}`);
   };
+
   return (
-    <div className="p-6 text-white bg-[#0f172a] ">
-      {/* Summary Card */}
+    <div className="p-6 text-white bg-[#0f172a]">
       <div className="justify-between items-center">
         <h2>My Universe</h2>
         <div className="text-sm text-white/80">
@@ -126,25 +128,24 @@ const handleCloseModal = () => {
       {/* Tabs */}
       <div className="flex gap-4 flex-wrap mb-6 mt-9">
         {tabs.map((tab) => (
-        <Button
-          key={tab.name}
-          variant={activeTab === tab.name ? "secondary" : "ghost"}
-          className="flex items-center gap-2 text-sm font-semibold"
-          onClick={() => setActiveTab(tab.name)}
-        >
-          {tab.icon}
-          {tab.name}
-        </Button>
-
+          <Button
+            key={tab.name}
+            variant={activeTab === tab.name ? 'secondary' : 'ghost'}
+            className="flex items-center gap-2 text-sm font-semibold"
+            onClick={() => setActiveTab(tab.name)}
+          >
+            {tab.icon}
+            {tab.name}
+          </Button>
         ))}
       </div>
 
-      {/* quize container */}
+      {/* Content Container */}
       <div className="bg-white/5 p-6 rounded-xl space-y-4 shadow-inner border border-white/10">
-        {activeTab === "Quizzes" && (
+        {activeTab === 'Quizzes' && (
           <>
-            <div className="quiz-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' , margin: '1.5rem' , height:'400px'}}>
-              {sampleQuizzes.map((quiz: Quiz) => (
+            <div className="quiz-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
+              {sampleQuizzes.map((quiz) => (
                 <QuizCard
                   key={quiz.id}
                   quiz={quiz}
@@ -154,6 +155,7 @@ const handleCloseModal = () => {
                 />
               ))}
             </div>
+
             <div className="leaderboard-section mt-10">
               <div className="leaderboard-header">
                 <h2>Leaderboard</h2>
@@ -243,11 +245,11 @@ const handleCloseModal = () => {
               </div>
             </div>
 
+
           </>
         )}
 
-        {/* ...other tabs content unchanged */}
-        {activeTab === "Favorites" && (
+        {activeTab === 'Favorites' && (
           <>
             <h3 className="text-lg font-semibold">Favorite Blogs</h3>
             <ul className="list-disc ml-5 text-white/90">
@@ -263,17 +265,10 @@ const handleCloseModal = () => {
           </>
         )}
 
-        {/* ... rest of your tabs */}
         {showQuizModal && selectedQuiz && (
-  <QuizModal
-    quiz={selectedQuiz}
-    onClose={handleCloseModal}
-    onStart={handleStartQuiz}
-  />
-)}
-
+          <QuizModal quiz={selectedQuiz} onClose={handleCloseModal} />
+        )}
       </div>
-
     </div>
   );
 };

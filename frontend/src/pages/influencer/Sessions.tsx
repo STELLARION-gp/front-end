@@ -191,7 +191,7 @@ const Sessions = () => {
                 <div className="registration-control-section">
                   <div className="control-header">
                     <h4>Registration Settings</h4>
-                    <p className="control-description">Allow new participants to register for this session</p>
+                
                   </div>
                   <div className="registration-toggle">
                     <div className="toggle-options">
@@ -202,10 +202,10 @@ const Sessions = () => {
                           checked={session.registrationEnabled === true}
                           onChange={() => handleRegistrationChange(session.id, true)}
                         />
-                        <span className="option-icon">✅</span>
+                        <span className="option-icon">🟢</span>
                         <span className="option-text">
-                          <strong>Open</strong>
-                          <small>Accept new registrations</small>
+                          <strong>Available</strong>
+            
                         </span>
                       </label>
                       <label className={`toggle-option ${!session.registrationEnabled ? 'active' : ''}`}>
@@ -215,10 +215,10 @@ const Sessions = () => {
                           checked={session.registrationEnabled === false}
                           onChange={() => handleRegistrationChange(session.id, false)}
                         />
-                        <span className="option-icon">🚫</span>
+                        <span className="option-icon">🔴</span>
                         <span className="option-text">
-                          <strong>Closed</strong>
-                          <small>No new registrations</small>
+                          <strong>Unavailable</strong>
+                          
                         </span>
                       </label>
                     </div>
@@ -288,7 +288,7 @@ const Sessions = () => {
                         <span className="option-icon">🟢</span>
                         <span className="option-text">
                           <strong>Available</strong>
-                          <small>Users can purchase</small>
+                          
                         </span>
                       </label>
                       <label className={`toggle-option ${!session.registrationEnabled ? 'active' : ''}`}>
@@ -301,7 +301,7 @@ const Sessions = () => {
                         <span className="option-icon">🔴</span>
                         <span className="option-text">
                           <strong>Unavailable</strong>
-                          <small>Hidden from users</small>
+                         
                         </span>
                       </label>
                     </div>

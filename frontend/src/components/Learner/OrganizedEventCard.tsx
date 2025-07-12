@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import "../../styles/components/learner/OrganizedEventCard.scss";
-import { CalendarDaysIcon, MapPinIcon, MailIcon, UsersIcon } from "lucide-react";
+import { CalendarDays, MapPin, Mail, Users } from "lucide-react";
 import Button from "../Button";
 
 interface OrganizedEventProps {
@@ -21,32 +21,31 @@ interface OrganizedEventProps {
 const OrganizedEventCard: React.FC<{ event: OrganizedEventProps["event"] }> = ({ event }) => {
   return (
     <div className="organized-event-card">
-      <img src={event.imageUrl} alt={event.name} className="organized-event-image" />
+      <img className="organized-image" src={event.imageUrl} alt={event.name} />
 
-      <div className="organized-event-body">
-        <div className="organized-event-header">
-          <h3 className="organized-event-name">{event.name}</h3>
-          <span className="organized-event-category">{event.category}</span>
+      <div className="organized-top-overlay">
+        <div className="organized-header">
+          <h3 className="organized-title">{event.name}</h3>
+          <span className="organized-category">{event.category}</span>
         </div>
 
-        <div className="organized-event-details">
-          <div className="organized-detail"><CalendarDaysIcon /> {new Date(event.date).toLocaleDateString()}</div>
-          <div className="organized-detail"><MapPinIcon /> {event.location}</div>
-          <div className="organized-detail"><MailIcon /> {event.contact}</div>
-          <div className="organized-detail"><UsersIcon /> {event.attendees} expected</div>
-        </div>
-
-        <p className="organized-event-description">{event.description}</p>
-
-        <div className="organized-event-sponsors">
-          <span className="organized-sponsor-label">Sponsored by:</span>
-          <div className="organized-sponsor-list">
+        <div className="organized-sponsors">
+            <span className="sponsored-by-label">Sponsored by:</span>
             {event.sponsors.map((sponsor, idx) => (
-              <span key={idx} className="organized-sponsor">{sponsor}</span>
+                <span className="sponsor-chip" key={idx}>{sponsor}</span>
             ))}
-          </div>
         </div>
 
+      </div>
+
+      <div className="organized-hidden-content">
+        <div className="organized-details">
+          <div className="organized-detail"><CalendarDays size={16} /> {new Date(event.date).toLocaleDateString()}</div>
+          <div className="organized-detail"><MapPin size={16} /> {event.location}</div>
+          <div className="organized-detail"><Mail size={16} /> {event.contact}</div>
+          <div className="organized-detail"><Users size={16} /> {event.attendees} expected</div>
+        </div>
+        <p className="organized-description">{event.description}</p>
         <Button className="organized-register-btn" onClick={() => alert(`Registering for ${event.name}`)}>
           Register Now
         </Button>

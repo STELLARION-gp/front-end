@@ -1,129 +1,167 @@
 .organized-events-container {
-//   display: grid;
-//   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   display: flex;
   flex-wrap: wrap;
-  gap: 1.2rem;
+  gap: 1.5rem;
   margin-top: 2rem;
+  align-items: flex-start; // prevent height sync
 
   .organized-event-card {
-    background: linear-gradient(145deg, #111827, #1f2937);
+    position: relative;
     border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
-    transition: all 0.3s ease;
     width: 400px;
+    background: #1e293b;
+    // box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 30px rgba(59, 130, 246, 0.4), 0 4px 24px rgba(37, 99, 235, 0.18);
+    animation: glowingPulse 3s infinite ease-in-out;
 
-    &:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
-    }
-
-    .organized-event-image {
+    .organized-image {
       width: 100%;
-      height: 200px;
+      height: 220px;
       object-fit: cover;
-      border-bottom: 2px solid rgba(255, 255, 255, 0.05);
     }
 
-    .organized-event-body {
-      padding: 1.5rem;
+    .organized-top-overlay {
+      padding: 1rem;
+      background: rgba(30, 41, 59, 0.9);
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
-    }
+      gap: 0.75rem;
 
-    .organized-event-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1rem;
-
-      .organized-event-name {
-        font-size: 1.3rem;
-        font-weight: 700;
-        color: #ffffff;
-      }
-
-      .organized-event-category {
-        background: linear-gradient(90deg, #06b6d4, #3b82f6);
-        padding: 0.3rem 0.8rem;
-        border-radius: 999px;
-        font-size: 0.75rem;
-        color: #fff;
-        font-weight: 600;
-      }
-    }
-
-    .organized-event-details {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      margin-bottom: 1rem;
-
-      .organized-detail {
+      .organized-header {
         display: flex;
+        justify-content: space-between;
         align-items: center;
-        gap: 0.5rem;
-        font-size: 0.88rem;
-        color: #d1d5db;
 
-        svg {
-          width: 16px;
-          height: 16px;
-          color: #60a5fa;
+        .organized-title {
+          color: #fff;
+          font-size: 1.2rem;
+          font-weight: 700;
         }
-      }
-    }
 
-    .organized-event-description {
-      font-size: 0.92rem;
-      color: rgba(255, 255, 255, 0.8);
-      line-height: 1.6;
-      margin-bottom: 1rem;
-    }
-
-    .organized-event-sponsors {
-      .organized-sponsor-label {
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: #93c5fd;
-        margin-bottom: 0.5rem;
-        display: inline-block;
-      }
-
-      .organized-sponsor-list {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-
-        .organized-sponsor {
-          background: linear-gradient(90deg, #fbbf24, #f59e0b);
-          padding: 0.4rem 0.8rem;
+        .organized-category {
+          background: linear-gradient(90deg, #06b6d4, #3b82f6);
+          color: #fff;
+          padding: 0.3rem 0.75rem;
+          font-size: 0.75rem;
           border-radius: 999px;
-          font-size: 0.8rem;
           font-weight: 600;
-          color: #111827;
-          box-shadow: 0 0 10px rgba(251, 191, 36, 0.4);
+          white-space: nowrap;
+        }
+      }
+
+      .organized-sponsors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+
+  .sponsored-by-label {
+    font-size: 0.75rem;
+    color: #60a5fa;
+    font-weight: 600;
+    margin-right: 0.5rem;
+  }
+
+  .sponsor-chip {
+    position: relative;
+    background: transparent;
+    color: white;
+    padding: 0.3rem 0.7rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border: 2px solid #3b82f6;
+    box-shadow: 0 0 8px rgba(59, 130, 246, 0.7);
+    overflow: hidden;
+    z-index: 1;
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: conic-gradient(
+        from 0deg,
+        rgba(59, 130, 246, 0.2),
+        rgba(59, 130, 246, 0.8),
+        rgba(59, 130, 246, 0.2)
+      );
+    //   animation: blueShine 2s linear infinite;
+      z-index: -1;
+      filter: blur(2px);
+    }
+  }
+}
+
+@keyframes blueShine {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+    }
+
+    .organized-hidden-content {
+      max-height: 0;
+      opacity: 0;
+      transition: max-height 0.4s ease, opacity 0.4s ease;
+      padding: 0 1rem;
+      overflow: hidden;
+
+      .organized-details {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin: 1rem 0;
+
+        .organized-detail {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          color: #cbd5e1;
+          font-size: 0.85rem;
+
+          svg {
+            color: #60a5fa;
+          }
+        }
+      }
+
+      .organized-description {
+        font-size: 0.9rem;
+        color: #e2e8f0;
+        margin-bottom: 1rem;
+      }
+
+      .organized-register-btn {
+        background: linear-gradient(90deg, #3b82f6, #2563eb);
+        color: white;
+        padding: 0.5rem 1rem;
+        font-weight: 600;
+        font-size: 0.9rem;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        transition: background 0.3s ease;
+
+        &:hover {
+          background: linear-gradient(90deg, #2563eb, #1d4ed8);
         }
       }
     }
 
-    .organized-register-btn {
-      margin-top: 1rem;
-      background: linear-gradient(90deg, #3b82f6, #2563eb);
-      color: white;
-      border: none;
-      padding: 0.6rem 1.2rem;
-      border-radius: 10px;
-      font-weight: 600;
-      font-size: 0.95rem;
-      cursor: pointer;
-      transition: background 0.3s ease;
-
-      &:hover {
-        background: linear-gradient(90deg, #2563eb, #1e40af);
-      }
+    &:hover .organized-hidden-content {
+      max-height: 500px;
+      opacity: 1;
+      padding: 1rem;
     }
   }
 }

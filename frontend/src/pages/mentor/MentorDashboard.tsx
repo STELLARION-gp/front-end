@@ -82,7 +82,7 @@ const MentorDashboard = () => {
           <div style={{ color: '#60a5fa', fontWeight: 500, fontSize: '1.1rem' }}>Let&apos;s inspire another thousand minds!!</div>
         </div>
         <span style={{ marginLeft: 16 }}>
-          <Button className="session-bookmark-btn">
+          <Button className="session-bookmark-btn" onClick={() => navigate('/dashboard/mentornotification')}>
             🔔 Notifications
           </Button>
         </span>

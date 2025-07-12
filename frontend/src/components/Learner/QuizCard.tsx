@@ -36,15 +36,15 @@ const QuizCard: React.FC<QuizCardProps> = ({ quiz, onParticipate, onEdit, isMyQu
 
         <div className="quiz-stats">
           <div className="stat-item">
-            <Clock size={16} className="stat-icon" />
+            <Clock size={14} className="stat-icon" />
             <span>{quiz.time} min</span>
           </div>
           <div className="stat-item">
-            <ListOrdered size={16} className="stat-icon" />
+            <ListOrdered size={14} className="stat-icon" />
             <span>{quiz.questionCount} questions</span>
           </div>
           <div className="stat-item">
-            <Users size={16} className="stat-icon" />
+            <Users size={14} className="stat-icon" />
             <span>{quiz.participantsCount.toLocaleString()} joined</span>
           </div>
         </div>

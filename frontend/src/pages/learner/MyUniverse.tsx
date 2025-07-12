@@ -1,5 +1,5 @@
 // pages/learner/MyUniverse.tsx
-import React, { useState } from 'react';
+import  { useState } from 'react';
 import '../../styles/pages/learner/MyUniverse.scss';
 import {
   Star,
@@ -117,16 +117,16 @@ const MyUniverse = () => {
   };
 
   return (
-    <div className="p-6 text-white bg-[#0f172a]">
-      <div className="justify-between items-center">
+    <div className="universe-my-universe">
+      <div className="juniverse-summary-card">
         <h2>My Universe</h2>
-        <div className="text-sm text-white/80">
+        <div>
           ⭐ Favorites: 6 &nbsp;| 🎯 Competitions: 3 &nbsp;| 📚 Mentor Courses: 1 &nbsp;| 🪐 Services: 2
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-4 flex-wrap mb-6 mt-9">
+      <div className="universe-tabs">
         {tabs.map((tab) => (
           <Button
             key={tab.name}
@@ -141,10 +141,10 @@ const MyUniverse = () => {
       </div>
 
       {/* Content Container */}
-      <div className="bg-white/5 p-6 rounded-xl space-y-4 shadow-inner border border-white/10">
+      <div className="universe-tab-content">
         {activeTab === 'Quizzes' && (
           <>
-            <div className="quiz-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
+            <div className="universe-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
               {sampleQuizzes.map((quiz) => (
                 <QuizCard
                   key={quiz.id}
@@ -251,16 +251,16 @@ const MyUniverse = () => {
 
         {activeTab === 'Favorites' && (
           <>
-            <h3 className="text-lg font-semibold">Favorite Blogs</h3>
-            <ul className="list-disc ml-5 text-white/90">
+            <h3>Favorite Blogs</h3>
+            <ul>
               <li>“10 Facts About Exoplanets”</li>
               <li>“James Webb Discoveries 2025”</li>
             </ul>
 
-            <h3 className="text-lg font-semibold mt-4">Favorite Images</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-white/10 p-3 rounded-lg">🌠 Pillars of Creation</div>
-              <div className="bg-white/10 p-3 rounded-lg">📷 Rosette Nebula</div>
+            <h3>Favorite Images</h3>
+            <div className="universe-grid">
+              <div className="universe-rounded-box">🌠 Pillars of Creation</div>
+              <div className="universe-rounded-box">📷 Rosette Nebula</div>
             </div>
           </>
         )}

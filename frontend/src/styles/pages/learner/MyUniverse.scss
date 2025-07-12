@@ -1,53 +1,91 @@
-.my-universe {
+// src/styles/pages/learner/MyUniverse.scss
+.universe-my-universe {
   padding: 1.5rem;
   background-color: #0f172a;
-//   min-height: 100vh;
   color: white;
 
-  .summary-card {
-    @apply bg-gradient-to-r from-blue-500 to-indigo-600 p-6 rounded-2xl shadow-lg mb-6 flex flex-wrap justify-between items-center;
+  .universe-summary-card {
+    background: linear-gradient(to right, #3b82f6, #6366f1);
+    padding: 1.5rem;
+    border-radius: 1rem;
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.3);
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
   }
 
-  .tabs {
-    @apply flex gap-4 flex-wrap mb-6;
+  .universe-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    margin-top: 1.5rem;
 
-    button {
-      @apply flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all;
+    // button {
+    //   display: flex;
+    //   align-items: center;
+    //   gap: 0.5rem;
+    //   padding: 0.5rem 1rem;
+    //   border-radius: 9999px;
+    //   font-size: 0.875rem;
+    //   font-weight: 600;
+    //   transition: all 0.3s ease;
+    //   background-color: rgba(255, 255, 255, 0.05);
+    //   color: white;
+    //   border: none;
+    //   cursor: pointer;
 
-      &.active {
-        @apply bg-blue-600 text-white shadow-lg;
-      }
+    //   &.universe-active {
+    //     background-color: #2563eb;
+    //     color: white;
+    //     box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+    //   }
 
-      &:not(.active) {
-        @apply bg-white/10 text-white hover:bg-white/20;
-      }
-    }
+    //   &:hover:not(.universe-active) {
+    //     background-color: rgba(255, 255, 255, 0.1);
+    //   }
+    // }
   }
 
-  .tab-content {
-    @apply bg-white/5 p-6 rounded-xl space-y-4 shadow-inner border border-white/10;
+  .universe-tab-content {
+    background-color: rgba(255, 255, 255, 0.05);
+    padding: 1.5rem;
+    border-radius: 1rem;
+    box-shadow: inset 0 2px 8px rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 
     h3, h4 {
-      @apply text-lg font-semibold;
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
     }
 
     ul {
-      @apply list-disc ml-5 text-white/90;
+      list-style: disc;
+      margin-left: 1.25rem;
+      color: rgba(255, 255, 255, 0.9);
     }
 
-    .card {
-      @apply p-4 bg-blue-900/30 rounded-lg flex justify-between;
+    .universe-card {
+      padding: 1rem;
+      background-color: rgba(30, 64, 175, 0.3);
+      border-radius: 0.75rem;
+      display: flex;
+      justify-content: space-between;
     }
 
-    .grid {
-      /* replace @apply with explicit CSS */
+    .universe-grid {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: 1rem;
     }
 
-    .rounded-box {
-      @apply bg-white/10 p-3 rounded-lg;
+    .universe-rounded-box {
+      background-color: rgba(255, 255, 255, 0.1);
+      padding: 0.75rem;
+      border-radius: 0.5rem;
     }
   }
 }

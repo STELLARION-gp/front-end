@@ -54,6 +54,8 @@ import Competitions from '../pages/influencer/competitions';
 import MyBlogs from '../pages/influencer/myblogs';
 import Vlogs from '../pages/influencer/Vlogs';
 
+import Quizzes from '../pages/enthuasist/Quizzes';
+import Sessions from '../pages/influencer/Sessions';
 
 // Create placeholder components for different pages - all memoized
 // const BlogsPage = memo(() => (

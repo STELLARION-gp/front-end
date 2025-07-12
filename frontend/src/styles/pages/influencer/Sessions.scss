@@ -140,6 +140,119 @@
   }
 }
 
+// Custom radio toggle styles
+.registration-control-section {
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+
+  .control-header {
+    margin-bottom: 1rem;
+    
+    h4 {
+      color: var(--text-primary);
+      margin: 0 0 0.5rem 0;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+    
+    .control-description {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin: 0;
+    }
+  }
+}
+
+.registration-toggle {
+  .toggle-options {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+
+    @media (max-width: 480px) {
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+  }
+
+  .toggle-option {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    flex: 1;
+    min-width: 200px;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+    }
+
+    &.active {
+      background: rgba(var(--primary-color-rgb), 0.15);
+      border-color: var(--primary-color);
+      box-shadow: 0 4px 12px rgba(var(--primary-color-rgb), 0.2);
+
+      .option-icon {
+        background: var(--primary-color);
+        color: white;
+      }
+
+      .option-text {
+        strong {
+          color: var(--primary-color);
+        }
+      }
+    }
+
+    input[type="radio"] {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .option-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .option-text {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+
+      strong {
+        color: var(--text-primary);
+        font-size: 0.95rem;
+        transition: color 0.3s ease;
+      }
+
+      small {
+        color: var(--text-secondary);
+        font-size: 0.8rem;
+      }
+    }
+
+  }
+  }
+
 .all-sessions-list {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;

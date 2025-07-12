@@ -55,6 +55,38 @@ const sampleQuizzes = [
     participantsCount: 456,
   },
 ];
+const sampleLeaderboard = [
+  {
+    id: 1,
+    username: "Alice",
+    avatar: "🧑‍🚀",
+    rank: 1,
+    totalScore: 9800,
+    quizzesCompleted: 45,
+    averageScore: 92,
+    badges: ["Galaxy Master", "Quiz Streak"],
+  },
+  {
+    id: 2,
+    username: "Bob",
+    avatar: "👨‍🔬",
+    rank: 2,
+    totalScore: 9000,
+    quizzesCompleted: 40,
+    averageScore: 88,
+    badges: ["Stellar Student"],
+  },
+  {
+    id: 3,
+    username: "You",
+    avatar: "🧑‍💻",
+    rank: 3,
+    totalScore: 8700,
+    quizzesCompleted: 38,
+    averageScore: 90,
+    badges: ["Quiz Warrior", "Time Challenger", "Fast Learner"],
+  },
+];
 
 const MyUniverse = () => {
   const [activeTab, setActiveTab] = useState("Quizzes");
@@ -93,21 +125,111 @@ const MyUniverse = () => {
         ))}
       </div>
 
-      {/* Tab Content */}
+      {/* quize container */}
       <div className="bg-white/5 p-6 rounded-xl space-y-4 shadow-inner border border-white/10">
         {activeTab === "Quizzes" && (
-          <div className="quiz-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
-            {sampleQuizzes.map((quiz: Quiz) => (
-              <QuizCard
-                key={quiz.id}
-                quiz={quiz}
-                onParticipate={handleParticipate}
-                onEdit={handleEdit}
-                isMyQuiz={false}
-              />
-            ))}
+          <>
+            <div className="quiz-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' , margin: '1.5rem' , height:'400px'}}>
+              {sampleQuizzes.map((quiz: Quiz) => (
+                <QuizCard
+                  key={quiz.id}
+                  quiz={quiz}
+                  onParticipate={handleParticipate}
+                  onEdit={handleEdit}
+                  isMyQuiz={false}
+                />
+              ))}
+            </div>
+            <div className="leaderboard-section mt-10">
+              <div className="leaderboard-header">
+                <h2>Leaderboard</h2>
+                <p style={{marginLeft:'500px'}}>Top performers in astronomy quizzes</p>
+              </div>
 
-          </div>
+              <div className="leaderboard-table">
+                <div className="leaderboard-table-header">
+                  <div>Rank</div>
+                  <div>User</div>
+                  <div>Total Score</div>
+                  <div>Quizzes</div>
+                  <div>Average</div>
+                  <div>Badges</div>
+                </div>
+
+                <div className="leaderboard-entries">
+                  {sampleLeaderboard.map((entry) => (
+                    <div
+                      key={entry.id}
+                      className={`leaderboard-entry ${entry.username === "You" ? "current-user" : ""}`}
+                    >
+                      <div className="rank-col">
+                        <div className={`rank-badge ${entry.rank <= 3 ? `rank-${entry.rank}` : ""}`}>
+                          {entry.rank <= 3 && (
+                            <svg className="trophy-icon" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M6 2h12v3h2a1 1 0 011 1v6a3 3 0 01-3 3h-2.17l1.79 4.47A1 1 0 0116.82 21H7.18a1 1 0 01-.89-1.53L8.17 15H6a3 3 0 01-3-3V6a1 1 0 011-1h2V2zm2 3v10h8V5H8zm6 11H10l-.5 1.25h4l-.5-1.25z" />
+                            </svg>
+                          )}
+                          #{entry.rank}
+                        </div>
+                      </div>
+
+                      <div className="user-col">
+                        <div className="user-info">
+                          <span className="user-avatar">{entry.avatar}</span>
+                          <div className="user-details">
+                            <span className="username">{entry.username}</span>
+                            {entry.username === "You" && (
+                              <span className="current-user-badge">You</span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="score-col">
+                        <span className="score-number">{entry.totalScore.toLocaleString()}</span>
+                      </div>
+
+                      <div className="quizzes-col">
+                        <span className="quiz-count">{entry.quizzesCompleted}</span>
+                      </div>
+
+                      <div className="average-col">
+                        <span className="average-score">{entry.averageScore}%</span>
+                      </div>
+
+                      <div className="badges-col">
+                        <div className="badges-list">
+                          {entry.badges.length > 0 ? (
+                            entry.badges.slice(0, 2).map((badge, index) => (
+                              <span key={index} className="badge">{badge}</span>
+                            ))
+                          ) : (
+                            <span className="no-badges">-</span>
+                          )}
+                          {entry.badges.length > 2 && (
+                            <span className="more-badges">+{entry.badges.length - 2}</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="leaderboard-footer">
+                <div className="ranking-info">
+                  <h4>How Rankings Work</h4>
+                  <ul>
+                    <li>Rankings are based on total points earned across all completed quizzes</li>
+                    <li>Points are awarded based on quiz difficulty and completion time</li>
+                    <li>Badges are earned for various achievements and milestones</li>
+                    <li>Rankings are updated in real-time as new quizzes are completed</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+          </>
         )}
 
         {/* ...other tabs content unchanged */}

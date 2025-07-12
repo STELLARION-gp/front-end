@@ -148,7 +148,7 @@ const organizedEvents = [
     id: 1,
     name: "Astro Discovery Workshop",
     category: "Workshop",
-    imageUrl: "https://ras.ac.uk/sites/default/files/styles/media_demo_full_cropped/public/2022-01/Cover.Music_.Feb%2022%20jpegcopy_0.jpg?h=9eff7996&itok=UI1axsVx",
+    imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQdtIgJnLi_IClK8CtccZnSRMdcA-sSMJ9u4w&s",
     date: "2025-08-25",
     location: "Colombo Planetarium",
     contact: "astrolearn@platform.com",
@@ -160,7 +160,7 @@ const organizedEvents = [
     id: 2,
     name: "Night Sky Observation Camp",
     category: "Camp",
-    imageUrl: "https://www.hola.com/us/horizon/landscape/7815694e3ee3-gettyimages-1354937085.jpg?im=Resize=(640),type=downsize",
+    imageUrl: "https://cdn.mos.cms.futurecdn.net/Yad64zizbbNCtXS5eZGMgB.jpg",
     date: "2025-09-20",
     location: "Hanthana Observation Deck",
     contact: "camp@astro.lk",
@@ -169,16 +169,16 @@ const organizedEvents = [
     sponsors: ["Celestia Society", "AstroLens"]
   },
   {
-    id: 2,
-    name: "Night Sky Observation Camp",
-    category: "Camp",
-    imageUrl: "https://www.hola.com/us/horizon/landscape/7815694e3ee3-gettyimages-1354937085.jpg?im=Resize=(640),type=downsize",
-    date: "2025-09-20",
-    location: "Hanthana Observation Deck",
-    contact: "camp@astro.lk",
-    attendees: 80,
-    description: "Enjoy the stars in a full-night observation camp with astronomers.",
-    sponsors: ["Celestia Society", "AstroLens"]
+    id: 3,
+    name: "Galactic Odyssey",
+    category: "Astronomy",
+    imageUrl: "https://thumbs.dreamstime.com/b/spacecraft-traveling-stars-galactic-odyssey-exploration-interstellar-journey-high-quality-photo-300649665.jpg",
+    date: "2025-09-21T19:00:00",
+    location: "National Planetarium, Colombo",
+    contact: "astro@galaxyfest.org",
+    attendees: 500,
+    description: "Embark on a breathtaking expedition across galaxies at Galactic Odyssey! Witness live telescope demos, space talks from top scientists, VR exploration zones, and interact with Sri Lanka’s top astronomy clubs. A cosmic experience for stargazers and dreamers alike.",
+    sponsors: ["NASA", "SpaceX", "Astro Lanka"]
   }
 ];
 const Preview = () => {
@@ -186,6 +186,7 @@ const Preview = () => {
   return (
     <div className="preview-content">
       <h2>Recent Blog Preview</h2>
+      <p className="section-subtitle">Stay informed with our newest blog posts. </p>
       <div className="astronomy-card-container">
         {blogs.map((blog) => (
           <AstronomyBlogCard
@@ -202,23 +203,18 @@ const Preview = () => {
     </div>
 
     
-    <h2 style={{ marginTop: "2rem" }}>Most Rated NASA Images</h2>
+    <h2 style={{ marginTop: "4rem" }}>Most Rated NASA Images</h2>
+    <p className="section-subtitle">Explore breathtaking NASA images loved by our community. </p>
     <div className="nasa-image-container">
       {nasaImages.map(img => (
         <NasaImageCard key={img.id} image={img.image} title={img.title} rating={img.rating} />
       ))}
     </div>
 
-    {/* Platform-Organized Events */}
-      <h2 style={{ marginTop: "2rem" }}>Featured Events for Learners</h2>
-      <p className="section-subtitle">Join exclusive events organized by our platform. Limited seats. Sponsored by top astronomy organizations.</p>
-      <div className="organized-events-container">
-        {organizedEvents.map((event) => (
-          <OrganizedEventCard key={event.id} event={event} />
-        ))}
-      </div>
+    
     {/* upcoming events */}
-    <h2 style={{ marginTop: "2rem" }}>Upcoming Space Events</h2>
+    <h2 style={{ marginTop: "4rem" }}>Upcoming Space Events</h2>
+    <p className="section-subtitle">Don't miss your chance to witness the wonders of the night sky.</p>
     <div className="space-events-container">
       {spaceEvents.map(ev => (
         // <UpcomingEventCard key={ev.id} event={ev} />
@@ -236,8 +232,18 @@ const Preview = () => {
       ))}
     </div>
 
+      {/* Platform-Organized Events */}
+      <h2 style={{ marginTop: "4rem" }}>Featured Events for Learners</h2>
+      <p className="section-subtitle">Join exclusive events organized by our platform. Limited seats. </p>
+      <div className="organized-events-container">
+        {organizedEvents.map((event) => (
+          <OrganizedEventCard key={event.id} event={event} />
+        ))}
+      </div>
+
     {/* upcoming competitions */}
-    <h2 style={{ marginTop: "2rem" }}>Upcoming Competitions</h2>
+    <h2 style={{ marginTop: "4rem" }}>Upcoming Competitions</h2>
+    <p className="section-subtitle">Show off your skills and shine among the stars.</p>
     <div className="competitions-container">
       {competitions.map(comp => (
         <AstronomyCompetitionCard

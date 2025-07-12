@@ -451,36 +451,28 @@ const Influencers = () => {
     <div className="influencers-page">
       <div className="page-header">
         <h1>Astronomy Influencers</h1>
-        {/* <p>Connect with experts and enthusiasts in the astronomy community</p> */}
       </div>
 
-      <div className="tabs-container">
-        <div className="tabs">
-          <Button 
-            variant={activeTab === 'discover' ? 'primary' : 'secondary'}
-            size="small"
-            onClick={() => setActiveTab('discover')}
-            className="tab"
-          >
-            Discover
-          </Button>
-          <Button 
-            variant={activeTab === 'followings' ? 'primary' : 'secondary'}
-            size="small"
-            onClick={() => setActiveTab('followings')}
-            className="tab"
-          >
-            Following ({influencers.filter(i => i.isFollowing).length})
-          </Button>
-          <Button 
-            variant={activeTab === 'events' ? 'primary' : 'secondary'}
-            size="small"
-            onClick={() => setActiveTab('events')}
-            className="tab"
-          >
-            Events
-          </Button>
-        </div>
+      {/* Change from tabs-container to influencers__navigation to match other pages */}
+      <div className="influencers__navigation">
+        <Button 
+          variant={activeTab === 'discover' ? 'primary' : 'secondary'}
+          onClick={() => setActiveTab('discover')}
+        >
+          Discover
+        </Button>
+        <Button 
+          variant={activeTab === 'followings' ? 'primary' : 'secondary'}
+          onClick={() => setActiveTab('followings')}
+        >
+          Following ({influencers.filter(i => i.isFollowing).length})
+        </Button>
+        <Button 
+          variant={activeTab === 'events' ? 'primary' : 'secondary'}
+          onClick={() => setActiveTab('events')}
+        >
+          Events
+        </Button>
       </div>
 
       {/* Search Bar - Only show for discover and followings tabs */}

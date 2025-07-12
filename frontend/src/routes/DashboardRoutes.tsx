@@ -23,6 +23,8 @@ import MediaUploadPanel from '../pages/guide/MediaUploadPanel';
 
 import MentorProfile from '../pages/mentor/MentorProfile';
 import EditMentor from '../pages/mentor/EditMentor';
+import MentorDashboard from '../pages/mentor/MentorDashboard';
+
 
 import GuideMediaDashboard from '../pages/guide/GuideMediaDashboard';
 // import MentorProfile from '../pages/mentor/MentorProfile';
@@ -32,6 +34,7 @@ import PreviousTours from '../pages/guide/PreviousTours';
 import TourChat from '../pages/guide/TourChat';
 
 import BookingRequests from '../pages/guide/BookingRequests';
+import CampGuideApplication from '../pages/guide/CampGuideApplication';
 import AstroHub from '../pages/enthuasist/AstroHub';
 import CelestialEventsPage from '../pages/learner/Celestial_Events_Page';
 import Volunteering from '../pages/enthuasist/Volunteering';
@@ -44,16 +47,11 @@ import Mentors from '../pages/learner/Mentors';
 import ApplyMentor from '../pages/learner/ApplyMentor';
 import AstronomyServices from '../pages/learner/AstronomyServices';
 import AstronomyServiceDetails from '../pages/learner/AstronomyServiceDetails';
-import Quizzes from '../pages/enthuasist/Quizzes';
-//import { Session } from 'inspector/promises';
-import Sessions from '../pages/influencer/Sessions';
 import GuideDetails from '../pages/learner/GuideDetails';
 import CompetitionPage from '../pages/learner/CompetitionPage';
-
 import Competitions from '../pages/influencer/competitions';
 import MyBlogs from '../pages/influencer/myblogs';
 import Vlogs from '../pages/influencer/Vlogs';
-
 import Quizzes from '../pages/enthuasist/Quizzes';
 import Sessions from '../pages/influencer/Sessions';
 
@@ -160,7 +158,6 @@ const DashboardRoutes = () => {
                     <DashboardOverview />
                 </RoleGuard>} 
             />
-
             <Route path="profile" element={<Profile />} />
             <Route path="settings" element={<Settings />} />
 
@@ -278,6 +275,15 @@ const DashboardRoutes = () => {
                 }
             />
 
+            <Route
+                path="camp-guide-application"
+                element={
+                    <RoleGuard allowedRoles={['guide']}>
+                        <CampGuideApplication />
+                    </RoleGuard>
+                }
+            />
+
 
             <Route
                 path="booking-requests"
@@ -288,44 +294,6 @@ const DashboardRoutes = () => {
                 }
             />
 
-            <Route
-                path="competitions"
-                element={
-                    <RoleGuard allowedRoles={['influencer']}>
-                    <Competitions />
-                    </RoleGuard>
-                }
-             />
-        
-            <Route
-                path="myblogs"
-                element={
-                    <RoleGuard allowedRoles={['influencer']}>
-                    <MyBlogs />
-                    </RoleGuard>
-                }
-             />    
-
-            <Route
-                path="confirmed-bookings"
-                element={<ConfirmedBookings />}
-            />
-
-            <Route
-                path="previous-tours"
-                element={<PreviousTours />}
-            />
-
-            <Route
-                path="tour-chat"
-                element={
-                    <RoleGuard allowedRoles={['guide', 'admin']}>
-                        <TourChat />
-                    </RoleGuard>
-                }
-            />
-
-        
             <Route
                 path="confirmed-bookings"
                 element={<ConfirmedBookings />}
@@ -417,23 +385,94 @@ const DashboardRoutes = () => {
                 }
             />
 
-            <Route
-                path="editmentor"
-                element={
-                    <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
-                        <EditMentor />
-                    </RoleGuard>
-                }
-            />
+                <Route
+                    path="editmentor"
+                    element={
+                        <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
+                            <EditMentor />
+                        </RoleGuard>
+                    }
+                />
+                <Route
+                    path="mentordashboard"
+                    element={
+                        <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
+                            <MentorDashboard />
+                        </RoleGuard>
+                    }
+                />
 
-            <Route
-                path="night-camps"
-                element={
-                    <RoleGuard allowedRoles={['enthusiast','learner','guide']}>
-                        <NightCamps />
-                    </RoleGuard>
-                }
-            />
+                <Route
+                    path="mentorshiprequest"
+                    element={
+                        <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
+                            <MentorshipRequest />
+                        </RoleGuard>
+                    }
+                />
+                <Route
+                    path="mentees"
+                    element={
+                        <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
+                            <Mentees/>
+                        </RoleGuard>
+                    }
+                />
+                
+                <Route
+                    path="mentee-profile"
+                    element={
+                        <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
+                            <MenteeProfile/>
+                        </RoleGuard>
+                    }
+                />
+                <Route
+                    path="menteerequest"
+                    element={
+                        <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
+                            <MenteeRequest />
+                        </RoleGuard>
+                    }
+                />
+
+                {/* <Route
+                    path="recommended-contents"
+                    element={
+                        <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
+                            <RecommendedContents />
+                        </RoleGuard>
+                    }
+                />
+                <Route
+                    path="recommended-events"
+                    element={
+                        <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
+                            <RecommendedEvents />
+                        </RoleGuard>
+                    }
+                />
+                <Route
+                    path="recommend-events"
+                    element={
+                        <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
+                            <RecommendEventsPage />
+                        </RoleGuard>
+                    }
+                />
+                
+                />
+                
+                
+                 */}
+                <Route
+                    path="night-camps"
+                    element={
+                        <RoleGuard allowedRoles={['enthusiast','learner','guide']}>
+                            <NightCamps />
+                        </RoleGuard>
+                    }
+                />
 
                 <Route
                 path="stargazing"

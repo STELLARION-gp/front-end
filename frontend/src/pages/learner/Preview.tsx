@@ -167,6 +167,18 @@ const organizedEvents = [
     attendees: 80,
     description: "Enjoy the stars in a full-night observation camp with astronomers.",
     sponsors: ["Celestia Society", "AstroLens"]
+  },
+  {
+    id: 2,
+    name: "Night Sky Observation Camp",
+    category: "Camp",
+    imageUrl: "https://www.hola.com/us/horizon/landscape/7815694e3ee3-gettyimages-1354937085.jpg?im=Resize=(640),type=downsize",
+    date: "2025-09-20",
+    location: "Hanthana Observation Deck",
+    contact: "camp@astro.lk",
+    attendees: 80,
+    description: "Enjoy the stars in a full-night observation camp with astronomers.",
+    sponsors: ["Celestia Society", "AstroLens"]
   }
 ];
 const Preview = () => {

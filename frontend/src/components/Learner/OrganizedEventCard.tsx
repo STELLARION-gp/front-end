@@ -21,37 +21,35 @@ interface OrganizedEventProps {
 const OrganizedEventCard: React.FC<{ event: OrganizedEventProps["event"] }> = ({ event }) => {
   return (
     <div className="organized-event-card">
-      <div className="organized-event-image">
-        <img src={event.imageUrl} alt={event.name} />
-      </div>
+      <img src={event.imageUrl} alt={event.name} className="organized-event-image" />
 
-      <div className="organized-event-content">
-        <div className="organized-header">
-          <h3 className="organized-title">{event.name}</h3>
-          <span className="organized-category">{event.category}</span>
+      <div className="organized-event-body">
+        <div className="organized-event-header">
+          <h3 className="organized-event-name">{event.name}</h3>
+          <span className="organized-event-category">{event.category}</span>
         </div>
 
-        <div className="organized-details">
-          <div className="organized-detail"><CalendarDaysIcon size={16} /> {new Date(event.date).toLocaleDateString()}</div>
-          <div className="organized-detail"><MapPinIcon size={16} /> {event.location}</div>
-          <div className="organized-detail"><MailIcon size={16} /> {event.contact}</div>
-          <div className="organized-detail"><UsersIcon size={16} /> {event.attendees} expected</div>
+        <div className="organized-event-details">
+          <div className="organized-detail"><CalendarDaysIcon /> {new Date(event.date).toLocaleDateString()}</div>
+          <div className="organized-detail"><MapPinIcon /> {event.location}</div>
+          <div className="organized-detail"><MailIcon /> {event.contact}</div>
+          <div className="organized-detail"><UsersIcon /> {event.attendees} expected</div>
         </div>
 
-        <p className="organized-description">{event.description}</p>
+        <p className="organized-event-description">{event.description}</p>
 
-        <div className="organized-sponsors">
-          <span>Sponsored by: </span>
-          {event.sponsors.map((sponsor, index) => (
-            <span key={index} className="organized-sponsor-tag">{sponsor}</span>
-          ))}
+        <div className="organized-event-sponsors">
+          <span className="organized-sponsor-label">Sponsored by:</span>
+          <div className="organized-sponsor-list">
+            {event.sponsors.map((sponsor, idx) => (
+              <span key={idx} className="organized-sponsor">{sponsor}</span>
+            ))}
+          </div>
         </div>
 
-        <div className="organized-action">
-          <Button onClick={() => alert(`Registering for ${event.name}`)} className="organized-register-btn">
-            Register Now
-          </Button>
-        </div>
+        <Button className="organized-register-btn" onClick={() => alert(`Registering for ${event.name}`)}>
+          Register Now
+        </Button>
       </div>
     </div>
   );

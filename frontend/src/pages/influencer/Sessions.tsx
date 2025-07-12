@@ -322,11 +322,7 @@ const Sessions = () => {
   const renderNewSession = () => (
     <div className="new-session-form">
       <div className="form-header">
-        <Button 
-          onClick={() => setActiveTab('my-sessions')}
-        >
-          ← Back to My Sessions
-        </Button>
+        
       </div>
       <h2>Create New Session</h2>
       <form className="session-form">
@@ -538,65 +534,206 @@ const Sessions = () => {
 
   const renderAnalytics = () => (
     <div className="analytics-dashboard">
-      <h2>My Sessions Analytics</h2>
-      
-      <div className="analytics-grid">
-        <div className="chart-container">
-          <h3>My Sessions Earnings Trend</h3>
-          <div className="chart-placeholder">
-            <div className="chart-bars">
-              <div className="bar" style={{height: '60%'}}></div>
-              <div className="bar" style={{height: '80%'}}></div>
-              <div className="bar" style={{height: '45%'}}></div>
-              <div className="bar" style={{height: '90%'}}></div>
-              <div className="bar" style={{height: '70%'}}></div>
-              <div className="bar" style={{height: '95%'}}></div>
+      <div className="analytics-header">
+        <h2>My Sessions Analytics</h2>
+        <div className="analytics-filters">
+          <select className="date-range-filter">
+            <option value="week">Last Week</option>
+            <option value="month">Last Month</option>
+            <option value="quarter">Last Quarter</option>
+            <option value="year">Last Year</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="analytics-summary">
+        <div className="summary-card total-revenue">
+          <div className="card-icon">💰</div>
+          <div className="card-content">
+            <h4>Total Revenue</h4>
+            <p className="amount">LKR 412,400</p>
+            <span className="trend positive">+12.5% vs last period</span>
+          </div>
+        </div>
+        <div className="summary-card total-sessions">
+          <div className="card-icon">📅</div>
+          <div className="card-content">
+            <h4>Total Sessions</h4>
+            <p className="amount">24</p>
+            <span className="trend positive">+8.3% vs last period</span>
+          </div>
+        </div>
+        <div className="summary-card average-rating">
+          <div className="card-icon">⭐</div>
+          <div className="card-content">
+            <h4>Average Rating</h4>
+            <p className="amount">4.8</p>
+            <span className="trend positive">+0.2 vs last period</span>
+          </div>
+        </div>
+        <div className="summary-card total-students">
+          <div className="card-icon">👥</div>
+          <div className="card-content">
+            <h4>Total Students</h4>
+            <p className="amount">245</p>
+            <span className="trend positive">+15.8% vs last period</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="analytics-sections">
+        <div className="live-sessions-analytics">
+          <div className="section-header">
+            <h3>Live Sessions Performance</h3>
+            <div className="section-actions">
+              <button className="action-btn">Export Report</button>
             </div>
-            <div className="chart-labels">
-              <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span>
+          </div>
+          <div className="analytics-grid">
+            <div className="chart-container">
+              <h4>Attendance Trend</h4>
+              <div className="interactive-chart">
+                <div className="chart-bars">
+                  {[65, 80, 75, 90, 85, 95].map((height, index) => (
+                    <div 
+                      key={index} 
+                      className="bar-wrapper"
+                      data-value={`${height}%`}
+                    >
+                      <div 
+                        className="bar" 
+                        style={{height: `${height}%`}}
+                      ></div>
+                    </div>
+                  ))}
+                </div>
+                <div className="chart-labels">
+                  <span>Mon</span>
+                  <span>Tue</span>
+                  <span>Wed</span>
+                  <span>Thu</span>
+                  <span>Fri</span>
+                  <span>Sat</span>
+                </div>
+              </div>
+            </div>
+            <div className="metrics-container">
+              <div className="metric-card">
+                <h5>Completion Rate</h5>
+                <div className="circular-progress" data-progress="92">
+                  <svg viewBox="0 0 36 36">
+                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                  </svg>
+                  <span className="percentage">92%</span>
+                </div>
+              </div>
+              <div className="metric-card">
+                <h5>Average Duration</h5>
+                <p className="metric-value">75 mins</p>
+                <span className="metric-label">per session</span>
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="analytics-stats">
-          <h3>My Performance Metrics</h3>
-          <div className="metrics-grid">
-            <div className="metric-item">
-              <span className="metric-value">89%</span>
-              <span className="metric-label">My Attendance Rate</span>
+        <div className="recorded-sessions-analytics">
+          <div className="section-header">
+            <h3>Recorded Sessions Performance</h3>
+            <div className="section-actions">
+              <button className="action-btn">Export Report</button>
             </div>
-            <div className="metric-item">
-              <span className="metric-value">4.8</span>
-              <span className="metric-label">My Avg Rating</span>
+          </div>
+          <div className="analytics-grid">
+            <div className="chart-container">
+              <h4>Purchase Trend</h4>
+              <div className="interactive-chart">
+                <div className="chart-bars">
+                  {[45, 60, 75, 85, 70, 90].map((height, index) => (
+                    <div 
+                      key={index} 
+                      className="bar-wrapper"
+                      data-value={`${height}%`}
+                    >
+                      <div 
+                        className="bar secondary" 
+                        style={{height: `${height}%`}}
+                      ></div>
+                    </div>
+                  ))}
+                </div>
+                <div className="chart-labels">
+                  <span>Mon</span>
+                  <span>Tue</span>
+                  <span>Wed</span>
+                  <span>Thu</span>
+                  <span>Fri</span>
+                  <span>Sat</span>
+                </div>
+              </div>
             </div>
-            <div className="metric-item">
-              <span className="metric-value">156</span>
-              <span className="metric-label">My Total Reviews</span>
-            </div>
-            <div className="metric-item">
-              <span className="metric-value">LKR 140,400</span>
-              <span className="metric-label">My Earnings This Month</span>
+            <div className="metrics-container">
+              <div className="metric-card">
+                <h5>Watch Rate</h5>
+                <div className="circular-progress" data-progress="85">
+                  <svg viewBox="0 0 36 36">
+                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                  </svg>
+                  <span className="percentage">85%</span>
+                </div>
+              </div>
+              <div className="metric-card">
+                <h5>Total Watch Time</h5>
+                <p className="metric-value">1,245 hrs</p>
+                <span className="metric-label">all time</span>
+              </div>
             </div>
           </div>
         </div>
+      </div>
 
-        <div className="reviews-section">
-          <h3>Recent Reviews for My Sessions</h3>
-          <div className="reviews-list">
-            <div className="review-item">
-              <div className="review-rating">⭐⭐⭐⭐⭐</div>
-              <p>"Amazing session on deep space photography!"</p>
-              <span className="review-author">- Sarah K.</span>
+      <div className="engagement-section">
+        <h3>Student Engagement</h3>
+        <div className="engagement-metrics">
+          <div className="engagement-card">
+            <h4>Recent Reviews</h4>
+            <div className="reviews-list">
+              {/*
+                Mock reviews data
+              */}
+              { [
+                { rating: 5, comment: "Excellent teaching style!", author: "Sarah K." },
+                { rating: 4, comment: "Very informative session", author: "Mike D." },
+                { rating: 5, comment: "Great practical examples", author: "Lisa M." }
+              ].map((review, index) => (
+                <div key={index} className="review-item">
+                  <div className="review-rating">
+                    {"⭐".repeat(review.rating)}
+                  </div>
+                  <p className="review-comment">{review.comment}</p>
+                  <span className="review-author">- {review.author}</span>
+                </div>
+              ))}
             </div>
-            <div className="review-item">
-              <div className="review-rating">⭐⭐⭐⭐⭐</div>
-              <p>"Very informative and well structured."</p>
-              <span className="review-author">- Mike D.</span>
-            </div>
-            <div className="review-item">
-              <div className="review-rating">⭐⭐⭐⭐</div>
-              <p>"Great for beginners, highly recommend!"</p>
-              <span className="review-author">- Lisa M.</span>
+          </div>
+          <div className="engagement-card">
+            <h4>Top Performing Sessions</h4>
+            <div className="top-sessions-list">
+              {/*
+                Mock top sessions data
+              */}
+              { [
+                { title: "Deep Space Photography", rating: 4.9, students: 45 },
+                { title: "Planetary Observation", rating: 4.8, students: 38 },
+                { title: "Telescope Setup Guide", rating: 4.7, students: 42 }
+              ].map((session, index) => (
+                <div key={index} className="top-session-item">
+                  <h5>{session.title}</h5>
+                  <div className="session-stats">
+                    <span className="rating">{"⭐".repeat(Math.round(session.rating))}</span>
+                    <span className="students">{session.students} students</span>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>

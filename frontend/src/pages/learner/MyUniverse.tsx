@@ -6,6 +6,8 @@ import {
 } from "lucide-react";
 import QuizCard from "../../components/Learner/QuizCard";
 import Button from "../../components/Button";
+import QuizModal from "../../components/Learner/QuizModal";
+
 
 const tabs = [
   { name: "Quizzes", icon: <BookOpen size={16} /> },
@@ -90,11 +92,23 @@ const sampleLeaderboard = [
 
 const MyUniverse = () => {
   const [activeTab, setActiveTab] = useState("Quizzes");
+  const [showQuizModal, setShowQuizModal] = useState(false);
+const [selectedQuiz, setSelectedQuiz] = useState<Quiz | null>(null);
 
-  // Handlers for quiz card buttons
-  const handleParticipate = (quiz: Quiz) => {
-    alert(`Participate clicked for quiz: ${quiz.name}`);
-  };
+const handleParticipate = (quiz: Quiz) => {
+  setSelectedQuiz(quiz);
+  setShowQuizModal(true);
+};
+
+const handleStartQuiz = () => {
+  console.log("Start quiz:", selectedQuiz?.name);
+  setShowQuizModal(false);
+};
+
+const handleCloseModal = () => {
+  setShowQuizModal(false);
+  setSelectedQuiz(null);
+};
 
   const handleEdit = (quiz: Quiz) => {
     alert(`Edit clicked for quiz: ${quiz.name}`);
@@ -250,7 +264,16 @@ const MyUniverse = () => {
         )}
 
         {/* ... rest of your tabs */}
+        {showQuizModal && selectedQuiz && (
+  <QuizModal
+    quiz={selectedQuiz}
+    onClose={handleCloseModal}
+    onStart={handleStartQuiz}
+  />
+)}
+
       </div>
+
     </div>
   );
 };

@@ -52,6 +52,7 @@ import CompetitionPage from '../pages/learner/CompetitionPage';
 
 import Competitions from '../pages/influencer/competitions';
 import MyBlogs from '../pages/influencer/myblogs';
+import Vlogs from '../pages/influencer/Vlogs';
 
 
 // Create placeholder components for different pages - all memoized
@@ -516,6 +517,14 @@ const DashboardRoutes = () => {
                 }
             />
         
+            <Route
+                path="vlogs"
+                element={
+                    <RoleGuard allowedRoles={['influencer']}>
+                        <Vlogs />
+                    </RoleGuard>
+                }
+            />
 
             {/* Default redirect to overview */}
             <Route path="" element={<Navigate to="overview" replace />} />

@@ -109,6 +109,7 @@ export const ROLE_BASED_MENU_ITEMS = {
         { label: 'Profile', icon: 'UserCircleIcon', href: '/dashboard/profile' },
         { label: 'Blogs', icon: 'BookOpenIcon', href: '/dashboard/blogs' },
         { label: 'My Blogs', icon: 'PencilIcon', href: '/dashboard/myblogs' },
+        { label: 'Vlogs', icon: 'FilmIcon', href: '/dashboard/vlogs' },
         { label: 'Night Camps', icon: 'MoonIcon', href: '/dashboard/night-camps' },
         { label: 'Sessions', icon: 'VideoCameraIcon', href: '/dashboard/sessions-making' },
         { label: 'Stargazing Spot', icon: 'StarIcon', href: '/dashboard/stargazing' },

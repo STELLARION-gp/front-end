@@ -1,50 +1,57 @@
 .organized-events-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 2rem;
-  margin-top: 1.5rem;
+//   display: grid;
+//   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.2rem;
+  margin-top: 2rem;
 
   .organized-event-card {
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    padding: 1.5rem;
+    background: linear-gradient(145deg, #111827, #1f2937);
     border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
     transition: all 0.3s ease;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    width: 400px;
 
     &:hover {
-      background: rgba(255, 255, 255, 0.08);
-      transform: translateY(-4px);
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4), 0 0 12px rgba(56, 189, 248, 0.3);
+      transform: translateY(-5px);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
     }
 
     .organized-event-image {
       width: 100%;
-      height: 180px;
+      height: 200px;
       object-fit: cover;
-      border-radius: 12px;
-      margin-bottom: 1rem;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .organized-event-body {
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
 
     .organized-event-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 0.75rem;
+      margin-bottom: 1rem;
 
       .organized-event-name {
-        font-size: 1.25rem;
-        font-weight: 600;
-        color: var(--text-primary);
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #ffffff;
       }
 
       .organized-event-category {
-        background: linear-gradient(135deg, #10b981, #059669);
-        color: white;
-        padding: 0.25rem 0.75rem;
-        border-radius: 20px;
+        background: linear-gradient(90deg, #06b6d4, #3b82f6);
+        padding: 0.3rem 0.8rem;
+        border-radius: 999px;
         font-size: 0.75rem;
-        font-weight: 500;
+        color: #fff;
+        font-weight: 600;
       }
     }
 
@@ -58,32 +65,31 @@
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        font-size: 0.9rem;
-        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.88rem;
+        color: #d1d5db;
 
         svg {
-          color: #3b82f6;
-          width: 18px;
-          height: 18px;
+          width: 16px;
+          height: 16px;
+          color: #60a5fa;
         }
       }
     }
 
     .organized-event-description {
-      font-size: 0.95rem;
-      color: rgba(255, 255, 255, 0.75);
+      font-size: 0.92rem;
+      color: rgba(255, 255, 255, 0.8);
+      line-height: 1.6;
       margin-bottom: 1rem;
-      line-height: 1.5;
     }
 
     .organized-event-sponsors {
-      margin-bottom: 1rem;
-
       .organized-sponsor-label {
         font-size: 0.85rem;
         font-weight: 600;
-        color: rgba(255, 255, 255, 0.85);
+        color: #93c5fd;
         margin-bottom: 0.5rem;
+        display: inline-block;
       }
 
       .organized-sponsor-list {
@@ -92,31 +98,31 @@
         gap: 0.5rem;
 
         .organized-sponsor {
-          background: rgba(255, 255, 255, 0.1);
-          padding: 0.3rem 0.75rem;
-          border-radius: 9999px;
+          background: linear-gradient(90deg, #fbbf24, #f59e0b);
+          padding: 0.4rem 0.8rem;
+          border-radius: 999px;
           font-size: 0.8rem;
-          font-weight: 500;
-          color: #ffffff;
-          border: 1px solid rgba(255, 255, 255, 0.15);
+          font-weight: 600;
+          color: #111827;
+          box-shadow: 0 0 10px rgba(251, 191, 36, 0.4);
         }
       }
     }
 
     .organized-register-btn {
-      margin-top: auto;
-      background: #3b82f6;
+      margin-top: 1rem;
+      background: linear-gradient(90deg, #3b82f6, #2563eb);
       color: white;
       border: none;
-      padding: 0.5rem 1rem;
+      padding: 0.6rem 1.2rem;
       border-radius: 10px;
       font-weight: 600;
-      font-size: 0.9rem;
+      font-size: 0.95rem;
       cursor: pointer;
       transition: background 0.3s ease;
 
       &:hover {
-        background: #2563eb;
+        background: linear-gradient(90deg, #2563eb, #1e40af);
       }
     }
   }

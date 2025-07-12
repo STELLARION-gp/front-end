@@ -5,6 +5,7 @@ import NasaImageCard from "../../components/Learner/NasaImageCard";
 import UpcomingEventCard from "../../components/Learner/SpaceEvent";
 import '../../styles/pages/learner/preview.scss'
 import UpcomingSpaceEventCard from "../../components/Learner/UpcomingSpaceEventCard";
+import OrganizedEventCard from "../../components/Learner/OrganizedEventCard";
 
 const blogs = [
   {
@@ -142,7 +143,32 @@ const competitions = [
     description: "Capture the night sky and compete with others.",
   },
 ];
-
+const organizedEvents = [
+  {
+    id: 1,
+    name: "Astro Discovery Workshop",
+    category: "Workshop",
+    imageUrl: "https://ras.ac.uk/sites/default/files/styles/media_demo_full_cropped/public/2022-01/Cover.Music_.Feb%2022%20jpegcopy_0.jpg?h=9eff7996&itok=UI1axsVx",
+    date: "2025-08-25",
+    location: "Colombo Planetarium",
+    contact: "astrolearn@platform.com",
+    attendees: 120,
+    description: "Engage in hands-on astronomy experiments and learn from experts.",
+    sponsors: ["NASA", "AstroWorld"]
+  },
+  {
+    id: 2,
+    name: "Night Sky Observation Camp",
+    category: "Camp",
+    imageUrl: "https://www.hola.com/us/horizon/landscape/7815694e3ee3-gettyimages-1354937085.jpg?im=Resize=(640),type=downsize",
+    date: "2025-09-20",
+    location: "Hanthana Observation Deck",
+    contact: "camp@astro.lk",
+    attendees: 80,
+    description: "Enjoy the stars in a full-night observation camp with astronomers.",
+    sponsors: ["Celestia Society", "AstroLens"]
+  }
+];
 const Preview = () => {
   const navigate = useNavigate();
   return (
@@ -170,6 +196,15 @@ const Preview = () => {
         <NasaImageCard key={img.id} image={img.image} title={img.title} rating={img.rating} />
       ))}
     </div>
+
+    {/* Platform-Organized Events */}
+      <h2 style={{ marginTop: "2rem" }}>Featured Events for Learners</h2>
+      <p className="section-subtitle">Join exclusive events organized by our platform. Limited seats. Sponsored by top astronomy organizations.</p>
+      <div className="organized-events-container">
+        {organizedEvents.map((event) => (
+          <OrganizedEventCard key={event.id} event={event} />
+        ))}
+      </div>
     {/* upcoming events */}
     <h2 style={{ marginTop: "2rem" }}>Upcoming Space Events</h2>
     <div className="space-events-container">

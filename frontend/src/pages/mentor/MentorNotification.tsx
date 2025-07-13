@@ -1,5 +1,6 @@
 import React from "react";
 import "../../styles/pages/mentor/MentorNotification.scss";
+import { useMentorPause } from "../../contexts/MentorPauseContext";
 
 interface MentorNotificationProps {
   name: string;
@@ -26,9 +27,28 @@ const notifications = [
 ];
 
 const MentorNotification: React.FC = () => {
+  const { isPaused } = useMentorPause();
+
   return (
     <div className="mentor-notification-container">
       <h2 style={{ color: '#fff', marginBottom: 24 }}>Notifications</h2>
+      
+      {/* Pause Notification */}
+      {isPaused && (
+        <div className="mentor-notification pause-notification">
+          <div className="mentor-notification__content">
+            <div className="mentor-notification__header">
+              <span className="mentor-notification__name">System</span>
+              <span className="mentor-notification__time">Just now</span>
+            </div>
+            <div className="mentor-notification__message">
+              Mentor is currently on a leave.
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Regular Notifications */}
       {notifications.map((n, i) => (
         <div className="mentor-notification" key={i}>
           <div className="mentor-notification__content">

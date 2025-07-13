@@ -24,6 +24,7 @@ import MediaUploadPanel from '../pages/guide/MediaUploadPanel';
 import MentorProfile from '../pages/mentor/MentorProfile';
 import EditMentor from '../pages/mentor/EditMentor';
 import MentorDashboard from '../pages/mentor/MentorDashboard';
+import { MentorPauseProvider } from '../contexts/MentorPauseContext';
 
 
 import GuideMediaDashboard from '../pages/guide/GuideMediaDashboard';
@@ -58,6 +59,7 @@ import MentorshipRequest from '../pages/mentor/MentorshipRequest';
 import Mentees from '../pages/mentor/Mentees';
 import MenteeProfile from '../pages/mentor/MenteeProfile';
 import MenteeRequest from '../pages/mentor/MenteeRequest';
+import MentorNotification from '../pages/mentor/MentorNotification';
 import MyUniverse from '../pages/learner/MyUniverse';
 
 // Create placeholder components for different pages - all memoized
@@ -410,7 +412,9 @@ const DashboardRoutes = () => {
                     path="mentordashboard"
                     element={
                         <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
-                            <MentorDashboard />
+                            <MentorPauseProvider>
+                                <MentorDashboard />
+                            </MentorPauseProvider>
                         </RoleGuard>
                     }
                 />
@@ -449,6 +453,16 @@ const DashboardRoutes = () => {
                     }
                 />
 
+                {/* <Route
+                    path="mentornotification"
+                    element={
+                        <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
+                            <MentorPauseProvider>
+                                <MentorNotification />
+                            </MentorPauseProvider>
+                        </RoleGuard>
+                    }
+                /> */}
                 {/* <Route
                     path="recommended-contents"
                     element={

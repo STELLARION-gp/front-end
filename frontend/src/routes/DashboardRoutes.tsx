@@ -571,6 +571,14 @@ const DashboardRoutes = () => {
                 }
             />
         
+            <Route
+                path="vlogs"
+                element={
+                    <RoleGuard allowedRoles={['influencer']}>
+                        <Vlogs />
+                    </RoleGuard>
+                }
+            />
 
             {/* Default redirect to overview */}
             <Route path="" element={<Navigate to="overview" replace />} />

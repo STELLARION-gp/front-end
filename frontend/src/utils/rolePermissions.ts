@@ -66,6 +66,7 @@ export const PAGE_ACCESS_CONTROL = {
     
     '/dashboard/myblogs': ['influencer'] as UserRole[],
     '/dashboard/vlogs': ['influencer'] as UserRole[],
+    '/dashboard/polls': ['influencer'] as UserRole[],
 
 };
 
@@ -116,6 +117,7 @@ export const ROLE_BASED_MENU_ITEMS = {
         { label: 'Sessions', icon: 'VideoCameraIcon', href: '/dashboard/sessions-making' },
         { label: 'Stargazing Spot', icon: 'StarIcon', href: '/dashboard/stargazing' },
         {label: 'Competitions', icon: 'TrophyIcon', href: '/dashboard/competitions' },
+        {label: 'Polls', icon: 'DocumentTextIcon', href: '/dashboard/polls' },
         { label: 'Astro Hub', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/astrohub' },
         { label: 'Sponsorships', icon: 'CurrencyDollarIcon', href: '/dashboard/sponsorships' },
         { label: 'Settings', icon: 'Cog6ToothIcon', href: '/dashboard/settings' },

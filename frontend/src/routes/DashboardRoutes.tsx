@@ -571,6 +571,15 @@ const DashboardRoutes = () => {
                     </RoleGuard>
                 }
             />
+
+             <Route
+                path="polls"
+                element={
+                    <RoleGuard allowedRoles={['influencer']}>
+                        <Polls />
+                    </RoleGuard>
+                }
+            />
         
 
             {/* Default redirect to overview */}

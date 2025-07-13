@@ -4,7 +4,7 @@ import { sessionIdeasPolls } from "../../components/Learner/sessionIdeasPollsDat
 import Button from "../../components/Button";
 
 // Define SVG icons as components
-const PlusIcon = (props) => (
+const PlusIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 24 24"
@@ -16,7 +16,7 @@ const PlusIcon = (props) => (
   </svg>
 );
 
-const ChartBarIcon = (props) => (
+const ChartBarIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 24 24"
@@ -30,7 +30,7 @@ const ChartBarIcon = (props) => (
   </svg>
 );
 
-const CheckIcon = (props) => (
+const CheckIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 24 24"
@@ -42,7 +42,7 @@ const CheckIcon = (props) => (
   </svg>
 );
 
-const TrashIcon = (props) => (
+const TrashIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 24 24"
@@ -60,7 +60,7 @@ const TrashIcon = (props) => (
   </svg>
 );
 
-const EditIcon = (props) => (
+const EditIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 24 24"

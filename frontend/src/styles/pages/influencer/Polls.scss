@@ -204,7 +204,7 @@ $error: #EF4444 !default; // Fallback definition for error color if not defined 
         align-items: center;
         justify-content: center;
         gap: 0.5rem;
-        width:30%;
+        width: 100%;
         margin: auto 0;
         
         &:hover:not(:disabled) {
@@ -221,7 +221,7 @@ $error: #EF4444 !default; // Fallback definition for error color if not defined 
     .create-poll-btn {
       //background: linear-gradient(90deg, rgba($accent-color, 0.8) 0%, rgba($accent-color-light, 0.8) 100%);
       color: white;
-      border: 2px solid;
+      border: 2px solid ;
       border-radius: 8px;
       padding: 0.75rem 1.5rem;
       font-size: 1rem;
@@ -512,6 +512,239 @@ $error: #EF4444 !default; // Fallback definition for error color if not defined 
   }
 }
 
+// Poll Result View Section
+.poll-result-view {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  
+  .result-view-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    
+    .poll-title-area {
+      h3 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: $text-light;
+        margin-bottom: 0.5rem;
+      }
+      
+      .poll-meta {
+        display: flex;
+        gap: 1rem;
+        color: $text-color-secondary;
+        font-size: 0.9rem;
+        
+        .poll-date {
+          display: flex;
+          align-items: center;
+          gap: 0.3rem;
+        }
+        
+        .poll-author {
+          display: flex;
+          align-items: center;
+          gap: 0.3rem;
+        }
+      }
+    }
+    
+    .poll-statistics {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 0.75rem 1.25rem;
+      border-radius: 8px;
+      text-align: center;
+      
+      .votes-count {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: $text-light;
+      }
+      
+      .votes-label {
+        font-size: 0.85rem;
+        color: $text-color-secondary;
+      }
+    }
+  }
+  
+  .poll-description-area {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 1.25rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    border-left: 3px solid $accent-color;
+    
+    p {
+      color: $text-light;
+      font-style: italic;
+      margin: 0;
+    }
+  }
+  
+  .poll-results-area {
+    margin-bottom: 2rem;
+    
+    h4 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: $text-light;
+      margin-bottom: 1rem;
+    }
+  }
+}
+
+// Session Feedback Section
+.session-feedback-section {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1.5rem;
+  margin-top: 2rem;
+  
+  .feedback-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    
+    h3 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: $text-light;
+    }
+    
+    .feedback-count {
+      background: rgba($accent-color, 0.2);
+      color: lighten($accent-color, 15%);
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+  }
+  
+  .feedback-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+    
+    .feedback-card {
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 1.25rem;
+      transition: all 0.3s ease;
+      
+      &:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+      }
+      
+      .feedback-card-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+        
+        img {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          object-fit: cover;
+          border: 2px solid rgba($accent-color, 0.5);
+        }
+        
+        .user-info {
+          flex: 1;
+          
+          .user-name {
+            font-weight: 600;
+            color: $text-light;
+            font-size: 0.95rem;
+          }
+          
+          .feedback-date {
+            font-size: 0.8rem;
+            color: $text-color-secondary;
+          }
+        }
+      }
+      
+      .feedback-content {
+        color: $text-light;
+        font-size: 0.95rem;
+        line-height: 1.5;
+      }
+      
+      .feedback-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.5rem;
+        margin-top: 1rem;
+        
+        button {
+          background: rgba(255, 255, 255, 0.1);
+          border: none;
+          border-radius: 4px;
+          padding: 0.4rem 0.6rem;
+          color: $text-color-secondary;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          
+          &:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: $text-light;
+          }
+        }
+      }
+    }
+  }
+  
+  .no-feedback-message {
+    text-align: center;
+    padding: 2rem 0;
+    color: $text-color-secondary;
+    font-style: italic;
+    
+    svg {
+      opacity: 0.5;
+      margin-bottom: 1rem;
+      width: 48px;
+      height: 48px;
+    }
+  }
+  
+  .load-more-feedback {
+    background: transparent;
+    border: 1px dashed rgba($accent-color-light, 0.5);
+    color: $accent-color-light;
+    border-radius: 8px;
+    padding: 0.75rem;
+    margin: 1.5rem auto 0;
+    display: block;
+    width: 40%;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      background: rgba($accent-color, 0.1);
+      transform: translateY(-2px);
+    }
+  }
+}
+
 // Responsive adjustments
 @media (max-width: 768px) {
   .polls-page {
@@ -564,5 +797,28 @@ $error: #EF4444 !default; // Fallback definition for error color if not defined 
     // button {
     //   white-space: nowrap;
     // }
+  }
+  
+  .poll-result-view {
+    padding: 1.25rem;
+    
+    .result-view-header {
+      flex-direction: column;
+      gap: 1rem;
+      
+      .poll-statistics {
+        align-self: flex-start;
+      }
+    }
+  }
+  
+  .session-feedback-section {
+    .feedback-list {
+      grid-template-columns: 1fr;
+    }
+    
+    .load-more-feedback {
+      width: 100%;
+    }
   }
 }

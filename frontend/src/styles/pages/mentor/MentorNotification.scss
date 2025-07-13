@@ -31,6 +31,44 @@
   &:last-child {
     border-bottom: none;
   }
+  
+  // Pause notification styling
+  &.pause-notification {
+    border-left: 4px solid #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+    border-bottom: 1.5px solid #ef4444;
+    
+    &:hover {
+      background: rgba(239, 68, 68, 0.15);
+    }
+    
+    .mentor-notification__name {
+      color: #ef4444 !important;
+    }
+    
+    .mentor-notification__message {
+      color: #fca5a5 !important;
+    }
+  }
+  
+  // Availability notification styling
+  &.availability-notification {
+    border-left: 4px solid #f59e0b;
+    background: rgba(245, 158, 11, 0.1);
+    border-bottom: 1.5px solid #f59e0b;
+    
+    &:hover {
+      background: rgba(245, 158, 11, 0.15);
+    }
+    
+    .mentor-notification__name {
+      color: #f59e0b !important;
+    }
+    
+    .mentor-notification__message {
+      color: #fbbf24 !important;
+    }
+  }
 }
 
 // Remove avatar/profile icon styles

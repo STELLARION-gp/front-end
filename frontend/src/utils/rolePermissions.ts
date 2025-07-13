@@ -1,3 +1,4 @@
+import { href } from 'react-router-dom';
 import { type UserRole } from '../AuthContext';
 
 // Define permission types
@@ -76,7 +77,7 @@ export const ROLE_BASED_MENU_ITEMS = {
         { label: 'Overview', icon: 'HomeIcon', href: '/dashboard/overview' },
         { label: 'Profile', icon: 'UserCircleIcon', href: '/dashboard/profile' },
         { label: 'Blogs', icon: 'BookOpenIcon', href: '/dashboard/blogs' },
-        {label: 'Sessions', icon: 'UsersIcon', href: '/dashboard/sessions'},
+        {label: 'Sessions', icon: 'VideoCameraIcon', href: '/dashboard/sessions'},
         { label: 'NASA content', icon: 'RocketLaunchIcon', href: '/dashboard/nasa-content' },
         // { label: 'Celestial Events', icon: 'SparklesIcon', href: '/dashboard/celestial-events' },
         // { label: 'Chat', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/chat' },
@@ -86,6 +87,7 @@ export const ROLE_BASED_MENU_ITEMS = {
         { label: 'Stargazing Spot', icon: 'StarIcon', href: '/dashboard/stargazing' },
         { label: 'Astro Hub', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/astrohub' },
         { label: 'Services', icon: 'MegaphoneIcon', href: '/dashboard/astronomy-services' },
+        { label : 'My Universe',  icon: 'GlobeAltIcon',href:'/dashboard/my-universe'}
 
 
 

@@ -24,6 +24,7 @@ import MediaUploadPanel from '../pages/guide/MediaUploadPanel';
 import MentorProfile from '../pages/mentor/MentorProfile';
 import EditMentor from '../pages/mentor/EditMentor';
 import MentorDashboard from '../pages/mentor/MentorDashboard';
+import { MentorPauseProvider } from '../contexts/MentorPauseContext';
 
 
 import GuideMediaDashboard from '../pages/guide/GuideMediaDashboard';
@@ -59,6 +60,10 @@ import MentorshipRequest from '../pages/mentor/MentorshipRequest';
 import Mentees from '../pages/mentor/Mentees';
 import MenteeProfile from '../pages/mentor/MenteeProfile';
 import MenteeRequest from '../pages/mentor/MenteeRequest';
+import MentorNotification from '../pages/mentor/MentorNotification';
+import MyUniverse from '../pages/learner/MyUniverse';
+import { MentorPauseProvider } from '../contexts/MentorPauseContext';
+import { MenteeProvider } from '../contexts/MenteeContext';
 
 // Create placeholder components for different pages - all memoized
 // const BlogsPage = memo(() => (
@@ -263,6 +268,14 @@ const DashboardRoutes = () => {
                 }
             />
             <Route
+                path='my-universe'
+                element={
+                    <RoleGuard allowedRoles={['learner']}>
+                        <MyUniverse />
+                    </RoleGuard>
+                }
+            />
+            <Route
                 path="mentor"
                 element={
                     <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
@@ -402,7 +415,9 @@ const DashboardRoutes = () => {
                     path="mentordashboard"
                     element={
                         <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
-                            <MentorDashboard />
+                            <MentorPauseProvider>
+                                <MentorDashboard />
+                            </MentorPauseProvider>
                         </RoleGuard>
                     }
                 />
@@ -441,6 +456,16 @@ const DashboardRoutes = () => {
                     }
                 />
 
+                {/* <Route
+                    path="mentornotification"
+                    element={
+                        <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
+                            <MentorPauseProvider>
+                                <MentorNotification />
+                            </MentorPauseProvider>
+                        </RoleGuard>
+                    }
+                /> */}
                 {/* <Route
                     path="recommended-contents"
                     element={
@@ -581,6 +606,14 @@ const DashboardRoutes = () => {
                 }
             />
         
+            <Route
+                path="vlogs"
+                element={
+                    <RoleGuard allowedRoles={['influencer']}>
+                        <Vlogs />
+                    </RoleGuard>
+                }
+            />
 
             {/* Default redirect to overview */}
             <Route path="" element={<Navigate to="overview" replace />} />
@@ -597,6 +630,19 @@ const DashboardRoutes = () => {
                     </div>
                 </div>
             } />
+
+            <Route
+                    path="mentornotification"
+                    element={
+                        <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
+                            <MentorPauseProvider>
+                                <MenteeProvider>
+                                    <MentorNotification />
+                                </MenteeProvider>
+                            </MentorPauseProvider>
+                        </RoleGuard>
+                    }
+                />
         </Routes>
     );
 };

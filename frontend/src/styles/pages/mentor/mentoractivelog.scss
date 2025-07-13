@@ -1,0 +1,246 @@
+// Mentor Activity Log Styles
+
+.mentor-activity-log {
+  min-height: 100vh;
+  width: 100%;
+  background: rgba(59,130,246,0.07);
+  border-radius: 16px;
+  padding: 2rem;
+  box-sizing: border-box;
+
+  h2 {
+    margin-bottom: 2rem;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #fbfbfb;
+  }
+
+  .activity-filters {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .timeline-container {
+    position: relative;
+    padding-left: 2.5rem;
+    
+    .timeline-main-line {
+      position: absolute;
+      left: 23px; // 48px/2 - 1px
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: #3b82f6;
+      z-index: 0;
+      border-radius: 1px;
+    }
+  }
+
+  .activity-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 2.25rem;
+    position: relative;
+    min-height: 60px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    
+    &:hover {
+      transform: translateX(4px);
+      
+      .activity-card {
+        background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+        box-shadow: 0 4px 16px rgba(59,130,246,0.15);
+        border: 1px solid rgba(59,130,246,0.3);
+      }
+      
+      .date-circle {
+        background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+        border-color: #60a5fa;
+        box-shadow: 0 4px 12px rgba(96,165,250,0.3);
+        transform: scale(1.05);
+      }
+    }
+  }
+
+  .date-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: #1a202c;
+    color: #60a5fa;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1rem;
+    border: 2px solid #3b82f6;
+    z-index: 1;
+    margin-right: 32px;
+    box-shadow: 0 2px 8px rgba(253, 254, 255, 0.08);
+    transition: all 0.2s ease;
+  }
+
+  .date-range-connector {
+    width: 2px;
+    background: #3b82f6;
+    position: absolute;
+    left: 23px;
+    z-index: 0;
+  }
+  .date-range-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: #1a202c;
+    color: #60a5fa;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1rem;
+    border: 2px solid #3b82f6;
+    z-index: 1;
+    box-shadow: 0 2px 8px rgba(59,130,246,0.08);
+    transition: all 0.2s ease;
+  }
+
+  .activity-card {
+    flex: 1;
+    padding: 1.2rem 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1.1rem;
+    border-radius: 16px;
+    min-height: 60px;
+    background: #222a36;
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(59,130,246,0.04);
+    position: relative;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    
+    &:hover {
+      background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+      box-shadow: 0 4px 16px rgba(59,130,246,0.15);
+      border: 1px solid rgba(59,130,246,0.3);
+    }
+  }
+
+  .session-members {
+    display: flex;
+    align-items: center;
+    gap: -8px;
+    margin-left: 12px;
+    
+    .member-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      object-fit: cover;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      margin-left: -8px;
+      background: #fff;
+      transition: transform 0.2s ease;
+    }
+  }
+
+  .no-activities {
+    color: #a0aec0;
+    font-style: italic;
+    padding: 2rem 0;
+  }
+
+  .date-range-horizontal-row {
+    align-items: center;
+    min-height: 80px;
+    margin-bottom: 2.5rem;
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    
+    &:hover {
+      transform: translateX(4px);
+      
+      .activity-card {
+        background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+        box-shadow: 0 4px 16px rgba(59,130,246,0.15);
+        border: 1px solid rgba(59,130,246,0.3);
+      }
+      
+      .date-range-circle {
+        background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+        border-color: #60a5fa;
+        box-shadow: 0 4px 12px rgba(96,165,250,0.3);
+        transform: scale(1.05);
+      }
+    }
+  }
+
+  .date-range-horizontal {
+    display: flex;
+    align-items: center;
+    position: relative;
+    min-width: 92px; // 60px (circle) + 32px (margin-right)
+    margin-right: 32px;
+    z-index: 2;
+  }
+
+  .date-range-horizontal-row .activity-card {
+    margin-left: 0;
+  }
+
+  .date-range-vertical-row {
+    display: flex;
+    align-items: center;
+    min-height: 140px;
+    margin-bottom: 2.5rem;
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    
+    &:hover {
+      transform: translateX(4px);
+      
+      .activity-card {
+        background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+        box-shadow: 0 4px 16px rgba(59,130,246,0.15);
+        border: 1px solid rgba(59,130,246,0.3);
+      }
+      
+      .date-range-circle {
+        background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+        border-color: #60a5fa;
+        box-shadow: 0 4px 12px rgba(96,165,250,0.3);
+        transform: scale(1.05);
+      }
+    }
+  }
+  .date-range-vertical {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    min-width: 60px;
+    margin-right: 32px;
+    z-index: 2;
+  }
+  .date-range-vertical-connector {
+    width: 2px;
+    height: 40px;
+    background: #3b82f6;
+    margin: 0;
+    z-index: 1;
+    border-radius: 1px;
+  }
+  .date-range-vertical-card {
+    margin-left: 0;
+    display: flex;
+    align-items: center;
+  }
+} 

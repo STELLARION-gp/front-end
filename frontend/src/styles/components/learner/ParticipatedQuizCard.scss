@@ -1,0 +1,45 @@
+// src/styles/components/learner/ParticipatedQuizCard.scss
+.universe-participated-card {
+  background-color: rgba(30, 58, 138, 0.2);
+  padding: 1rem;
+  border-radius: 1rem;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: transform 0.3s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+  }
+
+  .universe-participated-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    h4 {
+      font-size: 1.125rem;
+      font-weight: 600;
+    }
+
+    .universe-participated-level {
+      font-size: 0.875rem;
+      background-color: #3b82f6;
+      padding: 0.25rem 0.5rem;
+      border-radius: 9999px;
+    }
+  }
+
+  .universe-participated-details {
+    font-size: 0.9rem;
+    line-height: 1.4;
+    color: #cbd5e1;
+
+    div {
+      margin-top: 0.25rem;
+    }
+  }
+}

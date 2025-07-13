@@ -61,6 +61,8 @@ import MenteeProfile from '../pages/mentor/MenteeProfile';
 import MenteeRequest from '../pages/mentor/MenteeRequest';
 import MentorNotification from '../pages/mentor/MentorNotification';
 import MyUniverse from '../pages/learner/MyUniverse';
+import { MentorPauseProvider } from '../contexts/MentorPauseContext';
+import { MenteeProvider } from '../contexts/MenteeContext';
 
 // Create placeholder components for different pages - all memoized
 // const BlogsPage = memo(() => (
@@ -618,6 +620,19 @@ const DashboardRoutes = () => {
                     </div>
                 </div>
             } />
+
+            <Route
+                    path="mentornotification"
+                    element={
+                        <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
+                            <MentorPauseProvider>
+                                <MenteeProvider>
+                                    <MentorNotification />
+                                </MenteeProvider>
+                            </MentorPauseProvider>
+                        </RoleGuard>
+                    }
+                />
         </Routes>
     );
 };

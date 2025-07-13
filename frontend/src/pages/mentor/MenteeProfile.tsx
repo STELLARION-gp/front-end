@@ -162,11 +162,12 @@ const MenteeProfile: React.FC = () => {
           </div>
         </div>
       )}
-      <div className="mentee-profile-privatechat-icon">
-        <img src={groupChatIcon} alt="Private Chat" />
+      <div className="mentee-profile-privatechat-icon" onClick={() => navigate('/dashboard/privatechat')} style={{ cursor: 'pointer' }}>
+        <img src={groupChatIcon} alt="Private Chat" style={{ width: 38, height: 38 }}/>
       </div>
     </>
   );
 };
 
 export default MenteeProfile; 
+

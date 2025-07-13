@@ -1,7 +1,10 @@
-import  { useState, useEffect } from 'react'
+import  { useState, useEffect, useCallback, useMemo } from 'react'
 import '../../styles/pages/enthusiast/Quizzes.scss'
 import '../../styles/pages/enthusiast/Leaderboard.scss'
 import Button from '../../components/Button'
+import TimeIcon from '../../assets/svg/TimeIcon'
+import QuestionIcon from '../../assets/svg/QuestionIcon'
+import ParticipantsIcon from '../../assets/svg/ParticipantsIcon'
 
 interface Quiz {
   id: string
@@ -109,7 +112,7 @@ const Quizzes = () => {
     }
   ]
 
-  const sampleQuestions: QuizQuestion[] = [
+  const sampleQuestions: QuizQuestion[] = useMemo(() => [
     {
       id: '1',
       question: 'Which planet is known as the "Red Planet"?',
@@ -145,7 +148,7 @@ const Quizzes = () => {
       correctAnswer: 1,
       explanation: 'Saturn has the most extensive and visible ring system in our solar system.'
     }
-  ]
+  ], [])
 
   const sampleLeaderboard: LeaderboardEntry[] = [
     {
@@ -234,7 +237,19 @@ const Quizzes = () => {
     ? sampleQuizzes 
     : sampleQuizzes.filter(quiz => quiz.isMyQuiz)
 
-  // Timer effect
+  // Memoize handleQuizSubmit with useCallback
+  const handleQuizSubmit = useCallback(() => {
+    let correctAnswers = 0
+    selectedAnswers.forEach((answer, index) => {
+      if (answer === sampleQuestions[index].correctAnswer) {
+        correctAnswers++
+      }
+    })
+    setScore(correctAnswers)
+    setIsQuizCompleted(true)
+  }, [selectedAnswers, sampleQuestions])
+
+  // Timer effect with fixed dependency array
   useEffect(() => {
     if (isQuizStarted && timeRemaining > 0 && !isQuizCompleted) {
       const timer = setTimeout(() => {
@@ -244,7 +259,7 @@ const Quizzes = () => {
     } else if (timeRemaining === 0 && isQuizStarted) {
       handleQuizSubmit()
     }
-  }, [timeRemaining, isQuizStarted, isQuizCompleted])
+  }, [timeRemaining, isQuizStarted, isQuizCompleted, handleQuizSubmit])
 
   const handleParticipate = (quiz: Quiz) => {
     setSelectedQuiz(quiz)
@@ -280,17 +295,6 @@ const Quizzes = () => {
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex(currentQuestionIndex - 1)
     }
-  }
-
-  const handleQuizSubmit = () => {
-    let correctAnswers = 0
-    selectedAnswers.forEach((answer, index) => {
-      if (answer === sampleQuestions[index].correctAnswer) {
-        correctAnswers++
-      }
-    })
-    setScore(correctAnswers)
-    setIsQuizCompleted(true)
   }
 
   const handleShowReview = () => {
@@ -910,23 +914,17 @@ const Quizzes = () => {
                     
                     <div className="quiz-stats">
                       <div className="stat-item">
-                        <svg className="stat-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
+                         <TimeIcon className="stat__icon" size={16} />
                         <span>{quiz.time} minutes</span>
                       </div>
                       
                       <div className="stat-item">
-                        <svg className="stat-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
+                        <QuestionIcon className="stat__icon" size={16} />
                         <span>{quiz.questionCount} questions</span>
                       </div>
                       
                       <div className="stat-item">
-                        <svg className="stat-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                        </svg>
+                        <ParticipantsIcon className="stat__icon" size={16} />
                         <span>{quiz.participantsCount.toLocaleString()} participants</span>
                       </div>
                     </div>

@@ -62,8 +62,10 @@ export const PAGE_ACCESS_CONTROL = {
     '/dashboard/quizzes': ['enthusiast'] as UserRole[],
     '/dashboard/payments': ['guide', 'admin', 'moderator'] as UserRole[],
     '/dashboard/sessions-making': ['influencer'] as UserRole[],
+    '/dashboard/camp-guide-application': ['learner', 'enthusiast', 'influencer', 'guide', 'mentor', 'moderator', 'admin'] as UserRole[],
     
     '/dashboard/myblogs': ['influencer'] as UserRole[],
+    '/dashboard/vlogs': ['influencer'] as UserRole[],
 
 };
 
@@ -126,13 +128,15 @@ export const ROLE_BASED_MENU_ITEMS = {
         { label: 'Blogs', icon: 'BookOpenIcon', href: '/dashboard/blogs' },
         { label: 'Requests', icon: 'MoonIcon', href: '/dashboard/booking-requests' },
         // { label: 'Stargazing', icon: 'StarIcon', href: '/dashboard/stargazing' },
-        { label: 'Events', icon: 'CalendarDaysIcon', href: '/dashboard/events' },
+        { label: 'Events', icon: 'ClipboardDocumentListIcon', href: '/dashboard/camp-guide-application' },
+        // { label: 'Events', icon: 'CalendarDaysIcon', href: '/dashboard/events' },
         { label: 'Media', icon: 'PhotoIcon', href: '/dashboard/media' },
         { label: 'Chat', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/chat' },
         { label: 'Settings', icon: 'Cog6ToothIcon', href: '/dashboard/settings' },
     ],
     mentor: [
-        { label: 'Overview', icon: 'HomeIcon', href: '/dashboard/overview' },
+        // { label: 'Overview', icon: 'HomeIcon', href: '/dashboard/overview' },
+        { label: 'Overview', icon: 'HomeIcon', href: '/dashboard/mentordashboard' },
         { label: 'Profile', icon: 'UserCircleIcon', href: '/dashboard/mentorprofile' },
         { label: 'Blogs', icon: 'BookOpenIcon', href: '/dashboard/blogs' },
         { label: 'Mentor', icon: 'AcademicCapIcon', href: '/dashboard/mentor' },

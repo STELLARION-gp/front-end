@@ -10,6 +10,13 @@ const competition = {
   date: "2025-08-15",
   description:
     "Showcase your astrophotography skills! Capture the wonders of the night sky and compete with fellow astronomy enthusiasts for top honors and exciting prizes.",
+  organizer: "International Astronomy Society (IAS)",
+  contactEmail: "contact@ias-astro.org",
+  prizes: [
+    "🏆 First Place: $500 + Certificate + Feature on IAS Website",
+    "🥈 Second Place: $300 + Certificate",
+    "🥉 Third Place: $200 + Certificate",
+  ],
   rules: [
     "Open to all students registered on the platform.",
     "Each participant may submit up to 3 original astrophotography images.",
@@ -22,6 +29,12 @@ const competition = {
     "High-resolution image(s) in JPG or PNG format (max 20MB each)",
     "Short description for each image (location, equipment, date, story)",
     "Consent form for public display and judging",
+  ],
+  judgingCriteria: [
+    "Creativity & Composition",
+    "Technical Execution",
+    "Relevance to Theme",
+    "Originality",
   ],
   participants: [
     {
@@ -64,6 +77,9 @@ const CompetitionPage: React.FC = () => {
           <div className="competition-title">{competition.name}</div>
           <div className="competition-date">{competition.date}</div>
           <div className="competition-desc">{competition.description}</div>
+          <div className="competition-organizer">
+            <strong>Organized by:</strong> {competition.organizer}
+          </div>
           <Button className="competition-register-btn">Register</Button>
         </div>
       </div>
@@ -101,6 +117,34 @@ const CompetitionPage: React.FC = () => {
             ))}
           </ul>
         </div>
+      </div>
+
+      <div className="competition-section">
+        <div className="competition-section-title">Judging Criteria</div>
+        <ul className="competition-deliverables-list">
+          {competition.judgingCriteria.map((c, i) => (
+            <li key={i}>{c}</li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="competition-section">
+        <div className="competition-section-title">Prizes</div>
+        <ul className="competition-deliverables-list">
+          {competition.prizes.map((prize, i) => (
+            <li key={i}>{prize}</li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="competition-section">
+        <div className="competition-section-title">Contact</div>
+        <p>
+          For any questions or concerns, please contact us at{" "}
+          <a href={`mailto:${competition.contactEmail}`}>
+            {competition.contactEmail}
+          </a>
+        </p>
       </div>
     </div>
   );

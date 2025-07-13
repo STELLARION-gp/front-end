@@ -21,15 +21,15 @@ const AstronomyCompetitionCard: React.FC<AstronomyCompetitionCardProps> = ({
     navigate("/dashboard/competition");
   };
   return (
-    <div className="competition-card">
-      <div className="competition-image-wrapper">
-        <img src={coverImage} alt={name} className="competition-image" />
-        <span className="competition-date-badge">{date}</span>
+    <div className="preview-competition-card">
+      <div className="preview-competition-image-wrapper">
+        <img src={coverImage} alt={name} className="preview-competition-image" />
+        <span className="preview-competition-date-badge">{date}</span>
       </div>
-      <div className="competition-content">
-        <h3 className="competition-title">{name}</h3>
-        <p className="competition-desc">{description}</p>
-        <Button onClick={handleParticipate}>Participate</Button>
+      <div className="preview-competition-content">
+        <h2 className="preview-competition-title">{name}</h2>
+        <p className="preview-competition-desc">{description}</p>
+        <Button className="preview-competition-btn" onClick={handleParticipate}>Participate</Button>
       </div>
     </div>
   );

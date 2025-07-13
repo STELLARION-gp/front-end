@@ -60,6 +60,7 @@ import Mentees from '../pages/mentor/Mentees';
 import MenteeProfile from '../pages/mentor/MenteeProfile';
 import MenteeRequest from '../pages/mentor/MenteeRequest';
 import MentorNotification from '../pages/mentor/MentorNotification';
+import MyUniverse from '../pages/learner/MyUniverse';
 
 // Create placeholder components for different pages - all memoized
 // const BlogsPage = memo(() => (
@@ -260,6 +261,14 @@ const DashboardRoutes = () => {
                 element={
                     <RoleGuard allowedRoles={['learner']}>
                         <CompetitionPage />
+                    </RoleGuard>
+                }
+            />
+            <Route
+                path='my-universe'
+                element={
+                    <RoleGuard allowedRoles={['learner']}>
+                        <MyUniverse />
                     </RoleGuard>
                 }
             />
@@ -585,6 +594,14 @@ const DashboardRoutes = () => {
                 }
             />
         
+            <Route
+                path="vlogs"
+                element={
+                    <RoleGuard allowedRoles={['influencer']}>
+                        <Vlogs />
+                    </RoleGuard>
+                }
+            />
 
             {/* Default redirect to overview */}
             <Route path="" element={<Navigate to="overview" replace />} />

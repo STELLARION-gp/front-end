@@ -444,7 +444,7 @@ const DashboardRoutes = () => {
                     }
                 />
 
-                <Route
+                {/* <Route
                     path="mentornotification"
                     element={
                         <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
@@ -453,7 +453,7 @@ const DashboardRoutes = () => {
                             </MentorPauseProvider>
                         </RoleGuard>
                     }
-                />
+                /> */}
                 {/* <Route
                     path="recommended-contents"
                     element={

@@ -376,17 +376,19 @@ const Sponsorships: React.FC = () => {
       {/* Tab Navigation */}
       <div className="sponsorships-tabs">
         <Button
-          className={`tab-button ${activeTab === 'seeking' ? 'active' : ''}`}
+          className={`tab-button ${activeTab === 'seeking' ? 'primary' : 'secondary'}`}
           onClick={() => setActiveTab('seeking')}
         >
           Events Seeking Sponsorship
         </Button>
         <Button
-          className={`tab-button ${activeTab === 'history' ? 'active' : ''}`}
+          className={`tab-button ${activeTab === 'history' ? 'primary' : 'secondary'}`}
           onClick={() => setActiveTab('history')}
         >
           My Sponsorship History
         </Button>
+
+        
       </div>
 
       {/* Tab Content */}

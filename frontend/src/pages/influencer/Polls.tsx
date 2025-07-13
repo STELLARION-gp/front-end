@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "../../styles/pages/influencer/Polls.scss";
 import { sessionIdeasPolls } from "../../components/Learner/sessionIdeasPollsData";
+import Button from "../../components/Button";
 
 // Define SVG icons as components
 const PlusIcon = (props) => (
@@ -256,31 +257,31 @@ const CreatePollTab: React.FC<{ onPollCreated: (poll: Poll) => void }> = ({ onPo
                   placeholder={`Option ${option.id}`}
                   maxLength={100}
                 />
-                <button
+                <Button
                   type="button"
                   className="remove-option-btn"
                   onClick={() => removeOption(option.id)}
                   disabled={options.length <= 2}
                 >
                   <TrashIcon width={16} height={16} />
-                </button>
+                </Button>
               </div>
             ))}
             
-            <button
+            <Button
               type="button"
               className="add-option-btn"
-              onClick={addOption}
+            onClick={addOption}
               disabled={options.length >= 10}
             >
               <PlusIcon width={16} height={16} /> Add Option
-            </button>
+            </Button>
           </div>
         </div>
         
-        <button type="submit" className="create-poll-btn">
+        <Button type="submit" className="create-poll-btn">
           <CheckIcon width={16} height={16} /> Create Poll
-        </button>
+        </Button>
       </form>
     </div>
   );
@@ -312,24 +313,24 @@ const ResultsTab: React.FC<{ polls: Poll[] }> = ({ polls }) => {
   return (
     <div className="results-container">
       <div className="polls-filter">
-        <button 
+        <Button 
           className={filter === "all" ? "active" : ""} 
           onClick={() => setFilter("all")}
         >
           All Polls
-        </button>
-        <button 
+        </Button>
+        <Button 
           className={filter === "trending" ? "active" : ""} 
           onClick={() => setFilter("trending")}
         >
           Trending
-        </button>
-        <button 
+        </Button>
+        <Button 
           className={filter === "regular" ? "active" : ""} 
           onClick={() => setFilter("regular")}
         >
           Regular
-        </button>
+        </Button>
       </div>
 
       <div className="polls-results-list">
@@ -394,12 +395,12 @@ const ResultsTab: React.FC<{ polls: Poll[] }> = ({ polls }) => {
                   </div>
                   
                   <div className="poll-actions">
-                    <button className="edit-poll-btn">
+                    <Button className="edit-poll-btn">
                       <EditIcon width={16} height={16} /> Edit Poll
-                    </button>
-                    <button className="close-poll-btn">
+                    </Button>
+                    <Button className="close-poll-btn">
                       Close Poll
-                    </button>
+                    </Button>
                   </div>
                 </div>
               )}
@@ -435,18 +436,18 @@ const Polls: React.FC = () => {
       </div>
 
       <div className="polls-tabs">
-        <Tab
-          label="Create Poll"
-          icon={<PlusIcon width={20} height={20} />}
+        <Button
           active={activeTab === "create"}
           onClick={() => setActiveTab("create")}
-        />
-        <Tab
-          label="View Results"
-          icon={<ChartBarIcon width={20} height={20} />}
+        >
+          <PlusIcon width={20} height={20} /> Create Poll
+        </Button>
+        <Button
           active={activeTab === "results"}
           onClick={() => setActiveTab("results")}
-        />
+        >
+          <ChartBarIcon width={20} height={20} /> View Results
+        </Button>
       </div>
 
       <div className="polls-content">

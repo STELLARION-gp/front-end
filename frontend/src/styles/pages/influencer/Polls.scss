@@ -41,13 +41,16 @@ $error: #EF4444 !default; // Fallback definition for error color if not defined 
   
   .polls-tabs {
     display: flex;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    margin-bottom: 2rem;
+    // background: rgba(255, 255, 255, 0.05);
+    // border: 1px solid rgba(255, 255, 255, 0.1);
+     border-radius: 12px;
+    margin: 0 auto 2rem; // Center horizontally with auto margins
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
+    max-width: 500px; // Limit width so it's not full-width
+    width: 100%;
+    
     
     .polls-tab {
       flex: 1;
@@ -61,6 +64,8 @@ $error: #EF4444 !default; // Fallback definition for error color if not defined 
       gap: 0.5rem;
       font-weight: 600;
       color: $text-color-secondary;
+      margin-right: 1rem;
+     
       
       svg {
         font-size: 1.2rem;
@@ -248,27 +253,27 @@ $error: #EF4444 !default; // Fallback definition for error color if not defined 
     gap: 1rem;
     margin-bottom: 1.5rem;
     
-    button {
-      background-color: rgba(255, 255, 255, 0.05);
-      padding: 0.5rem 1rem;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      color: $text-color-secondary;
-      font-weight: 500;
+    // button {
+    //   background-color: rgba(255, 255, 255, 0.05);
+    //   padding: 0.5rem 1rem;
+    //   border: 1px solid rgba(255, 255, 255, 0.1);
+    //   border-radius: 8px;
+    //   cursor: pointer;
+    //   transition: all 0.3s ease;
+    //   color: $text-color-secondary;
+    //   font-weight: 500;
       
-      &:hover {
-        background-color: rgba($accent-color, 0.1);
-        border-color: rgba($accent-color, 0.2);
-      }
+    //   &:hover {
+    //     background-color: rgba($accent-color, 0.1);
+    //     border-color: rgba($accent-color, 0.2);
+    //   }
       
-      &.active {
-        background: linear-gradient(90deg, rgba($accent-color, 0.8) 0%, rgba($accent-color-light, 0.8) 100%);
-        color: white;
-        border-color: transparent;
-      }
-    }
+    //   &.active {
+    //     background: linear-gradient(90deg, rgba($accent-color, 0.8) 0%, rgba($accent-color-light, 0.8) 100%);
+    //     color: white;
+    //     border-color: transparent;
+    //   }
+    // }
   }
   
   .polls-results-list {
@@ -424,40 +429,40 @@ $error: #EF4444 !default; // Fallback definition for error color if not defined 
           gap: 1rem;
           margin-top: 2rem;
           
-          button {
-            flex: 1;
-            padding: 0.75rem;
-            border-radius: 8px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            transition: all 0.3s ease;
-            font-weight: 500;
+        //   button {
+        //     flex: 1;
+        //     padding: 0.75rem;
+        //     border-radius: 8px;
+        //     cursor: pointer;
+        //     display: flex;
+        //     align-items: center;
+        //     justify-content: center;
+        //     gap: 0.5rem;
+        //     transition: all 0.3s ease;
+        //     font-weight: 500;
             
-            &.edit-poll-btn {
-              background-color: rgba(255, 255, 255, 0.05);
-              border: 1px solid rgba(255, 255, 255, 0.2);
-              color: $accent-color-light;
+        //     &.edit-poll-btn {
+        //       background-color: rgba(255, 255, 255, 0.05);
+        //       border: 1px solid rgba(255, 255, 255, 0.2);
+        //       color: $accent-color-light;
               
-              &:hover {
-                background-color: rgba($accent-color, 0.1);
-                border-color: rgba($accent-color-light, 0.3);
-                transform: translateY(-2px);
-              }
-            }
+        //       &:hover {
+        //         background-color: rgba($accent-color, 0.1);
+        //         border-color: rgba($accent-color-light, 0.3);
+        //         transform: translateY(-2px);
+        //       }
+        //     }
             
-            &.close-poll-btn {
-              background-color: rgba($error, 0.1);
-              border: 1px solid rgba($error, 0.3);
-              color: lighten($error, 15%);
+        //     &.close-poll-btn {
+        //       background-color: rgba($error, 0.1);
+        //       border: 1px solid rgba($error, 0.3);
+        //       color: lighten($error, 15%);
               
-              &:hover {
-                background-color: rgba($error, 0.2);
-                transform: translateY(-2px);
-              }
-            }
+        //       &:hover {
+        //         background-color: rgba($error, 0.2);
+        //         transform: translateY(-2px);
+        //       }
+        //     }
           }
         }
       }
@@ -478,7 +483,7 @@ $error: #EF4444 !default; // Fallback definition for error color if not defined 
       color: $text-color-secondary;
     }
   }
-}
+
 
 // Progress bar styles
 .poll-progress-container {
@@ -526,6 +531,11 @@ $error: #EF4444 !default; // Fallback definition for error color if not defined 
         font-size: 1rem;
       }
     }
+    
+    .polls-tabs {
+      max-width: 100%; // Full width on mobile
+      margin-bottom: 1.5rem;
+    }
   }
   
   .poll-result-header {
@@ -546,8 +556,8 @@ $error: #EF4444 !default; // Fallback definition for error color if not defined 
     overflow-x: auto;
     padding-bottom: 0.5rem;
     
-    button {
-      white-space: nowrap;
-    }
+    // button {
+    //   white-space: nowrap;
+    // }
   }
 }

@@ -7,6 +7,7 @@ import TimeIcon from '../../assets/svg/TimeIcon'
 import LocationIcon from '../../assets/svg/LocationIcon'
 import ParticipantsIcon from '../../assets/svg/ParticipantsIcon'
 import '../../styles/pages/enthusiast/NightCamps.scss'
+import '../../styles/pages/enthusiast/NightCamps.scss'
 import { useRoleAccess } from '../../hooks/useRoleAccess';
 import { useNavigate } from 'react-router-dom';
 

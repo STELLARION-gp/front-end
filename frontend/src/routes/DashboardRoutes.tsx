@@ -53,6 +53,7 @@ import Competitions from '../pages/influencer/competitions';
 import MyBlogs from '../pages/influencer/myblogs';
 import Vlogs from '../pages/influencer/Vlogs';
 import Quizzes from '../pages/enthuasist/Quizzes';
+import Polls from '../pages/influencer/Polls';
 import Sessions from '../pages/influencer/Sessions';
 import MentorshipRequest from '../pages/mentor/MentorshipRequest';
 import Mentees from '../pages/mentor/Mentees';

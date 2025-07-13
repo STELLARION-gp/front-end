@@ -56,7 +56,7 @@ const Mentees: React.FC = () => {
           <button className="mentees-see-more">See More</button>
         </div>
       </div>
-      <div className="mentees-groupchat-icon">
+      <div className="mentees-groupchat-icon" onClick={() => navigate('/dashboard/groupchat')} style={{ cursor: 'pointer' }}>
         <img src={groupChatIcon} alt="Group Chat" style={{ width: 38, height: 38 }} />
       </div>
     </>

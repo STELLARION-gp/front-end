@@ -1,7 +1,79 @@
 import React, { useState, useEffect } from "react";
 import "../../styles/pages/influencer/Polls.scss";
 import { sessionIdeasPolls } from "../../components/Learner/sessionIdeasPollsData";
-import { FaPlus, FaChartBar, FaCheck, FaTrash, FaEdit } from "react-icons/fa";
+
+// Define SVG icons as components
+const PlusIcon = (props) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    width={props.width || 24}
+    height={props.height || 24}
+    fill="currentColor"
+  >
+    <path d="M12 4C12.5523 4 13 4.44772 13 5V11H19C19.5523 11 20 11.4477 20 12C20 12.5523 19.5523 13 19 13H13V19C13 19.5523 12.5523 20 12 20C11.4477 20 11 19.5523 11 19V13H5C4.44772 13 4 12.5523 4 12C4 11.4477 4.44772 11 5 11H11V5C11 4.44772 11.4477 4 12 4Z" />
+  </svg>
+);
+
+const ChartBarIcon = (props) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    width={props.width || 24}
+    height={props.height || 24}
+    fill="currentColor"
+  >
+    <path d="M3 13.2C3 12.5373 3.53726 12 4.2 12H6.8C7.46274 12 8 12.5373 8 13.2V20H3V13.2Z" />
+    <path d="M10 9.2C10 8.53726 10.5373 8 11.2 8H13.8C14.4627 8 15 8.53726 15 9.2V20H10V9.2Z" />
+    <path d="M17 5.2C17 4.53726 17.5373 4 18.2 4H20.8C21.4627 4 22 4.53726 22 5.2V20H17V5.2Z" />
+  </svg>
+);
+
+const CheckIcon = (props) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    width={props.width || 24}
+    height={props.height || 24}
+    fill="currentColor"
+  >
+    <path d="M20.6644 5.2526C21.0772 5.61952 21.1143 6.25159 20.7474 6.66437L10.0808 18.6644C9.89099 18.8779 9.61898 19 9.33334 19C9.04771 19 8.7757 18.8779 8.58593 18.6644L3.2526 12.6644C2.88568 12.2516 2.92286 11.6195 3.33565 11.2526C3.74843 10.8857 4.3805 10.9229 4.74742 11.3356L9.33334 16.4948L19.2526 5.33565C19.6195 4.92286 20.2516 4.88568 20.6644 5.2526Z" />
+  </svg>
+);
+
+const TrashIcon = (props) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    width={props.width || 24}
+    height={props.height || 24}
+    fill="currentColor"
+  >
+    <path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M17 6V5C17 3.89543 16.1046 3 15 3H9C7.89543 3 7 3.89543 7 5V6H4C3.44772 6 3 6.44772 3 7C3 7.55228 3.44772 8 4 8H5V19C5 20.6569 6.34315 22 8 22H16C17.6569 22 19 20.6569 19 19V8H20C20.5523 8 21 7.55228 21 7C21 6.44772 20.5523 6 20 6H17ZM15 5H9V6H15V5ZM17 8H7V19C7 19.5523 7.44772 20 8 20H16C16.5523 20 17 19.5523 17 19V8Z"
+    />
+    <path d="M9 11C9.55228 11 10 11.4477 10 12V17C10 17.5523 9.55228 18 9 18C8.44772 18 8 17.5523 8 17V12C8 11.4477 8.44772 11 9 11Z" />
+    <path d="M15 11C15.5523 11 16 11.4477 16 12V17C16 17.5523 15.5523 18 15 18C14.4477 18 14 17.5523 14 17V12C14 11.4477 14.4477 11 15 11Z" />
+  </svg>
+);
+
+const EditIcon = (props) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    width={props.width || 24}
+    height={props.height || 24}
+    fill="currentColor"
+  >
+    <path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M15.8787 3.10659C17.0503 1.93496 18.9497 1.93496 20.1213 3.10659L20.8787 3.86406C22.0503 5.0357 22.0503 6.93496 20.8787 8.10659L18.5 10.4853L17.5 14.9999L13 13.9999L8.87868 18.1213C8.31607 18.6839 7.55301 19 6.75736 19H3V15.2427C3 14.447 3.31607 13.684 3.87868 13.1213L15.8787 3.10659ZM19.0251 4.20305C18.4538 3.63175 17.5462 3.63175 16.9749 4.20305L14.4645 6.71351L17.2929 9.54191L19.8033 7.03144C20.3746 6.46014 20.3746 5.55248 19.8033 4.98119L19.0251 4.20305ZM16.5858 11.1213L13.7574 8.29289L5 17.0502V17.9999H6.75736C7.02152 17.9999 7.27425 17.8946 7.46447 17.7044L12.5 12.6689L16.5858 11.1213Z"
+    />
+  </svg>
+);
 
 // Types
 interface PollOption {
@@ -190,7 +262,7 @@ const CreatePollTab: React.FC<{ onPollCreated: (poll: Poll) => void }> = ({ onPo
                   onClick={() => removeOption(option.id)}
                   disabled={options.length <= 2}
                 >
-                  <FaTrash />
+                  <TrashIcon width={16} height={16} />
                 </button>
               </div>
             ))}
@@ -201,13 +273,13 @@ const CreatePollTab: React.FC<{ onPollCreated: (poll: Poll) => void }> = ({ onPo
               onClick={addOption}
               disabled={options.length >= 10}
             >
-              <FaPlus /> Add Option
+              <PlusIcon width={16} height={16} /> Add Option
             </button>
           </div>
         </div>
         
         <button type="submit" className="create-poll-btn">
-          <FaCheck /> Create Poll
+          <CheckIcon width={16} height={16} /> Create Poll
         </button>
       </form>
     </div>
@@ -323,7 +395,7 @@ const ResultsTab: React.FC<{ polls: Poll[] }> = ({ polls }) => {
                   
                   <div className="poll-actions">
                     <button className="edit-poll-btn">
-                      <FaEdit /> Edit Poll
+                      <EditIcon width={16} height={16} /> Edit Poll
                     </button>
                     <button className="close-poll-btn">
                       Close Poll
@@ -365,13 +437,13 @@ const Polls: React.FC = () => {
       <div className="polls-tabs">
         <Tab
           label="Create Poll"
-          icon={<FaPlus />}
+          icon={<PlusIcon width={20} height={20} />}
           active={activeTab === "create"}
           onClick={() => setActiveTab("create")}
         />
         <Tab
           label="View Results"
-          icon={<FaChartBar />}
+          icon={<ChartBarIcon width={20} height={20} />}
           active={activeTab === "results"}
           onClick={() => setActiveTab("results")}
         />

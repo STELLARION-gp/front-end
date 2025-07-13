@@ -1,4 +1,5 @@
-@import "../../variables";
+@use '../../abstracts/variables' as *;
+@use '../../abstracts/mixins' as *;
 
 .polls-page {
   max-width: 1200px;

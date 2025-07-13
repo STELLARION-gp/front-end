@@ -1,34 +1,53 @@
 @use '../../abstracts/variables' as *;
 @use '../../abstracts/mixins' as *;
 
+// Define missing variables locally if they're not available in the imported files
+$error: #EF4444 !default; // Fallback definition for error color if not defined in variables
+
+// Polls Page Styles
+// =================
+
 .polls-page {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
-  color: $text-primary;
-  
+  height: 100%;
+  padding: 1rem;
+  overflow-y: auto;
+  box-sizing: border-box;
+
+  &__container {
+    max-width: 80rem;
+    margin: 0 auto;
+    padding-bottom: 4rem;
+    min-height: calc(100vh - 200px);
+  }
+
   .polls-header {
-    text-align: center;
-    margin-bottom: 2rem;
-    
+    margin-bottom: 3rem;
+
     h1 {
-      font-size: 2.5rem;
-      color: $primary;
+      text-align: left;
+      font-size: 2.25rem;
+      font-weight: 700;
+      color: $text-color;
       margin-bottom: 0.5rem;
     }
-    
+
     p {
-      font-size: 1.1rem;
-      color: $text-secondary;
+      text-align: left;
+      color: $text-color-secondary;
+      font-size: 1.125rem;
+      max-width: 32rem;
     }
   }
   
   .polls-tabs {
     display: flex;
-    background: $background-light;
-    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
     margin-bottom: 2rem;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     
     .polls-tab {
       flex: 1;
@@ -41,18 +60,18 @@
       justify-content: center;
       gap: 0.5rem;
       font-weight: 600;
-      color: $text-secondary;
+      color: $text-color-secondary;
       
       svg {
         font-size: 1.2rem;
       }
       
       &:hover {
-        background-color: rgba($primary, 0.05);
+        background-color: rgba($accent-color, 0.1);
       }
       
       &.active {
-        background-color: $primary;
+        background: linear-gradient(90deg, rgba($accent-color, 0.8) 0%, rgba($accent-color-light, 0.8) 100%);
         color: white;
         border-radius: 8px;
       }
@@ -60,10 +79,13 @@
   }
   
   .polls-content {
-    background: $background-light;
-    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
     padding: 2rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
   }
 }
 
@@ -74,22 +96,26 @@
     margin-bottom: 2rem;
     
     h2 {
-      color: $primary;
+      color: $text-light;
       margin-bottom: 0.5rem;
+      font-size: 1.75rem;
+      font-weight: 700;
     }
     
     p {
-      color: $text-secondary;
+      color: $text-color-secondary;
+      font-size: 1.125rem;
     }
   }
   
   .poll-error-message {
-    background-color: rgba($error, 0.1);
-    color: $error;
+    background-color: rgba($error, 0.2);
+    color: lighten($error, 15%);
     padding: 1rem;
-    border-radius: 6px;
+    border-radius: 8px;
     margin-bottom: 1.5rem;
     text-align: center;
+    border: 1px solid rgba($error, 0.3);
   }
   
   .poll-form {
@@ -100,21 +126,32 @@
         display: block;
         margin-bottom: 0.5rem;
         font-weight: 600;
-        color: $text-primary;
+        color: $text-light;
+        font-size: 0.9rem;
       }
       
       input, textarea {
         width: 100%;
         padding: 0.75rem;
-        border: 1px solid $border-color;
-        border-radius: 6px;
-        font-size: 1rem;
-        transition: border 0.3s ease;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        font-family: $font-outfit;
+        font-size: 0.9rem;
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        color: $text-light;
+        transition: all 0.3s ease;
         
         &:focus {
-          border-color: $primary;
           outline: none;
-          box-shadow: 0 0 0 2px rgba($primary, 0.1);
+          border-color: $accent-color;
+          background: rgba(255, 255, 255, 0.1);
+          box-shadow: 0 0 0 3px rgba($accent-color, 0.1);
+        }
+
+        &::placeholder {
+          color: rgba(255, 255, 255, 0.5);
+          opacity: 1;
         }
       }
     }
@@ -135,9 +172,9 @@
         
         .remove-option-btn {
           background-color: rgba($error, 0.1);
-          color: $error;
-          border: none;
-          border-radius: 6px;
+          color: lighten($error, 15%);
+          border: 1px solid rgba($error, 0.3);
+          border-radius: 8px;
           padding: 0.5rem;
           cursor: pointer;
           transition: all 0.3s ease;
@@ -155,9 +192,9 @@
       
       .add-option-btn {
         background-color: transparent;
-        color: $primary;
-        border: 1px dashed $primary;
-        border-radius: 6px;
+        color: $accent-color-light;
+        border: 1px dashed rgba($accent-color-light, 0.5);
+        border-radius: 8px;
         padding: 0.75rem;
         cursor: pointer;
         margin-top: 0.5rem;
@@ -168,7 +205,7 @@
         gap: 0.5rem;
         
         &:hover:not(:disabled) {
-          background-color: rgba($primary, 0.05);
+          background-color: rgba($accent-color, 0.1);
         }
         
         &:disabled {
@@ -179,10 +216,10 @@
     }
     
     .create-poll-btn {
-      background-color: $primary;
+      background: linear-gradient(90deg, rgba($accent-color, 0.8) 0%, rgba($accent-color-light, 0.8) 100%);
       color: white;
       border: none;
-      border-radius: 6px;
+      border-radius: 8px;
       padding: 0.75rem 1.5rem;
       font-size: 1rem;
       font-weight: 600;
@@ -196,7 +233,9 @@
       width: 100%;
       
       &:hover {
-        background-color: darken($primary, 10%);
+        background: linear-gradient(90deg, rgba($accent-color, 0.9) 0%, rgba($accent-color-light, 0.9) 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
       }
     }
   }
@@ -210,21 +249,24 @@
     margin-bottom: 1.5rem;
     
     button {
-      background-color: transparent;
+      background-color: rgba(255, 255, 255, 0.05);
       padding: 0.5rem 1rem;
-      border: 1px solid $border-color;
-      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
       cursor: pointer;
       transition: all 0.3s ease;
+      color: $text-color-secondary;
+      font-weight: 500;
       
       &:hover {
-        background-color: rgba($primary, 0.05);
+        background-color: rgba($accent-color, 0.1);
+        border-color: rgba($accent-color, 0.2);
       }
       
       &.active {
-        background-color: $primary;
+        background: linear-gradient(90deg, rgba($accent-color, 0.8) 0%, rgba($accent-color-light, 0.8) 100%);
         color: white;
-        border-color: $primary;
+        border-color: transparent;
       }
     }
   }
@@ -235,14 +277,16 @@
     gap: 1.5rem;
     
     .poll-result-card {
-      background-color: white;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
       overflow: hidden;
       transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       
       &.expanded {
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
       }
       
       .poll-result-header {
@@ -254,16 +298,17 @@
         transition: background 0.3s ease;
         
         &:hover {
-          background-color: rgba($primary, 0.05);
+          background-color: rgba($accent-color, 0.1);
         }
         
         h3 {
           margin: 0;
-          color: $text-primary;
+          color: $text-light;
+          font-weight: 600;
         }
         
         .poll-date {
-          color: $text-secondary;
+          color: $text-color-secondary;
           font-size: 0.9rem;
           margin-top: 0.3rem;
         }
@@ -276,11 +321,11 @@
           
           .total-votes {
             font-weight: 600;
-            color: $text-primary;
+            color: $text-light;
           }
           
           .trending-badge {
-            background-color: $accent;
+            background: linear-gradient(90deg, $accent-color 0%, $accent-color-light 100%);
             color: white;
             padding: 0.25rem 0.5rem;
             border-radius: 4px;
@@ -293,7 +338,7 @@
         padding: 0 1.25rem 1.25rem;
         
         .poll-description {
-          color: $text-secondary;
+          color: $text-color-secondary;
           margin-bottom: 1.5rem;
         }
         
@@ -311,10 +356,11 @@
               
               .option-text {
                 font-weight: 500;
+                color: $text-light;
               }
               
               .option-votes {
-                color: $text-secondary;
+                color: $text-color-secondary;
               }
             }
           }
@@ -326,11 +372,12 @@
           h4 {
             margin-bottom: 1rem;
             padding-bottom: 0.5rem;
-            border-bottom: 1px solid $border-color;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: $text-light;
           }
           
           .no-feedback {
-            color: $text-secondary;
+            color: $text-color-secondary;
             font-style: italic;
           }
           
@@ -340,9 +387,10 @@
             gap: 1rem;
             
             .feedback-item {
-              background-color: rgba($primary, 0.03);
+              background-color: rgba(255, 255, 255, 0.05);
               padding: 1rem;
-              border-radius: 6px;
+              border-radius: 8px;
+              border: 1px solid rgba(255, 255, 255, 0.1);
               
               .feedback-header {
                 display: flex;
@@ -358,13 +406,13 @@
                 
                 .feedback-date {
                   font-size: 0.8rem;
-                  color: $text-secondary;
+                  color: $text-color-secondary;
                   margin-left: auto;
                 }
               }
               
               p {
-                color: $text-primary;
+                color: $text-light;
                 margin: 0;
               }
             }
@@ -379,7 +427,7 @@
           button {
             flex: 1;
             padding: 0.75rem;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -389,22 +437,25 @@
             font-weight: 500;
             
             &.edit-poll-btn {
-              background-color: transparent;
-              border: 1px solid $primary;
-              color: $primary;
+              background-color: rgba(255, 255, 255, 0.05);
+              border: 1px solid rgba(255, 255, 255, 0.2);
+              color: $accent-color-light;
               
               &:hover {
-                background-color: rgba($primary, 0.05);
+                background-color: rgba($accent-color, 0.1);
+                border-color: rgba($accent-color-light, 0.3);
+                transform: translateY(-2px);
               }
             }
             
             &.close-poll-btn {
               background-color: rgba($error, 0.1);
-              border: 1px solid $error;
-              color: $error;
+              border: 1px solid rgba($error, 0.3);
+              color: lighten($error, 15%);
               
               &:hover {
                 background-color: rgba($error, 0.2);
+                transform: translateY(-2px);
               }
             }
           }
@@ -418,12 +469,13 @@
     padding: 3rem 0;
     
     h3 {
-      color: $text-primary;
+      color: $text-light;
       margin-bottom: 0.5rem;
+      font-size: 1.25rem;
     }
     
     p {
-      color: $text-secondary;
+      color: $text-color-secondary;
     }
   }
 }
@@ -437,13 +489,13 @@
   .poll-progress-bar {
     flex-grow: 1;
     height: 8px;
-    background-color: $border-color;
+    background-color: rgba(255, 255, 255, 0.1);
     border-radius: 4px;
     overflow: hidden;
     
     .poll-progress-fill {
       height: 100%;
-      background-color: $primary;
+      background: linear-gradient(90deg, $accent-color 0%, $accent-color-light 100%);
       border-radius: 4px;
       transition: width 0.5s ease;
     }
@@ -452,7 +504,7 @@
   .poll-progress-percent {
     min-width: 40px;
     font-weight: 600;
-    color: $text-primary;
+    color: $text-light;
   }
 }
 
@@ -463,6 +515,16 @@
     
     .polls-content {
       padding: 1.5rem;
+    }
+    
+    .polls-header {
+      h1 {
+        font-size: 1.75rem;
+      }
+      
+      p {
+        font-size: 1rem;
+      }
     }
   }
   
@@ -478,5 +540,14 @@
   
   .poll-actions {
     flex-direction: column;
+  }
+  
+  .polls-filter {
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+    
+    button {
+      white-space: nowrap;
+    }
   }
 }

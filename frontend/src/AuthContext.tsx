@@ -57,7 +57,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   useEffect(() => {
     // Set to false for production, true for testing
-    const USE_MOCK_PROFILE = false; // 🔧 REAL AUTH ENABLED - Firebase users now exist!
+    const USE_MOCK_PROFILE = true; // 🔧 REAL AUTH ENABLED - Firebase users now exist!
     // TEMPORARY: Set to true to bypass backend during Firebase testing
     const BYPASS_BACKEND = false;
 
@@ -82,7 +82,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         displayName: 'Admin User',
         firstName: 'Admin',
         lastName: 'User',
-        role: 'admin', // 🎯 Change this to test different roles
+        role: 'mentor', // 🎯 Change this to test different roles
         createdAt: new Date('2024-01-15'),
         lastLogin: new Date(),
         isActive: true,

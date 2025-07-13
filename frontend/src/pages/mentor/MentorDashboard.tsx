@@ -8,6 +8,7 @@ import '../../styles/components/_buttons.scss';
 import dayjs from 'dayjs';
 import { useNavigate } from 'react-router-dom';
 import '../../styles/pages/mentor/mentorDashboard.scss';
+import { useMentorPause } from '../../contexts/MentorPauseContext';
 
 const mentees = [
   { id: 1, name: 'Alice', img: avatarImg },
@@ -21,7 +22,7 @@ const MentorDashboard = () => {
   const [selectedDate, setSelectedDate] = useState(dayjs());
   const [calendarMonth, setCalendarMonth] = useState(dayjs().month());
   const [calendarYear, setCalendarYear] = useState(dayjs().year());
-  const [paused, setPaused] = useState(false);
+  const { isPaused, setIsPaused } = useMentorPause();
   const navigate = useNavigate();
 
   // Dummy stats
@@ -121,31 +122,31 @@ const MentorDashboard = () => {
             </div>
           </div>
           {/* Temporary Pause Toggle */}
-          {/* <div className="advanced-features mentor-profile-field-box" style={{ display: 'flex', alignItems: 'center', gap: 24, padding: '1.5rem' }}>
+          <div className="advanced-features mentor-profile-field-box" style={{ display: 'flex', alignItems: 'center', gap: 24, padding: '1.5rem' }}>
             <div>
               <label style={{ fontSize: '1.1rem' }}>Temporary Pause</label>
-              <div style={{ color: paused ? '#ef4444' : '#22c55e', fontWeight: 500, fontSize: '1.08rem' }}>
-                {paused ? 'Mentor is temporarily paused' : 'Mentor is active'}
+              <div style={{ color: isPaused ? '#ef4444' : '#22c55e', fontWeight: 500, fontSize: '1.08rem' }}>
+                {isPaused ? 'Mentor is temporarily paused' : 'Mentor is active'}
               </div>
             </div>
             <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
               <div
-                className={`mentor-dashboard-toggle${paused ? ' paused' : ''}`}
-                style={{ width: 36, height: 20, borderRadius: 12, background: paused ? '#ef4444' : '#22c55e', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 2, transition: 'background 0.2s' }}
-                onClick={() => setPaused(p => !p)}
+                className={`mentor-dashboard-toggle${isPaused ? ' paused' : ''}`}
+                style={{ width: 36, height: 20, borderRadius: 12, background: isPaused ? '#ef4444' : '#22c55e', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 2, transition: 'background 0.2s' }}
+                onClick={() => setIsPaused(!isPaused)}
               >
-                <div style={{ width: 16, height: 16, borderRadius: '50%', background: '#fff', marginLeft: paused ? 16 : 2, transition: 'margin 0.2s' }}></div>
+                <div style={{ width: 16, height: 16, borderRadius: '50%', background: '#fff', marginLeft: isPaused ? 16 : 2, transition: 'margin 0.2s' }}></div>
               </div>
-              <span style={{ color: paused ? '#ef4444' : '#22c55e', fontWeight: 600, marginLeft: 8, fontSize: '1rem' }}>{paused ? 'Paused' : 'Active'}</span>
+              <span style={{ color: isPaused ? '#ef4444' : '#22c55e', fontWeight: 600, marginLeft: 8, fontSize: '1rem' }}>{isPaused ? 'Paused' : 'Active'}</span>
             </div>
-          </div> */}
+          </div>
           {/* Maximum Mentees */}
-          {/* <div className="advanced-features mentor-profile-field-box" style={{ display: 'flex', alignItems: 'center', gap: 24, padding: '1.5rem' }}>
+          <div className="advanced-features mentor-profile-field-box" style={{ display: 'flex', alignItems: 'center', gap: 24, padding: '1.5rem' }}>
             <label style={{ marginRight: 16, fontSize: '1.1rem' }}>Maximum Mentees</label>
             <Button className="mentor-btn-round mentor-btn-blue" onClick={() => setMaxMentees(m => Math.max(1, m - 1))}>-</Button>
             <span style={{ fontWeight: 600, fontSize: '1.08rem', color: '#fff', minWidth: 32, textAlign: 'center' }}>{maxMentees}</span>
             <Button className="mentor-btn-round mentor-btn-blue" onClick={() => setMaxMentees(m => m + 1)}>+</Button>
-          </div> */}
+          </div>
           {/* Stats Cards */}
           <div style={{ display: 'flex', gap: 18, marginTop: 8 }}>
             {stats.map((s, i) => {

@@ -62,7 +62,7 @@ import MenteeProfile from '../pages/mentor/MenteeProfile';
 import MenteeRequest from '../pages/mentor/MenteeRequest';
 import MentorNotification from '../pages/mentor/MentorNotification';
 import MyUniverse from '../pages/learner/MyUniverse';
-import { MentorPauseProvider } from '../contexts/MentorPauseContext';
+//import { MentorPauseProvider } from '../contexts/MentorPauseContext';
 import { MenteeProvider } from '../contexts/MenteeContext';
 
 // Create placeholder components for different pages - all memoized
@@ -607,10 +607,19 @@ const DashboardRoutes = () => {
             />
         
             <Route
-                path="vlogs"
+                path="competitions"
                 element={
                     <RoleGuard allowedRoles={['influencer']}>
-                        <Vlogs />
+                        <Competitions />
+                    </RoleGuard>
+                }
+            />
+
+             <Route
+                path="myblogs"
+                element={
+                    <RoleGuard allowedRoles={['influencer']}>
+                        <MyBlogs />
                     </RoleGuard>
                 }
             />

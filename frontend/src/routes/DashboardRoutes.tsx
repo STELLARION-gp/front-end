@@ -28,7 +28,7 @@ import MediaUploadPanel from '../pages/guide/MediaUploadPanel';
 import MentorProfile from '../pages/mentor/MentorProfile';
 import EditMentor from '../pages/mentor/EditMentor';
 import MentorDashboard from '../pages/mentor/MentorDashboard';
-import { MentorPauseProvider } from '../contexts/MentorPauseContext';
+import { MentorPauseProvider } from '../contexts/mentor/MentorPauseContext';
 
 
 import GuideMediaDashboard from '../pages/guide/GuideMediaDashboard';
@@ -67,7 +67,7 @@ import MenteeRequest from '../pages/mentor/MenteeRequest';
 import MentorNotification from '../pages/mentor/MentorNotification';
 import MyUniverse from '../pages/learner/MyUniverse';
 //import { MentorPauseProvider } from '../contexts/MentorPauseContext';
-import { MenteeProvider } from '../contexts/MenteeContext';
+import { MenteeProvider } from '../contexts/mentor/MenteeContext';
 import Competitions from '../pages/influencer/competitions';
 import MyBlogs from '../pages/influencer/myblogs';
 

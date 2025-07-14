@@ -8,8 +8,8 @@ import '../../styles/components/_buttons.scss';
 import dayjs from 'dayjs';
 import { useNavigate } from 'react-router-dom';
 import '../../styles/pages/mentor/mentorDashboard.scss';
-import { useMentorPause } from '../../contexts/MentorPauseContext';
-import { useMentee } from '../../contexts/MenteeContext';
+import { useMentorPause } from '../../contexts/mentor/MentorPauseContext';
+import { useMentee } from '../../contexts/mentor/MenteeContext';
 
 const mentees = [
   { id: 1, name: 'Alice', img: avatarImg },

@@ -1,0 +1,254 @@
+.guide-btn-link {
+    color: #60a5fa;
+    background: none;
+    border: none;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 0.25rem;
+    margin-bottom: 0.25rem;
+    padding: 0;
+    transition: color 0.2s;
+}
+
+.guide-btn-link:hover {
+    color: #2563eb;
+    text-decoration: underline;
+}
+
+.guide-select {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1.5px solid #4b5563;
+    border-radius: 0.375rem;
+    background: #18181b;
+    color: #fff;
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.guide-select:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px #2563eb33;
+}
+
+.guide-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+    color: #fff;
+    font-weight: 500;
+    margin-top: 0.25rem;
+}
+
+// Themed background and container for GuideApplication (match modal theme)
+.guide-app-bg {
+    min-height: 100%;
+    min-width: 100%;
+    display: block;
+    padding-top: 2.5rem;
+    padding-bottom: 2.5rem;
+}
+
+.guide-app-container {
+    margin: 0 auto;
+    padding: 2.5rem 2.5rem 2rem 2.5rem;
+    min-width: 320px;
+    max-width: 640px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.guide-app-title {
+    color: var(--modal-title, #fff);
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.guide-app-desc {
+    color: var(--modal-desc, #bfc9d8);
+    margin-bottom: 2rem;
+    font-size: 1.08rem;
+}
+
+.guide-app-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.guide-btn-row {
+    display: flex;
+    gap: 1rem;
+}
+
+.guide-btn {
+    width: 100%;
+    background: var(--modal-accent, #2563eb);
+    color: #fff;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    font-size: 1.08rem;
+    border: none;
+    padding: 0.75rem 0;
+    transition: background 0.2s;
+}
+
+.guide-btn:disabled {
+    background: #3b4860;
+    color: #bfc9d8;
+    cursor: not-allowed;
+}
+
+.guide-btn-secondary {
+    width: 100%;
+    background: transparent;
+    color: var(--modal-accent, #2563eb);
+    border: 1.5px solid var(--modal-accent, #2563eb);
+    border-radius: 0.5rem;
+    font-weight: 600;
+    font-size: 1.08rem;
+    padding: 0.75rem 0;
+    transition: background 0.2s, color 0.2s;
+}
+
+.guide-btn-secondary:hover {
+    background: var(--modal-accent, #2563eb);
+    color: #fff;
+}
+
+// Ensure all forms using this style have a minimum width
+.guide-form {
+    min-width: 600px;
+    width: 100%;
+    max-width: 100%;
+}
+
+// Custom checkbox styling for language selection
+.inputfield-like-checkbox {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0.5rem 1rem;
+    margin-bottom: 0.25rem;
+    transition: border 0.2s, box-shadow 0.2s;
+}
+
+.checkbox-input {
+    appearance: none;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 0.3rem;
+    margin-right: 0.5rem;
+    position: relative;
+    transition: border 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+}
+
+.checkbox-input:checked::after {
+    content: '';
+    display: block;
+    position: absolute;
+    left: 0.28rem;
+    top: 0.08rem;
+    width: 0.35rem;
+    height: 0.65rem;
+    border: solid #fff;
+    border-width: 0 0.18rem 0.18rem 0;
+    transform: rotate(45deg);
+}
+
+.checkbox-input:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px #2563eb33;
+}
+
+.guide-label {
+    display: block;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #fff;
+    margin-bottom: 0.25rem;
+    letter-spacing: 0.01em;
+}
+
+.guide-textarea {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1.5px solid #4b5563;
+    border-radius: 0.375rem;
+    background: #18181b;
+    color: #fff;
+    font-size: 1rem;
+    resize: vertical;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.guide-textarea:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px #2563eb33;
+}
+
+
+.guide-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-direction: row;
+    margin-bottom: 0.5rem;
+}
+
+.guide-row input {
+    flex: 1;
+    min-height: 36px;
+    height: 36px;
+    padding: 0 1rem;
+    border: 1.5px solid #4b5563;
+    border-radius: 0.375rem;
+    background: #18181b;
+    color: #fff;
+    font-size: 1rem;
+    box-sizing: border-box;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.guide-row input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px #2563eb33;
+}
+
+
+.guide-remove-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1.5px solid #f87171;
+    color: #f87171;
+    background: transparent;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    margin-top: 15px;
+    transition: background 0.2s;
+    cursor: pointer;
+}
+
+.guide-remove-btn:hover,
+.guide-remove-btn:focus {
+    background: rgba(185, 28, 28, 0.12);
+    outline: none;
+    box-shadow: 0 0 0 2px #f87171;
+}
+
+.guide-remove-btn svg {
+    width: 22px;
+    height: 22px;
+    display: block;
+}

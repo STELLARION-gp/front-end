@@ -1,4 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import RoleUpgradeModal from '../components/RoleUpgradeModal';
 import { useAuth } from '../hooks/useAuth';
 import LoadingSpinner from '../components/LoadingSpinner';
 import Button from '../components/Button';
@@ -146,6 +148,7 @@ const Profile: React.FC = () => {
 
   // Add state for role upgrade options
   const [selectedUpgradeRole, setSelectedUpgradeRole] = useState<string>('');
+  const navigate = useNavigate();
   const [roleUpgradeReason, setRoleUpgradeReason] = useState<string>('');
   const [deleteAccountPassword, setDeleteAccountPassword] = useState<string>('');
 
@@ -1545,85 +1548,22 @@ const Profile: React.FC = () => {
       )}
 
       {/* Role Upgrade Modal */}
-      {showRoleUpgradeModal && (
-        <div className="profile-modal-overlay">
-          <div className="profile-modal">
-            <div className="modal-header">
-              <h3 className="modal-title">{t('profile.modals.roleUpgrade.title')}</h3>
-            </div>
-
-            <div className="modal-content">
-              <div className="space-y-4">
-                {currentUserProfile.role === 'learner' ? (
-                  <>
-                    <p className="text-gray-300">
-                      {t('profile.modals.roleUpgrade.selectRole')}:
-                    </p>
-                    <div className="form-group">
-                      <label className="form-label">{t('profile.modals.roleUpgrade.selectRole')}</label>
-                      <select
-                        value={selectedUpgradeRole}
-                        onChange={(e) => setSelectedUpgradeRole(e.target.value)}
-                        className="form-select"
-                        aria-label="Select role for upgrade"
-                      >
-                        <option value="">{t('profile.modals.roleUpgrade.selectRole')}...</option>
-                        {getAvailableRoleUpgrades(currentUserProfile.role).map(role => (
-                          <option key={role} value={role}>
-                            {t(`profile.roles.${role}`)}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </>
-                ) : (
-                  <p className="text-gray-300">
-                    {t('profile.modals.roleUpgrade.description')
-                      .replace('{{currentRole}}', t(`profile.roles.${currentUserProfile.role}`))
-                      .replace('{{nextRole}}', nextRole ? t(`profile.roles.${nextRole}`) : '')}
-                  </p>
-                )}
-
-                <div className="form-group">
-                  <label className="form-label">{t('profile.modals.roleUpgrade.reason')}</label>
-                  <textarea
-                    value={roleUpgradeReason}
-                    onChange={(e) => setRoleUpgradeReason(e.target.value)}
-                    className="form-textarea"
-                    rows={4}
-                    placeholder={t('profile.modals.roleUpgrade.reasonPlaceholder') || 'Please explain why you want this role upgrade...'}
-                  />
-                  {errors.roleUpgrade && (
-                    <div className="text-red-400 text-sm mt-1">{errors.roleUpgrade}</div>
-                  )}
-                </div>
-
-                <p className="text-sm text-gray-400">
-                  {t('profile.modals.roleUpgrade.reviewNote')}
-                </p>
-              </div>
-            </div>
-
-            <div className="modal-footer">
-              <Button
-                onClick={() => setShowRoleUpgradeModal(false)}
-                variant="secondary"
-                size="medium"
-              >
-                {t('common.cancel')}
-              </Button>
-              <Button
-                onClick={handleRoleUpgrade}
-                disabled={loading}
-                variant="primary"
-                size="medium"
-                loading={loading}
-              >
-                {t('profile.modals.roleUpgrade.submitRequest')}
-              </Button>
-            </div>
-          </div>
-        </div>
+      {showRoleUpgradeModal && currentUserProfile.role === 'learner' && (
+        <RoleUpgradeModal
+          isOpen={showRoleUpgradeModal}
+          onClose={() => setShowRoleUpgradeModal(false)}
+          selectedRole={selectedUpgradeRole}
+          setSelectedRole={setSelectedUpgradeRole}
+          onSelect={(role) => {
+            setShowRoleUpgradeModal(false);
+            setSelectedUpgradeRole('');
+            if (role === 'guide') {
+              navigate('/dashboard/guide-application');
+            } else if (role === 'influencer') {
+              navigate('/dashboard/influencer-application');
+            }
+          }}
+        />
       )}
 
       {/* Delete Account Modal */}

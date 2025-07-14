@@ -242,6 +242,22 @@
             "linkedin": "Connect on LinkedIn"
         }
     },
+    "mentorManagement": {
+        "title": "Mentors",
+        "addMentor": "Add Mentor",
+        "phoneNumber": "Phone Number",
+        "submit": "Submit"
+    },
+    "guideApplication": {
+        "title": "Guide Application",
+        "desc": "Apply to become a Guide and help others explore the universe.",
+        "submit": "Submit Guide Application"
+    },
+    "influencerApplication": {
+        "title": "Influencer Application",
+        "desc": "Apply to become an Influencer and inspire the community.",
+        "submit": "Submit Influencer Application"
+    },
     "logout": {
         "title": "Confirm Logout",
         "message": "Are you sure you want to logout?",

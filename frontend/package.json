@@ -12,6 +12,7 @@
   "dependencies": {
     "@headlessui/react": "^2.2.4",
     "@heroicons/react": "^2.2.0",
+    "@react-google-maps/api": "^2.20.7",
     "@react-three/drei": "^10.3.0",
     "@react-three/fiber": "^9.1.2",
     "@types/react-leaflet": "^2.8.3",
@@ -31,6 +32,8 @@
     "react-i18next": "^15.5.2",
     "react-leaflet": "^5.0.0",
     "react-router-dom": "^7.6.2",
+    "react-select": "^5.10.2",
+    "react-time-picker": "^7.0.0",
     "recharts": "^3.0.2",
     "sass": "^1.89.1",
     "three": "^0.177.0"

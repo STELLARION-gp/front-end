@@ -8,7 +8,7 @@ import {
   HomeIcon,
   Cog6ToothIcon,
   UserCircleIcon,
-  QuestionMarkCircleIcon,
+  //QuestionMarkCircleIcon,
   ChatBubbleLeftRightIcon,
   CalendarDaysIcon,
   BookOpenIcon,
@@ -155,7 +155,7 @@ const Sidebar: React.FC = () => {
     : [];
 
   const LinkItems: ProcessedMenuItem[] = [
-    { label: 'Help', icon: <QuestionMarkCircleIcon className="icon" />, href: '/help' },
+    //{ label: 'Help', icon: <QuestionMarkCircleIcon className="icon" />, href: '/help' },
     { label: 'Logout', icon: <ArrowRightOnRectangleIcon className="icon" />, href: '/logout' },
   ];
 

@@ -68,6 +68,8 @@ import MentorNotification from '../pages/mentor/MentorNotification';
 import MyUniverse from '../pages/learner/MyUniverse';
 //import { MentorPauseProvider } from '../contexts/MentorPauseContext';
 import { MenteeProvider } from '../contexts/MenteeContext';
+import Competitions from '../pages/influencer/competitions';
+import MyBlogs from '../pages/influencer/myblogs';
 
 // Create placeholder components for different pages - all memoized
 // const BlogsPage = memo(() => (

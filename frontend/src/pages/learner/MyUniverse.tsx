@@ -7,12 +7,14 @@ import {
   CalendarDays,
   Users,
   User,
-  ImageIcon,
-  Trophy
+  Trophy,
+  ShoppingCart
 } from 'lucide-react';
 import QuizCard from '../../components/Learner/QuizCard';
 import Button from '../../components/Button';
 import QuizModal from '../../components/Learner/QuizModal';
+import AstronomyBlogCard from '../../components/Learner/blogcard';
+import { useNavigate } from 'react-router-dom';
 
 
 const tabs = [
@@ -22,7 +24,7 @@ const tabs = [
   { name: 'Services', icon: <CalendarDays size={16} /> },
   { name: 'Mentors', icon: <User size={16} /> },
   { name: 'Influencers', icon: <Users size={16} /> },
-  { name: 'My Content', icon: <ImageIcon size={16} /> }
+  { name: 'Sessions', icon: <ShoppingCart size={16} /> }
 ];
 
 interface Quiz {
@@ -137,11 +139,41 @@ const participatedQuizzes: ParticipatedQuiz[] = [
     score: 92
   }
 ];
+const favourite_blogs = [
+  {
+    id: 1,
+    image: "https://kielderobservatory.org/images/stories/virtuemart/product/Orion%20Nebula%20-%20AS%20-%20med.jpg",
+    title: "The Orion Nebula: A Stellar Nursery",
+    author: "Dr. Jane Skywalker",
+    createdAt: "2025-06-20",
+    rating: 4.7,
+    content: "The Orion Nebula is one of the brightest nebulae visible to the naked eye. Located around 1,344 light-years away, it is a region where new stars are born. In this article, we explore its structure, the Trapezium cluster, and how the nebula helps astronomers understand stellar evolution."
+  },
+  {
+    id: 2,
+    image: "https://cdn.arstechnica.net/wp-content/uploads/2024/03/cosmology-astronomy-discoveries.jpg",
+    title: "Exploring the Expanding Universe",
+    author: "Prof. John Cosmos",
+    createdAt: "2025-06-18",
+    rating: 4.9,
+    content: "Ever since Edwin Hubble’s discovery, the expanding universe has intrigued cosmologists. This blog delves into redshift, the cosmic microwave background radiation, and the implications of dark energy in accelerating the expansion of our universe."
+  },
+  {
+    id: 3,
+    image: "https://static.vecteezy.com/system/resources/previews/027/100/104/large_2x/the-starry-night-sky-with-the-milky-way-galaxy-space-dust-and-a-planet-in-the-background-all-free-photo.jpg",
+    title: "The Magic of Solar Eclipses",
+    author: "Luna Rivera",
+    createdAt: "2025-06-15",
+    rating: 4.6,
+    content: "Solar eclipses offer a rare chance to study the Sun's corona and impact public interest in astronomy. This article covers the types of solar eclipses, historical significance, safety tips, and upcoming eclipse dates visible from Earth."
+  },
 
+]
 const MyUniverse = () => {
   const [activeTab, setActiveTab] = useState('Quizzes');
   const [showQuizModal, setShowQuizModal] = useState(false);
   const [selectedQuiz, setSelectedQuiz] = useState<Quiz | null>(null);
+  const navigate = useNavigate();
 
   const handleParticipate = (quiz: Quiz) => {
     setSelectedQuiz(quiz);
@@ -321,17 +353,24 @@ const MyUniverse = () => {
 
         {activeTab === 'Favorites' && (
           <>
-            <h3>Favorite Blogs</h3>
-            <ul>
-              <li>“10 Facts About Exoplanets”</li>
-              <li>“James Webb Discoveries 2025”</li>
-            </ul>
-
-            <h3>Favorite Images</h3>
-            <div className="universe-grid">
-              <div className="universe-rounded-box">🌠 Pillars of Creation</div>
-              <div className="universe-rounded-box">📷 Rosette Nebula</div>
+            <h2>Favorite Blogs</h2>
+            <div className="astronomy-card-container">
+              {favourite_blogs.map((blog) => (
+                  <AstronomyBlogCard
+                  key={blog.id}
+                  image={blog.image}
+                  title={blog.title}
+                  author={blog.author}
+                  createdAt={blog.createdAt}
+                  rating={blog.rating}
+                  content={blog.content}
+                  onClick={() => navigate(`/dashboard/blogs/${blog.id}`)}
+                />
+              ))}
             </div>
+
+            
+            
           </>
         )}
 

@@ -1,0 +1,105 @@
+.mentor-notification-container {
+  width: 100%;
+  max-width: 1200px;
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 3rem 2rem 2rem 2rem;
+  background: linear-gradient(120deg, #1e293b 10%, #364764 100%);
+  border-radius: 36px;
+  box-shadow: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1.5rem;
+}
+
+.mentor-notification {
+  width: 100%;
+  border-radius: 28px;
+  border-bottom: 1.5px solid #334155;
+  background: rgba(30, 41, 59, 0.95);
+  box-shadow: none;
+  transition: background 0.2s, transform 0.2s;
+  cursor: pointer;
+  padding: 1.5rem 2rem;
+  margin: 0;
+  &:hover {
+    background: linear-gradient(120deg, #334155 10%, #475569 100%);
+    transform: translateY(-2px) scale(1.01);
+  }
+  &:last-child {
+    border-bottom: none;
+  }
+  
+  // Pause notification styling
+  &.pause-notification {
+    border-left: 4px solid #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+    border-bottom: 1.5px solid #ef4444;
+    
+    &:hover {
+      background: rgba(239, 68, 68, 0.15);
+    }
+    
+    .mentor-notification__name {
+      color: #ef4444 !important;
+    }
+    
+    .mentor-notification__message {
+      color: #fca5a5 !important;
+    }
+  }
+  
+  // Availability notification styling
+  &.availability-notification {
+    border-left: 4px solid #f59e0b;
+    background: rgba(245, 158, 11, 0.1);
+    border-bottom: 1.5px solid #f59e0b;
+    
+    &:hover {
+      background: rgba(245, 158, 11, 0.15);
+    }
+    
+    .mentor-notification__name {
+      color: #f59e0b !important;
+    }
+    
+    .mentor-notification__message {
+      color: #fbbf24 !important;
+    }
+  }
+}
+
+// Remove avatar/profile icon styles
+.mentor-notification__avatar-bg,
+.mentor-notification__avatar {
+  display: none !important;
+}
+
+.mentor-notification__content {
+  width: 100%;
+}
+.mentor-notification__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.3rem;
+}
+.mentor-notification__name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fff;
+}
+.mentor-notification__time {
+  font-size: 0.95rem;
+  color: #b3b8c5;
+  margin-left: 1rem;
+  white-space: nowrap;
+}
+.mentor-notification__message {
+  color: #e5e7eb;
+  font-size: 1rem;
+  line-height: 1.5;
+  margin-top: 0.2rem;
+} 

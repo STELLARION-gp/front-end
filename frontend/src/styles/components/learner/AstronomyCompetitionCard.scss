@@ -1,8 +1,8 @@
-.competition-card {
+.preview-competition-card {
   background: #181f2a;
 //   border: 2px solid #2563eb;
   border-radius: 14px;
-  width: 320px;
+  width: 400px;
   box-shadow: 0 2px 12px rgba(37, 99, 235, 0.08);
 
   display: flex;
@@ -16,14 +16,15 @@
   }
 }
 
-.competition-image-wrapper {
+.preview-competition-image-wrapper {
   position: relative;
   width: 100%;
   height: 160px;
   overflow: hidden;
+  border-radius: 14px;
 }
 
-.competition-image {
+.preview-competition-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -33,11 +34,11 @@
   z-index: 1; 
 }
 
-.competition-card:hover .competition-image {
+.preview-competition-card:hover .competition-image {
   transform: scale(1.08);
 }
 
-.competition-date-badge {
+.preview-competition-date-badge {
   position: absolute;
   top: 8px;    // changed from -10px
   left: 8px;   // changed from -10px
@@ -51,32 +52,39 @@
   box-shadow: 0 2px 8px rgba(37,99,235,0.12);
 }
 
-.competition-content {
+.preview-competition-content {
   padding: 1rem 1.2rem 1.2rem 1.2rem;
   display: flex;
   flex-direction: column;
+  // justify-content: center;
+  // padding: 10px;
+  // overflow-y: hidden;
+  // align-items: center;
   flex: 1;
 }
 
-.competition-title {
-  font-size: 1.18rem;
-  font-weight: 700;
-  color: #60a5fa;
-  margin: 0.2rem 0 0.5rem 0;
+.preview-competition-title {
+  // font-size: 0.7rem;
+  // font-weight: 700;
+  // color: #60a5fa;
+  // margin: 0.2rem 0 0.5rem 0;
+  font-size: 1.2rem;
+  margin: 0.5rem 0 0.25rem 0;
+  color: #60a5fa; // blue-400
 }
 
-.competition-desc {
+.preview-competition-desc {
   color: #e5e7eb;
   font-size: 1rem;
   margin-bottom: 1.1rem;
   flex: 1;
 }
 
-.competition-btn {
-  background: linear-gradient(90deg, #2563eb 0%, #1e40af 100%);
-  color: #fff;
-  border: none;
-  border-radius: 6px;
+.preview-competition-btn {
+  // background: linear-gradient(90deg, #2563eb 0%, #1e40af 100%);
+  // color: #fff;
+  // border: none;
+  // border-radius: 6px;
   padding: 0.55rem 1.2rem;
   font-size: 1rem;
   font-weight: 600;

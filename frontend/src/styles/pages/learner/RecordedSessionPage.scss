@@ -1,0 +1,229 @@
+.recorded-session-page {
+  width: 1050px;
+  margin: 0rem auto 2rem auto;
+  background: #1e293b;
+  border-radius: 18px;
+  box-shadow: 0 4px 32px 0 rgba(37,99,235,0.13);
+  padding: 2.2rem 2.2rem 2.5rem 2.2rem;
+  color: #e5e7eb;
+  font-family: 'Inter', sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 2.2rem;
+}
+
+.rsp-main {
+  display: flex;
+  gap: 2.5rem;
+  flex-wrap: wrap;
+}
+
+.rsp-media {
+  flex: 1 1 320px;
+  min-width: 280px;
+  max-width: 340px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.rsp-image {
+  width: 100%;
+  border-radius: 12px;
+  box-shadow: 0 2px 16px 0 rgba(59,130,246,0.10);
+  object-fit: cover;
+  max-height: 260px;
+}
+
+.rsp-details {
+  flex: 2 1 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.rsp-title {
+  font-size: 2.1rem;
+  font-weight: 700;
+  color: #60a5fa;
+  margin-bottom: 0.3rem;
+}
+
+.rsp-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.1rem;
+  font-size: 1.02rem;
+  align-items: center;
+  color: #a1a1aa;
+}
+
+.rsp-instructor {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #fbbf24;
+  font-weight: 500;
+}
+.rsp-instructor-pic {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #3b82f6;
+}
+
+.rsp-category,
+.rsp-difficulty,
+.rsp-date,
+.rsp-duration {
+  background: #232b3b;
+  border-radius: 6px;
+  padding: 0.18rem 0.7rem;
+  color: #60a5fa;
+  font-size: 0.98rem;
+}
+
+.rsp-rating {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  font-size: 1.1rem;
+}
+.rsp-rating-label {
+  color: #a1a1aa;
+}
+.rsp-rating-value {
+  color: #fbbf24;
+  font-weight: 500;
+}
+.rsp-rating-stars span {
+  font-size: 1.2rem;
+  margin-right: 1px;
+  text-shadow: 0 1px 6px #fbbf2444;
+}
+
+.rsp-description {
+  margin: 1rem 0 0.7rem 0;
+  color: #e5e7eb;
+  font-size: 1.08rem;
+  line-height: 1.7;
+}
+
+.rsp-price-row {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-top: 1.2rem;
+}
+.rsp-price {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #3b82f6;
+  background: #232b3b;
+  border-radius: 8px;
+  padding: 0.3rem 1.1rem;
+  letter-spacing: 1px;
+}
+.rsp-pay-btn {
+  background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 2.1rem;
+  font-size: 1.08rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  box-shadow: 0 2px 12px 0 #3b82f633;
+}
+.rsp-pay-btn:hover {
+  background: linear-gradient(90deg, #2563eb 0%, #60a5fa 100%);
+  transform: translateY(-2px) scale(1.03);
+}
+
+.rsp-comments-section {
+  margin-top: 2.2rem;
+  background: #232b3b;
+  border-radius: 12px;
+  padding: 1.5rem 1.2rem 1.2rem 1.2rem;
+  box-shadow: 0 1px 8px 0 rgba(59,130,246,0.07);
+}
+.rsp-comments-section h2 {
+  color: #60a5fa;
+  font-size: 1.3rem;
+  margin-bottom: 1.1rem;
+}
+.rsp-comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+.rsp-comment {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.8rem;
+  background: #1e293b;
+  border-radius: 8px;
+  padding: 0.7rem 1rem;
+}
+.rsp-comment-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #3b82f6;
+}
+.rsp-comment-author {
+  font-weight: 600;
+  color: #60a5fa;
+}
+.rsp-comment-date {
+  font-size: 0.92rem;
+  color: #a1a1aa;
+  margin-bottom: 0.2rem;
+}
+.rsp-comment-text {
+  color: #e5e7eb;
+  font-size: 1.04rem;
+  margin-top: 0.1rem;
+}
+.rsp-no-comments {
+  color: #a1a1aa;
+  font-size: 1.05rem;
+  margin-bottom: 1rem;
+}
+.rsp-comment-form {
+  display: flex;
+  gap: 0.7rem;
+  margin-top: 1.2rem;
+}
+.rsp-comment-input {
+  flex: 1;
+  background: #181f2a;
+  color: #e5e7eb;
+  border: 1.5px solid #334155;
+  border-radius: 7px;
+  padding: 0.5rem 0.9rem;
+  font-size: 1rem;
+  outline: none;
+  transition: border 0.2s;
+}
+.rsp-comment-input:focus {
+  border: 1.5px solid #3b82f6;
+}
+.rsp-comment-btn {
+  background: #3b82f6;
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  padding: 0.5rem 1.3rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+}
+.rsp-comment-btn:hover {
+  background: #2563eb;
+  transform: translateY(-2px) scale(1.03);
+}

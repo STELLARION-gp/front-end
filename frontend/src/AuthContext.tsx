@@ -5,6 +5,8 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   signOut,
   onAuthStateChanged,
   updateProfile,
@@ -104,6 +106,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       console.log('🔄 Auth state changed:', { user: !!firebaseUser, email: firebaseUser?.email });
+
+      // Check for redirect result first
+      try {
+        const redirectResult = await getRedirectResult(auth);
+        if (redirectResult) {
+          console.log('✅ Google redirect sign-in successful:', redirectResult.user.email);
+          // Handle the redirect result like a normal Google sign-in
+          firebaseUser = redirectResult.user;
+        }
+      } catch (redirectError) {
+        console.error('❌ Error handling redirect result:', redirectError);
+      }
+
       setUser(firebaseUser);
 
       if (firebaseUser) {
@@ -159,26 +174,59 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     firstName?: string,
     lastName?: string
   ): Promise<void> => {
+    let userCredential: UserCredential | null = null;
+
     try {
-      // Create Firebase user
-      const userCredential: UserCredential = await createUserWithEmailAndPassword(auth, email, password);
+      // Step 1: Create Firebase user first
+      console.log('🔥 Creating Firebase user...');
+      userCredential = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(userCredential.user, { displayName });
+      console.log('✅ Firebase user created successfully');
 
-      // Register user with backend
-      await apiService.registerUser({
-        email,
-        displayName,
-        firstName,
-        lastName,
-        role: 'learner' // Default role
-      });
+      // Step 2: Try to register with backend
+      try {
+        console.log('📡 Registering user with backend...');
+        await apiService.registerUser({
+          email,
+          displayName,
+          firstName,
+          lastName,
+          role: 'learner' // Default role
+        });
+        console.log('✅ Backend registration successful');
 
-      // Fetch the complete user profile from backend
-      const profile = await fetchUserProfile();
-      setUserProfile(profile);
-    } catch (error) {
-      console.error('Error during signup:', error);
-      throw error;
+        // Step 3: Fetch the complete user profile from backend
+        console.log('📡 Fetching user profile from backend...');
+        const profile = await fetchUserProfile();
+        setUserProfile(profile);
+        console.log('✅ User profile loaded from backend');
+
+      } catch (backendError) {
+        console.warn('⚠️ Backend registration failed, creating fallback profile:', backendError);
+
+        // Create a fallback profile so user can still use the app
+        const fallbackProfile: UserProfile = {
+          uid: userCredential.user.uid,
+          email: userCredential.user.email || email,
+          displayName: displayName,
+          firstName,
+          lastName,
+          role: 'learner', // Default role
+          isActive: true,
+          createdAt: new Date(),
+          lastLogin: new Date()
+        };
+
+        setUserProfile(fallbackProfile);
+        console.log('✅ Fallback profile created, user can proceed');
+
+        // Note: The user is successfully registered in Firebase
+        // Backend sync can happen later when backend is available
+      }
+
+    } catch (firebaseError) {
+      console.error('❌ Firebase user creation failed:', firebaseError);
+      throw firebaseError; // Only throw if Firebase creation fails
     }
   };
 
@@ -305,11 +353,35 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       console.log('🔐 Starting Google sign-in process...');
 
-      // Sign in with Google popup
-      const result = await signInWithPopup(auth, googleProvider);
+      // Try popup first, fall back to redirect if it fails
+      let result;
+      try {
+        console.log('🪟 Attempting popup sign-in...');
+        result = await signInWithPopup(auth, googleProvider);
+      } catch (popupError: unknown) {
+        const popupAuthError = popupError as { code?: string; message?: string };
+        console.warn('⚠️ Popup failed, attempting redirect:', popupAuthError.code);
+
+        if (popupAuthError.code === 'auth/popup-blocked' ||
+          popupAuthError.code === 'auth/popup-closed-by-user') {
+          console.log('🔄 Using redirect method as fallback...');
+          await signInWithRedirect(auth, googleProvider);
+          return null; // Redirect will reload the page
+        } else {
+          throw popupError; // Re-throw if it's a different error
+        }
+      }
+
       const user = result.user;
 
       console.log('✅ Google sign-in successful:', user.email);
+      console.log('🔍 User details:', {
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName,
+        photoURL: user.photoURL,
+        emailVerified: user.emailVerified
+      });
 
       // Check if this is a new user
       const isNewUser = result.user.metadata.creationTime === result.user.metadata.lastSignInTime;
@@ -317,24 +389,43 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       if (isNewUser) {
         console.log('👤 New user detected, registering with backend...');
 
-        // Extract names from displayName
-        const nameParts = user.displayName?.split(' ') || [];
-        const firstName = nameParts[0] || '';
-        const lastName = nameParts.slice(1).join(' ') || '';
+        try {
+          // Extract names from displayName
+          const nameParts = user.displayName?.split(' ') || [];
+          const firstName = nameParts[0] || '';
+          const lastName = nameParts.slice(1).join(' ') || '';
 
-        // Register new user with backend
-        await apiService.registerUser({
-          email: user.email || '',
-          displayName: user.displayName || '',
-          firstName,
-          lastName,
-          role: 'learner' // Default role
-        });
+          // Register new user with backend
+          await apiService.registerUser({
+            email: user.email || '',
+            displayName: user.displayName || '',
+            firstName,
+            lastName,
+            role: 'learner' // Default role
+          });
+
+          console.log('✅ Backend registration successful');
+
+        } catch (registrationError) {
+          console.error('❌ Backend registration failed:', registrationError);
+          console.error('🔍 Registration error details:', JSON.stringify(registrationError, null, 2));
+
+          // Continue anyway - user is created in Firebase
+          console.log('⚠️ Continuing with Firebase-only user (backend will sync later)...');
+        }
       }
 
       // Fetch user profile from backend
       console.log('📡 Fetching user profile from backend...');
-      const profile = await fetchUserProfile();
+      let profile;
+
+      try {
+        profile = await fetchUserProfile();
+      } catch (profileError) {
+        console.error('❌ Profile fetch failed:', profileError);
+        console.error('🔍 Profile error details:', JSON.stringify(profileError, null, 2));
+        profile = null;
+      }
 
       if (!profile) {
         console.log('⚠️ Backend profile fetch failed, creating basic profile');
@@ -359,8 +450,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     } catch (error: unknown) {
       console.error('❌ Google sign-in error:', error);
+      console.error('🔍 Full error object:', JSON.stringify(error, null, 2));
 
       const authError = error as { code?: string; message?: string };
+      console.error('🔍 Error code:', authError.code);
+      console.error('🔍 Error message:', authError.message);
 
       // Handle specific Google auth errors
       if (authError.code === 'auth/popup-closed-by-user') {

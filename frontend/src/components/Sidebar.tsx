@@ -8,7 +8,7 @@ import {
   HomeIcon,
   Cog6ToothIcon,
   UserCircleIcon,
-  QuestionMarkCircleIcon,
+  //QuestionMarkCircleIcon,
   ChatBubbleLeftRightIcon,
   CalendarDaysIcon,
   BookOpenIcon,
@@ -21,7 +21,19 @@ import {
   PhotoIcon,
   StarIcon,
   RocketLaunchIcon,
-  SparklesIcon
+  SparklesIcon,
+  HandRaisedIcon,
+  CurrencyDollarIcon,
+  MegaphoneIcon,
+  UserGroupIcon,
+  DocumentTextIcon,
+  VideoCameraIcon,
+  TrophyIcon,
+  PencilIcon,
+  FilmIcon,
+  ClipboardDocumentListIcon,
+  GlobeAltIcon
+
 } from '@heroicons/react/24/outline';
 
 // Define interfaces for menu items
@@ -50,7 +62,18 @@ const iconMap = {
   PhotoIcon,
   StarIcon,
   RocketLaunchIcon,
-  SparklesIcon
+  SparklesIcon,
+  TrophyIcon,
+  HandRaisedIcon,
+  CurrencyDollarIcon,
+  MegaphoneIcon,
+  PencilIcon,
+  UserGroupIcon,
+  DocumentTextIcon,
+  VideoCameraIcon,
+  FilmIcon,
+  ClipboardDocumentListIcon,
+  GlobeAltIcon
 };
 
 // Memoize the icon components to prevent re-renders
@@ -134,7 +157,7 @@ const Sidebar: React.FC = () => {
     : [];
 
   const LinkItems: ProcessedMenuItem[] = [
-    { label: 'Help', icon: <QuestionMarkCircleIcon className="icon" />, href: '/help' },
+    //{ label: 'Help', icon: <QuestionMarkCircleIcon className="icon" />, href: '/help' },
     { label: 'Logout', icon: <ArrowRightOnRectangleIcon className="icon" />, href: '/logout' },
   ];
 

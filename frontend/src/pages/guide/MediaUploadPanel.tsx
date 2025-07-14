@@ -1,5 +1,6 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { flushSync } from 'react-dom';
+import { useNavigate } from 'react-router-dom';
 import Button from '../../components/Button';
 import '../../styles/pages/guide/_mediaUploadPanel.scss';
 
@@ -71,6 +72,18 @@ const TelescopeIcon: React.FC<{ className?: string }> = ({ className = "" }) => 
   </svg>
 );
 
+const ArrowLeft: React.FC<{ className?: string }> = ({ className = "" }) => (
+  <svg className={className} width="16" height="16" viewBox="0 0 24 24" fill="none">
+    <path
+      d="M19 12H5M12 19L5 12L12 5"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
 interface MediaFile {
   id: string;
   file: File;
@@ -110,6 +123,7 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
   maxFileSize = 50, // 50MB default
   allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'video/mp4', 'video/webm', 'video/quicktime']
 }) => {
+  const navigate = useNavigate();
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
   const [dragActive, setDragActive] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<{ [key: string]: number }>({});
@@ -474,14 +488,26 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
   const renderMediaContent = () => (
     <div className="media-upload-panel">
       <div className="media-upload-header">
-        <div className="header-content">
-          <h2 className="panel-title">Media Upload Portal</h2>
-          <p className="panel-subtitle">
-            Upload astronomy tour photos and videos, then submit them to your database
-          </p>
+        <div className="header-top">
+          <Button
+            variant="secondary"
+            size="medium"
+            icon={<ArrowLeft className="w-4 h-4" />}
+            iconPosition="left"
+            onClick={() => navigate(-1)}
+          >
+            Back to Dashboard
+          </Button>
         </div>
-        
-        <div className="header-actions">
+        <div className="header-main">
+          <div className="header-content">
+            <h2 className="panel-title">Media Upload Portal</h2>
+            <p className="panel-subtitle">
+              Upload astronomy tour photos and videos, then submit them to your database
+            </p>
+          </div>
+          
+          <div className="header-actions">
           <div className="upload-mode-tabs">
             <Button
               variant={uploadMode.type === 'single' ? 'primary' : 'secondary'}
@@ -513,6 +539,7 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
               {uploadMode.type === 'album' ? 'Upload Album' : 'Upload Media'}
             </Button>
           </div>
+        </div>
         </div>
       </div>
 

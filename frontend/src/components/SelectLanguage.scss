@@ -1,0 +1,48 @@
+.inputfield-like-select {
+    width: 100%;
+    min-height: 36px;
+}
+
+.inputfield-like-select .select-language__control {
+    color: #fff;
+    min-height: 36px;
+    height: 36px;
+    font-size: 1rem;
+    box-shadow: none;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.inputfield-like-select .select-language__control--is-focused {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px #2563eb33;
+}
+
+.inputfield-like-select .select-language__single-value {
+    color: #fff;
+}
+
+.inputfield-like-select .select-language__input-container {
+    color: #fff;
+}
+
+.inputfield-like-select .select-language__menu {
+    color: #fff;
+    border-radius: 0.375rem;
+    font-size: 1rem;
+}
+
+.inputfield-like-select .select-language__option {
+    color: #fff;
+    cursor: pointer;
+}
+
+.inputfield-like-select .select-language__option--is-focused {}
+
+.inputfield-like-select .select-language__option--is-selected {
+    background: #2563eb;
+}
+
+.inputfield-like-select .select-language__placeholder {
+    color: #a1a1aa;
+}

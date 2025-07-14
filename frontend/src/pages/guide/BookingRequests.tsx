@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Button from '../../components/Button';
 import Card from '../../components/Card';
+import { Calendar, CheckCircle, XCircle, Users } from 'lucide-react';
 import '../../styles/pages/guide/_bookingRequests.scss'; // create styles if needed
 
 interface BookingRequest {
@@ -13,6 +15,7 @@ interface BookingRequest {
 }
 
 const BookingRequests: React.FC = () => {
+  const navigate = useNavigate();
   const [requests, setRequests] = useState<BookingRequest[]>([]);
   const [acceptedCount, setAcceptedCount] = useState(0);
   const [rejectedCount, setRejectedCount] = useState(0);
@@ -48,13 +51,74 @@ const BookingRequests: React.FC = () => {
   const totalCount = acceptedCount + rejectedCount + pendingCount;
   return (
     <div className="dashboard-page">
-      <h2>Booking Requests</h2>
+      <div className="page-header">
+        <h2>Booking Requests</h2>
+        <div className="header-actions">
+          <Button 
+            variant="secondary" 
+            size="medium"
+            onClick={() => navigate('/dashboard/previous-tours')}
+          >
+            Previous Tours
+          </Button>
+          <Button 
+            variant="primary" 
+            size="medium"
+            onClick={() => navigate('/dashboard/confirmed-bookings')}
+          >
+            View Confirmed Bookings
+          </Button>
+        </div>
+      </div>
       {/* Statistics */}
       <div className="stats-grid">
-        <Card className="stat-card" variant="outlined"><span>Total</span><strong>{totalCount}</strong></Card>
-        <Card className="stat-card" variant="outlined"><span>Pending</span><strong>{pendingCount}</strong></Card>
-        <Card className="stat-card" variant="outlined"><span>Accepted</span><strong>{acceptedCount}</strong></Card>
-        <Card className="stat-card" variant="outlined"><span>Rejected</span><strong>{rejectedCount}</strong></Card>
+        <Card className="stat-card total" variant="outlined">
+          <div className="stat-content">
+            <div className="stat-icon1">
+              <Users className="w-6 h-6" />
+            </div>
+            <div className="stat-info">
+              <span className="stat-label">Total</span>
+              <strong className="stat-value">{totalCount}</strong>
+            </div>
+          </div>
+        </Card>
+        
+        <Card className="stat-card pending" variant="outlined">
+          <div className="stat-content">
+            <div className="stat-icon1">
+              <Calendar className="w-6 h-6" />
+            </div>
+            <div className="stat-info">
+              <span className="stat-label">Pending</span>
+              <strong className="stat-value">{pendingCount}</strong>
+            </div>
+          </div>
+        </Card>
+        
+        <Card className="stat-card accepted" variant="outlined">
+          <div className="stat-content">
+            <div className="stat-icon1">
+              <CheckCircle className="w-6 h-6" />
+            </div>
+            <div className="stat-info">
+              <span className="stat-label">Accepted</span>
+              <strong className="stat-value">{acceptedCount}</strong>
+            </div>
+          </div>
+        </Card>
+        
+        <Card className="stat-card rejected" variant="outlined">
+          <div className="stat-content">
+            <div className="stat-icon1">
+              <XCircle className="w-6 h-6" />
+            </div>
+            <div className="stat-info">
+              <span className="stat-label">Rejected</span>
+              <strong className="stat-value">{rejectedCount}</strong>
+            </div>
+          </div>
+        </Card>
       </div>
       {/* Requests Table */}
       {pendingCount === 0 ? (

@@ -1,0 +1,102 @@
+.mentor-app-bg {
+    min-height: 100%;
+    min-width: 100%;
+    display: block;
+    padding-top: 2.5rem;
+    padding-bottom: 2.5rem;
+}
+
+.mentor-app-container {
+    margin: 0 auto;
+    padding: 2.5rem 2.5rem 2rem 2.5rem;
+    min-width: 320px;
+    max-width: 640px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.mentor-app-title {
+    color: var(--modal-title, #fff);
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.mentor-app-desc {
+    color: var(--modal-desc, #bfc9d8);
+    margin-bottom: 2rem;
+    font-size: 1.08rem;
+}
+
+.mentor-app-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.mentor-btn-row {
+    display: flex;
+    gap: 1rem;
+}
+
+.mentor-btn {
+    width: 100%;
+    background: var(--modal-accent, #2563eb);
+    color: #fff;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    font-size: 1.08rem;
+    border: none;
+    padding: 0.75rem 0;
+    transition: background 0.2s;
+}
+
+.mentor-btn:disabled {
+    background: #3b4860;
+    color: #bfc9d8;
+    cursor: not-allowed;
+}
+
+.mentor-btn-secondary {
+    width: 100%;
+    background: transparent;
+    color: var(--modal-accent, #2563eb);
+    border: 1.5px solid var(--modal-accent, #2563eb);
+    border-radius: 0.5rem;
+    font-weight: 600;
+    font-size: 1.08rem;
+    padding: 0.75rem 0;
+    transition: background 0.2s, color 0.2s;
+}
+
+.mentor-btn-secondary:hover {
+    background: var(--modal-accent, #2563eb);
+    color: #fff;
+}
+
+.mentor-select {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1.5px solid #4b5563;
+    border-radius: 0.375rem;
+    background: #18181b;
+    color: #fff;
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.mentor-select:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px #2563eb33;
+}
+
+.mentor-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+    color: #fff;
+    font-weight: 500;
+    margin-top: 0.25rem;
+}

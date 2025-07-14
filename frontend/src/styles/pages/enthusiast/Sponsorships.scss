@@ -1,0 +1,1226 @@
+// Sponsorships Page Styles
+.sponsorships-page {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 ;
+  
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
+}
+
+// Header Section
+.sponsorships-header {
+  text-align: left;
+  margin-bottom: 3rem;
+
+  .page-title {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+
+    @media (max-width: 768px) {
+      font-size: 2.5rem;
+    }
+  }
+
+  .page-subtitle {
+    font-size: 1.125rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 2rem;
+    max-width: 600px;
+    margin-right: auto;
+    line-height: 1.6;
+
+    @media (max-width: 768px) {
+      font-size: 1rem;
+    }
+  }
+}
+
+// Statistics Grid
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+.stats-card {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.12) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(59, 130, 246, 0.2);
+  }
+
+  .stat-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.5rem;
+  }
+
+  .stat-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    flex-shrink: 0;
+
+    .icon {
+      width: 28px;
+      height: 28px;
+      color: white;
+    }
+  }
+
+  .stat-details {
+    flex: 1;
+
+    .stat-label {
+      font-size: 0.875rem;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 0.25rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 500;
+    }
+
+    .stat-value {
+      font-size: 1.875rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin: 0;
+    }
+  }
+}
+
+// Tab Navigation
+.sponsorships-tabs {
+  display: flex;
+  gap: 0.5rem;
+  border-radius: 12px;
+  padding: 0.5rem;
+  margin-bottom: 2rem;
+  justify-content: center;
+  
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
+
+}
+
+// Tab Content
+.tab-content {
+  min-height: 400px;
+}
+
+// Events Grid
+.events-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 2rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Event Cards
+.event-card {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  transition: all 0.3s ease;
+  padding: 1.5rem !important;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3), 0 0 20px rgba(59, 130, 246, 0.2);
+  }
+
+  .event-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    gap: 1rem;
+
+    .event-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #ffffff;
+      margin: 0;
+      line-height: 1.4;
+    }
+
+    .event-category {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+  }
+
+  .event-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+
+    .detail-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.875rem;
+
+      .detail-icon {
+        width: 16px;
+        height: 16px;
+        color: #3b82f6;
+        flex-shrink: 0;
+      }
+    }
+  }
+
+  .event-description {
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    font-size: 0.925rem;
+  }
+
+  .funding-section {
+    margin-bottom: 1.5rem;
+
+    .funding-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+
+      .funding-label {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.9);
+      }
+
+      .funding-amount {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #3b82f6;
+      }
+    }
+
+    .funding-progress {
+      margin-bottom: 0.5rem;
+
+      .progress-bar__fill {
+        background: linear-gradient(90deg, #3b82f6, #1d4ed8) !important;
+      }
+    }
+
+    .progress-percentage {
+      text-align: center;
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.7);
+      font-weight: 500;
+    }
+  }
+
+  .event-actions {
+    display: flex;
+    gap: 0.75rem;
+
+    @media (max-width: 480px) {
+      flex-direction: column;
+    }
+  }
+}
+
+// History Section
+.history-section {
+  .history-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .history-card {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    transition: all 0.3s ease;
+    padding: 1.25rem !important;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.08) !important;
+      transform: translateY(-2px);
+    }
+
+    .history-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+
+      @media (max-width: 768px) {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+      }
+    }
+
+    .history-main {
+      flex: 1;
+
+      .history-event-name {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #ffffff;
+        margin: 0 0 0.25rem 0;
+      }
+
+      .history-date {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.875rem;
+        margin: 0;
+      }
+    }
+
+    .history-details {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.25rem;
+
+      @media (max-width: 768px) {
+        align-items: flex-start;
+        flex-direction: row;
+        justify-content: space-between;
+        width: 100%;
+      }
+
+      .history-amount {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #3b82f6;
+      }
+
+      .history-status {
+        font-size: 0.8rem;
+        font-weight: 500;
+        text-transform: capitalize;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.1);
+      }
+    }
+  }
+
+  .history-table-container {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+  }
+
+  .history-table {
+    width: 100%;
+    border-collapse: collapse;
+
+    thead {
+     background: rgba(59, 130, 246, 0.1);
+      border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+
+      th {
+        padding: 1rem 1.5rem;
+        text-align: left;
+        font-weight: 600;
+        color: #f1f5f9;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+        &:nth-child(5) { // Role column
+          text-align: center;
+        }
+
+        @media (max-width: 768px) {
+          padding: 0.75rem 1rem;
+          font-size: 0.8rem;
+        }
+      }
+    }
+
+    tbody {
+      tr {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.2s ease;
+        background: rgba(255, 255, 255, 0.02);
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.08);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        &:last-child {
+          border-bottom: none;
+        }
+      }
+
+      td {
+        padding: 1.25rem 1rem;
+        vertical-align: middle;
+        color: rgba(255, 255, 255, 0.9);
+        
+        &:first-child {
+          padding-left: 1.5rem;
+        }
+        
+        &:last-child {
+          padding-right: 1.5rem;
+        }
+      }
+    }
+
+    .event-name-cell {
+      .event-name {
+        font-weight: 600;
+        color: #ffffff;
+        font-size: 1rem;
+        line-height: 1.4;
+      }
+    }
+
+    .contribution-cell {
+      .contribution-amount {
+        font-weight: 700;
+        color: #3b82f6;
+        font-size: 1.125rem;
+        text-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+      }
+    }
+
+    .date-cell {
+      .contribution-date {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.875rem;
+        font-weight: 500;
+      }
+    }
+
+    .status-cell {
+      .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        transition: all 0.2s ease;
+
+        &.status-completed {
+          background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(34, 197, 94, 0.1));
+          color: #22c55e;
+          border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        &.status-pending {
+          background: linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(251, 191, 36, 0.1));
+          color: #fbbf24;
+          border: 1px solid rgba(251, 191, 36, 0.3);
+        }
+
+        &.status-cancelled {
+          background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.1));
+          color: #ef4444;
+          border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        &:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+      }
+    }
+  }
+
+  // Enhanced responsive design for mobile
+  @media (max-width: 968px) {
+    .history-table-container {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .history-table {
+      min-width: 700px;
+      
+      thead th {
+        padding: 1rem 0.75rem;
+        font-size: 0.8rem;
+        
+        &:first-child {
+          padding-left: 1rem;
+        }
+        
+        &:last-child {
+          padding-right: 1rem;
+        }
+      }
+      
+      tbody td {
+        padding: 1rem 0.75rem;
+        
+        &:first-child {
+          padding-left: 1rem;
+        }
+        
+        &:last-child {
+          padding-right: 1rem;
+        }
+      }
+    }
+  }
+
+  @media (max-width: 640px) {
+    .history-table {
+      min-width: 600px;
+      font-size: 0.875rem;
+      
+      .contribution-cell .contribution-amount {
+        font-size: 1rem;
+      }
+      
+      .status-cell .status-badge {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.7rem;
+      }
+    }
+  }
+}
+
+// Empty State
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: rgba(255, 255, 255, 0.7);
+
+  .empty-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 1.5rem;
+    color: rgba(255, 255, 255, 0.4);
+  }
+
+  h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 0.5rem;
+  }
+
+  p {
+    font-size: 1rem;
+    margin-bottom: 2rem;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.6;
+  }
+}
+
+// Color variants for status
+.text-green-400 {
+  color: #10b981 !important;
+}
+
+.text-yellow-400 {
+  color: #f59e0b !important;
+}
+
+.text-red-400 {
+  color: #ef4444 !important;
+}
+
+.text-gray-400 {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+// Sponsor Modal Styles
+.sponsor-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.sponsor-modal {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  backdrop-filter: blur(20px);
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+
+  @media (max-width: 768px) {
+    max-width: 95%;
+    margin: 1rem;
+  }
+}
+
+.sponsor-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2rem 2rem 1rem 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+  h2 {
+    color: #ffffff;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .close-button {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 2rem;
+    cursor: pointer;
+    padding: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+    }
+  }
+}
+
+.sponsor-modal-body {
+  padding: 2rem;
+}
+
+.event-summary {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+
+  p {
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0.5rem 0;
+    font-size: 0.9rem;
+
+    &:first-child {
+      margin-top: 0;
+    }
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    strong {
+      color: #ffffff;
+      font-weight: 600;
+    }
+  }
+}
+
+.sponsor-form {
+  .form-group {
+    margin-bottom: 1.5rem;
+
+    label {
+      display: block;
+      color: #ffffff;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      color: #ffffff;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+
+      &:focus {
+        outline: none;
+        border-color: #3b82f6;
+        background: rgba(255, 255, 255, 0.12);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      }
+
+      &::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+      }
+
+      &:hover {
+        border-color: rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.1);
+      }
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+      font-family: inherit;
+    }
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+
+    @media (max-width: 480px) {
+      flex-direction: column;
+    }
+  }
+}
+
+// Payment Gateway Styles
+.payment-section {
+  .payment-summary {
+    margin-bottom: 2rem;
+
+    .summary-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      padding: 1.5rem;
+
+      h3 {
+        margin-bottom: 1rem;
+        color: #ffffff;
+        font-size: 1.1rem;
+        font-weight: 600;
+      }
+
+      .summary-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+        padding: 0.5rem 0;
+        color: rgba(255, 255, 255, 0.9);
+
+        &.total {
+          border-top: 1px solid rgba(255, 255, 255, 0.15);
+          margin-top: 1rem;
+          padding-top: 1rem;
+          font-weight: 600;
+          font-size: 1.1rem;
+          color: #3b82f6;
+        }
+      }
+    }
+  }
+
+  .payment-methods {
+    margin-bottom: 2rem;
+
+    h3 {
+      margin-bottom: 1rem;
+      color: #ffffff;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .payment-method-options {
+      display: grid;
+      gap: 1rem;
+
+      .payment-option {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        border: 2px solid rgba(255, 255, 255, 0.15);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background: rgba(255, 255, 255, 0.05);
+
+        &:hover {
+          border-color: #3b82f6;
+          background: rgba(59, 130, 246, 0.1);
+        }
+
+        &.selected {
+          border-color: #3b82f6;
+          background: rgba(59, 130, 246, 0.1);
+        }
+
+        input[type="radio"] {
+          margin-right: 1rem;
+          accent-color: #3b82f6;
+        }
+
+        .payment-icon {
+          width: 1.5rem;
+          height: 1.5rem;
+          margin-right: 0.75rem;
+          color: rgba(255, 255, 255, 0.7);
+        }
+
+        span {
+          font-weight: 500;
+          color: #ffffff;
+        }
+      }
+    }
+  }
+
+  .payment-error {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    border-radius: 8px;
+    color: #fca5a5;
+
+    .error-icon {
+      width: 1.25rem;
+      height: 1.25rem;
+      margin-right: 0.5rem;
+      flex-shrink: 0;
+    }
+  }
+
+  .bank-transfer-info,
+  .paypal-info {
+    margin-bottom: 1.5rem;
+
+    .info-card {
+      display: flex;
+      align-items: flex-start;
+      padding: 1.5rem;
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      border-radius: 8px;
+
+      .info-icon {
+        width: 1.5rem;
+        height: 1.5rem;
+        margin-right: 1rem;
+        color: #60a5fa;
+        flex-shrink: 0;
+        margin-top: 0.25rem;
+      }
+
+      h4 {
+        margin-bottom: 0.5rem;
+        color: #ffffff;
+        font-weight: 600;
+      }
+
+      p {
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 0.5rem;
+      }
+
+      .bank-details {
+        margin-top: 1rem;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 6px;
+
+        p {
+          margin-bottom: 0.25rem;
+          font-family: 'Courier New', monospace;
+          font-size: 0.9rem;
+          color: #ffffff;
+        }
+      }
+    }
+  }
+
+  .security-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 1.5rem 0;
+    padding: 1rem;
+    background: rgba(34, 197, 94, 0.1);
+    border-radius: 8px;
+
+    .security-icon {
+      width: 1.25rem;
+      height: 1.25rem;
+      margin-right: 0.5rem;
+      color: #4ade80;
+    }
+
+    span {
+      color: #4ade80;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+  }
+}
+
+// Form styling improvements - Updated input colors
+.sponsor-form,
+.payment-form {
+  .form-group {
+    margin-bottom: 1.5rem;
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #ffffff;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      color: #ffffff;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+
+      &:focus {
+        outline: none;
+        border-color: #3b82f6;
+        background: rgba(255, 255, 255, 0.12);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      }
+
+      &::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+      }
+
+      &:hover {
+        border-color: rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.1);
+      }
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+      font-family: inherit;
+    }
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+
+    @media (max-width: 480px) {
+      flex-direction: column;
+    }
+  }
+}
+
+// Payment form specific styling
+.payment-form {
+  .form-group {
+    input {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+
+      &:focus {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+      }
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.25);
+      }
+    }
+  }
+}
+
+// Payment section adjustments
+.payment-section {
+  .payment-summary {
+    .summary-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      padding: 1.5rem;
+
+      h3 {
+        margin-bottom: 1rem;
+        color: #ffffff;
+        font-size: 1.1rem;
+        font-weight: 600;
+      }
+
+      .summary-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+        padding: 0.5rem 0;
+        color: rgba(255, 255, 255, 0.9);
+
+        &.total {
+          border-top: 1px solid rgba(255, 255, 255, 0.15);
+          margin-top: 1rem;
+          padding-top: 1rem;
+          font-weight: 600;
+          font-size: 1.1rem;
+          color: #3b82f6;
+        }
+      }
+    }
+  }
+
+  .payment-methods {
+    margin-bottom: 2rem;
+
+    h3 {
+      margin-bottom: 1rem;
+      color: #ffffff;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .payment-method-options {
+      display: grid;
+      gap: 1rem;
+
+      .payment-option {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        border: 2px solid rgba(255, 255, 255, 0.15);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background: rgba(255, 255, 255, 0.05);
+
+        &:hover {
+          border-color: #3b82f6;
+          background: rgba(59, 130, 246, 0.1);
+        }
+
+        &.selected {
+          border-color: #3b82f6;
+          background: rgba(59, 130, 246, 0.1);
+        }
+
+        input[type="radio"] {
+          margin-right: 1rem;
+          accent-color: #3b82f6;
+        }
+
+        .payment-icon {
+          width: 1.5rem;
+          height: 1.5rem;
+          margin-right: 0.75rem;
+          color: rgba(255, 255, 255, 0.7);
+        }
+
+        span {
+          font-weight: 500;
+          color: #ffffff;
+        }
+      }
+    }
+  }
+
+  .payment-error {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    border-radius: 8px;
+    color: #fca5a5;
+
+    .error-icon {
+      width: 1.25rem;
+      height: 1.25rem;
+      margin-right: 0.5rem;
+      flex-shrink: 0;
+    }
+  }
+
+  .bank-transfer-info,
+  .paypal-info {
+    margin-bottom: 1.5rem;
+
+    .info-card {
+      display: flex;
+      align-items: flex-start;
+      padding: 1.5rem;
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      border-radius: 8px;
+
+      .info-icon {
+        width: 1.5rem;
+        height: 1.5rem;
+        margin-right: 1rem;
+        color: #60a5fa;
+        flex-shrink: 0;
+        margin-top: 0.25rem;
+      }
+
+      h4 {
+        margin-bottom: 0.5rem;
+        color: #ffffff;
+        font-weight: 600;
+      }
+
+      p {
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 0.5rem;
+      }
+
+      .bank-details {
+        margin-top: 1rem;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 6px;
+
+        p {
+          margin-bottom: 0.25rem;
+          font-family: 'Courier New', monospace;
+          font-size: 0.9rem;
+          color: #ffffff;
+        }
+      }
+    }
+  }
+
+  .security-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 1.5rem 0;
+    padding: 1rem;
+    background: rgba(34, 197, 94, 0.1);
+    border-radius: 8px;
+
+    .security-icon {
+      width: 1.25rem;
+      height: 1.25rem;
+      margin-right: 0.5rem;
+      color: #4ade80;
+    }
+
+    span {
+      color: #4ade80;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+  }
+}
+
+// Modal improvements
+.sponsor-modal {
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+
+  .sponsor-modal-header {
+    position: sticky;
+    top: 0;
+    background: var(--surface-color);
+    z-index: 10;
+    border-bottom: 1px solid var(--border-color);
+  }
+}
+
+// Responsive design for payment form
+@media (max-width: 768px) {
+  .payment-section {
+    .payment-form {
+      .card-details {
+        .form-row {
+          grid-template-columns: 1fr;
+        }
+      }
+    }
+
+    .form-actions {
+      flex-direction: column;
+
+      button {
+        width: 100%;
+      }
+    }
+  }
+
+  .sponsor-modal {
+    max-width: 95vw;
+    margin: 1rem;
+  }
+}

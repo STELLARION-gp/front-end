@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import "../../styles/components/learner/AstronomyCompetitionCard.scss";
 import Button from "../Button";
 
@@ -14,18 +15,24 @@ const AstronomyCompetitionCard: React.FC<AstronomyCompetitionCardProps> = ({
   name,
   date,
   description,
-}) => (
-  <div className="competition-card">
-    <div className="competition-image-wrapper">
-      <img src={coverImage} alt={name} className="competition-image" />
-      <span className="competition-date-badge">{date}</span>
+}) => {
+  const navigate = useNavigate();
+  const handleParticipate = () => {
+    navigate("/dashboard/competition");
+  };
+  return (
+    <div className="preview-competition-card">
+      <div className="preview-competition-image-wrapper">
+        <img src={coverImage} alt={name} className="preview-competition-image" />
+        <span className="preview-competition-date-badge">{date}</span>
+      </div>
+      <div className="preview-competition-content">
+        <h2 className="preview-competition-title">{name}</h2>
+        <p className="preview-competition-desc">{description}</p>
+        <Button className="preview-competition-btn" onClick={handleParticipate}>Participate</Button>
+      </div>
     </div>
-    <div className="competition-content">
-      <h3 className="competition-title">{name}</h3>
-      <p className="competition-desc">{description}</p>
-      <Button>Participate</Button>
-    </div>
-  </div>
-);
+  );
+};
 
 export default AstronomyCompetitionCard;

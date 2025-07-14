@@ -238,4 +238,123 @@
   &:hover {
     background: #1e293b;
   }
+}
+
+.mentor-btn-round {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  padding: 0;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  transition: background 0.2s;
+  &:hover { background: #1d4ed8; }
+}
+.mentor-btn-small {
+  font-size: 12px;
+  padding: 2px 10px;
+  border-radius: 8px;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  min-width: unset;
+  min-height: unset;
+  height: 24px;
+  line-height: 1;
+  transition: background 0.2s;
+  &:hover { background: #1d4ed8; }
+}
+.mentor-btn-large {
+  font-size: 16px;
+  padding: 14px 0;
+  border-radius: 8px;
+  height: 48px;
+  font-weight: 600;
+}
+.mentor-btn-blue {
+  background: #2563eb !important;
+  color: #fff !important;
+  border: none !important;
+}
+.mentor-btn-green {
+  background: #22c55e !important;
+  color: #fff !important;
+  border: none !important;
+}
+.mentor-btn-notification {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 22px;
+  font-weight: 700;
+  padding: 0 24px;
+}
+.mentor-btn-change {
+  position: absolute;
+  bottom: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 16px;
+  padding: 4px 18px;
+  min-width: unset;
+  min-height: unset;
+  height: 32px;
+  line-height: 1;
+}
+.mentor-btn-activity-log {
+  font-size: 22px;
+  height: 60px;
+  margin-top: 18px;
+  border-radius: 10px;
+}
+.mentor-avatar-hover {
+  position: relative;
+}
+.mentor-btn-change {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+.mentor-avatar-hover:hover .mentor-btn-change {
+  opacity: 1;
+  pointer-events: auto;
+}
+.dashboard-page, .mentor-dashboard-large {
+  background: rgba(59,130,246,0.07);
+  border-radius: 16px;
+  min-height: 100vh;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.mentor-btn-statcard {
+  min-width: 120px;
+  text-align: center;
+  flex: 1;
+  padding: 1.5rem;
+  display: block;
+  background: rgba(59, 130, 246, 0.10);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(59,130,246,0.08);
+  cursor: pointer;
+}
+.mentee-gold-hover:hover {
+  border-color: #fbbf24 !important;
+  box-shadow: 0 0 0 4px rgba(251,191,36,0.18);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.mentor-btn-red {
+  background: #ef4444 !important;
+  color: #fff !important;
+  border: none !important;
+  transition: background 0.2s;
+}
+.mentor-btn-red:hover {
+  background: #b91c1c !important;
 } 

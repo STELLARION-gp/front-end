@@ -15,6 +15,31 @@ const StarIcon: React.FC<{ className?: string; filled?: boolean }> = ({ classNam
   </svg>
 );
 
+// const ServiceIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
+//   <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none">
+//     <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2"/>
+//     <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+//     <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1" stroke="currentColor" strokeWidth="2"/>
+//   </svg>
+// );
+
+// const BookingIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
+//   <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none">
+//     <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="currentColor" strokeWidth="2"/>
+//     <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" strokeWidth="2"/>
+//     <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" strokeWidth="2"/>
+//     <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" strokeWidth="2"/>
+//     <path d="M8 14l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+//   </svg>
+// );
+
+// const RevenueIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
+//   <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none">
+//     <line x1="12" y1="1" x2="12" y2="23" stroke="currentColor" strokeWidth="2"/>
+//     <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" stroke="currentColor" strokeWidth="2"/>
+//   </svg>
+// );
+
 const LocationIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
   <svg className={className} width="16" height="16" viewBox="0 0 20 20" fill="none">
     <path
@@ -380,32 +405,52 @@ const ServiceListing: React.FC = () => {
         <div className="stats-grid">
           <Card className="stat-card" variant="elevated">
             <div className="stat-content">
-              <h3 className="stat-number">24</h3>
-              <p className="stat-label">Active Services</p>
-              <span className="stat-change positive">+3 this month</span>
-            </div>
-          </Card>
-          <Card className="stat-card" variant="elevated">
-            <div className="stat-content">
-              <h3 className="stat-number">4.8</h3>
-              <p className="stat-label">Average Rating</p>
-              <div className="stat-stars">
-                {renderStars(4.8)}
+              {/* <div className="stat-icon">
+                <ServiceIcon className="icon" />
+              </div> */}
+              <div className="stat-info">
+                <h3 className="stat-number">24</h3>
+                <p className="stat-label">Active Services</p>
+                <span className="stat-change positive">+3 this month</span>
               </div>
             </div>
           </Card>
           <Card className="stat-card" variant="elevated">
             <div className="stat-content">
-              <h3 className="stat-number">156</h3>
-              <p className="stat-label">Total Bookings</p>
-              <span className="stat-change positive">+12 this week</span>
+              {/* <div className="stat-icon">
+                <StarIcon className="icon star-icon" filled />
+              </div> */}
+              <div className="stat-info">
+                <h3 className="stat-number">4.8</h3>
+                <p className="stat-label">Average Rating</p>
+                <div className="stat-stars">
+                  {renderStars(4.8)}
+                </div>
+              </div>
             </div>
           </Card>
           <Card className="stat-card" variant="elevated">
             <div className="stat-content">
-              <h3 className="stat-number">$3,240</h3>
-              <p className="stat-label">Monthly Revenue</p>
-              <span className="stat-change positive">+18%</span>
+              {/* <div className="stat-icon">
+                <BookingIcon className="icon" />
+              </div> */}
+              <div className="stat-info">
+                <h3 className="stat-number">156</h3>
+                <p className="stat-label">Total Bookings</p>
+                <span className="stat-change positive">+12 this week</span>
+              </div>
+            </div>
+          </Card>
+          <Card className="stat-card" variant="elevated">
+            <div className="stat-content">
+              {/* <div className="stat-icon">
+                <RevenueIcon className="icon" />
+              </div> */}
+              <div className="stat-info">
+                <h3 className="stat-number">$3,240</h3>
+                <p className="stat-label">Monthly Revenue</p>
+                <span className="stat-change positive">+18%</span>
+              </div>
             </div>
           </Card>
         </div>
@@ -480,7 +525,7 @@ const ServiceListing: React.FC = () => {
       {/* Services Grid */}
       <div className="services-grid">
         {filteredServices.map(service => (
-          <Card key={service.id} className="service-card" variant="elevated" hover clickable>
+          <div key={service.id} className="service-card1">
             {/* Service Image */}
             <div className="service-image">
               <img src={service.image} alt={service.title} />
@@ -573,7 +618,7 @@ const ServiceListing: React.FC = () => {
                 View Details
               </Button>
             </div>
-          </Card>
+          </div>
         ))}
       </div>
 
@@ -602,7 +647,7 @@ const ServiceListing: React.FC = () => {
               </button>
             </div>
             
-            <div className="modal-content">
+            <div className="modal-content1">
               <div className="service-image-large">
                 <img src={selectedService.image} alt={selectedService.title} />
                 {selectedService.featured && (
@@ -733,7 +778,7 @@ const ServiceListing: React.FC = () => {
               </button>
             </div>
             
-            <div className="modal-content">
+            <div className="modal-content1">
               <form className="edit-form" onSubmit={(e) => { e.preventDefault(); handleSaveEdit(); }}>
                 <div className="form-grid">
                   <div className="form-group">

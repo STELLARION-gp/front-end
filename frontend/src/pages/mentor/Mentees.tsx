@@ -1,25 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../../styles/pages/mentor/mentees.scss';
 import signupImg from '../../assets/signup.jpg';
 import groupChatIcon from '../../assets/groupchat.png';
 import { useNavigate } from 'react-router-dom';
+import { useMentee } from '../../contexts/MenteeContext';
 
-  const mentees = [
-    { id: 1, name: 'Luna Skywatchet', img: signupImg },
-    { id: 2, name: 'Luna Skywatchet', img: signupImg },
-    { id: 3, name: 'Luna Skywatchet', img: signupImg },
-    { id: 4, name: 'Luna Skywatchet', img: signupImg },
-    { id: 5, name: 'Luna Skywatchet', img: signupImg },
-    { id: 6, name: 'Luna Skywatchet', img: signupImg },
-    { id: 7, name: 'Luna Skywatchet', img: signupImg },
-    { id: 8, name: 'Luna Skywatchet', img: signupImg },
-    { id: 9, name: 'Luna Skywatchet', img: signupImg }
-  ];
+const mentees = [
+  { id: 1, name: 'Luna Skywatchet', img: signupImg },
+  { id: 2, name: 'Luna Skywatchet', img: signupImg },
+  { id: 3, name: 'Luna Skywatchet', img: signupImg },
+  { id: 4, name: 'Luna Skywatchet', img: signupImg },
+  { id: 5, name: 'Luna Skywatchet', img: signupImg },
+  { id: 6, name: 'Luna Skywatchet', img: signupImg },
+  { id: 7, name: 'Luna Skywatchet', img: signupImg },
+  { id: 8, name: 'Luna Skywatchet', img: signupImg },
+  { id: 9, name: 'Luna Skywatchet', img: signupImg }
+];
 
 const Mentees: React.FC = () => {
   const [search, setSearch] = useState('');
   const navigate = useNavigate();
+  const { setMenteeCount } = useMentee();
   const filteredMentees = mentees.filter(m => m.name.toLowerCase().includes(search.toLowerCase()));
+
+  // Update mentee count in real-time
+  useEffect(() => {
+    setMenteeCount(filteredMentees.length);
+  }, [filteredMentees.length, setMenteeCount]);
 
   return (
     <>
@@ -56,7 +63,7 @@ const Mentees: React.FC = () => {
           <button className="mentees-see-more">See More</button>
         </div>
       </div>
-      <div className="mentees-groupchat-icon">
+      <div className="mentees-groupchat-icon" onClick={() => navigate('/dashboard/groupchat')} style={{ cursor: 'pointer' }}>
         <img src={groupChatIcon} alt="Group Chat" style={{ width: 38, height: 38 }} />
       </div>
     </>

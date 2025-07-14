@@ -31,7 +31,8 @@ import {
   TrophyIcon,
   PencilIcon,
   FilmIcon,
-  ClipboardDocumentListIcon
+  ClipboardDocumentListIcon,
+  GlobeAltIcon
 
 } from '@heroicons/react/24/outline';
 
@@ -72,6 +73,7 @@ const iconMap = {
   VideoCameraIcon,
   FilmIcon,
   ClipboardDocumentListIcon,
+  GlobeAltIcon
 };
 
 // Memoize the icon components to prevent re-renders

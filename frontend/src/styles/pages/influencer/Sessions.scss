@@ -1,4 +1,5 @@
 @use '../../abstracts/variables' as *;
+@use '../../abstracts/mixins' as *;
 
 .sessions-page {
   padding: 2rem;
@@ -166,8 +167,6 @@
   }
 }
 
-  //   gap: 1rem;
-
   // .toggle-option {
 .registration-toggle {
   .toggle-options {
@@ -180,6 +179,8 @@
       gap: 0.75rem;
     }
   }
+  }
+}
 
   .toggle-option {
     position: relative;
@@ -253,7 +254,7 @@
       }
     }
   }
-}
+
 
 .all-sessions-list {
   display: grid;

@@ -420,6 +420,11 @@ const MyUniverse = () => {
                         name={comp.name}
                         date={comp.date}
                         description={comp.description}
+                        onClick={() =>
+                          comp.status === "ongoing"
+                            ? navigate("/dashboard/ongoingcompetition")
+                            : navigate("/dashboard/competition")
+                        }
                       />
                       {comp.status === "ongoing" && (
                         <span className="competition-status-badge">Ongoing</span>
@@ -448,7 +453,7 @@ const MyUniverse = () => {
                       <td>{comp.date}</td>
                       <td>
                         <span
-                          className={`status-badge ${
+                          className={`my-competition-status-badge ${
                             comp.status === 'Completed' ? 'completed' : comp.status === 'Registered' ? 'registered' : 'pending'
                           }`}
                         >

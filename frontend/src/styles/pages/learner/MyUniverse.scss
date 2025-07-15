@@ -188,7 +188,7 @@
     background: #1e293b;
   }
 
-  .status-badge {
+  .my-competition-status-badge {
     padding: 0.35rem 0.85rem;
     border-radius: 9999px;
     font-size: 0.75rem;
@@ -199,17 +199,17 @@
     white-space: nowrap;
   }
 
-  .status-badge.completed {
+  .my-competition-status-badge.completed {
     background: #10b981;
     color: #ffffff;
   }
 
-  .status-badge.registered {
+  .my-competition-status-badge.registered {
     background: #3b82f6;
     color: #ffffff;
   }
 
-  .status-badge.pending {
+  .my-competition-status-badge.pending {
     background: #facc15;
     color: #1e293b;
   }

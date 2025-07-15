@@ -70,6 +70,7 @@ import MyUniverse from '../pages/learner/MyUniverse';
 import { MenteeProvider } from '../contexts/mentor/MenteeContext';
 import Competitions from '../pages/influencer/competitions';
 import MyBlogs from '../pages/influencer/myblogs';
+import LearnPath from '../pages/mentor/LearnPath';
 
 // Create placeholder components for different pages - all memoized
 // const BlogsPage = memo(() => (
@@ -487,6 +488,14 @@ const DashboardRoutes = () => {
                 }
             />
 
+            <Route
+                path="learnpath"
+                element={
+                    <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
+                        <LearnPath />
+                    </RoleGuard>
+                }
+            />
             {/* <Route
                 {/* <Route
                     path="mentornotification"

@@ -148,3 +148,102 @@
     }
   }
 }
+
+
+.my-competitions-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 0.5rem;
+  margin-top: 1.5rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+  th, td {
+    padding: 1rem 1.25rem;
+    text-align: left;
+    color: #e2e8f0;
+  }
+
+  th {
+    background: #1e293b;
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05rem;
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
+  }
+
+  td {
+    background: #0f172a;
+    border-bottom: 1px solid #334155;
+    font-size: 0.92rem;
+    border-radius: 0.25rem;
+  }
+
+  tr {
+    transition: background 0.3s ease;
+  }
+
+  tr:hover td {
+    background: #1e293b;
+  }
+
+  .status-badge {
+    padding: 0.35rem 0.85rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-block;
+    text-transform: capitalize;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    white-space: nowrap;
+  }
+
+  .status-badge.completed {
+    background: #10b981;
+    color: #ffffff;
+  }
+
+  .status-badge.registered {
+    background: #3b82f6;
+    color: #ffffff;
+  }
+
+  .status-badge.pending {
+    background: #facc15;
+    color: #1e293b;
+  }
+}
+.registered-competitions-section {
+  margin-bottom: 2rem;
+
+  .section-title {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: #f8fafc;
+  }
+
+  .competition-cards-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+
+  .card-with-status-badge {
+    position: relative;
+
+    .competition-status-badge {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      background: #22c55e;
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.3rem 0.6rem;
+      border-radius: 9999px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      z-index: 2;
+    }
+  }
+}

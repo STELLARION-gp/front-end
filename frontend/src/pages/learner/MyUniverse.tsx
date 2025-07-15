@@ -15,6 +15,7 @@ import Button from '../../components/Button';
 import QuizModal from '../../components/Learner/QuizModal';
 import AstronomyBlogCard from '../../components/Learner/blogcard';
 import { useNavigate } from 'react-router-dom';
+import AstronomyCompetitionCard from '../../components/Learner/AstronomyCompetitionCard';
 
 
 const tabs = [
@@ -48,6 +49,14 @@ export interface ParticipatedQuiz {
   date: string;          // date completed
   timeTaken: number;     // time user took to finish quiz (minutes)
   score: number;         // user's score
+}
+interface Competition {
+  id: number;
+  name: string;
+  date: string;
+  status: 'Registered' | 'Pending' | 'Completed';
+  score?: number;
+  rank?: number;
 }
 
 const sampleQuizzes: Quiz[] = [
@@ -169,6 +178,31 @@ const favourite_blogs = [
   },
 
 ]
+const userCompetitions: Competition[] = [
+  { id: 1, name: 'Astronomy Olympiad', date: '2025-07-20', status: 'Registered' },
+  { id: 2, name: 'Galaxy Challenge', date: '2025-06-10', status: 'Completed', score: 85, rank: 3 },
+  { id: 3, name: 'Nebula Sketch Contest', date: '2025-07-18', status: 'Pending' },
+  { id: 4, name: 'Astro Coding Jam', date: '2025-05-22', status: 'Completed', score: 92, rank: 1 }
+];
+const registeredCompetitions = [
+  {
+    id: 1,
+    coverImage: "https://png.pngtree.com/png-vector/20221020/ourmid/pngtree-happy-children-with-medals-on-school-competition-on-contest-png-image_6331904.png",
+    name: "Galactic Quiz",
+    date: "2025-07-20",
+    description: "Test your astronomy knowledge!",
+    status: "ongoing", // could also be "completed", etc.
+  },
+  {
+    id: 2,
+    coverImage: "https://w7.pngwing.com/pngs/731/996/png-transparent-competition-winners-hand-table-tree-thumbnail.png",
+    name: "Star Mapping Challenge",
+    date: "2025-08-02",
+    description: "Map constellations with precision.",
+    status: "upcoming",
+  },
+];
+
 const MyUniverse = () => {
   const [activeTab, setActiveTab] = useState('Quizzes');
   const [showQuizModal, setShowQuizModal] = useState(false);
@@ -372,6 +406,65 @@ const MyUniverse = () => {
             
             
           </>
+        )}
+        {activeTab === 'Competitions' && (
+          <>
+            <div className="competitions-section">
+              <div className="registered-competitions-section">
+                <h2 className="section-title">Your Registered Competitions</h2>
+                <div className="competition-cards-wrapper">
+                  {registeredCompetitions.map((comp) => (
+                    <div className="card-with-status-badge" key={comp.id}>
+                      <AstronomyCompetitionCard
+                        coverImage={comp.coverImage}
+                        name={comp.name}
+                        date={comp.date}
+                        description={comp.description}
+                      />
+                      {comp.status === "ongoing" && (
+                        <span className="competition-status-badge">Ongoing</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+
+              <h3 className="mb-4">My Competitions</h3>
+              <table className="my-competitions-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Score</th>
+                    <th>Rank</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {userCompetitions.map((comp) => (
+                    <tr key={comp.id}>
+                      <td>{comp.name}</td>
+                      <td>{comp.date}</td>
+                      <td>
+                        <span
+                          className={`status-badge ${
+                            comp.status === 'Completed' ? 'completed' : comp.status === 'Registered' ? 'registered' : 'pending'
+                          }`}
+                        >
+                          {comp.status}
+                        </span>
+                      </td>
+                      <td>{comp.status === 'Completed' ? comp.score : '-'}</td>
+                      <td>{comp.status === 'Completed' ? `#${comp.rank}` : '-'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            
+          </>
+          
         )}
 
         {showQuizModal && selectedQuiz && (

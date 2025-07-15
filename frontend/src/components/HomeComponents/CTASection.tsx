@@ -1,6 +1,8 @@
 
+
 import React, { useEffect, useRef, useState } from 'react';
 import { Rocket, ArrowRight, Sparkles, Globe } from 'lucide-react';
+import { useI18n } from '../../i18n/useI18n';
 import Button from '../Button';
 import '../../styles/components/CTASection.scss';
 
@@ -25,6 +27,9 @@ const CTASection: React.FC = () => {
         return () => observer.disconnect();
     }, []);
 
+    const { t } = useI18n();
+    const { tArray } = useI18n();
+    const ctaFeatures = tArray('cta.features') as string[];
     return (
         <section ref={sectionRef} className="cta-section">
             <div className="cta-container">
@@ -52,16 +57,9 @@ const CTASection: React.FC = () => {
                             <div className="icon-glow"></div>
                         </div>
 
-                        <h2 className="cta-title">
-                            Ready to Explore the
-                            <span className="gradient-text"> Universe?</span>
-                        </h2>
+                        <h2 className="cta-title">{t('cta.title')}</h2>
 
-                        <p className="cta-description">
-                            Join thousands of space enthusiasts and start your cosmic journey today.
-                            Discover real-time satellite tracking, interactive star maps, and connect
-                            with a community that shares your passion for the stars.
-                        </p>
+                        <p className="cta-description">{t('cta.description')}</p>
 
                         <div className="cta-actions">
                             <Button
@@ -70,7 +68,7 @@ const CTASection: React.FC = () => {
                                 icon={<ArrowRight className="w-5 h-5" />}
                                 iconPosition="right"
                             >
-                                Start Exploring
+                                {t('cta.primary')}
                             </Button>
                             <Button
                                 variant="primary"
@@ -78,23 +76,17 @@ const CTASection: React.FC = () => {
                                 icon={<Globe className="w-5 h-5" />}
                                 iconPosition="left"
                             >
-                                View Demo
+                                {t('cta.demo')}
                             </Button>
                         </div>
 
                         <div className="cta-features">
-                            <div className="feature-item">
-                                <Sparkles className="w-4 h-4" />
-                                <span>Free to start</span>
-                            </div>
-                            <div className="feature-item">
-                                <Sparkles className="w-4 h-4" />
-                                <span>Real-time data</span>
-                            </div>
-                            <div className="feature-item">
-                                <Sparkles className="w-4 h-4" />
-                                <span>Expert community</span>
-                            </div>
+                            {ctaFeatures.map((feature, idx) => (
+                                <div className="feature-item" key={idx}>
+                                    <Sparkles className="w-4 h-4" />
+                                    <span>{feature}</span>
+                                </div>
+                            ))}
                         </div>
                     </div>
 

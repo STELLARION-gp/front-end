@@ -1,5 +1,7 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import { Globe, Rocket, Satellite, GraduationCap, Star } from 'lucide-react';
+import { useI18n } from '../../i18n/useI18n';
 import '../../styles/components/StatsSection.scss';
 
 interface StatItemProps {
@@ -76,58 +78,35 @@ const StatItem: React.FC<StatItemProps> = ({ icon, value, label, delay }) => {
   );
 };
 
+
 const StatsSection: React.FC = () => {
-  const stats = [
-    {
-      icon: <Globe className="w-8 h-8" />,
-      value: "25000",
-      label: "Global Users",
-      delay: 0
-    },
-    {
-      icon: <Rocket className="w-8 h-8" />,
-      value: "1200",
-      label: "Celestial Events Tracked",
-      delay: 200
-    },
-    {
-      icon: <Satellite className="w-8 h-8" />,
-      value: "600",
-      label: "Active Satellite Feeds",
-      delay: 400
-    },
-    {
-      icon: <GraduationCap className="w-8 h-8" />,
-      value: "300",
-      label: "Expert-led Sessions",
-      delay: 600
-    },
-    {
-      icon: <Star className="w-8 h-8" />,
-      value: "4.9",
-      label: "Average User Rating",
-      delay: 800
-    }
-  ];
+  const { t } = useI18n();
+  const iconMap = {
+    Globe: <Globe className="w-8 h-8" />,
+    Rocket: <Rocket className="w-8 h-8" />,
+    Satellite: <Satellite className="w-8 h-8" />,
+    GraduationCap: <GraduationCap className="w-8 h-8" />,
+    Star: <Star className="w-8 h-8" />,
+  };
+  const { tArray } = useI18n();
+  type Stat = { icon: keyof typeof iconMap; value: string; label: string };
+  const stats = tArray('stats.items') as Stat[];
 
   return (
     <section className="stats-section">
       <div className="stats-container">
         <div className="stats-header">
-          <h2 className="stats-title">Our Impact Across the Galaxy</h2>
-          <p className="stats-subtitle">
-            Join thousands of space enthusiasts exploring the cosmos together
-          </p>
+          <h2 className="stats-title">{t('stats.title')}</h2>
+          <p className="stats-subtitle">{t('stats.subtitle')}</p>
         </div>
-
         <div className="stats-grid">
           {stats.map((stat, index) => (
             <StatItem
               key={index}
-              icon={stat.icon}
+              icon={iconMap[stat.icon]}
               value={stat.value}
               label={stat.label}
-              delay={stat.delay}
+              delay={index * 200}
             />
           ))}
         </div>

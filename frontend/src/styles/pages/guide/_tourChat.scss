@@ -5,8 +5,8 @@
 
 .tour-chat-page {
   padding: 0;
-  background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.9) 100%);
-  min-height: 100vh;
+  // background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.9) 100%);
+  min-height: 100%;
   position: relative;
   overflow: hidden;
 
@@ -54,14 +54,14 @@
   z-index: 10;
   background: rgba(30, 41, 59, 0.8);
   border-bottom: 1px solid rgba(148, 163, 184, 0.2);
-  padding: 1rem 1.5rem;
+  padding: 1.5rem 1.5rem;
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
-  border-radius: 0 0 24px 24px; // Rounded bottom corners
+  border-radius: 24px 24px 24px 24px; // Rounded bottom corners
   box-shadow: 
     0 4px 20px rgba(0, 0, 0, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
@@ -75,14 +75,14 @@
 
   .back-button {
     transition: all 0.3s ease;
-    border-radius: 16px; // More rounded
+    // border-radius: 16px; // More rounded
 
-    &:hover {
-      transform: translateX(-2px);
-      box-shadow: 
-        0 6px 16px rgba(147, 51, 234, 0.3),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    }
+    // &:hover {
+    //   transform: translateX(-2px);
+    //   box-shadow: 
+    //     0 6px 16px rgba(147, 51, 234, 0.3),
+    // //     inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    // }
   }
 
   .tour-header-info {
@@ -139,7 +139,7 @@
   position: relative;
   z-index: 5;
   display: flex;
-  height: calc(100vh - 120px); // Fixed height for proper layout
+  // height: calc(100vh - 120px); // Fixed height for proper layout
   gap: 1rem;
   padding: 1rem;
 }
@@ -161,7 +161,7 @@
     backdrop-filter: blur(12px);
     display: flex;
     flex-direction: column;
-    height: 100%;
+    height: 85%;
     width: 100%;
     overflow: hidden;
 
@@ -180,8 +180,8 @@
   padding: 1.5rem; // Equal padding on all sides
   overflow-y: auto;
   overflow-x: hidden;
-  min-height: 0; // Allow flex to control height
-  height: 100%; // Take full available height
+  min-height: 400px; // Increased minimum height significantly
+  max-height: calc(100vh - 280px); // Increased available height
 
   // Messages wrapper for flex layout
   .messages-wrapper {
@@ -582,6 +582,8 @@
 .tour-info-panel {
   width: 320px;
   flex-shrink: 0;
+  height: 100%; // Ensure panels don't exceed container height
+  overflow: hidden; // Prevent overflow
 
   .members-container,
   .tour-info-container {
@@ -591,8 +593,10 @@
     -webkit-backdrop-filter: blur(12px);
     backdrop-filter: blur(12px);
     height: 100%;
+    max-height: 100%; // Constrain to parent height
     display: flex;
     flex-direction: column;
+    overflow: hidden; // Prevent container overflow
 
     // Enhanced glassmorphic effect
     box-shadow:
@@ -609,6 +613,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-shrink: 0; // Prevent header from shrinking
 
   h3 {
     margin: 0;
@@ -660,9 +665,12 @@
   flex: 1;
   padding: 1rem 1.5rem;
   overflow-y: auto;
+  overflow-x: hidden; // Prevent horizontal overflow
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  min-height: 0; // Allow flex shrinking
+  max-height: 100%; // Constrain to container
 
   // Hide scrollbar completely
   scrollbar-width: none; // Firefox
@@ -796,6 +804,18 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  overflow-y: auto; // Allow scrolling if content overflows
+  overflow-x: hidden; // Prevent horizontal overflow
+  min-height: 0; // Allow flex shrinking
+  max-height: 100%; // Constrain to container
+
+  // Hide scrollbar for clean look
+  scrollbar-width: none; // Firefox
+  -ms-overflow-style: none; // Internet Explorer 10+
+
+  &::-webkit-scrollbar {
+    display: none; // Safari and Chrome
+  }
 
   .detail-item {
     display: flex;
@@ -837,6 +857,7 @@
 .tour-actions {
   padding: 1rem 1.5rem;
   border-top: 1px solid rgba(148, 163, 184, 0.2);
+  flex-shrink: 0; // Prevent actions from shrinking
 
   .tour-action-btn {
     width: 100%;
@@ -894,7 +915,19 @@
   .members-panel,
   .tour-info-panel {
     width: 100%;
-    max-height: 300px;
+    max-height: 300px; // Constrain height on tablet
+    min-height: 250px; // Ensure minimum usable height
+    overflow: hidden; // Prevent overflow
+
+    .members-container,
+    .tour-info-container {
+      max-height: 100%; // Respect parent constraints
+    }
+
+    .members-list,
+    .tour-details {
+      max-height: calc(300px - 120px); // Account for header and actions
+    }
   }
 
   .chat-messages {
@@ -958,7 +991,19 @@
 
   .members-panel,
   .tour-info-panel {
-    max-height: 250px;
+    max-height: 250px; // Constrain height on mobile
+    min-height: 200px; // Ensure minimum usable height
+    overflow: hidden; // Prevent overflow
+
+    .members-container,
+    .tour-info-container {
+      max-height: 100%; // Respect parent constraints
+    }
+
+    .members-list,
+    .tour-details {
+      max-height: calc(250px - 110px); // Account for header and actions on mobile
+    }
   }
 }
 

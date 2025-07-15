@@ -8,6 +8,7 @@ interface AstronomyCompetitionCardProps {
   name: string;
   date: string;
   description: string;
+  onClick?: () => void;
 }
 
 const AstronomyCompetitionCard: React.FC<AstronomyCompetitionCardProps> = ({
@@ -15,10 +16,15 @@ const AstronomyCompetitionCard: React.FC<AstronomyCompetitionCardProps> = ({
   name,
   date,
   description,
+  onClick,
 }) => {
   const navigate = useNavigate();
   const handleParticipate = () => {
-    navigate("/dashboard/competition");
+    if (onClick) {
+      onClick(); // Use passed onClick if provided
+    } else {
+      navigate("/dashboard/competition");
+    }
   };
   return (
     <div className="preview-competition-card">

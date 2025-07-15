@@ -362,4 +362,24 @@
   line-height: 1.5;
   word-break: break-word;
   text-align: left;
+}
+.mentee-profile-learnpath-btn {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.08rem;
+  font-weight: 600;
+  height: 38px;
+  width: 100%;
+  margin-top: 18px;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  &:hover {
+    background: #1d4ed8;
+  }
 } 

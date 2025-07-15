@@ -65,6 +65,14 @@ const MenteeProfile: React.FC = () => {
                 </div>
               </div>
             </div>
+            {/* Learning Path Button */}
+            <button
+              className="mentee-profile-learnpath-btn mentor-btn-blue mentor-btn-small"
+              style={{ marginTop: 24, width: '100%' }}
+              onClick={() => navigate('/dashboard/learnpath')}
+            >
+              Learning Path
+            </button>
           </div>
           {/* Right: Documents & Stats */}
           <div className="mentee-profile-right">

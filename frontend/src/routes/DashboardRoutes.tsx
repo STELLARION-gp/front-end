@@ -64,6 +64,7 @@ import MentorNotification from '../pages/mentor/MentorNotification';
 import MyUniverse from '../pages/learner/MyUniverse';
 //import { MentorPauseProvider } from '../contexts/MentorPauseContext';
 import { MenteeProvider } from '../contexts/MenteeContext';
+import OngoingCompetitionPage from '../pages/learner/OngoingcompetitionPage';
 
 // Create placeholder components for different pages - all memoized
 // const BlogsPage = memo(() => (
@@ -272,6 +273,14 @@ const DashboardRoutes = () => {
                 element={
                     <RoleGuard allowedRoles={['learner']}>
                         <MyUniverse />
+                    </RoleGuard>
+                }
+            />
+            <Route
+                path='ongoingcompetition'
+                element={
+                    <RoleGuard allowedRoles={['learner']}>
+                        <OngoingCompetitionPage />
                     </RoleGuard>
                 }
             />

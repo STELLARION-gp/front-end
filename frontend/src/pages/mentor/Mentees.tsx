@@ -3,7 +3,7 @@ import '../../styles/pages/mentor/mentees.scss';
 import signupImg from '../../assets/signup.jpg';
 import groupChatIcon from '../../assets/groupchat.png';
 import { useNavigate } from 'react-router-dom';
-import { useMentee } from '../../contexts/MenteeContext';
+import { useMentee } from '../../contexts/mentor/MenteeContext';
 
 const mentees = [
   { id: 1, name: 'Luna Skywatchet', img: signupImg },

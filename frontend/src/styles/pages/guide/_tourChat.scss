@@ -669,15 +669,34 @@
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  min-height: 0; // Allow flex shrinking
-  max-height: 100%; // Constrain to container
+  min-height: 450px; // Height for exactly 5 members
+  max-height: 450px; // Fixed height to show 5 members at once
 
-  // Hide scrollbar completely
-  scrollbar-width: none; // Firefox
-  -ms-overflow-style: none; // Internet Explorer 10+
+  // Stylish scrollbar for when more than 5 members
+  scrollbar-width: thin; // Firefox
+  scrollbar-color: rgba(147, 51, 234, 0.6) rgba(30, 41, 59, 0.2); // Firefox
 
   &::-webkit-scrollbar {
-    display: none; // Safari and Chrome
+    width: 6px; // Thin scrollbar
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(30, 41, 59, 0.2);
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, rgba(147, 51, 234, 0.6) 0%, rgba(168, 85, 247, 0.6) 100%);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: linear-gradient(135deg, rgba(147, 51, 234, 0.8) 0%, rgba(168, 85, 247, 0.8) 100%);
+    }
+  }
+
+  &::-webkit-scrollbar-thumb:active {
+    background: linear-gradient(135deg, rgba(147, 51, 234, 1) 0%, rgba(168, 85, 247, 1) 100%);
   }
 
   .member-item {
@@ -915,18 +934,22 @@
   .members-panel,
   .tour-info-panel {
     width: 100%;
-    max-height: 300px; // Constrain height on tablet
-    min-height: 250px; // Ensure minimum usable height
+    max-height: 460px; // Increased to accommodate 5 members + header + actions
+    min-height: 460px; // Fixed height for 5 members
     overflow: hidden; // Prevent overflow
 
     .members-container,
     .tour-info-container {
-      max-height: 100%; // Respect parent constraints
+      max-height: 450px; // Respect parent constraints
     }
 
-    .members-list,
+    .members-list {
+      min-height: 380px; // Maintain 5-member height
+      max-height: 380px; // Fixed height for 5 members
+    }
+
     .tour-details {
-      max-height: calc(300px - 120px); // Account for header and actions
+      max-height: calc(460px - 120px); // Account for header and actions
     }
   }
 
@@ -991,8 +1014,8 @@
 
   .members-panel,
   .tour-info-panel {
-    max-height: 250px; // Constrain height on mobile
-    min-height: 200px; // Ensure minimum usable height
+    max-height: 350px; // Increased for better member visibility
+    min-height: 350px; // Fixed height for consistent display
     overflow: hidden; // Prevent overflow
 
     .members-container,
@@ -1000,9 +1023,13 @@
       max-height: 100%; // Respect parent constraints
     }
 
-    .members-list,
+    .members-list {
+      min-height: 260px; // Height for about 3-4 members on mobile
+      max-height: 260px; // Fixed height for mobile
+    }
+
     .tour-details {
-      max-height: calc(250px - 110px); // Account for header and actions on mobile
+      max-height: calc(350px - 110px); // Account for header and actions on mobile
     }
   }
 }

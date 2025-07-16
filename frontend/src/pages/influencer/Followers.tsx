@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import '../../styles/pages/influencer/Followers.scss';
+import '../../styles/pages/influencer/followers.scss';
 
 interface Follower {
     id: string;
@@ -84,158 +84,227 @@ const Followers: React.FC = () => {
     };
 
     return (
-        <div className="followers-page">
-            <div className="followers-header">
-                <h1 className="followers-headline">Community Management</h1>
-                <p className="followers-subtitle">
-                    Manage and engage with your astronomy community
-                </p>
+        <div className="page-container">
+            <div className="page-header">
+                <div className="header-content">
+                    <h1 className="page-title">Community Management</h1>
+                    <p className="page-subtitle">
+                        Manage and engage with your astronomy community
+                    </p>
+                </div>
             </div>
             
-            <div className="followers-stats">
-                <div className="stat-card">
-                    <h3>Total Followers</h3>
-                    <span className="stat-number">{followers.length}</span>
-                </div>
-                <div className="stat-card">
-                    <h3>Pending Requests</h3>
-                    <span className="stat-number">{followRequests.length}</span>
-                </div>
-                <div className="stat-card">
-                    <h3>Unread Messages</h3>
-                    <span className="stat-number">{messages.filter(m => m.unread).length}</span>
+            <div className="stats-container">
+                <div className="stats-grid">
+                    <div className="stat-card primary">
+                        <div className="stat-icon">
+                            <i className="fas fa-users"></i>
+                        </div>
+                        <div className="stat-content">
+                            <h3 className="stat-number">{followers.length}</h3>
+                            <p className="stat-label">Total Followers</p>
+                        </div>
+                    </div>
+                    <div className="stat-card secondary">
+                        <div className="stat-icon">
+                            <i className="fas fa-user-plus"></i>
+                        </div>
+                        <div className="stat-content">
+                            <h3 className="stat-number">{followRequests.length}</h3>
+                            <p className="stat-label">Pending Requests</p>
+                        </div>
+                    </div>
+                    <div className="stat-card accent">
+                        <div className="stat-icon">
+                            <i className="fas fa-envelope"></i>
+                        </div>
+                        <div className="stat-content">
+                            <h3 className="stat-number">{messages.filter(m => m.unread).length}</h3>
+                            <p className="stat-label">Unread Messages</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div className="followers-tabs">
-                <button 
-                    className={`tab-button ${activeTab === 'followers' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('followers')}
-                >
-                    My Followers ({followers.length})
-                </button>
-                <button 
-                    className={`tab-button ${activeTab === 'requests' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('requests')}
-                >
-                    Follow Requests ({followRequests.length})
-                </button>
-                <button 
-                    className={`tab-button ${activeTab === 'messages' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('messages')}
-                >
-                    Messenger Center ({messages.filter(m => m.unread).length})
-                </button>
-            </div>
+            <div className="content-container">
+                <div className="tab-navigation">
+                    <button 
+                        className={`tab-btn ${activeTab === 'followers' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('followers')}
+                    >
+                        <i className="fas fa-users"></i>
+                        My Followers ({followers.length})
+                    </button>
+                    <button 
+                        className={`tab-btn ${activeTab === 'requests' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('requests')}
+                    >
+                        <i className="fas fa-user-clock"></i>
+                        Follow Requests ({followRequests.length})
+                    </button>
+                    <button 
+                        className={`tab-btn ${activeTab === 'messages' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('messages')}
+                    >
+                        <i className="fas fa-comments"></i>
+                        Messages ({messages.filter(m => m.unread).length})
+                    </button>
+                </div>
 
-            <div className="followers-content">
-                {activeTab === 'followers' && (
-                    <div className="followers-list">
-                        <h2>My Followers</h2>
-                        {followers.length > 0 ? (
-                            <div className="followers-grid">
-                                {followers.map(follower => (
-                                    <div key={follower.id} className="follower-card">
-                                        <div className="follower-avatar">
-                                            <img src={follower.avatar} alt={follower.name} />
-                                            <span className={`status-indicator ${follower.isActive ? 'online' : 'offline'}`}></span>
+                <div className="tab-content">
+                    {activeTab === 'followers' && (
+                        <div className="followers-section">
+                            <div className="section-header">
+                                <h2 className="section-title">My Followers</h2>
+                                <div className="section-actions">
+                                    <button className="btn btn-secondary">
+                                        <i className="fas fa-download"></i>
+                                        Export List
+                                    </button>
+                                </div>
+                            </div>
+                            {followers.length > 0 ? (
+                                <div className="card-grid">
+                                    {followers.map(follower => (
+                                        <div key={follower.id} className="user-card">
+                                            <div className="user-avatar">
+                                                <img src={follower.avatar} alt={follower.name} />
+                                                <span className={`status-dot ${follower.isActive ? 'online' : 'offline'}`}></span>
+                                            </div>
+                                            <div className="user-info">
+                                                <h4 className="user-name">{follower.name}</h4>
+                                                <p className="user-meta">Followed on {new Date(follower.followedDate).toLocaleDateString()}</p>
+                                            </div>
+                                            <div className="user-actions">
+                                                <button className="btn btn-primary btn-sm" onClick={() => openChat(follower.id)}>
+                                                    <i className="fas fa-message"></i>
+                                                    Message
+                                                </button>
+                                                <button className="btn btn-outline btn-sm">
+                                                    <i className="fas fa-user"></i>
+                                                    Profile
+                                                </button>
+                                            </div>
                                         </div>
-                                        <div className="follower-info">
-                                            <h4>{follower.name}</h4>
-                                            <p>Followed on {new Date(follower.followedDate).toLocaleDateString()}</p>
-                                        </div>
-                                        <div className="follower-actions">
-                                            <button className="btn-message" onClick={() => openChat(follower.id)}>
-                                                Message
-                                            </button>
-                                            <button className="btn-view-profile">
-                                                View Profile
-                                            </button>
-                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="empty-state">
+                                    <div className="empty-icon">
+                                        <i className="fas fa-users"></i>
                                     </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="no-followers">
-                                <p>No followers yet. Start creating amazing astronomy content to build your community!</p>
-                            </div>
-                        )}
-                    </div>
-                )}
+                                    <h3>No followers yet</h3>
+                                    <p>Start creating amazing astronomy content to build your community!</p>
+                                </div>
+                            )}
+                        </div>
+                    )}
 
-                {activeTab === 'requests' && (
-                    <div className="follow-requests">
-                        <h2>Follow Requests</h2>
-                        {followRequests.length > 0 ? (
-                            <div className="requests-list">
-                                {followRequests.map(request => (
-                                    <div key={request.id} className="request-card">
-                                        <div className="request-avatar">
-                                            <img src={request.avatar} alt={request.name} />
+                    {activeTab === 'requests' && (
+                        <div className="requests-section">
+                            <div className="section-header">
+                                <h2 className="section-title">Follow Requests</h2>
+                            </div>
+                            {followRequests.length > 0 ? (
+                                <div className="request-list">
+                                    {followRequests.map(request => (
+                                        <div key={request.id} className="request-item">
+                                            <div className="request-user">
+                                                <div className="user-avatar">
+                                                    <img src={request.avatar} alt={request.name} />
+                                                </div>
+                                                <div className="user-info">
+                                                    <h4 className="user-name">{request.name}</h4>
+                                                    <p className="user-meta">
+                                                        {request.mutualFollowers} mutual followers • 
+                                                        Requested {new Date(request.requestDate).toLocaleDateString()}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div className="request-actions">
+                                                <button 
+                                                    className="btn btn-success btn-sm"
+                                                    onClick={() => handleAcceptRequest(request.id)}
+                                                >
+                                                    <i className="fas fa-check"></i>
+                                                    Accept
+                                                </button>
+                                                <button 
+                                                    className="btn btn-danger btn-sm"
+                                                    onClick={() => handleDeclineRequest(request.id)}
+                                                >
+                                                    <i className="fas fa-times"></i>
+                                                    Decline
+                                                </button>
+                                            </div>
                                         </div>
-                                        <div className="request-info">
-                                            <h4>{request.name}</h4>
-                                            <p>{request.mutualFollowers} mutual followers</p>
-                                            <span className="request-date">Requested {new Date(request.requestDate).toLocaleDateString()}</span>
-                                        </div>
-                                        <div className="request-actions">
-                                            <button 
-                                                className="btn-accept"
-                                                onClick={() => handleAcceptRequest(request.id)}
-                                            >
-                                                Accept
-                                            </button>
-                                            <button 
-                                                className="btn-decline"
-                                                onClick={() => handleDeclineRequest(request.id)}
-                                            >
-                                                Decline
-                                            </button>
-                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="empty-state">
+                                    <div className="empty-icon">
+                                        <i className="fas fa-user-clock"></i>
                                     </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="no-requests">
-                                <p>No pending follow requests.</p>
-                            </div>
-                        )}
-                    </div>
-                )}
+                                    <h3>No pending requests</h3>
+                                    <p>You're all caught up! No new follow requests at this time.</p>
+                                </div>
+                            )}
+                        </div>
+                    )}
 
-                {activeTab === 'messages' && (
-                    <div className="messenger-center">
-                        <h2>Messenger Center</h2>
-                        {messages.length > 0 ? (
-                            <div className="messages-list">
-                                {messages.map(message => (
-                                    <div 
-                                        key={message.id} 
-                                        className={`message-card ${message.unread ? 'unread' : ''}`}
-                                        onClick={() => openChat(message.id)}
-                                    >
-                                        <div className="message-avatar">
-                                            <img src={message.avatar} alt={message.sender} />
-                                            {message.unread && <span className="unread-indicator"></span>}
+                    {activeTab === 'messages' && (
+                        <div className="messages-section">
+                            <div className="section-header">
+                                <h2 className="section-title">Messenger Center</h2>
+                                <div className="section-actions">
+                                    <button className="btn btn-primary">
+                                        <i className="fas fa-plus"></i>
+                                        New Message
+                                    </button>
+                                </div>
+                            </div>
+                            {messages.length > 0 ? (
+                                <div className="message-list">
+                                    {messages.map(message => (
+                                        <div 
+                                            key={message.id} 
+                                            className={`message-item ${message.unread ? 'unread' : ''}`}
+                                            onClick={() => openChat(message.id)}
+                                        >
+                                            <div className="message-user">
+                                                <div className="user-avatar">
+                                                    <img src={message.avatar} alt={message.sender} />
+                                                    {message.unread && <span className="unread-dot"></span>}
+                                                </div>
+                                                <div className="message-content">
+                                                    <div className="message-header">
+                                                        <h4 className="sender-name">{message.sender}</h4>
+                                                        <span className="message-time">{message.timestamp}</span>
+                                                    </div>
+                                                    <p className="message-preview">{message.lastMessage}</p>
+                                                </div>
+                                            </div>
+                                            <div className="message-actions">
+                                                <button className="btn btn-ghost btn-sm">
+                                                    <i className="fas fa-reply"></i>
+                                                    Reply
+                                                </button>
+                                            </div>
                                         </div>
-                                        <div className="message-info">
-                                            <h4>{message.sender}</h4>
-                                            <p className="last-message">{message.lastMessage}</p>
-                                            <span className="message-time">{message.timestamp}</span>
-                                        </div>
-                                        <div className="message-actions">
-                                            <button className="btn-reply">Reply</button>
-                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="empty-state">
+                                    <div className="empty-icon">
+                                        <i className="fas fa-comments"></i>
                                     </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="no-messages">
-                                <p>No messages yet. Start conversations with your followers!</p>
-                            </div>
-                        )}
-                    </div>
-                )}
+                                    <h3>No messages yet</h3>
+                                    <p>Start conversations with your followers to build engagement!</p>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );

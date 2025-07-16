@@ -14,7 +14,7 @@ import {
   ChevronDown
 } from 'lucide-react';
 import Button from '../../components/Button';
-import Card from '../../components/Card';
+// import Card from '../../components/Card';
 import '../../styles/pages/guide/_tourChat.scss';
 
 // Types
@@ -570,7 +570,7 @@ const TourChat: React.FC = () => {
               transition={{ duration: 0.3 }}
               className="members-panel"
             >
-              <Card className="members-container" variant="outlined">
+              <div className="members-container">
                 <div className="panel-header">
                   <h3>Tour Members</h3>
                   <span className="member-count">{members.length}</span>
@@ -603,7 +603,7 @@ const TourChat: React.FC = () => {
                     </div>
                   ))}
                 </div>
-              </Card>
+              </div>
             </motion.div>
           )}
 
@@ -616,7 +616,7 @@ const TourChat: React.FC = () => {
               transition={{ duration: 0.3 }}
               className="tour-info-panel"
             >
-              <Card className="tour-info-container" variant="outlined">
+              <div className="tour-info-container">
                 <div className="panel-header">
                   <h3>Tour Information</h3>
                   <div className={`status-badge ${tourInfo?.status}`}>
@@ -658,7 +658,7 @@ const TourChat: React.FC = () => {
                     Tour Settings
                   </Button>
                 </div>
-              </Card>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>

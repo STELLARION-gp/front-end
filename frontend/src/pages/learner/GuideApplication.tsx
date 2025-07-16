@@ -15,7 +15,7 @@ import {
   Shield,
   AlertCircle,
   // FileText,
-//   ArrowLeft
+  ArrowLeft
 } from 'lucide-react';
 import '../../styles/pages/guide/_campGuideApplication.scss';
 
@@ -1119,18 +1119,17 @@ const CampGuideApplication: React.FC = () => {
   return (
     <div className="camp-guide-application">
       <div className="camp-guide-application__container">
-        {/* Header */}
-        <div className="camp-guide-application__header">
-          <div className="header-content">
-            {/* <Button
-              variant="ghost"
+        <Button
+              variant="primary"
               size="medium"
               icon={<ArrowLeft className="w-4 h-4" />}
-              onClick={() => navigate('/dashboard')}
+              onClick={() => navigate('/dashboard/overview')}
             >
               Back to Dashboard
-            </Button> */}
-            
+        </Button>
+        {/* Header */}
+        <div className="camp-guide-application__header">
+          <div className="header-content">   
             <div className="header-info">
               <h1 className="camp-guide-application__header-title">Camp Guide Application</h1>
               <p className="camp-guide-application__header-subtitle">Apply to become an astronomy camp guide and share your passion for the stars</p>

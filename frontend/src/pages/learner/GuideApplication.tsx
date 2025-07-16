@@ -12,6 +12,9 @@ import {
   BookOpen, 
   Telescope, 
   Check,
+  Shield,
+  AlertCircle,
+  FileText,
 //   ArrowLeft
 } from 'lucide-react';
 import '../../styles/pages/guide/_campGuideApplication.scss';
@@ -1059,29 +1062,49 @@ const CampGuideApplication: React.FC = () => {
               <div className="form-section">
                 <h4>Terms & Conditions</h4>
                 <div className="terms-section">
-                  <label className="checkbox-item">
-                    <input
-                      type="checkbox"
-                      checked={formData.termsAccepted}
-                      onChange={(e) => handleInputChange('termsAccepted', e.target.checked)}
-                    />
-                    <span className="checkbox-text">
-                      I accept the <a href="#" target="_blank">Terms and Conditions</a> and <a href="#" target="_blank">Privacy Policy</a> *
-                    </span>
-                  </label>
-                  {errors.termsAccepted && <span className="error-message">{errors.termsAccepted}</span>}
+                  <div className="terms-header">
+                    <div className="terms-icon">
+                      <Shield />
+                    </div>
+                    <h5>Legal Agreement</h5>
+                  </div>
+                  
+                  <div className="terms-content">
+                    <label className="checkbox-item">
+                      <input
+                        type="checkbox"
+                        checked={formData.termsAccepted}
+                        onChange={(e) => handleInputChange('termsAccepted', e.target.checked)}
+                      />
+                      <span className="checkbox-text">
+                        I have read and accept the <a href="#" target="_blank" rel="noopener noreferrer">Terms and Conditions</a> and <a href="#" target="_blank" rel="noopener noreferrer">Privacy Policy</a> <span className="required">*</span>
+                      </span>
+                    </label>
+                    {errors.termsAccepted && <span className="error-message">{errors.termsAccepted}</span>}
 
-                  <label className="checkbox-item">
-                    <input
-                      type="checkbox"
-                      checked={formData.backgroundCheckConsent}
-                      onChange={(e) => handleInputChange('backgroundCheckConsent', e.target.checked)}
-                    />
-                    <span className="checkbox-text">
-                      I consent to a background check if required *
-                    </span>
-                  </label>
-                  {errors.backgroundCheckConsent && <span className="error-message">{errors.backgroundCheckConsent}</span>}
+                    <label className="checkbox-item">
+                      <input
+                        type="checkbox"
+                        checked={formData.backgroundCheckConsent}
+                        onChange={(e) => handleInputChange('backgroundCheckConsent', e.target.checked)}
+                      />
+                      <span className="checkbox-text">
+                        I consent to a background verification check if required for this position <span className="required">*</span>
+                      </span>
+                    </label>
+                    {errors.backgroundCheckConsent && <span className="error-message">{errors.backgroundCheckConsent}</span>}
+                    
+                    <div className="terms-note">
+                      <div className="note-content">
+                        <div className="note-icon">
+                          <AlertCircle />
+                        </div>
+                        <div className="note-text">
+                          <strong>Important:</strong> By submitting this application, you agree to our screening process and confirm that all information provided is accurate and complete. False information may result in disqualification from the program.
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

@@ -4,7 +4,7 @@ import Button from "../../components/Button";
 
 const ongoingCompetition = {
   coverImage:
-    "https://cdn.pixabay.com/photo/2016/04/15/11/46/stars-1330570_1280.jpg",
+    "https://png.pngtree.com/png-vector/20221020/ourmid/pngtree-happy-children-with-medals-on-school-competition-on-contest-png-image_6331904.png",
   name: "Cosmic Capture: Astrophotography Showdown",
   date: "2025-07-01 to 2025-08-10",
   description:
@@ -18,9 +18,30 @@ const ongoingCompetition = {
     "✅ Consent Form",
   ],
   participants: [
-    { name: "Alex Starborn", avatar: "https://randomuser.me/api/portraits/men/71.jpg" },
-    { name: "Nina Cosmos", avatar: "https://randomuser.me/api/portraits/women/56.jpg" },
-    { name: "Leo Nebula", avatar: "https://randomuser.me/api/portraits/men/53.jpg" },
+    {
+      name: "Alice Sky",
+      avatar: "https://randomuser.me/api/portraits/women/44.jpg",
+    },
+    {
+      name: "Neil Cosmos",
+      avatar: "https://randomuser.me/api/portraits/men/32.jpg",
+    },
+    {
+      name: "Luna Rivera",
+      avatar: "https://randomuser.me/api/portraits/women/65.jpg",
+    },
+    {
+      name: "John Galaxy",
+      avatar: "https://randomuser.me/api/portraits/men/45.jpg",
+    },
+    {
+      name: "Stella Observer",
+      avatar: "https://randomuser.me/api/portraits/women/50.jpg",
+    },
+    {
+      name: "Cosmo Reader",
+      avatar: "https://randomuser.me/api/portraits/men/31.jpg",
+    },
   ],
 };
 

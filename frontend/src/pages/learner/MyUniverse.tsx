@@ -58,7 +58,13 @@ interface Competition {
   score?: number;
   rank?: number;
 }
-
+interface ServiceBooking {
+  id: number;
+  serviceType: string;
+  providerName: string;
+  date: string;
+  status: 'Confirmed' | 'Pending';
+}
 const sampleQuizzes: Quiz[] = [
   {
     id: 1,
@@ -202,7 +208,22 @@ const registeredCompetitions = [
     status: "upcoming",
   },
 ];
-
+const bookedServices: ServiceBooking[] = [
+  {
+    id: 1,
+    serviceType: 'Telescope Rental',
+    providerName: 'AstroLens Pvt Ltd',
+    date: '2025-07-25',
+    status: 'Confirmed',
+  },
+  {
+    id: 2,
+    serviceType: 'Planetarium Visit Guide',
+    providerName: 'Dr. Nova Stellar',
+    date: '2025-07-28',
+    status: 'Pending',
+  },
+];
 const MyUniverse = () => {
   const [activeTab, setActiveTab] = useState('Quizzes');
   const [showQuizModal, setShowQuizModal] = useState(false);
@@ -471,6 +492,18 @@ const MyUniverse = () => {
           </>
           
         )}
+        {activeTab === 'Services' && (
+          <>
+          <div>
+
+          </div>
+          </>
+        )
+
+        }
+
+
+
 
         {showQuizModal && selectedQuiz && (
           <QuizModal quiz={selectedQuiz} onClose={handleCloseModal} />

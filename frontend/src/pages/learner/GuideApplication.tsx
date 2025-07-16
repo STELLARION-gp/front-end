@@ -14,7 +14,7 @@ import {
   Check,
   Shield,
   AlertCircle,
-  FileText,
+  // FileText,
 //   ArrowLeft
 } from 'lucide-react';
 import '../../styles/pages/guide/_campGuideApplication.scss';

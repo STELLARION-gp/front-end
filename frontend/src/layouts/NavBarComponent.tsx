@@ -155,31 +155,6 @@ const NavBarComponent = () => {
       const avatarUrl = user.photoURL || userProfile?.profileData?.avatar;
       const displayName = user.displayName || userProfile?.displayName || user.email || 'User';
 
-      if (forCompactMode) {
-        // In compact mode, make the avatar/placeholder a link to profile
-        return (
-          <Link to="/dashboard/profile" className="profile-section">
-            {avatarUrl ? (
-              <img
-                src={avatarUrl}
-                alt="Profile"
-                className="profile-avatar"
-                onError={(e) => {
-                  // Hide the image and show placeholder if image fails to load
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = 'none';
-                  const placeholder = target.nextElementSibling as HTMLElement;
-                  if (placeholder) {
-                    placeholder.classList.remove('hidden');
-                  }
-                }}
-              />
-            ) : null}
-            <div className={`profile-placeholder ${avatarUrl ? 'hidden' : ''}`}>{displayName.charAt(0).toUpperCase()}</div>
-          </Link>
-        );
-      }
-      // Default (non-compact):
       return (
         <div className="profile-section">
           {avatarUrl ? (
@@ -198,8 +173,24 @@ const NavBarComponent = () => {
               }}
             />
           ) : null}
-          <div className={`profile-placeholder ${avatarUrl ? 'hidden' : ''}`}>{displayName.charAt(0).toUpperCase()}</div>
-          <Link to="/dashboard/profile" className="profile-link" />
+          <div className={`profile-placeholder ${avatarUrl ? 'hidden' : ''}`}>
+            {displayName.charAt(0).toUpperCase()}
+          </div>
+          {!forCompactMode && (
+            <div className="profile-dropdown">
+              <div className="profile-info">
+                <p className="profile-name">{displayName}</p>
+                <p className="profile-role">{userProfile?.role || 'User'}</p>
+              </div>
+              <div className="profile-actions">
+                <Link to="/dashboard/overview" className="dropdown-link">{t('navbar.dashboard')}</Link>
+                <Link to="/dashboard/profile" className="dropdown-link">{t('navbar.profileNav')}</Link>
+                <button onClick={handleLogout} className="dropdown-link logout">
+                  {t('auth.signOut')}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       );
     } else {

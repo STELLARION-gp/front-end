@@ -4,6 +4,7 @@ import GuideLearnerChat from "../../components/Learner/GuideLearnerChat";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import "../../styles/pages/learner/ServicesTab.scss";
+import { Button } from "@headlessui/react";
 
 const ServicesTab: React.FC = () => {
   const services = [
@@ -122,7 +123,7 @@ const ServicesTab: React.FC = () => {
                       className="chat-action-button service-chat-button enhanced-chat"
                       onClick={() => handleChat(service.id)}
                     >
-                      <span role="img" aria-label="chat">💬</span> Chat
+                       Chat
                     </button>
                   )}
                   {service.status === "Previous" && (
@@ -130,7 +131,7 @@ const ServicesTab: React.FC = () => {
                       className="action-button review-button enhanced-review"
                       onClick={() => handleReview(service.id)}
                     >
-                      <span role="img" aria-label="review">⭐</span> Review
+                      Review
                     </button>
                   )}
                   {service.status === "Pending" && <span>Waiting Approval</span>}

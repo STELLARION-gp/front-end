@@ -68,7 +68,7 @@ import MentorNotification from '../pages/mentor/MentorNotification';
 import MyUniverse from '../pages/learner/MyUniverse';
 //import { MentorPauseProvider } from '../contexts/MentorPauseContext';
 
-import { MenteeProvider } from '../contexts/MenteeContext';
+//import { MenteeProvider } from '../contexts/MenteeContext';
 import OngoingCompetitionPage from '../pages/learner/OngoingcompetitionPage';
 import { MenteeProvider } from '../contexts/mentor/MenteeContext';
 import Competitions from '../pages/influencer/competitions';

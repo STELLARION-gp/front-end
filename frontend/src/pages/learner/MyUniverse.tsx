@@ -16,6 +16,8 @@ import QuizModal from '../../components/Learner/QuizModal';
 import AstronomyBlogCard from '../../components/Learner/blogcard';
 import { useNavigate } from 'react-router-dom';
 import AstronomyCompetitionCard from '../../components/Learner/AstronomyCompetitionCard';
+import { Tab } from '@headlessui/react';
+import ServicesTab from './ServicesTab';
 
 
 const tabs = [
@@ -432,7 +434,7 @@ const MyUniverse = () => {
           <>
             <div className="competitions-section">
               <div className="registered-competitions-section">
-                <h2 className="section-title">Your Registered Competitions</h2>
+                <h2>Your Registered Competitions</h2>
                 <div className="competition-cards-wrapper">
                   {registeredCompetitions.map((comp) => (
                     <div className="card-with-status-badge" key={comp.id}>
@@ -493,11 +495,9 @@ const MyUniverse = () => {
           
         )}
         {activeTab === 'Services' && (
-          <>
           <div>
-
+            <ServicesTab />
           </div>
-          </>
         )
 
         }

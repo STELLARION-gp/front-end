@@ -171,7 +171,7 @@ const Followers: React.FC = () => {
                                         <div key={follower.id} className="user-card">
                                             <div className="user-avatar">
                                                 <img src={follower.avatar} alt={follower.name} />
-                                                <span className={`status-dot ${follower.isActive ? 'online' : 'offline'}`}></span>
+                            
                                             </div>
                                             <div className="user-info">
                                                 <h4 className="user-name">{follower.name}</h4>

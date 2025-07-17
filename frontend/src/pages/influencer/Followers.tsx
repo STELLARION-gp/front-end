@@ -97,62 +97,40 @@ const Followers: React.FC = () => {
         const history = messageHistories[followerId] || [];
         setModalContent(
             <div>
-                <h3>Message History</h3>
-                <div style={{
-                    maxHeight: '250px',
-                    overflowY: 'auto',
-                    marginBottom: '1rem',
-                    background: '#f3f4f6',
-                    padding: '1rem',
-                    borderRadius: '8px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '0.5rem'
-                }}>
+                <h3 className="chat-modal__title">Message History</h3>
+                <div className="chat-modal__history">
                     {history.length === 0 ? (
-                        <div>No previous messages.</div>
+                        <div className="chat-modal__empty">No previous messages.</div>
                     ) : (
                         history.map((msg, idx) => (
                             <div
                                 key={idx}
-                                style={{
-                                    alignSelf: msg.sender === 'You' ? 'flex-end' : 'flex-start',
-                                    background: msg.sender === 'You' ? '#6366f1' : '#e5e7eb',
-                                    color: msg.sender === 'You' ? '#fff' : '#222',
-                                    borderRadius: '16px',
-                                    padding: '0.5rem 1rem',
-                                    maxWidth: '70%',
-                                    boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
-                            }}
-                        >
-                            <div style={{fontWeight: 600, fontSize: '0.95rem', marginBottom: '0.25rem'}}>
-                                {msg.sender}
+                                className={`chat-modal__message ${msg.sender === 'You' ? 'chat-modal__message--me' : 'chat-modal__message--them'}`}
+                            >
+                                <div className="chat-modal__sender">{msg.sender}</div>
+                                <div className="chat-modal__text">{msg.text}</div>
+                                <div className="chat-modal__timestamp">{msg.timestamp}</div>
                             </div>
-                            <div style={{fontSize: '1rem'}}>{msg.text}</div>
-                            <div style={{fontSize: '0.75rem', color: msg.sender === 'You' ? '#d1d5db' : '#888', marginTop: '0.25rem', textAlign: 'right'}}>
-                                {msg.timestamp}
-                            </div>
-                        </div>
-                    ))
-                )}
+                        ))
+                    )}
+                </div>
+                <textarea className="chat-modal__textarea" rows={3} placeholder="Type your message..." />
+                <div className="chat-modal__actions">
+                    <Button onClick={() => alert('Message sent!')}>Send Message</Button>
+                    <Button onClick={() => setModalOpen(false)}>Close</Button>
+                </div>
             </div>
-            <textarea rows={3} style={{width: '100%', marginTop: '1rem'}} placeholder="Type your message..." />
-            <div style={{marginTop: '1rem', display: 'flex', gap: '1rem'}}>
-                <Button onClick={() => alert('Message sent!')}>Send Message</Button>
-                <Button onClick={() => setModalOpen(false)}>Close</Button>
-            </div>
-        </div>
-    );
-    setModalOpen(true);
-};
+        );
+        setModalOpen(true);
+    };
 
     const handleNewMessage = () => {
         setModalContent(
             <div>
-                <h3>New Message</h3>
-                <input type="text" style={{width: '100%', marginBottom: '1rem'}} placeholder="Recipient name..." />
-                <textarea rows={3} style={{width: '100%'}} placeholder="Type your message..." />
-                <div style={{marginTop: '1rem', display: 'flex', gap: '1rem'}}>
+                <h3 className="chat-modal__title">New Message</h3>
+                <input className="chat-modal__input" type="text" placeholder="Recipient name..." />
+                <textarea className="chat-modal__textarea" rows={3} placeholder="Type your message..." />
+                <div className="chat-modal__actions">
                     <Button onClick={() => alert('Message sent!')}>Send</Button>
                     <Button onClick={() => setModalOpen(false)}>Close</Button>
                 </div>
@@ -165,9 +143,9 @@ const Followers: React.FC = () => {
         const message = messages.find(m => m.id === messageId);
         setModalContent(
             <div>
-                <h3>Reply to {message?.sender}</h3>
-                <textarea rows={3} style={{width: '100%'}} placeholder="Type your reply..." />
-                <div style={{marginTop: '1rem', display: 'flex', gap: '1rem'}}>
+                <h3 className="chat-modal__title">Reply to {message?.sender}</h3>
+                <textarea className="chat-modal__textarea" rows={3} placeholder="Type your reply..." />
+                <div className="chat-modal__actions">
                     <Button onClick={() => alert('Reply sent!')}>Send Reply</Button>
                     <Button onClick={() => setModalOpen(false)}>Close</Button>
                 </div>
@@ -401,7 +379,10 @@ const Followers: React.FC = () => {
                                                 </div>
                                             </div>
                                             <div className="message-actions">
-                                                <Button className="btn-ghost btn-sm" onClick={e => {e.stopPropagation(); handleReply(message.id);}}>
+                                                <Button
+                                                    className="btn-ghost btn-sm"
+                                                    onClick={() => handleReply(message.id)}
+                                                >
                                                     <i className="fas fa-reply"></i>
                                                     Reply
                                                 </Button>
@@ -424,23 +405,8 @@ const Followers: React.FC = () => {
             </div>
             {/* Modal for message/reply/new message */}
             {modalOpen && (
-                <div style={{
-                    position: 'fixed',
-                    top: 0, left: 0, right: 0, bottom: 0,
-                    background: 'rgba(0,0,0,0.5)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    zIndex: 9999
-                }}>
-                    <div style={{
-                        background: '#fff',
-                        padding: '2rem',
-                        borderRadius: '12px',
-                        minWidth: '320px',
-                        maxWidth: '90vw',
-                        boxShadow: '0 8px 32px rgba(0,0,0,0.2)'
-                    }}>
+                <div className="chat-modal__overlay">
+                    <div className="chat-modal__container">
                         {modalContent}
                     </div>
                 </div>
@@ -448,5 +414,6 @@ const Followers: React.FC = () => {
         </div>
     );
 };
+
 
 export default Followers;

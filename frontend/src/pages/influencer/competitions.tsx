@@ -354,7 +354,9 @@ const CompetitionsPage: React.FC = () => {
                         </h2>
                         <form onSubmit={handleSubmit}>
                             <div className="form-group">
+                                <label htmlFor="competition-title">Title</label>
                                 <input
+                                    id="competition-title"
                                     name="title"
                                     placeholder="Competition Title"
                                     value={form.title}
@@ -364,7 +366,9 @@ const CompetitionsPage: React.FC = () => {
                                 />
                             </div>
                             <div className="form-group">
+                                <label htmlFor="competition-content">Brief Description</label>
                                 <textarea
+                                    id="competition-content"
                                     name="content"
                                     placeholder="Brief Description"
                                     value={form.content}
@@ -375,7 +379,9 @@ const CompetitionsPage: React.FC = () => {
                                 />
                             </div>
                             <div className="form-group">
+                                <label htmlFor="competition-description">Detailed Description</label>
                                 <textarea
+                                    id="competition-description"
                                     name="description"
                                     placeholder="Detailed Description"
                                     value={form.description}
@@ -386,8 +392,9 @@ const CompetitionsPage: React.FC = () => {
                                 />
                             </div>
                             <div className="form-group">
-                                <label>Deadline</label>
+                                <label htmlFor="competition-deadline">Deadline</label>
                                 <input
+                                    id="competition-deadline"
                                     type="date"
                                     name="deadline"
                                     value={form.deadline}
@@ -397,7 +404,9 @@ const CompetitionsPage: React.FC = () => {
                                 />
                             </div>
                             <div className="form-group">
+                                <label htmlFor="competition-prizes">Prizes</label>
                                 <textarea
+                                    id="competition-prizes"
                                     name="prizes"
                                     placeholder="Prizes (e.g., $500 First Prize, $300 Second Prize)"
                                     value={form.prizes}
@@ -408,7 +417,9 @@ const CompetitionsPage: React.FC = () => {
                                 />
                             </div>
                             <div className="form-group">
+                                <label htmlFor="competition-requirements">Requirements and Rules</label>
                                 <textarea
+                                    id="competition-requirements"
                                     name="requirements"
                                     placeholder="Requirements and Rules"
                                     value={form.requirements}
@@ -419,7 +430,9 @@ const CompetitionsPage: React.FC = () => {
                                 />
                             </div>
                             <div className="form-group">
+                                <label htmlFor="competition-applicationLink">Application Link (optional)</label>
                                 <input
+                                    id="competition-applicationLink"
                                     name="applicationLink"
                                     placeholder="Application Link (optional)"
                                     value={form.applicationLink}

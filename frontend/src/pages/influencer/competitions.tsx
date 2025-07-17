@@ -119,6 +119,21 @@ const CompetitionsPage: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [showAddForm, setShowAddForm] = useState(false);
 
+    // Modal close handler
+    const handleCloseModal = () => {
+        setShowAddForm(false);
+        setEditing(null);
+        setForm({ 
+            title: '', 
+            content: '', 
+            description: '',
+            deadline: '',
+            prizes: '',
+            requirements: '',
+            applicationLink: ''
+        });
+    };
+
     useEffect(() => {
         setLoading(true);
         mockFetchCompetitions().then(data => {
@@ -309,106 +324,135 @@ const CompetitionsPage: React.FC = () => {
                 <h1>Astronomy Competitions</h1>
                 <button 
                     className="btn-primary"
-                    onClick={() => setShowAddForm(!showAddForm)}
+                    onClick={() => setShowAddForm(true)}
                 >
-                    {showAddForm ? 'Cancel' : 'Add New Competition'}
+                    Add New Competition
                 </button>
             </div>
 
+            {/* Modal for Add/Edit Competition */}
             {showAddForm && (
-                <div className="add-competition-form">
-                    <h2>{editing ? 'Edit Competition' : 'Add New Competition'}</h2>
-                    <form onSubmit={handleSubmit}>
-                        <div className="form-group">
-                            <input
-                                name="title"
-                                placeholder="Competition Title"
-                                value={form.title}
-                                onChange={handleChange}
-                                required
-                                className="form-input"
-                            />
-                        </div>
-                        
-                        <div className="form-group">
-                            <textarea
-                                name="content"
-                                placeholder="Brief Description"
-                                value={form.content}
-                                onChange={handleChange}
-                                required
-                                rows={3}
-                                className="form-textarea"
-                            />
-                        </div>
-
-                        <div className="form-group">
-                            <textarea
-                                name="description"
-                                placeholder="Detailed Description"
-                                value={form.description}
-                                onChange={handleChange}
-                                required
-                                rows={4}
-                                className="form-textarea"
-                            />
-                        </div>
-
-                        <div className="form-group">
-                            <label>Deadline</label>
-                            <input
-                                type="date"
-                                name="deadline"
-                                value={form.deadline}
-                                onChange={handleChange}
-                                required
-                                className="form-input"
-                            />
-                        </div>
-
-                        <div className="form-group">
-                            <textarea
-                                name="prizes"
-                                placeholder="Prizes (e.g., $500 First Prize, $300 Second Prize)"
-                                value={form.prizes}
-                                onChange={handleChange}
-                                required
-                                rows={2}
-                                className="form-textarea"
-                            />
-                        </div>
-
-                        <div className="form-group">
-                            <textarea
-                                name="requirements"
-                                placeholder="Requirements and Rules"
-                                value={form.requirements}
-                                onChange={handleChange}
-                                required
-                                rows={3}
-                                className="form-textarea"
-                            />
-                        </div>
-
-                        <div className="form-group">
-                            <input
-                                name="applicationLink"
-                                placeholder="Application Link (optional)"
-                                value={form.applicationLink}
-                                onChange={handleChange}
-                                className="form-input"
-                            />
-                        </div>
-
-                        <div className="form-actions">
-                            <button type="submit" disabled={loading} className="btn-primary">
-                                {editing ? 'Update Competition' : 'Add Competition'}
-                            </button>
-                            <button type="button" onClick={handleCancelEdit} className="btn-secondary">
-                                Cancel
-                            </button>
-                        </div>
-                    </form>
+                <div
+                    className="modal-overlay"
+                    onClick={handleCloseModal}
+                >
+                    <div
+                        className="modal-content"
+                        style={{
+                            background: '#222c',
+                            padding: '32px',
+                            borderRadius: '16px',
+                            boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
+                            minWidth: '340px',
+                            maxWidth: '50vw',
+                            position: 'relative'
+                        }}
+                        onClick={e => e.stopPropagation()}
+                    >
+                        <h2 style={{marginTop: 0, marginBottom: 24, color: 'white', fontSize: '1.8rem', fontWeight: 600}}>
+                            {editing ? 'Edit Competition' : 'Add New Competition'}
+                        </h2>
+                        <form onSubmit={handleSubmit}>
+                            <div className="form-group">
+                                <input
+                                    name="title"
+                                    placeholder="Competition Title"
+                                    value={form.title}
+                                    onChange={handleChange}
+                                    required
+                                    className="form-input"
+                                />
+                            </div>
+                            <div className="form-group">
+                                <textarea
+                                    name="content"
+                                    placeholder="Brief Description"
+                                    value={form.content}
+                                    onChange={handleChange}
+                                    required
+                                    rows={3}
+                                    className="form-textarea"
+                                />
+                            </div>
+                            <div className="form-group">
+                                <textarea
+                                    name="description"
+                                    placeholder="Detailed Description"
+                                    value={form.description}
+                                    onChange={handleChange}
+                                    required
+                                    rows={4}
+                                    className="form-textarea"
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>Deadline</label>
+                                <input
+                                    type="date"
+                                    name="deadline"
+                                    value={form.deadline}
+                                    onChange={handleChange}
+                                    required
+                                    className="form-input"
+                                />
+                            </div>
+                            <div className="form-group">
+                                <textarea
+                                    name="prizes"
+                                    placeholder="Prizes (e.g., $500 First Prize, $300 Second Prize)"
+                                    value={form.prizes}
+                                    onChange={handleChange}
+                                    required
+                                    rows={2}
+                                    className="form-textarea"
+                                />
+                            </div>
+                            <div className="form-group">
+                                <textarea
+                                    name="requirements"
+                                    placeholder="Requirements and Rules"
+                                    value={form.requirements}
+                                    onChange={handleChange}
+                                    required
+                                    rows={3}
+                                    className="form-textarea"
+                                />
+                            </div>
+                            <div className="form-group">
+                                <input
+                                    name="applicationLink"
+                                    placeholder="Application Link (optional)"
+                                    value={form.applicationLink}
+                                    onChange={handleChange}
+                                    className="form-input"
+                                />
+                            </div>
+                            <div className="form-actions" style={{display: 'flex', gap: 16, marginTop: 32}}>
+                                <button type="submit" disabled={loading} className="btn-primary">
+                                    {editing ? 'Update Competition' : 'Add Competition'}
+                                </button>
+                                <button type="button" onClick={handleCloseModal} className="btn-secondary">
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                        <button
+                            onClick={handleCloseModal}
+                            style={{
+                                position: 'absolute',
+                                top: 12,
+                                right: 12,
+                                background: 'transparent',
+                                border: 'none',
+                                color: '#fff',
+                                fontSize: '1.5rem',
+                                cursor: 'pointer'
+                            }}
+                            aria-label="Close"
+                        >
+                            ×
+                        </button>
+                    </div>
                 </div>
             )}
 

@@ -96,14 +96,12 @@ const handleBookNow = () => {
               <div className="guide-role">Astronomy Guide</div>
             </div>
           </div>
-          <Button onClick={handleBookNow}>Book Now</Button>
+          <Button disabled className="booked-btn">Booked</Button>
         </div>
       </div>
-      {showChat && (
-        <div className="service-details-chat">
-          <Chat guideName={service.guideName} />
-        </div>
-      )}
+      <div className="service-details-chat">
+        <Chat guideName={service.guideName} />
+      </div>
     </div>
   );
 };

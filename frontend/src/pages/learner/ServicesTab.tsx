@@ -34,8 +34,7 @@ const ServicesTab: React.FC = () => {
   const [activeChatServiceId, setActiveChatServiceId] = useState<number | null>(null);
 
   const handleChat = (id: number) => {
-    console.log("Chat with guide from service ID:", id);
-    setActiveChatServiceId(id);
+    navigate(`/dashboard/astronomy-services/${id}`);
   };
 
   const navigate = useNavigate();

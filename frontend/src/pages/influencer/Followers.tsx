@@ -36,14 +36,14 @@ const Followers: React.FC = () => {
         {
             id: '1',
             name: 'Sarah Johnson',
-            avatar: '/avatars/sarah.jpg',
+            avatar: 'https://randomuser.me/api/portraits/women/44.jpg',
             followedDate: '2024-01-15',
             isActive: true
         },
         {
             id: '2',
-            name: 'Mike Chen',
-            avatar: '/avatars/mike.jpg',
+            name: 'Miky Chen',
+            avatar: 'https://randomuser.me/api/portraits/women/65.jpg',
             followedDate: '2024-01-10',
             isActive: false
         }
@@ -53,7 +53,7 @@ const Followers: React.FC = () => {
         {
             id: '1',
             name: 'Alex Turner',
-            avatar: '/avatars/alex.jpg',
+            avatar: 'https://randomuser.me/api/portraits/men/31.jpg',
             requestDate: '2024-01-20',
             mutualFollowers: 5
         }
@@ -63,7 +63,7 @@ const Followers: React.FC = () => {
         {
             id: '1',
             sender: 'Sarah Johnson',
-            avatar: '/avatars/sarah.jpg',
+            avatar: 'https://randomuser.me/api/portraits/women/65.jpg',
             lastMessage: 'Thanks for the amazing astronomy content!',
             timestamp: '2 hours ago',
             unread: true
@@ -170,8 +170,31 @@ const Followers: React.FC = () => {
                                     {followers.map(follower => (
                                         <div key={follower.id} className="user-card">
                                             <div className="user-avatar">
-                                                <img src={follower.avatar} alt={follower.name} />
-                            
+                                                {follower.avatar ? (
+                                                    <img
+                                                        src={follower.avatar}
+                                                        alt={follower.name}
+                                                    />
+                                                ) : (
+                                                    <div
+                                                        style={{
+                                                            width: '100%',
+                                                            height: '100%',
+                                                            borderRadius: '50%',
+                                                            background: '#667eea',
+                                                            color: 'white',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            fontWeight: 700,
+                                                            fontSize: '1.25rem',
+                                                            textTransform: 'uppercase'
+                                                        }}
+                                                    >
+                                                        {follower.name.slice(0,2)}
+                                                    </div>
+                                                )}
+                                                
                                             </div>
                                             <div className="user-info">
                                                 <h4 className="user-name">{follower.name}</h4>
@@ -228,14 +251,14 @@ const Followers: React.FC = () => {
                                                     className="btn-accept btn-sm"
                                                     onClick={() => handleAcceptRequest(request.id)}
                                                 >
-                                                    <i className="fas fa-check"></i>
+                                                   
                                                     Accept
                                                 </Button>
                                                 <Button  
                                                     className="btn-decline btn-sm"
                                                     onClick={() => handleDeclineRequest(request.id)}
                                                 >
-                                                    <i className="fas fa-times"></i>
+                                                   
                                                     Decline
                                                 </Button>
                                             </div>

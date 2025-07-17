@@ -1,0 +1,129 @@
+.chat-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.chat-container {
+  background: #1e293b;
+  border-radius: 10px;
+  width: 400px;
+  max-height: 90vh;
+  padding: 1rem;
+  position: relative;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+}
+
+
+.close-chat-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  color: #ffffff;
+  cursor: pointer;
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  z-index: 10;
+  transition: color 0.2s;
+
+  &:hover {
+    color: #ff4d4f;
+  }
+}
+
+.guide-learner-chat-wrapper {
+  width: 100%;
+  max-width: 600px;
+  height: 500px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: #f9fafb;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.guide-learner-chat-header {
+  padding: 1rem;
+  background-color: #0f172a;
+  color: white;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.guide-learner-chat-body {
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+  background-color: white;
+}
+
+.guide-learner-chat-message {
+  max-width: 70%;
+  margin-bottom: 0.8rem;
+  padding: 0.75rem 1rem;
+  border-radius: 1rem;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  word-break: break-word;
+
+  &.learner {
+    margin-left: auto;
+    background-color: #e0f2fe;
+    color: #0c4a6e;
+    text-align: right;
+  }
+
+  &.guide {
+    margin-right: auto;
+    background-color: #f3f4f6;
+    color: #1e293b;
+  }
+}
+
+.guide-learner-chat-input-area {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem;
+  border-top: 1px solid #e5e7eb;
+  background-color: #f8fafc;
+
+  input {
+    flex: 1;
+    padding: 0.6rem 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 9999px;
+    font-size: 0.95rem;
+    outline: none;
+  }
+
+  button {
+    background-color: #0f172a;
+    border: none;
+    color: white;
+    padding: 0.6rem 0.8rem;
+    margin-left: 0.5rem;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: #1e293b;
+    }
+
+    svg {
+      display: block;
+    }
+  }
+}

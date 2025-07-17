@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import '../../styles/pages/influencer/followers.scss';
 import Button from '../../components/Button';
+import '@fortawesome/fontawesome-free/css/all.min.css';
 
 interface Follower {
     id: string;

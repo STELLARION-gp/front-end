@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import '../../styles/pages/influencer/followers.scss';
+import Button from '../../components/Button';
 
 interface Follower {
     id: string;
@@ -128,27 +129,27 @@ const Followers: React.FC = () => {
 
             <div className="content-container">
                 <div className="tab-navigation">
-                    <button 
-                        className={`tab-btn ${activeTab === 'followers' ? 'active' : ''}`}
+                    <Button 
+                        className={`tab-btn ${activeTab === 'followers' ? 'primary' : 'secondary'}`}
                         onClick={() => setActiveTab('followers')}
                     >
                         <i className="fas fa-users"></i>
                         My Followers ({followers.length})
-                    </button>
-                    <button 
-                        className={`tab-btn ${activeTab === 'requests' ? 'active' : ''}`}
+                    </Button>
+                    <Button  
+                        className={`tab-btn ${activeTab === 'requests' ? 'primary' : 'secondary'}`}
                         onClick={() => setActiveTab('requests')}
                     >
                         <i className="fas fa-user-clock"></i>
                         Follow Requests ({followRequests.length})
-                    </button>
-                    <button 
-                        className={`tab-btn ${activeTab === 'messages' ? 'active' : ''}`}
+                    </Button>
+                    <Button  
+                        className={`tab-btn ${activeTab === 'messages' ? 'primary' : 'secondary'}`}
                         onClick={() => setActiveTab('messages')}
                     >
                         <i className="fas fa-comments"></i>
                         Messages ({messages.filter(m => m.unread).length})
-                    </button>
+                    </Button>
                 </div>
 
                 <div className="tab-content">
@@ -157,10 +158,10 @@ const Followers: React.FC = () => {
                             <div className="section-header">
                                 <h2 className="section-title">My Followers</h2>
                                 <div className="section-actions">
-                                    <button className="btn btn-secondary">
+                                    <Button>
                                         <i className="fas fa-download"></i>
                                         Export List
-                                    </button>
+                                    </Button>
                                 </div>
                             </div>
                             {followers.length > 0 ? (
@@ -176,14 +177,14 @@ const Followers: React.FC = () => {
                                                 <p className="user-meta">Followed on {new Date(follower.followedDate).toLocaleDateString()}</p>
                                             </div>
                                             <div className="user-actions">
-                                                <button className="btn btn-primary btn-sm" onClick={() => openChat(follower.id)}>
+                                                <Button onClick={() => openChat(follower.id)}>
                                                     <i className="fas fa-message"></i>
                                                     Message
-                                                </button>
-                                                <button className="btn btn-outline btn-sm">
+                                                </Button>
+                                                <Button>
                                                     <i className="fas fa-user"></i>
                                                     Profile
-                                                </button>
+                                                </Button>
                                             </div>
                                         </div>
                                     ))}
@@ -222,20 +223,20 @@ const Followers: React.FC = () => {
                                                 </div>
                                             </div>
                                             <div className="request-actions">
-                                                <button 
-                                                    className="btn btn-success btn-sm"
+                                                <Button 
+                                                    className="btn-accept btn-sm"
                                                     onClick={() => handleAcceptRequest(request.id)}
                                                 >
                                                     <i className="fas fa-check"></i>
                                                     Accept
-                                                </button>
-                                                <button 
-                                                    className="btn btn-danger btn-sm"
+                                                </Button>
+                                                <Button  
+                                                    className="btn-decline btn-sm"
                                                     onClick={() => handleDeclineRequest(request.id)}
                                                 >
                                                     <i className="fas fa-times"></i>
                                                     Decline
-                                                </button>
+                                                </Button>
                                             </div>
                                         </div>
                                     ))}
@@ -257,10 +258,10 @@ const Followers: React.FC = () => {
                             <div className="section-header">
                                 <h2 className="section-title">Messenger Center</h2>
                                 <div className="section-actions">
-                                    <button className="btn btn-primary">
+                                    <Button>
                                         <i className="fas fa-plus"></i>
                                         New Message
-                                    </button>
+                                    </Button>
                                 </div>
                             </div>
                             {messages.length > 0 ? (
@@ -285,10 +286,10 @@ const Followers: React.FC = () => {
                                                 </div>
                                             </div>
                                             <div className="message-actions">
-                                                <button className="btn btn-ghost btn-sm">
+                                                <Button className="btn-ghost btn-sm">
                                                     <i className="fas fa-reply"></i>
                                                     Reply
-                                                </button>
+                                                </Button>
                                             </div>
                                         </div>
                                     ))}

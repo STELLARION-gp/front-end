@@ -45,7 +45,7 @@ const ServicesTab: React.FC = () => {
   return (
     <div className="services-tab-container">
       <h2>Your Astronomy Services</h2>
-      <table className="services-table">
+      <table className="services-tab-table">
         <thead>
           <tr>
             <th>Service</th>
@@ -62,14 +62,14 @@ const ServicesTab: React.FC = () => {
               <td>{service.guide}</td>
               <td>{service.date}</td>
               <td>
-                <span className={`status-badge ${service.status.toLowerCase()}`}>
+                <span className={`chat-status-badge ${service.status.toLowerCase()}`}>
                   {service.status}
                 </span>
               </td>
               <td>
                 {service.status === "Booked" && (
                   <button
-                    className="action-button chat-button"
+                    className="chat-action-button service-chat-button"
                     onClick={() => handleChat(service.id)}
                   >
                     Chat

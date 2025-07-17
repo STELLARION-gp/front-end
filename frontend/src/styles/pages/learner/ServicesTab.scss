@@ -37,7 +37,7 @@
   }
 }
 
-.status-badge {
+.chat-status-badge {
   padding: 0.3rem 0.7rem;
   border-radius: 12px;
   font-size: 0.85rem;
@@ -60,7 +60,7 @@
   }
 }
 
-.action-button {
+.chat-action-button {
   padding: 0.4rem 0.8rem;
   border: none;
   border-radius: 8px;
@@ -69,7 +69,7 @@
   cursor: pointer;
   transition: 0.2s ease-in-out;
 
-  &.chat-button {
+  &.service-chat-button {
     background-color: #34d399;
     color: #0f172a;
 

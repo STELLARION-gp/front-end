@@ -306,7 +306,7 @@ const CompetitionsPage: React.FC = () => {
     return (
         <div className="competitions-page">
             <div className="header">
-                <h1>Competitions</h1>
+                <h1>Astronomy Competitions</h1>
                 <button 
                     className="btn-primary"
                     onClick={() => setShowAddForm(!showAddForm)}
@@ -416,15 +416,29 @@ const CompetitionsPage: React.FC = () => {
 
             <div className="competitions-list">
                 {competitions.map(competition => (
-                    <div key={competition.id} className="competition-card">
+                    <div key={competition.id} className="competition-card" tabIndex={0} style={{transition: 'box-shadow 0.2s', outline: 'none'}}>
                         <div className="competition-header" style={{position: 'relative'}}>
                             <div className="competition-meta" style={{position: 'absolute', top: 0, right: 0}}>
                                 <div className="admin-actions">
-                                    <button onClick={() => handleEdit(competition)} className="btn-edit">
-                                        Edit
+                                    <button
+                                        onClick={() => handleEdit(competition)}
+                                        className="btn-edit"
+                                        title="Edit"
+                                        style={{transition: 'background 0.2s'}}
+                                        onMouseEnter={e => e.currentTarget.style.background = '#e0e7ef'}
+                                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                                    >
+                                        <span role="img" aria-label="edit">✏️</span> Edit
                                     </button>
-                                    <button onClick={() => handleDelete(competition.id)} className="btn-delete">
-                                        Delete
+                                    <button
+                                        onClick={() => handleDelete(competition.id)}
+                                        className="btn-delete"
+                                        title="Delete"
+                                        style={{transition: 'background 0.2s'}}
+                                        onMouseEnter={e => e.currentTarget.style.background = '#ffeaea'}
+                                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                                    >
+                                        <span role="img" aria-label="delete">🗑️</span> Delete
                                     </button>
                                 </div>
                             </div>
@@ -450,26 +464,36 @@ const CompetitionsPage: React.FC = () => {
                         </div>
 
                         <div className="competition-actions">
-                            <button 
-                                onClick={() => handleLikeCompetition(competition.id)} 
+                            <button
+                                onClick={() => handleLikeCompetition(competition.id)}
                                 className={`btn-like ${competition.isLiked ? 'liked' : ''}`}
                                 disabled={loading}
+                                title={competition.isLiked ? "Unlike" : "Like"}
+                                style={{fontWeight: competition.isLiked ? 'bold' : 'normal', color: competition.isLiked ? '#FFC107' : undefined, transition: 'color 0.2s'}}
                             >
-                                {competition.likes}
+                                <span role="img" aria-label="star">{competition.isLiked ? "★" : "☆"}</span> {competition.likes}
                             </button>
-                            
-                            <button className="btn-learn-more">
-                                Learn More
+                            <button
+                                className="btn-learn-more"
+                                title="Learn More"
+                                style={{transition: 'background 0.2s'}}
+                                onMouseEnter={e => e.currentTarget.style.background = '#e0e7ef'}
+                                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                            >
+                                <span role="img" aria-label="book">📖</span> Learn More
                             </button>
-                            
                             {competition.applicationLink && !isDeadlinePassed(competition.deadline) && (
-                                <a 
-                                    href={competition.applicationLink} 
-                                    target="_blank" 
+                                <a
+                                    href={competition.applicationLink}
+                                    target="_blank"
                                     rel="noopener noreferrer"
                                     className="btn-apply"
+                                    title="Apply Now"
+                                    style={{transition: 'background 0.2s'}}
+                                    onMouseEnter={e => e.currentTarget.style.background = '#e0ffe0'}
+                                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                                 >
-                                    Apply Now
+                                    <span role="img" aria-label="rocket">🚀</span> Apply Now
                                 </a>
                             )}
                         </div>
@@ -514,26 +538,36 @@ const CompetitionsPage: React.FC = () => {
                                         </div>
                                         <p className="reply-content">{reply.content}</p>
                                         <div className="reply-item-actions">
-                                            <button 
-                                            onClick={() => handleLikeReply(competition.id, reply.id)} 
-                                            className={`btn-like-reply ${reply.isLiked ? 'liked' : ''}`}
-                                            disabled={loading}
-                                        >
-                                            {reply.likes}
-                                        </button>
-                                            <button 
-                                                onClick={() => handleEditReply(reply)} 
+                                            <button
+                                                onClick={() => handleLikeReply(competition.id, reply.id)}
+                                                className={`btn-like-reply ${reply.isLiked ? 'liked' : ''}`}
+                                                disabled={loading}
+                                                title={reply.isLiked ? "Unlike" : "Like"}
+                                                style={{fontWeight: reply.isLiked ? 'bold' : 'normal', color: reply.isLiked ? '#FFC107' : undefined, transition: 'color 0.2s'}}
+                                            >
+                                                <span role="img" aria-label="star">{reply.isLiked ? "★" : "☆"}</span> {reply.likes}
+                                            </button>
+                                            <button
+                                                onClick={() => handleEditReply(reply)}
                                                 className="btn-edit-reply"
                                                 disabled={loading}
+                                                title="Edit"
+                                                style={{transition: 'background 0.2s'}}
+                                                onMouseEnter={e => e.currentTarget.style.background = '#e0e7ef'}
+                                                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                                             >
-                                                Edit
+                                                <span role="img" aria-label="edit">✏️</span> Edit
                                             </button>
-                                            <button 
-                                                onClick={() => handleDeleteReply(competition.id, reply.id)} 
+                                            <button
+                                                onClick={() => handleDeleteReply(competition.id, reply.id)}
                                                 className="btn-delete-reply"
                                                 disabled={loading}
+                                                title="Delete"
+                                                style={{transition: 'background 0.2s'}}
+                                                onMouseEnter={e => e.currentTarget.style.background = '#ffeaea'}
+                                                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                                             >
-                                                Delete
+                                                <span role="img" aria-label="delete">🗑️</span> Delete
                                             </button>
                                         </div>
                                     </div>

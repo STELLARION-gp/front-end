@@ -16,7 +16,7 @@ import QuizModal from '../../components/Learner/QuizModal';
 import AstronomyBlogCard from '../../components/Learner/blogcard';
 import { useNavigate } from 'react-router-dom';
 import AstronomyCompetitionCard from '../../components/Learner/AstronomyCompetitionCard';
-import { Tab } from '@headlessui/react';
+import MentorCard from '../../components/Learner/mentor/MentorCard';
 import ServicesTab from './ServicesTab';
 
 
@@ -498,9 +498,38 @@ const MyUniverse = () => {
           <div>
             <ServicesTab />
           </div>
-        )
+        )}
 
-        }
+        {activeTab === 'Mentors' && (
+          <>
+            <h2>Connected Mentors</h2>
+            <div className="mentor-card-list">
+              {[{
+                id: 1,
+                name: 'Dr. Stella Orion',
+                expertise: 'Astrophysics & Space Science',
+                description: 'Expert in stellar evolution, black holes, and cosmic phenomena.',
+                availableSlots: 2,
+                image: 'https://randomuser.me/api/portraits/women/44.jpg',
+                accepting: true
+              }, {
+                id: 2,
+                name: 'Prof. Leo Pulsar',
+                expertise: 'Exoplanets & Cosmology',
+                description: 'Specializes in exoplanet discovery and cosmological simulations.',
+                availableSlots: 1,
+                image: 'https://randomuser.me/api/portraits/men/32.jpg',
+                accepting: true
+              }].map((mentor) => (
+                <MentorCard
+                  key={mentor.id}
+                  mentor={mentor}
+                  onOpen={(id: number) => navigate(`/dashboard/mentor-connection/${id}`)}
+                />
+              ))}
+            </div>
+          </>
+        )}
 
 
 

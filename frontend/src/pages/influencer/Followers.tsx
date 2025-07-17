@@ -72,6 +72,17 @@ const Followers: React.FC = () => {
         }
     ];
 
+    const messageHistories: { [followerId: string]: { sender: string, text: string, timestamp: string }[] } = {
+        '1': [
+            { sender: 'Sarah Johnson', text: 'Thanks for the amazing astronomy content!', timestamp: '2024-06-01 10:00' },
+            { sender: 'You', text: 'Glad you enjoyed it!', timestamp: '2024-06-01 10:05' }
+        ],
+        '2': [
+            { sender: 'Miky Chen', text: 'Can you share more about the next event?', timestamp: '2024-06-02 09:00' },
+            { sender: 'You', text: 'Sure, I will post details soon.', timestamp: '2024-06-02 09:10' }
+        ]
+    };
+
     const handleAcceptRequest = (requestId: string) => {
         console.log('Accepting request:', requestId);
         // Implement accept logic
@@ -82,21 +93,58 @@ const Followers: React.FC = () => {
         // Implement decline logic
     };
 
-    const openChat = (messageId: string) => {
-        const message = messages.find(m => m.id === messageId);
+    const openChat = (followerId: string) => {
+        const history = messageHistories[followerId] || [];
         setModalContent(
             <div>
-                <h3>Chat with {message?.sender}</h3>
-                <p>{message?.lastMessage}</p>
-                <textarea rows={3} style={{width: '100%', marginTop: '1rem'}} placeholder="Type your reply..." />
-                <div style={{marginTop: '1rem', display: 'flex', gap: '1rem'}}>
-                    <Button onClick={() => alert('Reply sent!')}>Send Reply</Button>
-                    <Button onClick={() => setModalOpen(false)}>Close</Button>
-                </div>
+                <h3>Message History</h3>
+                <div style={{
+                    maxHeight: '250px',
+                    overflowY: 'auto',
+                    marginBottom: '1rem',
+                    background: '#f3f4f6',
+                    padding: '1rem',
+                    borderRadius: '8px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.5rem'
+                }}>
+                    {history.length === 0 ? (
+                        <div>No previous messages.</div>
+                    ) : (
+                        history.map((msg, idx) => (
+                            <div
+                                key={idx}
+                                style={{
+                                    alignSelf: msg.sender === 'You' ? 'flex-end' : 'flex-start',
+                                    background: msg.sender === 'You' ? '#6366f1' : '#e5e7eb',
+                                    color: msg.sender === 'You' ? '#fff' : '#222',
+                                    borderRadius: '16px',
+                                    padding: '0.5rem 1rem',
+                                    maxWidth: '70%',
+                                    boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+                            }}
+                        >
+                            <div style={{fontWeight: 600, fontSize: '0.95rem', marginBottom: '0.25rem'}}>
+                                {msg.sender}
+                            </div>
+                            <div style={{fontSize: '1rem'}}>{msg.text}</div>
+                            <div style={{fontSize: '0.75rem', color: msg.sender === 'You' ? '#d1d5db' : '#888', marginTop: '0.25rem', textAlign: 'right'}}>
+                                {msg.timestamp}
+                            </div>
+                        </div>
+                    ))
+                )}
             </div>
-        );
-        setModalOpen(true);
-    };
+            <textarea rows={3} style={{width: '100%', marginTop: '1rem'}} placeholder="Type your message..." />
+            <div style={{marginTop: '1rem', display: 'flex', gap: '1rem'}}>
+                <Button onClick={() => alert('Message sent!')}>Send Message</Button>
+                <Button onClick={() => setModalOpen(false)}>Close</Button>
+            </div>
+        </div>
+    );
+    setModalOpen(true);
+};
 
     const handleNewMessage = () => {
         setModalContent(

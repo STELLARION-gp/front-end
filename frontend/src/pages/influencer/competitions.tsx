@@ -417,12 +417,8 @@ const CompetitionsPage: React.FC = () => {
             <div className="competitions-list">
                 {competitions.map(competition => (
                     <div key={competition.id} className="competition-card">
-                        <div className="competition-header">
-                            <h3>{competition.title}</h3>
-                            <div className="competition-meta">
-                                <span className="timestamp">
-                                    {formatDate(competition.timestamp)}
-                                </span>
+                        <div className="competition-header" style={{position: 'relative'}}>
+                            <div className="competition-meta" style={{position: 'absolute', top: 0, right: 0}}>
                                 <div className="admin-actions">
                                     <button onClick={() => handleEdit(competition)} className="btn-edit">
                                         Edit
@@ -431,6 +427,12 @@ const CompetitionsPage: React.FC = () => {
                                         Delete
                                     </button>
                                 </div>
+                            </div>
+                            <div style={{width: '100%'}}>
+                                <h3>{competition.title}</h3>
+                                <span className="timestamp" style={{display: 'block', marginTop: '4px', color: '#8B9DC3', fontSize: '0.9rem', fontWeight: 500}}>
+                                    {formatDate(competition.timestamp)}
+                                </span>
                             </div>
                         </div>
 

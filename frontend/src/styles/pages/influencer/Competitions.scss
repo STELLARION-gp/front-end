@@ -341,18 +341,22 @@
 
     // Competition Card Styles
     .competitions-list {
-        display: flex;
-        flex-direction: column;
-        gap: 32px;
+        display: grid; // changed from flex
+        grid-template-columns: 1fr 1fr; // two cards side by side
+        gap: 24px; // reduced gap
         padding: 0 20px;
         width: 100%;
+
+        @media (max-width: 900px) {
+            grid-template-columns: 1fr; // stack on smaller screens
+        }
     }
 
     .competition-card {
         background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
         border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 16px;
-        padding: 32px;
+        border-radius: 10px; // medium size
+        padding: 18px; // medium size
         backdrop-filter: blur(10px);
         transition: all 0.3s ease;
         overflow: hidden;
@@ -363,89 +367,46 @@
 
         &:hover {
             border-color: rgba(74, 144, 226, 0.5);
-            box-shadow: 0 8px 32px rgba(74, 144, 226, 0.1);
+            box-shadow: 0 4px 16px rgba(74, 144, 226, 0.08);
             transform: translateY(-2px);
         }
 
         .competition-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 24px;
-            gap: 20px;
-            width: 100%;
+            margin-bottom: 14px;
+            gap: 12px;
 
             h3 {
-                margin: 0;
-                font-size: 2rem;
-                font-weight: 700;
-                color: white;
-                flex-grow: 1;
-                line-height: 1.2;
-                word-wrap: break-word;
-                overflow-wrap: break-word;
-                max-width: calc(100% - 250px); // Ensure title doesn't push meta too far
+                font-size: 1.3rem;
+                max-width: calc(100% - 140px);
             }
 
             .competition-meta {
-                display: flex;
-                flex-direction: column;
-                align-items: flex-end;
-                gap: 12px;
-                flex-shrink: 0;
-                min-width: 200px;
+                gap: 6px;
+                min-width: 100px;
 
                 .timestamp {
-                    color: #8B9DC3;
-                    font-size: 0.9rem;
-                    font-weight: 500;
-                    white-space: nowrap;
-                }
-
-                .admin-actions {
-                    display: flex;
-                    gap: 8px;
-                    white-space: nowrap;
+                    font-size: 0.8rem;
                 }
             }
         }
 
         .competition-content {
-            margin-bottom: 24px;
-            width: 100%;
+            margin-bottom: 14px;
 
             .brief-content {
-                font-size: 1.2rem;
-                margin-bottom: 20px;
-                color: #E8F0FE;
-                line-height: 1.6;
-                word-wrap: break-word;
-                overflow-wrap: break-word;
-                width: 100%;
+                font-size: 1rem;
+                margin-bottom: 10px;
+                line-height: 1.5;
             }
 
             .competition-details {
-                background: rgba(74, 144, 226, 0.1);
-                padding: 24px;
-                border-radius: 12px;
-                border-left: 4px solid #4A90E2;
-                overflow: hidden;
-                word-wrap: break-word;
-                width: 100%;
-                box-sizing: border-box;
+                padding: 10px;
+                border-radius: 6px;
+                border-left: 3px solid #4A90E2;
 
                 p {
-                    margin: 12px 0;
-                    line-height: 1.7;
-                    color: #E8F0FE;
-                    word-wrap: break-word;
-                    overflow-wrap: break-word;
-                    width: 100%;
-
-                    strong {
-                        color: #4A90E2;
-                        font-weight: 600;
-                    }
+                    margin: 6px 0;
+                    line-height: 1.5;
                 }
 
                 .deadline {
@@ -462,10 +423,10 @@
                     .expired-badge {
                         background-color: #FF6B6B;
                         color: white;
-                        padding: 4px 12px;
-                        border-radius: 20px;
-                        font-size: 0.8rem;
-                        margin-left: 12px;
+                        padding: 2px 8px;
+                        border-radius: 12px;
+                        font-size: 0.7rem;
+                        margin-left: 6px;
                         font-weight: 600;
                         text-transform: uppercase;
                         letter-spacing: 0.5px;
@@ -475,15 +436,11 @@
         }
 
         .competition-actions {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            margin-bottom: 24px;
-            padding: 20px 0;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            flex-wrap: wrap;
-            width: 100%;
+            gap: 8px;
+            margin-bottom: 10px;
+            padding: 8px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         }
     }
 

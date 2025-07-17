@@ -30,6 +30,8 @@ interface Message {
 
 const Followers: React.FC = () => {
     const [activeTab, setActiveTab] = useState<'followers' | 'requests' | 'messages'>('followers');
+    const [modalOpen, setModalOpen] = useState(false);
+    const [modalContent, setModalContent] = useState<React.ReactNode>(null);
     
     // Mock data - replace with actual API calls
     const followers: Follower[] = [
@@ -81,8 +83,49 @@ const Followers: React.FC = () => {
     };
 
     const openChat = (messageId: string) => {
-        console.log('Opening chat:', messageId);
-        // Implement chat opening logic
+        const message = messages.find(m => m.id === messageId);
+        setModalContent(
+            <div>
+                <h3>Chat with {message?.sender}</h3>
+                <p>{message?.lastMessage}</p>
+                <textarea rows={3} style={{width: '100%', marginTop: '1rem'}} placeholder="Type your reply..." />
+                <div style={{marginTop: '1rem', display: 'flex', gap: '1rem'}}>
+                    <Button onClick={() => alert('Reply sent!')}>Send Reply</Button>
+                    <Button onClick={() => setModalOpen(false)}>Close</Button>
+                </div>
+            </div>
+        );
+        setModalOpen(true);
+    };
+
+    const handleNewMessage = () => {
+        setModalContent(
+            <div>
+                <h3>New Message</h3>
+                <input type="text" style={{width: '100%', marginBottom: '1rem'}} placeholder="Recipient name..." />
+                <textarea rows={3} style={{width: '100%'}} placeholder="Type your message..." />
+                <div style={{marginTop: '1rem', display: 'flex', gap: '1rem'}}>
+                    <Button onClick={() => alert('Message sent!')}>Send</Button>
+                    <Button onClick={() => setModalOpen(false)}>Close</Button>
+                </div>
+            </div>
+        );
+        setModalOpen(true);
+    };
+
+    const handleReply = (messageId: string) => {
+        const message = messages.find(m => m.id === messageId);
+        setModalContent(
+            <div>
+                <h3>Reply to {message?.sender}</h3>
+                <textarea rows={3} style={{width: '100%'}} placeholder="Type your reply..." />
+                <div style={{marginTop: '1rem', display: 'flex', gap: '1rem'}}>
+                    <Button onClick={() => alert('Reply sent!')}>Send Reply</Button>
+                    <Button onClick={() => setModalOpen(false)}>Close</Button>
+                </div>
+            </div>
+        );
+        setModalOpen(true);
     };
 
     return (
@@ -282,7 +325,7 @@ const Followers: React.FC = () => {
                             <div className="section-header">
                                 <h2 className="section-title">Messenger Center</h2>
                                 <div className="section-actions">
-                                    <Button>
+                                    <Button onClick={handleNewMessage}>
                                         <i className="fas fa-plus"></i>
                                         New Message
                                     </Button>
@@ -310,7 +353,7 @@ const Followers: React.FC = () => {
                                                 </div>
                                             </div>
                                             <div className="message-actions">
-                                                <Button className="btn-ghost btn-sm">
+                                                <Button className="btn-ghost btn-sm" onClick={e => {e.stopPropagation(); handleReply(message.id);}}>
                                                     <i className="fas fa-reply"></i>
                                                     Reply
                                                 </Button>
@@ -331,6 +374,29 @@ const Followers: React.FC = () => {
                     )}
                 </div>
             </div>
+            {/* Modal for message/reply/new message */}
+            {modalOpen && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0, left: 0, right: 0, bottom: 0,
+                    background: 'rgba(0,0,0,0.5)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 9999
+                }}>
+                    <div style={{
+                        background: '#fff',
+                        padding: '2rem',
+                        borderRadius: '12px',
+                        minWidth: '320px',
+                        maxWidth: '90vw',
+                        boxShadow: '0 8px 32px rgba(0,0,0,0.2)'
+                    }}>
+                        {modalContent}
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
 import Chat from "../../components/Learner/Chat";
 import "../../styles/pages/learner/AstronomyServiceDetails.scss";
@@ -9,8 +9,6 @@ const AstronomyServiceDetails: React.FC = () => {
   const location = useLocation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-
-  const [showChat, setShowChat] = useState(false);
 
   // Try to get service from navigation state, else from static array
   let service = location.state?.service;
@@ -24,9 +22,6 @@ const AstronomyServiceDetails: React.FC = () => {
 
   const handleGuideClick = () => {
     navigate("/dashboard/guide-profile");
-  };
-const handleBookNow = () => {
-    setShowChat(true); // Show chat when Book Now is clicked
   };
 
   return (

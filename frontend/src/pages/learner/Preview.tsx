@@ -233,7 +233,7 @@ const Preview = () => {
     </div>
 
       {/* Platform-Organized Events */}
-      <h2 style={{ marginTop: "4rem" }}>Featured Events for Learners</h2>
+      <h2 style={{ marginTop: "4rem" }}>Featured Events</h2>
       <p className="section-subtitle">Join exclusive events organized by our platform. Limited seats. </p>
       <div className="organized-events-container">
         {organizedEvents.map((event) => (

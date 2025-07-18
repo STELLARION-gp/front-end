@@ -94,10 +94,10 @@
   font-size: 1.08rem;
 }
 
-.blog-list {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 2rem;
+.blogexplore-blog-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
   width: 100%;
   max-width: 1400px;
   margin-left: auto;
@@ -106,13 +106,14 @@
 
 @media (max-width: 1100px) {
   .blog-list {
-    grid-template-columns: repeat(2, 1fr);
+    flex-direction: column;
+    gap: 1rem;
   }
 }
 
 @media (max-width: 700px) {
   .blog-list {
-    grid-template-columns: 1fr;
+    flex-direction: column;
     gap: 1rem;
   }
 }

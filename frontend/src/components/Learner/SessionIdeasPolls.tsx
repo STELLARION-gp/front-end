@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import "../../styles/components/learner/SessionIdeasPolls.scss";
 import PollDetailsPopup from "./PollDetailsPopup";
 import { sessionIdeasPolls } from "./sessionIdeasPollsData";
+import Button from "../Button";
 
 // Updated PollOption type for multiple options
 interface PollOption {
@@ -29,7 +30,7 @@ const ProgressBar: React.FC<{ percent: number }> = ({ percent }) => (
   </div>
 );
 
-const PollItem: React.FC<Omit<Poll, 'comments'> & { onClick: () => void }> = ({
+const PollItem: React.FC<Omit<Poll, 'comments'> & { onSeeMore: () => void }> = ({
   title,
   description,
   options,
@@ -37,11 +38,11 @@ const PollItem: React.FC<Omit<Poll, 'comments'> & { onClick: () => void }> = ({
   author,
   authorPic,
   createdAt,
-  onClick,
+  onSeeMore,
 }) => {
   const totalVotes = options.reduce((sum, opt) => sum + opt.votes, 0) || 1;
   return (
-    <div className={`poll-item blogcard${trending ? " poll-item-trending" : ""}`} onClick={onClick} style={{ cursor: "pointer" }}>
+    <div className={`poll-item blogcard${trending ? " poll-item-trending" : ""}`} style={{ cursor: "pointer" }}>
       <div className="poll-title blogcard-title">{title}</div>
       <div className="poll-desc blogcard-desc">{description}</div>
       <div className="poll-options">
@@ -73,6 +74,7 @@ const PollItem: React.FC<Omit<Poll, 'comments'> & { onClick: () => void }> = ({
           <span className="poll-trending">Trending</span>
         </div>
       )}
+      <Button onClick={onSeeMore}>See More</Button>
     </div>
   );
 };
@@ -116,7 +118,7 @@ const SessionIdeasPolls: React.FC = () => {
           <PollItem
             key={poll.id}
             {...poll}
-            onClick={() => {
+            onSeeMore={() => {
               setSelectedPoll(poll);
               setPopupOpen(true);
             }}

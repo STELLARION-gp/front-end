@@ -37,3 +37,12 @@ const NasaImageCard: React.FC<NasaImageCardProps> = ({ image, title, rating, onC
 );
 
 export default NasaImageCard;
+
+// Example usage for 3 cards in a row:
+export const NasaImageCardRow: React.FC<{ cards: NasaImageCardProps[] }> = ({ cards }) => (
+  <div className="nasa-image-card-row">
+    {cards.slice(0, 3).map((props, idx) => (
+      <NasaImageCard key={idx} {...props} />
+    ))}
+  </div>
+);

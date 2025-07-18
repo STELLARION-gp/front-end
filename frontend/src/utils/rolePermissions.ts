@@ -77,7 +77,7 @@ export const ROLE_BASED_MENU_ITEMS = {
     learner: [
         { label: 'Overview', icon: 'HomeIcon', href: '/dashboard/overview' },
         //{ label: 'Profile', icon: 'UserCircleIcon', href: '/dashboard/profile' },
-        { label: 'Blogs', icon: 'BookOpenIcon', href: '/dashboard/blogs' },
+         { label: 'Blogs', icon: 'BookOpenIcon', href: '/dashboard/blogs' },
         {label: 'Sessions', icon: 'VideoCameraIcon', href: '/dashboard/sessions'},
         { label: 'NASA content', icon: 'RocketLaunchIcon', href: '/dashboard/nasa-content' },
         // { label: 'Celestial Events', icon: 'SparklesIcon', href: '/dashboard/celestial-events' },
@@ -122,7 +122,7 @@ export const ROLE_BASED_MENU_ITEMS = {
         {label: 'Competitions', icon: 'TrophyIcon', href: '/dashboard/competitions' },
         {label: 'Polls', icon: 'DocumentTextIcon', href: '/dashboard/polls' },
         { label: 'Astro Hub', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/astrohub' },
-        { label: 'Sponsorships', icon: 'CurrencyDollarIcon', href: '/dashboard/sponsorships' },
+        // { label: 'Sponsorships', icon: 'CurrencyDollarIcon', href: '/dashboard/sponsorships' },
         { label: 'Followers', icon: 'UsersIcon', href: '/dashboard/followers' },
 
         //{ label: 'Settings', icon: 'Cog6ToothIcon', href: '/dashboard/settings' },

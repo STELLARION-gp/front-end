@@ -1,4 +1,4 @@
-import { href } from 'react-router-dom';
+//import { href } from 'react-router-dom';
 import { type UserRole } from '../AuthContext';
 
 // Define permission types
@@ -68,6 +68,7 @@ export const PAGE_ACCESS_CONTROL = {
     '/dashboard/myblogs': ['influencer'] as UserRole[],
     '/dashboard/vlogs': ['influencer'] as UserRole[],
     '/dashboard/polls': ['influencer'] as UserRole[],
+    '/dashboard/followers': ['influencer'] as UserRole[],
 
 };
 
@@ -122,6 +123,8 @@ export const ROLE_BASED_MENU_ITEMS = {
         {label: 'Polls', icon: 'DocumentTextIcon', href: '/dashboard/polls' },
         { label: 'Astro Hub', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/astrohub' },
         { label: 'Sponsorships', icon: 'CurrencyDollarIcon', href: '/dashboard/sponsorships' },
+        { label: 'Followers', icon: 'UsersIcon', href: '/dashboard/followers' },
+
         //{ label: 'Settings', icon: 'Cog6ToothIcon', href: '/dashboard/settings' },
     ],
     guide: [

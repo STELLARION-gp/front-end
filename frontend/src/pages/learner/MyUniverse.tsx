@@ -17,6 +17,7 @@ import AstronomyBlogCard from '../../components/Learner/blogcard';
 import { useNavigate } from 'react-router-dom';
 import AstronomyCompetitionCard from '../../components/Learner/AstronomyCompetitionCard';
 import MentorCard from '../../components/Learner/mentor/MentorCard';
+import InfluencerCard from '../../components/Learner/InfluencerCard';
 import ServicesTab from './ServicesTab';
 
 
@@ -227,6 +228,30 @@ const bookedServices: ServiceBooking[] = [
   },
 ];
 const MyUniverse = () => {
+  // Sample connected influencers
+  const [connectedInfluencers, setConnectedInfluencers] = useState([
+    {
+      id: 1,
+      name: 'Dr. Jane Skywalker',
+      expertise: 'Astronomy Communication',
+      description: 'Sharing cosmic discoveries and science news with the world.',
+      image: 'https://randomuser.me/api/portraits/women/50.jpg',
+      isFollowed: true
+    },
+    {
+      id: 2,
+      name: 'Prof. John Cosmos',
+      expertise: 'Space Exploration',
+      description: 'Updates on missions, telescopes, and the future of space travel.',
+      image: 'https://randomuser.me/api/portraits/men/45.jpg',
+      isFollowed: true
+    }
+  ]);
+
+  const handleOpenInfluencer = (name: string) => {
+    const encodedName = encodeURIComponent(name);
+    navigate(`/dashboard/author/${encodedName}`);
+  };
   const [activeTab, setActiveTab] = useState('Quizzes');
   const [showQuizModal, setShowQuizModal] = useState(false);
   const [selectedQuiz, setSelectedQuiz] = useState<Quiz | null>(null);
@@ -527,6 +552,22 @@ const MyUniverse = () => {
                   onOpen={(id: number) => navigate(`/dashboard/mentor-connection/${id}`)}
                 />
               ))}
+            </div>
+          </>
+        )}
+
+        {activeTab === 'Influencers' && (
+          <>
+            <h2>Connected Influencers</h2>
+            <div className="influencer-card-list" style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+            {connectedInfluencers.map((influencer) => (
+              <InfluencerCard
+                key={influencer.id}
+                influencer={influencer}
+                onFollow={() => {}}
+                onOpen={handleOpenInfluencer}
+              />
+            ))}
             </div>
           </>
         )}

@@ -2,9 +2,10 @@
   background: #181f2a;
 //   border: 2px solid #2563eb;
   border-radius: 10px;
-  width: 300px;
-  display: flex;
-  flex-direction: column;
+  width: 100%;
+  max-width: 300px;
+  display: grid;
+  grid-template-rows: auto 1fr;
   align-items: center;
   color: #fff;
   position: relative;
@@ -72,4 +73,23 @@
 }
 .nasa-star.empty {
   color: #374151;
+}
+
+// Add a container class for displaying 3 cards in a row
+.nasa-image-card-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  justify-content: center;
+}
+
+@media (max-width: 1000px) {
+  .nasa-image-card-row {
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+  .nasa-image-card {
+    max-width: 90vw;
+  }
 }

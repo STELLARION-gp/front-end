@@ -76,6 +76,7 @@ import MyBlogs from '../pages/influencer/myblogs';
 import LearnPath from '../pages/mentor/LearnPath';
 import MentorMenteeConnectionPage from '../pages/learner/MentorMenteeConnectionPage';
 
+import Followers from '../pages/influencer/Followers';
 
 // Create placeholder components for different pages - all memoized
 // const BlogsPage = memo(() => (
@@ -560,7 +561,7 @@ const DashboardRoutes = () => {
             <Route
                 path="night-camps"
                 element={
-                    <RoleGuard allowedRoles={['enthusiast', 'learner', 'guide']}>
+                    <RoleGuard allowedRoles={['enthusiast', 'learner', 'guide','influencer']}>
                         <NightCamps />
                     </RoleGuard>
                 }
@@ -682,6 +683,15 @@ const DashboardRoutes = () => {
                 element={
                     <RoleGuard allowedRoles={['influencer']}>
                         <MyBlogs />
+                    </RoleGuard>
+                }
+            />
+
+            <Route
+                path="followers"
+                element={
+                    <RoleGuard allowedRoles={['influencer']}>
+                        <Followers />
                     </RoleGuard>
                 }
             />

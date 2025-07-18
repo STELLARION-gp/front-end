@@ -44,7 +44,7 @@ const Mentors: React.FC = () => {
   };
   return (
     <div className="mentors-page" style={{ padding: "20px",  margin: "0 auto" }}>
-      <h1>Mentors</h1>
+      <h1>Mentors & Influences</h1>
       <p>Find the right mentor or follow astronomy influencers for inspiration and updates.</p>
       <div className="mentors-list" style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
         {mentors.map((mentor) => (

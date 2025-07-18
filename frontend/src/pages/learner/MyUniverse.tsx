@@ -1,5 +1,7 @@
 // pages/learner/MyUniverse.tsx
 import  { useState } from 'react';
+import Calendar from 'react-calendar';
+import 'react-calendar/dist/Calendar.css';
 import '../../styles/pages/learner/MyUniverse.scss';
 import {
   Star,
@@ -270,6 +272,144 @@ const MyUniverse = () => {
   const handleEdit = (quiz: Quiz) => {
     alert(`Edit clicked for quiz: ${quiz.name}`);
   };
+
+  // Sample session data
+  const [sessionFilter, setSessionFilter] = useState('All Sessions');
+  const [sessions] = useState([
+    {
+      id: 1,
+      name: 'Exploring Exoplanets',
+      date: '2025-07-20',
+      time: '18:00',
+      host: 'Dr. Stella Orion',
+      type: 'Live',
+      status: 'Upcoming',
+      isRegistered: true,
+      isBought: false,
+      isCompleted: false,
+      isRecorded: false,
+    },
+    {
+      id: 2,
+      name: 'Cosmic Mysteries Revealed',
+      date: '2025-07-22',
+      time: '20:00',
+      host: 'Prof. Leo Pulsar',
+      type: 'Recorded',
+      status: 'Completed',
+      isRegistered: false,
+      isBought: true,
+      isCompleted: true,
+      isRecorded: true,
+    },
+    {
+      id: 3,
+      name: 'Live Q&A: Black Holes',
+      date: '2025-07-19',
+      time: '17:00',
+      host: 'Dr. Jane Skywalker',
+      type: 'Live',
+      status: 'Active',
+      isRegistered: true,
+      isBought: false,
+      isCompleted: false,
+      isRecorded: false,
+    },
+    {
+      id: 4,
+      name: 'Recorded: Solar System Tour',
+      date: '2025-07-10',
+      time: '15:00',
+      host: 'Prof. John Cosmos',
+      type: 'Recorded',
+      status: 'Completed',
+      isRegistered: false,
+      isBought: true,
+      isCompleted: true,
+      isRecorded: true,
+    },
+    {
+      id: 5,
+      name: 'Upcoming: Meteor Showers',
+      date: '2025-07-21',
+      time: '19:00',
+      host: 'Dr. Nova Stellar',
+      type: 'Live',
+      status: 'Upcoming',
+      isRegistered: true,
+      isBought: false,
+      isCompleted: false,
+      isRecorded: false,
+    },
+  ]);
+
+  // Helper: get filtered sessions
+  const filteredSessions = sessions.filter((session) => {
+    if (sessionFilter === 'All Sessions') return true;
+    if (sessionFilter === 'Live') return session.type === 'Live';
+    if (sessionFilter === 'Recorded') return session.type === 'Recorded';
+    if (sessionFilter === 'Completed') return session.isCompleted;
+    return true;
+  });
+
+
+  // Calendar logic for sessions
+  const sessionDates = sessions.filter(s => s.status === 'Upcoming' || s.status === 'Active');
+  const dateSessionMap: { [date: string]: string } = Object.fromEntries(
+    sessionDates.map(s => [s.date, s.name])
+  );
+
+  // Tooltip for session name
+  const [hoveredSessionDate, setHoveredSessionDate] = useState<string | null>(null);
+  const handleSessionDateMouseOver = (date: Date) => {
+    const dateStr = date.toISOString().slice(0, 10);
+    if (dateSessionMap[dateStr]) {
+      setHoveredSessionDate(dateStr);
+    } else {
+      setHoveredSessionDate(null);
+    }
+  };
+  const handleSessionDateMouseOut = () => setHoveredSessionDate(null);
+
+  const sessionTileContent = ({ date, view }: { date: Date; view: string }) => {
+    if (view === 'month') {
+      const dateStr = date.toISOString().slice(0, 10);
+      if (dateSessionMap[dateStr]) {
+        return (
+          <div
+            className="calendar-dot"
+            onMouseEnter={() => handleSessionDateMouseOver(date)}
+            onMouseLeave={handleSessionDateMouseOut}
+          />
+        );
+      }
+    }
+    return null;
+  };
+  const sessionTileClassName = ({ date, view }: { date: Date; view: string }) => {
+    if (view === 'month') {
+      const dateStr = date.toISOString().slice(0, 10);
+      if (dateSessionMap[dateStr]) {
+        return 'calendar-booked';
+      }
+    }
+    return '';
+  };
+
+  // Helper: countdown for sessions within 24h
+const getCountdown = (dateStr: string, timeStr: string): string | null => {
+  const sessionDate = new Date(`${dateStr}T${timeStr}:00`);
+  const now = new Date();
+  const diffMs = sessionDate.getTime() - now.getTime();
+  if (diffMs > 0 && diffMs <= 24 * 60 * 60 * 1000) {
+    const hours = Math.floor(diffMs / (1000 * 60 * 60));
+    const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+    return `${hours}h ${minutes}m`;
+  }
+  return null;
+};
+
+  // Use react-calendar for sessions
 
   return (
     <div className="universe-my-universe">
@@ -577,6 +717,83 @@ const MyUniverse = () => {
 
         {showQuizModal && selectedQuiz && (
           <QuizModal quiz={selectedQuiz} onClose={handleCloseModal} />
+        )}
+
+        {activeTab === 'Sessions' && (
+          <div className="sessions-tab-content">
+            <div className="sessions-header">
+              <h2>My Sessions</h2>
+              <div className="sessions-filter-dropdown">
+                <label htmlFor="session-filter">Filter:</label>
+                <select
+                  id="session-filter"
+                  value={sessionFilter}
+                  onChange={(e) => setSessionFilter(e.target.value)}
+                >
+                  <option>All Sessions</option>
+                  <option>Live</option>
+                  <option>Recorded</option>
+                  <option>Completed</option>
+                </select>
+              </div>
+            </div>
+            <div className="session-calendar">
+              <h3>Upcoming Sessions Calendar</h3>
+              <Calendar
+                tileContent={sessionTileContent}
+                tileClassName={sessionTileClassName}
+              />
+              {hoveredSessionDate && (
+                <div className="calendar-tooltip">
+                  {dateSessionMap[hoveredSessionDate]}
+                </div>
+              )}
+            </div>
+            <div className="session-card-list">
+              {filteredSessions.length === 0 ? (
+                <div className="no-sessions">No sessions found for this filter.</div>
+              ) : (
+                filteredSessions.map((session) => {
+                  const countdown = getCountdown(session.date, session.time);
+                  return (
+                    <div
+                      key={session.id}
+                      className={`session-card session-type-${session.type.toLowerCase()} session-status-${session.status.toLowerCase()}`}
+                    >
+                      <div className="session-card-main">
+                        <div className="session-card-header">
+                          <span className="session-name">{session.name}</span>
+                          <span className="session-type-badge">{session.type}</span>
+                        </div>
+                        <div className="session-card-details">
+                          <span className="session-date">{session.date}</span>
+                          <span className="session-time">{session.time}</span>
+                          <span className="session-host">Host: {session.host}</span>
+                          <span className="session-status">Status: {session.status}</span>
+                        </div>
+                        {countdown && (
+                          <div className="session-countdown">
+                            Starts in <span className="countdown-timer">{countdown}</span>
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        {session.status === 'Active' && session.type === 'Live' && (
+                          <Button variant="primary" onClick={() => alert('Joining live session...')}>Join Live</Button>
+                        )}
+                        {session.isCompleted && session.isRecorded && (
+                          <Button variant="secondary" onClick={() => alert('Watching again...')}>Watch Again</Button>
+                        )}
+                        {session.isCompleted && !session.isRecorded && (
+                          <Button variant="secondary" onClick={() => alert('Reviewing session...')}>Review</Button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
         )}
       </div>
     </div>

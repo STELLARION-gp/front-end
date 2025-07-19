@@ -206,6 +206,35 @@
         z-index: -1;
       }
 
+      // Priority-specific styling
+      &.priority-critical {
+        border-color: rgba(255, 71, 87, 0.3);
+        .priority-indicator { background: #ff4757; }
+        .progress-fill { background: linear-gradient(90deg, #ff4757, #ff3838); }
+        .access-button { background: linear-gradient(135deg, #ff4757, #ff3838); }
+      }
+
+      &.priority-high {
+        border-color: rgba(255, 165, 2, 0.3);
+        .priority-indicator { background: #ffa502; }
+        .progress-fill { background: linear-gradient(90deg, #ffa502, #ff8c00); }
+        .access-button { background: linear-gradient(135deg, #ffa502, #ff8c00); }
+      }
+
+      &.priority-medium {
+        border-color: rgba(55, 66, 250, 0.3);
+        .priority-indicator { background: #3742fa; }
+        .progress-fill { background: linear-gradient(90deg, #3742fa, #5352ed); }
+        .access-button { background: linear-gradient(135deg, #3742fa, #5352ed); }
+      }
+
+      &.priority-low {
+        border-color: rgba(46, 213, 115, 0.3);
+        .priority-indicator { background: #2ed573; }
+        .progress-fill { background: linear-gradient(90deg, #2ed573, #1dd1a1); }
+        .access-button { background: linear-gradient(135deg, #2ed573, #1dd1a1); }
+      }
+
       .module-header {
         display: flex;
         justify-content: space-between;
@@ -296,9 +325,35 @@
 
           .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, var(--priority-color), rgba(var(--priority-color-rgb, 102, 126, 234), 0.6));
+            background: linear-gradient(90deg, #667eea, #764ba2);
             border-radius: 2px;
             transition: width 0.3s ease;
+
+            &[data-percentage="0"] { width: 0%; }
+            &[data-percentage="1"] { width: 1%; }
+            &[data-percentage="2"] { width: 2%; }
+            &[data-percentage="3"] { width: 3%; }
+            &[data-percentage="4"] { width: 4%; }
+            &[data-percentage="5"] { width: 5%; }
+            &[data-percentage="10"] { width: 10%; }
+            &[data-percentage="15"] { width: 15%; }
+            &[data-percentage="20"] { width: 20%; }
+            &[data-percentage="25"] { width: 25%; }
+            &[data-percentage="30"] { width: 30%; }
+            &[data-percentage="35"] { width: 35%; }
+            &[data-percentage="40"] { width: 40%; }
+            &[data-percentage="45"] { width: 45%; }
+            &[data-percentage="50"] { width: 50%; }
+            &[data-percentage="55"] { width: 55%; }
+            &[data-percentage="60"] { width: 60%; }
+            &[data-percentage="65"] { width: 65%; }
+            &[data-percentage="70"] { width: 70%; }
+            &[data-percentage="75"] { width: 75%; }
+            &[data-percentage="80"] { width: 80%; }
+            &[data-percentage="85"] { width: 85%; }
+            &[data-percentage="90"] { width: 90%; }
+            &[data-percentage="95"] { width: 95%; }
+            &[data-percentage="100"] { width: 100%; }
           }
         }
       }
@@ -306,7 +361,7 @@
       .module-footer {
         .access-button {
           width: 100%;
-          background: linear-gradient(135deg, var(--priority-color), rgba(var(--priority-color-rgb, 102, 126, 234), 0.8));
+          background: linear-gradient(135deg, #667eea, #764ba2);
           border: none;
           color: white;
           padding: 0.75rem 1rem;

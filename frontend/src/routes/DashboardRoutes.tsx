@@ -72,6 +72,7 @@ import Competitions from '../pages/influencer/competitions';
 import MyBlogs from '../pages/influencer/myblogs';
 import LearnPath from '../pages/mentor/LearnPath';
 import Followers from '../pages/influencer/Followers';
+import AdminModeratorsPage from '../pages/admin/AdminModeratorsPage';
 
 // Create placeholder components for different pages - all memoized
 // const BlogsPage = memo(() => (
@@ -674,7 +675,15 @@ const DashboardRoutes = () => {
                     </RoleGuard>
                 }
             />
-
+            {/* admin routes */}
+            <Route
+                path="moderators"
+                element={
+                    <RoleGuard allowedRoles={['admin']}>
+                        <AdminModeratorsPage />
+                    </RoleGuard>
+                }
+            />
             {/* Default redirect to overview */}
             <Route path="" element={<Navigate to="overview" replace />} />
 

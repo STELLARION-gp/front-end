@@ -178,6 +178,7 @@ export const ROLE_BASED_MENU_ITEMS = {
         { label: 'Mentor', icon: 'AcademicCapIcon', href: '/dashboard/mentor' },
         { label: 'Events', icon: 'CalendarDaysIcon', href: '/dashboard/events' },
         { label: 'Chat', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/chat' },
+        { label: 'Moderators', icon: 'ShieldCheckIcon', href: '/dashboard/moderators' },
     ],
 } as const;
 

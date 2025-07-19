@@ -234,6 +234,11 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
             color: white;
+
+            &.priority-critical { background: #ff4757; }
+            &.priority-high { background: #ffa502; }
+            &.priority-medium { background: #3742fa; }
+            &.priority-low { background: #2ed573; }
           }
         }
 

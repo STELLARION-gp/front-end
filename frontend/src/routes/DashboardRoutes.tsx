@@ -138,12 +138,12 @@ const ChatPage = memo(() => (
 
 
 
-const ModerationPage = memo(() => (
-    <div className="dashboard-page">
-        <h2>Community Moderation</h2>
-        <p>Moderate community content and manage user reports.</p>
-    </div>
-));
+// const ModerationPage = memo(() => (
+//     <div className="dashboard-page">
+//         <h2>Community Moderation</h2>
+//         <p>Moderate community content and manage user reports.</p>
+//     </div>
+// ));
 
 const AdminPage = memo(() => (
     <div className="dashboard-page">
@@ -280,7 +280,7 @@ const DashboardRoutes = () => {
             <Route
                 path='astronomy-services'
                 element={
-                    <RoleGuard allowedRoles={['learner']}>
+                    <RoleGuard allowedRoles={['learner','enthusiast']}>
                         <AstronomyServices />
                     </RoleGuard>
                 }
@@ -288,7 +288,7 @@ const DashboardRoutes = () => {
             <Route
                 path='astronomy-services/:id'
                 element={
-                    <RoleGuard allowedRoles={['learner']}>
+                    <RoleGuard allowedRoles={['learner','enthusiast']}>
                         <AstronomyServiceDetails />
                     </RoleGuard>
                 }
@@ -296,7 +296,7 @@ const DashboardRoutes = () => {
             <Route
                 path='guide-profile'
                 element={
-                    <RoleGuard allowedRoles={['learner']}>
+                    <RoleGuard allowedRoles={['learner','enthusiast']}>
                         <GuideDetails />
                     </RoleGuard>
                 }
@@ -631,7 +631,7 @@ const DashboardRoutes = () => {
             <Route
                 path="night-camps"
                 element={
-                    <RoleGuard allowedRoles={['enthusiast', 'learner', 'guide']}>
+                    <RoleGuard allowedRoles={['enthusiast', 'learner', 'guide','influencer']}>
                         <NightCamps />
                     </RoleGuard>
                 }

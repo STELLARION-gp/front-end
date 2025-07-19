@@ -110,6 +110,7 @@ export default function ContentModeration() {
             <button 
               className="back-button"
               onClick={() => navigate('/dashboard/moderation')}
+              title="Go back to moderation dashboard"
             >
               <FaArrowLeft />
             </button>
@@ -206,6 +207,7 @@ export default function ContentModeration() {
                     e.stopPropagation();
                     setSelectedItem(item);
                   }}
+                    title="view content details"
                 >
                   <FaEye />
                 </button>

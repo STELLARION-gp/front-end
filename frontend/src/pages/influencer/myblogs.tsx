@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Star, Edit2, Trash2, MessageCircle, Eye, Heart, Plus, Save, X, Send } from 'lucide-react';
+import { useNavigate } from "react-router-dom";
+import { BookOpenIcon, UserGroupIcon, StarIcon, CalendarDaysIcon } from "@heroicons/react/24/outline";
 import Button from '../../components/Button';
 import InputField from '../../components/InputField';
+import AstronomyBlogCard from "../../components/Learner/blogcard";
+import { blogs, totalBlogs, avgRating, latestDate } from "../learner/blogData";
 import '../../styles/pages/influencer/myblogs.scss'
+import "../../styles/pages/learner/blog_explore.scss"
 
 type Comment = {
     id: number;
@@ -60,16 +65,34 @@ const mockBlogs: Blog[] = [
 ];
 
 export default function MyBlogs() {
-    const [blogs, setBlogs] = useState<Blog[]>([]);
+    const navigate = useNavigate();
+    const [activeTab, setActiveTab] = useState('blogs');
+    const [myBlogs, setMyBlogs] = useState<Blog[]>([]);
     const [newBlog, setNewBlog] = useState<{ title: string; content: string; image: File | null }>({ title: '', content: '', image: null });
     const [editingId, setEditingId] = useState<number | null>(null);
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [selectedBlog, setSelectedBlog] = useState<Blog | null>(null);
     const [newComment, setNewComment] = useState('');
 
+    // Blog exploration states
+    const [filter, setFilter] = React.useState({
+        author: '',
+        minRating: '',
+        search: ''
+    });
+
     useEffect(() => {
-        setBlogs(mockBlogs);
+        setMyBlogs(mockBlogs);
     }, []);
+
+    const filteredBlogs = blogs.filter(blog => {
+        if (filter.author && blog.author !== filter.author) return false;
+        if (filter.minRating && blog.rating < Number(filter.minRating)) return false;
+        if (filter.search && !blog.title.toLowerCase().includes(filter.search.toLowerCase()) && !blog.content.toLowerCase().includes(filter.search.toLowerCase())) return false;
+        return true;
+    });
+
+    const uniqueAuthors = Array.from(new Set(blogs.map(b => b.author)));
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -82,7 +105,7 @@ export default function MyBlogs() {
 
     const handleCreateBlog = (e: React.FormEvent) => {
         e.preventDefault();
-        const newId = blogs.length ? Math.max(...blogs.map(b => b.id)) + 1 : 1;
+        const newId = myBlogs.length ? Math.max(...myBlogs.map(b => b.id)) + 1 : 1;
         const newBlogPost = {
             ...newBlog,
             id: newId,
@@ -95,13 +118,13 @@ export default function MyBlogs() {
             liked: false,
             image: newBlog.image ? URL.createObjectURL(newBlog.image) : null,
         };
-        setBlogs([newBlogPost, ...blogs]);
+        setMyBlogs([newBlogPost, ...myBlogs]);
         setNewBlog({ title: '', content: '', image: null });
         setShowCreateForm(false);
     };
 
     const handleDelete = (id: number) => {
-        setBlogs(blogs.filter((b) => b.id !== id));
+        setMyBlogs(myBlogs.filter((b) => b.id !== id));
         if (selectedBlog?.id === id) {
             setSelectedBlog(null);
         }
@@ -109,7 +132,7 @@ export default function MyBlogs() {
 
     const handleEdit = (id: number) => {
         setEditingId(id);
-        const blog = blogs.find((b) => b.id === id);
+        const blog = myBlogs.find((b) => b.id === id);
         if (blog) {
             setNewBlog({ title: blog.title, content: blog.content, image: null });
             setShowCreateForm(true);
@@ -118,8 +141,8 @@ export default function MyBlogs() {
 
     const handleUpdateBlog = (e: React.FormEvent) => {
         e.preventDefault();
-        setBlogs(
-            blogs.map((b) =>
+        setMyBlogs(
+            myBlogs.map((b) =>
                 b.id === editingId
                     ? {
                             ...b,
@@ -136,7 +159,7 @@ export default function MyBlogs() {
     };
 
     const handleLike = (id: number) => {
-        setBlogs(blogs.map(blog => 
+        setMyBlogs(myBlogs.map(blog => 
             blog.id === id 
                 ? { 
                     ...blog, 
@@ -165,7 +188,7 @@ export default function MyBlogs() {
             date: new Date().toISOString().split('T')[0]
         };
         
-        setBlogs(blogs.map(blog => 
+        setMyBlogs(myBlogs.map(blog => 
             blog.id === blogId 
                 ? { ...blog, comments: [...blog.comments, comment] }
                 : blog
@@ -182,7 +205,7 @@ export default function MyBlogs() {
     };
 
     const handleDeleteComment = (blogId: number, commentId: number) => {
-        setBlogs(blogs.map(blog => 
+        setMyBlogs(myBlogs.map(blog => 
             blog.id === blogId 
                 ? { ...blog, comments: blog.comments.filter(c => c.id !== commentId) }
                 : blog
@@ -217,7 +240,89 @@ export default function MyBlogs() {
         return stars;
     };
 
-    return (
+    const renderBlogsTab = () => (
+        <div className="blog-explore-page">
+            <h2>Explore Astronomy Blogs</h2>
+            <p>Discover the latest insights and discoveries in the field of astronomy.</p>
+            <div className="blog-explore-head-cards">
+                <div className="blog-stat-card">
+                    <BookOpenIcon className="blog-stat-icon" />
+                    <div>
+                        <div className="blog-stat-value">{totalBlogs}</div>
+                        <div className="blog-stat-label">Total Blogs</div>
+                    </div>
+                </div>
+                <div className="blog-stat-card">
+                    <UserGroupIcon className="blog-stat-icon" />
+                    <div>
+                        <div className="blog-stat-value">{uniqueAuthors.length}</div>
+                        <div className="blog-stat-label">Unique Authors</div>
+                    </div>
+                </div>
+                <div className="blog-stat-card">
+                    <StarIcon className="blog-stat-icon" />
+                    <div>
+                        <div className="blog-stat-value">{avgRating}</div>
+                        <div className="blog-stat-label">Average Rating</div>
+                    </div>
+                </div>
+                <div className="blog-stat-card">
+                    <CalendarDaysIcon className="blog-stat-icon" />
+                    <div>
+                        <div className="blog-stat-value">{latestDate}</div>
+                        <div className="blog-stat-label">Latest Blog</div>
+                    </div>
+                </div>
+            </div>
+            {/* Blog Filters */}
+            <div className="blog-filters" style={{ display: 'flex', gap: 16, margin: '1.2rem 0', flexWrap: 'wrap' }}>
+                <input
+                    type="text"
+                    placeholder="Search title or content..."
+                    value={filter.search}
+                    onChange={e => setFilter(f => ({ ...f, search: e.target.value }))}
+                    style={{ padding: '0.5rem 1rem', borderRadius: 8, border: '1px solid #334155', minWidth: 180 }}
+                />
+                <select
+                    value={filter.author}
+                    onChange={e => setFilter(f => ({ ...f, author: e.target.value }))}
+                    style={{ padding: '0.5rem 1rem', borderRadius: 8, border: '1px solid #334155', minWidth: 140 }}
+                >
+                    <option value="">All Authors</option>
+                    {uniqueAuthors.map(author => (
+                        <option key={author} value={author}>{author}</option>
+                    ))}
+                </select>
+                <select
+                    value={filter.minRating}
+                    onChange={e => setFilter(f => ({ ...f, minRating: e.target.value }))}
+                    style={{ padding: '0.5rem 1rem', borderRadius: 8, border: '1px solid #334155', minWidth: 120 }}
+                >
+                    <option value="">Any Rating</option>
+                    {[5,4,3,2,1].map(r => (
+                        <option key={r} value={r}>{r}+</option>
+                    ))}
+                </select>
+            </div>
+            
+            <div className="blogexplore-blog-list">
+                {filteredBlogs.map(blog => (
+                    <AstronomyBlogCard
+                        key={blog.id}
+                        image={blog.image}
+                        title={blog.title}
+                        author={blog.author}
+                        createdAt={blog.createdAt}
+                        rating={blog.rating}
+                        content={blog.content}
+                        onClick={() => navigate(`/dashboard/blogs/${blog.id}`)}
+                    />
+                ))}
+            </div>
+        </div>
+    );
+
+    const renderMyBlogsTab = () => (
         <div className="blogs-container">
             <div className="blogs-header">
                 <h1>My Astronomy Blogs</h1>
@@ -284,7 +389,8 @@ export default function MyBlogs() {
                                     <Save size={16} />
                                     {editingId ? 'Update Blog' : 'Publish Blog'}
                                 </Button>
-                                <Button type="Submit"
+                                <Button 
+                                    type="button"
                                     onClick={() => {
                                         setShowCreateForm(false);
                                         setEditingId(null);
@@ -294,8 +400,6 @@ export default function MyBlogs() {
                                     <Save size={16} />
                                     Save Draft
                                 </Button>
-                                
-                            
                             </div>
                         </form>
                     </div>
@@ -303,7 +407,7 @@ export default function MyBlogs() {
             )}
 
             <div className="blogs-grid">
-                {blogs.map((blog) => (
+                {myBlogs.map((blog) => (
                     <div key={blog.id} className="blog-card">
                         <div className="blog-image">
                             {blog.image && (
@@ -371,7 +475,7 @@ export default function MyBlogs() {
                 ))}
             </div>
 
-            {blogs.length === 0 && (
+            {myBlogs.length === 0 && (
                 <div className="empty-state">
                     <div className="empty-icon">📝</div>
                     <h3>No blogs yet</h3>
@@ -457,4 +561,29 @@ export default function MyBlogs() {
             )}
         </div>
     );
-};
+
+    return (
+        <div className="myblogs-tabbed-container">
+            {/* Tab Navigation */}
+            <div className="tab-navigation">
+                <button 
+                    className={`tab-button ${activeTab === 'blogs' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('blogs')}
+                >
+                    Blogs
+                </button>
+                <button 
+                    className={`tab-button ${activeTab === 'my-blogs' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('my-blogs')}
+                >
+                    My Blogs
+                </button>
+            </div>
+
+            {/* Tab Content */}
+            <div className="tab-content">
+                {activeTab === 'blogs' ? renderBlogsTab() : renderMyBlogsTab()}
+            </div>
+        </div>
+    );
+}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Search, Calendar, MapPin, Users, Star, CheckCircle, XCircle, AlertTriangle, Clock, Eye, Shield, Camera, BookOpen } from 'lucide-react';
-import './EventModeration.scss';
+import '../../styles/pages/moderator/EventModeration.scss';
 
 interface Event {
   id: string;

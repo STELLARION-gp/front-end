@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { FaArrowLeft, FaFlag, FaEye, FaCheck, FaTimes, FaSearch } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import './ContentModeration.scss';
+import '../../styles/pages/moderator/ContentModeration.scss';
 
 interface ContentItem {
   id: string;

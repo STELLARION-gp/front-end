@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Search, Calendar, MapPin, Users, Star, CheckCircle, XCircle, AlertTriangle, Clock, Moon } from 'lucide-react';
-import './NightCampModeration.scss';
+import '../../styles/pages/moderator/NightCampModeration.scss';
 
 interface NightCamp {
   id: string;

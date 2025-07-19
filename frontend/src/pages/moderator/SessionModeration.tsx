@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { FaArrowLeft, FaSearch, FaCheck, FaTimes, FaExclamationTriangle, FaCalendarAlt, FaUser, FaMapMarkerAlt } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import './SessionModeration.scss';
+import '../../styles/pages/moderator/SessionModeration.scss';
 
 interface SessionProposal {
   id: string;

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { FaArrowLeft, FaUser, FaBan, FaCheck, FaTimes, FaSearch, FaExclamationTriangle } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import './ProfileModeration.scss';
+import '../../styles/pages/moderator/ProfileModeration.scss';
 
 interface ProfileReport {
   id: string;

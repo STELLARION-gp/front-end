@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { FaArrowLeft, FaSearch, FaCheck, FaTimes, FaExclamationTriangle, FaMapMarkerAlt, FaStar, FaEye } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import './SpotsModeration.scss';
+import '../../styles/pages/moderator/SpotsModeration.scss';
 
 interface StargazingSpot {
   id: string;

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaUsers, FaFileAlt, FaCalendarAlt, FaComments, FaMapMarkerAlt, FaCampground, FaCalendarCheck } from 'react-icons/fa';
-import './Moderation.scss';
+import '../../styles/pages/moderator/Moderation.scss';
 
 interface ModerationModule {
   id: string;

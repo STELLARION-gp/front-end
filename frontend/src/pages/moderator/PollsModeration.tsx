@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { FaArrowLeft, FaSearch, FaCheck, FaTimes, FaExclamationTriangle, FaThumbsUp, FaComments, FaPoll } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import './PollsModeration.scss';
+import '../../styles/pages/moderator/PollsModeration.scss';
 
 interface Poll {
   id: string;

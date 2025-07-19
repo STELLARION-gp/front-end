@@ -107,6 +107,7 @@ export const ROLE_BASED_MENU_ITEMS = {
         { label: 'Influencers', icon: 'MegaphoneIcon', href: '/dashboard/influencers' },
         { label: 'Mentors' , icon: 'AcademicCapIcon', href: '/dashboard/mentors' },
         { label: 'Quizzes' , icon: 'DocumentTextIcon', href: '/dashboard/quizzes' },
+         { label: 'Services', icon: 'MegaphoneIcon', href: '/dashboard/astronomy-services' },
         //{ label: 'Settings', icon: 'Cog6ToothIcon', href: '/dashboard/settings' },
 
     ],

@@ -95,16 +95,6 @@ export default function Moderation() {
     }, 200);
   };
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'critical': return '#ff4757';
-      case 'high': return '#ffa502';
-      case 'medium': return '#3742fa';
-      case 'low': return '#2ed573';
-      default: return '#747d8c';
-    }
-  };
-
   const totalPending = moderationModules.reduce((sum, module) => sum + module.stats.pending, 0);
   const totalItems = moderationModules.reduce((sum, module) => sum + module.stats.total, 0);
   const recentActivity = moderationModules.reduce((sum, module) => sum + module.stats.recent, 0);
@@ -151,11 +141,8 @@ export default function Moderation() {
           {moderationModules.map((module) => (
             <div
               key={module.id}
-              className={`module-card ${selectedModule === module.id ? 'selected' : ''}`}
+              className={`module-card ${selectedModule === module.id ? 'selected' : ''} priority-${module.priority}`}
               onClick={() => handleModuleClick(module)}
-              style={{
-                '--priority-color': getPriorityColor(module.priority)
-              } as React.CSSProperties}
             >
               <div className="module-header">
                 <div className="module-icon">
@@ -188,9 +175,7 @@ export default function Moderation() {
                 <div className="progress-bar">
                   <div 
                     className="progress-fill"
-                    style={{
-                      width: `${(module.stats.pending / module.stats.total) * 100}%`
-                    }}
+                    data-percentage={Math.round((module.stats.pending / module.stats.total) * 100)}
                   ></div>
                 </div>
               </div>

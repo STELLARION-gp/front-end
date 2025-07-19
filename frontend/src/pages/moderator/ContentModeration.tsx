@@ -81,16 +81,6 @@ export default function ContentModeration() {
     return matchesFilter && matchesSearch;
   });
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'critical': return '#ff4757';
-      case 'high': return '#ffa502';
-      case 'medium': return '#3742fa';
-      case 'low': return '#2ed573';
-      default: return '#747d8c';
-    }
-  };
-
   const getTypeIcon = (type: string) => {
     switch (type) {
       case 'post': return '📝';

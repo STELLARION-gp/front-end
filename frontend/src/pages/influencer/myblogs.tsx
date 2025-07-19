@@ -244,36 +244,7 @@ export default function MyBlogs() {
         <div className="blog-explore-page">
             <h2>Explore Astronomy Blogs</h2>
             <p>Discover the latest insights and discoveries in the field of astronomy.</p>
-            <div className="blog-explore-head-cards">
-                <div className="blog-stat-card">
-                    <BookOpenIcon className="blog-stat-icon" />
-                    <div>
-                        <div className="blog-stat-value">{totalBlogs}</div>
-                        <div className="blog-stat-label">Total Blogs</div>
-                    </div>
-                </div>
-                <div className="blog-stat-card">
-                    <UserGroupIcon className="blog-stat-icon" />
-                    <div>
-                        <div className="blog-stat-value">{uniqueAuthors.length}</div>
-                        <div className="blog-stat-label">Unique Authors</div>
-                    </div>
-                </div>
-                <div className="blog-stat-card">
-                    <StarIcon className="blog-stat-icon" />
-                    <div>
-                        <div className="blog-stat-value">{avgRating}</div>
-                        <div className="blog-stat-label">Average Rating</div>
-                    </div>
-                </div>
-                <div className="blog-stat-card">
-                    <CalendarDaysIcon className="blog-stat-icon" />
-                    <div>
-                        <div className="blog-stat-value">{latestDate}</div>
-                        <div className="blog-stat-label">Latest Blog</div>
-                    </div>
-                </div>
-            </div>
+            
             {/* Blog Filters */}
             <div className="blog-filters" style={{ display: 'flex', gap: 16, margin: '1.2rem 0', flexWrap: 'wrap' }}>
                 <input
@@ -566,18 +537,18 @@ export default function MyBlogs() {
         <div className="myblogs-tabbed-container">
             {/* Tab Navigation */}
             <div className="tab-navigation">
-                <button 
+                <Button 
                     className={`tab-button ${activeTab === 'blogs' ? 'active' : ''}`}
                     onClick={() => setActiveTab('blogs')}
                 >
                     Blogs
-                </button>
-                <button 
+                </Button>
+                <Button 
                     className={`tab-button ${activeTab === 'my-blogs' ? 'active' : ''}`}
                     onClick={() => setActiveTab('my-blogs')}
                 >
                     My Blogs
-                </button>
+                </Button>
             </div>
 
             {/* Tab Content */}

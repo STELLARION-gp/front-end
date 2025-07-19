@@ -34,8 +34,17 @@ type Blog = {
     createdAt: string;
 };
 
+// Current user constant
+const CURRENT_USER = 'Neil V. Galaxy';
 
-
+// Custom Blog Card Component for My Blogs
+const MyBlogCard: React.FC<{
+    blog: Blog;
+    onEdit: (id: number) => void;
+    onDelete: (id: number) => void;
+    onTogglePublish: (id: number) => void;
+    onView: (blog: Blog) => void;
+}> = ({ blog, onEdit, onDelete, onTogglePublish, onView }) => {
     const renderStars = (rating: number) => {
         const stars = [];
         const fullStars = Math.floor(rating);
@@ -43,6 +52,7 @@ type Blog = {
         
         for (let i = 0; i < fullStars; i++) {
             stars.push(<Star key={i} className="star filled" size={16} />);
+        }
         
         if (hasHalfStar) {
             stars.push(<Star key="half" className="star half-filled" size={16} />);
@@ -156,8 +166,7 @@ type Blog = {
             </div>
         </div>
     );
-}
-
+};
 
 export default function MyBlogs() {
     const navigate = useNavigate();
@@ -178,10 +187,23 @@ export default function MyBlogs() {
     });
 
     useEffect(() => {
-    const myBlogsOnly = blogs.filter(blog => blog.author === 'You');
-    setMyBlogs(myBlogsOnly);
-}, []);
-
+        console.log('Loading blogs for user:', CURRENT_USER);
+        // Convert blogs from blogData to Blog type and filter by current user
+        const convertedBlogs: Blog[] = blogs
+            .filter(blog => blog.author === CURRENT_USER)
+            .map(blog => ({
+                ...blog,
+                date: blog.createdAt,
+                reach: Math.floor(Math.random() * 1000) + 100, // Random reach for demo
+                likes: Math.floor(Math.random() * 50) + 10, // Random likes for demo
+                comments: [], // Start with no comments
+                liked: false,
+                published: Math.random() > 0.5, // Randomly assign published status for demo
+            }));
+        
+        console.log('Converted blogs:', convertedBlogs);
+        setMyBlogs(convertedBlogs);
+    }, []);
 
     const filteredBlogs = blogs.filter(blog => {
         if (filter.author && blog.author !== filter.author) return false;
@@ -210,13 +232,20 @@ export default function MyBlogs() {
 
     const handleCreateBlog = (e: React.FormEvent) => {
         e.preventDefault();
-        const newId = myBlogs.length ? Math.max(...myBlogs.map(b => b.id)) + 1 : 1;
+        console.log('Creating blog:', newBlog);
+        
+        if (!newBlog.title.trim() || !newBlog.content.trim()) {
+            alert('Please fill in both title and content');
+            return;
+        }
+
+        const newId = myBlogs.length ? Math.max(...myBlogs.map(b => b.id)) + 1 : 1000; // Start with high ID to avoid conflicts
         const currentDate = new Date().toISOString().split('T')[0];
         const newBlogPost: Blog = {
             title: newBlog.title,
             content: newBlog.content,
             id: newId,
-            author: 'You',
+            author: CURRENT_USER,
             date: currentDate,
             createdAt: currentDate,
             reach: 0,
@@ -227,6 +256,8 @@ export default function MyBlogs() {
             published: false, // Default to draft
             image: newBlog.image ? URL.createObjectURL(newBlog.image) : null,
         };
+        
+        console.log('New blog post:', newBlogPost);
         setMyBlogs([newBlogPost, ...myBlogs]);
         setNewBlog({ title: '', content: '', image: null });
         setShowCreateForm(false);
@@ -246,13 +277,20 @@ export default function MyBlogs() {
         if (editingId) {
             handleUpdateBlog(e, true);
         } else {
-            const newId = myBlogs.length ? Math.max(...myBlogs.map(b => b.id)) + 1 : 1;
+            console.log('Publishing blog:', newBlog);
+            
+            if (!newBlog.title.trim() || !newBlog.content.trim()) {
+                alert('Please fill in both title and content');
+                return;
+            }
+
+            const newId = myBlogs.length ? Math.max(...myBlogs.map(b => b.id)) + 1 : 1000;
             const currentDate = new Date().toISOString().split('T')[0];
             const newBlogPost: Blog = {
                 title: newBlog.title,
                 content: newBlog.content,
                 id: newId,
-                author: 'You',
+                author: CURRENT_USER,
                 date: currentDate,
                 createdAt: currentDate,
                 reach: 0,
@@ -589,7 +627,7 @@ export default function MyBlogs() {
 
             <div className="blogexplore-blog-list">
                 {filteredMyBlogs.map(blog => (
-                    <AstronomyBlogCard
+                    <MyBlogCard
                         key={blog.id}
                         blog={blog}
                         onEdit={handleEdit}
@@ -742,7 +780,7 @@ export default function MyBlogs() {
                     className={`tab-button ${activeTab === 'myblogs' ? 'active' : ''}`}
                     onClick={() => setActiveTab('myblogs')}
                 >
-                    My Blogs
+                    My Blogs ({myBlogs.length})
                 </button>
             </div>
 
@@ -752,4 +790,4 @@ export default function MyBlogs() {
             </div>
         </div>
     );
-}
+};

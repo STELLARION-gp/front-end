@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaUsers, FaFileAlt, FaCalendarAlt, FaComments, FaMapMarkerAlt, FaCampground, FaCalendarCheck } from 'react-icons/fa';
 import '../../styles/pages/moderator/Moderation.scss';
+import Button from '../../components/Button';
 
 interface ModerationModule {
   id: string;
@@ -25,7 +26,7 @@ const moderationModules: ModerationModule[] = [
     icon: <FaFileAlt />,
     route: '/dashboard/moderation/content',
     stats: { pending: 23, total: 156, recent: 7 },
-    priority: 'high'
+    priority: 'critical'
   },
   {
     id: 'profile',
@@ -181,10 +182,13 @@ export default function Moderation() {
               </div>
 
               <div className="module-footer">
-                <button className="access-button">
-                  Access Module
-                  <span className="button-arrow">→</span>
-                </button>
+                <Button 
+                  variant="ghost"
+                  size="medium"
+                  onClick={() => navigate('/dashboard')}
+                >
+                  Access Module  →
+                </Button>
               </div>
 
               {/* Hover effect elements */}

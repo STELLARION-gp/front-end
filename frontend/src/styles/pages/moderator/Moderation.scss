@@ -1,7 +1,7 @@
 // Moderation Dashboard - Futuristic Space Theme
 .moderation-dashboard {
   min-height: 100vh;
-  background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+  // background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
   color: #ffffff;
   font-family: 'Inter', 'Segoe UI', sans-serif;
   position: relative;
@@ -66,6 +66,7 @@
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px 16px 0 0;
 
     .header-content {
       max-width: 1400px;
@@ -133,7 +134,7 @@
   .moderation-content {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 3rem 2rem;
+    padding: 2rem 2rem;
 
     .modules-grid {
       display: grid;

@@ -267,7 +267,7 @@ const DashboardRoutes = () => {
             <Route
                 path='astronomy-services'
                 element={
-                    <RoleGuard allowedRoles={['learner']}>
+                    <RoleGuard allowedRoles={['learner','enthusiast']}>
                         <AstronomyServices />
                     </RoleGuard>
                 }
@@ -275,7 +275,7 @@ const DashboardRoutes = () => {
             <Route
                 path='astronomy-services/:id'
                 element={
-                    <RoleGuard allowedRoles={['learner']}>
+                    <RoleGuard allowedRoles={['learner','enthusiast']}>
                         <AstronomyServiceDetails />
                     </RoleGuard>
                 }
@@ -283,7 +283,7 @@ const DashboardRoutes = () => {
             <Route
                 path='guide-profile'
                 element={
-                    <RoleGuard allowedRoles={['learner']}>
+                    <RoleGuard allowedRoles={['learner','enthusiast']}>
                         <GuideDetails />
                     </RoleGuard>
                 }

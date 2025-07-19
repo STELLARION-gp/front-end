@@ -105,8 +105,8 @@ case 'upcoming': {
                 </div>
                 <ProgressBar 
                   className="progress-bar--participants"
-                  current={camp.participants}
-                  max={camp.maxParticipants}
+                  // current={camp.participants}
+                  // max={camp.maxParticipants}
                 />
               </div>
             </CardContent>

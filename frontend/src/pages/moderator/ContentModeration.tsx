@@ -173,8 +173,7 @@ export default function ContentModeration() {
                   <span className="type-label">{item.type}</span>
                 </div>
                 <div 
-                  className="priority-badge"
-                  style={{ backgroundColor: getPriorityColor(item.priority) }}
+                  className={`priority-badge priority-${item.priority}`}
                 >
                   {item.priority}
                 </div>
@@ -215,6 +214,7 @@ export default function ContentModeration() {
                   <>
                     <button
                       className="action-btn approve-btn"
+                      title="Approve content"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleApprove(item.id);
@@ -224,6 +224,7 @@ export default function ContentModeration() {
                     </button>
                     <button
                       className="action-btn reject-btn"
+                      title="Reject content"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleReject(item.id);
@@ -249,6 +250,7 @@ export default function ContentModeration() {
               <h3>Content Details</h3>
               <button 
                 className="close-panel"
+                title="Close panel"
                 onClick={() => setSelectedItem(null)}
               >
                 <FaTimes />
@@ -274,8 +276,7 @@ export default function ContentModeration() {
                   <div className="detail-item">
                     <label>Priority:</label>
                     <span 
-                      className="priority-text"
-                      style={{ color: getPriorityColor(selectedItem.priority) }}
+                      className={`priority-text priority-${selectedItem.priority}`}
                     >
                       {selectedItem.priority}
                     </span>

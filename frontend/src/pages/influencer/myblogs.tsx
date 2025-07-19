@@ -9,6 +9,8 @@ import { blogs, totalBlogs, avgRating, latestDate } from "../learner/blogData";
 import '../../styles/pages/influencer/myblogs.scss'
 import "../../styles/pages/learner/blog_explore.scss"
 
+type ActiveSection = 'blogs' | 'myblogs';
+
 type Comment = {
     id: number;
     user: string;
@@ -66,7 +68,7 @@ const mockBlogs: Blog[] = [
 
 export default function MyBlogs() {
     const navigate = useNavigate();
-    const [activeTab, setActiveTab] = useState('blogs');
+    const [activeTab, setActiveTab] = useState<ActiveSection>('blogs');
     const [myBlogs, setMyBlogs] = useState<Blog[]>([]);
     const [newBlog, setNewBlog] = useState<{ title: string; content: string; image: File | null }>({ title: '', content: '', image: null });
     const [editingId, setEditingId] = useState<number | null>(null);
@@ -537,18 +539,18 @@ export default function MyBlogs() {
         <div className="myblogs-tabbed-container">
             {/* Tab Navigation */}
             <div className="tab-navigation">
-                <Button 
+                <button 
                     className={`tab-button ${activeTab === 'blogs' ? 'active' : ''}`}
                     onClick={() => setActiveTab('blogs')}
                 >
                     Blogs
-                </Button>
-                <Button 
-                    className={`tab-button ${activeTab === 'my-blogs' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('my-blogs')}
+                </button>
+                <button 
+                    className={`tab-button ${activeTab === 'myblogs' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('myblogs')}
                 >
                     My Blogs
-                </Button>
+                </button>
             </div>
 
             {/* Tab Content */}

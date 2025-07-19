@@ -273,11 +273,19 @@
               color: white;
             }
 
-            .priority-high { background: #ff4757; }
-            .priority-medium { background: #ffa502; }
-            .priority-low { background: #2ed573; }
+            .priority-badge {
+              &.priority-critical { background: #ff4757; }
+              &.priority-high { background: #ffa502; }
+              &.priority-medium { background: #3742fa; }
+              &.priority-low { background: #2ed573; }
+            }
 
-            .status-pending { background: #ffa502; }
+            .status-badge {
+              &.status-pending { background: #ffa502; }
+              &.status-approved { background: #2ed573; }
+              &.status-rejected { background: #ff4757; }
+              &.status-needs-review { background: #6c5ce7; }
+            }
             .status-approved { background: #2ed573; }
             .status-rejected { background: #ff4757; }
             .status-needs-verification { background: #5352ed; }

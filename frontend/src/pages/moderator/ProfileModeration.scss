@@ -261,6 +261,20 @@
               letter-spacing: 0.5px;
               color: white;
             }
+
+            .priority-badge {
+              &.priority-critical { background: #ff4757; }
+              &.priority-high { background: #ffa502; }
+              &.priority-medium { background: #3742fa; }
+              &.priority-low { background: #2ed573; }
+            }
+
+            .risk-badge {
+              &.risk-critical { background: #ff4757; }
+              &.risk-high { background: #ffa502; }
+              &.risk-medium { background: #3742fa; }
+              &.risk-low { background: #2ed573; }
+            }
           }
         }
 

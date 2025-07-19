@@ -1,12 +1,31 @@
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useI18n } from '../../i18n/useI18n';
 import InputField from '../../components/InputField';
 import Button from '../../components/Button';
-import AvailabilityTimePicker from '../../components/AvailabilityTimePicker';
-import styles from '../../styles/pages/GuideApplication.module.scss';
 
-const initialForm = {
+import styles from '../../styles/pages/GuideApplication.module.scss';
+import AvailabilityTimePicker from '../../components/AvailabilityTimePicker';
+
+type DayOfWeek = 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
+type MentorForm = {
+    name: string;
+    email: string;
+    phone_number: string;
+    date_of_birth: string;
+    country: string;
+    profile_bio: string;
+    educational_background: string;
+    area_of_expertise: string[];
+    linkedin_profile: string;
+    intro_video_url: string;
+    max_mentees: number;
+    availability_schedule: Record<DayOfWeek, string[]>;
+    motivation_statement: string;
+    portfolio_attachments: string[];
+};
+
+const initialForm: MentorForm = {
     name: '',
     email: '',
     phone_number: '',
@@ -40,45 +59,45 @@ const MentorApplication = () => {
     const [success, setSuccess] = useState('');
 
     // Handle simple fields
-    const handleChange = (e) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target;
         setForm((prev) => ({ ...prev, [name]: type === 'number' ? Number(value) : value }));
     };
 
     // Handle array fields
-    const handleArrayChange = (name, idx, value) => {
+    const handleArrayChange = (name: 'area_of_expertise' | 'portfolio_attachments', idx: number, value: string) => {
         setForm((prev) => {
-            const arr = [...(prev[name] || [])];
+            const arr = [...(prev[name] as string[] || [])];
             arr[idx] = value;
             return { ...prev, [name]: arr };
         });
     };
-    const handleAddArrayItem = (name) => {
-        setForm((prev) => ({ ...prev, [name]: [...(prev[name] || []), ''] }));
+    const handleAddArrayItem = (name: 'area_of_expertise' | 'portfolio_attachments') => {
+        setForm((prev) => ({ ...prev, [name]: [...(prev[name] as string[] || []), ''] }));
     };
-    const handleRemoveArrayItem = (name, idx) => {
+    const handleRemoveArrayItem = (name: 'area_of_expertise' | 'portfolio_attachments', idx: number) => {
         setForm((prev) => {
-            const arr = [...(prev[name] || [])];
+            const arr = [...(prev[name] as string[] || [])];
             arr.splice(idx, 1);
             return { ...prev, [name]: arr };
         });
     };
 
     // Handle availability_schedule (object of day: [times])
-    const handleScheduleChange = (day, idx, value) => {
+    const handleScheduleChange = (day: DayOfWeek, idx: number, value: string) => {
         setForm((prev) => {
             const dayArr = [...(prev.availability_schedule[day] || [])];
             dayArr[idx] = value;
             return { ...prev, availability_schedule: { ...prev.availability_schedule, [day]: dayArr } };
         });
     };
-    const handleAddSchedule = (day) => {
+    const handleAddSchedule = (day: DayOfWeek) => {
         setForm((prev) => {
             const dayArr = [...(prev.availability_schedule[day] || []), ''];
             return { ...prev, availability_schedule: { ...prev.availability_schedule, [day]: dayArr } };
         });
     };
-    const handleRemoveSchedule = (day, idx) => {
+    const handleRemoveSchedule = (day: DayOfWeek, idx: number) => {
         setForm((prev) => {
             const dayArr = [...(prev.availability_schedule[day] || [])];
             dayArr.splice(idx, 1);
@@ -86,7 +105,7 @@ const MentorApplication = () => {
         });
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setLoading(true);
         setError('');
@@ -231,14 +250,14 @@ const MentorApplication = () => {
                     />
                     <div>
                         <label className={styles['mentor-label']}>{t('mentorManagement.availabilitySchedule', 'Availability Schedule')}</label>
-                        {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map(day => (
+                        {(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as DayOfWeek[]).map(day => (
                             <div key={day} className="mb-2">
                                 <div className="font-semibold capitalize">{t(`mentorManagement.days.${day}`, day)}</div>
-                                {(form.availability_schedule[day] || []).map((slot, idx) => (
+                                {(form.availability_schedule[day] || []).map((slot: string, idx: number) => (
                                     <div key={idx} className={styles['guide-row']}>
                                         <AvailabilityTimePicker
                                             value={slot}
-                                            onChange={val => handleScheduleChange(day, idx, val)}
+                                            onChange={val => handleScheduleChange(day, idx, val ?? '')}
                                         />
                                         <button
                                             type="button"

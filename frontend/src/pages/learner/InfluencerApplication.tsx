@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import InputField from '../../components/InputField';
 import Button from '../../components/Button';
@@ -22,33 +22,33 @@ const InfluencerApplication = () => {
     const [error, setError] = useState('');
 
     // Handle simple fields
-    const handleChange = (e) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
     // Handle array fields
-    const handleArrayChange = (name, idx, value) => {
+    const handleArrayChange = (name: 'specialization_tags' | 'sample_content_links' | 'tools_used', idx: number, value: string) => {
         setForm((prev) => {
-            const arr = [...(prev[name] || [])];
+            const arr = [...(prev[name] as string[] || [])];
             arr[idx] = value;
             return { ...prev, [name]: arr };
         });
     };
-    const handleAddArrayItem = (name) => {
-        setForm((prev) => ({ ...prev, [name]: [...(prev[name] || []), ''] }));
+    const handleAddArrayItem = (name: 'specialization_tags' | 'sample_content_links' | 'tools_used') => {
+        setForm((prev) => ({ ...prev, [name]: [...(prev[name] as string[] || []), ''] }));
     };
-    const handleRemoveArrayItem = (name, idx) => {
+    const handleRemoveArrayItem = (name: 'specialization_tags' | 'sample_content_links' | 'tools_used', idx: number) => {
         setForm((prev) => {
-            const arr = [...(prev[name] || [])];
+            const arr = [...(prev[name] as string[] || [])];
             arr.splice(idx, 1);
             return { ...prev, [name]: arr };
         });
     };
     // Handle social_links object
-    const handleSocialLinkChange = (platform, value) => {
+    const handleSocialLinkChange = (platform: keyof typeof form.social_links, value: string) => {
         setForm((prev) => ({ ...prev, social_links: { ...prev.social_links, [platform]: value } }));
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setLoading(true);
         setError('');

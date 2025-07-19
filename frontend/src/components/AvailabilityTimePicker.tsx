@@ -1,8 +1,13 @@
-import React from 'react';
+// ...existing code...
 import TimePicker from 'react-time-picker';
 import 'react-time-picker/dist/TimePicker.css';
 
-const AvailabilityTimePicker = ({ value, onChange }) => {
+type AvailabilityTimePickerProps = {
+    value: string | null;
+    onChange: (value: string | null) => void;
+};
+
+const AvailabilityTimePicker = ({ value, onChange }: AvailabilityTimePickerProps) => {
     return (
         <TimePicker
             onChange={onChange}

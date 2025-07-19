@@ -1,7 +1,5 @@
 import GuideApplication from '../pages/learner/GuideApplication';
-import InfluencerApplication from '../pages/learner/InfluencerApplication';
-import Mentor from '../pages/admin/Mentor';
-import MentorApplication from '../pages/admin/MentorApplication';
+
 import { memo } from 'react';
 import { Routes, Route, Navigate, Link } from 'react-router-dom';
 import { RoleGuard } from '../components/RoleGuard';
@@ -73,6 +71,9 @@ import MyBlogs from '../pages/influencer/myblogs';
 import LearnPath from '../pages/mentor/LearnPath';
 import Followers from '../pages/influencer/Followers';
 import AdminModeratorsPage from '../pages/admin/AdminModeratorsPage';
+import InfluencerApplication from '../pages/learner/InfluencerApplication';
+import Mentor from '../pages/admin/Mentor';
+import MentorApplication from '../pages/admin/MentorApplication';
 
 // Create placeholder components for different pages - all memoized
 // const BlogsPage = memo(() => (

@@ -5,7 +5,7 @@ import Button from "../../components/Button";
 // Mock data for competition
 const competition = {
   coverImage:
-    "https://images.unsplash.com/photo-1464983953574-0892a716854b?w=600&h=400&fit=crop",
+    "https://w7.pngwing.com/pngs/731/996/png-transparent-competition-winners-hand-table-tree-thumbnail.png",
   name: "Stellar Astrophotography Challenge 2025",
   date: "2025-08-15",
   description:

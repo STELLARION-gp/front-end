@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "../../styles/pages/learner/BlogPage.scss";
 import Button from "../../components/Button";
 import { ArrowDownTrayIcon, HeartIcon } from "@heroicons/react/24/outline";
@@ -36,6 +36,7 @@ const sampleComments = [
 ];
 
 const BlogDetailedPage: React.FC<BlogDetailedPageProps> = ({ blog }) => {
+  const navigate = useNavigate();
   const [comment, setComment] = useState("");
   const [rating, setRating] = useState(0);
   const [hovered, setHovered] = useState(0);
@@ -71,7 +72,10 @@ const BlogDetailedPage: React.FC<BlogDetailedPageProps> = ({ blog }) => {
   return (
     <div className="blog-page">
       <header className="blog-header">
-        <h1 className="blog-title">{blog.title}</h1>
+        <Button onClick={() => navigate(-1)}>
+          &#8592; Back
+        </Button>
+        <h1  style={{ marginTop: "1rem" }} className="blog-title">{blog.title}</h1>
         <div className="blog-header-row">
           <div className="blog-meta">
             <span className="blog-author">

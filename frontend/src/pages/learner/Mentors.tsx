@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import MentorCard from "../../components/Learner/MentorCard";
+import InfluencerCard from "../../components/Learner/InfluencerCard";
 
 const mentors = [
   {
@@ -42,13 +43,52 @@ const Mentors: React.FC = () => {
   const handleApply = (mentorId: number) => {
     navigate(`/dashboard/apply-mentor/${mentorId}`);
   };
+  // Influencer data
+  const [influencers, setInfluencers] = React.useState([
+    {
+      id: 1,
+      name: "Dr. Nova Star",
+      expertise: "Astronomy Communication",
+      description: "Sharing cosmic discoveries and science news with the world.",
+      image: "https://randomuser.me/api/portraits/women/50.jpg",
+      isFollowed: false
+    },
+    {
+      id: 2,
+      name: "Prof. Leo Galaxy",
+      expertise: "Space Exploration",
+      description: "Updates on missions, telescopes, and the future of space travel.",
+      image: "https://randomuser.me/api/portraits/men/45.jpg",
+      isFollowed: false
+    },
+    {
+      id: 3,
+      name: "Prof. Celeste Nebula",
+      expertise: "Space Exploration",
+      description: "Updates on missions, telescopes, and the future of space travel.",
+      image: "https://randomuser.me/api/portraits/women/46.jpg",
+      isFollowed: false
+    }
+  ]);
+
+  const handleFollow = (id: number) => {
+    setInfluencers(prev => prev.map(inf => inf.id === id ? { ...inf, isFollowed: !inf.isFollowed } : inf));
+  };
+
   return (
-    <div className="mentors-page" style={{ padding: "20px",  margin: "0 auto" }}>
-      <h1>Mentors</h1>
+    <div className="mentors-page" style={{ padding: "20px", margin: "0 auto" }}>
+      <h1>Mentors & Influences</h1>
       <p>Find the right mentor or follow astronomy influencers for inspiration and updates.</p>
-      <div className="mentors-list" style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
+      <h2 style={{ marginTop: '1.5rem', color: '#6366f1' }}>Mentors</h2>
+      <div className="mentors-list" style={{ display: "flex", flexWrap: "wrap", gap: "10px", marginBottom: '2rem' }}>
         {mentors.map((mentor) => (
           <MentorCard key={mentor.id} mentor={mentor} onApply={handleApply} />
+        ))}
+      </div>
+      <h2 style={{ marginTop: '1.5rem', marginBottom: '1rem', color: '#6366f1' }}>Influencers</h2>
+      <div className="influencers-list" style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
+        {influencers.map((influencer) => (
+          <InfluencerCard key={influencer.id} influencer={influencer} onFollow={handleFollow} />
         ))}
       </div>
     </div>

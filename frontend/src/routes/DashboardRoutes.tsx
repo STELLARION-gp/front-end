@@ -67,10 +67,15 @@ import MenteeRequest from '../pages/mentor/MenteeRequest';
 import MentorNotification from '../pages/mentor/MentorNotification';
 import MyUniverse from '../pages/learner/MyUniverse';
 //import { MentorPauseProvider } from '../contexts/MentorPauseContext';
+
+//import { MenteeProvider } from '../contexts/MenteeContext';
+import OngoingCompetitionPage from '../pages/learner/OngoingcompetitionPage';
 import { MenteeProvider } from '../contexts/mentor/MenteeContext';
 import Competitions from '../pages/influencer/competitions';
 import MyBlogs from '../pages/influencer/myblogs';
 import LearnPath from '../pages/mentor/LearnPath';
+import MentorMenteeConnectionPage from '../pages/learner/MentorMenteeConnectionPage';
+
 import Followers from '../pages/influencer/Followers';
 
 // Create placeholder components for different pages - all memoized
@@ -296,6 +301,22 @@ const DashboardRoutes = () => {
                 element={
                     <RoleGuard allowedRoles={['learner']}>
                         <MyUniverse />
+                    </RoleGuard>
+                }
+            />
+            <Route 
+                path='mentor-connection/:id'
+                element={
+                    <RoleGuard allowedRoles={['learner','influencer']}>
+                        <MentorMenteeConnectionPage />
+                    </RoleGuard>
+                }
+            />
+            <Route
+                path='ongoingcompetition'
+                element={
+                    <RoleGuard allowedRoles={['learner']}>
+                        <OngoingCompetitionPage />
                     </RoleGuard>
                 }
             />

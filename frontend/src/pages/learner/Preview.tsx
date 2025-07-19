@@ -2,7 +2,6 @@ import { useNavigate } from "react-router-dom";
 import AstronomyCompetitionCard from "../../components/Learner/AstronomyCompetitionCard";
 import AstronomyBlogCard from "../../components/Learner/blogcard";
 import NasaImageCard from "../../components/Learner/NasaImageCard";
-import UpcomingEventCard from "../../components/Learner/SpaceEvent";
 import '../../styles/pages/learner/preview.scss'
 import UpcomingSpaceEventCard from "../../components/Learner/UpcomingSpaceEventCard";
 import OrganizedEventCard from "../../components/Learner/OrganizedEventCard";
@@ -166,7 +165,7 @@ const organizedEvents = [
     contact: "camp@astro.lk",
     attendees: 80,
     description: "Enjoy the stars in a full-night observation camp with astronomers.",
-    sponsors: ["Celestia Society", "AstroLens"]
+    sponsors: ["Celestia Society"]
   },
   {
     id: 3,
@@ -178,7 +177,19 @@ const organizedEvents = [
     contact: "astro@galaxyfest.org",
     attendees: 500,
     description: "Embark on a breathtaking expedition across galaxies at Galactic Odyssey! Witness live telescope demos, space talks from top scientists, VR exploration zones, and interact with Sri Lanka’s top astronomy clubs. A cosmic experience for stargazers and dreamers alike.",
-    sponsors: ["NASA", "SpaceX", "Astro Lanka"]
+    sponsors: ["NASA", "Astro Lanka"]
+  },
+  {
+    id: 4,
+    name: "Stellar Science Fair",
+    category: "Astronomy",
+    imageUrl: "https://c8.alamy.com/comp/2CGXY86/stellar-nebula-and-cosmic-dust-cosmic-gas-clusters-and-constellations-in-deep-space-ideal-for-a-space-science-project-elements-furnished-by-nasa-2CGXY86.jpg",
+    date: "2025-09-21T19:00:00",
+    location: "National Planetarium, Colombo",
+    contact: "astro@galaxyfest.org",
+    attendees: 500,
+    description: "Embark on a breathtaking expedition across galaxies at Galactic Odyssey! Witness live telescope demos, space talks from top scientists, VR exploration zones, and interact with Sri Lanka’s top astronomy clubs. A cosmic experience for stargazers and dreamers alike.",
+    sponsors: ["NASA", "SpaceX"]
   }
 ];
 const Preview = () => {

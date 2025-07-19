@@ -84,7 +84,7 @@ const BlogExplore: React.FC = () => {
         </select>
       </div>
       
-      <div className="blog-list">
+      <div className="blogexplore-blog-list">
         {filteredBlogs.map(blog => (
           <AstronomyBlogCard
             key={blog.id}

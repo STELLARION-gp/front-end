@@ -156,25 +156,6 @@ const SessionModeration: React.FC = () => {
     return matchesSearch && matchesFilter;
   });
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'pending': return '#ffa502';
-      case 'approved': return '#2ed573';
-      case 'rejected': return '#ff4757';
-      case 'revision_requested': return '#5352ed';
-      default: return '#ffffff';
-    }
-  };
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high': return '#ff4757';
-      case 'medium': return '#ffa502';
-      case 'low': return '#2ed573';
-      default: return '#ffffff';
-    }
-  };
-
   const getSessionTypeIcon = (type: string) => {
     switch (type) {
       case 'workshop': return '🛠️';
@@ -203,7 +184,7 @@ const SessionModeration: React.FC = () => {
       <div className="moderation-header">
         <div className="header-content">
           <div className="header-left">
-            <button className="back-button" onClick={() => navigate('/moderator')}>
+            <button className="back-button" onClick={() => navigate('/moderator')} title="Back to Moderation Dashboard">
               <FaArrowLeft />
             </button>
             <div className="title-section">
@@ -331,6 +312,7 @@ const SessionModeration: React.FC = () => {
               <div className="session-actions">
                 <button 
                   className="action-btn approve-btn"
+                  title="Approve session"
                   onClick={(e) => {
                     e.stopPropagation();
                     handleApprove(session.id);
@@ -340,6 +322,7 @@ const SessionModeration: React.FC = () => {
                 </button>
                 <button 
                   className="action-btn revision-btn"
+                  title="Request revision"
                   onClick={(e) => {
                     e.stopPropagation();
                     handleRequestRevision(session.id);
@@ -349,6 +332,7 @@ const SessionModeration: React.FC = () => {
                 </button>
                 <button 
                   className="action-btn reject-btn"
+                  title="Reject session"
                   onClick={(e) => {
                     e.stopPropagation();
                     handleReject(session.id);
@@ -368,6 +352,7 @@ const SessionModeration: React.FC = () => {
               <h3>Session Details</h3>
               <button 
                 className="close-panel"
+                title="Close panel"
                 onClick={() => setSelectedSession(null)}
               >
                 <FaTimes />

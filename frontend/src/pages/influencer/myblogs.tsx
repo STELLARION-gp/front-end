@@ -34,52 +34,8 @@ type Blog = {
     createdAt: string;
 };
 
-const mockBlogs: Blog[] = [
-    {
-        id: 1,
-        title: 'The Orion Nebula: A Stellar Nursery',
-        content: 'The Orion Nebula is one of the brightest nebulae visible to the naked eye. Located approximately 1,344 light-years from Earth, this stellar nursery is where new stars are born from cosmic dust and gas. The nebula spans about 24 light-years and contains enough material to form thousands of stars.',
-        image: 'https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?w=800&h=400&fit=crop',
-        author: 'Astro Influencer',
-        date: '2025-06-20',
-        createdAt: '2025-06-20',
-        reach: 1247,
-        likes: 89,
-        rating: 4.7,
-        liked: false,
-        published: true,
-        comments: [
-            { id: 1, user: 'Alice Cooper', text: 'Fascinating insights about stellar formation!', date: '2025-06-21' },
-            { id: 2, user: 'Bob Universe', text: 'The images are absolutely breathtaking.', date: '2025-06-22' },
-        ],
-    },
-    {
-        id: 2,
-        title: 'Exploring the Expanding Universe',
-        content: 'Ever since Edwin Hubble\'s discovery, the expanding universe has intrigued cosmologists worldwide. This phenomenon suggests that galaxies are moving away from us, and the farther they are, the faster they recede. Understanding this expansion helps us comprehend the age and fate of our universe.',
-        image: 'https://images.unsplash.com/photo-1502134249126-9f3755a50d78?w=800&h=400&fit=crop',
-        author: 'Astro Influencer',
-        date: '2025-06-18',
-        createdAt: '2025-06-18',
-        reach: 892,
-        likes: 67,
-        rating: 4.9,
-        liked: false,
-        published: false,
-        comments: [
-            { id: 3, user: 'Maria Galaxy', text: 'The explanation of red shift is excellent!', date: '2025-06-19' },
-        ],
-    },
-];
 
-// Custom Blog Card Component for My Blogs
-const MyBlogCard: React.FC<{
-    blog: Blog;
-    onEdit: (id: number) => void;
-    onDelete: (id: number) => void;
-    onTogglePublish: (id: number) => void;
-    onView: (blog: Blog) => void;
-}> = ({ blog, onEdit, onDelete, onTogglePublish, onView }) => {
+
     const renderStars = (rating: number) => {
         const stars = [];
         const fullStars = Math.floor(rating);
@@ -87,7 +43,6 @@ const MyBlogCard: React.FC<{
         
         for (let i = 0; i < fullStars; i++) {
             stars.push(<Star key={i} className="star filled" size={16} />);
-        }
         
         if (hasHalfStar) {
             stars.push(<Star key="half" className="star half-filled" size={16} />);
@@ -201,7 +156,8 @@ const MyBlogCard: React.FC<{
             </div>
         </div>
     );
-};
+}
+
 
 export default function MyBlogs() {
     const navigate = useNavigate();
@@ -222,8 +178,10 @@ export default function MyBlogs() {
     });
 
     useEffect(() => {
-        setMyBlogs(mockBlogs);
-    }, []);
+    const myBlogsOnly = blogs.filter(blog => blog.author === 'You');
+    setMyBlogs(myBlogsOnly);
+}, []);
+
 
     const filteredBlogs = blogs.filter(blog => {
         if (filter.author && blog.author !== filter.author) return false;
@@ -631,7 +589,7 @@ export default function MyBlogs() {
 
             <div className="blogexplore-blog-list">
                 {filteredMyBlogs.map(blog => (
-                    <MyBlogCard
+                    <AstronomyBlogCard
                         key={blog.id}
                         blog={blog}
                         onEdit={handleEdit}

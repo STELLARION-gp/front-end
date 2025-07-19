@@ -273,11 +273,19 @@
               color: white;
             }
 
-            .priority-high { background: #ff4757; }
-            .priority-medium { background: #ffa502; }
-            .priority-low { background: #2ed573; }
+            .priority-badge {
+              &.priority-critical { background: #ff4757; }
+              &.priority-high { background: #ffa502; }
+              &.priority-medium { background: #3742fa; }
+              &.priority-low { background: #2ed573; }
+            }
 
-            .status-active { background: #2ed573; }
+            .status-badge {
+              &.status-active { background: #2ed573; }
+              &.status-draft { background: #6c5ce7; }
+              &.status-ended { background: #747d8c; }
+              &.status-reported { background: #ff4757; }
+            }
             .status-closed { background: #747d8c; }
             .status-reported { background: #ffa502; }
             .status-suspended { background: #ff4757; }

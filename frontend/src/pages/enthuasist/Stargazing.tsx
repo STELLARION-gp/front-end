@@ -215,7 +215,8 @@ const Stargazing: React.FC = () => {
     bestTime: '',
     description: '',
     image: '',
-    facilities: ['']
+    facilities: [''],
+    rating: 0
   });
 
   const formatDate = (dateString: string) => {
@@ -316,7 +317,8 @@ const Stargazing: React.FC = () => {
         bestTime: '',
         description: '',
         image: '',
-        facilities: ['']
+        facilities: [''],
+        rating: 0
       });
       setShowAddSpotModal(false);
       
@@ -333,7 +335,8 @@ const Stargazing: React.FC = () => {
       bestTime: '',
       description: '',
       image: '',
-      facilities: ['']
+      facilities: [''],
+      rating: 0
     });
   };
 
@@ -701,6 +704,30 @@ const Stargazing: React.FC = () => {
                   >
                     + Add Facility
                   </button>
+                </div>
+              </div>
+
+              {/* Add rating input */}
+              <div className="add-spot-form__row">
+                <div className="add-spot-form__group">
+                  <label htmlFor="spotRating">Rating (0-5)</label>
+                  <input
+                    type="number"
+                    id="spotRating"
+                    min={0}
+                    max={5}
+                    step={0.1}
+                    value={addSpotForm.rating ?? ''}
+                    onChange={e => {
+                      let val = parseFloat(e.target.value);
+                      if (isNaN(val)) val = 0;
+                      setAddSpotForm(prev => ({
+                        ...prev,
+                        rating: val
+                      }));
+                    }}
+                    placeholder="e.g., 4.5"
+                  />
                 </div>
               </div>
 

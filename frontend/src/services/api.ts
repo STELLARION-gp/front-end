@@ -7,12 +7,12 @@ const API_BASE_URL = 'http://localhost:5000/api';
  * Automatically handles Firebase authentication tokens
  */
 class ApiService {
-  private async getAuthToken(): Promise<string | null> {
+  private async getAuthToken(forceRefresh = false): Promise<string | null> {
     const user = auth.currentUser;
     if (!user) return null;
-
     try {
-      return await user.getIdToken();
+      // Always try to refresh the token if requested
+      return await user.getIdToken(forceRefresh);
     } catch (error) {
       console.error('Error getting auth token:', error);
       return null;
@@ -21,43 +21,56 @@ class ApiService {
 
   private async makeRequest<T>(
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestInit = {},
+    retry = true
   ): Promise<T> {
     console.log(`📡 API Request: ${endpoint}`);
-
-    const token = await this.getAuthToken();
+    let token = await this.getAuthToken();
     console.log(`🔑 Auth token: ${token ? 'Present' : 'Missing'}`);
-
-    const headers: Record<string, string> = {
+    // Always create a fresh headers object for each request
+    const buildHeaders = (tokenValue: string | null) => ({
       'Content-Type': 'application/json',
-      ...(options.headers as Record<string, string>),
-    };
-
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-
+      ...((options.headers as Record<string, string>) || {}),
+      ...(tokenValue ? { 'Authorization': `Bearer ${tokenValue}` } : {})
+    });
+    let headers = buildHeaders(token);
     try {
       console.log(`🚀 Making request to: ${API_BASE_URL}${endpoint}`);
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         ...options,
         headers,
       });
-
       console.log(`📨 Response status: ${response.status}`);
-
+      if (response.status === 401 && retry) {
+        // Token might be expired, try to refresh and retry once
+        console.warn('🔄 Token expired or invalid, refreshing and retrying...');
+        token = await this.getAuthToken(true);
+        if (token) {
+          headers = buildHeaders(token);
+          const retryResponse = await fetch(`${API_BASE_URL}${endpoint}`, {
+            ...options,
+            headers,
+          });
+          if (!retryResponse.ok) {
+            const errorText = await retryResponse.text();
+            throw new Error(`API Error ${retryResponse.status}: ${errorText}`);
+          }
+          const retryData = await retryResponse.json();
+          return retryData;
+        }
+      }
       if (!response.ok) {
         const errorText = await response.text();
-        console.error(`❌ API Error ${response.status}: ${errorText}`);
         throw new Error(`API Error ${response.status}: ${errorText}`);
       }
-
       const data = await response.json();
-      console.log(`✅ API Response:`, data);
       return data;
     } catch (error) {
-      console.error(`❌ Request failed:`, error);
-      throw error;
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error('Unknown error occurred in API request');
+      }
     }
   }
 

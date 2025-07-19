@@ -232,7 +232,7 @@ export default function ProfileModeration() {
 
                 <div className="profile-content">
                   <div className="violations-info">
-                    <FaShield className="shield-icon" />
+                    <FaExclamationTriangle className="shield-icon" />
                     <span>{profile.violations} violation(s)</span>
                   </div>
 
@@ -278,7 +278,7 @@ export default function ProfileModeration() {
                         }}
                         title="Issue Warning"
                       >
-                        <FaShield />
+                        <FaExclamationTriangle />
                       </button>
                       <button
                         className="action-btn ban-btn"
@@ -389,7 +389,7 @@ export default function ProfileModeration() {
                     className="panel-btn warn"
                     onClick={() => handleWarnUser(selectedProfile.id)}
                   >
-                    <FaShield />
+                    <FaExclamationTriangle />
                     Issue Warning
                   </button>
                   <button

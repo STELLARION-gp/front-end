@@ -1,7 +1,17 @@
+
+
+.mentor-card-list {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  margin-top: 2rem;
+}
+
 // src/styles/pages/learner/MyUniverse.scss
 .universe-my-universe {
   padding: 1.5rem;
-  background-color: #0f172a;
+  // background-color: #0f172a;
   color: white;
 
   .universe-summary-card {
@@ -147,4 +157,383 @@
       }
     }
   }
+}
+
+
+.my-competitions-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 0.5rem;
+  margin-top: 1.5rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+  th, td {
+    padding: 1rem 1.25rem;
+    text-align: left;
+    color: #e2e8f0;
+  }
+
+  th {
+    background: #1e293b;
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05rem;
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
+  }
+
+  td {
+    background: #0f172a;
+    border-bottom: 1px solid #334155;
+    font-size: 0.92rem;
+    border-radius: 0.25rem;
+  }
+
+  tr {
+    transition: background 0.3s ease;
+  }
+
+  tr:hover td {
+    background: #1e293b;
+  }
+
+  .my-competition-status-badge {
+    padding: 0.35rem 0.85rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-block;
+    text-transform: capitalize;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    white-space: nowrap;
+  }
+
+  .my-competition-status-badge.completed {
+    background: #10b981;
+    color: #ffffff;
+  }
+
+  .my-competition-status-badge.registered {
+    background: #3b82f6;
+    color: #ffffff;
+  }
+
+  .my-competition-status-badge.pending {
+    background: #facc15;
+    color: #1e293b;
+  }
+}
+.registered-competitions-section {
+  margin-bottom: 2rem;
+
+  .section-title {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: #f8fafc;
+  }
+
+  .competition-cards-wrapper {
+    margin-top: 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+
+  .card-with-status-badge {
+    position: relative;
+
+    .competition-status-badge {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      background: #22c55e;
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.3rem 0.6rem;
+      border-radius: 9999px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      z-index: 2;
+    }
+  }
+}
+.sessions-tab-content {
+  padding: 2rem 1rem;
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  border-radius: 1.5rem;
+  box-shadow: 0 4px 32px rgba(30,41,59,0.12);
+  min-height: 60vh;
+}
+
+.sessions-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.02em;
+  }
+}
+
+.sessions-filter-dropdown {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  label {
+    color: #cbd5e1;
+    font-weight: 500;
+  }
+  select {
+    background: #334155;
+    color: #fff;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.4rem 1rem;
+    font-size: 1rem;
+    box-shadow: 0 2px 8px rgba(30,41,59,0.08);
+    transition: background 0.2s;
+    &:hover {
+      background: #475569;
+    }
+  }
+}
+
+.session-calendar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 2rem auto;
+  background: rgba(30,41,59,0.7);
+  border-radius: 1rem;
+  padding: 2rem 2.5rem;
+  box-shadow: 0 2px 16px rgba(30,41,59,0.10);
+  max-width: 480px;
+
+  h3 {
+    color: #fbbf24;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    font-weight: 700;
+    text-align: center;
+    letter-spacing: 0.02em;
+  }
+
+  .react-calendar {
+    width: 100%;
+    max-width: 420px;
+    background: linear-gradient(135deg, #334155 60%, #1e293b 100%);
+    border-radius: 1rem;
+    box-shadow: 0 2px 16px rgba(30,41,59,0.10);
+    border: none;
+    padding: 1rem 0.5rem;
+    margin-bottom: 1.2rem;
+    color: #f1f5f9;
+    font-family: inherit;
+  }
+
+  .react-calendar__tile {
+    background: none;
+    border-radius: 0.7rem;
+    color: #f1f5f9;
+    font-weight: 500;
+    transition: background 0.18s, color 0.18s;
+    position: relative;
+    &:hover {
+      background: #fbbf24;
+      color: #1e293b;
+    }
+  }
+
+  .calendar-dot {
+    width: 0.7rem;
+    height: 0.7rem;
+    background: #38bdf8;
+    border-radius: 50%;
+    position: absolute;
+    left: 50%;
+    top: 70%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 2px 8px rgba(56,189,248,0.10);
+    pointer-events: auto;
+  }
+
+  .calendar-booked {
+    background: #334155 !important;
+    border-radius: 0.7rem;
+    box-shadow: 0 0 0 2px #38bdf8;
+  }
+
+  .calendar-tooltip {
+    position: absolute;
+    top: 2.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #fbbf24;
+    color: #1e293b;
+    padding: 0.5rem 1.2rem;
+    border-radius: 0.7rem;
+    font-weight: 600;
+    font-size: 1rem;
+    box-shadow: 0 2px 8px rgba(251,191,36,0.10);
+    z-index: 10;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+}
+
+.session-card-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2rem;
+}
+
+.session-card {
+  background: rgba(51,65,85,0.95);
+  border-radius: 1.2rem;
+  box-shadow: 0 4px 24px rgba(30,41,59,0.13);
+  padding: 1.5rem 1.2rem;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.18s, box-shadow 0.18s;
+  position: relative;
+  &:hover {
+    transform: translateY(-6px) scale(1.03);
+    box-shadow: 0 8px 32px rgba(30,41,59,0.18);
+    background: linear-gradient(135deg, #334155 60%, #1e293b 100%);
+  }
+  &.session-type-live {
+    border-left: 3px solid #38bdf8;
+  }
+  &.session-type-recorded {
+    border-left: 3px solid #a3e635;
+  }
+  &.session-status-active {
+    box-shadow: 0 0 0 2px #38bdf844;
+  }
+  &.session-status-upcoming {
+    box-shadow: 0 0 0 2px #fbbf2444;
+  }
+  &.session-status-completed {
+    opacity: 0.85;
+  }
+}
+
+.session-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.7rem;
+  .session-name {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #f1f5f9;
+  }
+  .session-type-badge {
+    background: #334155;
+    color: #fbbf24;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    padding: 0.2rem 0.7rem;
+    box-shadow: 0 2px 8px rgba(251,191,36,0.10);
+  }
+}
+
+.session-card-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.2rem;
+  margin-bottom: 0.7rem;
+  span {
+    color: #cbd5e1;
+    font-size: 1rem;
+    font-weight: 500;
+    background: rgba(30,41,59,0.18);
+    border-radius: 0.4rem;
+    padding: 0.15rem 0.7rem;
+  }
+}
+
+.session-countdown {
+  margin-bottom: 0.7rem;
+  color: #38bdf8;
+  font-weight: 600;
+  font-size: 1.05rem;
+  .countdown-timer {
+    background: #38bdf8;
+    color: #1e293b;
+    border-radius: 0.4rem;
+    padding: 0.1rem 0.6rem;
+    margin-left: 0.4rem;
+    font-weight: 700;
+    font-size: 1.05rem;
+    box-shadow: 0 2px 8px rgba(56,189,248,0.10);
+  }
+}
+
+.session-card-actions {
+  // Use a unique prefix to avoid SCSS override issues
+  &.universe-session-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.7rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-items: center;
+    min-height: 2.5rem;
+    button {
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 0.5rem;
+      box-shadow: 0 2px 8px rgba(30,41,59,0.10);
+      transition: background 0.18s, color 0.18s;
+      padding: 0.4rem 1.2rem;
+      margin-bottom: 0.2rem;
+      color: #fbbf24;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      &:hover {
+        background: #fbbf24;
+        color: #1e293b;
+      }
+      &.universe-join-live {
+        background: #38bdf8;
+        color: #1e293b;
+        &:hover {
+          background: #0ea5e9;
+          color: #fff;
+        }
+      }
+      &.universe-watch-again {
+        background: #a3e635;
+        color: #1e293b;
+        &:hover {
+          background: #65a30d;
+          color: #fff;
+        }
+      }
+      &.universe-review {
+        background: #fbbf24;
+        color: #1e293b;
+        &:hover {
+          background: #f59e42;
+          color: #fff;
+        }
+      }
+    }
+  }
+}
+
+.no-sessions {
+  color: #fbbf24;
+  font-size: 1.2rem;
+  font-weight: 600;
+  text-align: center;
+  margin-top: 2rem;
 }

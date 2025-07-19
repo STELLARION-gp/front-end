@@ -1,0 +1,134 @@
+.ongoing-competition-page {
+  padding: 2rem;
+  background: #0f172a;
+  color: #f1f5f9;
+  font-family: "Segoe UI", sans-serif;
+
+  .competition-header {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 2rem;
+
+    .competition-cover {
+      width: 300px;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 1rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    }
+
+    .competition-header-info {
+      flex: 1;
+
+      .competition-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+
+        .ongoing-badge {
+          background: #22c55e;
+          color: white;
+          font-size: 0.75rem;
+          padding: 0.2rem 0.75rem;
+          border-radius: 9999px;
+          text-transform: uppercase;
+          font-weight: 600;
+        }
+      }
+
+      .competition-date {
+        margin-top: 0.5rem;
+        font-weight: 500;
+        color: #94a3b8;
+      }
+
+      .competition-desc {
+        margin-top: 1rem;
+        line-height: 1.6;
+        font-size: 1rem;
+      }
+
+      .competition-organizer {
+        margin-top: 1rem;
+        color: #cbd5e1;
+      }
+    }
+  }
+
+  .competition-section {
+    margin-bottom: 2rem;
+
+    h3 {
+      font-size: 1.25rem;
+      margin-bottom: 0.75rem;
+      color: #e2e8f0;
+    }
+
+    p {
+      color: #cbd5e1;
+    }
+
+    .competition-participants {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+
+      .competition-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #1e3a8a;
+        transition: transform 0.3s;
+
+        &:hover {
+          transform: scale(1.1);
+        }
+      }
+    }
+
+    .deliverable-list {
+      list-style: disc;
+      padding-left: 1.5rem;
+      color: #cbd5e1;
+
+      li {
+        margin-bottom: 0.5rem;
+      }
+    }
+
+    &.upload-section {
+      .upload-input {
+        background: #1e293b;
+        color: #f8fafc;
+        border: none;
+        padding: 0.75rem;
+        margin: 1rem 0;
+        width: 100%;
+        max-width: 400px;
+        border-radius: 0.5rem;
+      }
+
+      .submit-doc-btn {
+        background: #3b82f6;
+        color: white;
+        font-weight: 600;
+        padding: 0.5rem 1.5rem;
+        border-radius: 0.5rem;
+        border: none;
+        cursor: pointer;
+
+        &:hover {
+          background: #2563eb;
+        }
+      }
+    }
+
+    a {
+      color: #60a5fa;
+      text-decoration: underline;
+    }
+  }
+}

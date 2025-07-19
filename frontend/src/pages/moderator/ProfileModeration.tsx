@@ -102,26 +102,6 @@ export default function ProfileModeration() {
     return matchesFilter && matchesSearch;
   });
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'critical': return '#ff4757';
-      case 'high': return '#ffa502';
-      case 'medium': return '#3742fa';
-      case 'low': return '#2ed573';
-      default: return '#747d8c';
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'banned': return '#ff4757';
-      case 'warned': return '#ffa502';
-      case 'approved': return '#2ed573';
-      case 'pending': return '#3742fa';
-      default: return '#747d8c';
-    }
-  };
-
   const getRiskLevel = (violations: number) => {
     if (violations >= 5) return { level: 'High Risk', color: '#ff4757' };
     if (violations >= 3) return { level: 'Medium Risk', color: '#ffa502' };
@@ -216,14 +196,12 @@ export default function ProfileModeration() {
                   
                   <div className="status-badges">
                     <div 
-                      className="priority-badge"
-                      style={{ backgroundColor: getPriorityColor(profile.priority) }}
+                      className={`priority-badge priority-${profile.priority}`}
                     >
                       {profile.priority}
                     </div>
                     <div 
-                      className="risk-badge"
-                      style={{ backgroundColor: riskLevel.color }}
+                      className={`risk-badge risk-${riskLevel.level.toLowerCase()}`}
                     >
                       {riskLevel.level}
                     </div>
@@ -295,8 +273,7 @@ export default function ProfileModeration() {
                 </div>
 
                 <div 
-                  className={`status-indicator ${profile.status}`}
-                  style={{ backgroundColor: getStatusColor(profile.status) }}
+                  className={`status-indicator status-${profile.status}`}
                 >
                   {profile.status}
                 </div>
@@ -346,8 +323,7 @@ export default function ProfileModeration() {
                   <div className="detail-item">
                     <label>Violations:</label>
                     <span 
-                      className="violations-count"
-                      style={{ color: getRiskLevel(selectedProfile.violations).color }}
+                      className={`violations-count risk-${getRiskLevel(selectedProfile.violations).level.toLowerCase()}`}
                     >
                       {selectedProfile.violations} ({getRiskLevel(selectedProfile.violations).level})
                     </span>

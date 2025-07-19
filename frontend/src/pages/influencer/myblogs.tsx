@@ -178,7 +178,7 @@ export default function MyBlogs() {
     });
 
     useEffect(() => {
-    const myBlogsOnly = blogs.filter(blog => blog.author === 'Neil V. Galaxy');
+    const myBlogsOnly = blogs.filter(blog => blog.author === 'You');
     setMyBlogs(myBlogsOnly);
 }, []);
 
@@ -216,7 +216,7 @@ export default function MyBlogs() {
             title: newBlog.title,
             content: newBlog.content,
             id: newId,
-            author: 'Neil V. Galaxy',
+            author: 'You',
             date: currentDate,
             createdAt: currentDate,
             reach: 0,

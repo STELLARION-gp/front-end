@@ -2,7 +2,6 @@ import { useNavigate } from "react-router-dom";
 import AstronomyCompetitionCard from "../../components/Learner/AstronomyCompetitionCard";
 import AstronomyBlogCard from "../../components/Learner/blogcard";
 import NasaImageCard from "../../components/Learner/NasaImageCard";
-import UpcomingEventCard from "../../components/Learner/SpaceEvent";
 import '../../styles/pages/learner/preview.scss'
 import UpcomingSpaceEventCard from "../../components/Learner/UpcomingSpaceEventCard";
 import OrganizedEventCard from "../../components/Learner/OrganizedEventCard";

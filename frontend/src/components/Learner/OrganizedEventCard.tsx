@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import "../../styles/components/learner/OrganizedEventCard.scss";
 import { CalendarDays, MapPin, Mail, Users } from "lucide-react";
 import Button from "../Button";

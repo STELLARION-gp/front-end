@@ -1,16 +1,18 @@
 // Polls Moderation - Futuristic Space Theme
 .polls-moderation {
   min-height: 100vh;
-  background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+  // background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
   color: #ffffff;
   font-family: 'Inter', 'Segoe UI', sans-serif;
 
   .moderation-header {
-    background: rgba(0, 0, 0, 0.3);
-    -webkit-backdrop-filter: blur(15px);
-    backdrop-filter: blur(15px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     padding: 2rem 0;
+    background: rgba(0, 0, 0, 0.141);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px 16px 0 0;
+    margin-bottom: 5px;
 
     .header-content {
       max-width: 1400px;
@@ -102,11 +104,14 @@
     align-items: center;
     flex-wrap: wrap;
     gap: 1.5rem;
+    margin-bottom: 10px;
+    border-radius: 0 0 16px 16px;
 
     .search-box {
       position: relative;
       flex: 1;
-      max-width: 400px;
+      // max-width: 400px;
+      width: 100%;
 
       .search-icon {
         position: absolute;
@@ -170,16 +175,17 @@
   .moderation-content {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 0 2rem 2rem;
+    // padding: 0 2rem 2rem;
     display: grid;
-    grid-template-columns: 1fr 400px;
-    gap: 2rem;
+    // grid-template-columns: 1fr 400px;
+    // gap: 2rem;
     min-height: 60vh;
 
     .polls-list {
       display: flex;
       flex-direction: column;
       gap: 1rem;
+      margin-bottom: 10px;
 
       .poll-item {
         background: rgba(255, 255, 255, 0.03);

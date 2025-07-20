@@ -12,6 +12,7 @@ import DashboardOverview from '../pages/DashboardOverview';
 // Moderation Components
 import Moderation from '../pages/moderator/Moderation';
 import ContentModeration from '../pages/moderator/ContentModeration';
+import ContentDetails from '../pages/moderator/ContentDetails';
 import ProfileModeration from '../pages/moderator/ProfileModeration';
 import SessionModeration from '../pages/moderator/SessionModeration';
 import PollsModeration from '../pages/moderator/PollsModeration';
@@ -448,6 +449,14 @@ const DashboardRoutes = () => {
                 element={
                     <RoleGuard allowedRoles={['moderator', 'admin']}>
                         <ContentModeration />
+                    </RoleGuard>
+                }
+            />
+            <Route
+                path="moderation/content/details/:id"
+                element={
+                    <RoleGuard allowedRoles={['moderator', 'admin']}>
+                        <ContentDetails />
                     </RoleGuard>
                 }
             />

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Button from '../../components/Button';
 import { FaMapMarkerAlt, FaStar, FaEye, FaClock, FaCalendarAlt, FaCamera } from 'react-icons/fa';
-// import '../../styles/pages/moderator/SpotsDetails.scss';
+import '../../styles/pages/moderator/SpotsDetails.scss';
 
 interface SpotDetails {
   id: string;

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { FaArrowLeft, FaSearch, FaCheck, FaTimes, FaExclamationTriangle, FaMapMarkerAlt, FaStar, FaEye } from 'react-icons/fa';
+import { FaSearch, FaMapMarkerAlt, FaStar } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import Button from '../../components/Button';
 import '../../styles/pages/moderator/SpotsModeration.scss';
 
 interface StargazingSpot {
@@ -51,7 +52,6 @@ const SpotsModeration: React.FC = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all');
-  const [selectedSpot, setSelectedSpot] = useState<StargazingSpot | null>(null);
 
   // Mock data for stargazing spots
   const [spots] = useState<StargazingSpot[]>([
@@ -164,19 +164,14 @@ const SpotsModeration: React.FC = () => {
     }
   ]);
 
-  const handleApprove = (spotId: string) => {
-    console.log('Approving spot:', spotId);
+  const handleSuspend = (spotId: string) => {
+    console.log('Suspending spot:', spotId);
     // Implementation would update spot status
   };
 
-  const handleReject = (spotId: string) => {
-    console.log('Rejecting spot:', spotId);
-    // Implementation would update spot status
-  };
-
-  const handleRequestVerification = (spotId: string) => {
-    console.log('Requesting verification for spot:', spotId);
-    // Implementation would update spot status
+  const handleDelete = (spotId: string) => {
+    console.log('Deleting spot:', spotId);
+    // Implementation would delete spot
   };
 
   const filteredSpots = spots.filter(spot => {
@@ -225,9 +220,13 @@ const SpotsModeration: React.FC = () => {
       <div className="moderation-header">
         <div className="header-content">
           <div className="header-left">
-            <button className="back-button" onClick={() => navigate('/moderator')} title="Back to Moderation Dashboard">
-              <FaArrowLeft />
-            </button>
+            <Button
+              variant="border"
+              size="small"
+              onClick={() => navigate('/moderator')}
+            >
+              ← Back
+            </Button>
             <div className="title-section">
               <h1>Stargazing Spot Moderation</h1>
               <p>Review and verify submitted stargazing locations</p>
@@ -263,13 +262,14 @@ const SpotsModeration: React.FC = () => {
         </div>
         <div className="filter-tabs">
           {['all', 'pending', 'approved', 'rejected', 'needs_verification'].map(filter => (
-            <button
+            <Button
               key={filter}
-              className={`filter-tab ${selectedFilter === filter ? 'active' : ''}`}
+              variant={selectedFilter === filter ? 'primary' : 'border'}
+              size="small"
               onClick={() => setSelectedFilter(filter)}
             >
               {filter.replace('_', ' ').toUpperCase()}
-            </button>
+            </Button>
           ))}
         </div>
       </div>
@@ -278,17 +278,13 @@ const SpotsModeration: React.FC = () => {
       <div className="moderation-content">
         <div className="spots-list">
           {filteredSpots.map(spot => (
-            <div
-              key={spot.id}
-              className={`spot-item ${selectedSpot?.id === spot.id ? 'selected' : ''}`}
-              onClick={() => setSelectedSpot(spot)}
-            >
-              <div className="spot-header">
-                <div className="spot-info">
+            <div key={spot.id} className="spot-item">
+              <div className="item-header">
+                <div className="item-info">
                   <div className="location-icon">
                     <FaMapMarkerAlt />
                   </div>
-                  <div className="spot-details">
+                  <div className="item-details">
                     <h3 className="spot-name">{spot.name}</h3>
                     <p className="spot-location">{spot.location.address}</p>
                     <div className="submitter-info">
@@ -308,292 +304,76 @@ const SpotsModeration: React.FC = () => {
                 </div>
               </div>
 
-              <div className="spot-content">
+              <div className="item-content">
                 <div className="spot-description">
                   <p>{spot.description.substring(0, 150)}...</p>
                 </div>
 
-                <div className="spot-metadata">
-                  <div className="metadata-row">
-                    <div className="metadata-item">
-                      <span className="label">Accessibility:</span>
-                      <span className="value">
-                        {getAccessibilityIcon(spot.accessibility)} {spot.accessibility}
-                      </span>
-                    </div>
-                    <div className="metadata-item">
-                      <span className="label">Light Pollution:</span>
-                      <span className="value">{getLightPollutionLabel(spot.lightPollution)}</span>
-                    </div>
+                <div className="spot-stats">
+                  <div className="stat-item">
+                    <span className="label">Accessibility:</span>
+                    <span className="value">
+                      {getAccessibilityIcon(spot.accessibility)} {spot.accessibility}
+                    </span>
                   </div>
-                  <div className="metadata-row">
-                    <div className="metadata-item">
-                      <span className="label">Rating:</span>
-                      <span className="value">
-                        <FaStar className="star-icon" />
-                        {spot.rating} ({spot.reviewCount} reviews)
-                      </span>
-                    </div>
-                    <div className="metadata-item">
-                      <span className="label">Completeness:</span>
-                      <span className="value">{spot.verification.completenessScore}%</span>
-                    </div>
+                  <div className="stat-item">
+                    <span className="label">Light Pollution:</span>
+                    <span className="value">{getLightPollutionLabel(spot.lightPollution)}</span>
+                  </div>
+                  <div className="stat-item">
+                    <span className="label">Rating:</span>
+                    <span className="value">
+                      <FaStar className="star-icon" />
+                      {spot.rating} ({spot.reviewCount} reviews)
+                    </span>
+                  </div>
+                  <div className="stat-item">
+                    <span className="label">Completeness:</span>
+                    <span className="value">{spot.verification.completenessScore}%</span>
                   </div>
                 </div>
 
                 {spot.reports && spot.reports.count > 0 && (
                   <div className="reports-info">
-                    <FaExclamationTriangle />
-                    <span>{spot.reports.count} reports</span>
-                    <div className="report-reasons">
-                      {spot.reports.reasons.slice(0, 2).map(reason => (
-                        <span key={reason} className="reason-tag">{reason}</span>
-                      ))}
-                    </div>
+                    <span className="reports-indicator">
+                      ⚠ {spot.reports.count} Report{spot.reports.count > 1 ? 's' : ''}
+                    </span>
                   </div>
                 )}
 
                 <div className="spot-tags">
-                  {spot.tags.slice(0, 3).map(tag => (
-                    <span key={tag} className="tag">{tag}</span>
+                  {spot.tags.map(tag => (
+                    <span key={tag} className="tag">#{tag}</span>
                   ))}
-                  {spot.tags.length > 3 && (
-                    <span className="tag more">+{spot.tags.length - 3} more</span>
-                  )}
                 </div>
               </div>
 
-              <div className="spot-actions">
-                <button 
-                  className="action-btn approve-btn"
-                  title="Approve spot"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleApprove(spot.id);
-                  }}
+              <div className="item-actions">
+                <Button
+                  variant="primary"
+                  size="small"
+                  onClick={() => navigate(`/dashboard/moderation/spots/details/${spot.id}`)}
                 >
-                  <FaCheck />
-                </button>
-                <button 
-                  className="action-btn verify-btn"
-                  title="Request verification"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleRequestVerification(spot.id);
-                  }}
+                  👁 View Details
+                </Button>
+                <Button
+                  variant="warning"
+                  size="small"
+                  onClick={() => handleSuspend(spot.id)}
                 >
-                  <FaEye />
-                </button>
-                <button 
-                  className="action-btn reject-btn"
-                  title="Reject spot"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleReject(spot.id);
-                  }}
+                  🚫 Suspend
+                </Button>
+                <Button
+                  variant="danger"
+                  size="small"
+                  onClick={() => handleDelete(spot.id)}
                 >
-                  <FaTimes />
-                </button>
+                  🗑 Delete
+                </Button>
               </div>
             </div>
           ))}
         </div>
-
-        {/* Detail Panel */}
-        {selectedSpot && (
-          <div className="detail-panel">
-            <div className="panel-header">
-              <h3>Spot Details</h3>
-              <button 
-                className="close-panel"
-                title="Close panel"
-                onClick={() => setSelectedSpot(null)}
-              >
-                <FaTimes />
-              </button>
-            </div>
-            <div className="panel-content">
-              <div className="detail-section">
-                <h4>Basic Information</h4>
-                <div className="detail-grid">
-                  <div className="detail-item">
-                    <label>Name:</label>
-                    <span>{selectedSpot.name}</span>
-                  </div>
-                  <div className="detail-item">
-                    <label>Status:</label>
-                    <span>{selectedSpot.status.replace('_', ' ')}</span>
-                  </div>
-                  <div className="detail-item">
-                    <label>Priority:</label>
-                    <span>{selectedSpot.priority}</span>
-                  </div>
-                  <div className="detail-item">
-                    <label>Rating:</label>
-                    <span>{selectedSpot.rating}/5 ({selectedSpot.reviewCount} reviews)</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="detail-section">
-                <h4>Location Details</h4>
-                <div className="detail-grid">
-                  <div className="detail-item">
-                    <label>Address:</label>
-                    <span>{selectedSpot.location.address}</span>
-                  </div>
-                  <div className="detail-item">
-                    <label>Coordinates:</label>
-                    <span>{selectedSpot.location.coordinates.lat}, {selectedSpot.location.coordinates.lng}</span>
-                  </div>
-                  <div className="detail-item">
-                    <label>Elevation:</label>
-                    <span>{selectedSpot.location.elevation}m</span>
-                  </div>
-                  <div className="detail-item">
-                    <label>Accessibility:</label>
-                    <span>{selectedSpot.accessibility}</span>
-                  </div>
-                  <div className="detail-item">
-                    <label>Light Pollution:</label>
-                    <span>{getLightPollutionLabel(selectedSpot.lightPollution)}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="detail-section">
-                <h4>Description</h4>
-                <div className="spot-description-full">
-                  {selectedSpot.description}
-                </div>
-              </div>
-
-              <div className="detail-section">
-                <h4>Amenities</h4>
-                <div className="amenities-list">
-                  {selectedSpot.amenities.map((amenity, index) => (
-                    <div key={index} className="amenity-item">
-                      • {amenity}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="detail-section">
-                <h4>Best Viewing Times</h4>
-                <div className="viewing-times">
-                  {selectedSpot.bestViewingTimes.map((time, index) => (
-                    <div key={index} className="time-item">
-                      • {time}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="detail-section">
-                <h4>Verification Status</h4>
-                <div className="verification-grid">
-                  <div className="verification-item">
-                    <label>Photos:</label>
-                    <span className={selectedSpot.verification.hasPhotos ? 'verified' : 'missing'}>
-                      {selectedSpot.verification.hasPhotos 
-                        ? `✓ ${selectedSpot.verification.photoCount} photos`
-                        : '✗ No photos'
-                      }
-                    </span>
-                  </div>
-                  <div className="verification-item">
-                    <label>Coordinates:</label>
-                    <span className={selectedSpot.verification.hasCoordinates ? 'verified' : 'missing'}>
-                      {selectedSpot.verification.hasCoordinates ? '✓ Verified' : '✗ Missing'}
-                    </span>
-                  </div>
-                  <div className="verification-item">
-                    <label>Description:</label>
-                    <span className={selectedSpot.verification.hasDescription ? 'verified' : 'missing'}>
-                      {selectedSpot.verification.hasDescription ? '✓ Complete' : '✗ Incomplete'}
-                    </span>
-                  </div>
-                  <div className="verification-item">
-                    <label>Completeness:</label>
-                    <span className={`completeness-score score-${Math.floor(selectedSpot.verification.completenessScore / 20)}`}>
-                      {selectedSpot.verification.completenessScore}%
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="detail-section">
-                <h4>Submitter Information</h4>
-                <div className="submitter-details">
-                  <div className="submitter-avatar">
-                    {selectedSpot.submittedBy.avatar}
-                  </div>
-                  <div className="submitter-info">
-                    <div><strong>{selectedSpot.submittedBy.username}</strong></div>
-                    <div>{selectedSpot.submittedBy.email}</div>
-                    <div>ID: {selectedSpot.submittedBy.id}</div>
-                  </div>
-                </div>
-              </div>
-
-              {selectedSpot.reports && selectedSpot.reports.count > 0 && (
-                <div className="detail-section">
-                  <h4>Reports ({selectedSpot.reports.count})</h4>
-                  <div className="reports-details">
-                    <div className="report-reasons">
-                      <strong>Reasons:</strong>
-                      <div className="reasons-list">
-                        {selectedSpot.reports.reasons.map((reason, index) => (
-                          <span key={index} className="reason-chip">{reason}</span>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="report-details">
-                      <strong>Details:</strong>
-                      <div className="report-text">
-                        {selectedSpot.reports.details}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {selectedSpot.moderatorNotes && (
-                <div className="detail-section">
-                  <h4>Moderator Notes</h4>
-                  <div className="moderator-notes">
-                    {selectedSpot.moderatorNotes}
-                  </div>
-                </div>
-              )}
-
-              <div className="panel-actions">
-                <button 
-                  className="panel-btn approve"
-                  onClick={() => handleApprove(selectedSpot.id)}
-                >
-                  <FaCheck />
-                  Approve
-                </button>
-                <button 
-                  className="panel-btn verify"
-                  onClick={() => handleRequestVerification(selectedSpot.id)}
-                >
-                  <FaEye />
-                  Request Verification
-                </button>
-                <button 
-                  className="panel-btn reject"
-                  onClick={() => handleReject(selectedSpot.id)}
-                >
-                  <FaTimes />
-                  Reject
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

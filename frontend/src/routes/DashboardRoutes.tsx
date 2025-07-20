@@ -16,6 +16,7 @@ import ContentDetails from '../pages/moderator/ContentDetails';
 import ProfileModeration from '../pages/moderator/ProfileModeration';
 import ProfileDetails from '../pages/moderator/ProfileDetails';
 import SessionModeration from '../pages/moderator/SessionModeration';
+import SessionDetails from '../pages/moderator/SessionDetails';
 import PollsModeration from '../pages/moderator/PollsModeration';
 import SpotsModeration from '../pages/moderator/SpotsModeration';
 import NightCampModeration from '../pages/moderator/NightCampModeration';
@@ -482,6 +483,14 @@ const DashboardRoutes = () => {
                 element={
                     <RoleGuard allowedRoles={['moderator', 'admin']}>
                         <SessionModeration />
+                    </RoleGuard>
+                }
+            />
+            <Route
+                path="moderation/session/details/:id"
+                element={
+                    <RoleGuard allowedRoles={['moderator', 'admin']}>
+                        <SessionDetails />
                     </RoleGuard>
                 }
             />

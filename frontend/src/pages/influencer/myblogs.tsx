@@ -8,6 +8,7 @@ import AstronomyBlogCard from "../../components/Learner/blogcard";
 import { blogs, totalBlogs, avgRating, latestDate } from "../learner/blogData";
 import '../../styles/pages/influencer/myblogs.scss'
 import "../../styles/pages/learner/blog_explore.scss"
+import "../../styles/pages/learner/BlogPage.scss"
 
 type ActiveSection = 'blogs' | 'myblogs';
 

@@ -47,7 +47,7 @@
     backdrop-filter: blur(10px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 16px 16px 0 0;
-    margin-bottom: 5px;
+    margin-bottom: 10px;
 
     .header-content {
       max-width: 1400px;
@@ -94,6 +94,7 @@
     max-width: 1400px;
     margin: 0 auto;
     // padding: 2rem;
+    padding-bottom: 10px;
 
     .profile-card {
       background: rgba(255, 255, 255, 0.03);

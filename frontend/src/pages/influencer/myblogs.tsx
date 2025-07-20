@@ -458,7 +458,7 @@ export default function MyBlogs() {
 
     const renderBlogsTab = () => (
         <div className="blog-explore-page">
-            <h2>Explore Astronomy Blogs</h2>
+            <h2>Astronomy Blogs</h2>
             <p>Discover the latest insights and discoveries in the field of astronomy.</p>
 
             {/* Tab Navigation (NightCamps style, center aligned) */}
@@ -487,35 +487,40 @@ export default function MyBlogs() {
 
             {/* Blog Filters (only show if Explore Blogs tab is active) */}
             {activeTab === 'blogs' && (
-                <div className="blog-filters" style={{ display: 'flex', gap: 16, margin: '1.2rem 0', flexWrap: 'wrap' }}>
-                    <input
-                        type="text"
-                        placeholder="Search title or content..."
-                        value={filter.search}
-                        onChange={e => setFilter(f => ({ ...f, search: e.target.value }))}
-                        style={{ padding: '0.5rem 1rem', borderRadius: 8, border: '1px solid #334155', minWidth: 180 }}
-                    />
-                    <select
-                        value={filter.author}
-                        onChange={e => setFilter(f => ({ ...f, author: e.target.value }))}
-                        style={{ padding: '0.5rem 1rem', borderRadius: 8, border: '1px solid #334155', minWidth: 140 }}
-                    >
-                        <option value="">All Authors</option>
-                        {uniqueAuthors.map(author => (
-                            <option key={author} value={author}>{author}</option>
-                        ))}
-                    </select>
-                    <select
-                        value={filter.minRating}
-                        onChange={e => setFilter(f => ({ ...f, minRating: e.target.value }))}
-                        style={{ padding: '0.5rem 1rem', borderRadius: 8, border: '1px solid #334155', minWidth: 120 }}
-                    >
-                        <option value="">Any Rating</option>
-                        {[5,4,3,2,1].map(r => (
-                            <option key={r} value={r}>{r}+</option>
-                        ))}
-                    </select>
-                </div>
+                <>
+                    <div className="page-title" style={{ display: 'flex', justifyContent: 'center', marginTop: 16 }}>
+                        <h2 style={{ textAlign: 'center', margin: 0 }}>Explore Blogs</h2>
+                    </div>
+                    <div className="blog-filters" style={{ display: 'flex', gap: 16, margin: '1.2rem 0', flexWrap: 'wrap' }}>
+                        <input
+                            type="text"
+                            placeholder="Search title or content..."
+                            value={filter.search}
+                            onChange={e => setFilter(f => ({ ...f, search: e.target.value }))}
+                            style={{ padding: '0.5rem 1rem', borderRadius: 8, border: '1px solid #334155', minWidth: 180 }}
+                        />
+                        <select
+                            value={filter.author}
+                            onChange={e => setFilter(f => ({ ...f, author: e.target.value }))}
+                            style={{ padding: '0.5rem 1rem', borderRadius: 8, border: '1px solid #334155', minWidth: 140 }}
+                        >
+                            <option value="">All Authors</option>
+                            {uniqueAuthors.map(author => (
+                                <option key={author} value={author}>{author}</option>
+                            ))}
+                        </select>
+                        <select
+                            value={filter.minRating}
+                            onChange={e => setFilter(f => ({ ...f, minRating: e.target.value }))}
+                            style={{ padding: '0.5rem 1rem', borderRadius: 8, border: '1px solid #334155', minWidth: 120 }}
+                        >
+                            <option value="">Any Rating</option>
+                            {[5,4,3,2,1].map(r => (
+                                <option key={r} value={r}>{r}+</option>
+                            ))}
+                        </select>
+                    </div>
+                </>
             )}
 
             {/* Blog List (only show if Explore Blogs tab is active) */}

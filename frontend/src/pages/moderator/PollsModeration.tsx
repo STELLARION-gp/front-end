@@ -237,7 +237,8 @@ const PollsModeration: React.FC = () => {
               Go back
             </Button>
             <div className="title-section">
-              <h1>Polls, Votes & Threads Moderation</h1>
+              <h1>Polls, Votes & Threads</h1>
+              <h1>Moderation</h1>
               <p>Manage community polls, voting, and discussion threads</p>
             </div>
           </div>

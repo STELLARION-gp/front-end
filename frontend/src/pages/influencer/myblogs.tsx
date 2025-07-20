@@ -525,7 +525,15 @@ export default function MyBlogs() {
 
             {/* Blog List (only show if Explore Blogs tab is active) */}
             {activeTab === 'blogs' && (
-                <div className="blogexplore-blog-list">
+                <div
+                    className="blogexplore-blog-list"
+                    style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(3, 1fr)',
+                        gap: '1.5rem',
+                        
+                    }}
+                >
                     {filteredBlogs.map(blog => (
                         <AstronomyBlogCard
                             key={blog.id}
@@ -547,7 +555,7 @@ export default function MyBlogs() {
         <div className="blog-explore-page">
             <div className="blogs-header">
                 <h2>My Astronomy Blogs</h2>
-                <p>Manage your cosmic discoveries and insights.</p>
+                {/* <p>Manage your cosmic discoveries and insights.</p> */}
                 <Button onClick={() => setShowCreateForm(true)} className="create-blog-btn">
                     <Plus size={20} />
                     Create New Blog

@@ -425,7 +425,7 @@ const getCountdown = (dateStr: string, timeStr: string): string | null => {
         {tabs.map((tab) => (
           <Button
             key={tab.name}
-            variant={activeTab === tab.name ? 'secondary' : 'ghost'}
+            variant={activeTab === tab.name ? 'primary' : 'secondary'}
             className="flex items-center gap-2 text-sm font-semibold"
             onClick={() => setActiveTab(tab.name)}
           >
@@ -453,7 +453,7 @@ const getCountdown = (dateStr: string, timeStr: string): string | null => {
 
             {/* Participated Quizzes Table */}
             <div className="participated-quizzes-table mt-12">
-              <h3 className='participated-quizzes-table-h3'>Participated Quizzes</h3>
+              <h2 className='participated-quizzes-table-h3'>Participated Quizzes</h2>
               <table className='participated-quizzes-table-table'>
                 <thead className='participated-quizzes-table-thead'>
                   <tr className='participated-quizzes-table-tr'>
@@ -480,10 +480,10 @@ const getCountdown = (dateStr: string, timeStr: string): string | null => {
               </table>
             </div>
 
-            <div className="leaderboard-section mt-10">
+            <div className="leaderboard-section">
               <div className="leaderboard-header">
                 <h2>Leaderboard</h2>
-                <p style={{marginLeft:'500px'}}>Top performers in astronomy quizzes</p>
+                <p style={{marginLeft:'400px'}}>Top performers in astronomy quizzes</p>
               </div>
 
               <div className="leaderboard-table">

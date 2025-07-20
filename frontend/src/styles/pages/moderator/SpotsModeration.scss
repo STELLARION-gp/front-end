@@ -313,33 +313,30 @@
 
           .spot-metadata {
             margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
 
-            .metadata-row {
+            .meta-item {
               display: flex;
               justify-content: space-between;
-              margin-bottom: 0.5rem;
+              align-items: center;
 
-              .metadata-item {
+              .label {
+                color: rgba(255, 255, 255, 0.6);
+                font-size: 0.8rem;
+                flex-shrink: 0;
+              }
+
+              .value {
+                color: rgba(255, 255, 255, 0.9);
+                font-size: 0.85rem;
                 display: flex;
-                flex-direction: column;
-                flex: 1;
+                align-items: center;
+                gap: 0.25rem;
 
-                .label {
-                  color: rgba(255, 255, 255, 0.6);
-                  font-size: 0.8rem;
-                  margin-bottom: 0.25rem;
-                }
-
-                .value {
-                  color: rgba(255, 255, 255, 0.9);
-                  font-size: 0.85rem;
-                  display: flex;
-                  align-items: center;
-                  gap: 0.25rem;
-
-                  .star-icon {
-                    color: #ffa502;
-                  }
+                .star-icon {
+                  color: #ffa502;
                 }
               }
             }

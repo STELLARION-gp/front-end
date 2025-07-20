@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, memo } from 'react';
+import { useEffect, useRef, useState, memo, useMemo } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import logo from '../assets/logo-dark.png';
@@ -19,15 +19,13 @@ const NavBarComponent = () => {
   const lastScroll = useRef(window.scrollY);
 
   // Get current language from i18n with logging
-  const getCurrentLanguage = () => {
+  const currentLanguage = useMemo(() => {
     const currentLang = supportedLanguages.find(lang => lang.code === i18n.language) || supportedLanguages[0];
     console.log('Current language detected:', currentLang);
     return currentLang;
-  };
+  }, [i18n.language]);
 
-  const currentLanguage = getCurrentLanguage();
-
-  // No need to track language changes via state anymore
+  // Track language changes and force re-render
   useEffect(() => {
     console.log('NavBar re-rendered with language:', i18n.language);
     // Language is tracked directly via i18n
@@ -185,6 +183,7 @@ const NavBarComponent = () => {
               <div className="profile-actions">
                 <Link to="/dashboard/overview" className="dropdown-link">{t('navbar.dashboard')}</Link>
                 <Link to="/dashboard/profile" className="dropdown-link">{t('navbar.profileNav')}</Link>
+                <Link to="/subscription/plans" className="dropdown-link">{t('navbar.subscription')}</Link>
                 <button onClick={handleLogout} className="dropdown-link logout">
                   {t('auth.signOut')}
                 </button>
@@ -245,6 +244,7 @@ const NavBarComponent = () => {
           <div className="navbar-section left-section">
             <a href="#" className="nav-link">{t('navbar.features')}</a>
             <Link to="/about" className="nav-link">{t('navbar.about')}</Link>
+            <Link to="/subscription/plans" className="nav-link">{t('navbar.plans')}</Link>
             <a href="#" className="nav-link">{t('navbar.contact')}</a>
           </div>
         )}
@@ -284,9 +284,9 @@ const NavBarComponent = () => {
   );
 };
 
-// Export memoized component to prevent unnecessary re-renders
+// Export memoized component to prevent unnecessary re-renders, but allow language changes
 export default memo(NavBarComponent, () => {
-  // Custom comparison to prevent unnecessary re-renders
-  // Since this component has no props, it should never re-render unless state changes
-  return true;
+  // Since this component has no props, we should re-render when language changes
+  // Return false to allow re-render (memo prevents re-render when true is returned)
+  return false;
 });

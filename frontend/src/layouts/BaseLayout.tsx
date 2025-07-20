@@ -2,6 +2,7 @@ import React, { memo } from 'react';
 import { Outlet } from 'react-router-dom';
 import NavBarComponent from './NavBarComponent';
 import Chatbot from '../components/Chatbot';
+import SubscriptionNotification from '../components/SubscriptionNotification';
 
 /**
  * BaseLayout serves as the application's outermost layout wrapper
@@ -16,6 +17,7 @@ const BaseLayout: React.FC = () => {
     return (
         <div className="min-h-screen flex flex-col">
             <NavBarComponent />
+            <SubscriptionNotification />
             <main className="flex-grow">
                 <Outlet />
             </main>

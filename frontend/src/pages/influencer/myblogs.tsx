@@ -769,6 +769,9 @@ export default function MyBlogs() {
 
     return (
         <div className="myblogs-tabbed-container">
+            {/* Always show Explore Astronomy Blogs above tabs */}
+            {renderBlogsTab()}
+
             {/* Tab Navigation */}
             <div className="tab-navigation">
                 <button 
@@ -787,7 +790,7 @@ export default function MyBlogs() {
 
             {/* Tab Content */}
             <div className="tab-content">
-                {activeTab === 'blogs' ? renderBlogsTab() : renderMyBlogsTab()}
+                {activeTab === 'blogs' ? null : renderMyBlogsTab()}
             </div>
         </div>
     );

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Button from '../../components/Button';
-import { FaEye, FaThumbsUp, FaClock, FaFlag, FaCalendarAlt, FaUsers } from 'react-icons/fa';
+import {  FaArrowLeft, FaEye, FaThumbsUp, FaClock, FaFlag, FaCalendarAlt, FaUsers } from 'react-icons/fa';
 import '../../styles/pages/moderator/PollsDetails.scss';
 
 interface PollDetails {
@@ -205,7 +205,8 @@ const PollsDetails: React.FC = () => {
 
   return (
     <div className="polls-details">
-      <div className="details-header">
+      {/* <header>
+        <div className="details-header">
         <div>
           <Button
             variant="ghost"
@@ -225,6 +226,38 @@ const PollsDetails: React.FC = () => {
         </div>
         </div>
       </div>
+      </header> */}
+      <header className="details-header">
+        <div className="header-content">
+          <div className="header-left">
+            <Button
+              variant="ghost"
+              size="medium"
+              icon={<FaArrowLeft />}
+              iconPosition="left"
+            onClick={() => navigate(-1)}
+            >
+              Back to Polls
+            </Button>
+            <div className="title-section">
+              <h1>Poll Details</h1>
+              <p>Review and moderate poll details</p>
+            </div>
+          </div>
+          
+          <div className="header-actions">
+            <div className="header-actions">
+            <Button
+              variant="ghost"
+              size="large"
+            >
+              👁 {poll.engagement.views} Views
+            </Button>
+            </div>
+          </div>
+        </div>
+      </header>
+
 
       <div className="details-content">
         <div className="main-content">
@@ -303,7 +336,9 @@ const PollsDetails: React.FC = () => {
             </div>
             <div className="card-content">
               <div className="creator-profile">
-                <img src={poll.creator.avatar} alt={poll.creator.username} className="creator-avatar" />
+                {/* <img src={poll.creator.avatar} alt={poll.creator.username} className="creator-avatar" /> */}
+                <img src={"https://www.svgrepo.com/show/384670/account-avatar-profile-user.svg"} className="creator-avatar" />
+
                 <div className="creator-details">
                   <div className="creator-username">
                     {poll.creator.username}

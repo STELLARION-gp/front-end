@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { FaArrowLeft, FaFlag, FaEye, FaCheck, FaTimes, FaSearch } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import '../../styles/pages/moderator/ContentModeration.scss';
+import Button from '../../components/Button';
 
 interface ContentItem {
   id: string;
@@ -97,13 +98,22 @@ export default function ContentModeration() {
       <header className="moderation-header">
         <div className="header-content">
           <div className="header-left">
-            <button 
+              <Button
+                variant="ghost"
+                size="medium"
+                icon={<FaArrowLeft />}
+                iconPosition="left"
+                onClick={() => navigate('/dashboard/moderation')}
+              >
+              Go back
+            </Button>
+            {/* <Button 
+              variant='secondary'
               className="back-button"
               onClick={() => navigate('/dashboard/moderation')}
-              title="Go back to moderation dashboard"
             >
               <FaArrowLeft />
-            </button>
+            </Button> */}
             <div className="title-section">
               <h1>Content Moderation</h1>
               <p>Review and moderate user-generated content</p>

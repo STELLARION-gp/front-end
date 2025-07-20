@@ -279,12 +279,12 @@ const SpotsModeration: React.FC = () => {
         <div className="spots-list">
           {filteredSpots.map(spot => (
             <div key={spot.id} className="spot-item">
-              <div className="item-header">
-                <div className="item-info">
+              <div className="spot-header">
+                <div className="spot-info">
                   <div className="location-icon">
                     <FaMapMarkerAlt />
                   </div>
-                  <div className="item-details">
+                  <div className="spot-details">
                     <h3 className="spot-name">{spot.name}</h3>
                     <p className="spot-location">{spot.location.address}</p>
                     <div className="submitter-info">
@@ -304,30 +304,30 @@ const SpotsModeration: React.FC = () => {
                 </div>
               </div>
 
-              <div className="item-content">
+              <div className="spot-content">
                 <div className="spot-description">
                   <p>{spot.description.substring(0, 150)}...</p>
                 </div>
 
-                <div className="spot-stats">
-                  <div className="stat-item">
+                <div className="spot-metadata">
+                  <div className="meta-item">
                     <span className="label">Accessibility:</span>
                     <span className="value">
                       {getAccessibilityIcon(spot.accessibility)} {spot.accessibility}
                     </span>
                   </div>
-                  <div className="stat-item">
+                  <div className="meta-item">
                     <span className="label">Light Pollution:</span>
                     <span className="value">{getLightPollutionLabel(spot.lightPollution)}</span>
                   </div>
-                  <div className="stat-item">
+                  <div className="meta-item">
                     <span className="label">Rating:</span>
                     <span className="value">
                       <FaStar className="star-icon" />
                       {spot.rating} ({spot.reviewCount} reviews)
                     </span>
                   </div>
-                  <div className="stat-item">
+                  <div className="meta-item">
                     <span className="label">Completeness:</span>
                     <span className="value">{spot.verification.completenessScore}%</span>
                   </div>
@@ -348,11 +348,11 @@ const SpotsModeration: React.FC = () => {
                 </div>
               </div>
 
-              <div className="item-actions">
+              <div className="spot-actions">
                 <Button
                   variant="primary"
                   size="small"
-                  onClick={() => navigate(`/dashboard/moderation/spots/details/${spot.id}`)}
+                  onClick={() => navigate(`/moderation/spots/details/${spot.id}`)}
                 >
                   👁 View Details
                 </Button>

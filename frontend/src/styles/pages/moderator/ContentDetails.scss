@@ -1,10 +1,10 @@
 // Content Details - Futuristic Space Theme
 .content-details {
   min-height: 100vh;
-  background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+  // background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
   color: #ffffff;
   font-family: 'Inter', 'Segoe UI', sans-serif;
-
+  
   .loading-state,
   .error-state {
     display: flex;
@@ -41,11 +41,13 @@
   }
 
   .details-header {
-    background: rgba(0, 0, 0, 0.3);
-    -webkit-backdrop-filter: blur(15px);
-    backdrop-filter: blur(15px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     padding: 2rem 0;
+    background: rgba(0, 0, 0, 0.141);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px 16px 0 0;
+    margin-bottom: 5px;
 
     .header-content {
       max-width: 1200px;

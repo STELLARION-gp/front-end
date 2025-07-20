@@ -300,7 +300,7 @@ export default function ContentDetails() {
                 icon={<FaCheck />}
                 iconPosition="left"
                 onClick={handleApprove}
-                className="action-button"
+                // className="action-button"
               >
                 Approve Content
               </Button>
@@ -310,7 +310,7 @@ export default function ContentDetails() {
                 icon={<FaTimes />}
                 iconPosition="left"
                 onClick={handleReject}
-                className="action-button"
+                // className="action-button"
               >
                 Reject Content
               </Button>

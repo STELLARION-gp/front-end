@@ -238,14 +238,21 @@ const SpotsDetails: React.FC = () => {
     return (
       <div className="spots-details">
         <div className="details-header">
-          <Button
-            variant="border"
-            size="small"
-            onClick={() => navigate(-1)}
-          >
-            ← Back
-          </Button>
-          <h1>Loading Spot Details...</h1>
+          <div className="header-content">
+            <div className="header-left">
+              <Button
+                variant="ghost"
+                size="medium"
+                onClick={() => navigate(-1)}
+              >
+                ← Back
+              </Button>
+              <div className="title-section">
+                <h1>Loading Spot Details...</h1>
+                <p>Please wait while we fetch the information</p>
+              </div>
+            </div>
+          </div>
         </div>
         <div className="loading-container">
           <div className="loading-spinner"></div>
@@ -258,14 +265,21 @@ const SpotsDetails: React.FC = () => {
     return (
       <div className="spots-details">
         <div className="details-header">
-          <Button
-            variant="border"
-            size="small"
-            onClick={() => navigate(-1)}
-          >
-            ← Back
-          </Button>
-          <h1>Spot Not Found</h1>
+          <div className="header-content">
+            <div className="header-left">
+              <Button
+                variant="ghost"
+                size="medium"
+                onClick={() => navigate(-1)}
+              >
+                ← Back
+              </Button>
+              <div className="title-section">
+                <h1>Spot Not Found</h1>
+                <p>The requested location could not be found</p>
+              </div>
+            </div>
+          </div>
         </div>
         <div className="error-container">
           <p>The requested stargazing spot could not be found.</p>
@@ -277,21 +291,28 @@ const SpotsDetails: React.FC = () => {
   return (
     <div className="spots-details">
       <div className="details-header">
-        <Button
-          variant="border"
-          size="small"
-          onClick={() => navigate(-1)}
-        >
-          ← Back
-        </Button>
-        <h1>Spot Details</h1>
-        <div className="header-actions">
-          <Button
-            variant="border"
-            size="small"
-          >
-            👁 {spot.reviewCount} Reviews
-          </Button>
+        <div className="header-content">
+          <div className="header-left">
+            <Button
+              variant="ghost"
+              size="medium"
+              onClick={() => navigate(-1)}
+            >
+              ← Back
+            </Button>
+            <div className="title-section">
+              <h1>Spot Details</h1>
+              <p>Review stargazing location submission</p>
+            </div>
+          </div>
+          <div className="header-actions">
+            <Button
+              variant="border"
+              size="small"
+            >
+              👁 {spot.reviewCount} Reviews
+            </Button>
+          </div>
         </div>
       </div>
 

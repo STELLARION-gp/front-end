@@ -223,7 +223,7 @@ const SpotsModeration: React.FC = () => {
             <Button
               variant="ghost"
               size="medium"
-              onClick={() => navigate('/moderator')}
+              onClick={() => navigate(-1)}
             >
               ← Back
             </Button>

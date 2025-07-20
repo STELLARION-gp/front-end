@@ -1,16 +1,18 @@
 // Profile Moderation - Futuristic Space Theme
 .profile-moderation {
   min-height: 100vh;
-  background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+  // background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
   color: #ffffff;
   font-family: 'Inter', 'Segoe UI', sans-serif;
 
   .moderation-header {
-    background: rgba(0, 0, 0, 0.3);
-    -webkit-backdrop-filter: blur(15px);
-    backdrop-filter: blur(15px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     padding: 2rem 0;
+    background: rgba(0, 0, 0, 0.141);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px 16px 0 0;
+    margin-bottom: 10px;
 
     .header-content {
       max-width: 1400px;
@@ -102,11 +104,14 @@
     align-items: center;
     flex-wrap: wrap;
     gap: 1.5rem;
+    margin-bottom: 10px;
+    border-radius: 0 0 16px 16px;
 
     .search-box {
       position: relative;
       flex: 1;
-      max-width: 400px;
+      // max-width: 400px;
+      width: 100%;
 
       .search-icon {
         position: absolute;
@@ -170,11 +175,9 @@
   .moderation-content {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 0 2rem 2rem;
-    display: grid;
-    grid-template-columns: 1fr 400px;
-    gap: 2rem;
+    // padding: 0 2rem 2rem;
     min-height: 60vh;
+    padding-bottom: 10px;
 
     .profiles-list {
       display: flex;
@@ -203,8 +206,8 @@
 
         .profile-header {
           display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
+          align-items: center;
+          gap: 0.75rem;
           margin-bottom: 1rem;
 
           .user-info {
@@ -247,15 +250,14 @@
 
           .status-badges {
             display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            align-items: flex-end;
+            align-items: center;
+            gap: 0.75rem;
 
             .priority-badge,
             .risk-badge {
               padding: 0.25rem 0.75rem;
               border-radius: 15px;
-              font-size: 0.75rem;
+              font-size: 0.8rem;
               font-weight: 600;
               text-transform: uppercase;
               letter-spacing: 0.5px;
@@ -270,10 +272,11 @@
             }
 
             .risk-badge {
-              &.risk-critical { background: #ff4757; }
-              &.risk-high { background: #ffa502; }
+              &.risk-clean { background: #2ed573; }
+              &.risk-low { background: #f39c12; }
               &.risk-medium { background: #3742fa; }
-              &.risk-low { background: #2ed573; }
+              &.risk-high { background: #ffa502; }
+              &.risk-critical { background: #ff4757; }
             }
           }
         }
@@ -389,190 +392,39 @@
         }
 
         .status-indicator {
-          position: absolute;
-          top: 1rem;
-          right: 1rem;
-          padding: 0.25rem 0.75rem;
+          display: flex;
+          align-items: center;
+          margin-left: 0.75rem;
+          padding: 0.22rem 0.7rem;
           border-radius: 15px;
-          font-size: 0.75rem;
+          font-size: 0.8rem;
           font-weight: 600;
           text-transform: uppercase;
+          letter-spacing: 0.5px;
+          text-align: center;
+          box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+          height: 28px;
+          line-height: 1;
+          min-width: unset;
+          width: auto;
+          white-space: nowrap;
           color: white;
-        }
-      }
-    }
 
-    .detail-panel {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 12px;
-      position: sticky;
-      top: 2rem;
-      height: fit-content;
-      max-height: 80vh;
-      overflow-y: auto;
-
-      .panel-header {
-        background: rgba(255, 255, 255, 0.05);
-        padding: 1rem 1.5rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-
-        h3 {
-          margin: 0;
-          font-size: 1.2rem;
-        }
-
-        .close-panel {
-          background: none;
-          border: none;
-          color: rgba(255, 255, 255, 0.7);
-          cursor: pointer;
-          padding: 0.5rem;
-          border-radius: 4px;
-          transition: all 0.3s ease;
-
-          &:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
+          &.status-pending {
+            background: rgba(255, 165, 2, 0.2);
+            color: #ffa502;
           }
-        }
-      }
-
-      .panel-content {
-        padding: 1.5rem;
-
-        .detail-section {
-          margin-bottom: 2rem;
-
-          h4 {
-            color: #667eea;
-            margin: 0 0 1rem 0;
-            font-size: 1rem;
-            font-weight: 600;
+          &.status-approved {
+            background: rgba(46, 213, 115, 0.2);
+            color: #2ed573;
           }
-
-          .detail-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 0.75rem;
-
-            .detail-item {
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-              padding: 0.5rem 0;
-              border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-
-              label {
-                color: rgba(255, 255, 255, 0.7);
-                font-weight: 500;
-              }
-
-              span {
-                color: white;
-              }
-
-              .violations-count {
-                font-weight: 600;
-              }
-            }
+          &.status-banned {
+            background: rgba(255, 71, 87, 0.2);
+            color: #ff4757;
           }
-
-          .report-content {
-            .reporters {
-              margin-bottom: 1rem;
-              color: rgba(255, 255, 255, 0.8);
-            }
-
-            .reasons {
-              margin-bottom: 1rem;
-
-              .reasons-list {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 0.5rem;
-                margin-top: 0.5rem;
-
-                .reason-chip {
-                  background: rgba(255, 165, 2, 0.2);
-                  color: #ffa502;
-                  padding: 0.25rem 0.75rem;
-                  border-radius: 15px;
-                  font-size: 0.8rem;
-                }
-              }
-            }
-
-            .details {
-              .report-text {
-                background: rgba(255, 255, 255, 0.05);
-                padding: 1rem;
-                border-radius: 8px;
-                border: 1px solid rgba(255, 255, 255, 0.1);
-                color: rgba(255, 255, 255, 0.9);
-                line-height: 1.6;
-                margin-top: 0.5rem;
-              }
-            }
-
-            strong {
-              color: rgba(255, 255, 255, 0.9);
-            }
-          }
-        }
-
-        .panel-actions {
-          display: grid;
-          grid-template-columns: 1fr 1fr 1fr;
-          gap: 0.75rem;
-          padding-top: 1rem;
-          border-top: 1px solid rgba(255, 255, 255, 0.1);
-
-          .panel-btn {
-            padding: 0.75rem 1rem;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            font-size: 0.85rem;
-
-            &.approve {
-              background: linear-gradient(135deg, #2ed573, #1dd1a1);
-              color: white;
-
-              &:hover {
-                transform: translateY(-1px);
-                box-shadow: 0 8px 20px rgba(46, 213, 115, 0.3);
-              }
-            }
-
-            &.warn {
-              background: linear-gradient(135deg, #ffa502, #ff8c00);
-              color: white;
-
-              &:hover {
-                transform: translateY(-1px);
-                box-shadow: 0 8px 20px rgba(255, 165, 2, 0.3);
-              }
-            }
-
-            &.ban {
-              background: linear-gradient(135deg, #ff4757, #ff3838);
-              color: white;
-
-              &:hover {
-                transform: translateY(-1px);
-                box-shadow: 0 8px 20px rgba(255, 71, 87, 0.3);
-              }
-            }
+          &.status-warned {
+            background: rgba(255, 165, 2, 0.2);
+            color: #ffa502;
           }
         }
       }
@@ -580,18 +432,6 @@
   }
 
   // Responsive Design
-  @media (max-width: 1024px) {
-    .moderation-content {
-      grid-template-columns: 1fr;
-      
-      .detail-panel {
-        position: relative;
-        top: 0;
-        max-height: none;
-      }
-    }
-  }
-
   @media (max-width: 768px) {
     .moderation-header {
       .header-content {
@@ -638,10 +478,6 @@
         margin-top: 1rem;
         justify-content: center;
       }
-    }
-
-    .panel-actions {
-      grid-template-columns: 1fr !important;
     }
   }
 }

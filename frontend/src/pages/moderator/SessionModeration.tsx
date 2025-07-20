@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { FaArrowLeft, FaSearch, FaCheck, FaTimes, FaExclamationTriangle, FaCalendarAlt, FaUser, FaMapMarkerAlt } from 'react-icons/fa';
+import { FaArrowLeft, FaSearch, FaCheck, FaTimes, FaExclamationTriangle, FaCalendarAlt, FaUser, FaMapMarkerAlt, FaEye } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import '../../styles/pages/moderator/SessionModeration.scss';
+import Button from '../../components/Button';
 
 interface SessionProposal {
   id: string;
@@ -40,7 +41,6 @@ const SessionModeration: React.FC = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all');
-  const [selectedSession, setSelectedSession] = useState<SessionProposal | null>(null);
 
   // Mock data for session proposals
   const [sessions] = useState<SessionProposal[]>([
@@ -181,17 +181,24 @@ const SessionModeration: React.FC = () => {
   return (
     <div className="session-moderation">
       {/* Header */}
-      <div className="moderation-header">
+      <header className="moderation-header">
         <div className="header-content">
           <div className="header-left">
-            <button className="back-button" onClick={() => navigate('/moderator')} title="Back to Moderation Dashboard">
-              <FaArrowLeft />
-            </button>
+            <Button
+              variant="ghost"
+              size="medium"
+              icon={<FaArrowLeft />}
+              iconPosition="left"
+              onClick={() => navigate('/dashboard/moderation')}
+            >
+              Go back
+            </Button>
             <div className="title-section">
               <h1>Session Proposal Moderation</h1>
               <p>Review and manage learning session proposals</p>
             </div>
           </div>
+          
           <div className="header-stats">
             <div className="stat-card">
               <span className="stat-number">{sessions.filter(s => s.status === 'pending').length}</span>
@@ -207,7 +214,7 @@ const SessionModeration: React.FC = () => {
             </div>
           </div>
         </div>
-      </div>
+      </header>
 
       {/* Controls */}
       <div className="controls-section">
@@ -220,15 +227,18 @@ const SessionModeration: React.FC = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
+
         <div className="filter-tabs">
           {['all', 'pending', 'approved', 'rejected', 'revision_requested'].map(filter => (
-            <button
+            <Button
+              variant='primary'
+              size='large'
               key={filter}
               className={`filter-tab ${selectedFilter === filter ? 'active' : ''}`}
               onClick={() => setSelectedFilter(filter)}
             >
-              {filter.replace('_', ' ').toUpperCase()}
-            </button>
+              {filter.replace('_', ' ').charAt(0).toUpperCase() + filter.replace('_', ' ').slice(1)}
+            </Button>
           ))}
         </div>
       </div>
@@ -236,68 +246,63 @@ const SessionModeration: React.FC = () => {
       {/* Main Content */}
       <div className="moderation-content">
         <div className="sessions-list">
-          {filteredSessions.map(session => (
-            <div
-              key={session.id}
-              className={`session-item ${selectedSession?.id === session.id ? 'selected' : ''}`}
-              onClick={() => setSelectedSession(session)}
-            >
-              <div className="session-header">
-                <div className="session-info">
-                  <div className="session-type-icon">
-                    {getSessionTypeIcon(session.sessionType)}
+          {filteredSessions.length === 0 ? (
+            <div className="empty-state">
+              <p>No session proposals found for your filter/search.</p>
+            </div>
+          ) : (
+            filteredSessions.map(session => (
+              <div
+                key={session.id}
+                className={`session-item priority-${session.priority} status-${session.status.replace('_', '-')}`}
+                onClick={() => navigate(`/dashboard/moderation/session/details/${session.id}`)}
+              >
+                <div className="item-header">
+                  <div className="session-type">
+                    <span className="type-icon">{getSessionTypeIcon(session.sessionType)}</span>
+                    <span className="type-label">{session.sessionType.replace('_', ' ').charAt(0).toUpperCase() + session.sessionType.replace('_', ' ').slice(1)}</span>
                   </div>
-                  <div className="session-details">
-                    <h3 className="session-title">{session.title}</h3>
-                    <p className="session-subject">{session.subject}</p>
-                    <div className="proposer-info">
-                      <FaUser size={12} />
-                      <span>by {session.proposedBy.username}</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="status-badges">
-                  <div 
-                    className={`priority-badge priority-${session.priority}`}
-                  >
+                  <div className={`priority-badge priority-${session.priority}`}>
                     {session.priority}
                   </div>
-                  <div 
-                    className={`status-badge status-${session.status.replace('_', '-')}`}
-                  >
+                  <div className={`status-indicator status-${session.status.replace('_', '-')}`}>
                     {session.status.replace('_', ' ')}
                   </div>
                 </div>
-              </div>
 
-              <div className="session-content">
-                <div className="session-description">
-                  <p>{session.description.substring(0, 150)}...</p>
-                </div>
-
-                <div className="session-metadata">
-                  <div className="metadata-item">
-                    <FaCalendarAlt size={12} />
-                    <span>{formatDateTime(session.date, session.time)}</span>
-                  </div>
-                  <div className="metadata-item">
-                    <FaMapMarkerAlt size={12} />
-                    <span>{session.location} {session.venue && `- ${session.venue}`}</span>
-                  </div>
-                  <div className="metadata-item">
-                    <span>Duration: {session.duration} min</span>
-                  </div>
-                  <div className="metadata-item">
-                    <span>Max: {session.maxParticipants} participants</span>
+                <div className="item-content">
+                  <h3 className="session-title">{session.title}</h3>
+                  <p className="session-description">{session.description.substring(0, 150)}...</p>
+                  <div className="item-meta">
+                    <span className="proposer">by {session.proposedBy.username}</span>
+                    <span className="subject">{session.subject}</span>
+                    <span className="date">{formatDateTime(session.date, session.time)}</span>
                   </div>
                 </div>
 
-                {session.reports && session.reports.count > 0 && (
-                  <div className="reports-info">
-                    <FaExclamationTriangle />
-                    <span>{session.reports.count} reports</span>
+                <div className="session-details">
+                  <div className="session-info">
+                    <span className="info-item">
+                      <FaCalendarAlt size={12} />
+                      {session.duration} min
+                    </span>
+                    <span className="info-item">
+                      <FaMapMarkerAlt size={12} />
+                      {session.location}
+                    </span>
+                    <span className="info-item">
+                      <FaUser size={12} />
+                      Max {session.maxParticipants}
+                    </span>
                   </div>
-                )}
+                  
+                  {session.reports && session.reports.count > 0 && (
+                    <div className="reports-info">
+                      <FaExclamationTriangle className="flag-icon" />
+                      <span>{session.reports.count} report{session.reports.count !== 1 ? 's' : ''}</span>
+                    </div>
+                  )}
+                </div>
 
                 <div className="session-tags">
                   {session.tags.slice(0, 3).map(tag => (
@@ -307,192 +312,57 @@ const SessionModeration: React.FC = () => {
                     <span className="tag more">+{session.tags.length - 3} more</span>
                   )}
                 </div>
-              </div>
 
-              <div className="session-actions">
-                <button 
-                  className="action-btn approve-btn"
-                  title="Approve session"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleApprove(session.id);
-                  }}
-                >
-                  <FaCheck />
-                </button>
-                <button 
-                  className="action-btn revision-btn"
-                  title="Request revision"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleRequestRevision(session.id);
-                  }}
-                >
-                  <FaExclamationTriangle />
-                </button>
-                <button 
-                  className="action-btn reject-btn"
-                  title="Reject session"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleReject(session.id);
-                  }}
-                >
-                  <FaTimes />
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Detail Panel */}
-        {selectedSession && (
-          <div className="detail-panel">
-            <div className="panel-header">
-              <h3>Session Details</h3>
-              <button 
-                className="close-panel"
-                title="Close panel"
-                onClick={() => setSelectedSession(null)}
-              >
-                <FaTimes />
-              </button>
-            </div>
-            <div className="panel-content">
-              <div className="detail-section">
-                <h4>Basic Information</h4>
-                <div className="detail-grid">
-                  <div className="detail-item">
-                    <label>Title:</label>
-                    <span>{selectedSession.title}</span>
-                  </div>
-                  <div className="detail-item">
-                    <label>Type:</label>
-                    <span>{selectedSession.sessionType.replace('_', ' ')}</span>
-                  </div>
-                  <div className="detail-item">
-                    <label>Subject:</label>
-                    <span>{selectedSession.subject}</span>
-                  </div>
-                  <div className="detail-item">
-                    <label>Category:</label>
-                    <span>{selectedSession.category}</span>
-                  </div>
-                  <div className="detail-item">
-                    <label>Target Audience:</label>
-                    <span>{selectedSession.targetAudience}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="detail-section">
-                <h4>Schedule & Location</h4>
-                <div className="detail-grid">
-                  <div className="detail-item">
-                    <label>Date & Time:</label>
-                    <span>{formatDateTime(selectedSession.date, selectedSession.time)}</span>
-                  </div>
-                  <div className="detail-item">
-                    <label>Duration:</label>
-                    <span>{selectedSession.duration} minutes</span>
-                  </div>
-                  <div className="detail-item">
-                    <label>Location:</label>
-                    <span>{selectedSession.location}</span>
-                  </div>
-                  {selectedSession.venue && (
-                    <div className="detail-item">
-                      <label>Venue:</label>
-                      <span>{selectedSession.venue}</span>
-                    </div>
+                <div className="item-actions">
+                  <button
+                    className="action-btn view-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/dashboard/moderation/session/details/${session.id}`);
+                    }}
+                    title="View session details"
+                  >
+                    <FaEye />
+                  </button>
+                  {session.status === 'pending' && (
+                    <>
+                      <button
+                        className="action-btn approve-btn"
+                        title="Approve session"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleApprove(session.id);
+                        }}
+                      >
+                        <FaCheck />
+                      </button>
+                      <button
+                        className="action-btn revision-btn"
+                        title="Request revision"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRequestRevision(session.id);
+                        }}
+                      >
+                        <FaExclamationTriangle />
+                      </button>
+                      <button
+                        className="action-btn reject-btn"
+                        title="Reject session"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleReject(session.id);
+                        }}
+                      >
+                        <FaTimes />
+                      </button>
+                    </>
                   )}
-                  <div className="detail-item">
-                    <label>Max Participants:</label>
-                    <span>{selectedSession.maxParticipants}</span>
-                  </div>
                 </div>
               </div>
-
-              <div className="detail-section">
-                <h4>Description</h4>
-                <div className="session-description-full">
-                  {selectedSession.description}
-                </div>
-              </div>
-
-              <div className="detail-section">
-                <h4>Requirements</h4>
-                <div className="requirements-list">
-                  {selectedSession.requirements.map((req, index) => (
-                    <div key={index} className="requirement-item">
-                      • {req}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="detail-section">
-                <h4>Proposer Information</h4>
-                <div className="proposer-details">
-                  <div className="proposer-avatar">
-                    {selectedSession.proposedBy.avatar}
-                  </div>
-                  <div className="proposer-info">
-                    <div><strong>{selectedSession.proposedBy.username}</strong></div>
-                    <div>{selectedSession.proposedBy.email}</div>
-                    <div>ID: {selectedSession.proposedBy.id}</div>
-                  </div>
-                </div>
-              </div>
-
-              {selectedSession.reports && selectedSession.reports.count > 0 && (
-                <div className="detail-section">
-                  <h4>Reports ({selectedSession.reports.count})</h4>
-                  <div className="reports-details">
-                    <div className="report-reasons">
-                      {selectedSession.reports.reasons.map((reason, index) => (
-                        <span key={index} className="reason-chip">{reason}</span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {selectedSession.moderatorNotes && (
-                <div className="detail-section">
-                  <h4>Moderator Notes</h4>
-                  <div className="moderator-notes">
-                    {selectedSession.moderatorNotes}
-                  </div>
-                </div>
-              )}
-
-              <div className="panel-actions">
-                <button 
-                  className="panel-btn approve"
-                  onClick={() => handleApprove(selectedSession.id)}
-                >
-                  <FaCheck />
-                  Approve
-                </button>
-                <button 
-                  className="panel-btn revision"
-                  onClick={() => handleRequestRevision(selectedSession.id)}
-                >
-                  <FaExclamationTriangle />
-                  Request Revision
-                </button>
-                <button 
-                  className="panel-btn reject"
-                  onClick={() => handleReject(selectedSession.id)}
-                >
-                  <FaTimes />
-                  Reject
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+            ))
+          )}
+        </div>
       </div>
     </div>
   );

@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { FaArrowLeft, FaUser, FaBan, FaCheck, FaTimes, FaSearch, FaExclamationTriangle } from 'react-icons/fa';
+import { FaArrowLeft, FaUser, FaBan, FaCheck, FaSearch, FaExclamationTriangle } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import '../../styles/pages/moderator/ProfileModeration.scss';
+import Button from '../../components/Button';
 
 interface ProfileReport {
   id: string;
@@ -67,7 +68,6 @@ const mockProfiles: ProfileReport[] = [
 export default function ProfileModeration() {
   const navigate = useNavigate();
   const [profiles, setProfiles] = useState<ProfileReport[]>(mockProfiles);
-  const [selectedProfile, setSelectedProfile] = useState<ProfileReport | null>(null);
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'banned' | 'warned'>('pending');
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -115,13 +115,15 @@ export default function ProfileModeration() {
       <header className="moderation-header">
         <div className="header-content">
           <div className="header-left">
-            <button 
-              className="back-button"
+            <Button
+              variant="ghost"
+              size="medium"
+              icon={<FaArrowLeft />}
+              iconPosition="left"
               onClick={() => navigate('/dashboard/moderation')}
-              title="Back to Moderation Center"
             >
-              <FaArrowLeft />
-            </button>
+              Go back
+            </Button>
             <div className="title-section">
               <h1>Profile Moderation</h1>
               <p>Review user profiles and handle violations</p>
@@ -159,13 +161,15 @@ export default function ProfileModeration() {
 
         <div className="filter-tabs">
           {['all', 'pending', 'approved', 'warned', 'banned'].map(status => (
-            <button
+            <Button
+              variant='primary'
+              size='large'
               key={status}
               className={`filter-tab ${filter === status ? 'active' : ''}`}
               onClick={() => setFilter(status as typeof filter)}
             >
               {status.charAt(0).toUpperCase() + status.slice(1)}
-            </button>
+            </Button>
           ))}
         </div>
       </div>
@@ -179,8 +183,8 @@ export default function ProfileModeration() {
             return (
               <div
                 key={profile.id}
-                className={`profile-item ${selectedProfile?.id === profile.id ? 'selected' : ''}`}
-                onClick={() => setSelectedProfile(profile)}
+                className="profile-item"
+                onClick={() => navigate(`/dashboard/moderation/profile/details/${profile.id}`)}
               >
                 <div className="profile-header">
                   <div className="user-info">
@@ -201,9 +205,14 @@ export default function ProfileModeration() {
                       {profile.priority}
                     </div>
                     <div 
-                      className={`risk-badge risk-${riskLevel.level.toLowerCase()}`}
+                      className={`risk-badge risk-${riskLevel.level.toLowerCase().replace(' ', '-')}`}
                     >
                       {riskLevel.level}
+                    </div>
+                    <div 
+                      className={`status-indicator status-${profile.status}`}
+                    >
+                      {profile.status.charAt(0).toUpperCase() + profile.status.slice(1)}
                     </div>
                   </div>
                 </div>
@@ -271,115 +280,10 @@ export default function ProfileModeration() {
                     </>
                   )}
                 </div>
-
-                <div 
-                  className={`status-indicator status-${profile.status}`}
-                >
-                  {profile.status}
-                </div>
               </div>
             );
           })}
         </div>
-
-        {/* Detail Panel */}
-        {selectedProfile && (
-          <div className="detail-panel">
-            <div className="panel-header">
-              <h3>Profile Details</h3>
-              <button 
-                className="close-panel"
-                onClick={() => setSelectedProfile(null)}
-                title="Close Panel"
-              >
-                <FaTimes />
-              </button>
-            </div>
-
-            <div className="panel-content">
-              <div className="detail-section">
-                <h4>User Information</h4>
-                <div className="detail-grid">
-                  <div className="detail-item">
-                    <label>Username:</label>
-                    <span>{selectedProfile.username}</span>
-                  </div>
-                  <div className="detail-item">
-                    <label>Email:</label>
-                    <span>{selectedProfile.email}</span>
-                  </div>
-                  <div className="detail-item">
-                    <label>User ID:</label>
-                    <span>{selectedProfile.userId}</span>
-                  </div>
-                  <div className="detail-item">
-                    <label>Account Created:</label>
-                    <span>{selectedProfile.accountCreated.toLocaleString()}</span>
-                  </div>
-                  <div className="detail-item">
-                    <label>Last Active:</label>
-                    <span>{selectedProfile.lastActive.toLocaleString()}</span>
-                  </div>
-                  <div className="detail-item">
-                    <label>Violations:</label>
-                    <span 
-                      className={`violations-count risk-${getRiskLevel(selectedProfile.violations).level.toLowerCase()}`}
-                    >
-                      {selectedProfile.violations} ({getRiskLevel(selectedProfile.violations).level})
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="detail-section">
-                <h4>Report Details</h4>
-                <div className="report-content">
-                  <div className="reporters">
-                    <strong>Reported by:</strong> {selectedProfile.reportedBy.join(', ')}
-                  </div>
-                  <div className="reasons">
-                    <strong>Reasons:</strong>
-                    <div className="reasons-list">
-                      {selectedProfile.reportReason.map((reason, index) => (
-                        <span key={index} className="reason-chip">{reason}</span>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="details">
-                    <strong>Details:</strong>
-                    <p className="report-text">{selectedProfile.reportDetails}</p>
-                  </div>
-                </div>
-              </div>
-
-              {selectedProfile.status === 'pending' && (
-                <div className="panel-actions">
-                  <button
-                    className="panel-btn approve"
-                    onClick={() => handleApproveUser(selectedProfile.id)}
-                  >
-                    <FaCheck />
-                    Approve Profile
-                  </button>
-                  <button
-                    className="panel-btn warn"
-                    onClick={() => handleWarnUser(selectedProfile.id)}
-                  >
-                    <FaExclamationTriangle />
-                    Issue Warning
-                  </button>
-                  <button
-                    className="panel-btn ban"
-                    onClick={() => handleBanUser(selectedProfile.id)}
-                  >
-                    <FaBan />
-                    Ban User
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

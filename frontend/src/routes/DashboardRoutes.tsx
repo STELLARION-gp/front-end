@@ -10,10 +10,15 @@ import DashboardOverview from '../pages/DashboardOverview';
 // Moderation Components
 import Moderation from '../pages/moderator/Moderation';
 import ContentModeration from '../pages/moderator/ContentModeration';
+import ContentDetails from '../pages/moderator/ContentDetails';
 import ProfileModeration from '../pages/moderator/ProfileModeration';
+import ProfileDetails from '../pages/moderator/ProfileDetails';
 import SessionModeration from '../pages/moderator/SessionModeration';
+import SessionDetails from '../pages/moderator/SessionDetails';
 import PollsModeration from '../pages/moderator/PollsModeration';
+import PollsDetails from '../pages/moderator/PollsDetails';
 import SpotsModeration from '../pages/moderator/SpotsModeration';
+import SpotsDetails from '../pages/moderator/SpotsDetails';
 import NightCampModeration from '../pages/moderator/NightCampModeration';
 import EventModeration from '../pages/moderator/EventModeration';
 import PaymentProcessing from '../pages/guide/PaymentProcessing';
@@ -463,10 +468,26 @@ const DashboardRoutes = () => {
                 }
             />
             <Route
+                path="moderation/content/details/:id"
+                element={
+                    <RoleGuard allowedRoles={['moderator', 'admin']}>
+                        <ContentDetails />
+                    </RoleGuard>
+                }
+            />
+            <Route
                 path="moderation/profile"
                 element={
                     <RoleGuard allowedRoles={['moderator', 'admin']}>
                         <ProfileModeration />
+                    </RoleGuard>
+                }
+            />
+            <Route
+                path="moderation/profile/details/:id"
+                element={
+                    <RoleGuard allowedRoles={['moderator', 'admin']}>
+                        <ProfileDetails />
                     </RoleGuard>
                 }
             />
@@ -479,6 +500,14 @@ const DashboardRoutes = () => {
                 }
             />
             <Route
+                path="moderation/session/details/:id"
+                element={
+                    <RoleGuard allowedRoles={['moderator', 'admin']}>
+                        <SessionDetails />
+                    </RoleGuard>
+                }
+            />
+            <Route
                 path="moderation/polls"
                 element={
                     <RoleGuard allowedRoles={['moderator', 'admin']}>
@@ -487,10 +516,26 @@ const DashboardRoutes = () => {
                 }
             />
             <Route
+                path="moderation/polls/details/:id"
+                element={
+                    <RoleGuard allowedRoles={['moderator', 'admin']}>
+                        <PollsDetails />
+                    </RoleGuard>
+                }
+            />
+            <Route
                 path="moderation/spots"
                 element={
                     <RoleGuard allowedRoles={['moderator', 'admin']}>
                         <SpotsModeration />
+                    </RoleGuard>
+                }
+            />
+            <Route
+                path="moderation/spots/details/:id"
+                element={
+                    <RoleGuard allowedRoles={['moderator', 'admin']}>
+                        <SpotsDetails />
                     </RoleGuard>
                 }
             />

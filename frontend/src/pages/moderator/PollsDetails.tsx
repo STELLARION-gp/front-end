@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Button from '../../components/Button';
 import { FaEye, FaThumbsUp, FaClock, FaFlag, FaCalendarAlt, FaUsers } from 'react-icons/fa';
-import '../../styles/moderator/PollsDetails.scss';
+// import '../../styles/pages/moderator/PollsDetails.scss';
 
 interface PollDetails {
   id: string;

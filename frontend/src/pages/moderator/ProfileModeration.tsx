@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { FaArrowLeft, FaUser, FaBan, FaCheck, FaTimes, FaSearch, FaExclamationTriangle } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import '../../styles/pages/moderator/ProfileModeration.scss';
+import Button from '../../components/Button';
 
 interface ProfileReport {
   id: string;
@@ -115,13 +116,15 @@ export default function ProfileModeration() {
       <header className="moderation-header">
         <div className="header-content">
           <div className="header-left">
-            <button 
-              className="back-button"
+            <Button
+              variant="ghost"
+              size="medium"
+              icon={<FaArrowLeft />}
+              iconPosition="left"
               onClick={() => navigate('/dashboard/moderation')}
-              title="Back to Moderation Center"
             >
-              <FaArrowLeft />
-            </button>
+              Go back
+            </Button>
             <div className="title-section">
               <h1>Profile Moderation</h1>
               <p>Review user profiles and handle violations</p>
@@ -159,13 +162,15 @@ export default function ProfileModeration() {
 
         <div className="filter-tabs">
           {['all', 'pending', 'approved', 'warned', 'banned'].map(status => (
-            <button
+            <Button
+              variant='primary'
+              size='large'
               key={status}
               className={`filter-tab ${filter === status ? 'active' : ''}`}
               onClick={() => setFilter(status as typeof filter)}
             >
               {status.charAt(0).toUpperCase() + status.slice(1)}
-            </button>
+            </Button>
           ))}
         </div>
       </div>
@@ -201,9 +206,14 @@ export default function ProfileModeration() {
                       {profile.priority}
                     </div>
                     <div 
-                      className={`risk-badge risk-${riskLevel.level.toLowerCase()}`}
+                      className={`risk-badge risk-${riskLevel.level.toLowerCase().replace(' ', '-')}`}
                     >
                       {riskLevel.level}
+                    </div>
+                    <div 
+                      className={`status-indicator status-${profile.status}`}
+                    >
+                      {profile.status.charAt(0).toUpperCase() + profile.status.slice(1)}
                     </div>
                   </div>
                 </div>
@@ -270,12 +280,6 @@ export default function ProfileModeration() {
                       </button>
                     </>
                   )}
-                </div>
-
-                <div 
-                  className={`status-indicator status-${profile.status}`}
-                >
-                  {profile.status}
                 </div>
               </div>
             );

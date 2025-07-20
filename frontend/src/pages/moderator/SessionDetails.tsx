@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { FaArrowLeft, FaCheck, FaTimes, FaExclamationTriangle, FaCalendarAlt, FaUser, FaMapMarkerAlt, FaClock, FaUsers, FaTag, FaFlag } from 'react-icons/fa';
+import { FaArrowLeft, FaCheck, FaTimes, FaExclamationTriangle, FaCalendarAlt, FaMapMarkerAlt, FaClock, FaUsers, FaTag, FaFlag } from 'react-icons/fa';
 import '../../styles/pages/moderator/SessionDetails.scss';
 import Button from '../../components/Button';
 
@@ -50,7 +50,7 @@ const mockSessions: SessionProposal[] = [
       avatar: 'RM'
     },
     sessionType: 'workshop',
-    subject: 'React/Frontend Development',
+    subject: 'Rocket Science',
     date: '2024-01-15',
     time: '14:00',
     duration: 120,
@@ -63,7 +63,7 @@ const mockSessions: SessionProposal[] = [
     lastUpdated: '2024-01-10T10:30:00Z',
     category: 'Technical',
     targetAudience: 'Intermediate Developers',
-    tags: ['React', 'JavaScript', 'Frontend', 'Workshop'],
+    tags: ['Stars', 'Rocket Science', 'Science', 'Workshop'],
     reports: {
       count: 2,
       reasons: ['Inappropriate content', 'Spam']
@@ -107,14 +107,14 @@ const mockSessions: SessionProposal[] = [
       avatar: 'ME'
     },
     sessionType: 'mentoring',
-    subject: 'Machine Learning',
+    subject: 'Star Learning',
     date: '2024-01-25',
     time: '16:00',
     duration: 180,
     location: 'hybrid',
     venue: 'Tech Hub - Room 101',
     maxParticipants: 12,
-    requirements: ['Python basics', 'Mathematics foundation', 'Jupyter Notebook'],
+    requirements: ['Astro basics', 'Mathematics foundation', 'Jupyter Notebook'],
     status: 'revision_requested',
     priority: 'high',
     submittedAt: '2024-01-05T11:20:00Z',
@@ -122,7 +122,7 @@ const mockSessions: SessionProposal[] = [
     moderatorNotes: 'Please provide more detailed prerequisites and reduce session duration.',
     category: 'Technical',
     targetAudience: 'Intermediate',
-    tags: ['Machine Learning', 'Python', 'AI', 'Data Science']
+    tags: ['Stargazing', 'Astrophysics', 'AI', 'Galaxy']
   }
 ];
 
@@ -275,7 +275,7 @@ const SessionDetails: React.FC = () => {
 
       {/* Main Content */}
       <div className="details-content">
-        <div className="session-card">
+        <div className="session-card1">
           {/* Session Header */}
           <div className="session-header">
             <div className="session-info">

@@ -92,10 +92,12 @@
 
   .details-content {
     max-width: 1400px;
+    max-width: 1400px;
     margin: 0 auto;
-    padding: 2rem;
+    // padding: 2rem;
+    padding-bottom: 10px;
 
-    .session-card {
+    .session-card1 {
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 12px;

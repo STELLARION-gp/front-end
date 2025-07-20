@@ -221,8 +221,8 @@ const SpotsModeration: React.FC = () => {
         <div className="header-content">
           <div className="header-left">
             <Button
-              variant="border"
-              size="small"
+              variant="ghost"
+              size="medium"
               onClick={() => navigate('/moderator')}
             >
               ← Back
@@ -278,7 +278,7 @@ const SpotsModeration: React.FC = () => {
       <div className="moderation-content">
         <div className="spots-list">
           {filteredSpots.map(spot => (
-            <div key={spot.id} className="spot-item">
+            <div key={spot.id} className="spot-item" onClick={() => navigate(`/dashboard/moderation/spots/details/${spot.id}`)}>
               <div className="spot-header">
                 <div className="spot-info">
                   <div className="location-icon">
@@ -352,7 +352,7 @@ const SpotsModeration: React.FC = () => {
                 <Button
                   variant="primary"
                   size="small"
-                  onClick={() => navigate(`/moderation/spots/details/${spot.id}`)}
+                  onClick={() => navigate(`/dashboard/moderation/spots/details/${spot.id}`)}
                 >
                   👁 View Details
                 </Button>

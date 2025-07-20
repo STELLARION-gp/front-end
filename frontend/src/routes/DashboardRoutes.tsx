@@ -79,6 +79,8 @@ import AdminModeratorsPage from '../pages/admin/AdminModeratorsPage';
 import InfluencerApplication from '../pages/learner/InfluencerApplication';
 import Mentor from '../pages/admin/Mentor';
 import MentorApplication from '../pages/admin/MentorApplication';
+import MentorProfiles from '../pages/admin/MentorProfiles';
+import MentorProfileDetail from '../pages/admin/MentorProfileDetail';
 
 // Create placeholder components for different pages - all memoized
 // const BlogsPage = memo(() => (
@@ -325,12 +327,19 @@ const DashboardRoutes = () => {
             <Route
                 path="mentor"
                 element={
-                    <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
+                    <RoleGuard allowedRoles={['mentor', 'moderator']}>
                         <Mentor />
                     </RoleGuard>
                 }
             />
-
+            <Route
+                path="system-mentors"
+                element={
+                    <RoleGuard allowedRoles={['admin']}>
+                        <MentorProfiles />
+                    </RoleGuard>
+                }
+            />
             <Route
                 path="mentor-application"
                 element={
@@ -703,6 +712,14 @@ const DashboardRoutes = () => {
                 element={
                     <RoleGuard allowedRoles={['admin']}>
                         <AdminModeratorsPage />
+                    </RoleGuard>
+                }
+            />
+            <Route
+                path='mentor-profile/:id'
+                element={
+                    <RoleGuard allowedRoles={['moderator', 'admin']}>
+                        <MentorProfileDetail />
                     </RoleGuard>
                 }
             />

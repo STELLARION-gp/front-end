@@ -175,7 +175,7 @@ export const ROLE_BASED_MENU_ITEMS = {
         { label: 'Night Camps', icon: 'MoonIcon', href: '/dashboard/night-camps' },
         { label: 'Stargazing Spot', icon: 'StarIcon', href: '/dashboard/stargazing' },
         { label: 'Requests', icon: 'MoonIcon', href: '/dashboard/booking-requests' },
-        { label: 'Mentor', icon: 'AcademicCapIcon', href: '/dashboard/mentor' },
+        { label: 'Mentors', icon: 'AcademicCapIcon', href: '/dashboard/system-mentors' },
         { label: 'Events', icon: 'CalendarDaysIcon', href: '/dashboard/events' },
         { label: 'Chat', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/chat' },
         { label: 'Moderators', icon: 'ShieldCheckIcon', href: '/dashboard/moderators' },

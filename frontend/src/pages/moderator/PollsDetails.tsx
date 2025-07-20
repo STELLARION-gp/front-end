@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Button from '../../components/Button';
 import { FaEye, FaThumbsUp, FaClock, FaFlag, FaCalendarAlt, FaUsers } from 'react-icons/fa';
-// import '../../styles/pages/moderator/PollsDetails.scss';
+import '../../styles/pages/moderator/PollsDetails.scss';
 
 interface PollDetails {
   id: string;
@@ -206,21 +206,23 @@ const PollsDetails: React.FC = () => {
   return (
     <div className="polls-details">
       <div className="details-header">
-        <Button
-          variant="border"
-          size="small"
-          onClick={() => navigate(-1)}
-        >
-          ← Back
-        </Button>
-        <h1>Poll Details</h1>
-        <div className="header-actions">
+        <div>
           <Button
-            variant="border"
-            size="small"
+            variant="ghost"
+            size="medium"
+            onClick={() => navigate(-1)}
           >
-            👁 {poll.engagement.views} Views
+            ← Back
           </Button>
+          <h1>Poll Details</h1>
+          <div className="header-actions">
+            <Button
+              variant="border"
+              size="small"
+            >
+              👁 {poll.engagement.views} Views
+            </Button>
+        </div>
         </div>
       </div>
 
@@ -282,8 +284,10 @@ const PollsDetails: React.FC = () => {
                     <div className="option-bar">
                       <div 
                         className={`option-fill option-fill-${index}`}
-                        data-percentage={option.percentage}
-                      ></div>
+                        style={{ '--percentage': `${option.percentage}%` } as React.CSSProperties}
+                      >
+                        <span className="option-votes">{option.votes} votes</span>
+                      </div>
                     </div>
                     <div className="option-votes">{option.votes} votes</div>
                   </div>

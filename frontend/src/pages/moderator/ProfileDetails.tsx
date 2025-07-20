@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { FaArrowLeft, FaUser, FaBan, FaCheck, FaExclamationTriangle, FaClock, FaFlag, FaEnvelope, FaIdCard } from 'react-icons/fa';
+import { FaArrowLeft, FaUser, FaBan, FaCheck, FaExclamationTriangle, FaFlag, FaEnvelope, FaIdCard } from 'react-icons/fa';
 import '../../styles/pages/moderator/ProfileDetails.scss';
 import Button from '../../components/Button';
 
@@ -125,6 +125,16 @@ export default function ProfileDetails() {
     return { level: 'Clean', color: '#2ed573', class: 'clean' };
   };
 
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
   if (loading) {
     return (
       <div className="profile-details">
@@ -218,25 +228,11 @@ export default function ProfileDetails() {
         <div className="profile-card">
           {/* Profile Header */}
           <div className="profile-header">
-            <div className="user-section">
-              <div className="avatar-large">
-                <FaUser />
-              </div>
-              <div className="user-info">
-                <h2 className="username">{profile.username}</h2>
-                <div className="user-meta">
-                  <span className="email">
-                    <FaEnvelope className="meta-icon" />
-                    {profile.email}
-                  </span>
-                  <span className="user-id">
-                    <FaIdCard className="meta-icon" />
-                    ID: {profile.userId}
-                  </span>
-                </div>
-              </div>
+            <div className="profile-type">
+              <span className="type-icon"><FaUser /></span>
+              <span className="type-label">User Profile</span>
             </div>
-            <div className="status-section">
+            <div className="profile-status">
               <div className={`priority-badge priority-${profile.priority}`}>
                 {profile.priority} priority
               </div>
@@ -249,37 +245,52 @@ export default function ProfileDetails() {
             </div>
           </div>
 
+          {/* User Information */}
+          <div className="user-section">
+            <div className="user-info">
+              <div className="avatar-large">
+                <FaUser />
+              </div>
+              <div className="user-details">
+                <div className="username">
+                  {profile.username}
+                </div>
+                <div className="user-meta">
+                  <span className="email">
+                    <FaEnvelope className="meta-icon" />
+                    {profile.email}
+                  </span>
+                  <span className="user-id">
+                    <FaIdCard className="meta-icon" />
+                    ID: {profile.userId}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Account Information */}
-          <div className="info-section">
+          <div className="account-metadata">
             <h3>Account Information</h3>
-            <div className="info-grid">
-              <div className="info-item">
-                <div className="info-label">Account Created</div>
-                <div className="info-value">
-                  <FaClock className="info-icon" />
-                  {profile.accountCreated.toLocaleString()}
-                </div>
+            <div className="metadata-grid">
+              <div className="metadata-item">
+                <span className="metadata-value">{formatDate(profile.accountCreated)}</span>
+                <span className="metadata-label">Account Created</span>
               </div>
-              <div className="info-item">
-                <div className="info-label">Last Active</div>
-                <div className="info-value">
-                  <FaClock className="info-icon" />
-                  {profile.lastActive.toLocaleString()}
-                </div>
+              <div className="metadata-item">
+                <span className="metadata-value">{formatDate(profile.lastActive)}</span>
+                <span className="metadata-label">Last Active</span>
               </div>
-              <div className="info-item">
-                <div className="info-label">Total Violations</div>
-                <div className={`info-value violations-count ${riskLevel.class}`}>
-                  <FaExclamationTriangle className="info-icon" />
-                  {profile.violations} ({riskLevel.level})
-                </div>
+              <div className="metadata-item">
+                <span className="metadata-value">{profile.violations}</span>
+                <span className="metadata-label">Violations</span>
               </div>
               {profile.reputation !== undefined && (
-                <div className="info-item">
-                  <div className="info-label">Reputation Score</div>
-                  <div className={`info-value reputation ${profile.reputation < 0 ? 'negative' : 'positive'}`}>
+                <div className="metadata-item">
+                  <span className={`metadata-value ${profile.reputation < 0 ? 'negative' : 'positive'}`}>
                     {profile.reputation}
-                  </div>
+                  </span>
+                  <span className="metadata-label">Reputation</span>
                 </div>
               )}
             </div>
@@ -287,7 +298,7 @@ export default function ProfileDetails() {
 
           {/* Activity Statistics */}
           {(profile.totalPosts || profile.totalComments || profile.joinedCommunities) && (
-            <div className="activity-section">
+            <div className="activity-metadata">
               <h3>Activity Statistics</h3>
               <div className="activity-grid">
                 {profile.totalPosts !== undefined && (
@@ -325,21 +336,21 @@ export default function ProfileDetails() {
           {/* Reports Section */}
           <div className="reports-section">
             <h3>
-              <FaFlag className="section-icon" />
+              <FaFlag className="flag-icon" />
               Report Details ({profile.reportedBy.length} reports)
             </h3>
             
-            <div className="report-content">
-              <div className="reporters-section">
+            <div className="report-details">
+              <div className="reporters">
                 <h4>Reported by:</h4>
-                <div className="reporters-list">
+                <ul>
                   {profile.reportedBy.map((reporter, index) => (
-                    <span key={index} className="reporter-tag">{reporter}</span>
+                    <li key={index}>{reporter}</li>
                   ))}
-                </div>
+                </ul>
               </div>
 
-              <div className="reasons-section">
+              <div className="reasons">
                 <h4>Report reasons:</h4>
                 <div className="reason-tags">
                   {profile.reportReason.map((reason, index) => (
@@ -347,11 +358,11 @@ export default function ProfileDetails() {
                   ))}
                 </div>
               </div>
+            </div>
 
-              <div className="details-section">
-                <h4>Report details:</h4>
-                <div className="report-text">{profile.reportDetails}</div>
-              </div>
+            <div className="report-description">
+              <h4>Report details:</h4>
+              <div className="report-text">{profile.reportDetails}</div>
             </div>
           </div>
 

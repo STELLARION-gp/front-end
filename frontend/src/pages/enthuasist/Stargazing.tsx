@@ -215,7 +215,8 @@ const Stargazing: React.FC = () => {
     bestTime: '',
     description: '',
     image: '',
-    facilities: ['']
+    facilities: [''],
+    rating: 0
   });
 
   const formatDate = (dateString: string) => {
@@ -316,7 +317,8 @@ const Stargazing: React.FC = () => {
         bestTime: '',
         description: '',
         image: '',
-        facilities: ['']
+        facilities: [''],
+        rating: 0
       });
       setShowAddSpotModal(false);
       
@@ -333,7 +335,8 @@ const Stargazing: React.FC = () => {
       bestTime: '',
       description: '',
       image: '',
-      facilities: ['']
+      facilities: [''],
+      rating: 0
     });
   };
 
@@ -356,6 +359,25 @@ const Stargazing: React.FC = () => {
     
     return true;
   });
+
+  const renderStars = (rating: number) => {
+    const totalStars = 5;
+    const filledStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 !== 0;
+    const stars = [];
+
+    for (let i = 0; i < totalStars; i++) {
+      if (i < filledStars) {
+        stars.push('★');
+      } else if (i === filledStars && hasHalfStar) {
+        stars.push('☆');
+      } else {
+        stars.push('☆');
+      }
+    }
+
+    return stars.join('');
+  };
 
   return (
     <div className="stargazing">
@@ -422,9 +444,24 @@ const Stargazing: React.FC = () => {
             </div>
 
             <div className="stargazing-card__content">
-              <div className="stargazing-card__content-top">
+              <div className="stargazing-card__content-top" style={{position: 'relative'}}>
                 <h3 className="stargazing-card__title">{spot.name}</h3>
-                
+                <div style={{
+                  position: 'absolute',
+                  top: 0,
+                  right: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '2px',
+                  fontSize: '1.1rem',
+                  borderRadius: '0 0 0 8px',
+                  padding: '2px 8px'
+                }}>
+                  <span style={{color: '#FFD700', letterSpacing: '1px'}}>
+                    {renderStars(spot.rating)}
+                  </span>
+                  <span style={{marginLeft: 4, color: '#fff', fontSize: '0.95em'}}>{spot.rating.toFixed(1)}</span>
+                </div>
                 <div className="stargazing-card__location">
                   <span className="stargazing-card__location-icon">📍</span>
                   <span className="stargazing-card__location-text">{spot.location}</span>
@@ -667,6 +704,30 @@ const Stargazing: React.FC = () => {
                   >
                     + Add Facility
                   </button>
+                </div>
+              </div>
+
+              {/* Add rating input */}
+              <div className="add-spot-form__row">
+                <div className="add-spot-form__group">
+                  <label htmlFor="spotRating">Rating (0-5)</label>
+                  <input
+                    type="number"
+                    id="spotRating"
+                    min={0}
+                    max={5}
+                    step={0.1}
+                    value={addSpotForm.rating ?? ''}
+                    onChange={e => {
+                      let val = parseFloat(e.target.value);
+                      if (isNaN(val)) val = 0;
+                      setAddSpotForm(prev => ({
+                        ...prev,
+                        rating: val
+                      }));
+                    }}
+                    placeholder="e.g., 4.5"
+                  />
                 </div>
               </div>
 

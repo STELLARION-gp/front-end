@@ -1,8 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Star, Edit2, Trash2, MessageCircle, Eye, Heart, Plus, Save, X, Send } from 'lucide-react';
+import { Star, Edit2, Trash2, MessageCircle, Eye, Heart, Plus, Save, X, Send, BookOpen, Users, Calendar, EyeOff } from 'lucide-react';
+import { useNavigate } from "react-router-dom";
+import { BookOpenIcon, UserGroupIcon, StarIcon, CalendarDaysIcon } from "@heroicons/react/24/outline";
 import Button from '../../components/Button';
 import InputField from '../../components/InputField';
+import AstronomyBlogCard from "../../components/Learner/blogcard";
+import { blogs, totalBlogs, avgRating, latestDate } from "../learner/blogData";
 import '../../styles/pages/influencer/myblogs.scss'
+import "../../styles/pages/learner/blog_explore.scss"
+import "../../styles/pages/learner/BlogPage.scss"
+
+type ActiveSection = 'blogs' | 'myblogs';
 
 type Comment = {
     id: number;
@@ -23,53 +31,196 @@ type Blog = {
     rating: number;
     comments: Comment[];
     liked: boolean;
+    published: boolean;
+    createdAt: string;
 };
 
-const mockBlogs: Blog[] = [
-    {
-        id: 1,
-        title: 'The Orion Nebula: A Stellar Nursery',
-        content: 'The Orion Nebula is one of the brightest nebulae visible to the naked eye. Located approximately 1,344 light-years from Earth, this stellar nursery is where new stars are born from cosmic dust and gas. The nebula spans about 24 light-years and contains enough material to form thousands of stars.',
-        image: 'https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?w=800&h=400&fit=crop',
-        author: 'Astro Infleuencer',
-        date: '2025-06-20',
-        reach: 1247,
-        likes: 89,
-        rating: 4.7,
-        liked: false,
-        comments: [
-            { id: 1, user: 'Alice Cooper', text: 'Fascinating insights about stellar formation!', date: '2025-06-21' },
-            { id: 2, user: 'Bob Universe', text: 'The images are absolutely breathtaking.', date: '2025-06-22' },
-        ],
-    },
-    {
-        id: 2,
-        title: 'Exploring the Expanding Universe',
-        content: 'Ever since Edwin Hubble\'s discovery, the expanding universe has intrigued cosmologists worldwide. This phenomenon suggests that galaxies are moving away from us, and the farther they are, the faster they recede. Understanding this expansion helps us comprehend the age and fate of our universe.',
-        image: 'https://images.unsplash.com/photo-1502134249126-9f3755a50d78?w=800&h=400&fit=crop',
-        author: 'Astro Influencer',
-        date: '2025-06-18',
-        reach: 892,
-        likes: 67,
-        rating: 4.9,
-        liked: false,
-        comments: [
-            { id: 3, user: 'Maria Galaxy', text: 'The explanation of red shift is excellent!', date: '2025-06-19' },
-        ],
-    },
-];
+// Current user constant
+const CURRENT_USER = 'Neil V. Galaxy';
+
+// Custom Blog Card Component for My Blogs
+const MyBlogCard: React.FC<{
+    blog: Blog;
+    onEdit: (id: number) => void;
+    onDelete: (id: number) => void;
+    onTogglePublish: (id: number) => void;
+    onView: (blog: Blog) => void;
+}> = ({ blog, onEdit, onDelete, onTogglePublish, onView }) => {
+    const renderStars = (rating: number) => {
+        const stars = [];
+        const fullStars = Math.floor(rating);
+        const hasHalfStar = rating % 1 !== 0;
+        
+        for (let i = 0; i < fullStars; i++) {
+            stars.push(<Star key={i} className="star filled" size={16} />);
+        }
+        
+        if (hasHalfStar) {
+            stars.push(<Star key="half" className="star half-filled" size={16} />);
+        }
+        
+        const emptyStars = 5 - Math.ceil(rating);
+        for (let i = 0; i < emptyStars; i++) {
+            stars.push(<Star key={`empty-${i}`} className="star empty" size={16} />);
+        }
+        
+        return stars;
+    };
+
+    return (
+        <div className={`blog-card ${!blog.published ? 'draft' : ''}`}>
+            <div className="blog-image-container">
+                {blog.image ? (
+                    <img src={blog.image} alt={blog.title} className="blog-image" />
+                ) : (
+                    <div className="blog-image-placeholder">
+                        <BookOpen size={48} />
+                    </div>
+                )}
+                
+                <div className="blog-status-badge">
+                    {blog.published ? (
+                        <span className="published-badge">Published</span>
+                    ) : (
+                        <span className="draft-badge">Draft</span>
+                    )}
+                </div>
+
+                <div className="blog-actions-overlay">
+                    <button 
+                        className="action-btn edit-btn"
+                        onClick={() => onEdit(blog.id)}
+                        title="Edit"
+                    >
+                        <Edit2 size={16} />
+                    </button>
+                    <button 
+                        className="action-btn delete-btn"
+                        onClick={() => onDelete(blog.id)}
+                        title="Delete"
+                    >
+                        <Trash2 size={16} />
+                    </button>
+                    <button 
+                        className="action-btn publish-btn"
+                        onClick={() => onTogglePublish(blog.id)}
+                        title={blog.published ? "Unpublish" : "Publish"}
+                    >
+                        {blog.published ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                </div>
+            </div>
+
+            <div className="blog-content">
+                <h3 className="blog-title" onClick={() => onView(blog)}>
+                    {blog.title}
+                </h3>
+
+                <div className="blog-meta">
+                    <div className="meta-item">
+                        <Users size={14} />
+                        <span>{blog.author}</span>
+                    </div>
+                    <div className="meta-item">
+                        <Calendar size={14} />
+                        <span>{new Date(blog.createdAt).toLocaleDateString()}</span>
+                    </div>
+                </div>
+
+                <div className="blog-rating">
+                    <div className="stars">
+                        {renderStars(blog.rating)}
+                    </div>
+                    <span className="rating-value">{blog.rating}</span>
+                </div>
+
+                <p className="blog-excerpt">
+                    {blog.content.length > 120 
+                        ? `${blog.content.substring(0, 120)}...` 
+                        : blog.content
+                    }
+                </p>
+
+                <div className="blog-stats">
+                    <div className="stat-item">
+                        <Eye size={16} />
+                        <span>{blog.reach}</span>
+                    </div>
+                    <div className="stat-item">
+                        <Heart size={16} />
+                        <span>{blog.likes}</span>
+                    </div>
+                    <div className="stat-item">
+                        <MessageCircle size={16} />
+                        <span>{blog.comments.length}</span>
+                    </div>
+                </div>
+
+                <div className="blog-actions-bottom">
+                    <button 
+                        className="see-more-btn"
+                        onClick={() => onView(blog)}
+                    >
+                        See More
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
 
 export default function MyBlogs() {
-    const [blogs, setBlogs] = useState<Blog[]>([]);
+    const navigate = useNavigate();
+    const [activeTab, setActiveTab] = useState<ActiveSection>('blogs');
+    const [myBlogs, setMyBlogs] = useState<Blog[]>([]);
     const [newBlog, setNewBlog] = useState<{ title: string; content: string; image: File | null }>({ title: '', content: '', image: null });
     const [editingId, setEditingId] = useState<number | null>(null);
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [selectedBlog, setSelectedBlog] = useState<Blog | null>(null);
     const [newComment, setNewComment] = useState('');
 
+    // Blog exploration states
+    const [filter, setFilter] = React.useState({
+        author: '',
+        minRating: '',
+        search: '',
+        status: 'all' // all, published, draft
+    });
+
     useEffect(() => {
-        setBlogs(mockBlogs);
+        console.log('Loading blogs for user:', CURRENT_USER);
+        // Convert blogs from blogData to Blog type and filter by current user
+        const convertedBlogs: Blog[] = blogs
+            .filter(blog => blog.author === CURRENT_USER)
+            .map(blog => ({
+                ...blog,
+                date: blog.createdAt,
+                reach: Math.floor(Math.random() * 1000) + 100, // Random reach for demo
+                likes: Math.floor(Math.random() * 50) + 10, // Random likes for demo
+                comments: [], // Start with no comments
+                liked: false,
+                published: Math.random() > 0.5, // Randomly assign published status for demo
+            }));
+        
+        console.log('Converted blogs:', convertedBlogs);
+        setMyBlogs(convertedBlogs);
     }, []);
+
+    const filteredBlogs = blogs.filter(blog => {
+        if (filter.author && blog.author !== filter.author) return false;
+        if (filter.minRating && blog.rating < Number(filter.minRating)) return false;
+        if (filter.search && !blog.title.toLowerCase().includes(filter.search.toLowerCase()) && !blog.content.toLowerCase().includes(filter.search.toLowerCase())) return false;
+        return true;
+    });
+
+    const filteredMyBlogs = myBlogs.filter(blog => {
+        if (filter.status === 'published' && !blog.published) return false;
+        if (filter.status === 'draft' && blog.published) return false;
+        if (filter.search && !blog.title.toLowerCase().includes(filter.search.toLowerCase()) && !blog.content.toLowerCase().includes(filter.search.toLowerCase())) return false;
+        return true;
+    });
+
+    const uniqueAuthors = Array.from(new Set(blogs.map(b => b.author)));
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -82,61 +233,149 @@ export default function MyBlogs() {
 
     const handleCreateBlog = (e: React.FormEvent) => {
         e.preventDefault();
-        const newId = blogs.length ? Math.max(...blogs.map(b => b.id)) + 1 : 1;
-        const newBlogPost = {
-            ...newBlog,
+        console.log('Creating blog:', newBlog);
+        
+        if (!newBlog.title.trim() || !newBlog.content.trim()) {
+            alert('Please fill in both title and content');
+            return;
+        }
+
+        const newId = myBlogs.length ? Math.max(...myBlogs.map(b => b.id)) + 1 : 1000; // Start with high ID to avoid conflicts
+        const currentDate = new Date().toISOString().split('T')[0];
+        const newBlogPost: Blog = {
+            title: newBlog.title,
+            content: newBlog.content,
             id: newId,
-            author: 'You',
-            date: new Date().toISOString().split('T')[0],
+            author: CURRENT_USER,
+            date: currentDate,
+            createdAt: currentDate,
             reach: 0,
             likes: 0,
             rating: 0,
             comments: [],
             liked: false,
+            published: false, // Default to draft
             image: newBlog.image ? URL.createObjectURL(newBlog.image) : null,
         };
-        setBlogs([newBlogPost, ...blogs]);
+        
+        console.log('New blog post:', newBlogPost);
+        setMyBlogs([newBlogPost, ...myBlogs]);
         setNewBlog({ title: '', content: '', image: null });
         setShowCreateForm(false);
     };
 
+    const handleSaveAsDraft = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (editingId) {
+            handleUpdateBlog(e, false);
+        } else {
+            handleCreateBlog(e);
+        }
+    };
+
+    const handlePublishBlog = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (editingId) {
+            handleUpdateBlog(e, true);
+        } else {
+            console.log('Publishing blog:', newBlog);
+            
+            if (!newBlog.title.trim() || !newBlog.content.trim()) {
+                alert('Please fill in both title and content');
+                return;
+            }
+
+            const newId = myBlogs.length ? Math.max(...myBlogs.map(b => b.id)) + 1 : 1000;
+            const currentDate = new Date().toISOString().split('T')[0];
+            const newBlogPost: Blog = {
+                title: newBlog.title,
+                content: newBlog.content,
+                id: newId,
+                author: CURRENT_USER,
+                date: currentDate,
+                createdAt: currentDate,
+                reach: 0,
+                likes: 0,
+                rating: 0,
+                comments: [],
+                liked: false,
+                published: true,
+                image: newBlog.image ? URL.createObjectURL(newBlog.image) : null,
+            };
+            setMyBlogs([newBlogPost, ...myBlogs]);
+            setNewBlog({ title: '', content: '', image: null });
+            setShowCreateForm(false);
+        }
+    };
+
     const handleDelete = (id: number) => {
-        setBlogs(blogs.filter((b) => b.id !== id));
-        if (selectedBlog?.id === id) {
-            setSelectedBlog(null);
+        if (window.confirm('Are you sure you want to delete this blog?')) {
+            setMyBlogs(myBlogs.filter((b) => b.id !== id));
+            if (selectedBlog?.id === id) {
+                setSelectedBlog(null);
+            }
         }
     };
 
     const handleEdit = (id: number) => {
         setEditingId(id);
-        const blog = blogs.find((b) => b.id === id);
+        const blog = myBlogs.find((b) => b.id === id);
         if (blog) {
             setNewBlog({ title: blog.title, content: blog.content, image: null });
             setShowCreateForm(true);
         }
     };
 
-    const handleUpdateBlog = (e: React.FormEvent) => {
+    const handleUpdateBlog = (e: React.FormEvent, publish?: boolean) => {
         e.preventDefault();
-        setBlogs(
-            blogs.map((b) =>
+        setMyBlogs(
+            myBlogs.map((b) =>
                 b.id === editingId
                     ? {
                             ...b,
                             title: newBlog.title,
                             content: newBlog.content,
                             image: newBlog.image ? URL.createObjectURL(newBlog.image) : b.image,
+                            published: publish !== undefined ? publish : b.published,
                         }
                     : b
             )
         );
+        
+        // Update selected blog if it's the one being edited
+        if (selectedBlog?.id === editingId) {
+            setSelectedBlog(prev => prev ? {
+                ...prev,
+                title: newBlog.title,
+                content: newBlog.content,
+                image: newBlog.image ? URL.createObjectURL(newBlog.image) : prev.image,
+                published: publish !== undefined ? publish : prev.published,
+            } : null);
+        }
+        
         setEditingId(null);
         setNewBlog({ title: '', content: '', image: null });
         setShowCreateForm(false);
     };
 
+    const handleTogglePublish = (id: number) => {
+        setMyBlogs(myBlogs.map(blog => 
+            blog.id === id 
+                ? { ...blog, published: !blog.published }
+                : blog
+        ));
+        
+        // Update selected blog if it's the one being toggled
+        if (selectedBlog?.id === id) {
+            setSelectedBlog(prev => prev ? {
+                ...prev,
+                published: !prev.published
+            } : null);
+        }
+    };
+
     const handleLike = (id: number) => {
-        setBlogs(blogs.map(blog => 
+        setMyBlogs(myBlogs.map(blog => 
             blog.id === id 
                 ? { 
                     ...blog, 
@@ -165,7 +404,7 @@ export default function MyBlogs() {
             date: new Date().toISOString().split('T')[0]
         };
         
-        setBlogs(blogs.map(blog => 
+        setMyBlogs(myBlogs.map(blog => 
             blog.id === blogId 
                 ? { ...blog, comments: [...blog.comments, comment] }
                 : blog
@@ -182,7 +421,7 @@ export default function MyBlogs() {
     };
 
     const handleDeleteComment = (blogId: number, commentId: number) => {
-        setBlogs(blogs.map(blog => 
+        setMyBlogs(myBlogs.map(blog => 
             blog.id === blogId 
                 ? { ...blog, comments: blog.comments.filter(c => c.id !== commentId) }
                 : blog
@@ -217,15 +456,88 @@ export default function MyBlogs() {
         return stars;
     };
 
-    return (
-        <div className="blogs-container">
+    const renderBlogsTab = () => (
+        <div className="blog-explore-page">
+            <h2>Explore Astronomy Blogs</h2>
+            <p>Discover the latest insights and discoveries in the field of astronomy.</p>
+            
+            {/* Blog Filters */}
+            <div className="blog-filters" style={{ display: 'flex', gap: 16, margin: '1.2rem 0', flexWrap: 'wrap' }}>
+                <input
+                    type="text"
+                    placeholder="Search title or content..."
+                    value={filter.search}
+                    onChange={e => setFilter(f => ({ ...f, search: e.target.value }))}
+                    style={{ padding: '0.5rem 1rem', borderRadius: 8, border: '1px solid #334155', minWidth: 180 }}
+                />
+                <select
+                    value={filter.author}
+                    onChange={e => setFilter(f => ({ ...f, author: e.target.value }))}
+                    style={{ padding: '0.5rem 1rem', borderRadius: 8, border: '1px solid #334155', minWidth: 140 }}
+                >
+                    <option value="">All Authors</option>
+                    {uniqueAuthors.map(author => (
+                        <option key={author} value={author}>{author}</option>
+                    ))}
+                </select>
+                <select
+                    value={filter.minRating}
+                    onChange={e => setFilter(f => ({ ...f, minRating: e.target.value }))}
+                    style={{ padding: '0.5rem 1rem', borderRadius: 8, border: '1px solid #334155', minWidth: 120 }}
+                >
+                    <option value="">Any Rating</option>
+                    {[5,4,3,2,1].map(r => (
+                        <option key={r} value={r}>{r}+</option>
+                    ))}
+                </select>
+            </div>
+            
+            <div className="blogexplore-blog-list">
+                {filteredBlogs.map(blog => (
+                    <AstronomyBlogCard
+                        key={blog.id}
+                        image={blog.image}
+                        title={blog.title}
+                        author={blog.author}
+                        createdAt={blog.createdAt}
+                        rating={blog.rating}
+                        content={blog.content}
+                        onClick={() => navigate(`/dashboard/blogs/${blog.id}`)}
+                    />
+                ))}
+            </div>
+        </div>
+    );
+
+    const renderMyBlogsTab = () => (
+        <div className="blog-explore-page">
             <div className="blogs-header">
-                <h1>My Astronomy Blogs</h1>
-                <p>Share your cosmic discoveries and insights with the world.</p>
-                <Button onClick={() => setShowCreateForm(true)}>
+                <h2>My Astronomy Blogs</h2>
+                <p>Manage your cosmic discoveries and insights.</p>
+                <Button onClick={() => setShowCreateForm(true)} className="create-blog-btn">
                     <Plus size={20} />
                     Create New Blog
                 </Button>
+            </div>
+
+            {/* My Blog Filters */}
+            <div className="blog-filters" style={{ display: 'flex', gap: 16, margin: '1.2rem 0', flexWrap: 'wrap' }}>
+                <input
+                    type="text"
+                    placeholder="Search your blogs..."
+                    value={filter.search}
+                    onChange={e => setFilter(f => ({ ...f, search: e.target.value }))}
+                    style={{ padding: '0.5rem 1rem', borderRadius: 8, border: '1px solid #334155', minWidth: 180 }}
+                />
+                <select
+                    value={filter.status}
+                    onChange={e => setFilter(f => ({ ...f, status: e.target.value }))}
+                    style={{ padding: '0.5rem 1rem', borderRadius: 8, border: '1px solid #334155', minWidth: 140 }}
+                >
+                    <option value="all">All Blogs</option>
+                    <option value="published">Published</option>
+                    <option value="draft">Drafts</option>
+                </select>
             </div>
 
             {showCreateForm && (
@@ -244,7 +556,7 @@ export default function MyBlogs() {
                             </Button>
                         </div>
                         
-                        <form onSubmit={editingId ? handleUpdateBlog : handleCreateBlog}>
+                        <form onSubmit={handleSaveAsDraft}>
                             <div className="form-group">
                                 <label>Blog Title</label>
                                 <InputField
@@ -266,6 +578,14 @@ export default function MyBlogs() {
                                     onChange={handleInputChange}
                                     required
                                     rows={8}
+                                    style={{ 
+                                        width: '100%', 
+                                        padding: '0.5rem', 
+                                        borderRadius: '8px', 
+                                        border: '1px solid #334155',
+                                        minHeight: '120px',
+                                        fontFamily: 'inherit'
+                                    }}
                                 />
                             </div>
                             
@@ -276,109 +596,66 @@ export default function MyBlogs() {
                                     name="image" 
                                     accept="image/*" 
                                     onChange={handleInputChange}
+                                    style={{ 
+                                        width: '100%', 
+                                        padding: '0.5rem', 
+                                        borderRadius: '8px', 
+                                        border: '1px solid #334155'
+                                    }}
                                 />
                             </div>
                             
-                            <div className="form-actions">
-                                <Button type="submit">
-                                    <Save size={16} />
-                                    {editingId ? 'Update Blog' : 'Publish Blog'}
-                                </Button>
-                                <Button type="Submit"
-                                    onClick={() => {
-                                        setShowCreateForm(false);
-                                        setEditingId(null);
-                                        setNewBlog({ title: '', content: '', image: null });
-                                    }}
+                            <div className="form-actions" style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+                                <Button 
+                                    type="submit"
+                                    variant="outline"
                                 >
                                     <Save size={16} />
-                                    Save Draft
+                                    Save as Draft
                                 </Button>
-                                
-                            
+                                <Button 
+                                    type="button"
+                                    onClick={handlePublishBlog}
+                                >
+                                    <Eye size={16} />
+                                    {editingId ? 'Update & Publish' : 'Publish Blog'}
+                                </Button>
                             </div>
                         </form>
                     </div>
                 </div>
             )}
 
-            <div className="blogs-grid">
-                {blogs.map((blog) => (
-                    <div key={blog.id} className="blog-card">
-                        <div className="blog-image">
-                            {blog.image && (
-                                <img src={blog.image} alt={blog.title} />
-                            )}
-                            <div className="blog-actions">
-                                <Button onClick={() => handleEdit(blog.id)}>
-                                    <Edit2 size={16} />
-                                </Button>
-                                <Button onClick={() => handleDelete(blog.id)}>
-                                    <Trash2 size={16} />
-                                </Button>
-                            </div>
-                        </div>
-                        
-                        <div className="blog-content">
-                            <h3>{blog.title}</h3>
-                            
-                            <div className="blog-meta">
-                                <span className="author">{blog.author}</span>
-                                <span className="date">{blog.date}</span>
-                            </div>
-                            
-                            <div className="blog-rating">
-                                {renderStars(blog.rating)}
-                                <span className="rating-value">{blog.rating}</span>
-                            </div>
-                            
-                            <p className="blog-excerpt">
-                                {blog.content.substring(0, 150)}...
-                            </p>
-                            
-                            <div className="blog-stats">
-                                <span className="stat">
-                                    <Eye size={16} />
-                                    {blog.reach}
-                                </span>
-                                <span className="stat">
-                                    <Heart size={16} />
-                                    {blog.likes}
-                                </span>
-                                <span className="stat">
-                                    <MessageCircle size={16} />
-                                    {blog.comments.length}
-                                </span>
-                            </div>
-                            
-                            <div className="blog-actions-bottom">
-                                <Button 
-                                    onClick={() => handleLike(blog.id)}
-                                    variant={blog.liked ? 'secondary' : 'outline'}
-                                >
-                                    <Heart size={16} fill={blog.liked ? 'currentColor' : 'none'} />
-                                    {blog.liked ? 'Liked' : 'Like'}
-                                </Button>
-                                <Button 
-                                    onClick={() => setSelectedBlog(blog)}
-                                    variant="outline"
-                                >
-                                    Read More
-                                </Button>
-                            </div>
-                        </div>
-                    </div>
+            <div className="blogexplore-blog-list">
+                {filteredMyBlogs.map(blog => (
+                    <MyBlogCard
+                        key={blog.id}
+                        blog={blog}
+                        onEdit={handleEdit}
+                        onDelete={handleDelete}
+                        onTogglePublish={handleTogglePublish}
+                        onView={setSelectedBlog}
+                    />
                 ))}
             </div>
 
-            {blogs.length === 0 && (
+            {filteredMyBlogs.length === 0 && (
                 <div className="empty-state">
                     <div className="empty-icon">📝</div>
-                    <h3>No blogs yet</h3>
-                    <p>Start sharing your astronomical discoveries with the world!</p>
-                    <Button onClick={() => setShowCreateForm(true)}>
-                        Create Your First Blog
-                    </Button>
+                    <h3>
+                        {filter.status === 'published' ? 'No published blogs yet' :
+                         filter.status === 'draft' ? 'No drafts yet' :
+                         filter.search ? 'No blogs found' : 'No blogs yet'}
+                    </h3>
+                    <p>
+                        {filter.search ? 'Try adjusting your search terms.' :
+                         'Start sharing your astronomical discoveries with the world!'}
+                    </p>
+                    {!filter.search && (
+                        <Button onClick={() => setShowCreateForm(true)}>
+                            Create Your First Blog
+                        </Button>
+                    )}
                 </div>
             )}
 
@@ -404,6 +681,9 @@ export default function MyBlogs() {
                                     {renderStars(selectedBlog.rating)}
                                     <span>{selectedBlog.rating}</span>
                                 </div>
+                                <span className={`status ${selectedBlog.published ? 'published' : 'draft'}`}>
+                                    {selectedBlog.published ? 'Published' : 'Draft'}
+                                </span>
                             </div>
                             
                             <div className="modal-stats">
@@ -414,6 +694,33 @@ export default function MyBlogs() {
                             
                             <div className="modal-text">
                                 <p>{selectedBlog.content}</p>
+                            </div>
+
+                            <div className="modal-actions" style={{ display: 'flex', gap: '1rem', margin: '1rem 0', flexWrap: 'wrap' }}>
+                                <Button 
+                                    onClick={() => {
+                                        setSelectedBlog(null);
+                                        handleEdit(selectedBlog.id);
+                                    }} 
+                                    variant="outline"
+                                >
+                                    <Edit2 size={16} />
+                                    Edit
+                                </Button>
+                                <Button 
+                                    onClick={() => handleTogglePublish(selectedBlog.id)}
+                                    variant="outline"
+                                >
+                                    {selectedBlog.published ? <EyeOff size={16} /> : <Eye size={16} />}
+                                    {selectedBlog.published ? 'Unpublish' : 'Publish'}
+                                </Button>
+                                <Button 
+                                    onClick={() => handleLike(selectedBlog.id)}
+                                    variant={selectedBlog.liked ? 'secondary' : 'outline'}
+                                >
+                                    <Heart size={16} fill={selectedBlog.liked ? 'currentColor' : 'none'} />
+                                    {selectedBlog.liked ? 'Liked' : 'Like'}
+                                </Button>
                             </div>
                             
                             <div className="comments-section">
@@ -438,13 +745,15 @@ export default function MyBlogs() {
                                             <div className="comment-header">
                                                 <span className="comment-author">{comment.user}</span>
                                                 <span className="comment-timestamp">{comment.date}</span>
-                                                <Button 
-                                                    onClick={() => handleDeleteComment(selectedBlog.id, comment.id)}
-                                                    variant="ghost"
-                                                    size="sm"
-                                                >
-                                                    <Trash2 size={14} />
-                                                </Button>
+                                                {comment.user === 'You' && (
+                                                    <Button 
+                                                        onClick={() => handleDeleteComment(selectedBlog.id, comment.id)}
+                                                        variant="ghost"
+                                                        size="sm"
+                                                    >
+                                                        <Trash2 size={14} />
+                                                    </Button>
+                                                )}
                                             </div>
                                             <p>{comment.text}</p>
                                         </div>
@@ -455,6 +764,31 @@ export default function MyBlogs() {
                     </div>
                 </div>
             )}
+        </div>
+    );
+
+    return (
+        <div className="myblogs-tabbed-container">
+            {/* Tab Navigation */}
+            <div className="tab-navigation">
+                <button 
+                    className={`tab-button ${activeTab === 'blogs' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('blogs')}
+                >
+                    Explore Blogs
+                </button>
+                <button 
+                    className={`tab-button ${activeTab === 'myblogs' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('myblogs')}
+                >
+                    My Blogs ({myBlogs.length})
+                </button>
+            </div>
+
+            {/* Tab Content */}
+            <div className="tab-content">
+                {activeTab === 'blogs' ? renderBlogsTab() : renderMyBlogsTab()}
+            </div>
         </div>
     );
 };

@@ -6,6 +6,16 @@ import { RoleGuard } from '../components/RoleGuard';
 import Profile from '../pages/Profile';
 import Settings from '../pages/Settings';
 import DashboardOverview from '../pages/DashboardOverview';
+
+// Moderation Components
+import Moderation from '../pages/moderator/Moderation';
+import ContentModeration from '../pages/moderator/ContentModeration';
+import ProfileModeration from '../pages/moderator/ProfileModeration';
+import SessionModeration from '../pages/moderator/SessionModeration';
+import PollsModeration from '../pages/moderator/PollsModeration';
+import SpotsModeration from '../pages/moderator/SpotsModeration';
+import NightCampModeration from '../pages/moderator/NightCampModeration';
+import EventModeration from '../pages/moderator/EventModeration';
 import PaymentProcessing from '../pages/guide/PaymentProcessing';
 import Button from '../components/Button';
 
@@ -26,7 +36,10 @@ import MediaUploadPanel from '../pages/guide/MediaUploadPanel';
 import MentorProfile from '../pages/mentor/MentorProfile';
 import EditMentor from '../pages/mentor/EditMentor';
 import MentorDashboard from '../pages/mentor/MentorDashboard';
-import { MentorPauseProvider } from '../contexts/mentor/MentorPauseContext';
+
+
+// import MentorProfile from '../pages/mentor/MentorProfile';
+// import BookingRequests from '../pages/guide/BookingRequests';
 
 
 import GuideMediaDashboard from '../pages/guide/GuideMediaDashboard';
@@ -65,7 +78,7 @@ import MenteeRequest from '../pages/mentor/MenteeRequest';
 import MentorNotification from '../pages/mentor/MentorNotification';
 import MyUniverse from '../pages/learner/MyUniverse';
 //import { MentorPauseProvider } from '../contexts/MentorPauseContext';
-
+import { MentorPauseProvider } from '../contexts/mentor/MentorPauseContext';
 //import { MenteeProvider } from '../contexts/MenteeContext';
 import OngoingCompetitionPage from '../pages/learner/OngoingcompetitionPage';
 import { MenteeProvider } from '../contexts/mentor/MenteeContext';
@@ -129,12 +142,12 @@ const ChatPage = memo(() => (
 
 
 
-const ModerationPage = memo(() => (
-    <div className="dashboard-page">
-        <h2>Community Moderation</h2>
-        <p>Moderate community content and manage user reports.</p>
-    </div>
-));
+// const ModerationPage = memo(() => (
+//     <div className="dashboard-page">
+//         <h2>Community Moderation</h2>
+//         <p>Moderate community content and manage user reports.</p>
+//     </div>
+// ));
 
 const AdminPage = memo(() => (
     <div className="dashboard-page">
@@ -271,7 +284,7 @@ const DashboardRoutes = () => {
             <Route
                 path='astronomy-services'
                 element={
-                    <RoleGuard allowedRoles={['learner']}>
+                    <RoleGuard allowedRoles={['learner','enthusiast']}>
                         <AstronomyServices />
                     </RoleGuard>
                 }
@@ -279,7 +292,7 @@ const DashboardRoutes = () => {
             <Route
                 path='astronomy-services/:id'
                 element={
-                    <RoleGuard allowedRoles={['learner']}>
+                    <RoleGuard allowedRoles={['learner','enthusiast']}>
                         <AstronomyServiceDetails />
                     </RoleGuard>
                 }
@@ -287,7 +300,7 @@ const DashboardRoutes = () => {
             <Route
                 path='guide-profile'
                 element={
-                    <RoleGuard allowedRoles={['learner']}>
+                    <RoleGuard allowedRoles={['learner','enthusiast']}>
                         <GuideDetails />
                     </RoleGuard>
                 }
@@ -432,11 +445,68 @@ const DashboardRoutes = () => {
             <Route path="chat" element={<ChatPage />} />
 
 
+            {/* Moderation Routes */}
             <Route
                 path="moderation"
                 element={
                     <RoleGuard allowedRoles={['moderator', 'admin']}>
-                        <ModerationPage />
+                        <Moderation />
+                    </RoleGuard>
+                }
+            />
+            <Route
+                path="moderation/content"
+                element={
+                    <RoleGuard allowedRoles={['moderator', 'admin']}>
+                        <ContentModeration />
+                    </RoleGuard>
+                }
+            />
+            <Route
+                path="moderation/profile"
+                element={
+                    <RoleGuard allowedRoles={['moderator', 'admin']}>
+                        <ProfileModeration />
+                    </RoleGuard>
+                }
+            />
+            <Route
+                path="moderation/session"
+                element={
+                    <RoleGuard allowedRoles={['moderator', 'admin']}>
+                        <SessionModeration />
+                    </RoleGuard>
+                }
+            />
+            <Route
+                path="moderation/polls"
+                element={
+                    <RoleGuard allowedRoles={['moderator', 'admin']}>
+                        <PollsModeration />
+                    </RoleGuard>
+                }
+            />
+            <Route
+                path="moderation/spots"
+                element={
+                    <RoleGuard allowedRoles={['moderator', 'admin']}>
+                        <SpotsModeration />
+                    </RoleGuard>
+                }
+            />
+            <Route
+                path="moderation/camp"
+                element={
+                    <RoleGuard allowedRoles={['moderator', 'admin']}>
+                        <NightCampModeration />
+                    </RoleGuard>
+                }
+            />
+            <Route
+                path="moderation/events"
+                element={
+                    <RoleGuard allowedRoles={['moderator', 'admin']}>
+                        <EventModeration />
                     </RoleGuard>
                 }
             />

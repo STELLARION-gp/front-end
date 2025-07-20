@@ -33,11 +33,11 @@ const Signup: React.FC = () => {
 
   const handleGoogleSignIn = useCallback(async () => {
     setLoadingType('google');
-    
+
     // Add debug information
     debugAuthConfiguration();
     await testFirebaseConnection();
-    
+
     await withLoading(async () => {
       try {
         setError('');
@@ -78,6 +78,7 @@ const Signup: React.FC = () => {
   //   { value: 'admin', label: 'Admin', description: 'Administrative access' },
   // ];
 
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -95,6 +96,11 @@ const Signup: React.FC = () => {
 
     if (lastNameError) {
       setError(lastNameError);
+      return;
+    }
+
+    if (!emailRegex.test(email)) {
+      setError('Please enter a valid email address.');
       return;
     }
 

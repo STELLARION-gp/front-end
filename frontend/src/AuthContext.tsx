@@ -26,6 +26,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   // Convert backend user to frontend user profile
   const convertBackendUser = (backendUser: BackendUser): UserProfile => {
@@ -49,7 +50,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       if (response.data) {
         return convertBackendUser(response.data);
       }
-    } catch (error) {
+    } catch (error: any) {
+      if (error.message && error.message.includes('401')) {
+        // Token rejected by backend, force logout
+        setAuthError('Session expired. Please log in again.');
+        await logout();
+      } else {
+        setAuthError('Failed to fetch user profile from backend.');
+      }
       console.error('Error fetching user profile:', error);
     }
     return null;
@@ -87,7 +95,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         lastLogin: new Date(),
         isActive: true,
         profileData: {
-          avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face',
           bio: 'System Administrator with full access to manage users and system settings.',
           skills: ['User Management', 'System Administration', 'Security'],
           interests: ['Astronomy', 'Education', 'Technology']
@@ -167,6 +174,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     return unsubscribe;
   }, []);
 
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
   const signup = async (
     email: string,
     password: string,
@@ -174,36 +183,30 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     firstName?: string,
     lastName?: string
   ): Promise<void> => {
+    setAuthError(null);
+    if (!emailRegex.test(email)) {
+      setAuthError('Please enter a valid email address.');
+      throw new Error('Invalid email format');
+    }
     let userCredential: UserCredential | null = null;
-
     try {
       // Step 1: Create Firebase user first
-      console.log('🔥 Creating Firebase user...');
       userCredential = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(userCredential.user, { displayName });
-      console.log('✅ Firebase user created successfully');
-
       // Step 2: Try to register with backend
       try {
-        console.log('📡 Registering user with backend...');
         await apiService.registerUser({
           email,
           displayName,
           firstName,
           lastName,
-          role: 'learner' // Default role
+          role: 'learner'
         });
-        console.log('✅ Backend registration successful');
-
         // Step 3: Fetch the complete user profile from backend
-        console.log('📡 Fetching user profile from backend...');
         const profile = await fetchUserProfile();
         setUserProfile(profile);
-        console.log('✅ User profile loaded from backend');
-
-      } catch (backendError) {
-        console.warn('⚠️ Backend registration failed, creating fallback profile:', backendError);
-
+      } catch (backendError: any) {
+        setAuthError('Failed to register user with backend. Please try again.');
         // Create a fallback profile so user can still use the app
         const fallbackProfile: UserProfile = {
           uid: userCredential.user.uid,
@@ -211,65 +214,51 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           displayName: displayName,
           firstName,
           lastName,
-          role: 'learner', // Default role
+          role: 'learner',
           isActive: true,
           createdAt: new Date(),
           lastLogin: new Date()
         };
-
         setUserProfile(fallbackProfile);
-        console.log('✅ Fallback profile created, user can proceed');
-
-        // Note: The user is successfully registered in Firebase
-        // Backend sync can happen later when backend is available
       }
-
     } catch (firebaseError) {
-      console.error('❌ Firebase user creation failed:', firebaseError);
-      throw firebaseError; // Only throw if Firebase creation fails
+      setAuthError('Failed to create user. Please check your credentials and try again.');
+      throw firebaseError;
     }
   };
 
   const login = async (email: string, password: string): Promise<UserProfile | null> => {
-    console.log('🔐 Starting login process for:', email);
-
+    setAuthError(null);
+    if (!emailRegex.test(email)) {
+      setAuthError('Please enter a valid email address.');
+      throw new Error('Invalid email format');
+    }
     try {
-      // Try to sign in with Firebase first
-      console.log('🔥 Attempting Firebase sign in...');
       await signInWithEmailAndPassword(auth, email, password);
-      console.log('✅ Firebase sign in successful');
-
-      // If successful, fetch profile from backend
-      console.log('📡 Fetching user profile from backend...');
       const profile = await fetchUserProfile();
-      console.log('✅ Profile fetched:', profile);
-
-      // If backend profile fetch fails, create a basic profile from Firebase user
       if (!profile) {
-        console.log('⚠️ Backend profile fetch failed, creating basic profile');
         const firebaseUser = auth.currentUser;
         if (firebaseUser) {
           const basicProfile: UserProfile = {
             uid: firebaseUser.uid,
             email: firebaseUser.email || email,
             displayName: firebaseUser.displayName || 'User',
-            role: getDefaultRoleFromEmail(email), // Determine role from email
+            role: getDefaultRoleFromEmail(email),
             isActive: true,
             createdAt: new Date(),
             lastLogin: new Date()
           };
           setUserProfile(basicProfile);
+          setAuthError('Failed to fetch user profile from backend.');
           return basicProfile;
         }
       }
-
       setUserProfile(profile);
-      return profile; // Return the profile for immediate use
-    } catch (firebaseError: unknown) {
+      return profile;
+    } catch (firebaseError: any) {
+      setAuthError('Login failed. Please check your credentials and try again.');
+      // ...existing code for test accounts and fallback...
       const error = firebaseError as { code?: string; message?: string };
-      console.error('❌ Firebase login error:', error);
-
-      // If Firebase login fails, check if this is a test account
       const testAccounts = [
         { email: 'admin@gmail.com', password: 'admin123', displayName: 'Admin User' },
         { email: 'moderator@gmail.com', password: 'moderator', displayName: 'Moderator User' },
@@ -279,36 +268,20 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         { email: 'enthusiast@gmail.com', password: 'enthusiast', displayName: 'Enthusiast User' },
         { email: 'learner@gmail.com', password: 'learner', displayName: 'Learner User' }
       ];
-
       const testAccount = testAccounts.find(account =>
         account.email === email && account.password === password
       );
-
       if (testAccount && error.code === 'auth/user-not-found') {
         try {
-          // Create the Firebase user automatically
-          console.log('🔧 Creating Firebase user for test account:', email);
           const userCredential = await createUserWithEmailAndPassword(auth, email, password);
           await updateProfile(userCredential.user, { displayName: testAccount.displayName });
-          console.log('✅ Firebase user created successfully');
-
-          // Register with backend
-          console.log('📡 Registering user with backend...');
           await apiService.registerUser({
             email: testAccount.email,
             displayName: testAccount.displayName,
-            role: 'learner' // Default role, backend will update based on email
+            role: 'learner'
           });
-          console.log('✅ Backend registration successful');
-
-          // Fetch the profile from backend
-          console.log('📡 Fetching updated profile from backend...');
           const profile = await fetchUserProfile();
-          console.log('✅ Final profile:', profile);
-
-          // If backend profile fetch fails, create a basic profile
           if (!profile) {
-            console.log('⚠️ Backend profile fetch failed, creating basic profile for test user');
             const basicProfile: UserProfile = {
               uid: userCredential.user.uid,
               email: testAccount.email,
@@ -319,21 +292,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
               lastLogin: new Date()
             };
             setUserProfile(basicProfile);
+            setAuthError('Failed to fetch user profile from backend.');
             return basicProfile;
           }
-
           setUserProfile(profile);
-
-          console.log('🎉 Successfully created and logged in test user:', email);
-          return profile; // Return the profile for immediate use
+          return profile;
         } catch (createError) {
-          console.error('❌ Error creating test user:', createError);
+          setAuthError('Failed to create test user.');
           throw new Error(`Failed to create test user: ${email}. Error: ${createError}`);
         }
       } else if (testAccount && error.code === 'auth/wrong-password') {
+        setAuthError('Incorrect password for test account');
         throw new Error('Incorrect password for test account');
       } else {
-        // Re-throw the original Firebase error for non-test accounts
         throw new Error(error.message || 'Authentication failed');
       }
     }
@@ -343,92 +314,56 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       await signOut(auth);
       setUserProfile(null);
+      setAuthError(null);
     } catch (error) {
-      console.error('Error during logout:', error);
+      setAuthError('Logout failed. Please try again.');
       throw error;
     }
   };
 
   const signInWithGoogle = async (): Promise<UserProfile | null> => {
+    setAuthError(null);
     try {
-      console.log('🔐 Starting Google sign-in process...');
-
-      // Try popup first, fall back to redirect if it fails
       let result;
       try {
-        console.log('🪟 Attempting popup sign-in...');
         result = await signInWithPopup(auth, googleProvider);
-      } catch (popupError: unknown) {
+      } catch (popupError: any) {
         const popupAuthError = popupError as { code?: string; message?: string };
-        console.warn('⚠️ Popup failed, attempting redirect:', popupAuthError.code);
-
         if (popupAuthError.code === 'auth/popup-blocked' ||
           popupAuthError.code === 'auth/popup-closed-by-user') {
-          console.log('🔄 Using redirect method as fallback...');
           await signInWithRedirect(auth, googleProvider);
-          return null; // Redirect will reload the page
+          return null;
         } else {
-          throw popupError; // Re-throw if it's a different error
+          setAuthError('Google sign-in failed.');
+          throw popupError;
         }
       }
-
       const user = result.user;
-
-      console.log('✅ Google sign-in successful:', user.email);
-      console.log('🔍 User details:', {
-        uid: user.uid,
-        email: user.email,
-        displayName: user.displayName,
-        photoURL: user.photoURL,
-        emailVerified: user.emailVerified
-      });
-
-      // Check if this is a new user
       const isNewUser = result.user.metadata.creationTime === result.user.metadata.lastSignInTime;
-
       if (isNewUser) {
-        console.log('👤 New user detected, registering with backend...');
-
         try {
-          // Extract names from displayName
           const nameParts = user.displayName?.split(' ') || [];
           const firstName = nameParts[0] || '';
           const lastName = nameParts.slice(1).join(' ') || '';
-
-          // Register new user with backend
           await apiService.registerUser({
             email: user.email || '',
             displayName: user.displayName || '',
             firstName,
             lastName,
-            role: 'learner' // Default role
+            role: 'learner'
           });
-
-          console.log('✅ Backend registration successful');
-
         } catch (registrationError) {
-          console.error('❌ Backend registration failed:', registrationError);
-          console.error('🔍 Registration error details:', JSON.stringify(registrationError, null, 2));
-
-          // Continue anyway - user is created in Firebase
-          console.log('⚠️ Continuing with Firebase-only user (backend will sync later)...');
+          setAuthError('Failed to register Google user with backend.');
         }
       }
-
-      // Fetch user profile from backend
-      console.log('📡 Fetching user profile from backend...');
       let profile;
-
       try {
         profile = await fetchUserProfile();
       } catch (profileError) {
-        console.error('❌ Profile fetch failed:', profileError);
-        console.error('🔍 Profile error details:', JSON.stringify(profileError, null, 2));
+        setAuthError('Failed to fetch user profile from backend.');
         profile = null;
       }
-
       if (!profile) {
-        console.log('⚠️ Backend profile fetch failed, creating basic profile');
         const basicProfile: UserProfile = {
           uid: user.uid,
           email: user.email || '',
@@ -443,20 +378,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         setUserProfile(basicProfile);
         return basicProfile;
       }
-
       setUserProfile(profile);
-      console.log('🎉 Google authentication successful');
       return profile;
-
-    } catch (error: unknown) {
-      console.error('❌ Google sign-in error:', error);
-      console.error('🔍 Full error object:', JSON.stringify(error, null, 2));
-
+    } catch (error: any) {
+      setAuthError('Google sign-in failed.');
       const authError = error as { code?: string; message?: string };
-      console.error('🔍 Error code:', authError.code);
-      console.error('🔍 Error message:', authError.message);
-
-      // Handle specific Google auth errors
       if (authError.code === 'auth/popup-closed-by-user') {
         throw new Error('Google sign-in was cancelled');
       } else if (authError.code === 'auth/popup-blocked') {
@@ -524,7 +450,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       logout,
       signInWithGoogle,
       updateUserProfile,
-      refreshUserProfile
+      refreshUserProfile,
+      authError,
+      setAuthError
     }}>
       {children}
     </AuthContext.Provider>

@@ -36,7 +36,7 @@
     backdrop-filter: blur(10px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 16px 16px 0 0;
-    margin-bottom: 5px;
+    margin-bottom: 10px;
 
     .header-content {
       max-width: 1400px;
@@ -81,10 +81,11 @@
   .details-content {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 0 2rem 2rem;
+    // padding: 0 2rem 2rem;
     display: grid;
     grid-template-columns: 1fr 350px;
     gap: 2rem;
+    padding-bottom: 10px;
 
     .main-content,
     .sidebar-content {

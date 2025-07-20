@@ -307,8 +307,8 @@ const SpotsDetails: React.FC = () => {
           </div>
           <div className="header-actions">
             <Button
-              variant="border"
-              size="small"
+              variant="ghost"
+              size="medium"
             >
               👁 {spot.reviewCount} Reviews
             </Button>
@@ -450,7 +450,8 @@ const SpotsDetails: React.FC = () => {
             </div>
             <div className="card-content">
               <div className="submitter-profile">
-                <img src={spot.submittedBy.avatar} alt={spot.submittedBy.username} className="submitter-avatar" />
+                {/* <img src={spot.submittedBy.avatar} alt={spot.submittedBy.username} className="submitter-avatar" /> */}
+                <img src="https://d3i6fh83elv35t.cloudfront.net/static/2017/10/PADILLA02-1024x681.jpg" alt="{spot.submittedBy.username}" className="submitter-avatar"/>
                 <div className="submitter-details">
                   <div className="submitter-username">
                     {spot.submittedBy.username}

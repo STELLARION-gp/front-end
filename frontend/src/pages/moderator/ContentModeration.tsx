@@ -147,13 +147,15 @@ export default function ContentModeration() {
 
         <div className="filter-tabs">
           {['all', 'pending', 'approved', 'rejected'].map(status => (
-            <button
+            <Button
+              variant='primary'
+              size='large'
               key={status}
               className={`filter-tab ${filter === status ? 'active' : ''}`}
               onClick={() => setFilter(status as typeof filter)}
             >
               {status.charAt(0).toUpperCase() + status.slice(1)}
-            </button>
+            </Button>
           ))}
         </div>
       </div>

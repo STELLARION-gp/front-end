@@ -18,7 +18,9 @@ import ProfileDetails from '../pages/moderator/ProfileDetails';
 import SessionModeration from '../pages/moderator/SessionModeration';
 import SessionDetails from '../pages/moderator/SessionDetails';
 import PollsModeration from '../pages/moderator/PollsModeration';
+import PollsDetails from '../pages/moderator/PollsDetails';
 import SpotsModeration from '../pages/moderator/SpotsModeration';
+import SpotsDetails from '../pages/moderator/SpotsDetails';
 import NightCampModeration from '../pages/moderator/NightCampModeration';
 import EventModeration from '../pages/moderator/EventModeration';
 import PaymentProcessing from '../pages/guide/PaymentProcessing';
@@ -503,10 +505,26 @@ const DashboardRoutes = () => {
                 }
             />
             <Route
+                path="moderation/polls/details/:id"
+                element={
+                    <RoleGuard allowedRoles={['moderator', 'admin']}>
+                        <PollsDetails />
+                    </RoleGuard>
+                }
+            />
+            <Route
                 path="moderation/spots"
                 element={
                     <RoleGuard allowedRoles={['moderator', 'admin']}>
                         <SpotsModeration />
+                    </RoleGuard>
+                }
+            />
+            <Route
+                path="moderation/spots/details/:id"
+                element={
+                    <RoleGuard allowedRoles={['moderator', 'admin']}>
+                        <SpotsDetails />
                     </RoleGuard>
                 }
             />

@@ -68,7 +68,6 @@ const mockProfiles: ProfileReport[] = [
 export default function ProfileModeration() {
   const navigate = useNavigate();
   const [profiles, setProfiles] = useState<ProfileReport[]>(mockProfiles);
-  const [selectedProfile, setSelectedProfile] = useState<ProfileReport | null>(null);
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'banned' | 'warned'>('pending');
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -184,8 +183,8 @@ export default function ProfileModeration() {
             return (
               <div
                 key={profile.id}
-                className={`profile-item ${selectedProfile?.id === profile.id ? 'selected' : ''}`}
-                onClick={() => setSelectedProfile(profile)}
+                className="profile-item"
+                onClick={() => navigate(`/dashboard/moderation/profile/details/${profile.id}`)}
               >
                 <div className="profile-header">
                   <div className="user-info">

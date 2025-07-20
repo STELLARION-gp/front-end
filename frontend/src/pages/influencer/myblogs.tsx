@@ -461,20 +461,28 @@ export default function MyBlogs() {
             <h2>Explore Astronomy Blogs</h2>
             <p>Discover the latest insights and discoveries in the field of astronomy.</p>
 
-            {/* Tab Navigation (moved here) */}
-            <div className="tab-navigation" style={{ margin: '1.2rem 0' }}>
-                <button 
-                    className={`tab-button ${activeTab === 'blogs' ? 'active' : ''}`}
+            {/* Tab Navigation (NightCamps style, center aligned) */}
+            <div
+                className="myblogs__navigation"
+                style={{
+                    display: 'flex',
+                    gap: '0.5rem',
+                    justifyContent: 'center',
+                    margin: '1.2rem 0'
+                }}
+            >
+                <Button
+                    variant={activeTab === 'blogs' ? 'primary' : 'secondary'}
                     onClick={() => setActiveTab('blogs')}
                 >
                     Explore Blogs
-                </button>
-                <button 
-                    className={`tab-button ${activeTab === 'myblogs' ? 'active' : ''}`}
+                </Button>
+                <Button
+                    variant={activeTab === 'myblogs' ? 'primary' : 'secondary'}
                     onClick={() => setActiveTab('myblogs')}
                 >
                     My Blogs ({myBlogs.length})
-                </button>
+                </Button>
             </div>
 
             {/* Blog Filters (only show if Explore Blogs tab is active) */}

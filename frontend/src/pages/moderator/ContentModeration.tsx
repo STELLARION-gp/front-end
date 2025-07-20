@@ -46,7 +46,7 @@ const mockContentItems: ContentItem[] = [
     author: 'PlanetHunter',
     reportedBy: ['User999'],
     reportReason: ['Copyright violation'],
-    status: 'pending',
+    status: 'approved',
     createdAt: new Date('2024-01-15T08:00:00'),
     priority: 'low'
   }
@@ -174,6 +174,9 @@ export default function ContentModeration() {
                 <div className={`priority-badge priority-${item.priority}`}>
                   {item.priority}
                 </div>
+                <div className={`status-indicator status-${item.status}`}>
+                  {item.status}
+                </div>
               </div>
 
               <div className="item-content">
@@ -233,9 +236,6 @@ export default function ContentModeration() {
                 )}
               </div>
 
-              <div className={`status-indicator ${item.status}`}>
-                {item.status}
-              </div>
             </div>
             ))
           )}

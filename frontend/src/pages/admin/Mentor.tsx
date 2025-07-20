@@ -1,14 +1,23 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useI18n } from '../../i18n/useI18n';
 import { useRoleAccess } from '../../hooks/useRoleAccess';
 import Button from '../../components/Button';
 
+type MentorType = {
+    id: string;
+    name?: string;
+    email?: string;
+    phone_number?: string;
+    country?: string;
+    max_mentees?: number;
+};
+
 const Mentor = () => {
     const { t } = useI18n();
     const { hasAnyRole } = useRoleAccess();
     const navigate = useNavigate();
-    const [mentors, setMentors] = useState([]);
+    const [mentors, setMentors] = useState<MentorType[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 

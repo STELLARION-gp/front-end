@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FaArrowLeft, FaUser, FaBan, FaCheck, FaTimes, FaSearch, FaExclamationTriangle } from 'react-icons/fa';
+import { FaArrowLeft, FaUser, FaBan, FaCheck, FaSearch, FaExclamationTriangle } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import '../../styles/pages/moderator/ProfileModeration.scss';
 import Button from '../../components/Button';
@@ -284,105 +284,6 @@ export default function ProfileModeration() {
             );
           })}
         </div>
-
-        {/* Detail Panel */}
-        {selectedProfile && (
-          <div className="detail-panel">
-            <div className="panel-header">
-              <h3>Profile Details</h3>
-              <button 
-                className="close-panel"
-                onClick={() => setSelectedProfile(null)}
-                title="Close Panel"
-              >
-                <FaTimes />
-              </button>
-            </div>
-
-            <div className="panel-content">
-              <div className="detail-section">
-                <h4>User Information</h4>
-                <div className="detail-grid">
-                  <div className="detail-item">
-                    <label>Username:</label>
-                    <span>{selectedProfile.username}</span>
-                  </div>
-                  <div className="detail-item">
-                    <label>Email:</label>
-                    <span>{selectedProfile.email}</span>
-                  </div>
-                  <div className="detail-item">
-                    <label>User ID:</label>
-                    <span>{selectedProfile.userId}</span>
-                  </div>
-                  <div className="detail-item">
-                    <label>Account Created:</label>
-                    <span>{selectedProfile.accountCreated.toLocaleString()}</span>
-                  </div>
-                  <div className="detail-item">
-                    <label>Last Active:</label>
-                    <span>{selectedProfile.lastActive.toLocaleString()}</span>
-                  </div>
-                  <div className="detail-item">
-                    <label>Violations:</label>
-                    <span 
-                      className={`violations-count risk-${getRiskLevel(selectedProfile.violations).level.toLowerCase()}`}
-                    >
-                      {selectedProfile.violations} ({getRiskLevel(selectedProfile.violations).level})
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="detail-section">
-                <h4>Report Details</h4>
-                <div className="report-content">
-                  <div className="reporters">
-                    <strong>Reported by:</strong> {selectedProfile.reportedBy.join(', ')}
-                  </div>
-                  <div className="reasons">
-                    <strong>Reasons:</strong>
-                    <div className="reasons-list">
-                      {selectedProfile.reportReason.map((reason, index) => (
-                        <span key={index} className="reason-chip">{reason}</span>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="details">
-                    <strong>Details:</strong>
-                    <p className="report-text">{selectedProfile.reportDetails}</p>
-                  </div>
-                </div>
-              </div>
-
-              {selectedProfile.status === 'pending' && (
-                <div className="panel-actions">
-                  <button
-                    className="panel-btn approve"
-                    onClick={() => handleApproveUser(selectedProfile.id)}
-                  >
-                    <FaCheck />
-                    Approve Profile
-                  </button>
-                  <button
-                    className="panel-btn warn"
-                    onClick={() => handleWarnUser(selectedProfile.id)}
-                  >
-                    <FaExclamationTriangle />
-                    Issue Warning
-                  </button>
-                  <button
-                    className="panel-btn ban"
-                    onClick={() => handleBanUser(selectedProfile.id)}
-                  >
-                    <FaBan />
-                    Ban User
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

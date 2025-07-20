@@ -211,7 +211,8 @@ const PollsModeration: React.FC = () => {
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
+      hour12: true
     });
   };
 
@@ -286,76 +287,78 @@ const PollsModeration: React.FC = () => {
       </div>
 
       {/* Main Content */}
-      <div className="moderation-content">
-        <div className="polls-list">
+      <div className="polls-moderation-content">
+        <div className="polls-moderation-list">
           {filteredPolls.length === 0 ? (
-            <div className="empty-state">
+            <div className="polls-empty-state">
               <p>No polls found for your filter/search.</p>
             </div>
           ) : (
             filteredPolls.map(poll => (
               <div
                 key={poll.id}
-                className={`poll-item priority-${poll.priority} status-${poll.status.replace('_', '-')}`}
+                className={`polls-item priority-${poll.priority} status-${poll.status.replace('_', '-')}`}
                 onClick={() => navigate(`/dashboard/moderation/polls/details/${poll.id}`)}
               >
-                <div className="item-header">
-                  <div className="poll-type">
-                    <span className="type-icon">{getTypeIcon(poll.type)}</span>
-                    <span className="type-label">{poll.type.charAt(0).toUpperCase() + poll.type.slice(1)}</span>
+                <div className="polls-item-header">
+                  <div className="polls-type">
+                    <span className="polls-type-icon">{getTypeIcon(poll.type)}</span>
+                    <span className="polls-type-label">{poll.type.charAt(0).toUpperCase() + poll.type.slice(1)}</span>
                   </div>
-                  <div className={`priority-badge priority-${poll.priority}`}>
+                  <div className={`polls-priority-badge priority-${poll.priority}`}>
                     {poll.priority}
                   </div>
-                  <div className={`status-indicator status-${poll.status.replace('_', '-')}`}>
+                  <div className={`polls-status-indicator status-${poll.status.replace('_', '-')}`}>
                     {poll.status.replace('_', ' ')}
                   </div>
                 </div>
 
-                <div className="item-content">
-                  <h3 className="poll-title">{poll.title}</h3>
-                  <p className="poll-description">{poll.description.substring(0, 150)}...</p>
-                  <div className="item-meta">
+                <div className="polls-item-content">
+                  <h3 className="polls-title">{poll.title}</h3>
+                  <p className="polls-description">{poll.description.substring(0, 120)}{poll.description.length > 120 ? '...' : ''}</p>
+                  <div className="polls-item-meta">
                     <span className="creator">by {poll.createdBy.username}</span>
+                    <span className="separator">•</span>
                     <span className="category">{poll.category}</span>
+                    <span className="separator">•</span>
                     <span className="date">{formatDate(poll.createdAt)}</span>
                   </div>
                 </div>
 
-                <div className="poll-stats">
-                  <div className="stat-item">
-                    <span className="stat-label">Votes:</span>
-                    <span className="stat-value">{poll.totalVotes}</span>
+                <div className="polls-stats">
+                  <div className="polls-stat-item">
+                    <span className="polls-stat-label">Votes:</span>
+                    <span className="polls-stat-value">{poll.totalVotes}</span>
                   </div>
-                  <div className="stat-item">
-                    <span className="stat-label">Comments:</span>
-                    <span className="stat-value">{poll.comments}</span>
+                  <div className="polls-stat-item">
+                    <span className="polls-stat-label">Comments:</span>
+                    <span className="polls-stat-value">{poll.comments}</span>
                   </div>
-                  <div className="stat-item">
-                    <span className="stat-label">Engagement:</span>
-                    <span className="stat-value">{getEngagementRate(poll)}%</span>
+                  <div className="polls-stat-item">
+                    <span className="polls-stat-label">Engagement:</span>
+                    <span className="polls-stat-value">{getEngagementRate(poll)}%</span>
                   </div>
                 </div>
 
                 {poll.reports && poll.reports.count > 0 && (
-                  <div className="reports-info">
-                    <FaFlag className="flag-icon" />
+                  <div className="polls-reports-info">
+                    <FaFlag className="polls-flag-icon" />
                     <span>{poll.reports.count} report{poll.reports.count !== 1 ? 's' : ''}</span>
                   </div>
                 )}
 
-                <div className="poll-tags">
+                <div className="polls-tags">
                   {poll.tags.slice(0, 3).map(tag => (
-                    <span key={tag} className="tag">{tag}</span>
+                    <span key={tag} className="polls-tag">{tag}</span>
                   ))}
                   {poll.tags.length > 3 && (
-                    <span className="tag more">+{poll.tags.length - 3} more</span>
+                    <span className="polls-tag polls-tag-more">+{poll.tags.length - 3} more</span>
                   )}
                 </div>
 
-                <div className="item-actions">
+                <div className="polls-item-actions">
                   <button
-                    className="action-btn view-btn"
+                    className="polls-action-btn polls-view-btn"
                     onClick={(e) => {
                       e.stopPropagation();
                       navigate(`/dashboard/moderation/polls/details/${poll.id}`);
@@ -367,7 +370,7 @@ const PollsModeration: React.FC = () => {
                   {poll.status === 'active' && (
                     <>
                       <button
-                        className="action-btn suspend-btn"
+                        className="polls-action-btn polls-suspend-btn"
                         title="Suspend poll"
                         onClick={(e) => {
                           e.stopPropagation();
@@ -377,7 +380,7 @@ const PollsModeration: React.FC = () => {
                         <FaExclamationTriangle />
                       </button>
                       <button
-                        className="action-btn delete-btn"
+                        className="polls-action-btn polls-delete-btn"
                         title="Delete poll"
                         onClick={(e) => {
                           e.stopPropagation();

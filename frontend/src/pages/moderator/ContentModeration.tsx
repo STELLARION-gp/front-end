@@ -55,7 +55,6 @@ const mockContentItems: ContentItem[] = [
 export default function ContentModeration() {
   const navigate = useNavigate();
   const [contentItems, setContentItems] = useState<ContentItem[]>(mockContentItems);
-  const [selectedItem, setSelectedItem] = useState<ContentItem | null>(null);
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('pending');
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -98,22 +97,15 @@ export default function ContentModeration() {
       <header className="moderation-header">
         <div className="header-content">
           <div className="header-left">
-              <Button
-                variant="ghost"
-                size="medium"
-                icon={<FaArrowLeft />}
-                iconPosition="left"
-                onClick={() => navigate('/dashboard/moderation')}
-              >
-              Go back
-            </Button>
-            {/* <Button 
-              variant='secondary'
-              className="back-button"
+            <Button
+              variant="ghost"
+              size="medium"
+              icon={<FaArrowLeft />}
+              iconPosition="left"
               onClick={() => navigate('/dashboard/moderation')}
             >
-              <FaArrowLeft />
-            </Button> */}
+              Go back
+            </Button>
             <div className="title-section">
               <h1>Content Moderation</h1>
               <p>Review and moderate user-generated content</p>
@@ -163,20 +155,23 @@ export default function ContentModeration() {
       {/* Main Content */}
       <div className="moderation-content">
         <div className="content-list">
-          {filteredItems.map(item => (
-            <div
-              key={item.id}
-              className={`content-item ${selectedItem?.id === item.id ? 'selected' : ''}`}
-              onClick={() => setSelectedItem(item)}
-            >
+          {filteredItems.length === 0 ? (
+            <div className="empty-state">
+              <p>No content items found for your filter/search.</p>
+            </div>
+          ) : (
+            filteredItems.map(item => (
+              <div
+                key={item.id}
+                className={`content-item priority-${item.priority} status-${item.status}`}
+                onClick={() => navigate(`/dashboard/moderation/content/details/${item.id}`)}
+              >
               <div className="item-header">
                 <div className="item-type">
                   <span className="type-icon">{getTypeIcon(item.type)}</span>
-                  <span className="type-label">{item.type}</span>
+                  <span className="type-label">{item.type.charAt(0).toUpperCase() + item.type.slice(1)}</span>
                 </div>
-                <div 
-                  className={`priority-badge priority-${item.priority}`}
-                >
+                <div className={`priority-badge priority-${item.priority}`}>
                   {item.priority}
                 </div>
               </div>
@@ -184,15 +179,15 @@ export default function ContentModeration() {
               <div className="item-content">
                 <p className="content-text">{item.content}</p>
                 <div className="item-meta">
-                  <span>by {item.author}</span>
-                  <span>{item.createdAt.toLocaleDateString()}</span>
+                  <span className="author">by {item.author}</span>
+                  <span className="created">{item.createdAt.toLocaleDateString()}</span>
                 </div>
               </div>
 
               <div className="item-reports">
                 <div className="report-info">
                   <FaFlag className="flag-icon" />
-                  <span>{item.reportedBy.length} report(s)</span>
+                  <span>{item.reportedBy.length} report{item.reportedBy.length !== 1 ? 's' : ''}</span>
                 </div>
                 <div className="report-reasons">
                   {item.reportReason.map((reason, index) => (
@@ -206,9 +201,9 @@ export default function ContentModeration() {
                   className="action-btn view-btn"
                   onClick={(e) => {
                     e.stopPropagation();
-                    setSelectedItem(item);
+                    navigate(`/dashboard/moderation/content/details/${item.id}`);
                   }}
-                    title="view content details"
+                  title="View content details"
                 >
                   <FaEye />
                 </button>
@@ -242,95 +237,9 @@ export default function ContentModeration() {
                 {item.status}
               </div>
             </div>
-          ))}
+            ))
+          )}
         </div>
-
-        {/* Detail Panel */}
-        {selectedItem && (
-          <div className="detail-panel">
-            <div className="panel-header">
-              <h3>Content Details</h3>
-              <button 
-                className="close-panel"
-                title="Close panel"
-                onClick={() => setSelectedItem(null)}
-              >
-                <FaTimes />
-              </button>
-            </div>
-
-            <div className="panel-content">
-              <div className="detail-section">
-                <h4>Content Information</h4>
-                <div className="detail-grid">
-                  <div className="detail-item">
-                    <label>Type:</label>
-                    <span>{selectedItem.type}</span>
-                  </div>
-                  <div className="detail-item">
-                    <label>Author:</label>
-                    <span>{selectedItem.author}</span>
-                  </div>
-                  <div className="detail-item">
-                    <label>Created:</label>
-                    <span>{selectedItem.createdAt.toLocaleString()}</span>
-                  </div>
-                  <div className="detail-item">
-                    <label>Priority:</label>
-                    <span 
-                      className={`priority-text priority-${selectedItem.priority}`}
-                    >
-                      {selectedItem.priority}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="detail-section">
-                <h4>Content</h4>
-                <div className="content-preview">
-                  {selectedItem.content}
-                </div>
-              </div>
-
-              <div className="detail-section">
-                <h4>Reports</h4>
-                <div className="reports-list">
-                  <div className="report-summary">
-                    <strong>{selectedItem.reportedBy.length} user(s) reported this content</strong>
-                  </div>
-                  <div className="report-reasons-list">
-                    {selectedItem.reportReason.map((reason, index) => (
-                      <div key={index} className="reason-item">
-                        <FaFlag className="reason-icon" />
-                        <span>{reason}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {selectedItem.status === 'pending' && (
-                <div className="panel-actions">
-                  <button
-                    className="panel-btn approve"
-                    onClick={() => handleApprove(selectedItem.id)}
-                  >
-                    <FaCheck />
-                    Approve Content
-                  </button>
-                  <button
-                    className="panel-btn reject"
-                    onClick={() => handleReject(selectedItem.id)}
-                  >
-                    <FaTimes />
-                    Reject Content
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

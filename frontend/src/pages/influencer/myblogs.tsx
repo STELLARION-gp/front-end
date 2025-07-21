@@ -92,7 +92,9 @@ const MyBlogCard: React.FC<{
                         color: blog.published ? '#22d3ee' : '#fbbf24',
                         fontSize: 15,
                         marginRight: 12,
-                        marginLeft:0
+                        marginLeft: 0,
+                        display: 'flex',
+                        alignItems: 'center'
                     }}>
                         {blog.published ? 'Published' : 'Draft'}
                     </span>
@@ -127,22 +129,6 @@ const MyBlogCard: React.FC<{
                         title="Delete"
                     >
                         <Trash2 size={24} />
-                    </button>
-                    <button 
-                        className="action-btn publish-btn"
-                        style={{ 
-                            background: 'transparent', 
-                            border: '1.5px solid #334155', 
-                            borderRadius: 8, 
-                            cursor: 'pointer',
-                            padding: '10px 16px',
-                            fontSize: 20,
-                            marginRight: 10
-                        }}
-                        onClick={() => onTogglePublish(blog.id)}
-                        title={blog.published ? "Unpublish" : "Publish"}
-                    >
-                        {blog.published ? <EyeOff size={24} /> : <Eye size={24} />}
                     </button>
                 </div>
             </div>

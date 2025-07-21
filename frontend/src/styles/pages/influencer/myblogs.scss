@@ -405,98 +405,136 @@
 }
 
 .blog-modal {
-    background: #181f2a;
-    border-radius: 20px;
-     max-width: 800px;
-     box-shadow: 0 4px 32px rgba(37,99,235,0.10);
-    // width: 90%;
+    background: linear-gradient(135deg, #181f2a 0%, #232946 100%);
+    border-radius: 18px;
+    max-width: 700px;
+    width: 95%;
     max-height: 90vh;
-    padding: 2rem 1.5rem 2.5rem 1.5rem;
     overflow-y: auto;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid #334155;
+    box-shadow: 0 8px 32px 0 rgba(16, 24, 40, 0.25);
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
 }
 
 .modal-header {
     display: flex;
-    justify-content: space-between;
+    flex-direction: row;
     align-items: center;
-    padding: 2rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    justify-content: space-between;
+    padding: 1.5rem 2rem 1rem 2rem;
+    border-bottom: 1px solid #232946;
 
     h2 {
         margin: 0;
-        color: #64b5f6;
-        font-size: 1.8rem;
+        color: #60a5fa;
+        font-size: 1.6rem;
+        flex: 1 1 auto;
+        text-align: left;
+        word-break: break-word;
     }
 }
 
 .modal-content {
-    padding: 2rem;
-    text-align: center;
-    
+    padding: 2rem 2rem 1.5rem 2rem;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content:center;
 }
 
 .modal-image {
     width: 100%;
-    height: 300px;
+    height: 260px;
     object-fit: cover;
-    border-radius: 15px;
-    margin-bottom: 1.5rem;
-    justify-content: center;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    display: block;
 }
 
 .modal-meta {
     display: flex;
-    justify-content: space-between;
+    gap: 16px;
+    font-size: 14px;
+    color: #94a3b8;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
     align-items: center;
-    margin-bottom: 1rem;
-    font-size: 0.9rem;
-    opacity: 0.8;
+    justify-content: flex-start;
+
+    .rating {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+    .status {
+        font-weight: 500;
+        &.published {
+            color: #22d3ee;
+        }
+        &.draft {
+            color: #fbbf24;
+        }
+    }
 }
 
 .modal-stats {
     display: flex;
-    gap: 2rem;
-    margin-bottom: 2rem;
-    padding: 1rem;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 10px;
-
-    span {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
+    gap: 24px;
+    margin-bottom: 18px;
+    font-size: 14px;
+    color: #64748b;
+    padding: 0;
+    background: none;
+    border-radius: 0;
+    align-items: center;
+    justify-content: flex-start;
 }
 
 .modal-text {
-    margin-bottom: 3rem;
-    line-height: 1.8;
-    font-size: 1.1rem;
+    margin-bottom: 24px;
+    line-height: 1.7;
+    font-size: 16px;
+    color: #e0e7ef;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 1rem;
+    margin: 1rem 0;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
 }
 
 .comments-section {
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 1px solid #232946;
     padding-top: 2rem;
 
     h3 {
         margin-bottom: 1.5rem;
-        color: #64b5f6;
+        color: #60a5fa;
+        text-align: left;
     }
 }
 
 .add-comment {
     display: flex;
-    gap: 1rem;
-    margin-bottom: 2rem;
+    gap: 12px;
+    margin-bottom: 20px;
+    align-items: center;
 
     input {
         flex: 1;
-        padding: 1rem;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 25px;
-        background: rgba(255, 255, 255, 0.05);
-        color: white;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        border: 1px solid #334155;
+        background: #232946;
+        color: #fff;
         font-size: 1rem;
 
         &:focus {
@@ -509,27 +547,31 @@
 
 .comments-list {
     .comment {
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 10px;
-        padding: 1rem;
-        margin-bottom: 1rem;
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: #232946;
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        margin-bottom: 12px;
+        border: 1px solid #334155;
 
         .comment-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 0.5rem;
-            
+            margin-bottom: 4px;
+
             .comment-author {
-                font-weight: 600;
-                color: #64b5f6;
+                color: #60a5fa;
+                font-weight: 500;
             }
-            
             .comment-timestamp {
-                font-size: 0.9rem;
-                opacity: 0.8;
+                font-size: 13px;
+                color: #94a3b8;
             }
+        }
+        p {
+            margin: 0;
+            color: #e0e7ef;
+            text-align: left;
         }
     }
 }

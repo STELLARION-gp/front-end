@@ -766,21 +766,21 @@ export default function MyBlogs() {
                                         setSelectedBlog(null);
                                         handleEdit(selectedBlog.id);
                                     }} 
-                                    variant="outline"
+                                    
                                 >
                                     <Edit2 size={16} />
                                     Edit
                                 </Button>
                                 <Button 
                                     onClick={() => handleTogglePublish(selectedBlog.id)}
-                                    variant="outline"
+                                    
                                 >
                                     {selectedBlog.published ? <EyeOff size={16} /> : <Eye size={16} />}
                                     {selectedBlog.published ? 'Unpublish' : 'Publish'}
                                 </Button>
                                 <Button 
                                     onClick={() => handleLike(selectedBlog.id)}
-                                    variant={selectedBlog.liked ? 'secondary' : 'outline'}
+                                    // variant={selectedBlog.liked ? 'secondary' : 'outline'}
                                 >
                                     <Heart size={16} fill={selectedBlog.liked ? 'currentColor' : 'none'} />
                                     {selectedBlog.liked ? 'Liked' : 'Like'}

@@ -1,4 +1,4 @@
-@import '../../variables.scss';
+// @import '../../variables.scss';
 
 .nightcamp-details {
   padding: 0;
@@ -161,7 +161,7 @@
       border: 1px solid var(--border-primary);
       border-radius: 16px;
       padding: 1.5rem;
-      backdrop-filter: blur(10px);
+    //   backdrop-filter: blur(10px);
 
       h3 {
         color: var(--text-primary);

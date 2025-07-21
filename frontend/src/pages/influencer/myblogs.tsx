@@ -553,9 +553,8 @@ export default function MyBlogs() {
 
     const renderMyBlogsTab = () => (
         <div className="blog-explore-page">
-            <div className="blogs-header">
-                <h2>My Astronomy Blogs</h2>
-                {/* <p>Manage your cosmic discoveries and insights.</p> */}
+            <div className="blogs-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, marginBottom: 24 }}>
+                <h2 style={{ margin: 0, flex: 'none' }}>My Astronomy Blogs</h2>
                 <Button onClick={() => setShowCreateForm(true)} className="create-blog-btn">
                     <Plus size={20} />
                     Create New Blog
@@ -602,6 +601,8 @@ export default function MyBlogs() {
                             <div className="form-group">
                                 <label>Blog Title</label>
                                 <InputField
+                                    label="Blog Title"
+                                    id="blog-title"
                                     type="text"
                                     name="title"
                                     placeholder="Enter your blog title..."

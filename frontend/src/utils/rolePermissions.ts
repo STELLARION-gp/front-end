@@ -69,6 +69,7 @@ export const PAGE_ACCESS_CONTROL = {
     '/dashboard/vlogs': ['influencer'] as UserRole[],
     '/dashboard/polls': ['influencer'] as UserRole[],
     '/dashboard/followers': ['influencer'] as UserRole[],
+    '/dashboard/financial-analytics': ['admin'] as UserRole[],
 
 };
 
@@ -180,6 +181,7 @@ export const ROLE_BASED_MENU_ITEMS = {
         { label: 'Events', icon: 'CalendarDaysIcon', href: '/dashboard/events' },
         { label: 'Chat', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/chat' },
         { label: 'Moderators', icon: 'ShieldCheckIcon', href: '/dashboard/moderators' },
+        { label: 'Finance Analytics', icon: 'CurrencyDollarIcon', href: '/dashboard/financial-analytics' },
     ],
 } as const;
 

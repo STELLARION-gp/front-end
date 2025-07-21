@@ -78,39 +78,60 @@ const MyBlogCard: React.FC<{
                     </div>
                 )}
                 
-                <div className="blog-status-badge">
+                {/* <div className="blog-status-badge">
                     {blog.published ? (
                         <span className="published-badge">Published</span>
                     ) : (
                         <span className="draft-badge">Draft</span>
                     )}
-                </div>
+                </div> */}
 
-                <div className="blog-actions-overlay">
-                    <button 
+                <div className="blog-actions-overlay" style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 8, alignItems: 'center' }}>
+                    <span style={{
+                        fontWeight: 600,
+                        color: blog.published ? '#22d3ee' : '#fbbf24',
+                        fontSize: 15,
+                        marginRight: 12,
+                        marginLeft: 0,
+                        display: 'flex',
+                        alignItems: 'center'
+                    }}>
+                        {blog.published ? 'Published' : 'Draft'}
+                    </span>
+                    <button  
                         className="action-btn edit-btn"
+                        style={{ 
+                            background: 'transparent', 
+                            border: '1.5px solid #334155', 
+                            borderRadius: 8, 
+                            cursor: 'pointer',
+                            padding: '10px 16px',
+                            fontSize: 20,
+                            marginRight: 0
+                        }}
                         onClick={() => onEdit(blog.id)}
                         title="Edit"
                     >
-                        <Edit2 size={16} />
+                        <Edit2 size={24} />
                     </button>
                     <button 
                         className="action-btn delete-btn"
+                        style={{ 
+                            background: 'transparent', 
+                            border: '1.5px solid #334155', 
+                            borderRadius: 8, 
+                            cursor: 'pointer',
+                            padding: '10px 16px',
+                            fontSize: 20,
+                            marginRight: 0
+                        }}
                         onClick={() => onDelete(blog.id)}
                         title="Delete"
                     >
-                        <Trash2 size={16} />
-                    </button>
-                    <button 
-                        className="action-btn publish-btn"
-                        onClick={() => onTogglePublish(blog.id)}
-                        title={blog.published ? "Unpublish" : "Publish"}
-                    >
-                        {blog.published ? <EyeOff size={16} /> : <Eye size={16} />}
+                        <Trash2 size={24} />
                     </button>
                 </div>
             </div>
-
             <div className="blog-content">
                 <h3 className="blog-title" onClick={() => onView(blog)}>
                     {blog.title}
@@ -143,15 +164,15 @@ const MyBlogCard: React.FC<{
 
                 <div className="blog-stats">
                     <div className="stat-item">
-                        <Eye size={16} />
+                        <Eye size={20} />
                         <span>{blog.reach}</span>
                     </div>
                     <div className="stat-item">
-                        <Heart size={16} />
+                        <Heart size={20} />
                         <span>{blog.likes}</span>
                     </div>
                     <div className="stat-item">
-                        <MessageCircle size={16} />
+                        <MessageCircle size={20} />
                         <span>{blog.comments.length}</span>
                     </div>
                 </div>
@@ -458,62 +479,103 @@ export default function MyBlogs() {
 
     const renderBlogsTab = () => (
         <div className="blog-explore-page">
-            <h2>Explore Astronomy Blogs</h2>
+            <h2>Astronomy Blogs</h2>
             <p>Discover the latest insights and discoveries in the field of astronomy.</p>
-            
-            {/* Blog Filters */}
-            <div className="blog-filters" style={{ display: 'flex', gap: 16, margin: '1.2rem 0', flexWrap: 'wrap' }}>
-                <input
-                    type="text"
-                    placeholder="Search title or content..."
-                    value={filter.search}
-                    onChange={e => setFilter(f => ({ ...f, search: e.target.value }))}
-                    style={{ padding: '0.5rem 1rem', borderRadius: 8, border: '1px solid #334155', minWidth: 180 }}
-                />
-                <select
-                    value={filter.author}
-                    onChange={e => setFilter(f => ({ ...f, author: e.target.value }))}
-                    style={{ padding: '0.5rem 1rem', borderRadius: 8, border: '1px solid #334155', minWidth: 140 }}
+
+            {/* Tab Navigation (NightCamps style, center aligned) */}
+            <div
+                className="myblogs__navigation"
+                style={{
+                    display: 'flex',
+                    gap: '0.5rem',
+                    justifyContent: 'center',
+                    margin: '1.2rem 0'
+                }}
+            >
+                <Button
+                    variant={activeTab === 'blogs' ? 'primary' : 'secondary'}
+                    onClick={() => setActiveTab('blogs')}
                 >
-                    <option value="">All Authors</option>
-                    {uniqueAuthors.map(author => (
-                        <option key={author} value={author}>{author}</option>
-                    ))}
-                </select>
-                <select
-                    value={filter.minRating}
-                    onChange={e => setFilter(f => ({ ...f, minRating: e.target.value }))}
-                    style={{ padding: '0.5rem 1rem', borderRadius: 8, border: '1px solid #334155', minWidth: 120 }}
+                    Explore Blogs
+                </Button>
+                <Button
+                    variant={activeTab === 'myblogs' ? 'primary' : 'secondary'}
+                    onClick={() => setActiveTab('myblogs')}
                 >
-                    <option value="">Any Rating</option>
-                    {[5,4,3,2,1].map(r => (
-                        <option key={r} value={r}>{r}+</option>
+                    My Blogs ({myBlogs.length})
+                </Button>
+            </div>
+
+            {/* Blog Filters (only show if Explore Blogs tab is active) */}
+            {activeTab === 'blogs' && (
+                <>
+                    <div className="page-title" style={{ display: 'flex', justifyContent: 'center', marginTop: 16 }}>
+                        <h2 style={{ textAlign: 'center', margin: 0 }}>Explore Blogs</h2>
+                    </div>
+                    <div className="blog-filters" style={{ display: 'flex', gap: 16, margin: '1.2rem 0', flexWrap: 'wrap' }}>
+                        <input
+                            type="text"
+                            placeholder="Search title or content..."
+                            value={filter.search}
+                            onChange={e => setFilter(f => ({ ...f, search: e.target.value }))}
+                            style={{ padding: '0.5rem 1rem', borderRadius: 8, border: '1px solid #334155', minWidth: 180 }}
+                        />
+                        <select
+                            value={filter.author}
+                            onChange={e => setFilter(f => ({ ...f, author: e.target.value }))}
+                            style={{ padding: '0.5rem 1rem', borderRadius: 8, border: '1px solid #334155', minWidth: 140 }}
+                        >
+                            <option value="">All Authors</option>
+                            {uniqueAuthors.map(author => (
+                                <option key={author} value={author}>{author}</option>
+                            ))}
+                        </select>
+                        <select
+                            value={filter.minRating}
+                            onChange={e => setFilter(f => ({ ...f, minRating: e.target.value }))}
+                            style={{ padding: '0.5rem 1rem', borderRadius: 8, border: '1px solid #334155', minWidth: 120 }}
+                        >
+                            <option value="">Any Rating</option>
+                            {[5,4,3,2,1].map(r => (
+                                <option key={r} value={r}>{r}+</option>
+                            ))}
+                        </select>
+                    </div>
+                </>
+            )}
+
+            {/* Blog List (only show if Explore Blogs tab is active) */}
+            {activeTab === 'blogs' && (
+                <div
+                    className="blogexplore-blog-list"
+                    style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(3, 1fr)',
+                        gap: '1.5rem',
+                        
+                    }}
+                >
+                    {filteredBlogs.map(blog => (
+                        <AstronomyBlogCard
+                            key={blog.id}
+                            image={blog.image}
+                            title={blog.title}
+                            author={blog.author}
+                            createdAt={blog.createdAt}
+                            rating={blog.rating}
+                            content={blog.content}
+                            onClick={() => navigate(`/dashboard/blogs/${blog.id}`)}
+                        />
                     ))}
-                </select>
-            </div>
-            
-            <div className="blogexplore-blog-list">
-                {filteredBlogs.map(blog => (
-                    <AstronomyBlogCard
-                        key={blog.id}
-                        image={blog.image}
-                        title={blog.title}
-                        author={blog.author}
-                        createdAt={blog.createdAt}
-                        rating={blog.rating}
-                        content={blog.content}
-                        onClick={() => navigate(`/dashboard/blogs/${blog.id}`)}
-                    />
-                ))}
-            </div>
+                </div>
+            )}
         </div>
     );
 
     const renderMyBlogsTab = () => (
         <div className="blog-explore-page">
-            <div className="blogs-header">
-                <h2>My Astronomy Blogs</h2>
-                <p>Manage your cosmic discoveries and insights.</p>
+            <div className="blogs-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, marginBottom: 24 }}>
+                <h2 style={{ margin: 0, flex: 'none' }}>My Astronomy Blogs</h2>
                 <Button onClick={() => setShowCreateForm(true)} className="create-blog-btn">
                     <Plus size={20} />
                     Create New Blog
@@ -560,6 +622,8 @@ export default function MyBlogs() {
                             <div className="form-group">
                                 <label>Blog Title</label>
                                 <InputField
+                                    label="Blog Title"
+                                    id="blog-title"
                                     type="text"
                                     name="title"
                                     placeholder="Enter your blog title..."
@@ -702,21 +766,21 @@ export default function MyBlogs() {
                                         setSelectedBlog(null);
                                         handleEdit(selectedBlog.id);
                                     }} 
-                                    variant="outline"
+                                    
                                 >
                                     <Edit2 size={16} />
                                     Edit
                                 </Button>
                                 <Button 
                                     onClick={() => handleTogglePublish(selectedBlog.id)}
-                                    variant="outline"
+                                    
                                 >
                                     {selectedBlog.published ? <EyeOff size={16} /> : <Eye size={16} />}
                                     {selectedBlog.published ? 'Unpublish' : 'Publish'}
                                 </Button>
                                 <Button 
                                     onClick={() => handleLike(selectedBlog.id)}
-                                    variant={selectedBlog.liked ? 'secondary' : 'outline'}
+                                    // variant={selectedBlog.liked ? 'secondary' : 'outline'}
                                 >
                                     <Heart size={16} fill={selectedBlog.liked ? 'currentColor' : 'none'} />
                                     {selectedBlog.liked ? 'Liked' : 'Like'}
@@ -769,25 +833,12 @@ export default function MyBlogs() {
 
     return (
         <div className="myblogs-tabbed-container">
-            {/* Tab Navigation */}
-            <div className="tab-navigation">
-                <button 
-                    className={`tab-button ${activeTab === 'blogs' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('blogs')}
-                >
-                    Explore Blogs
-                </button>
-                <button 
-                    className={`tab-button ${activeTab === 'myblogs' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('myblogs')}
-                >
-                    My Blogs ({myBlogs.length})
-                </button>
-            </div>
+            {/* Always show Explore Astronomy Blogs above tabs */}
+            {renderBlogsTab()}
 
-            {/* Tab Content */}
+            {/* Tab Content (only show My Blogs tab content if active) */}
             <div className="tab-content">
-                {activeTab === 'blogs' ? renderBlogsTab() : renderMyBlogsTab()}
+                {activeTab === 'myblogs' && renderMyBlogsTab()}
             </div>
         </div>
     );

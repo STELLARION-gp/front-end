@@ -150,6 +150,7 @@
     padding: 2rem 1.5rem;
     max-width: 1400px;
     margin: 0 auto;
+    background: rgba(0, 0, 0, 0.141);
 
     .content-grid {
       display: grid;
@@ -632,6 +633,9 @@
     gap: 1rem;
     justify-content: center;
     flex-wrap: wrap;
+    background: rgba(0, 0, 0, 0.141);
+    border-radius: 0 0 16px 16px;
+    margin-bottom: 10px;
   }
 
   // Loading State

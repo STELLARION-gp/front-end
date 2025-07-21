@@ -101,6 +101,8 @@ import MentorProfiles from '../pages/admin/MentorProfiles';
 import MentorProfileDetail from '../pages/admin/MentorProfileDetail';
 import CreateNightCamp from '../pages/moderator/CreateNightCamp';
 import NightCampDetailsModerator from '../pages/moderator/NightCampDetails';
+import CreateEvent from '../pages/moderator/CreateEvent';
+import EventDetails from '../pages/moderator/EventDetails';
 
 // Create placeholder components for different pages - all memoized
 // const BlogsPage = memo(() => (
@@ -562,6 +564,22 @@ const DashboardRoutes = () => {
                 element={
                     <RoleGuard allowedRoles={['moderator', 'admin']}>
                         <NightCampModeration />
+                    </RoleGuard>
+                }
+            />
+            <Route
+                path="moderation/events/details/:id"
+                element={
+                    <RoleGuard allowedRoles={['moderator', 'admin']}>
+                        <EventDetails />
+                    </RoleGuard>
+                }
+            />
+            <Route
+                path="moderation/events/create"
+                element={
+                    <RoleGuard allowedRoles={['moderator', 'admin']}>
+                        <CreateEvent />
                     </RoleGuard>
                 }
             />

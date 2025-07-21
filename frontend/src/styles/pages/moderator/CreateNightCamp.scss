@@ -4,17 +4,22 @@
   padding: 0;
   max-width: 100%;
   margin: 0 auto;
-  background: var(--background-primary);
+  background: #0a0a0a;
   min-height: 100vh;
+  color: #ffffff;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
 
   // Header
   .create-header {
-    background: linear-gradient(135deg, var(--background-secondary) 0%, var(--surface-primary) 100%);
-    border-bottom: 1px solid var(--border-primary);
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     padding: 2rem 1.5rem 1.5rem;
     position: sticky;
     top: 0;
     z-index: 100;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 
     .header-content {
       max-width: 1200px;
@@ -29,16 +34,17 @@
           h1 {
             font-size: 2rem;
             font-weight: 700;
-            color: var(--text-primary);
+            color: #ffffff;
             margin: 0 0 0.25rem 0;
-            background: linear-gradient(135deg, var(--primary-color), var(--accent-primary));
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            text-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
           }
 
           p {
-            color: var(--text-secondary);
+            color: rgba(255, 255, 255, 0.7);
             margin: 0;
             font-size: 0.95rem;
           }
@@ -61,29 +67,41 @@
       }
 
       .form-section {
-        background: var(--surface-primary);
-        border: 1px solid var(--border-primary);
+        background: rgba(26, 26, 46, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 16px;
         padding: 1.5rem;
-        backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+
+        &:hover {
+          transform: translateY(-2px);
+          border-color: rgba(102, 126, 234, 0.3);
+          box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+        }
 
         h3 {
-          color: var(--text-primary);
+          color: #ffffff;
           margin: 0 0 1.5rem 0;
           font-size: 1.25rem;
           font-weight: 600;
           display: flex;
           align-items: center;
           gap: 0.5rem;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          -webkit-background-clip: text;
+          background-clip: text;
+          -webkit-text-fill-color: transparent;
 
           svg {
-            color: var(--accent-primary);
+            color: #667eea;
           }
         }
 
         h4 {
-          color: var(--text-primary);
+          color: #ffffff;
           margin: 0 0 1rem 0;
           font-size: 1rem;
           font-weight: 500;
@@ -114,7 +132,7 @@
         gap: 0.5rem;
 
         label {
-          color: var(--text-primary);
+          color: #ffffff;
           font-weight: 500;
           font-size: 0.9rem;
           display: flex;
@@ -122,7 +140,7 @@
           gap: 0.5rem;
 
           svg {
-            color: var(--accent-primary);
+            color: #667eea;
             font-size: 0.8rem;
           }
         }
@@ -131,21 +149,22 @@
         textarea,
         select {
           padding: 0.75rem 1rem;
-          border: 1px solid var(--border-primary);
+          border: 1px solid rgba(255, 255, 255, 0.1);
           border-radius: 8px;
-          background: var(--background-primary);
-          color: var(--text-primary);
+          background: rgba(10, 10, 10, 0.6);
+          color: #ffffff;
           font-size: 0.95rem;
           transition: all 0.3s ease;
 
           &:focus {
             outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            background: rgba(26, 26, 46, 0.8);
           }
 
           &::placeholder {
-            color: var(--text-tertiary);
+            color: rgba(255, 255, 255, 0.4);
           }
 
           &:disabled {
@@ -189,9 +208,9 @@
           .checkmark {
             width: 20px;
             height: 20px;
-            border: 2px solid var(--border-primary);
+            border: 2px solid rgba(255, 255, 255, 0.2);
             border-radius: 4px;
-            background: var(--background-primary);
+            background: rgba(10, 10, 10, 0.6);
             position: relative;
             transition: all 0.3s ease;
 
@@ -202,7 +221,7 @@
               left: 6px;
               width: 6px;
               height: 10px;
-              border: solid var(--primary-color);
+              border: solid #667eea;
               border-width: 0 2px 2px 0;
               transform: rotate(45deg) scale(0);
               transition: transform 0.2s ease;
@@ -210,8 +229,8 @@
           }
 
           input[type="checkbox"]:checked + .checkmark {
-            background: var(--primary-color);
-            border-color: var(--primary-color);
+            background: #667eea;
+            border-color: #667eea;
 
             &::after {
               transform: rotate(45deg) scale(1);
@@ -220,7 +239,7 @@
           }
 
           span:not(.checkmark) {
-            color: var(--text-primary);
+            color: #ffffff;
             font-size: 0.9rem;
           }
         }
@@ -270,7 +289,7 @@
         }
 
         h4 {
-          color: var(--accent-primary);
+          color: #667eea;
           font-size: 0.95rem;
           text-transform: uppercase;
           letter-spacing: 0.5px;
@@ -284,11 +303,19 @@
         gap: 1rem;
         justify-content: center;
         padding: 2rem 0 1rem;
-        border-top: 1px solid var(--border-primary);
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
         margin-top: 2rem;
 
         button {
           min-width: 150px;
+          border-radius: 8px;
+          font-weight: 600;
+          transition: all 0.3s ease;
+
+          &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+          }
         }
 
         @media (max-width: 768px) {

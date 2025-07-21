@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaArrowLeft, FaSearch, FaCalendarAlt, FaMapMarkerAlt, FaUsers, FaStar, FaPlus, FaEye } from 'react-icons/fa';
+import { FaSearch, FaCalendarAlt, FaMapMarkerAlt, FaUsers, FaStar, FaPlus, FaEye } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import Button from '../../components/Button';
 import '../../styles/pages/moderator/NightCampModeration.scss';
@@ -230,9 +230,9 @@ const NightCampModeration: React.FC = () => {
   if (loading) {
     return (
       <div className="nightcamp-moderation">
-        <div className="moderation-header">
-          <div className="header-content">
-            <div className="header-left">
+        <div className="nightcamp-header1">
+          <div className="nightcamp-header-content1">
+            <div className="nightcamp-header-left1">
               <Button
                 variant="ghost"
                 size="medium"
@@ -240,15 +240,15 @@ const NightCampModeration: React.FC = () => {
               >
                 ← Back
               </Button>
-              <div className="title-section">
+              <div className="nightcamp-title-section1">
                 <h1>Loading Night Camps...</h1>
                 <p>Please wait while we fetch the events</p>
               </div>
             </div>
           </div>
         </div>
-        <div className="loading-container">
-          <div className="loading-spinner"></div>
+        <div className="nightcamp-loading-container">
+          <div className="nightcamp-loading-spinner"></div>
         </div>
       </div>
     );
@@ -257,9 +257,9 @@ const NightCampModeration: React.FC = () => {
   return (
     <div className="nightcamp-moderation">
       {/* Header */}
-      <div className="moderation-header">
-        <div className="header-content">
-          <div className="header-left">
+      <div className="nightcamp-header">
+        <div className="nightcamp-header-content">
+          <div className="nightcamp-header-left">
             <Button
               variant="ghost"
               size="medium"
@@ -267,16 +267,16 @@ const NightCampModeration: React.FC = () => {
             >
               ← Back
             </Button>
-            <div className="title-section">
+            <div className="nightcamp-title-section">
               <h1>Night Camp Moderation</h1>
               <p>Review and approve overnight stargazing events</p>
             </div>
           </div>
-          <div className="header-actions">
+          <div className="nightcamp-header-actions">
             <Button
               variant="primary"
               size="medium"
-              onClick={() => navigate('/moderation/camps/create')}
+              onClick={() => navigate('/moderation/night-camps/create')}
             >
               <FaPlus /> Create Night Camp
             </Button>
@@ -285,9 +285,9 @@ const NightCampModeration: React.FC = () => {
       </div>
 
       {/* Controls */}
-      <div className="controls-section">
-        <div className="search-box">
-          <FaSearch className="search-icon" />
+      <div className="nightcamp-controls">
+        <div className="nightcamp-search-box">
+          <FaSearch className="nightcamp-search-icon" />
           <input
             type="text"
             placeholder="Search camps, organizers, or locations..."
@@ -295,7 +295,7 @@ const NightCampModeration: React.FC = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <div className="filter-tabs">
+        <div className="nightcamp-filter-tabs">
           {['all', 'pending', 'approved', 'needs-review', 'rejected'].map(filter => (
             <Button
               key={filter}
@@ -310,79 +310,79 @@ const NightCampModeration: React.FC = () => {
       </div>
 
       {/* Main Content */}
-      <div className="moderation-content">
-        <div className="camps-list">
+      <div className="nightcamp-content">
+        <div className="nightcamp-list">
           {filteredCamps.map(camp => (
-            <div key={camp.id} className="camp-item">
-              <div className="item-header">
-                <div className="item-info">
-                  <div className="camp-icon">
+            <div key={camp.id} className="nightcamp-item">
+              <div className="nightcamp-item-header">
+                <div className="nightcamp-item-info">
+                  <div className="nightcamp-icon">
                     🏕️
                   </div>
-                  <div className="item-details">
-                    <h3 className="camp-title">{camp.title}</h3>
-                    <p className="camp-organizer">by {camp.organizer.name}</p>
-                    <div className="camp-meta">
-                      <span className="meta-item">
+                  <div className="nightcamp-item-details">
+                    <h3 className="nightcamp-title">{camp.title}</h3>
+                    <p className="nightcamp-organizer">by {camp.organizer.name}</p>
+                    <div className="nightcamp-meta">
+                      <span className="nightcamp-meta-item">
                         <FaCalendarAlt />
                         {formatDate(camp.schedule.startDate)}
                       </span>
-                      <span className="meta-item">
+                      <span className="nightcamp-meta-item">
                         <FaMapMarkerAlt />
                         {camp.location.name}
                       </span>
-                      <span className="meta-item">
+                      <span className="nightcamp-meta-item">
                         <FaUsers />
                         {camp.capacity.current}/{camp.capacity.max} participants
                       </span>
                     </div>
                   </div>
                 </div>
-                <div className="status-badges">
-                  <div className={`priority-badge priority-${camp.priority}`}>
+                <div className="nightcamp-status-badges">
+                  <div className={`nightcamp-priority-badge priority-${camp.priority}`}>
                     {camp.priority}
                   </div>
-                  <div className={`status-badge status-${camp.status.replace('-', '')}`}>
+                  <div className={`nightcamp-status-badge status-${camp.status.replace('-', '')}`}>
                     {camp.status.replace('-', ' ')}
                   </div>
                 </div>
               </div>
 
-              <div className="item-content">
-                <div className="camp-description">
+              <div className="nightcamp-item-content">
+                <div className="nightcamp-description">
                   <p>{camp.description.substring(0, 150)}...</p>
                 </div>
 
-                <div className="camp-stats">
-                  <div className="stat-item">
-                    <span className="label">Duration:</span>
-                    <span className="value">{camp.schedule.duration}</span>
+                <div className="nightcamp-stats">
+                  <div className="nightcamp-stat-item">
+                    <span className="nightcamp-label">Duration:</span>
+                    <span className="nightcamp-value">{camp.schedule.duration}</span>
                   </div>
-                  <div className="stat-item">
-                    <span className="label">Total Cost:</span>
-                    <span className="value">${camp.costs.total}</span>
+                  <div className="nightcamp-stat-item">
+                    <span className="nightcamp-label">Total Cost:</span>
+                    <span className="nightcamp-value">${camp.costs.total}</span>
                   </div>
-                  <div className="stat-item">
-                    <span className="label">Rating:</span>
-                    <span className="value">
-                      <FaStar className="star-icon" />
+                  <div className="nightcamp-stat-item">
+                    <span className="nightcamp-label">Rating:</span>
+                    <span className="nightcamp-value">
+                      <FaStar className="nightcamp-star-icon" />
                       {camp.organizer.rating}
                     </span>
                   </div>
                   {camp.reportCount > 0 && (
-                    <div className="stat-item">
-                      <span className="label">Reports:</span>
-                      <span className="value warning">{camp.reportCount}</span>
+                    <div className="nightcamp-stat-item">
+                      <span className="nightcamp-label">Reports:</span>
+                      <span className="nightcamp-value warning">{camp.reportCount}</span>
                     </div>
                   )}
                 </div>
               </div>
 
-              <div className="item-actions">
+              <div className="nightcamp-item-actions">
                 <Button
                   variant="primary"
                   size="small"
-                  onClick={() => navigate(`/moderation/camps/details/${camp.id}`)}
+                  onClick={() => navigate(`/moderation/night-camps/details/${camp.id}`)}
                 >
                   <FaEye /> View Details
                 </Button>

@@ -132,7 +132,7 @@ const CreateNightCamp: React.FC = () => {
       };
 
       console.log('Night Camp Created:', cleanedData);
-      navigate('/moderation/camps');
+      navigate('/dashboard/moderation/night-camps');
     } catch (error) {
       console.error('Error creating night camp:', error);
     } finally {
@@ -149,7 +149,7 @@ const CreateNightCamp: React.FC = () => {
             <Button
               variant="ghost"
               size="medium"
-              onClick={() => navigate('/moderation/camps')}
+              onClick={() => navigate('/dashboard/moderation/night-camps')}
             >
               ← Back
             </Button>
@@ -520,7 +520,7 @@ const CreateNightCamp: React.FC = () => {
               type="button"
               variant="border"
               size="large"
-              onClick={() => navigate('/moderation/camps')}
+              onClick={() => navigate('/dashboard/moderation/night-camps')}
               disabled={isSubmitting}
             >
               Cancel

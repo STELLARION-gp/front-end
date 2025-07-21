@@ -11,6 +11,7 @@ import "../../styles/pages/learner/BlogPage.scss"
 import { AuthContext } from '../../contexts/AuthContext';
 import { blogService } from '../../services/blogService';
 import type { CreateBlogRequest } from '../../services/blogService';
+import { FirebaseStorageService } from '../../services/firebaseStorage';
 
 type ActiveSection = 'blogs' | 'myblogs';
 
@@ -27,6 +28,7 @@ type Blog = {
     content: string;
     excerpt?: string;
     image_url?: string;
+    featured_image?: string; // Backend field
     author_id: number;
     status: 'draft' | 'published' | 'archived';
     published_at?: string;
@@ -197,6 +199,8 @@ export default function MyBlogs() {
     const [newComment, setNewComment] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [imageUploading, setImageUploading] = useState(false);
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
 
     // Blog exploration states
     const [filter, setFilter] = React.useState({
@@ -209,12 +213,29 @@ export default function MyBlogs() {
     // Get current user info
     const currentUser = authContext?.userProfile;
     const currentUserName = currentUser?.displayName || 'User';
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
     useEffect(() => {
         if (currentUser) {
             loadMyBlogs();
+            // Test Firebase Storage configuration
+            testFirebaseStorage();
         }
     }, [currentUser]);
+
+    const testFirebaseStorage = async () => {
+        try {
+            const config = await FirebaseStorageService.checkConfiguration();
+            if (!config.isConfigured) {
+                console.error('Firebase Storage configuration issues:', config.errors);
+                setError(`Firebase Storage setup issues: ${config.errors.join(', ')}`);
+            } else {
+                console.log('✅ Firebase Storage is properly configured');
+            }
+        } catch (err) {
+            console.error('Firebase Storage test failed:', err);
+        }
+    };
 
     const loadMyBlogs = async () => {
         if (!currentUser) return;
@@ -223,55 +244,176 @@ export default function MyBlogs() {
         setError(null);
         
         try {
-            // For now, skip API call and use demo data until backend is properly integrated
-            // TODO: Implement proper user ID mapping for Firebase UID to backend user ID
-            console.log('Loading blogs for user:', currentUser.uid);
+            console.log('Loading blogs for user:', currentUser.uid, 'Display name:', currentUserName);
             
-            // Fallback to demo data
-            const convertedBlogs: Blog[] = blogs
-                .filter(blog => blog.author === currentUserName)
-                .map(blog => ({
-                    ...blog,
-                    author_id: 0, // Will be resolved when backend integration is complete
-                    status: Math.random() > 0.5 ? 'published' : 'draft' as const,
-                    view_count: Math.floor(Math.random() * 1000) + 100,
-                    like_count: Math.floor(Math.random() * 50) + 10,
-                    comment_count: 0,
-                    tags: [],
-                    created_at: blog.createdAt || new Date().toISOString(),
-                    updated_at: blog.createdAt || new Date().toISOString(),
-                    date: blog.createdAt,
-                    reach: Math.floor(Math.random() * 1000) + 100,
-                    likes: Math.floor(Math.random() * 50) + 10,
+            // Try to get user's blogs from the API
+            try {
+                // First get all blogs since we need to filter by user
+                const response = await blogService.getBlogs({
+                    status: undefined, // Get both published and draft
+                    limit: 50 // Get more blogs to filter through
+                });
+                
+                console.log('API response:', response);
+                
+                if (response.success && response.data && response.data.blogs) {
+                    console.log('All blogs from API:', response.data.blogs);
+                    
+                    // Filter blogs by current user (using multiple criteria)
+                    const userBlogs = response.data.blogs.filter((blog: any) => {
+                        const matchesAuthorName = blog.author_name && 
+                                                 (blog.author_name.toLowerCase().includes(currentUserName.toLowerCase()) ||
+                                                  currentUserName.toLowerCase().includes(blog.author_name.toLowerCase()));
+                        const matchesDisplayName = blog.author_display_name === currentUserName;
+                        const matchesEmail = blog.author_email === currentUser.email;
+                        
+                        console.log('Blog filter check:', {
+                            blogId: blog.id,
+                            blogTitle: blog.title,
+                            blogAuthor: blog.author_name,
+                            blogDisplayName: blog.author_display_name,
+                            blogEmail: blog.author_email,
+                            currentUserName,
+                            currentUserEmail: currentUser.email,
+                            matchesAuthorName,
+                            matchesDisplayName,
+                            matchesEmail
+                        });
+                        
+                        return matchesAuthorName || matchesDisplayName || matchesEmail;
+                    });
+                    
+                    console.log('Filtered user blogs:', userBlogs);
+                    
+                    if (userBlogs.length > 0) {
+                        // Convert API response to component format
+                        const convertedBlogs: Blog[] = userBlogs.map((blog: any) => ({
+                            ...blog,
+                            // Use featured_image as the primary field
+                            image: blog.featured_image || FirebaseStorageService.DEFAULT_BLOG_IMAGE,
+                            image_url: blog.featured_image || FirebaseStorageService.DEFAULT_BLOG_IMAGE,
+                            featured_image: blog.featured_image || FirebaseStorageService.DEFAULT_BLOG_IMAGE,
+                            author: blog.author_display_name || blog.author_name || currentUserName,
+                            date: blog.created_at,
+                            reach: blog.view_count || blog.views_count || 0,
+                            likes: blog.like_count || blog.likes_count || 0,
+                            rating: 0,
+                            comments: [],
+                            liked: blog.user_liked || false,
+                            published: blog.status === 'published',
+                            createdAt: blog.created_at
+                        }));
+                        
+                        setMyBlogs(convertedBlogs);
+                        console.log('Set user blogs from API:', convertedBlogs);
+                        return;
+                    } else {
+                        console.log('No user blogs found in API response, will create sample blogs...');
+                    }
+                } else {
+                    console.log('API response not successful or no data:', response);
+                }
+            } catch (apiError: any) {
+                console.log('API call failed:', apiError);
+                setError(`API Error: ${apiError.message}. Using sample data.`);
+            }
+            
+            // Fallback to demo data with automatic sample blog creation for current user
+            console.log('Creating sample blogs for user:', currentUserName);
+            
+            // Find existing demo blogs for current user
+            const existingUserBlogs = blogs.filter(blog => blog.author === currentUserName);
+            console.log('Found existing demo blogs:', existingUserBlogs);
+            
+            // Create sample blogs for the current user (always create some for demo)
+            const sampleBlogs = [
+                {
+                    id: Date.now() + 1,
+                    title: "Welcome to Your Astronomy Blog",
+                    content: "Welcome to your personal astronomy blog dashboard! Here you can create, edit, and manage your cosmic discoveries and insights. This is a sample blog created automatically for you. Feel free to edit or delete it and create your own amazing content about the universe!",
+                    image: FirebaseStorageService.DEFAULT_BLOG_IMAGE,
+                    author: currentUserName,
+                    createdAt: new Date().toISOString(),
+                    rating: 4.5,
+                    reach: 125,
+                    likes: 23,
                     comments: [],
-                    liked: false,
-                    published: Math.random() > 0.5
-                }));
+                    liked: false
+                },
+                {
+                    id: Date.now() + 2,
+                    title: "Getting Started with Stargazing",
+                    content: "Stargazing is one of the most rewarding hobbies you can pursue. All you need is a clear night sky and curiosity about the cosmos. Start by identifying bright stars and constellations, then gradually work your way up to planets, star clusters, and nebulae. This sample post shows how your blogs might look!",
+                    image: FirebaseStorageService.DEFAULT_BLOG_IMAGE,
+                    author: currentUserName,
+                    createdAt: new Date(Date.now() - 86400000).toISOString(), // Yesterday
+                    rating: 4.8,
+                    reach: 89,
+                    likes: 34,
+                    comments: [],
+                    liked: false
+                }
+            ];
+            
+            // Use existing blogs if any, otherwise use sample blogs
+            const userDemoBlogs: any[] = existingUserBlogs.length > 0 ? existingUserBlogs : sampleBlogs;
+            
+            const convertedBlogs: Blog[] = userDemoBlogs.map(blog => ({
+                ...blog,
+                author_id: 0,
+                status: Math.random() > 0.5 ? 'published' : 'draft' as const,
+                view_count: (blog as any).reach || Math.floor(Math.random() * 1000) + 100,
+                like_count: (blog as any).likes || Math.floor(Math.random() * 50) + 10,
+                comment_count: 0,
+                tags: [],
+                created_at: blog.createdAt || new Date().toISOString(),
+                updated_at: blog.createdAt || new Date().toISOString(),
+                date: blog.createdAt,
+                reach: (blog as any).reach || Math.floor(Math.random() * 1000) + 100,
+                likes: (blog as any).likes || Math.floor(Math.random() * 50) + 10,
+                comments: (blog as any).comments || [],
+                liked: (blog as any).liked || false,
+                published: Math.random() > 0.5,
+                // Ensure featured_image and image_url are set
+                featured_image: blog.image || FirebaseStorageService.DEFAULT_BLOG_IMAGE,
+                image_url: blog.image || FirebaseStorageService.DEFAULT_BLOG_IMAGE
+            }));
+            
             setMyBlogs(convertedBlogs);
+            console.log('Set demo blogs for user:', convertedBlogs);
+            
         } catch (err: any) {
             console.error('Error loading blogs:', err);
+            setError('Failed to load blogs. Please try again.');
             
-            // Fallback to demo data if API fails
-            const convertedBlogs: Blog[] = blogs
-                .filter(blog => blog.author === currentUserName)
-                .map(blog => ({
-                    ...blog,
-                    author_id: 0,
-                    status: Math.random() > 0.5 ? 'published' : 'draft' as const,
-                    view_count: Math.floor(Math.random() * 1000) + 100,
-                    like_count: Math.floor(Math.random() * 50) + 10,
-                    comment_count: 0,
-                    tags: [],
-                    created_at: blog.createdAt || new Date().toISOString(),
-                    updated_at: blog.createdAt || new Date().toISOString(),
-                    date: blog.createdAt,
-                    reach: Math.floor(Math.random() * 1000) + 100,
-                    likes: Math.floor(Math.random() * 50) + 10,
-                    comments: [],
-                    liked: false,
-                    published: Math.random() > 0.5
-                }));
-            setMyBlogs(convertedBlogs);
+            // Last resort fallback - create at least one blog for the user
+            const fallbackBlog: Blog = {
+                id: Date.now(),
+                title: "Welcome to Your Blog Dashboard",
+                content: "This is your blog dashboard where you can create, edit, and manage your astronomy blogs. Start by creating your first blog post to share your cosmic discoveries with the world!",
+                author_id: 0,
+                status: 'draft',
+                view_count: 0,
+                like_count: 0,
+                comment_count: 0,
+                tags: [],
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+                author: currentUserName,
+                date: new Date().toISOString(),
+                createdAt: new Date().toISOString(),
+                reach: 0,
+                likes: 0,
+                rating: 0,
+                comments: [],
+                liked: false,
+                published: false,
+                image: FirebaseStorageService.DEFAULT_BLOG_IMAGE,
+                featured_image: FirebaseStorageService.DEFAULT_BLOG_IMAGE,
+                image_url: FirebaseStorageService.DEFAULT_BLOG_IMAGE
+            };
+            
+            setMyBlogs([fallbackBlog]);
         } finally {
             setLoading(false);
         }
@@ -296,10 +438,23 @@ export default function MyBlogs() {
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         const files = (e.target as HTMLInputElement).files;
-        setNewBlog((prev) => ({
-            ...prev,
-            [name]: files ? files[0] : value,
-        }));
+        
+        if (name === 'image' && files && files[0]) {
+            const file = files[0];
+            setNewBlog((prev) => ({
+                ...prev,
+                image: file,
+            }));
+            
+            // Create preview URL
+            const previewUrl = URL.createObjectURL(file);
+            setImagePreview(previewUrl);
+        } else {
+            setNewBlog((prev) => ({
+                ...prev,
+                [name]: files ? files[0] : value,
+            }));
+        }
     };
 
     const handleCreateBlog = async (e: React.FormEvent) => {
@@ -317,14 +472,22 @@ export default function MyBlogs() {
         }
 
         setLoading(true);
+        let imageUrl: string = FirebaseStorageService.DEFAULT_BLOG_IMAGE;
 
         try {
-            // Enable API call for blog creation
+            // Upload image if provided, otherwise use default
+            if (newBlog.image) {
+                setImageUploading(true);
+                // Don't pass blogId during creation since it doesn't exist yet
+                imageUrl = await FirebaseStorageService.uploadBlogImage(newBlog.image);
+                setImageUploading(false);
+            }
+
             const blogData: CreateBlogRequest = {
                 title: newBlog.title,
                 content: newBlog.content,
                 status: 'draft',
-                image_url: newBlog.image ? URL.createObjectURL(newBlog.image) : undefined,
+                featured_image: imageUrl,
                 tags: [],
                 metadata: {}
             };
@@ -335,12 +498,14 @@ export default function MyBlogs() {
                 // Convert API response to component format
                 const newBlogPost: Blog = {
                     ...response.data,
-                    // Legacy compatibility fields
-                    image: response.data.image_url,
+                    // Use featured_image as the primary field
+                    image: response.data.featured_image || FirebaseStorageService.DEFAULT_BLOG_IMAGE,
+                    image_url: response.data.featured_image || FirebaseStorageService.DEFAULT_BLOG_IMAGE,
+                    featured_image: response.data.featured_image || FirebaseStorageService.DEFAULT_BLOG_IMAGE,
                     author: currentUserName,
                     date: response.data.created_at,
-                    reach: response.data.view_count,
-                    likes: response.data.like_count,
+                    reach: response.data.view_count || response.data.views_count || 0,
+                    likes: response.data.like_count || response.data.likes_count || 0,
                     rating: 0,
                     comments: [],
                     liked: false,
@@ -350,7 +515,11 @@ export default function MyBlogs() {
                 
                 setMyBlogs([newBlogPost, ...myBlogs]);
                 setNewBlog({ title: '', content: '', image: null });
+                setImagePreview(null);
                 setShowCreateForm(false);
+                setError(null);
+                setSuccessMessage('Blog created as draft successfully!');
+                setTimeout(() => setSuccessMessage(null), 3000);
             } else {
                 throw new Error('Failed to create blog');
             }
@@ -358,9 +527,19 @@ export default function MyBlogs() {
             console.error('Error creating blog:', err);
             setError('Failed to create blog. Please try again.');
             
+            // Clean up uploaded image if blog creation failed
+            if (newBlog.image && imageUrl && imageUrl !== FirebaseStorageService.DEFAULT_BLOG_IMAGE) {
+                try {
+                    await FirebaseStorageService.deleteImage(imageUrl);
+                } catch (deleteErr) {
+                    console.error('Error cleaning up image:', deleteErr);
+                }
+            }
+            
             // Fallback to local creation for demo
             const newId = myBlogs.length ? Math.max(...myBlogs.map(b => b.id)) + 1 : 1000;
             const currentDate = new Date().toISOString();
+            const fallbackImageUrl = newBlog.image ? URL.createObjectURL(newBlog.image) : FirebaseStorageService.DEFAULT_BLOG_IMAGE;
             const newBlogPost: Blog = {
                 id: newId,
                 title: newBlog.title,
@@ -382,14 +561,18 @@ export default function MyBlogs() {
                 comments: [],
                 liked: false,
                 published: false,
-                image: newBlog.image ? URL.createObjectURL(newBlog.image) : null,
+                image: fallbackImageUrl,
+                image_url: fallbackImageUrl,
+                featured_image: fallbackImageUrl,
             };
             
             setMyBlogs([newBlogPost, ...myBlogs]);
             setNewBlog({ title: '', content: '', image: null });
+            setImagePreview(null);
             setShowCreateForm(false);
         } finally {
             setLoading(false);
+            setImageUploading(false);
         }
     };
 
@@ -405,7 +588,8 @@ export default function MyBlogs() {
     const handlePublishBlog = async (e?: React.FormEvent) => {
         if (e) e.preventDefault();
         if (editingId) {
-            handleUpdateBlog(e || {} as React.FormEvent, true);
+            // When editing, call update with publish=true
+            await handleUpdateBlog(e, true);
         } else {
             console.log('Publishing blog:', newBlog);
             
@@ -420,6 +604,7 @@ export default function MyBlogs() {
             }
 
             setLoading(true);
+            let imageUrl: string = FirebaseStorageService.DEFAULT_BLOG_IMAGE;
 
             try {
                 // Check authentication state first
@@ -439,12 +624,20 @@ export default function MyBlogs() {
                     console.log('Test API call failed:', testErr);
                 }
 
+                // Upload image if provided, otherwise use default
+                if (newBlog.image) {
+                    setImageUploading(true);
+                    // Don't pass blogId during creation since it doesn't exist yet
+                    imageUrl = await FirebaseStorageService.uploadBlogImage(newBlog.image);
+                    setImageUploading(false);
+                }
+
                 // Enable API call for blog creation
                 const blogData: CreateBlogRequest = {
                     title: newBlog.title,
                     content: newBlog.content,
                     status: 'published',
-                    image_url: newBlog.image ? URL.createObjectURL(newBlog.image) : undefined,
+                    featured_image: imageUrl,
                     tags: [],
                     metadata: {}
                 };
@@ -458,12 +651,14 @@ export default function MyBlogs() {
                     // Convert API response to component format
                     const newBlogPost: Blog = {
                         ...response.data,
-                        // Legacy compatibility fields
-                        image: response.data.image_url,
+                        // Use featured_image as the primary field
+                        image: response.data.featured_image || FirebaseStorageService.DEFAULT_BLOG_IMAGE,
+                        image_url: response.data.featured_image || FirebaseStorageService.DEFAULT_BLOG_IMAGE,
+                        featured_image: response.data.featured_image || FirebaseStorageService.DEFAULT_BLOG_IMAGE,
                         author: currentUserName,
                         date: response.data.created_at,
-                        reach: response.data.view_count,
-                        likes: response.data.like_count,
+                        reach: response.data.view_count || response.data.views_count || 0,
+                        likes: response.data.like_count || response.data.likes_count || 0,
                         rating: 0,
                         comments: [],
                         liked: false,
@@ -473,13 +668,26 @@ export default function MyBlogs() {
                     
                     setMyBlogs([newBlogPost, ...myBlogs]);
                     setNewBlog({ title: '', content: '', image: null });
+                    setImagePreview(null);
                     setShowCreateForm(false);
+                    setError(null);
+                    setSuccessMessage('Blog published successfully!');
+                    setTimeout(() => setSuccessMessage(null), 3000);
                 } else {
                     throw new Error('Failed to create blog');
                 }
             } catch (err: any) {
                 console.error('Error publishing blog:', err);
                 setError(`Failed to publish blog: ${err.message}`);
+                
+                // Clean up uploaded image if blog creation failed
+                if (newBlog.image && imageUrl !== FirebaseStorageService.DEFAULT_BLOG_IMAGE) {
+                    try {
+                        await FirebaseStorageService.deleteImage(imageUrl);
+                    } catch (deleteErr) {
+                        console.error('Error cleaning up image:', deleteErr);
+                    }
+                }
                 
                 // For now, always fallback to local creation since there might be auth issues
                 console.log('Falling back to local blog creation');
@@ -506,16 +714,20 @@ export default function MyBlogs() {
                     comments: [],
                     liked: false,
                     published: true,
-                    image: newBlog.image ? URL.createObjectURL(newBlog.image) : null,
+                    image: newBlog.image ? URL.createObjectURL(newBlog.image) : FirebaseStorageService.DEFAULT_BLOG_IMAGE,
+                    image_url: newBlog.image ? URL.createObjectURL(newBlog.image) : FirebaseStorageService.DEFAULT_BLOG_IMAGE,
+                    featured_image: newBlog.image ? URL.createObjectURL(newBlog.image) : FirebaseStorageService.DEFAULT_BLOG_IMAGE,
                 };
                 setMyBlogs([newBlogPost, ...myBlogs]);
                 setNewBlog({ title: '', content: '', image: null });
+                setImagePreview(null);
                 setShowCreateForm(false);
                 
                 // Clear error after successful fallback
                 setTimeout(() => setError(null), 3000);
             } finally {
                 setLoading(false);
+                setImageUploading(false);
             }
         }
     };
@@ -544,40 +756,126 @@ export default function MyBlogs() {
         const blog = myBlogs.find((b) => b.id === id);
         if (blog) {
             setNewBlog({ title: blog.title, content: blog.content, image: null });
+            // Set the current image as preview for editing
+            setImagePreview(blog.featured_image || blog.image_url || blog.image || null);
             setShowCreateForm(true);
         }
     };
 
-    const handleUpdateBlog = (e: React.FormEvent, publish?: boolean) => {
-        e.preventDefault();
-        setMyBlogs(
-            myBlogs.map((b) =>
-                b.id === editingId
-                    ? {
-                            ...b,
-                            title: newBlog.title,
-                            content: newBlog.content,
-                            image: newBlog.image ? URL.createObjectURL(newBlog.image) : b.image,
-                            published: publish !== undefined ? publish : b.published,
-                        }
-                    : b
-            )
-        );
+    const handleUpdateBlog = async (e?: React.FormEvent, publish?: boolean) => {
+        if (e) e.preventDefault();
         
-        // Update selected blog if it's the one being edited
-        if (selectedBlog?.id === editingId) {
-            setSelectedBlog(prev => prev ? {
-                ...prev,
-                title: newBlog.title,
-                content: newBlog.content,
-                image: newBlog.image ? URL.createObjectURL(newBlog.image) : prev.image,
-                published: publish !== undefined ? publish : prev.published,
-            } : null);
+        if (!editingId) {
+            console.error('No editingId found for update');
+            return;
         }
         
-        setEditingId(null);
-        setNewBlog({ title: '', content: '', image: null });
-        setShowCreateForm(false);
+        // Validate form inputs
+        if (!newBlog.title.trim() || !newBlog.content.trim()) {
+            setError('Please fill in both title and content before updating.');
+            return;
+        }
+        
+        setLoading(true);
+        let imageUrl: string | undefined;
+        const existingBlog = myBlogs.find(b => b.id === editingId);
+        
+        try {
+            // Handle image upload/removal logic
+            if (newBlog.image) {
+                // User selected a new image
+                setImageUploading(true);
+                imageUrl = await FirebaseStorageService.uploadBlogImage(newBlog.image, editingId.toString());
+                setImageUploading(false);
+                
+                // Delete old image if it exists and it's not the default image
+                if (existingBlog?.featured_image && existingBlog.featured_image !== FirebaseStorageService.DEFAULT_BLOG_IMAGE) {
+                    try {
+                        await FirebaseStorageService.deleteImage(existingBlog.featured_image);
+                    } catch (deleteErr) {
+                        console.error('Error deleting old image:', deleteErr);
+                    }
+                }
+            } else if (imagePreview === null && existingBlog?.featured_image) {
+                // User removed the image (set preview to null), use default
+                imageUrl = FirebaseStorageService.DEFAULT_BLOG_IMAGE;
+                // Delete old image if it's not the default
+                if (existingBlog.featured_image !== FirebaseStorageService.DEFAULT_BLOG_IMAGE) {
+                    try {
+                        await FirebaseStorageService.deleteImage(existingBlog.featured_image);
+                    } catch (deleteErr) {
+                        console.error('Error deleting old image:', deleteErr);
+                    }
+                }
+            } else {
+                // Keep existing image URL or use default
+                imageUrl = existingBlog?.featured_image || FirebaseStorageService.DEFAULT_BLOG_IMAGE;
+            }
+
+            const updateData = {
+                title: newBlog.title,
+                content: newBlog.content,
+                status: publish ? 'published' as const : 'draft' as const,
+                featured_image: imageUrl
+            };
+
+            try {
+                await blogService.updateBlog(editingId, updateData);
+            } catch (apiErr) {
+                console.error('API update failed, continuing with local update:', apiErr);
+            }
+            
+            setMyBlogs(
+                myBlogs.map((b) =>
+                    b.id === editingId
+                        ? {
+                                ...b,
+                                title: newBlog.title,
+                                content: newBlog.content,
+                                image: imageUrl,
+                                image_url: imageUrl,
+                                featured_image: imageUrl,
+                                published: publish !== undefined ? publish : b.published,
+                                status: publish ? 'published' : 'draft'
+                            }
+                        : b
+                )
+            );
+            
+            // Update selected blog if it's the one being edited
+            if (selectedBlog?.id === editingId) {
+                setSelectedBlog(prev => prev ? {
+                    ...prev,
+                    title: newBlog.title,
+                    content: newBlog.content,
+                    image: imageUrl,
+                    image_url: imageUrl,
+                    featured_image: imageUrl,
+                    published: publish !== undefined ? publish : prev.published,
+                    status: publish ? 'published' : 'draft'
+                } : null);
+            }
+            
+            // Show success message
+            setError(null);
+            const successMsg = publish ? 'Blog updated and published successfully!' : 'Blog updated as draft successfully!';
+            setSuccessMessage(successMsg);
+            console.log(successMsg);
+            
+            // Clear success message after 3 seconds
+            setTimeout(() => setSuccessMessage(null), 3000);
+            
+            setEditingId(null);
+            setNewBlog({ title: '', content: '', image: null });
+            setImagePreview(null);
+            setShowCreateForm(false);
+        } catch (err: any) {
+            console.error('Error updating blog:', err);
+            setError('Failed to update blog. Please try again.');
+        } finally {
+            setLoading(false);
+            setImageUploading(false);
+        }
     };
 
     const handleTogglePublish = async (id: number) => {
@@ -855,6 +1153,18 @@ export default function MyBlogs() {
                 </div>
             )}
 
+            {successMessage && (
+                <div className="success-message" style={{ 
+                    backgroundColor: '#dcfce7', 
+                    color: '#166534', 
+                    padding: '1rem', 
+                    borderRadius: '8px', 
+                    margin: '1rem 0' 
+                }}>
+                    ✅ {successMessage}
+                </div>
+            )}
+
             {loading && (
                 <div className="loading-message" style={{ 
                     textAlign: 'center', 
@@ -895,11 +1205,26 @@ export default function MyBlogs() {
                                     setShowCreateForm(false);
                                     setEditingId(null);
                                     setNewBlog({ title: '', content: '', image: null });
+                                    setImagePreview(null);
                                 }}
                             >
                                 <X size={20} />
                             </Button>
                         </div>
+                        
+                        {/* {editingId && (
+                            <div style={{ 
+                                padding: '0.75rem', 
+                                backgroundColor: '#f0f9ff', 
+                                border: '1px solid #0ea5e9',
+                                borderRadius: '8px', 
+                                marginBottom: '1rem' 
+                            }}>
+                                <small style={{ color: '#0369a1' }}>
+                                    ✏️ Editing blog #{editingId}. Make your changes below and click "Update as Draft" or "Update & Publish".
+                                </small>
+                            </div>
+                        )} */}
                         
                         <form onSubmit={handleSaveAsDraft}>
                             <div className="form-group">
@@ -950,22 +1275,83 @@ export default function MyBlogs() {
                                         border: '1px solid #334155'
                                     }}
                                 />
+                                {imagePreview && (
+                                    <div style={{ marginTop: '0.5rem', position: 'relative' }}>
+                                        <img 
+                                            src={imagePreview} 
+                                            alt="Preview" 
+                                            style={{ 
+                                                maxWidth: '200px', 
+                                                maxHeight: '150px', 
+                                                borderRadius: '8px',
+                                                objectFit: 'cover'
+                                            }} 
+                                        />
+                                        {editingId && (
+                                            <button
+                                                onClick={() => setImagePreview(null)}
+                                                type="button"
+                                                style={{ 
+                                                    position: 'absolute', 
+                                                    top: '4px', 
+                                                    right: '4px', 
+                                                    background: 'rgba(0,0,0,0.7)',
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    borderRadius: '4px',
+                                                    minWidth: 'auto',
+                                                    padding: '4px',
+                                                    cursor: 'pointer',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center'
+                                                }}
+                                            >
+                                                <X size={12} />
+                                            </button>
+                                        )}
+                                    </div>
+                                )}
+                                {imageUploading && (
+                                    <div style={{ color: '#6b7280', fontSize: '0.875rem', marginTop: '0.5rem' }}>
+                                        Uploading image...
+                                    </div>
+                                )}
                                 <small style={{ color: '#6b7280', fontSize: '0.875rem' }}>
-                                    You can publish your blog without an image
+                                    {editingId 
+                                        ? 'Upload a new image to replace the current one, or leave unchanged.'
+                                        : 'If no image is selected, a default astronomy image will be used.'
+                                    } Recommended: 1200x600px or 2:1 aspect ratio
                                 </small>
                             </div>
+                            
+                            {(!newBlog.title.trim() || !newBlog.content.trim()) && (
+                                <div style={{ 
+                                    padding: '0.5rem', 
+                                    backgroundColor: '#fef2f2', 
+                                    border: '1px solid #fca5a5',
+                                    borderRadius: '6px', 
+                                    marginBottom: '1rem' 
+                                }}>
+                                    <small style={{ color: '#dc2626' }}>
+                                        ⚠️ Please fill in both title and content before saving or publishing.
+                                    </small>
+                                </div>
+                            )}
                             
                             <div className="form-actions" style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
                                 <Button 
                                     type="submit"
                                     variant="border"
+                                    disabled={loading || imageUploading || !newBlog.title.trim() || !newBlog.content.trim()}
                                 >
                                     <Save size={16} />
-                                    Save as Draft
+                                    {editingId ? 'Update as Draft' : 'Save as Draft'}
                                 </Button>
                                 <Button 
                                     type="button"
                                     onClick={() => handlePublishBlog()}
+                                    disabled={loading || imageUploading || !newBlog.title.trim() || !newBlog.content.trim()}
                                 >
                                     <Eye size={16} />
                                     {editingId ? 'Update & Publish' : 'Publish Blog'}

@@ -230,17 +230,17 @@ const NightCampModeration: React.FC = () => {
   if (loading) {
     return (
       <div className="nightcamp-moderation">
-        <div className="nightcamp-header1">
-          <div className="nightcamp-header-content1">
-            <div className="nightcamp-header-left1">
+        <div className="nightcamp-header">
+          <div className="nightcamp-header-content">
+            <div className="nightcamp-header-left">
               <Button
                 variant="ghost"
                 size="medium"
-                onClick={() => navigate('/moderation')}
+                onClick={() => navigate('/dashboard/moderation')}
               >
                 ← Back
               </Button>
-              <div className="nightcamp-title-section1">
+              <div className="nightcamp-title-section">
                 <h1>Loading Night Camps...</h1>
                 <p>Please wait while we fetch the events</p>
               </div>
@@ -263,7 +263,7 @@ const NightCampModeration: React.FC = () => {
             <Button
               variant="ghost"
               size="medium"
-              onClick={() => navigate('/moderation')}
+              onClick={() => navigate('/dashboard/moderation')}
             >
               ← Back
             </Button>
@@ -276,7 +276,7 @@ const NightCampModeration: React.FC = () => {
             <Button
               variant="primary"
               size="medium"
-              onClick={() => navigate('/moderation/night-camps/create')}
+              onClick={() => navigate('/dashboard/moderation/night-camps/create')}
             >
               <FaPlus /> Create Night Camp
             </Button>
@@ -382,7 +382,7 @@ const NightCampModeration: React.FC = () => {
                 <Button
                   variant="primary"
                   size="small"
-                  onClick={() => navigate(`/moderation/night-camps/details/${camp.id}`)}
+                  onClick={() => navigate(`/dashboard/moderation/night-camps/details/${camp.id}`)}
                 >
                   <FaEye /> View Details
                 </Button>

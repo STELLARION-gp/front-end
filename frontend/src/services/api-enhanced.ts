@@ -162,7 +162,7 @@ class ApiService {
     }
 
     async getUserProfile() {
-        return this.makeRequest('/users/profile');
+        return this.makeRequest('/user/profile');
     }
 
     // Sync queue management

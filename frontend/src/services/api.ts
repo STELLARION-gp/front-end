@@ -107,7 +107,7 @@ class ApiService {
   }
 
   async getUserProfile() {
-    return this.makeRequest('/users/profile');
+    return this.makeRequest('/user/profile');
   }
 
   async updateUserRole(userId: string, role: string) {

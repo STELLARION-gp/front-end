@@ -161,7 +161,7 @@ class PaymentService {
       (window as any).payhere.onCompleted = (orderId: string) => {
         console.log("Payment completed. OrderID:" + orderId);
         // Verify payment on backend
-        this.verifyPayment(orderId);
+        this.checkPaymentCompletion(orderId);
       };
 
       (window as any).payhere.onDismissed = () => {
@@ -174,18 +174,21 @@ class PaymentService {
     }
   }
 
-  // Verify payment with backend
-  private async verifyPayment(orderId: string): Promise<void> {
+  // Check payment completion status with backend
+  private async checkPaymentCompletion(orderId: string): Promise<void> {
     try {
-      await this.makeRequest<void>(`/payments/verify/${orderId}`, {
-        method: 'POST'
-      });
-      console.log('Payment verified successfully');
+      // Get payment status from backend
+      const paymentStatus = await this.getPaymentStatus(orderId);
       
-      // Reload the page or redirect to success page
-      window.location.reload();
+      if (paymentStatus.payment_status === 'completed') {
+        console.log('Payment verified as completed');
+        // Reload the page or redirect to success page
+        window.location.reload();
+      } else {
+        console.log(`Payment status: ${paymentStatus.payment_status}`);
+      }
     } catch (error) {
-      console.error('Error verifying payment:', error);
+      console.error('Error checking payment status:', error);
     }
   }
 }

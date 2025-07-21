@@ -1,4 +1,4 @@
-@import '../../variables.scss';
+// @import '../../variables.scss';
 
 .create-nightcamp {
   padding: 0;
@@ -161,7 +161,7 @@
         }
 
         input[type="number"] {
-          -moz-appearance: textfield;
+        //   -moz-appearance: textfield;
 
           &::-webkit-outer-spin-button,
           &::-webkit-inner-spin-button {

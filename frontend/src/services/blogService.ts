@@ -8,7 +8,8 @@ export interface Blog {
     title: string;
     content: string;
     excerpt?: string;
-    image_url?: string;
+    image_url?: string; // Legacy field for compatibility
+    featured_image?: string; // Backend field
     author_id: number;
     status: 'draft' | 'published' | 'archived';
     published_at?: string;
@@ -45,7 +46,7 @@ export interface CreateBlogRequest {
     title: string;
     content: string;
     excerpt?: string;
-    image_url?: string;
+    featured_image?: string;
     status?: 'draft' | 'published';
     tags?: string[];
     metadata?: Record<string, any>;
@@ -55,7 +56,7 @@ export interface UpdateBlogRequest {
     title?: string;
     content?: string;
     excerpt?: string;
-    image_url?: string;
+    featured_image?: string;
     status?: 'draft' | 'published';
     tags?: string[];
     metadata?: Record<string, any>;

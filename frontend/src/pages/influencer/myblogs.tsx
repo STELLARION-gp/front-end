@@ -173,18 +173,24 @@ const MyBlogCard: React.FC<{
                 </p>
 
                 <div className="blog-stats">
-                    <div className="stat-item">
-                        <Eye size={20} />
-                        <span>{blog.reach}</span>
-                    </div>
-                    <div className="stat-item">
-                        <Heart size={20} />
-                        <span>{blog.likes}</span>
-                    </div>
-                    <div className="stat-item">
-                        <MessageCircle size={20} />
-                        <span>{blog.comments.length}</span>
-                    </div>
+                    {blog.published ? (
+                        <>
+                            <div className="stat-item">
+                                <Eye size={20} />
+                                <span>{blog.reach}</span>
+                            </div>
+                            <div className="stat-item">
+                                <Heart size={20} />
+                                <span>{blog.likes}</span>
+                            </div>
+                            <div className="stat-item">
+                                <MessageCircle size={20} />
+                                <span>{blog.comments.length}</span>
+                            </div>
+                        </>
+                    ) : (
+                        <span style={{ fontStyle: 'italic', color: '#6b7280' }}>Draft - Stats not available</span>
+                    )}
                 </div>
 
                 <div className="blog-actions-bottom">
@@ -1148,9 +1154,15 @@ export default function MyBlogs() {
                             </div>
 
                             <div className="modal-stats">
-                                <span><Eye size={16} /> {selectedBlog.reach} views</span>
-                                <span><Heart size={16} /> {selectedBlog.likes} likes</span>
-                                <span><MessageCircle size={16} /> {selectedBlog.comments.length} comments</span>
+                                {selectedBlog.published ? (
+                                    <>
+                                        <span><Eye size={16} /> {selectedBlog.reach} views</span>
+                                        <span><Heart size={16} /> {selectedBlog.likes} likes</span>
+                                        <span><MessageCircle size={16} /> {selectedBlog.comments.length} comments</span>
+                                    </>
+                                ) : (
+                                    <span style={{ fontStyle: 'italic', color: '#6b7280' }}>Draft - Stats not available</span>
+                                )}
                             </div>
 
                             <div className="modal-text">

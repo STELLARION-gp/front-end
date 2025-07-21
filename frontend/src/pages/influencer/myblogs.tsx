@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Star, Edit2, Trash2, MessageCircle, Eye, Heart, Plus, Save, X, Send, BookOpen, Users, Calendar, EyeOff } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
 import Button from '../../components/Button';
@@ -8,6 +8,9 @@ import { blogs } from "../learner/blogData";
 import '../../styles/pages/influencer/myblogs.scss'
 import "../../styles/pages/learner/blog_explore.scss"
 import "../../styles/pages/learner/BlogPage.scss"
+import { AuthContext } from '../../contexts/AuthContext';
+import { blogService } from '../../services/blogService';
+import type { CreateBlogRequest } from '../../services/blogService';
 
 type ActiveSection = 'blogs' | 'myblogs';
 
@@ -22,20 +25,34 @@ type Blog = {
     id: number;
     title: string;
     content: string;
-    image: string | null;
-    author: string;
-    date: string;
-    reach: number;
-    likes: number;
-    rating: number;
-    comments: Comment[];
-    liked: boolean;
-    published: boolean;
-    createdAt: string;
+    excerpt?: string;
+    image_url?: string;
+    author_id: number;
+    status: 'draft' | 'published' | 'archived';
+    published_at?: string;
+    view_count: number;
+    like_count: number;
+    comment_count: number;
+    tags: string[];
+    created_at: string;
+    updated_at: string;
+    // Virtual fields from joins
+    author_name?: string;
+    author_email?: string;
+    author_display_name?: string;
+    user_liked?: boolean;
+    // Legacy fields for compatibility
+    image?: string | null;
+    author?: string;
+    date?: string;
+    reach?: number;
+    likes?: number;
+    rating?: number;
+    comments?: Comment[];
+    liked?: boolean;
+    published?: boolean;
+    createdAt?: string;
 };
-
-// Current user constant
-const CURRENT_USER = 'Neil V. Galaxy';
 
 // Custom Blog Card Component for My Blogs
 const MyBlogCard: React.FC<{
@@ -122,15 +139,15 @@ const MyBlogCard: React.FC<{
                     </div>
                     <div className="meta-item">
                         <Calendar size={14} />
-                        <span>{new Date(blog.createdAt).toLocaleDateString()}</span>
+                        <span>{new Date(blog.createdAt || blog.created_at || blog.date || new Date()).toLocaleDateString()}</span>
                     </div>
                 </div>
 
                 <div className="blog-rating">
                     <div className="stars">
-                        {renderStars(blog.rating)}
+                        {renderStars(blog.rating || 0)}
                     </div>
-                    <span className="rating-value">{blog.rating}</span>
+                    <span className="rating-value">{blog.rating || 0}</span>
                 </div>
 
                 <p className="blog-excerpt">
@@ -151,7 +168,7 @@ const MyBlogCard: React.FC<{
                     </div>
                     <div className="stat-item">
                         <MessageCircle size={16} />
-                        <span>{blog.comments.length}</span>
+                        <span>{(blog.comments || []).length}</span>
                     </div>
                 </div>
 
@@ -170,6 +187,7 @@ const MyBlogCard: React.FC<{
 
 export default function MyBlogs() {
     const navigate = useNavigate();
+    const authContext = useContext(AuthContext);
     const [activeTab, setActiveTab] = useState<ActiveSection>('blogs');
     const [myBlogs, setMyBlogs] = useState<Blog[]>([]);
     const [newBlog, setNewBlog] = useState<{ title: string; content: string; image: File | null }>({ title: '', content: '', image: null });
@@ -177,6 +195,8 @@ export default function MyBlogs() {
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [selectedBlog, setSelectedBlog] = useState<Blog | null>(null);
     const [newComment, setNewComment] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     // Blog exploration states
     const [filter, setFilter] = React.useState({
@@ -186,24 +206,76 @@ export default function MyBlogs() {
         status: 'all' // all, published, draft
     });
 
+    // Get current user info
+    const currentUser = authContext?.userProfile;
+    const currentUserName = currentUser?.displayName || 'User';
+
     useEffect(() => {
-        console.log('Loading blogs for user:', CURRENT_USER);
-        // Convert blogs from blogData to Blog type and filter by current user
-        const convertedBlogs: Blog[] = blogs
-            .filter(blog => blog.author === CURRENT_USER)
-            .map(blog => ({
-                ...blog,
-                date: blog.createdAt,
-                reach: Math.floor(Math.random() * 1000) + 100, // Random reach for demo
-                likes: Math.floor(Math.random() * 50) + 10, // Random likes for demo
-                comments: [], // Start with no comments
-                liked: false,
-                published: Math.random() > 0.5, // Randomly assign published status for demo
-            }));
+        if (currentUser) {
+            loadMyBlogs();
+        }
+    }, [currentUser]);
+
+    const loadMyBlogs = async () => {
+        if (!currentUser) return;
         
-        console.log('Converted blogs:', convertedBlogs);
-        setMyBlogs(convertedBlogs);
-    }, []);
+        setLoading(true);
+        setError(null);
+        
+        try {
+            // For now, skip API call and use demo data until backend is properly integrated
+            // TODO: Implement proper user ID mapping for Firebase UID to backend user ID
+            console.log('Loading blogs for user:', currentUser.uid);
+            
+            // Fallback to demo data
+            const convertedBlogs: Blog[] = blogs
+                .filter(blog => blog.author === currentUserName)
+                .map(blog => ({
+                    ...blog,
+                    author_id: 0, // Will be resolved when backend integration is complete
+                    status: Math.random() > 0.5 ? 'published' : 'draft' as const,
+                    view_count: Math.floor(Math.random() * 1000) + 100,
+                    like_count: Math.floor(Math.random() * 50) + 10,
+                    comment_count: 0,
+                    tags: [],
+                    created_at: blog.createdAt || new Date().toISOString(),
+                    updated_at: blog.createdAt || new Date().toISOString(),
+                    date: blog.createdAt,
+                    reach: Math.floor(Math.random() * 1000) + 100,
+                    likes: Math.floor(Math.random() * 50) + 10,
+                    comments: [],
+                    liked: false,
+                    published: Math.random() > 0.5
+                }));
+            setMyBlogs(convertedBlogs);
+        } catch (err: any) {
+            console.error('Error loading blogs:', err);
+            
+            // Fallback to demo data if API fails
+            const convertedBlogs: Blog[] = blogs
+                .filter(blog => blog.author === currentUserName)
+                .map(blog => ({
+                    ...blog,
+                    author_id: 0,
+                    status: Math.random() > 0.5 ? 'published' : 'draft' as const,
+                    view_count: Math.floor(Math.random() * 1000) + 100,
+                    like_count: Math.floor(Math.random() * 50) + 10,
+                    comment_count: 0,
+                    tags: [],
+                    created_at: blog.createdAt || new Date().toISOString(),
+                    updated_at: blog.createdAt || new Date().toISOString(),
+                    date: blog.createdAt,
+                    reach: Math.floor(Math.random() * 1000) + 100,
+                    likes: Math.floor(Math.random() * 50) + 10,
+                    comments: [],
+                    liked: false,
+                    published: Math.random() > 0.5
+                }));
+            setMyBlogs(convertedBlogs);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const filteredBlogs = blogs.filter(blog => {
         if (filter.author && blog.author !== filter.author) return false;
@@ -230,7 +302,7 @@ export default function MyBlogs() {
         }));
     };
 
-    const handleCreateBlog = (e: React.FormEvent) => {
+    const handleCreateBlog = async (e: React.FormEvent) => {
         e.preventDefault();
         console.log('Creating blog:', newBlog);
         
@@ -239,28 +311,86 @@ export default function MyBlogs() {
             return;
         }
 
-        const newId = myBlogs.length ? Math.max(...myBlogs.map(b => b.id)) + 1 : 1000; // Start with high ID to avoid conflicts
-        const currentDate = new Date().toISOString().split('T')[0];
-        const newBlogPost: Blog = {
-            title: newBlog.title,
-            content: newBlog.content,
-            id: newId,
-            author: CURRENT_USER,
-            date: currentDate,
-            createdAt: currentDate,
-            reach: 0,
-            likes: 0,
-            rating: 0,
-            comments: [],
-            liked: false,
-            published: false, // Default to draft
-            image: newBlog.image ? URL.createObjectURL(newBlog.image) : null,
-        };
-        
-        console.log('New blog post:', newBlogPost);
-        setMyBlogs([newBlogPost, ...myBlogs]);
-        setNewBlog({ title: '', content: '', image: null });
-        setShowCreateForm(false);
+        if (!currentUser) {
+            alert('You must be logged in to create a blog');
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            // Enable API call for blog creation
+            const blogData: CreateBlogRequest = {
+                title: newBlog.title,
+                content: newBlog.content,
+                status: 'draft',
+                image_url: newBlog.image ? URL.createObjectURL(newBlog.image) : undefined,
+                tags: [],
+                metadata: {}
+            };
+
+            const response = await blogService.createBlog(blogData);
+            
+            if (response.success) {
+                // Convert API response to component format
+                const newBlogPost: Blog = {
+                    ...response.data,
+                    // Legacy compatibility fields
+                    image: response.data.image_url,
+                    author: currentUserName,
+                    date: response.data.created_at,
+                    reach: response.data.view_count,
+                    likes: response.data.like_count,
+                    rating: 0,
+                    comments: [],
+                    liked: false,
+                    published: response.data.status === 'published',
+                    createdAt: response.data.created_at
+                };
+                
+                setMyBlogs([newBlogPost, ...myBlogs]);
+                setNewBlog({ title: '', content: '', image: null });
+                setShowCreateForm(false);
+            } else {
+                throw new Error('Failed to create blog');
+            }
+        } catch (err: any) {
+            console.error('Error creating blog:', err);
+            setError('Failed to create blog. Please try again.');
+            
+            // Fallback to local creation for demo
+            const newId = myBlogs.length ? Math.max(...myBlogs.map(b => b.id)) + 1 : 1000;
+            const currentDate = new Date().toISOString();
+            const newBlogPost: Blog = {
+                id: newId,
+                title: newBlog.title,
+                content: newBlog.content,
+                author_id: 0,
+                status: 'draft',
+                view_count: 0,
+                like_count: 0,
+                comment_count: 0,
+                tags: [],
+                created_at: currentDate,
+                updated_at: currentDate,
+                author: currentUserName,
+                date: currentDate,
+                createdAt: currentDate,
+                reach: 0,
+                likes: 0,
+                rating: 0,
+                comments: [],
+                liked: false,
+                published: false,
+                image: newBlog.image ? URL.createObjectURL(newBlog.image) : null,
+            };
+            
+            setMyBlogs([newBlogPost, ...myBlogs]);
+            setNewBlog({ title: '', content: '', image: null });
+            setShowCreateForm(false);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleSaveAsDraft = (e: React.FormEvent) => {
@@ -272,10 +402,10 @@ export default function MyBlogs() {
         }
     };
 
-    const handlePublishBlog = (e: React.FormEvent) => {
-        e.preventDefault();
+    const handlePublishBlog = async (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
         if (editingId) {
-            handleUpdateBlog(e, true);
+            handleUpdateBlog(e || {} as React.FormEvent, true);
         } else {
             console.log('Publishing blog:', newBlog);
             
@@ -284,34 +414,127 @@ export default function MyBlogs() {
                 return;
             }
 
-            const newId = myBlogs.length ? Math.max(...myBlogs.map(b => b.id)) + 1 : 1000;
-            const currentDate = new Date().toISOString().split('T')[0];
-            const newBlogPost: Blog = {
-                title: newBlog.title,
-                content: newBlog.content,
-                id: newId,
-                author: CURRENT_USER,
-                date: currentDate,
-                createdAt: currentDate,
-                reach: 0,
-                likes: 0,
-                rating: 0,
-                comments: [],
-                liked: false,
-                published: true,
-                image: newBlog.image ? URL.createObjectURL(newBlog.image) : null,
-            };
-            setMyBlogs([newBlogPost, ...myBlogs]);
-            setNewBlog({ title: '', content: '', image: null });
-            setShowCreateForm(false);
+            if (!currentUser) {
+                alert('You must be logged in to publish a blog');
+                return;
+            }
+
+            setLoading(true);
+
+            try {
+                // Check authentication state first
+                console.log('Authentication check:');
+                console.log('- AuthContext user:', currentUser);
+                console.log('- Firebase auth user:', authContext);
+                
+                // Test auth token
+                try {
+                    const testResponse = await fetch('http://localhost:5000/api/blogs', {
+                        headers: {
+                            'Authorization': `Bearer ${await (authContext as any)?.user?.getIdToken?.()}`
+                        }
+                    });
+                    console.log('Test API call status:', testResponse.status);
+                } catch (testErr) {
+                    console.log('Test API call failed:', testErr);
+                }
+
+                // Enable API call for blog creation
+                const blogData: CreateBlogRequest = {
+                    title: newBlog.title,
+                    content: newBlog.content,
+                    status: 'published',
+                    image_url: newBlog.image ? URL.createObjectURL(newBlog.image) : undefined,
+                    tags: [],
+                    metadata: {}
+                };
+
+                console.log('Publishing blog with data:', blogData);
+                console.log('Current user:', currentUser);
+                
+                const response = await blogService.createBlog(blogData);
+                
+                if (response.success) {
+                    // Convert API response to component format
+                    const newBlogPost: Blog = {
+                        ...response.data,
+                        // Legacy compatibility fields
+                        image: response.data.image_url,
+                        author: currentUserName,
+                        date: response.data.created_at,
+                        reach: response.data.view_count,
+                        likes: response.data.like_count,
+                        rating: 0,
+                        comments: [],
+                        liked: false,
+                        published: response.data.status === 'published',
+                        createdAt: response.data.created_at
+                    };
+                    
+                    setMyBlogs([newBlogPost, ...myBlogs]);
+                    setNewBlog({ title: '', content: '', image: null });
+                    setShowCreateForm(false);
+                } else {
+                    throw new Error('Failed to create blog');
+                }
+            } catch (err: any) {
+                console.error('Error publishing blog:', err);
+                setError(`Failed to publish blog: ${err.message}`);
+                
+                // For now, always fallback to local creation since there might be auth issues
+                console.log('Falling back to local blog creation');
+                const newId = myBlogs.length ? Math.max(...myBlogs.map(b => b.id)) + 1 : 1000;
+                const currentDate = new Date().toISOString();
+                const newBlogPost: Blog = {
+                    id: newId,
+                    title: newBlog.title,
+                    content: newBlog.content,
+                    author_id: 0,
+                    status: 'published',
+                    view_count: 0,
+                    like_count: 0,
+                    comment_count: 0,
+                    tags: [],
+                    created_at: currentDate,
+                    updated_at: currentDate,
+                    author: currentUserName,
+                    date: currentDate,
+                    createdAt: currentDate,
+                    reach: 0,
+                    likes: 0,
+                    rating: 0,
+                    comments: [],
+                    liked: false,
+                    published: true,
+                    image: newBlog.image ? URL.createObjectURL(newBlog.image) : null,
+                };
+                setMyBlogs([newBlogPost, ...myBlogs]);
+                setNewBlog({ title: '', content: '', image: null });
+                setShowCreateForm(false);
+                
+                // Clear error after successful fallback
+                setTimeout(() => setError(null), 3000);
+            } finally {
+                setLoading(false);
+            }
         }
     };
 
-    const handleDelete = (id: number) => {
+    const handleDelete = async (id: number) => {
         if (window.confirm('Are you sure you want to delete this blog?')) {
-            setMyBlogs(myBlogs.filter((b) => b.id !== id));
-            if (selectedBlog?.id === id) {
-                setSelectedBlog(null);
+            try {
+                await blogService.deleteBlog(id);
+                setMyBlogs(myBlogs.filter((b) => b.id !== id));
+                if (selectedBlog?.id === id) {
+                    setSelectedBlog(null);
+                }
+            } catch (err: any) {
+                console.error('Error deleting blog:', err);
+                // Fallback to local deletion
+                setMyBlogs(myBlogs.filter((b) => b.id !== id));
+                if (selectedBlog?.id === id) {
+                    setSelectedBlog(null);
+                }
             }
         }
     };
@@ -357,80 +580,181 @@ export default function MyBlogs() {
         setShowCreateForm(false);
     };
 
-    const handleTogglePublish = (id: number) => {
-        setMyBlogs(myBlogs.map(blog => 
-            blog.id === id 
-                ? { ...blog, published: !blog.published }
-                : blog
-        ));
-        
-        // Update selected blog if it's the one being toggled
-        if (selectedBlog?.id === id) {
-            setSelectedBlog(prev => prev ? {
-                ...prev,
-                published: !prev.published
-            } : null);
+    const handleTogglePublish = async (id: number) => {
+        const blog = myBlogs.find(b => b.id === id);
+        if (!blog) return;
+
+        try {
+            const newStatus = blog.published ? 'draft' : 'published';
+            await blogService.updateBlog(id, { status: newStatus });
+            
+            setMyBlogs(myBlogs.map(blog => 
+                blog.id === id 
+                    ? { ...blog, published: !blog.published, status: newStatus }
+                    : blog
+            ));
+            
+            // Update selected blog if it's the one being toggled
+            if (selectedBlog?.id === id) {
+                setSelectedBlog(prev => prev ? {
+                    ...prev,
+                    published: !prev.published,
+                    status: newStatus
+                } : null);
+            }
+        } catch (err: any) {
+            console.error('Error toggling publish status:', err);
+            // Fallback to local toggle
+            setMyBlogs(myBlogs.map(blog => 
+                blog.id === id 
+                    ? { ...blog, published: !blog.published }
+                    : blog
+            ));
+            
+            if (selectedBlog?.id === id) {
+                setSelectedBlog(prev => prev ? {
+                    ...prev,
+                    published: !prev.published
+                } : null);
+            }
         }
     };
 
-    const handleLike = (id: number) => {
-        setMyBlogs(myBlogs.map(blog => 
-            blog.id === id 
-                ? { 
-                    ...blog, 
-                    likes: blog.liked ? blog.likes - 1 : blog.likes + 1,
-                    liked: !blog.liked 
-                }
-                : blog
-        ));
-        
-        if (selectedBlog?.id === id) {
-            setSelectedBlog(prev => prev ? {
-                ...prev,
-                likes: prev.liked ? prev.likes - 1 : prev.likes + 1,
-                liked: !prev.liked
-            } : null);
+    const handleLike = async (id: number) => {
+        try {
+            const response = await blogService.toggleBlogLike(id);
+            
+            setMyBlogs(myBlogs.map(blog => 
+                blog.id === id 
+                    ? { 
+                        ...blog, 
+                        likes: response.data.like_count,
+                        like_count: response.data.like_count,
+                        liked: response.data.liked 
+                    }
+                    : blog
+            ));
+            
+            if (selectedBlog?.id === id) {
+                setSelectedBlog(prev => prev ? {
+                    ...prev,
+                    likes: response.data.like_count,
+                    like_count: response.data.like_count,
+                    liked: response.data.liked
+                } : null);
+            }
+        } catch (err: any) {
+            console.error('Error toggling like:', err);
+            // Fallback to local like toggle
+            setMyBlogs(myBlogs.map(blog => 
+                blog.id === id 
+                    ? { 
+                        ...blog, 
+                        likes: blog.liked ? (blog.likes || 0) - 1 : (blog.likes || 0) + 1,
+                        like_count: blog.liked ? (blog.like_count || 0) - 1 : (blog.like_count || 0) + 1,
+                        liked: !blog.liked 
+                    }
+                    : blog
+            ));
+            
+            if (selectedBlog?.id === id) {
+                setSelectedBlog(prev => prev ? {
+                    ...prev,
+                    likes: prev.liked ? (prev.likes || 0) - 1 : (prev.likes || 0) + 1,
+                    like_count: prev.liked ? (prev.like_count || 0) - 1 : (prev.like_count || 0) + 1,
+                    liked: !prev.liked
+                } : null);
+            }
         }
     };
 
-    const handleAddComment = (blogId: number) => {
+    const handleAddComment = async (blogId: number) => {
         if (!newComment.trim()) return;
         
-        const comment = {
-            id: Date.now(),
-            user: 'You',
-            text: newComment,
-            date: new Date().toISOString().split('T')[0]
-        };
-        
-        setMyBlogs(myBlogs.map(blog => 
-            blog.id === blogId 
-                ? { ...blog, comments: [...blog.comments, comment] }
-                : blog
-        ));
-        
-        if (selectedBlog?.id === blogId) {
-            setSelectedBlog(prev => prev ? {
-                ...prev,
-                comments: [...prev.comments, comment]
-            } : null);
+        try {
+            const response = await blogService.addBlogComment(blogId, {
+                content: newComment.trim()
+            });
+            
+            const comment = {
+                id: response.data.id,
+                user: response.data.user_display_name || 'You',
+                text: response.data.content,
+                date: new Date(response.data.created_at).toISOString().split('T')[0]
+            };
+            
+            setMyBlogs(myBlogs.map(blog => 
+                blog.id === blogId 
+                    ? { ...blog, comments: [...(blog.comments || []), comment] }
+                    : blog
+            ));
+            
+            if (selectedBlog?.id === blogId) {
+                setSelectedBlog(prev => prev ? {
+                    ...prev,
+                    comments: [...(prev.comments || []), comment]
+                } : null);
+            }
+            
+            setNewComment('');
+        } catch (err: any) {
+            console.error('Error adding comment:', err);
+            // Fallback to local comment
+            const comment = {
+                id: Date.now(),
+                user: 'You',
+                text: newComment,
+                date: new Date().toISOString().split('T')[0]
+            };
+            
+            setMyBlogs(myBlogs.map(blog => 
+                blog.id === blogId 
+                    ? { ...blog, comments: [...(blog.comments || []), comment] }
+                    : blog
+            ));
+            
+            if (selectedBlog?.id === blogId) {
+                setSelectedBlog(prev => prev ? {
+                    ...prev,
+                    comments: [...(prev.comments || []), comment]
+                } : null);
+            }
+            
+            setNewComment('');
         }
-        
-        setNewComment('');
     };
 
-    const handleDeleteComment = (blogId: number, commentId: number) => {
-        setMyBlogs(myBlogs.map(blog => 
-            blog.id === blogId 
-                ? { ...blog, comments: blog.comments.filter(c => c.id !== commentId) }
-                : blog
-        ));
-        
-        if (selectedBlog?.id === blogId) {
-            setSelectedBlog(prev => prev ? {
-                ...prev,
-                comments: prev.comments.filter(c => c.id !== commentId)
-            } : null);
+    const handleDeleteComment = async (blogId: number, commentId: number) => {
+        try {
+            await blogService.deleteBlogComment(blogId, commentId);
+            
+            setMyBlogs(myBlogs.map(blog => 
+                blog.id === blogId 
+                    ? { ...blog, comments: (blog.comments || []).filter(c => c.id !== commentId) }
+                    : blog
+            ));
+            
+            if (selectedBlog?.id === blogId) {
+                setSelectedBlog(prev => prev ? {
+                    ...prev,
+                    comments: (prev.comments || []).filter(c => c.id !== commentId)
+                } : null);
+            }
+        } catch (err: any) {
+            console.error('Error deleting comment:', err);
+            // Fallback to local deletion
+            setMyBlogs(myBlogs.map(blog => 
+                blog.id === blogId 
+                    ? { ...blog, comments: (blog.comments || []).filter(c => c.id !== commentId) }
+                    : blog
+            ));
+            
+            if (selectedBlog?.id === blogId) {
+                setSelectedBlog(prev => prev ? {
+                    ...prev,
+                    comments: (prev.comments || []).filter(c => c.id !== commentId)
+                } : null);
+            }
         }
     };
 
@@ -519,6 +843,28 @@ export default function MyBlogs() {
                 </Button>
             </div>
 
+            {error && (
+                <div className="error-message" style={{ 
+                    backgroundColor: '#fee2e2', 
+                    color: '#dc2626', 
+                    padding: '1rem', 
+                    borderRadius: '8px', 
+                    margin: '1rem 0' 
+                }}>
+                    {error}
+                </div>
+            )}
+
+            {loading && (
+                <div className="loading-message" style={{ 
+                    textAlign: 'center', 
+                    padding: '2rem', 
+                    color: '#6b7280' 
+                }}>
+                    Loading blogs...
+                </div>
+            )}
+
             {/* My Blog Filters */}
             <div className="blog-filters" style={{ display: 'flex', gap: 16, margin: '1.2rem 0', flexWrap: 'wrap' }}>
                 <input
@@ -591,7 +937,7 @@ export default function MyBlogs() {
                             </div>
                             
                             <div className="form-group">
-                                <label>Featured Image</label>
+                                <label>Featured Image (Optional)</label>
                                 <input 
                                     type="file" 
                                     name="image" 
@@ -604,6 +950,9 @@ export default function MyBlogs() {
                                         border: '1px solid #334155'
                                     }}
                                 />
+                                <small style={{ color: '#6b7280', fontSize: '0.875rem' }}>
+                                    You can publish your blog without an image
+                                </small>
                             </div>
                             
                             <div className="form-actions" style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
@@ -616,7 +965,7 @@ export default function MyBlogs() {
                                 </Button>
                                 <Button 
                                     type="button"
-                                    onClick={() => handlePublishBlog({} as React.FormEvent)}
+                                    onClick={() => handlePublishBlog()}
                                 >
                                     <Eye size={16} />
                                     {editingId ? 'Update & Publish' : 'Publish Blog'}
@@ -677,10 +1026,10 @@ export default function MyBlogs() {
                             
                             <div className="modal-meta">
                                 <span className="author">By {selectedBlog.author}</span>
-                                <span className="date">{selectedBlog.date}</span>
+                                <span className="date">{new Date(selectedBlog.createdAt || selectedBlog.created_at || selectedBlog.date || new Date()).toLocaleDateString()}</span>
                                 <div className="rating">
-                                    {renderStars(selectedBlog.rating)}
-                                    <span>{selectedBlog.rating}</span>
+                                    {renderStars(selectedBlog.rating || 0)}
+                                    <span>{selectedBlog.rating || 0}</span>
                                 </div>
                                 <span className={`status ${selectedBlog.published ? 'published' : 'draft'}`}>
                                     {selectedBlog.published ? 'Published' : 'Draft'}
@@ -688,9 +1037,9 @@ export default function MyBlogs() {
                             </div>
                             
                             <div className="modal-stats">
-                                <span><Eye size={16} /> {selectedBlog.reach} views</span>
-                                <span><Heart size={16} /> {selectedBlog.likes} likes</span>
-                                <span><MessageCircle size={16} /> {selectedBlog.comments.length} comments</span>
+                                <span><Eye size={16} /> {selectedBlog.reach || selectedBlog.view_count || 0} views</span>
+                                <span><Heart size={16} /> {selectedBlog.likes || selectedBlog.like_count || 0} likes</span>
+                                <span><MessageCircle size={16} /> {(selectedBlog.comments || []).length} comments</span>
                             </div>
                             
                             <div className="modal-text">
@@ -725,7 +1074,7 @@ export default function MyBlogs() {
                             </div>
                             
                             <div className="comments-section">
-                                <h3>Comments ({selectedBlog.comments.length})</h3>
+                                <h3>Comments ({(selectedBlog.comments || []).length})</h3>
                                 
                                 <div className="add-comment">
                                     <input
@@ -741,7 +1090,7 @@ export default function MyBlogs() {
                                 </div>
                                 
                                 <div className="comments-list">
-                                    {selectedBlog.comments.map((comment) => (
+                                    {(selectedBlog.comments || []).map((comment) => (
                                         <div key={comment.id} className="comment">
                                             <div className="comment-header">
                                                 <span className="comment-author">{comment.user}</span>

@@ -285,7 +285,7 @@ const NightCampModeration: React.FC = () => {
       </div>
 
       {/* Controls */}
-      <div className="nightcamp-controls">
+      <div className="controls-section">
         <div className="nightcamp-search-box">
           <FaSearch className="nightcamp-search-icon" />
           <input
@@ -295,12 +295,13 @@ const NightCampModeration: React.FC = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
+        
         <div className="nightcamp-filter-tabs">
           {['all', 'pending', 'approved', 'needs-review', 'rejected'].map(filter => (
             <Button
               key={filter}
-              variant={filterStatus === filter ? 'primary' : 'border'}
-              size="small"
+              variant={filterStatus === filter ? 'primary' : 'ghost'}
+              size="medium"
               onClick={() => setFilterStatus(filter)}
             >
               {filter === 'all' ? 'ALL' : filter.replace('-', ' ').toUpperCase()}
@@ -310,10 +311,10 @@ const NightCampModeration: React.FC = () => {
       </div>
 
       {/* Main Content */}
-      <div className="nightcamp-content">
+      <div className="moderation-content1">
         <div className="nightcamp-list">
           {filteredCamps.map(camp => (
-            <div key={camp.id} className="nightcamp-item">
+            <div key={camp.id} className="nightcamp-item" onClick={() => navigate(`/dashboard/moderation/night-camps/details/${camp.id}`)}>
               <div className="nightcamp-item-header">
                 <div className="nightcamp-item-info">
                   <div className="nightcamp-icon">

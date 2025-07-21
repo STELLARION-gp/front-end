@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Star, Edit2, Trash2, MessageCircle, Eye, Heart, Plus, Save, X, Send, BookOpen, Users, Calendar, EyeOff } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
-import { BookOpenIcon, UserGroupIcon, StarIcon, CalendarDaysIcon } from "@heroicons/react/24/outline";
 import Button from '../../components/Button';
 import InputField from '../../components/InputField';
 import AstronomyBlogCard from "../../components/Learner/blogcard";
-import { blogs, totalBlogs, avgRating, latestDate } from "../learner/blogData";
+import { blogs } from "../learner/blogData";
 import '../../styles/pages/influencer/myblogs.scss'
 import "../../styles/pages/learner/blog_explore.scss"
 import "../../styles/pages/learner/BlogPage.scss"
@@ -562,6 +561,8 @@ export default function MyBlogs() {
                                 <InputField
                                     type="text"
                                     name="title"
+                                    id="blog-title"
+                                    label=""
                                     placeholder="Enter your blog title..."
                                     value={newBlog.title}
                                     onChange={handleInputChange}
@@ -608,14 +609,14 @@ export default function MyBlogs() {
                             <div className="form-actions" style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
                                 <Button 
                                     type="submit"
-                                    variant="outline"
+                                    variant="border"
                                 >
                                     <Save size={16} />
                                     Save as Draft
                                 </Button>
                                 <Button 
                                     type="button"
-                                    onClick={handlePublishBlog}
+                                    onClick={() => handlePublishBlog({} as React.FormEvent)}
                                 >
                                     <Eye size={16} />
                                     {editingId ? 'Update & Publish' : 'Publish Blog'}
@@ -702,21 +703,21 @@ export default function MyBlogs() {
                                         setSelectedBlog(null);
                                         handleEdit(selectedBlog.id);
                                     }} 
-                                    variant="outline"
+                                    variant="border"
                                 >
                                     <Edit2 size={16} />
                                     Edit
                                 </Button>
                                 <Button 
                                     onClick={() => handleTogglePublish(selectedBlog.id)}
-                                    variant="outline"
+                                    variant="border"
                                 >
                                     {selectedBlog.published ? <EyeOff size={16} /> : <Eye size={16} />}
                                     {selectedBlog.published ? 'Unpublish' : 'Publish'}
                                 </Button>
                                 <Button 
                                     onClick={() => handleLike(selectedBlog.id)}
-                                    variant={selectedBlog.liked ? 'secondary' : 'outline'}
+                                    variant={selectedBlog.liked ? 'secondary' : 'border'}
                                 >
                                     <Heart size={16} fill={selectedBlog.liked ? 'currentColor' : 'none'} />
                                     {selectedBlog.liked ? 'Liked' : 'Like'}
@@ -749,7 +750,7 @@ export default function MyBlogs() {
                                                     <Button 
                                                         onClick={() => handleDeleteComment(selectedBlog.id, comment.id)}
                                                         variant="ghost"
-                                                        size="sm"
+                                                        size="small"
                                                     >
                                                         <Trash2 size={14} />
                                                     </Button>

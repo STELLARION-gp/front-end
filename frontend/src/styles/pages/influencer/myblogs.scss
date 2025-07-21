@@ -405,11 +405,13 @@
 }
 
 .blog-modal {
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    background: #181f2a;
     border-radius: 20px;
-    max-width: 800px;
-    width: 90%;
+     max-width: 800px;
+     box-shadow: 0 4px 32px rgba(37,99,235,0.10);
+    // width: 90%;
     max-height: 90vh;
+    padding: 2rem 1.5rem 2.5rem 1.5rem;
     overflow-y: auto;
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
@@ -431,6 +433,7 @@
 .modal-content {
     padding: 2rem;
     text-align: center;
+    
 }
 
 .modal-image {
@@ -439,6 +442,7 @@
     object-fit: cover;
     border-radius: 15px;
     margin-bottom: 1.5rem;
+    justify-content: center;
 }
 
 .modal-meta {
@@ -533,7 +537,7 @@
 .blogexplore-blog-list{
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 2rem;
+    gap: 7rem;
     margin-bottom: 3rem;
 }
 

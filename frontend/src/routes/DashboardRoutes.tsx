@@ -99,8 +99,8 @@ import Mentor from '../pages/admin/Mentor';
 import MentorApplication from '../pages/admin/MentorApplication';
 import MentorProfiles from '../pages/admin/MentorProfiles';
 import MentorProfileDetail from '../pages/admin/MentorProfileDetail';
-import CreateNightCamp from '../pages/moderator/CreateNightCamp';  
-import NightCampDetail from '../pages/moderator/NightCampDetails';
+import CreateNightCamp from '../pages/moderator/CreateNightCamp';
+import NightCampDetailsModerator from '../pages/moderator/NightCampDetails';
 
 // Create placeholder components for different pages - all memoized
 // const BlogsPage = memo(() => (
@@ -545,7 +545,7 @@ const DashboardRoutes = () => {
                 path="moderation/night-camps/details/:id"
                 element={
                     <RoleGuard allowedRoles={['moderator', 'admin']}>
-                        <NightCampDetail />
+                        <NightCampDetailsModerator />
                     </RoleGuard>
                 }
             />
@@ -558,7 +558,7 @@ const DashboardRoutes = () => {
                 }
             />
             <Route
-                path="moderation/camp"
+                path="moderation/night-camps"
                 element={
                     <RoleGuard allowedRoles={['moderator', 'admin']}>
                         <NightCampModeration />

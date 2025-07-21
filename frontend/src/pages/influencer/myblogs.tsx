@@ -78,39 +78,74 @@ const MyBlogCard: React.FC<{
                     </div>
                 )}
                 
-                <div className="blog-status-badge">
+                {/* <div className="blog-status-badge">
                     {blog.published ? (
                         <span className="published-badge">Published</span>
                     ) : (
                         <span className="draft-badge">Draft</span>
                     )}
-                </div>
+                </div> */}
 
-                <div className="blog-actions-overlay">
-                    <button 
+                <div className="blog-actions-overlay" style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 8, alignItems: 'center' }}>
+                    <span style={{
+                        fontWeight: 600,
+                        color: blog.published ? '#22d3ee' : '#fbbf24',
+                        fontSize: 15,
+                        marginRight: 12,
+                        marginLeft:0
+                    }}>
+                        {blog.published ? 'Published' : 'Draft'}
+                    </span>
+                    <button  
                         className="action-btn edit-btn"
+                        style={{ 
+                            background: 'transparent', 
+                            border: '1.5px solid #334155', 
+                            borderRadius: 8, 
+                            cursor: 'pointer',
+                            padding: '10px 16px',
+                            fontSize: 20,
+                            marginRight: 0
+                        }}
                         onClick={() => onEdit(blog.id)}
                         title="Edit"
                     >
-                        <Edit2 size={16} />
+                        <Edit2 size={24} />
                     </button>
                     <button 
                         className="action-btn delete-btn"
+                        style={{ 
+                            background: 'transparent', 
+                            border: '1.5px solid #334155', 
+                            borderRadius: 8, 
+                            cursor: 'pointer',
+                            padding: '10px 16px',
+                            fontSize: 20,
+                            marginRight: 0
+                        }}
                         onClick={() => onDelete(blog.id)}
                         title="Delete"
                     >
-                        <Trash2 size={16} />
+                        <Trash2 size={24} />
                     </button>
                     <button 
                         className="action-btn publish-btn"
+                        style={{ 
+                            background: 'transparent', 
+                            border: '1.5px solid #334155', 
+                            borderRadius: 8, 
+                            cursor: 'pointer',
+                            padding: '10px 16px',
+                            fontSize: 20,
+                            marginRight: 10
+                        }}
                         onClick={() => onTogglePublish(blog.id)}
                         title={blog.published ? "Unpublish" : "Publish"}
                     >
-                        {blog.published ? <EyeOff size={16} /> : <Eye size={16} />}
+                        {blog.published ? <EyeOff size={24} /> : <Eye size={24} />}
                     </button>
                 </div>
             </div>
-
             <div className="blog-content">
                 <h3 className="blog-title" onClick={() => onView(blog)}>
                     {blog.title}
@@ -143,15 +178,15 @@ const MyBlogCard: React.FC<{
 
                 <div className="blog-stats">
                     <div className="stat-item">
-                        <Eye size={16} />
+                        <Eye size={20} />
                         <span>{blog.reach}</span>
                     </div>
                     <div className="stat-item">
-                        <Heart size={16} />
+                        <Heart size={20} />
                         <span>{blog.likes}</span>
                     </div>
                     <div className="stat-item">
-                        <MessageCircle size={16} />
+                        <MessageCircle size={20} />
                         <span>{blog.comments.length}</span>
                     </div>
                 </div>

@@ -208,7 +208,7 @@ const NightCampDetails: React.FC = () => {
               <Button
                 variant="ghost"
                 size="medium"
-                onClick={() => navigate('/moderation/camps')}
+                onClick={() => navigate('/dashboard/moderation/night-camps')}
               >
                 ← Back
               </Button>
@@ -235,7 +235,7 @@ const NightCampDetails: React.FC = () => {
               <Button
                 variant="ghost"
                 size="medium"
-                onClick={() => navigate('/moderation/camps')}
+                onClick={() => navigate('/dashboard/moderation/night-camps')}
               >
                 ← Back
               </Button>
@@ -259,7 +259,7 @@ const NightCampDetails: React.FC = () => {
             <Button
               variant="ghost"
               size="medium"
-              onClick={() => navigate('/moderation/camps')}
+              onClick={() => navigate('/dashboard/moderation/night-camps')}
             >
               ← Back
             </Button>

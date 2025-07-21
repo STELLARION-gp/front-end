@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { ChatbotAPIConfig } from './chatbotConfig';
 import { getChatbotConfig } from './chatbotConfig';
+import { apiService } from '../../services/api';
+import { auth } from '../../firebase';
 
 export interface ChatMessage {
     id: string;
@@ -107,40 +109,27 @@ export const useChatbot = (config?: ChatbotAPIConfig) => {
 
     // API-based response (for production use)
     const getAPIResponse = useCallback(async (userMessage: string): Promise<string> => {
-        // Use backend URL from environment or default to port 5000
-        const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
-
         try {
-            console.log('🤖 Attempting backend request to:', `${backendUrl}/api/chatbot`);
-
-            const response = await fetch(`${backendUrl}/api/chatbot`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    message: userMessage,
-                    context: 'space_exploration_assistant',
-                }),
-            });
-
-            console.log('🤖 Backend response status:', response.status);
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error('🤖 Backend error:', errorText);
-                throw new Error(`Backend request failed: ${response.status} - ${errorText}`);
+            // Check if user is authenticated
+            const currentUser = auth.currentUser;
+            if (!currentUser) {
+                throw new Error('Authentication required. Please sign in to use the chatbot.');
             }
 
-            const data = await response.json();
-            console.log('🤖 Backend response data:', data);
+            console.log('🤖 Attempting backend request using apiService');
+            console.log('🔑 Current user:', currentUser.email);
 
-            // Handle both success and error responses from backend
-            if (data.success === false) {
-                throw new Error(data.error || 'Backend returned an error');
+            // Use apiService which automatically handles Firebase authentication
+            const response = await apiService.sendChatMessage(userMessage, 'space_exploration_assistant') as any;
+
+            console.log('🤖 Backend response data:', response);
+
+            // Handle response from apiService
+            if (response.success === false) {
+                throw new Error(response.error || response.message || 'Backend returned an error');
             }
 
-            return data.response || data.message || 'Sorry, I couldn\'t generate a response.';
+            return response.response || response.message || 'Sorry, I couldn\'t generate a response.';
         } catch (backendError) {
             console.warn('🤖 Backend request failed:', backendError);
 
@@ -189,10 +178,17 @@ export const useChatbot = (config?: ChatbotAPIConfig) => {
             } catch (apiError: unknown) {
                 console.warn('🤖 API request failed, falling back to rule-based response:', apiError);
 
-                // Check if it's a rate limit error and provide specific feedback
+                // Check the error type and provide specific feedback
                 const errorMessage = apiError instanceof Error ? apiError.message : String(apiError);
-                if (errorMessage.includes('Rate limit')) {
+                
+                if (errorMessage.includes('Authentication required')) {
+                    botResponse = '🔐 Please sign in to access the full AI chatbot features. For now, here\'s what I can tell you: ' + getRuleBasedResponse(userMessage);
+                } else if (errorMessage.includes('unauthorized') || errorMessage.includes('401')) {
+                    botResponse = '🔑 Authentication issue detected. Please try signing out and signing back in. Meanwhile, here\'s a basic response: ' + getRuleBasedResponse(userMessage);
+                } else if (errorMessage.includes('Rate limit')) {
                     botResponse = '⏰ I\'m experiencing high traffic right now. Here\'s what I can tell you based on my knowledge: ' + getRuleBasedResponse(userMessage);
+                } else if (errorMessage.includes('403') || errorMessage.includes('Daily chatbot question limit reached')) {
+                    botResponse = '📊 You\'ve reached your daily chatbot limit. Consider upgrading your plan for unlimited access! Here\'s a basic response: ' + getRuleBasedResponse(userMessage);
                 } else {
                     botResponse = getRuleBasedResponse(userMessage);
                 }

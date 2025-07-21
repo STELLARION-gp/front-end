@@ -144,6 +144,29 @@ class ApiService {
   async healthCheck() {
     return fetch(`${API_BASE_URL.replace('/api', '')}/health`).then(res => res.json());
   }
+
+  // Chatbot API
+  async sendChatMessage(message: string, context: string = 'space_exploration_assistant', conversationId?: string) {
+    console.log('🤖 ApiService: Sending chat message:', message.substring(0, 50) + '...');
+    console.log('🤖 ApiService: Context:', context);
+    
+    const result = await this.makeRequest('/chatbot', {
+      method: 'POST',
+      body: JSON.stringify({
+        message,
+        context,
+        conversationId
+      }),
+    });
+    
+    console.log('🤖 ApiService: Chat response received:', result);
+    return result;
+  }
+
+  // Chatbot health check
+  async getChatbotHealth() {
+    return this.makeRequest('/chatbot/health');
+  }
 }
 
 export const apiService = new ApiService();

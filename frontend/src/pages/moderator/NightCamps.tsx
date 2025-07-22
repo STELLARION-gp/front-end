@@ -234,7 +234,7 @@ const NightCamps: React.FC = () => {
                     <Button
                       variant="ghost"
                       size="small"
-                      onClick={() => navigate(`/dashboard/moderation/night-camps/${camp.id}`)}
+                      onClick={() => navigate(`/dashboard/moderation/night-camps/details/${camp.id}`)}
                     >
                       <FaEye /> View
                     </Button>

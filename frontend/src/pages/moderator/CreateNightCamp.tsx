@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { FaCalendarAlt, FaMapMarkerAlt, FaUsers, FaDollarSign, FaUpload, FaPlus, FaMinus } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import Button from '../../components/Button';
+import { AuthContext } from '../../contexts/AuthContext';
 import '../../styles/pages/moderator/CreateNightCamp.scss';
 
 interface CreateNightCampForm {
@@ -20,6 +21,7 @@ interface CreateNightCampForm {
     required: string[];
     optional: string[];
   };
+  volunteering: string[];
   emergencyContact: string;
   duration: string;
   weatherDependent: boolean;
@@ -28,6 +30,7 @@ interface CreateNightCampForm {
 const CreateNightCamp: React.FC = () => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const authContext = useContext(AuthContext);
   const [formData, setFormData] = useState<CreateNightCampForm>({
     name: '',
     organizedBy: '',
@@ -44,10 +47,50 @@ const CreateNightCamp: React.FC = () => {
       required: [''],
       optional: ['']
     },
+    volunteering: [''],
     emergencyContact: '',
     duration: '',
     weatherDependent: false
   });
+
+  // Check authentication and get current user information
+  useEffect(() => {
+    const initializeComponent = async () => {
+      try {
+        // Check if user is authenticated
+        if (!authContext?.user) {
+          console.log('❌ No authenticated user found, redirecting to login');
+          navigate('/login');
+          return;
+        }
+
+        // Check if user has moderator or admin role
+        if (authContext.userProfile?.role !== 'moderator' && authContext.userProfile?.role !== 'admin') {
+          console.log('❌ User does not have moderator privileges');
+          navigate('/dashboard');
+          return;
+        }
+
+        // Set the organized by field with current user's display name
+        const displayName = authContext.userProfile?.displayName || 
+                           `${authContext.userProfile?.firstName || ''} ${authContext.userProfile?.lastName || ''}`.trim() || 
+                           authContext.user?.email || 
+                           'Unknown User';
+        
+        setFormData(prev => ({
+          ...prev,
+          organizedBy: displayName
+        }));
+
+        console.log('✅ User authenticated as:', displayName, 'Role:', authContext.userProfile?.role);
+      } catch (error) {
+        console.error('Error initializing component:', error);
+        navigate('/login');
+      }
+    };
+
+    initializeComponent();
+  }, [navigate, authContext]);
 
   const handleInputChange = (field: keyof CreateNightCampForm, value: string | number | boolean) => {
     setFormData(prev => ({
@@ -56,7 +99,7 @@ const CreateNightCamp: React.FC = () => {
     }));
   };
 
-  const handleArrayChange = (field: 'imageUrls' | 'activities', index: number, value: string) => {
+  const handleArrayChange = (field: 'imageUrls' | 'activities' | 'volunteering', index: number, value: string) => {
     setFormData(prev => ({
       ...prev,
       [field]: prev[field].map((item, i) => i === index ? value : item)
@@ -73,14 +116,14 @@ const CreateNightCamp: React.FC = () => {
     }));
   };
 
-  const addArrayItem = (field: 'imageUrls' | 'activities') => {
+  const addArrayItem = (field: 'imageUrls' | 'activities' | 'volunteering') => {
     setFormData(prev => ({
       ...prev,
       [field]: [...prev[field], '']
     }));
   };
 
-  const removeArrayItem = (field: 'imageUrls' | 'activities', index: number) => {
+  const removeArrayItem = (field: 'imageUrls' | 'activities' | 'volunteering', index: number) => {
     if (formData[field].length > 1) {
       setFormData(prev => ({
         ...prev,
@@ -116,25 +159,66 @@ const CreateNightCamp: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+      // Check if user is still authenticated
+      if (!authContext?.user) {
+        throw new Error('User not authenticated');
+      }
+
       // Filter out empty strings from arrays
       const cleanedData = {
-        ...formData,
-        imageUrls: formData.imageUrls.filter(url => url.trim() !== ''),
+        name: formData.name,
+        // organized_by will be set by backend from authenticated user
+        sponsored_by: '', // Add sponsored_by field if needed
+        description: formData.description,
+        date: formData.date,
+        time: formData.time,
+        location: formData.location,
+        number_of_participants: formData.numberOfParticipants,
+        emergency_contact: formData.emergencyContact,
+        image_urls: formData.imageUrls.filter(url => url.trim() !== ''),
         activities: formData.activities.filter(activity => activity.trim() !== ''),
         equipment: {
           provided: formData.equipment.provided.filter(item => item.trim() !== ''),
           required: formData.equipment.required.filter(item => item.trim() !== ''),
           optional: formData.equipment.optional.filter(item => item.trim() !== '')
-        }
+        },
+        volunteering_roles: formData.volunteering.filter(role => role.trim() !== '')
       };
 
-      console.log('Night Camp Created:', cleanedData);
+      console.log('🏕️ Creating night camp with data:', cleanedData);
+
+      // Get Firebase ID token for authentication
+      const token = await authContext.user.getIdToken();
+      console.log('🔑 Firebase token obtained:', token ? 'Yes' : 'No');
+
+      const response = await fetch('http://localhost:5000/api/nightcamps/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(cleanedData)
+      });
+
+      console.log('📡 Response status:', response.status);
+
+      if (!response.ok) {
+        const errorData = await response.text();
+        console.error('❌ Server error:', errorData);
+        throw new Error(`Failed to create night camp: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log('✅ Night Camp Created successfully:', result);
+      
+      // Navigate to night camps list or show success message
       navigate('/dashboard/moderation/night-camps');
     } catch (error) {
-      console.error('Error creating night camp:', error);
+      console.error('❌ Error creating night camp:', error);
+      // You can add a toast notification here
+      if (error instanceof Error && error.message.includes('authentication')) {
+        navigate('/login');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -186,10 +270,18 @@ const CreateNightCamp: React.FC = () => {
                     type="text"
                     id="organizedBy"
                     value={formData.organizedBy}
-                    onChange={(e) => handleInputChange('organizedBy', e.target.value)}
-                    placeholder="Organizer name"
-                    required
+                    placeholder="Loading user information..."
+                    readOnly
+                    disabled
+                    style={{ 
+                      backgroundColor: '#f5f5f5', 
+                      color: '#666', 
+                      cursor: 'not-allowed' 
+                    }}
                   />
+                  <small style={{ color: '#666', fontSize: '0.85em' }}>
+                    This field is automatically populated with your name
+                  </small>
                 </div>
               </div>
 
@@ -455,6 +547,43 @@ const CreateNightCamp: React.FC = () => {
                     </div>
                   ))}
                 </div>
+              </div>
+            </div>
+
+            {/* Volunteering */}
+            <div className="form-section">
+              <h3>Volunteering Opportunities</h3>
+              <div className="dynamic-list">
+                {formData.volunteering.map((role, index) => (
+                  <div key={index} className="dynamic-item">
+                    <input
+                      type="text"
+                      value={role}
+                      onChange={(e) => handleArrayChange('volunteering', index, e.target.value)}
+                      placeholder="Enter volunteering role"
+                    />
+                    <div className="item-actions">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="small"
+                        onClick={() => addArrayItem('volunteering')}
+                      >
+                        <FaPlus />
+                      </Button>
+                      {formData.volunteering.length > 1 && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="small"
+                          onClick={() => removeArrayItem('volunteering', index)}
+                        >
+                          <FaMinus />
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 

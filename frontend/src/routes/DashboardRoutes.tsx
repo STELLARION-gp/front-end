@@ -19,7 +19,8 @@ import PollsModeration from '../pages/moderator/PollsModeration';
 import PollsDetails from '../pages/moderator/PollsDetails';
 import SpotsModeration from '../pages/moderator/SpotsModeration';
 import SpotsDetails from '../pages/moderator/SpotsDetails';
-import NightCampModeration from '../pages/moderator/NightCampModeration';
+import CreateNightCamp from '../pages/moderator/CreateNightCamp';
+import NightCampsModeration from '../pages/moderator/NightCamps';
 import EventModeration from '../pages/moderator/EventModeration';
 import PaymentProcessing from '../pages/guide/PaymentProcessing';
 import Button from '../components/Button';
@@ -99,7 +100,6 @@ import Mentor from '../pages/admin/Mentor';
 import MentorApplication from '../pages/admin/MentorApplication';
 import MentorProfiles from '../pages/admin/MentorProfiles';
 import MentorProfileDetail from '../pages/admin/MentorProfileDetail';
-import CreateNightCamp from '../pages/moderator/CreateNightCamp';
 import NightCampDetailsModerator from '../pages/moderator/NightCampDetails';
 import CreateEvent from '../pages/moderator/CreateEvent';
 import EventDetails from '../pages/moderator/EventDetails';
@@ -560,10 +560,18 @@ const DashboardRoutes = () => {
                 }
             />
             <Route
+                path="moderation/create-night-camp"
+                element={
+                    <RoleGuard allowedRoles={['moderator', 'admin']}>
+                        <CreateNightCamp />
+                    </RoleGuard>
+                }
+            />
+            <Route
                 path="moderation/night-camps"
                 element={
                     <RoleGuard allowedRoles={['moderator', 'admin']}>
-                        <NightCampModeration />
+                        <NightCampsModeration />
                     </RoleGuard>
                 }
             />

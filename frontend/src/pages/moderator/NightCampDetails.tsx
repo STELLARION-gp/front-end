@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { FaCalendarAlt, FaMapMarkerAlt, FaUsers, FaCheck, FaTimes, FaClock, FaEdit } from 'react-icons/fa';
+import { FaCalendarAlt, FaMapMarkerAlt, FaUsers, FaCheck, FaTimes, FaClock, FaEdit, FaTrash, FaUser, FaEnvelope, FaPhone } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import Button from '../../components/Button';
 import { AuthContext } from '../../contexts/AuthContext';
@@ -42,12 +42,36 @@ interface NightCamp {
   }>;
 }
 
+interface VolunteeringApplication {
+  id: number;
+  night_camp_id: number;
+  user_id: number;
+  volunteering_role: string;
+  motivation: string;
+  experience: string;
+  availability: string;
+  emergency_contact_name: string;
+  emergency_contact_phone: string;
+  emergency_contact_relationship: string;
+  status: 'pending' | 'approved' | 'rejected';
+  application_date: string;
+  reviewed_by?: number;
+  review_date?: string;
+  review_notes?: string;
+  applicant_name: string;
+  applicant_email: string;
+  applicant_display_name?: string;
+  reviewed_by_name?: string;
+}
+
 const NightCampDetails: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const authContext = useContext(AuthContext);
   const [camp, setCamp] = useState<NightCamp | null>(null);
+  const [applications, setApplications] = useState<VolunteeringApplication[]>([]);
   const [loading, setLoading] = useState(true);
+  const [applicationsLoading, setApplicationsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('overview');
 
@@ -69,6 +93,13 @@ const NightCampDetails: React.FC = () => {
     }
   }, [id, navigate, authContext]);
 
+  // Fetch applications when volunteering tab is active
+  useEffect(() => {
+    if (activeTab === 'volunteering' && camp && id) {
+      fetchApplications();
+    }
+  }, [activeTab, camp, id]);
+
   const fetchNightCamp = async () => {
     try {
       setLoading(true);
@@ -87,6 +118,99 @@ const NightCampDetails: React.FC = () => {
       setError('Failed to load night camp details');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchApplications = async () => {
+    if (!id || !authContext?.user) return;
+
+    try {
+      setApplicationsLoading(true);
+      const token = await authContext.user.getIdToken();
+      const response = await fetch(`http://localhost:5000/api/nightcamps/${id}/applications`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch applications');
+      }
+
+      const result = await response.json();
+      setApplications(result.data);
+    } catch (error) {
+      console.error('Error fetching applications:', error);
+    } finally {
+      setApplicationsLoading(false);
+    }
+  };
+
+  const handleDeleteApplication = async (applicationId: number) => {
+    if (!authContext?.user) return;
+
+    const confirmDelete = window.confirm('Are you sure you want to delete this application? This action cannot be undone.');
+    if (!confirmDelete) return;
+
+    try {
+      const token = await authContext.user.getIdToken();
+      const response = await fetch(`http://localhost:5000/api/nightcamps/applications/${applicationId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete application');
+      }
+
+      // Remove the application from the state
+      setApplications(prev => prev.filter(app => app.id !== applicationId));
+      
+      // Refresh the camp data to update volunteer counts
+      fetchNightCamp();
+    } catch (error) {
+      console.error('Error deleting application:', error);
+      setError('Failed to delete application');
+    }
+  };
+
+  const handleUpdateApplicationStatus = async (applicationId: number, status: 'approved' | 'rejected', reviewNotes?: string) => {
+    if (!authContext?.user) return;
+
+    try {
+      const token = await authContext.user.getIdToken();
+      const response = await fetch(`http://localhost:5000/api/nightcamps/applications/${applicationId}/status`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ 
+          status, 
+          review_notes: reviewNotes || '' 
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to ${status} application`);
+      }
+
+      // Update the application status in the state
+      setApplications(prev => 
+        prev.map(app => 
+          app.id === applicationId 
+            ? { ...app, status, review_date: new Date().toISOString(), review_notes: reviewNotes }
+            : app
+        )
+      );
+      
+      // Refresh the camp data to update volunteer counts
+      fetchNightCamp();
+    } catch (error) {
+      console.error(`Error ${status}ing application:`, error);
+      setError(`Failed to ${status} application`);
     }
   };
 
@@ -430,6 +554,123 @@ const NightCampDetails: React.FC = () => {
                 </div>
               ) : (
                 <p className="no-data">No volunteering opportunities specified for this night camp.</p>
+              )}
+            </div>
+
+            <div className="info-card">
+              <h3>Volunteer Applications ({applications.length})</h3>
+              {applicationsLoading ? (
+                <div className="loading-applications">
+                  <div className="loading-spinner small"></div>
+                  <span>Loading applications...</span>
+                </div>
+              ) : applications.length > 0 ? (
+                <div className="applications-list">
+                  {applications.map((application) => (
+                    <div key={application.id} className="application-item">
+                      <div className="application-header">
+                        <div className="applicant-info">
+                          <h4 className="applicant-name">
+                            <FaUser className="icon" />
+                            {application.applicant_name || application.applicant_display_name}
+                          </h4>
+                          <span className="applicant-email">
+                            <FaEnvelope className="icon" />
+                            {application.applicant_email}
+                          </span>
+                        </div>
+                        <div className="application-actions">
+                          <div className={`status-badge status-${application.status}`}>
+                            {application.status}
+                          </div>
+                          {application.status === 'pending' && (
+                            <div className="action-buttons">
+                              <Button
+                                variant="success"
+                                size="small"
+                                onClick={() => handleUpdateApplicationStatus(application.id, 'approved')}
+                              >
+                                <FaCheck /> Approve
+                              </Button>
+                              <Button
+                                variant="warning"
+                                size="small"
+                                onClick={() => handleUpdateApplicationStatus(application.id, 'rejected')}
+                              >
+                                <FaTimes /> Reject
+                              </Button>
+                            </div>
+                          )}
+                          <Button
+                            variant="danger"
+                            size="small"
+                            onClick={() => handleDeleteApplication(application.id)}
+                          >
+                            <FaTrash />
+                          </Button>
+                        </div>
+                      </div>
+                      
+                      <div className="application-details">
+                        <div className="detail-row">
+                          <strong>Role:</strong> {application.volunteering_role}
+                        </div>
+                        <div className="detail-row">
+                          <strong>Applied:</strong> {formatDate(application.application_date)}
+                        </div>
+                        {application.review_date && (
+                          <div className="detail-row">
+                            <strong>Reviewed:</strong> {formatDate(application.review_date)}
+                            {application.reviewed_by_name && (
+                              <span className="reviewer"> by {application.reviewed_by_name}</span>
+                            )}
+                          </div>
+                        )}
+                        {application.review_notes && (
+                          <div className="detail-row">
+                            <strong>Review Notes:</strong>
+                            <p className="review-notes">{application.review_notes}</p>
+                          </div>
+                        )}
+                        <div className="detail-row">
+                          <strong>Motivation:</strong>
+                          <p className="motivation-text">{application.motivation}</p>
+                        </div>
+                        {application.experience && (
+                          <div className="detail-row">
+                            <strong>Experience:</strong>
+                            <p className="experience-text">{application.experience}</p>
+                          </div>
+                        )}
+                        {application.availability && (
+                          <div className="detail-row">
+                            <strong>Availability:</strong>
+                            <p className="availability-text">{application.availability}</p>
+                          </div>
+                        )}
+                        {application.emergency_contact_name && (
+                          <div className="detail-row">
+                            <strong>Emergency Contact:</strong>
+                            <div className="emergency-contact">
+                              <span>{application.emergency_contact_name}</span>
+                              {application.emergency_contact_phone && (
+                                <span className="phone">
+                                  <FaPhone className="icon" />
+                                  {application.emergency_contact_phone}
+                                </span>
+                              )}
+                              {application.emergency_contact_relationship && (
+                                <span className="relationship">({application.emergency_contact_relationship})</span>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="no-data">No volunteer applications received yet.</p>
               )}
             </div>
           </div>

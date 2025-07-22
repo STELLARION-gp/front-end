@@ -366,10 +366,10 @@ const FinanceAnalytics: React.FC = () => {
     <div className="subscriptions-section">
       <div className="section-header">
         <h2 className="section-title">Subscription Plans</h2>
-        <button className="export-btn" onClick={handleExportData}>
+        <Button className="export-btn" onClick={handleExportData}>
           <Download size={16} />
           Export Data
-        </button>
+        </Button>
       </div>
 
       <div className="subscription-cards">
@@ -451,10 +451,10 @@ const FinanceAnalytics: React.FC = () => {
     <div className="sessions-section">
       <div className="section-header">
         <h2 className="section-title">Sessions Revenue</h2>
-        <button className="export-btn" onClick={handleExportData}>
+        <Button className="export-btn" onClick={handleExportData}>
           <Download size={16} />
           Export Data
-        </button>
+        </Button>
       </div>
 
       <div className="session-overview">
@@ -544,10 +544,10 @@ const FinanceAnalytics: React.FC = () => {
     <div className="guides-section">
       <div className="section-header">
         <h2 className="section-title">Guide Services</h2>
-        <button className="export-btn" onClick={handleExportData}>
+        <Button className="export-btn" onClick={handleExportData}>
           <Download size={16} />
           Export Data
-        </button>
+        </Button>
       </div>
 
       <div className="guide-overview">
@@ -659,10 +659,10 @@ const FinanceAnalytics: React.FC = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <button className="export-btn" onClick={handleExportData}>
+            <Button className="export-btn" onClick={handleExportData}>
               <Download size={16} />
               Export
-            </button>
+            </Button>
           </div>
         </div>
 

@@ -280,7 +280,7 @@ case 'upcoming': {
 
         return (
           <div className="volunteer-camps">
-            <h2 className="volunteer-camps__title">Join Organizing Committee</h2>
+            <h2 className="upcoming-camps__title">Join Organizing Committee</h2>
             <div className="card-grid card-grid--medium">
               {realNightCamps.map((camp, index) => (
                 <Card 

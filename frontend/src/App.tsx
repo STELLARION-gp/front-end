@@ -47,9 +47,7 @@ const App: React.FC = () => {
 
                 {/* Subscription Routes */}
                 <Route path="/subscription/plans" element={
-                  <LazyPageWrapper skeletonProps={{ title: true, paragraphs: 2 }}>
                     <SubscriptionPlans />
-                  </LazyPageWrapper>
                 } />
 
                 {/* Payment Routes */}

@@ -12,6 +12,7 @@ import {
     GlobeAltIcon,
     SparklesIcon 
 } from '@heroicons/react/24/outline';
+import { useNavigate } from 'react-router-dom';
 
 interface SubscriptionPlan {
     id: number;
@@ -47,6 +48,7 @@ const SubscriptionPlans: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [showPaymentModal, setShowPaymentModal] = useState(false);
     const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetchPlans();
@@ -67,6 +69,8 @@ const SubscriptionPlans: React.FC = () => {
         } catch (err) {
             setError('Failed to fetch subscription plans');
             console.error(err);
+        } finally {
+            setLoading(false); // Always stop loading after fetching plans
         }
     };
 
@@ -90,6 +94,10 @@ const SubscriptionPlans: React.FC = () => {
     };
 
     const handlePlanSelect = (plan: SubscriptionPlan) => {
+        if (!user) {
+            navigate('/login');
+            return;
+        }
         if (plan.plan_type === 'starseeker') {
             // Handle free plan directly
             handleFreePlanUpgrade(plan);

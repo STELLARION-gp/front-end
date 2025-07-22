@@ -69,7 +69,7 @@ const moderationModules: ModerationModule[] = [
     title: 'Night Camp Management',
     description: 'Oversee night camping events and registrations',
     icon: <FaCampground />,
-    route: '/dashboard/moderation/camp',
+    route: '/dashboard/moderation/night-camps',
     stats: { pending: 4, total: 32, recent: 2 },
     priority: 'medium'
   },

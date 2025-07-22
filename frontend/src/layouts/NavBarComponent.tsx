@@ -32,7 +32,8 @@ const NavBarComponent = () => {
   }, [i18n.language]);
 
   // Determine if we should show compact mode based on current route
-  const isCompactMode = location.pathname !== '/' && !location.pathname.includes('/404');
+  const isHomePage = location.pathname === '/';
+  const isCompactMode = !isHomePage && !location.pathname.includes('/404');
 
   // Save route path in ref to avoid re-renders on route changes
   const routeRef = useRef(location.pathname);
@@ -236,14 +237,27 @@ const NavBarComponent = () => {
     );
   };
 
+  // Smooth scroll to section if on home page, otherwise navigate to home and then scroll
+  const handleSectionLink = (e: React.MouseEvent<HTMLAnchorElement>, sectionId: string) => {
+    e.preventDefault();
+    if (isHomePage) {
+      const el = document.getElementById(sectionId);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      window.location.href = `/#${sectionId}`;
+    }
+  };
+
   return (
     <nav className={`navbar-blur${hidden ? ' navbar-hidden' : ''}${isCompactMode ? ' navbar-compact' : ''}`}>
       <div className="navbar-inner">
         {/* Left Nav - Hidden in compact mode */}
         {!isCompactMode && (
           <div className="navbar-section left-section">
-            <a href="#" className="nav-link">{t('navbar.features')}</a>
-            <Link to="/about" className="nav-link">{t('navbar.about')}</Link>
+            <a href="#features" className="nav-link" onClick={e => handleSectionLink(e, 'features')}>{t('navbar.features')}</a>
+            <a href="#about" className="nav-link" onClick={e => handleSectionLink(e, 'about')}>{t('navbar.about')}</a>
             <Link to="/subscription/plans" className="nav-link">{t('navbar.plans')}</Link>
             <a href="#" className="nav-link">{t('navbar.contact')}</a>
           </div>

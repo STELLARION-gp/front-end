@@ -51,8 +51,12 @@ const NewHome = () => {
             <Hero />
             <StatsSection />
             <img src={astro} alt='astro' className='astro-floating-img' />
-            <AboutSection />
-            <FeaturesSection />
+            <div id="about">
+              <AboutSection />
+            </div>
+            <div id="features">
+              <FeaturesSection />
+            </div>
             <CTASection />
           </div>
 

@@ -2,11 +2,13 @@ import { useEffect, useState } from 'react';
 import './../styles/pages/Hero.scss';
 import { useI18n } from '../i18n/useI18n';
 import Button from './Button';
-import { ArrowDown, Rocket } from 'lucide-react';
+import { Rocket } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Hero = () => {
     const { t } = useI18n();
     const [isVisible, setIsVisible] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -17,7 +19,7 @@ const Hero = () => {
 
     return (
         <section className='hero-section relative w-full'>
-            <div className='stellarion-logo-container-fullwidth'>                
+            <div className='stellarion-logo-container-fullwidth'>
                 <svg
                     className='stellarion-logo-fullwidth'
                     width="3269"
@@ -33,10 +35,10 @@ const Hero = () => {
                             <stop offset="100%" stopColor="rgba(59, 130, 246, 0.9)" />
                         </linearGradient>
                         <filter id="logoGlow">
-                            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-                            <feMerge> 
-                                <feMergeNode in="coloredBlur"/>
-                                <feMergeNode in="SourceGraphic"/>
+                            <feGaussianBlur stdDeviation="3" result="coloredBlur" />
+                            <feMerge>
+                                <feMergeNode in="coloredBlur" />
+                                <feMergeNode in="SourceGraphic" />
                             </feMerge>
                         </filter>
                     </defs>
@@ -69,10 +71,10 @@ const Hero = () => {
                 {/* Enhanced CTA Buttons */}
                 <div className="hero-actions">
                     <Button
-                        href="#features"
                         className="hero-cta-primary"
                         variant="primary"
                         size="large"
+                        onClick={() => navigate('/dashboard/overview')}
                     >
                         <span>{t('hero.getStarted')}</span>
                         <Rocket className="w-5 h-5" />

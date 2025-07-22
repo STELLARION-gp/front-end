@@ -309,6 +309,7 @@ body {
   position: relative;
   z-index: 4; // Above 3D background and overlays but below navbar
   pointer-events: none; // Allow click-through to Galaxy3D by default
+  overflow-x: hidden;
 
   // Ensure sections can take full height and pass through events in empty areas
   &>section {
@@ -358,15 +359,15 @@ body {
     }
   }
 
-  .stats-section {
-    position: relative;
-    z-index: 2;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    // pointer-events: none; // Removed to allow interaction with 3D background
-  }
+  // .stats-section {
+  //   position: relative;
+  //   z-index: 2;
+  //   min-height: 100vh;
+  //   display: flex;
+  //   align-items: center;
+  //   justify-content: center;
+  //   // pointer-events: none; // Removed to allow interaction with 3D background
+  // }
 
   .astro-floating-img{
         position: absolute;

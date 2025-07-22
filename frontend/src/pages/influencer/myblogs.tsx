@@ -162,15 +162,15 @@ const MyBlogCard: React.FC<{
                 <div className="blog-stats">
                     <div className="stat-item">
                         <Eye size={16} />
-                        <span>{blog.reach}</span>
+                        <span>{blog.reach || blog.view_count || 0}</span>
                     </div>
                     <div className="stat-item">
                         <Heart size={16} />
-                        <span>{blog.likes}</span>
+                        <span>{blog.likes || blog.like_count || 0}</span>
                     </div>
-                    <div className="stat-item">
+                    <div className="stat-item" title={`${blog.comment_count || 0} comment${(blog.comment_count || 0) !== 1 ? 's' : ''}`}>
                         <MessageCircle size={16} />
-                        <span>{(blog.comments || []).length}</span>
+                        <span>{blog.comment_count || 0}</span>
                     </div>
                 </div>
 
@@ -190,7 +190,7 @@ const MyBlogCard: React.FC<{
 export default function MyBlogs() {
     const navigate = useNavigate();
     const authContext = useContext(AuthContext);
-    const [activeTab, setActiveTab] = useState<ActiveSection>('blogs');
+    const [activeTab, setActiveTab] = useState<ActiveSection>('myblogs');
     const [myBlogs, setMyBlogs] = useState<Blog[]>([]);
     const [newBlog, setNewBlog] = useState<{ title: string; content: string; image: File | null }>({ title: '', content: '', image: null });
     const [editingId, setEditingId] = useState<number | null>(null);
@@ -201,6 +201,7 @@ export default function MyBlogs() {
     const [error, setError] = useState<string | null>(null);
     const [imageUploading, setImageUploading] = useState(false);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [commentsLoading, setCommentsLoading] = useState(false);
 
     // Blog exploration states
     const [filter, setFilter] = React.useState({
@@ -298,7 +299,8 @@ export default function MyBlogs() {
                             reach: blog.view_count || blog.views_count || 0,
                             likes: blog.like_count || blog.likes_count || 0,
                             rating: 0,
-                            comments: [],
+                            comments: [], // Comments will be loaded separately when needed
+                            comment_count: blog.comment_count || 0, // Use backend comment count
                             liked: blog.user_liked || false,
                             published: blog.status === 'published',
                             createdAt: blog.created_at
@@ -337,7 +339,7 @@ export default function MyBlogs() {
                     rating: 4.5,
                     reach: 125,
                     likes: 23,
-                    comments: [],
+                    comments: [], // Will be loaded from backend
                     liked: false
                 },
                 {
@@ -350,7 +352,7 @@ export default function MyBlogs() {
                     rating: 4.8,
                     reach: 89,
                     likes: 34,
-                    comments: [],
+                    comments: [], // Will be loaded from backend
                     liked: false
                 }
             ];
@@ -364,14 +366,14 @@ export default function MyBlogs() {
                 status: Math.random() > 0.5 ? 'published' : 'draft' as const,
                 view_count: (blog as any).reach || Math.floor(Math.random() * 1000) + 100,
                 like_count: (blog as any).likes || Math.floor(Math.random() * 50) + 10,
-                comment_count: 0,
+                comment_count: 0, // Will be loaded from backend when comments are fetched
                 tags: [],
                 created_at: blog.createdAt || new Date().toISOString(),
                 updated_at: blog.createdAt || new Date().toISOString(),
                 date: blog.createdAt,
                 reach: (blog as any).reach || Math.floor(Math.random() * 1000) + 100,
                 likes: (blog as any).likes || Math.floor(Math.random() * 50) + 10,
-                comments: (blog as any).comments || [],
+                comments: [], // Will be loaded from backend when needed
                 liked: (blog as any).liked || false,
                 published: Math.random() > 0.5,
                 // Ensure featured_image and image_url are set
@@ -416,6 +418,104 @@ export default function MyBlogs() {
             setMyBlogs([fallbackBlog]);
         } finally {
             setLoading(false);
+        }
+    };
+
+    // Load comments for a specific blog from the backend
+    const loadBlogComments = async (blogId: number) => {
+        setCommentsLoading(true);
+        try {
+            const response = await blogService.getBlogComments(blogId);
+            
+            if (response.success && response.data) {
+                // Convert backend comment format to frontend format
+                const backendComments = response.data.comments || [];
+                const convertedComments: Comment[] = backendComments.map((comment: any) => ({
+                    id: comment.id,
+                    user: comment.user_display_name || comment.user_name || 'Unknown User',
+                    text: comment.content,
+                    date: new Date(comment.created_at).toLocaleDateString()
+                }));
+
+                // Update the blog with loaded comments and accurate comment count
+                const actualCommentCount = response.data.total || convertedComments.length;
+                
+                setMyBlogs(prevBlogs => 
+                    prevBlogs.map(blog => 
+                        blog.id === blogId 
+                            ? { 
+                                ...blog, 
+                                comments: convertedComments,
+                                comment_count: actualCommentCount
+                            }
+                            : blog
+                    )
+                );
+
+                // Update selected blog if it's the one we're loading comments for
+                setSelectedBlog(prev => 
+                    prev && prev.id === blogId 
+                        ? { 
+                            ...prev, 
+                            comments: convertedComments,
+                            comment_count: actualCommentCount
+                        }
+                        : prev
+                );
+
+                console.log('Loaded comments for blog', blogId, ':', convertedComments);
+                console.log('Comment count for blog', blogId, ':', actualCommentCount);
+            } else {
+                console.log('No comments found for blog', blogId);
+                // Set empty comments and zero count
+                setMyBlogs(prevBlogs => 
+                    prevBlogs.map(blog => 
+                        blog.id === blogId 
+                            ? { 
+                                ...blog, 
+                                comments: [],
+                                comment_count: 0
+                            }
+                            : blog
+                    )
+                );
+                
+                setSelectedBlog(prev => 
+                    prev && prev.id === blogId 
+                        ? { 
+                            ...prev, 
+                            comments: [],
+                            comment_count: 0
+                        }
+                        : prev
+                );
+            }
+        } catch (err: any) {
+            console.error('Error loading comments for blog', blogId, ':', err);
+            // Don't show error to user for comment loading failures, but set empty state
+            setMyBlogs(prevBlogs => 
+                prevBlogs.map(blog => 
+                    blog.id === blogId 
+                        ? { 
+                            ...blog, 
+                            comments: [],
+                            comment_count: 0
+                        }
+                        : blog
+                )
+            );
+            
+            setSelectedBlog(prev => 
+                prev && prev.id === blogId 
+                    ? { 
+                        ...prev, 
+                        comments: [],
+                        comment_count: 0
+                    }
+                    : prev
+            );
+        } finally {
+            setCommentsLoading(false);
         }
     };
 
@@ -507,7 +607,8 @@ export default function MyBlogs() {
                     reach: response.data.view_count || response.data.views_count || 0,
                     likes: response.data.like_count || response.data.likes_count || 0,
                     rating: 0,
-                    comments: [],
+                    comments: [], // Comments will be loaded when needed
+                    comment_count: response.data.comment_count || 0, // Use backend comment count
                     liked: false,
                     published: response.data.status === 'published',
                     createdAt: response.data.created_at
@@ -660,7 +761,8 @@ export default function MyBlogs() {
                         reach: response.data.view_count || response.data.views_count || 0,
                         likes: response.data.like_count || response.data.likes_count || 0,
                         rating: 0,
-                        comments: [],
+                        comments: [], // Comments will be loaded when needed
+                        comment_count: response.data.comment_count || 0, // Use backend comment count
                         liked: false,
                         published: response.data.status === 'published',
                         createdAt: response.data.created_at
@@ -978,43 +1080,54 @@ export default function MyBlogs() {
                 id: response.data.id,
                 user: response.data.user_display_name || 'You',
                 text: response.data.content,
-                date: new Date(response.data.created_at).toISOString().split('T')[0]
+                date: new Date(response.data.created_at).toLocaleDateString()
             };
             
+            // Update the blog with the new comment and increment comment count
             setMyBlogs(myBlogs.map(blog => 
                 blog.id === blogId 
-                    ? { ...blog, comments: [...(blog.comments || []), comment] }
+                    ? { 
+                        ...blog, 
+                        comments: [...(blog.comments || []), comment],
+                        comment_count: (blog.comment_count || 0) + 1
+                    }
                     : blog
             ));
             
             if (selectedBlog?.id === blogId) {
                 setSelectedBlog(prev => prev ? {
                     ...prev,
-                    comments: [...(prev.comments || []), comment]
+                    comments: [...(prev.comments || []), comment],
+                    comment_count: (prev.comment_count || 0) + 1
                 } : null);
             }
             
             setNewComment('');
         } catch (err: any) {
             console.error('Error adding comment:', err);
-            // Fallback to local comment
+            // Fallback to local comment for demo purposes
             const comment = {
                 id: Date.now(),
                 user: 'You',
                 text: newComment,
-                date: new Date().toISOString().split('T')[0]
+                date: new Date().toLocaleDateString()
             };
             
             setMyBlogs(myBlogs.map(blog => 
                 blog.id === blogId 
-                    ? { ...blog, comments: [...(blog.comments || []), comment] }
+                    ? { 
+                        ...blog, 
+                        comments: [...(blog.comments || []), comment],
+                        comment_count: (blog.comment_count || 0) + 1
+                    }
                     : blog
             ));
             
             if (selectedBlog?.id === blogId) {
                 setSelectedBlog(prev => prev ? {
                     ...prev,
-                    comments: [...(prev.comments || []), comment]
+                    comments: [...(prev.comments || []), comment],
+                    comment_count: (prev.comment_count || 0) + 1
                 } : null);
             }
             
@@ -1026,16 +1139,22 @@ export default function MyBlogs() {
         try {
             await blogService.deleteBlogComment(blogId, commentId);
             
+            // Update the blog by removing the comment and decrementing comment count
             setMyBlogs(myBlogs.map(blog => 
                 blog.id === blogId 
-                    ? { ...blog, comments: (blog.comments || []).filter(c => c.id !== commentId) }
+                    ? { 
+                        ...blog, 
+                        comments: (blog.comments || []).filter(c => c.id !== commentId),
+                        comment_count: Math.max(0, (blog.comment_count || 0) - 1)
+                    }
                     : blog
             ));
             
             if (selectedBlog?.id === blogId) {
                 setSelectedBlog(prev => prev ? {
                     ...prev,
-                    comments: (prev.comments || []).filter(c => c.id !== commentId)
+                    comments: (prev.comments || []).filter(c => c.id !== commentId),
+                    comment_count: Math.max(0, (prev.comment_count || 0) - 1)
                 } : null);
             }
         } catch (err: any) {
@@ -1043,14 +1162,19 @@ export default function MyBlogs() {
             // Fallback to local deletion
             setMyBlogs(myBlogs.map(blog => 
                 blog.id === blogId 
-                    ? { ...blog, comments: (blog.comments || []).filter(c => c.id !== commentId) }
+                    ? { 
+                        ...blog, 
+                        comments: (blog.comments || []).filter(c => c.id !== commentId),
+                        comment_count: Math.max(0, (blog.comment_count || 0) - 1)
+                    }
                     : blog
             ));
             
             if (selectedBlog?.id === blogId) {
                 setSelectedBlog(prev => prev ? {
                     ...prev,
-                    comments: (prev.comments || []).filter(c => c.id !== commentId)
+                    comments: (prev.comments || []).filter(c => c.id !== commentId),
+                    comment_count: Math.max(0, (prev.comment_count || 0) - 1)
                 } : null);
             }
         }
@@ -1370,7 +1494,10 @@ export default function MyBlogs() {
                         onEdit={handleEdit}
                         onDelete={handleDelete}
                         onTogglePublish={handleTogglePublish}
-                        onView={setSelectedBlog}
+                        onView={(blog) => {
+                            setSelectedBlog(blog);
+                            loadBlogComments(blog.id);
+                        }}
                     />
                 ))}
             </div>
@@ -1425,7 +1552,7 @@ export default function MyBlogs() {
                             <div className="modal-stats">
                                 <span><Eye size={16} /> {selectedBlog.reach || selectedBlog.view_count || 0} views</span>
                                 <span><Heart size={16} /> {selectedBlog.likes || selectedBlog.like_count || 0} likes</span>
-                                <span><MessageCircle size={16} /> {(selectedBlog.comments || []).length} comments</span>
+                                <span><MessageCircle size={16} /> {selectedBlog.comment_count || 0} comments</span>
                             </div>
                             
                             <div className="modal-text">
@@ -1459,41 +1586,124 @@ export default function MyBlogs() {
                                 </Button>
                             </div>
                             
-                            <div className="comments-section">
-                                <h3>Comments ({(selectedBlog.comments || []).length})</h3>
+                            <div className="comments-section" style={{ marginTop: '2rem', borderTop: '1px solid #e5e7eb', paddingTop: '1.5rem' }}>
+                                <h3>
+                                    Comments ({selectedBlog.comment_count || 0})
+                                    {commentsLoading && <span style={{ fontSize: '0.875rem', color: '#6b7280', marginLeft: '0.5rem' }}>Loading...</span>}
+                                </h3>
                                 
-                                <div className="add-comment">
+                                <div className="add-comment" 
+                                // style={{ 
+                                //     display: 'flex', 
+                                //     gap: '0.5rem', 
+                                //     marginBottom: '1.5rem',
+                                //     padding: '1rem',
+                                //     backgroundColor: '#f9fafb',
+                                //     borderRadius: '8px',
+                                //     border: '1px solid #e5e7eb'
+                                // }}
+                                >
                                     <input
                                         type="text"
                                         placeholder="Add a comment..."
                                         value={newComment}
                                         onChange={(e) => setNewComment(e.target.value)}
                                         onKeyPress={(e) => e.key === 'Enter' && handleAddComment(selectedBlog.id)}
+                                        // style={{ 
+                                        //     flex: 1, 
+                                        //     padding: '0.75rem', 
+                                        //     borderRadius: '6px', 
+                                        //     border: '1px solid #d1d5db',
+                                        //     backgroundColor: 'white',
+                                        //     fontSize: '0.875rem'
+                                        // }}
                                     />
-                                    <Button onClick={() => handleAddComment(selectedBlog.id)}>
+                                    <Button 
+                                        onClick={() => handleAddComment(selectedBlog.id)}
+                                        disabled={!newComment.trim()}
+                                    >
                                         <Send size={16} />
                                     </Button>
                                 </div>
                                 
-                                <div className="comments-list">
-                                    {(selectedBlog.comments || []).map((comment) => (
-                                        <div key={comment.id} className="comment">
-                                            <div className="comment-header">
-                                                <span className="comment-author">{comment.user}</span>
-                                                <span className="comment-timestamp">{comment.date}</span>
-                                                {comment.user === 'You' && (
-                                                    <Button 
-                                                        onClick={() => handleDeleteComment(selectedBlog.id, comment.id)}
-                                                        variant="ghost"
-                                                        size="small"
-                                                    >
-                                                        <Trash2 size={14} />
-                                                    </Button>
-                                                )}
-                                            </div>
-                                            <p>{comment.text}</p>
+                                <div className="comments-list" style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                                    {(selectedBlog.comments || []).length === 0 ? (
+                                         <div 
+                                        // style={{ 
+                                        //     textAlign: 'center', 
+                                        //     padding: '2rem', 
+                                        //     color: '#6b7280', 
+                                        //     backgroundColor: '#f9fafb',
+                                        //     borderRadius: '8px',
+                                        //     border: '1px dashed #d1d5db'
+                                        // }}
+                                        >
+                                            <MessageCircle size={24} style={{ margin: '0 auto 0.5rem', opacity: 0.5 }} />
+                                            <p style={{ fontStyle: 'italic', margin: 0 }}>
+                                                No comments yet. Be the first to comment!
+                                            </p>
                                         </div>
-                                    ))}
+                                    ) : (
+                                        (selectedBlog.comments || []).map((comment, index) => (
+                                            <div key={comment.id} className="comment" 
+                                            // style={{ 
+                                            //     marginBottom: '1rem',
+                                            //     padding: '1rem',
+                                            //     backgroundColor: index % 2 === 0 ? '#ffffff' : '#f9fafb',
+                                            //     borderRadius: '8px',
+                                            //     border: '1px solid #e5e7eb'
+                                            // }}
+                                            >
+                                                <div className="comment-header" 
+                                                // style={{ 
+                                                //     display: 'flex', 
+                                                //     justifyContent: 'space-between', 
+                                                //     alignItems: 'center',
+                                                //     marginBottom: '0.5rem'
+                                                // }}
+                                                >
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                                        <span className="comment-author" 
+                                                        // style={{ 
+                                                        //     fontWeight: '600', 
+                                                        //     color: '#1f2937',
+                                                        //     fontSize: '0.875rem'
+                                                        // }}
+                                                        >
+                                                            {comment.user}
+                                                        </span>
+                                                        <span className="comment-timestamp" 
+                                                        // style={{ 
+                                                        //     color: '#6b7280',
+                                                        //     fontSize: '0.75rem'
+                                                        // }}
+                                                        >
+                                                            {comment.date}
+                                                        </span>
+                                                    </div>
+                                                    {comment.user === 'You' && (
+                                                        <Button 
+                                                            onClick={() => handleDeleteComment(selectedBlog.id, comment.id)}
+                                                            variant="ghost"
+                                                            size="small"
+                                                        >
+                                                            <Trash2 size={14} />
+                                                        </Button>
+                                                    )}
+                                                </div>
+                                                <p 
+                                                // style={{ 
+                                                //     margin: 0, 
+                                                //     color: '#374151',
+                                                //     fontSize: '0.875rem',
+                                                //     lineHeight: '1.5'
+                                                // }}
+                                                >
+                                                    {comment.text}
+                                                </p>
+                                            </div>
+                                        ))
+                                    )}
                                 </div>
                             </div>
                         </div>

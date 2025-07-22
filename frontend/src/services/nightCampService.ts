@@ -66,11 +66,26 @@ export interface VolunteeringApplication {
   review_notes?: string;
   created_at: string;
   updated_at: string;
+  // Additional fields from JOIN query
+  night_camp_name?: string;
+  night_camp_date?: string;
+  night_camp_location?: string;
+  reviewed_by_name?: string;
 }
 
 export interface CreateVolunteeringApplicationRequest {
   night_camp_id: number;
   volunteering_role: string;
+  motivation?: string;
+  experience?: string;
+  availability?: string;
+  emergency_contact_name?: string;
+  emergency_contact_phone?: string;
+  emergency_contact_relationship?: string;
+}
+
+export interface UpdateVolunteeringApplicationRequest {
+  volunteering_role?: string;
   motivation?: string;
   experience?: string;
   availability?: string;
@@ -178,6 +193,29 @@ class NightCampService {
       return response.data || [];
     } catch (error) {
       console.error('Error fetching user volunteering applications:', error);
+      throw error;
+    }
+  }
+
+  // Update user's volunteering application
+  async updateUserVolunteeringApplication(
+    applicationId: number, 
+    updateData: UpdateVolunteeringApplicationRequest
+  ): Promise<VolunteeringApplication> {
+    try {
+      const response = await this.makeRequest<{ data: VolunteeringApplication }>(
+        `/nightcamps/volunteering/my-applications/${applicationId}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(updateData),
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error updating volunteering application:', error);
       throw error;
     }
   }

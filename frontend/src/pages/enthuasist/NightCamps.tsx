@@ -10,7 +10,7 @@ import ParticipantsIcon from '../../assets/svg/ParticipantsIcon'
 import '../../styles/pages/enthusiast/NightCamps.scss'
 import { useRoleAccess } from '../../hooks/useRoleAccess';
 import { useNavigate } from 'react-router-dom';
-import { nightCampService, type NightCampWithDetails } from '../../services/nightCampService';
+import { nightCampService, type NightCampWithDetails, type VolunteeringApplication, type UpdateVolunteeringApplicationRequest } from '../../services/nightCampService';
 
 type ActiveSection = 'upcoming' | 'organizing' | 'registered' | 'volunteers'
 
@@ -20,8 +20,11 @@ const NightCamps = () => {
 
   // State for real data
   const [realNightCamps, setRealNightCamps] = useState<NightCampWithDetails[]>([]);
+  const [userApplications, setUserApplications] = useState<VolunteeringApplication[]>([]);
   const [loading, setLoading] = useState(false);
+  const [applicationsLoading, setApplicationsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [applicationsError, setApplicationsError] = useState<string | null>(null);
 
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -30,7 +33,10 @@ const NightCamps = () => {
   // Load night camps data
   useEffect(() => {
     loadNightCamps();
-  }, []);
+    if (userRole !== 'learner') {
+      loadUserApplications();
+    }
+  }, [userRole]);
 
   const loadNightCamps = async () => {
     setLoading(true);
@@ -43,6 +49,20 @@ const NightCamps = () => {
       setError('Failed to load night camps. Please try again.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadUserApplications = async () => {
+    setApplicationsLoading(true);
+    setApplicationsError(null);
+    try {
+      const applications = await nightCampService.getUserVolunteeringApplications();
+      setUserApplications(applications);
+    } catch (err) {
+      console.error('Failed to load user applications:', err);
+      setApplicationsError('Failed to load your applications. Please try again.');
+    } finally {
+      setApplicationsLoading(false);
     }
   };
 
@@ -74,6 +94,36 @@ const NightCamps = () => {
     } catch (error) {
       console.error('Failed to submit application:', error);
       throw error; // Re-throw to let the modal handle the error display
+    }
+  };
+
+  const handleRoleUpdate = async (applicationId: number, newRole: string) => {
+    try {
+      await nightCampService.updateUserVolunteeringApplication(applicationId, {
+        volunteering_role: newRole
+      });
+      
+      // Refresh applications
+      await loadUserApplications();
+      setEditingApplication(null);
+      alert('Role updated successfully!');
+    } catch (error) {
+      console.error('Failed to update role:', error);
+      alert('Failed to update role. Please try again.');
+    }
+  };
+
+  const handleCancelApplication = async (applicationId: number, campName: string) => {
+    if (window.confirm(`Are you sure you want to cancel your application for "${campName}"?`)) {
+      try {
+        // Since we don't have a delete endpoint for user's own applications,
+        // we could either implement one or handle this differently
+        console.log(`Would cancel application ID: ${applicationId}`);
+        alert('Cancel functionality would be implemented here');
+      } catch (error) {
+        console.error('Failed to cancel application:', error);
+        alert('Failed to cancel application. Please try again.');
+      }
     }
   };
 
@@ -116,7 +166,11 @@ const NightCamps = () => {
     }
   ];
   const [activeSection, setActiveSection] = useState<ActiveSection>('upcoming')
-  const [editingRole, setEditingRole] = useState<{campId: number, role: string} | null>(null);
+  const [editingApplication, setEditingApplication] = useState<{
+    applicationId: number;
+    role: string;
+    availableRoles: string[];
+  } | null>(null);
 
   const renderContent = () => {
     switch (activeSection) {
@@ -397,48 +451,64 @@ case 'upcoming': {
         )
       }
       case 'volunteers': {
-        const volunteerCamps = [
-          {
-            id: 1,
-            name: "Stargazing Night Camp",
-            date: "July 15, 2025",
-            time: "8:00 PM",
-            location: "Colombo Observatory",
-            currentRole: "Observatory & Equipment Coordinator",
-            availableRoles: ["Observatory & Equipment Coordinator", "Night Sky Education Specialist", "Space Science Activity Leader", "Safety Coordinator"],
-            registeredOn: "June 10, 2025",
-            status: "Confirmed"
-          },
-          {
-            id: 2,
-            name: "Moonlight Astronomy Camp",
-            date: "August 12, 2025",
-            time: "7:30 PM",
-            location: "Kandy Science Center",
-            currentRole: "Space Science Activity Leader",
-            availableRoles: ["Observatory & Equipment Coordinator", "Night Sky Education Specialist", "Space Science Activity Leader", "Safety Coordinator"],
-            registeredOn: "June 20, 2025",
-            status: "Confirmed"
-          }
-        ];
+        if (applicationsLoading) {
+          return (
+            <div className="volunteer-camps-table">
+              <h2 className="volunteer-camps-table__title">My Volunteering Applications</h2>
+              <div className="loading-message">Loading your applications...</div>
+            </div>
+          );
+        }
 
-        const handleRoleChange = (campId: number, newRole: string) => {
-          // Here you would typically call an API to update the role
-          console.log(`Updated role for camp ${campId} to: ${newRole}`);
-          setEditingRole(null);
+        if (applicationsError) {
+          return (
+            <div className="volunteer-camps-table">
+              <h2 className="volunteer-camps-table__title">My Volunteering Applications</h2>
+              <div className="error-message">
+                {applicationsError}
+                <Button onClick={loadUserApplications} className="retry-button">
+                  Try Again
+                </Button>
+              </div>
+            </div>
+          );
+        }
+
+        if (userApplications.length === 0) {
+          return (
+            <div className="volunteer-camps-table">
+              <h2 className="volunteer-camps-table__title">My Volunteering Applications</h2>
+              <div className="no-applications-message">
+                You haven't applied for any volunteering positions yet. Check out the "Join Organizing Committee" tab to apply!
+              </div>
+            </div>
+          );
+        }
+
+        const getAvailableRolesForCamp = (nightCampId: number): string[] => {
+          const camp = realNightCamps.find(c => c.id === nightCampId);
+          return camp?.volunteering.map(v => v.volunteering_role) || ['General Volunteer'];
         };
 
-        const handleCancelVolunteering = (campId: number, campName: string) => {
-          if (window.confirm(`Are you sure you want to cancel your volunteering for "${campName}"?`)) {
-            // Here you would typically call an API to cancel volunteering
-            console.log(`Cancelled volunteering for camp ID: ${campId}`);
+        const handleRoleChange = async (applicationId: number, newRole: string) => {
+          try {
+            await handleRoleUpdate(applicationId, newRole);
+          } catch (error) {
+            console.error('Failed to update role:', error);
+          }
+        };
+
+        const handleCancelVolunteering = async (applicationId: number, campName: string) => {
+          try {
+            await handleCancelApplication(applicationId, campName);
+          } catch (error) {
+            console.error('Failed to cancel application:', error);
           }
         };
 
         return (
           <div className="volunteer-camps-table">
-            <h2 className="volunteer-camps-table__title">My Volunteering</h2>
-            
+            <h2 className="volunteer-camps-table__title">My Volunteering Applications</h2>
             
             <div className="volunteer-camps-table__table-container">
               <table className="volunteer-camps-table__table">
@@ -446,94 +516,136 @@ case 'upcoming': {
                   <tr>
                     <th>Camp Name</th>
                     <th>Date</th>
-                    <th>Time</th>
                     <th>Location</th>
                     <th>Role</th>
+                    <th>Status</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {volunteerCamps.map((camp) => (
-                    <tr key={camp.id} className="volunteer-camps-table__row">
-                      <td className="volunteer-camps-table__cell volunteer-camps-table__cell--name">
-                        <div className="volunteer-camps-table__camp-info">
-                          <span className="volunteer-camps-table__camp-name">{camp.name}</span>
-                          <span className="volunteer-camps-table__registered-date">
-                            Registered: {camp.registeredOn}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="volunteer-camps-table__cell">
-                        <div className="volunteer-camps-table__info-item">
-                          <DateIcon className="volunteer-camps-table__icon" size={14} />
-                          <span>{camp.date}</span>
-                        </div>
-                      </td>
-                      <td className="volunteer-camps-table__cell">
-                        <div className="volunteer-camps-table__info-item">
-                          <TimeIcon className="volunteer-camps-table__icon" size={14} />
-                          <span>{camp.time}</span>
-                        </div>
-                      </td>
-                      <td className="volunteer-camps-table__cell">
-                        <div className="volunteer-camps-table__info-item">
-                          <LocationIcon className="volunteer-camps-table__icon" size={14} />
-                          <span>{camp.location}</span>
-                        </div>
-                      </td>
-                      <td className="volunteer-camps-table__cell volunteer-camps-table__cell--role">
-                        {editingRole?.campId === camp.id ? (
-                          <div className="volunteer-camps-table__role-edit">
-                            <select 
-                              className="volunteer-camps-table__role-select"
-                              value={editingRole.role}
-                              onChange={(e) => setEditingRole({campId: camp.id, role: e.target.value})}
-                            >
-                              {camp.availableRoles.map((role) => (
-                                <option key={role} value={role}>{role}</option>
-                              ))}
-                            </select>
-                            <div className="volunteer-camps-table__role-actions">
-                              <Button 
-                                size="small"
-                                onClick={() => handleRoleChange(camp.id, editingRole.role)}
-                                className="volunteer-camps-table__save-btn"
-                              >
-                                Save
-                              </Button>
-                              <Button 
-                                size="small"
-                                onClick={() => setEditingRole(null)}
-                                className="volunteer-camps-table__cancel-edit-btn"
-                              >
-                                Cancel
-                              </Button>
-                            </div>
+                  {userApplications.map((application) => {
+                    const availableRoles = getAvailableRolesForCamp(application.night_camp_id);
+                    const isPending = application.status === 'pending';
+                    
+                    return (
+                      <tr key={application.id} className="volunteer-camps-table__row">
+                        <td className="volunteer-camps-table__cell volunteer-camps-table__cell--name">
+                          <div className="volunteer-camps-table__camp-info">
+                            <span className="volunteer-camps-table__camp-name">
+                              {application.night_camp_name || 'Unknown Camp'}
+                            </span>
+                            <span className="volunteer-camps-table__registered-date">
+                              Applied: {new Date(application.application_date).toLocaleDateString()}
+                            </span>
                           </div>
-                        ) : (
-                          <div className="volunteer-camps-table__role-display">
-                            <span className="volunteer-camps-table__role-text">{camp.currentRole}</span>
+                        </td>
+                        <td className="volunteer-camps-table__cell">
+                          <div className="volunteer-camps-table__info-item">
+                            <DateIcon className="volunteer-camps-table__icon" size={14} />
+                            <span>
+                              {application.night_camp_date 
+                                ? new Date(application.night_camp_date).toLocaleDateString('en-US', { 
+                                    year: 'numeric', 
+                                    month: 'short', 
+                                    day: 'numeric' 
+                                  })
+                                : 'Date not available'
+                              }
+                            </span>
+                          </div>
+                        </td>
+                        <td className="volunteer-camps-table__cell">
+                          <div className="volunteer-camps-table__info-item">
+                            <LocationIcon className="volunteer-camps-table__icon" size={14} />
+                            <span>{application.night_camp_location || 'Location not available'}</span>
+                          </div>
+                        </td>
+                        <td className="volunteer-camps-table__cell volunteer-camps-table__cell--role">
+                          {editingApplication?.applicationId === application.id ? (
+                            <div className="volunteer-camps-table__role-edit">
+                              <select 
+                                className="volunteer-camps-table__role-select"
+                                value={editingApplication.role}
+                                onChange={(e) => setEditingApplication({
+                                  applicationId: application.id, 
+                                  role: e.target.value,
+                                  availableRoles
+                                })}
+                              >
+                                {availableRoles.map((role) => (
+                                  <option key={role} value={role}>{role}</option>
+                                ))}
+                              </select>
+                              <div className="volunteer-camps-table__role-actions">
+                                <Button 
+                                  size="small"
+                                  onClick={() => handleRoleChange(application.id, editingApplication.role)}
+                                  className="volunteer-camps-table__save-btn"
+                                >
+                                  Save
+                                </Button>
+                                <Button 
+                                  size="small"
+                                  onClick={() => setEditingApplication(null)}
+                                  className="volunteer-camps-table__cancel-edit-btn"
+                                >
+                                  Cancel
+                                </Button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="volunteer-camps-table__role-display">
+                              <span className="volunteer-camps-table__role-text">
+                                {application.volunteering_role}
+                              </span>
+                              {isPending && (
+                                <Button 
+                                  size="small"
+                                  onClick={() => setEditingApplication({
+                                    applicationId: application.id, 
+                                    role: application.volunteering_role,
+                                    availableRoles
+                                  })}
+                                  className="volunteer-camps-table__edit-btn"
+                                >
+                                  Edit
+                                </Button>
+                              )}
+                            </div>
+                          )}
+                        </td>
+                        <td className="volunteer-camps-table__cell">
+                          <span className={`volunteer-camps-table__status volunteer-camps-table__status--${application.status}`}>
+                            {application.status.charAt(0).toUpperCase() + application.status.slice(1)}
+                          </span>
+                          {application.reviewed_at && (
+                            <div className="volunteer-camps-table__review-info">
+                              Reviewed: {new Date(application.reviewed_at).toLocaleDateString()}
+                              {application.reviewed_by_name && (
+                                <span> by {application.reviewed_by_name}</span>
+                              )}
+                            </div>
+                          )}
+                          {application.review_notes && (
+                            <div className="volunteer-camps-table__review-notes">
+                              Notes: {application.review_notes}
+                            </div>
+                          )}
+                        </td>
+                        <td className="volunteer-camps-table__cell volunteer-camps-table__cell--actions">
+                          {isPending && (
                             <Button 
                               size="small"
-                              onClick={() => setEditingRole({campId: camp.id, role: camp.currentRole})}
-                              className="volunteer-camps-table__edit-btn"
+                              onClick={() => handleCancelVolunteering(application.id, application.night_camp_name || 'this camp')}
+                              className="volunteer-camps-table__cancel-btn"
                             >
-                              Edit
+                              Cancel
                             </Button>
-                          </div>
-                        )}
-                      </td>
-                      <td className="volunteer-camps-table__cell volunteer-camps-table__cell--actions">
-                        <Button 
-                          size="small"
-                          onClick={() => handleCancelVolunteering(camp.id, camp.name)}
-                          className="volunteer-camps-table__cancel-btn"
-                        >
-                          Cancel
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

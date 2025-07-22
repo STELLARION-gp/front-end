@@ -1,15 +1,16 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Button from '../../components/Button'
 import Card, { CardActions, CardContent, CardSubtitle, CardTitle } from '../../components/Card'
 import ProgressBar from '../../components/ProgressBar'
+import VolunteeringApplicationModal from '../../components/VolunteeringApplicationModal'
 import DateIcon from '../../assets/svg/DateIcon'
 import TimeIcon from '../../assets/svg/TimeIcon'
 import LocationIcon from '../../assets/svg/LocationIcon'
 import ParticipantsIcon from '../../assets/svg/ParticipantsIcon'
 import '../../styles/pages/enthusiast/NightCamps.scss'
-import '../../styles/pages/enthusiast/NightCamps.scss'
 import { useRoleAccess } from '../../hooks/useRoleAccess';
 import { useNavigate } from 'react-router-dom';
+import { nightCampService, type NightCampWithDetails } from '../../services/nightCampService';
 
 type ActiveSection = 'upcoming' | 'organizing' | 'registered' | 'volunteers'
 
@@ -17,6 +18,66 @@ const NightCamps = () => {
   const { userRole } = useRoleAccess();
   const navigate = useNavigate();
 
+  // State for real data
+  const [realNightCamps, setRealNightCamps] = useState<NightCampWithDetails[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedCamp, setSelectedCamp] = useState<NightCampWithDetails | null>(null);
+
+  // Load night camps data
+  useEffect(() => {
+    loadNightCamps();
+  }, []);
+
+  const loadNightCamps = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const camps = await nightCampService.getAllNightCamps();
+      setRealNightCamps(camps);
+    } catch (err) {
+      console.error('Failed to load night camps:', err);
+      setError('Failed to load night camps. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVolunteerClick = (camp: NightCampWithDetails) => {
+    setSelectedCamp(camp);
+    setIsModalOpen(true);
+  };
+
+  const handleApplicationSubmit = async (applicationData: {
+    volunteering_role: string;
+    motivation: string;
+    experience: string;
+    availability: string;
+    emergency_contact_name: string;
+    emergency_contact_phone: string;
+    emergency_contact_relationship: string;
+  }) => {
+    if (!selectedCamp) return;
+
+    try {
+      await nightCampService.applyForVolunteering({
+        night_camp_id: selectedCamp.id,
+        ...applicationData
+      });
+      
+      alert('Application submitted successfully!');
+      setIsModalOpen(false);
+      setSelectedCamp(null);
+    } catch (error) {
+      console.error('Failed to submit application:', error);
+      throw error; // Re-throw to let the modal handle the error display
+    }
+  };
+
+  // Legacy static data for other tabs (keeping existing functionality)
   const camps = [
     {
       id: 1,
@@ -105,8 +166,8 @@ case 'upcoming': {
                 </div>
                 <ProgressBar 
                   className="progress-bar--participants"
-                  // current={camp.participants}
-                  // max={camp.maxParticipants}
+                  current={camp.participants}
+                  max={camp.maxParticipants}
                 />
               </div>
             </CardContent>
@@ -128,61 +189,108 @@ case 'upcoming': {
     </div>
   )
 }
-      case 'organizing':{
-         
+      case 'organizing': {
+        if (loading) {
+          return (
+            <div className="volunteer-camps">
+              <h2 className="volunteer-camps__title">Join Organizing Committee</h2>
+              <div className="loading-message">Loading night camps...</div>
+            </div>
+          );
+        }
+
+        if (error) {
+          return (
+            <div className="volunteer-camps">
+              <h2 className="volunteer-camps__title">Join Organizing Committee</h2>
+              <div className="error-message">
+                {error}
+                <Button onClick={loadNightCamps} className="retry-button">
+                  Try Again
+                </Button>
+              </div>
+            </div>
+          );
+        }
+
+        if (realNightCamps.length === 0) {
+          return (
+            <div className="volunteer-camps">
+              <h2 className="volunteer-camps__title">Join Organizing Committee</h2>
+              <div className="no-camps-message">
+                No night camps available for volunteering at the moment.
+              </div>
+            </div>
+          );
+        }
+
         return (
           <div className="volunteer-camps">
             <h2 className="volunteer-camps__title">Join Organizing Committee</h2>
             <div className="card-grid card-grid--medium">
-        {camps.map((camps, index) => (
-          <Card 
-            key={index}
-            variant="elevated"
-            hover={true}
-            className="card-animate"
-          >
-            <CardTitle>{camps.title}</CardTitle>
-            <CardSubtitle>{camps.description}</CardSubtitle>
-            <CardContent>
-              <div className="camp-info">
-                <div className="camp-info__item">
-                  <DateIcon className="camp-info__icon" size={16} />
-                  <span className="camp-info__text">{camps.date}</span>
-                </div>
-                <div className="camp-info__item">
-                  <TimeIcon className="camp-info__icon" size={16} />
-                  <span className="camp-info__text">{camps.time}</span>
-                </div>
-                <div className="camp-info__item">
-                  <LocationIcon className="camp-info__icon" size={16} />
-                  <span className="camp-info__text">{camps.location}</span>
-                </div>
-                <div className="camp-info__item">
-                  <ParticipantsIcon className="camp-info__icon" size={16} />
-                  <span className="camp-info__text">{camps.maxParticipants} participants</span>
-                </div>
-                <div className="camp-info__item">
-                  <div className="camp-info__roles-header">Volunteering Roles</div>
-                  <ul className="camp-info__roles">
-                    {camps.rolls.map((role, roleIndex) => (
-                      <li key={roleIndex}>{role}</li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </CardContent>
-            <CardActions>
-              <Button 
-                className="btn--night-camps"
-              >
-                Register Now
-              </Button>
-            </CardActions>
-          </Card>
-        ))}
-      </div>
+              {realNightCamps.map((camp, index) => (
+                <Card 
+                  key={camp.id || index}
+                  variant="elevated"
+                  hover={true}
+                  className="card-animate"
+                >
+                  <CardTitle>{camp.name}</CardTitle>
+                  <CardSubtitle>{camp.description || 'Join us for an amazing night camp experience'}</CardSubtitle>
+                  <CardContent>
+                    <div className="camp-info">
+                      <div className="camp-info__item">
+                        <DateIcon className="camp-info__icon" size={16} />
+                        <span className="camp-info__text">
+                          {new Date(camp.date).toLocaleDateString('en-US', { 
+                            year: 'numeric', 
+                            month: 'long', 
+                            day: 'numeric' 
+                          })}
+                        </span>
+                      </div>
+                      {camp.time && (
+                        <div className="camp-info__item">
+                          <TimeIcon className="camp-info__icon" size={16} />
+                          <span className="camp-info__text">{camp.time}</span>
+                        </div>
+                      )}
+                      <div className="camp-info__item">
+                        <LocationIcon className="camp-info__icon" size={16} />
+                        <span className="camp-info__text">{camp.location}</span>
+                      </div>
+                      <div className="camp-info__item">
+                        <ParticipantsIcon className="camp-info__icon" size={16} />
+                        <span className="camp-info__text">{camp.number_of_participants} max participants</span>
+                      </div>
+                      <div className="camp-info__item">
+                        <div className="camp-info__roles-header">Available Volunteering Roles</div>
+                        <ul className="camp-info__roles">
+                          {camp.volunteering && camp.volunteering.length > 0 ? (
+                            camp.volunteering.map((volunteer, roleIndex) => (
+                              <li key={roleIndex}>{volunteer.volunteering_role}</li>
+                            ))
+                          ) : (
+                            <li>No specific roles listed</li>
+                          )}
+                        </ul>
+                      </div>
+                    </div>
+                  </CardContent>
+                  <CardActions>
+                    <Button 
+                      className="btn--night-camps"
+                      onClick={() => handleVolunteerClick(camp)}
+                    >
+                      Apply as Volunteer
+                    </Button>
+                  </CardActions>
+                </Card>
+              ))}
+            </div>
           </div>
-        )}
+        );
+      }
       case 'registered': {
         const registeredCamps = [
           {
@@ -485,6 +593,20 @@ case 'upcoming': {
         <div className="night-camps__content">
           {renderContent()}
         </div>
+
+        {/* Volunteering Application Modal */}
+        {isModalOpen && selectedCamp && (
+          <VolunteeringApplicationModal
+            isOpen={isModalOpen}
+            onClose={() => {
+              setIsModalOpen(false);
+              setSelectedCamp(null);
+            }}
+            onSubmit={handleApplicationSubmit}
+            nightCampName={selectedCamp.name}
+            availableRoles={selectedCamp.volunteering.map(v => v.volunteering_role)}
+          />
+        )}
       </div>
     </div>
   )

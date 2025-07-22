@@ -124,7 +124,7 @@
           }
           
           .mentee-level {
-            color: #b57aff;
+            color: #4f8cff;
             font-size: 1rem;
             font-weight: 500;
             margin-bottom: 0.2rem;
@@ -149,7 +149,7 @@
           font-size: 2.2rem;
           font-weight: 800;
           margin-bottom: 0.8rem;
-          background: linear-gradient(135deg, #b57aff 0%, #4f8cff 100%);
+          background: linear-gradient(135deg, #4f8cff 0%, #4f8cff 100%);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
@@ -242,7 +242,7 @@
             gap: 0.3rem;
             
             .stat-icon {
-              color: #b57aff;
+              color: #4f8cff;
               margin-bottom: 0.2rem;
             }
             
@@ -302,7 +302,7 @@
           
           &:hover {
             background: rgba(181, 122, 255, 0.2);
-            color: #b57aff;
+            color: #4f8cff;
           }
         }
       }
@@ -423,7 +423,7 @@
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        background: linear-gradient(135deg, #b57aff 0%, #4f8cff 100%);
+        background: linear-gradient(135deg, #4f8cff 0%, #4f8cff 100%);
         border: none;
         color: #fff;
         padding: 0.8rem 1.2rem;
@@ -462,7 +462,7 @@
       gap: 1rem;
       
       .suggestion-icon {
-        color: #b57aff;
+        color: #4f8cff;
         flex-shrink: 0;
       }
       
@@ -480,7 +480,7 @@
           margin-bottom: 0.3rem;
           
           strong {
-            color: #b57aff;
+            color: #4f8cff;
           }
         }
         
@@ -495,7 +495,7 @@
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      background: linear-gradient(135deg, #b57aff 0%, #4f8cff 100%);
+      background: linear-gradient(135deg, #4f8cff 0%, #4f8cff 100%);
       border: none;
       color: #fff;
       padding: 1rem 1.5rem;
@@ -583,7 +583,7 @@
           text-align: center;
           
           svg {
-            color: #b57aff;
+            color: #4f8cff;
           }
           
           p {
@@ -623,7 +623,7 @@
           width: 60px;
           height: 60px;
           border-radius: 16px;
-          background: linear-gradient(135deg, #b57aff 0%, #4f8cff 100%);
+          background: linear-gradient(135deg, #4f8cff 0%, #4f8cff 100%);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -698,7 +698,7 @@
           position: relative;
           
           svg {
-            transform: rotate(-90deg);
+            transform: rotate(1800deg);
           }
           
           text {
@@ -763,7 +763,7 @@
                 content: "→";
                 position: absolute;
                 left: 0;
-                color: #b57aff;
+                color: #4f8cff;
               }
             }
           }
@@ -881,7 +881,7 @@
           
           &:hover {
             background: rgba(181, 122, 255, 0.2);
-            color: #b57aff;
+            color: #4f8cff;
           }
           
           &.completed {
@@ -898,7 +898,7 @@
           display: flex;
           align-items: center;
           gap: 0.5rem;
-          background: linear-gradient(135deg, #b57aff 0%, #4f8cff 100%);
+          background: linear-gradient(135deg, #4f8cff 0%, #4f8cff 100%);
           border: none;
           color: #fff;
           padding: 0.6rem 1rem;
@@ -937,7 +937,7 @@
         }
         
         .stat-icon {
-          color: #b57aff;
+          color: #4f8cff;
           flex-shrink: 0;
         }
         
@@ -1069,7 +1069,7 @@
           display: flex;
           align-items: center;
           gap: 0.5rem;
-          background: linear-gradient(135deg, #b57aff 0%, #4f8cff 100%);
+          background: linear-gradient(135deg, #4f8cff 0%, #4f8cff 100%);
           color: #fff;
           padding: 0.4rem 0.8rem;
           border-radius: 8px;
@@ -1119,7 +1119,7 @@
             display: flex;
             align-items: center;
             gap: 0.4rem;
-            background: linear-gradient(135deg, #b57aff 0%, #4f8cff 100%);
+            background: linear-gradient(135deg, #4f8cff 0%, #4f8cff 100%);
             border: none;
             color: #fff;
             padding: 0.6rem 1rem;
@@ -1490,7 +1490,7 @@
         border: 1px solid transparent;
         
         &.active {
-          border-color: #b57aff;
+          border-color: #4f8cff;
         }
       }
     }

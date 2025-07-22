@@ -1,16 +1,18 @@
 // Session Moderation - Futuristic Space Theme
 .session-moderation {
   min-height: 100vh;
-  background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+  // background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
   color: #ffffff;
   font-family: 'Inter', 'Segoe UI', sans-serif;
 
   .moderation-header {
-    background: rgba(0, 0, 0, 0.3);
-    -webkit-backdrop-filter: blur(15px);
-    backdrop-filter: blur(15px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     padding: 2rem 0;
+    background: rgba(0, 0, 0, 0.141);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px 16px 0 0;
+    margin-bottom: 5px;
 
     .header-content {
       max-width: 1400px;
@@ -27,24 +29,6 @@
       display: flex;
       align-items: center;
       gap: 1.5rem;
-
-      .back-button {
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        color: white;
-        padding: 0.75rem;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        &:hover {
-          background: rgba(255, 255, 255, 0.2);
-          transform: translateX(-2px);
-        }
-      }
 
       .title-section {
         h1 {
@@ -102,11 +86,14 @@
     align-items: center;
     flex-wrap: wrap;
     gap: 1.5rem;
+    margin-bottom: 10px;
+    border-radius: 0 0 16px 16px;
 
     .search-box {
       position: relative;
       flex: 1;
-      max-width: 400px;
+      // max-width: 400px;
+      width: 100%;
 
       .search-icon {
         position: absolute;
@@ -144,24 +131,10 @@
       gap: 0.5rem;
 
       .filter-tab {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        color: rgba(255, 255, 255, 0.7);
-        padding: 0.5rem 1rem;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        font-size: 0.9rem;
-
-        &:hover {
-          background: rgba(255, 255, 255, 0.1);
-          color: white;
-        }
-
         &.active {
-          background: linear-gradient(135deg, #667eea, #764ba2);
-          border-color: #667eea;
-          color: white;
+          background: linear-gradient(135deg, #667eea, #764ba2) !important;
+          border-color: #667eea !important;
+          color: white !important;
         }
       }
     }
@@ -170,16 +143,25 @@
   .moderation-content {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 0 2rem 2rem;
-    display: grid;
-    grid-template-columns: 1fr 400px;
-    gap: 2rem;
+    // padding: 0 2rem 2rem;
     min-height: 60vh;
+    padding-bottom: 10px;
 
     .sessions-list {
       display: flex;
       flex-direction: column;
       gap: 1rem;
+      margin-bottom: 10px;
+
+      .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: rgba(255, 255, 255, 0.6);
+        
+        p {
+          font-size: 1.1rem;
+        }
+      }
 
       .session-item {
         background: rgba(255, 255, 255, 0.03);
@@ -201,117 +183,141 @@
           background: rgba(102, 126, 234, 0.1);
         }
 
-        .session-header {
+        .item-header {
           display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
+          align-items: center;
+          gap: 0.75rem;
           margin-bottom: 1rem;
 
-          .session-info {
+          .session-type {
             display: flex;
             align-items: center;
-            gap: 1rem;
-            flex: 1;
+            gap: 0.5rem;
 
-            .session-type-icon {
-              width: 50px;
-              height: 50px;
-              border-radius: 12px;
-              background: linear-gradient(135deg, #667eea, #764ba2);
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              font-size: 1.5rem;
+            .type-icon {
+              font-size: 1.2rem;
             }
 
-            .session-details {
-              flex: 1;
-
-              .session-title {
-                font-size: 1.2rem;
-                font-weight: 600;
-                margin: 0 0 0.25rem 0;
-                color: white;
-              }
-
-              .session-subject {
-                color: #667eea;
-                margin: 0 0 0.5rem 0;
-                font-size: 0.9rem;
-                font-weight: 500;
-              }
-
-              .proposer-info {
-                display: flex;
-                align-items: center;
-                gap: 0.5rem;
-                color: rgba(255, 255, 255, 0.7);
-                font-size: 0.85rem;
-              }
+            .type-label {
+              background: rgba(255, 255, 255, 0.1);
+              padding: 0.25rem 0.75rem;
+              border-radius: 15px;
+              font-size: 0.8rem;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
             }
           }
 
-          .status-badges {
+          .priority-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: white;
+
+            &.priority-critical { background: #ff4757; }
+            &.priority-high { background: #ffa502; }
+            &.priority-medium { background: #3742fa; }
+            &.priority-low { background: #2ed573; }
+          }
+
+          .status-indicator {
             display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            align-items: flex-end;
+            align-items: center;
+            padding: 0.22rem 0.7rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-align: center;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            height: 28px;
+            line-height: 1;
+            min-width: unset;
+            width: auto;
+            white-space: nowrap;
 
-            .priority-badge,
-            .status-badge {
-              padding: 0.25rem 0.75rem;
-              border-radius: 15px;
-              font-size: 0.75rem;
-              font-weight: 600;
-              text-transform: uppercase;
-              letter-spacing: 0.5px;
-              color: white;
+            &.status-pending {
+              background: rgba(255, 165, 2, 0.2);
+              color: #ffa502;
             }
-
-            .priority-badge {
-              &.priority-critical { background: #ff4757; }
-              &.priority-high { background: #ffa502; }
-              &.priority-medium { background: #3742fa; }
-              &.priority-low { background: #2ed573; }
+            &.status-approved {
+              background: rgba(46, 213, 115, 0.2);
+              color: #2ed573;
             }
-
-            .status-badge {
-              &.status-pending { background: #ffa502; }
-              &.status-active { background: #2ed573; }
-              &.status-cancelled { background: #ff4757; }
-              &.status-completed { background: #6c5ce7; }
+            &.status-rejected {
+              background: rgba(255, 71, 87, 0.2);
+              color: #ff4757;
             }
-            .status-approved { background: #2ed573; }
-            .status-rejected { background: #ff4757; }
-            .status-revision-requested { background: #5352ed; }
+            &.status-revision-requested {
+              background: rgba(83, 82, 237, 0.2);
+              color: #5352ed;
+            }
           }
         }
 
-        .session-content {
+        .item-content {
           margin-bottom: 1rem;
 
-          .session-description {
-            margin-bottom: 1rem;
-
-            p {
-              margin: 0;
-              color: rgba(255, 255, 255, 0.8);
-              line-height: 1.6;
-            }
+          .session-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin: 0 0 0.5rem 0;
+            color: white;
           }
 
-          .session-metadata {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 0.5rem;
-            margin-bottom: 1rem;
+          .session-description {
+            font-size: 1rem;
+            line-height: 1.5;
+            margin: 0 0 0.75rem 0;
+            color: rgba(255, 255, 255, 0.9);
+          }
 
-            .metadata-item {
+          .item-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.6);
+            flex-wrap: wrap;
+
+            .proposer {
+              color: rgba(255, 255, 255, 0.7);
+            }
+
+            .subject {
+              color: #667eea;
+            }
+
+            .date {
+              color: rgba(255, 255, 255, 0.6);
+            }
+          }
+        }
+
+        .session-details {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          gap: 2.5rem;
+          margin-bottom: 0.5rem;
+          flex-wrap: wrap;
+          min-height: unset;
+
+          .session-info {
+            display: flex;
+            flex-direction: row;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+
+            .info-item {
               display: flex;
               align-items: center;
               gap: 0.5rem;
-              color: rgba(255, 255, 255, 0.7);
               font-size: 0.85rem;
+              color: rgba(255, 255, 255, 0.7);
             }
           }
 
@@ -319,33 +325,36 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            margin-bottom: 1rem;
             color: #ffa502;
             font-size: 0.85rem;
-          }
-
-          .session-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-
-            .tag {
-              background: rgba(102, 126, 234, 0.2);
-              color: #667eea;
-              padding: 0.25rem 0.75rem;
-              border-radius: 12px;
-              font-size: 0.75rem;
-              font-weight: 500;
-
-              &.more {
-                background: rgba(255, 255, 255, 0.1);
-                color: rgba(255, 255, 255, 0.7);
-              }
+            margin-left: auto;
+            .flag-icon {
+              color: #ffa502;
             }
           }
         }
 
-        .session-actions {
+        .session-tags {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.5rem;
+          margin-bottom: 1rem;
+
+          .tag {
+            background: rgba(102, 126, 234, 0.2);
+            color: #667eea;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+
+            &.more {
+              background: rgba(255, 255, 255, 0.1);
+              color: rgba(255, 255, 255, 0.7);
+            }
+          }
+        }
+
+        .item-actions {
           display: flex;
           gap: 0.5rem;
           justify-content: flex-end;
@@ -366,239 +375,46 @@
 
             &:hover {
               background: rgba(255, 255, 255, 0.2);
+              transform: translateY(-1px);
+            }
+
+            &.view-btn {
+              color: #667eea;
+              border-color: rgba(102, 126, 234, 0.3);
+
+              &:hover {
+                background: rgba(102, 126, 234, 0.2);
+                border-color: #667eea;
+              }
             }
 
             &.approve-btn {
+              color: #2ed573;
+              border-color: rgba(46, 213, 115, 0.3);
+
               &:hover {
                 background: rgba(46, 213, 115, 0.2);
                 border-color: #2ed573;
-                color: #2ed573;
               }
             }
 
             &.revision-btn {
+              color: #5352ed;
+              border-color: rgba(83, 82, 237, 0.3);
+
               &:hover {
                 background: rgba(83, 82, 237, 0.2);
                 border-color: #5352ed;
-                color: #5352ed;
               }
             }
 
             &.reject-btn {
+              color: #ff4757;
+              border-color: rgba(255, 71, 87, 0.3);
+
               &:hover {
                 background: rgba(255, 71, 87, 0.2);
                 border-color: #ff4757;
-                color: #ff4757;
-              }
-            }
-          }
-        }
-      }
-    }
-
-    .detail-panel {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 12px;
-      position: sticky;
-      top: 2rem;
-      height: fit-content;
-      max-height: 80vh;
-      overflow-y: auto;
-
-      .panel-header {
-        background: rgba(255, 255, 255, 0.05);
-        padding: 1rem 1.5rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-
-        h3 {
-          margin: 0;
-          font-size: 1.2rem;
-        }
-
-        .close-panel {
-          background: none;
-          border: none;
-          color: rgba(255, 255, 255, 0.7);
-          cursor: pointer;
-          padding: 0.5rem;
-          border-radius: 4px;
-          transition: all 0.3s ease;
-
-          &:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-          }
-        }
-      }
-
-      .panel-content {
-        padding: 1.5rem;
-
-        .detail-section {
-          margin-bottom: 2rem;
-
-          h4 {
-            color: #667eea;
-            margin: 0 0 1rem 0;
-            font-size: 1rem;
-            font-weight: 600;
-          }
-
-          .detail-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 0.75rem;
-
-            .detail-item {
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-              padding: 0.5rem 0;
-              border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-
-              label {
-                color: rgba(255, 255, 255, 0.7);
-                font-weight: 500;
-              }
-
-              span {
-                color: white;
-                text-align: right;
-                max-width: 200px;
-              }
-            }
-          }
-
-          .session-description-full {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 1rem;
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: rgba(255, 255, 255, 0.9);
-            line-height: 1.6;
-          }
-
-          .requirements-list {
-            .requirement-item {
-              padding: 0.5rem 0;
-              color: rgba(255, 255, 255, 0.8);
-              border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            }
-          }
-
-          .proposer-details {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-
-            .proposer-avatar {
-              width: 50px;
-              height: 50px;
-              border-radius: 50%;
-              background: linear-gradient(135deg, #667eea, #764ba2);
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              font-size: 1.2rem;
-              color: white;
-              font-weight: 600;
-            }
-
-            .proposer-info {
-              div {
-                margin-bottom: 0.25rem;
-                color: rgba(255, 255, 255, 0.8);
-
-                &:last-child {
-                  margin-bottom: 0;
-                  color: rgba(255, 255, 255, 0.6);
-                  font-size: 0.85rem;
-                }
-              }
-
-              strong {
-                color: white;
-              }
-            }
-          }
-
-          .reports-details {
-            .report-reasons {
-              display: flex;
-              flex-wrap: wrap;
-              gap: 0.5rem;
-
-              .reason-chip {
-                background: rgba(255, 165, 2, 0.2);
-                color: #ffa502;
-                padding: 0.25rem 0.75rem;
-                border-radius: 15px;
-                font-size: 0.8rem;
-              }
-            }
-          }
-
-          .moderator-notes {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 1rem;
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: rgba(255, 255, 255, 0.9);
-            line-height: 1.6;
-          }
-        }
-
-        .panel-actions {
-          display: grid;
-          grid-template-columns: 1fr 1fr 1fr;
-          gap: 0.75rem;
-          padding-top: 1rem;
-          border-top: 1px solid rgba(255, 255, 255, 0.1);
-
-          .panel-btn {
-            padding: 0.75rem 1rem;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            font-size: 0.85rem;
-
-            &.approve {
-              background: linear-gradient(135deg, #2ed573, #1dd1a1);
-              color: white;
-
-              &:hover {
-                transform: translateY(-1px);
-                box-shadow: 0 8px 20px rgba(46, 213, 115, 0.3);
-              }
-            }
-
-            &.revision {
-              background: linear-gradient(135deg, #5352ed, #3742fa);
-              color: white;
-
-              &:hover {
-                transform: translateY(-1px);
-                box-shadow: 0 8px 20px rgba(83, 82, 237, 0.3);
-              }
-            }
-
-            &.reject {
-              background: linear-gradient(135deg, #ff4757, #ff3838);
-              color: white;
-
-              &:hover {
-                transform: translateY(-1px);
-                box-shadow: 0 8px 20px rgba(255, 71, 87, 0.3);
               }
             }
           }
@@ -608,18 +424,6 @@
   }
 
   // Responsive Design
-  @media (max-width: 1024px) {
-    .moderation-content {
-      grid-template-columns: 1fr;
-      
-      .detail-panel {
-        position: relative;
-        top: 0;
-        max-height: none;
-      }
-    }
-  }
-
   @media (max-width: 768px) {
     .moderation-header {
       .header-content {
@@ -648,28 +452,21 @@
     }
 
     .session-item {
-      .session-header {
+      .item-header {
         flex-direction: column;
         gap: 1rem;
-        
-        .status-badges {
-          align-items: flex-start;
-          flex-direction: row;
-        }
+        align-items: flex-start;
       }
 
-      .session-metadata {
-        grid-template-columns: 1fr;
+      .session-details {
+        flex-direction: column;
+        align-items: flex-start;
       }
 
-      .session-actions {
+      .item-actions {
         margin-top: 1rem;
         justify-content: center;
       }
-    }
-
-    .panel-actions {
-      grid-template-columns: 1fr !important;
     }
   }
 }

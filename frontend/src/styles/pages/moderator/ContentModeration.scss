@@ -1,16 +1,18 @@
 // Content Moderation - Futuristic Space Theme
 .content-moderation {
   min-height: 100vh;
-  background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+  // background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
   color: #ffffff;
   font-family: 'Inter', 'Segoe UI', sans-serif;
 
   .moderation-header {
-    background: rgba(0, 0, 0, 0.3);
-    -webkit-backdrop-filter: blur(15px);
-    backdrop-filter: blur(15px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     padding: 2rem 0;
+    background: rgba(0, 0, 0, 0.141);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px 16px 0 0;
+    margin-bottom: 5px;
 
     .header-content {
       max-width: 1400px;
@@ -102,11 +104,14 @@
     align-items: center;
     flex-wrap: wrap;
     gap: 1.5rem;
+    margin-bottom: 10px;
+    border-radius: 0 0 16px 16px;
 
     .search-box {
       position: relative;
       flex: 1;
-      max-width: 400px;
+      // max-width: 400px;
+      width: 100%;
 
       .search-icon {
         position: absolute;
@@ -170,16 +175,17 @@
   .moderation-content {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 0 2rem 2rem;
+    // padding: 0 2rem 2rem;
     display: grid;
-    grid-template-columns: 1fr 400px;
-    gap: 2rem;
+    // grid-template-columns: 1fr 400px;
+    // gap: 2rem;
     min-height: 60vh;
 
     .content-list {
       display: flex;
       flex-direction: column;
       gap: 1rem;
+      margin-bottom: 10px;
 
       .content-item {
         background: rgba(255, 255, 255, 0.03);
@@ -203,8 +209,8 @@
 
         .item-header {
           display: flex;
-          justify-content: space-between;
           align-items: center;
+          gap: 0.75rem;
           margin-bottom: 1rem;
 
           .item-type {
@@ -239,6 +245,38 @@
             &.priority-high { background: #ffa502; }
             &.priority-medium { background: #3742fa; }
             &.priority-low { background: #2ed573; }
+          }
+
+          .status-indicator {
+            display: flex;
+            align-items: center;
+            // margin-left: 0.75rem;
+            padding: 0.22rem 0.7rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-align: center;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            height: 28px;
+            line-height: 1;
+            min-width: unset;
+            width: auto;
+            white-space: nowrap;
+
+            &.status-pending {
+              background: rgba(255, 165, 2, 0.2);
+              color: #ffa502;
+            }
+            &.status-approved {
+              background: rgba(46, 213, 115, 0.2);
+              color: #2ed573;
+            }
+            &.status-rejected {
+              background: rgba(255, 71, 87, 0.2);
+              color: #ff4757;
+            }
           }
         }
 
@@ -339,31 +377,6 @@
           }
         }
 
-        .status-indicator {
-          position: absolute;
-          top: 1rem;
-          right: 1rem;
-          padding: 0.25rem 0.75rem;
-          border-radius: 15px;
-          font-size: 0.75rem;
-          font-weight: 600;
-          text-transform: uppercase;
-
-          &.pending {
-            background: rgba(255, 165, 2, 0.2);
-            color: #ffa502;
-          }
-
-          &.approved {
-            background: rgba(46, 213, 115, 0.2);
-            color: #2ed573;
-          }
-
-          &.rejected {
-            background: rgba(255, 71, 87, 0.2);
-            color: #ff4757;
-          }
-        }
       }
     }
 

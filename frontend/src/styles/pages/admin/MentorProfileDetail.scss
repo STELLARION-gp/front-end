@@ -1,0 +1,274 @@
+.mentor-profile-reviews {
+  color: #f1f5f9;
+}
+.mentor-profile-reviews > b {
+  color: #60a5fa;
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  display: block;
+  letter-spacing: 0.01em;
+}
+.mentor-review-item {
+  margin-bottom: 1.2rem;
+  padding: 1rem 1.2rem;
+  border-bottom: 1px solid #2e3a5e;
+  background: #19223a;
+  border-radius: 0.8rem;
+  box-shadow: 0 2px 8px rgba(37,99,235,0.08);
+  border: 1px solid #2e3a5e;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+.mentor-review-item:hover {
+  box-shadow: 0 4px 16px rgba(37,99,235,0.15);
+  border-color: #60a5fa;
+}
+.mentor-review-header {
+  display: flex;
+  gap: 1.2rem;
+  align-items: center;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+}
+.mentor-review-mentee {
+  color: #60a5fa;
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+.mentor-review-rating {
+  color: #fbbf24;
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+.mentor-review-date {
+  color: #b3b8c5;
+  font-size: 0.95rem;
+  font-style: italic;
+}
+.mentor-review-comment {
+  color: #f1f5f9;
+  font-size: 1.05rem;
+  margin-left: 0.2rem;
+  line-height: 1.6;
+  margin-top: 0.3rem;
+}
+// MentorProfileDetail.scss
+.mentor-profile-bg {
+  background: linear-gradient(135deg, #19223a 0%, #23283a 100%);
+ 
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+.mentor-profile-container {
+  max-width: 1200px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+.mentor-profile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  background: #23283a;
+  border-radius: 1.2rem;
+  box-shadow: 0 8px 32px rgba(37,99,235,0.15);
+  padding: 2.5rem;
+  gap: 2rem;
+}
+.mentor-profile-content {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+.mentor-details-section {
+  flex: 1;
+  min-width: 500px;
+  background: #23283a;
+  border-radius: 1.2rem;
+  box-shadow: 0 8px 32px rgba(37,99,235,0.15);
+  padding: 2.5rem;
+}
+.mentor-reviews-section {
+  flex: 1;
+  min-width: 500px;
+  background: #23283a;
+  border-radius: 1.2rem;
+  box-shadow: 0 8px 32px rgba(37,99,235,0.15);
+  padding: 2.5rem;
+}
+.mentor-profile-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #60a5fa;
+  margin-bottom: 0.8rem;
+  letter-spacing: 0.01em;
+  text-shadow: 0 2px 8px rgba(37,99,235,0.15);
+  line-height: 1.2;
+}
+.mentor-profile-bio {
+  color: #b3b8c5;
+  font-size: 1.15rem;
+  margin-bottom: 1.5rem;
+  font-style: italic;
+  line-height: 1.5;
+}
+.mentor-profile-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 1.5rem;
+  color: #f1f5f9;
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+}
+.mentor-profile-info span {
+  background: #19223a;
+  border-radius: 0.6rem;
+  padding: 0.5rem 1rem;
+  margin-bottom: 0.3rem;
+  box-shadow: 0 2px 8px rgba(37,99,235,0.1);
+  border: 1px solid #2e3a5e;
+  transition: background 0.2s, border-color 0.2s;
+}
+.mentor-profile-info span:hover {
+  background: #2e3a5e;
+  border-color: #60a5fa;
+}
+.mentor-profile-info a {
+  color: #60a5fa;
+  text-decoration: underline;
+  font-weight: 500;
+}
+.mentor-profile-back-btn {
+  margin-left: 1.5rem;
+  margin-top: 0.5rem;
+  min-width: 120px;
+}
+.mentor-profile-extra {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+.mentor-profile-list {
+  background: #19223a;
+  border-radius: 0.8rem;
+  box-shadow: 0 4px 16px rgba(37,99,235,0.12);
+  padding: 1.2rem 1.5rem;
+  min-width: 200px;
+  flex: 1;
+  border: 1px solid #2e3a5e;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+.mentor-profile-list:hover {
+  box-shadow: 0 6px 24px rgba(37,99,235,0.18);
+  border-color: #60a5fa;
+}
+.mentor-profile-list b {
+  color: #60a5fa;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  display: block;
+  letter-spacing: 0.01em;
+}
+.mentor-profile-list ul {
+  margin: 0.3rem 0 0 0;
+  padding-left: 1.2rem;
+  color: #f1f5f9;
+  font-size: 0.98rem;
+  line-height: 1.6;
+}
+.mentor-profile-list li {
+  margin-bottom: 0.3rem;
+}
+.mentor-profile-section {
+  background: #23283a;
+  border-radius: 1.2rem;
+  box-shadow: 0 8px 32px rgba(37,99,235,0.15);
+  padding: 2.5rem;
+  margin-top: 2rem;
+}
+.mentor-profile-section-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #60a5fa;
+  margin-bottom: 1.5rem;
+  letter-spacing: 0.01em;
+  text-shadow: 0 2px 8px rgba(37,99,235,0.1);
+}
+.mentor-mentees-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+.mentee-card {
+  background: linear-gradient(135deg, #19223a 0%, #23283a 100%);
+  border-radius: 1rem;
+  box-shadow: 0 4px 16px rgba(80,120,255,0.15);
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  transition: all 0.3s ease;
+  border: 1px solid #2e3a5e;
+  position: relative;
+  overflow: hidden;
+}
+.mentee-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #60a5fa, #a259ff);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.mentee-card:hover {
+  box-shadow: 0 8px 32px rgba(80,120,255,0.25);
+  transform: translateY(-4px) scale(1.02);
+  border-color: #60a5fa;
+}
+.mentee-card:hover::before {
+  opacity: 1;
+}
+.mentee-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 1.2rem;
+  border: 3px solid #60a5fa;
+  box-shadow: 0 4px 12px rgba(37,99,235,0.2);
+  transition: all 0.3s ease;
+}
+.mentee-card:hover .mentee-avatar {
+  border-color: #a259ff;
+  transform: scale(1.05);
+}
+.mentee-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  flex: 1;
+}
+.mentee-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #f1f5f9;
+  margin-bottom: 0.2rem;
+}
+.mentee-field {
+  font-size: 1rem;
+  color: #60a5fa;
+  font-weight: 500;
+}
+.mentee-email {
+  font-size: 0.95rem;
+  color: #b3b8c5;
+  font-style: italic;
+}

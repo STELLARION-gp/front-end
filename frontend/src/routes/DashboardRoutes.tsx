@@ -1,7 +1,5 @@
 import GuideApplication from '../pages/learner/GuideApplication';
-import InfluencerApplication from '../pages/learner/InfluencerApplication';
-import Mentor from '../pages/admin/Mentor';
-import MentorApplication from '../pages/admin/MentorApplication';
+
 import { memo } from 'react';
 import { Routes, Route, Navigate, Link } from 'react-router-dom';
 import { RoleGuard } from '../components/RoleGuard';
@@ -12,10 +10,15 @@ import DashboardOverview from '../pages/DashboardOverview';
 // Moderation Components
 import Moderation from '../pages/moderator/Moderation';
 import ContentModeration from '../pages/moderator/ContentModeration';
+import ContentDetails from '../pages/moderator/ContentDetails';
 import ProfileModeration from '../pages/moderator/ProfileModeration';
+import ProfileDetails from '../pages/moderator/ProfileDetails';
 import SessionModeration from '../pages/moderator/SessionModeration';
+import SessionDetails from '../pages/moderator/SessionDetails';
 import PollsModeration from '../pages/moderator/PollsModeration';
+import PollsDetails from '../pages/moderator/PollsDetails';
 import SpotsModeration from '../pages/moderator/SpotsModeration';
+import SpotsDetails from '../pages/moderator/SpotsDetails';
 import NightCampModeration from '../pages/moderator/NightCampModeration';
 import EventModeration from '../pages/moderator/EventModeration';
 import PaymentProcessing from '../pages/guide/PaymentProcessing';
@@ -90,6 +93,12 @@ import LearnPath from '../pages/mentor/LearnPath';
 import MentorMenteeConnectionPage from '../pages/learner/MentorMenteeConnectionPage';
 
 import Followers from '../pages/influencer/Followers';
+import AdminModeratorsPage from '../pages/admin/AdminModeratorsPage';
+import InfluencerApplication from '../pages/learner/InfluencerApplication';
+import Mentor from '../pages/admin/Mentor';
+import MentorApplication from '../pages/admin/MentorApplication';
+import MentorProfiles from '../pages/admin/MentorProfiles';
+import MentorProfileDetail from '../pages/admin/MentorProfileDetail';
 
 // Create placeholder components for different pages - all memoized
 // const BlogsPage = memo(() => (
@@ -336,12 +345,19 @@ const DashboardRoutes = () => {
             <Route
                 path="mentor"
                 element={
-                    <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
+                    <RoleGuard allowedRoles={['mentor', 'moderator']}>
                         <Mentor />
                     </RoleGuard>
                 }
             />
-
+            <Route
+                path="system-mentors"
+                element={
+                    <RoleGuard allowedRoles={['admin']}>
+                        <MentorProfiles />
+                    </RoleGuard>
+                }
+            />
             <Route
                 path="mentor-application"
                 element={
@@ -452,10 +468,26 @@ const DashboardRoutes = () => {
                 }
             />
             <Route
+                path="moderation/content/details/:id"
+                element={
+                    <RoleGuard allowedRoles={['moderator', 'admin']}>
+                        <ContentDetails />
+                    </RoleGuard>
+                }
+            />
+            <Route
                 path="moderation/profile"
                 element={
                     <RoleGuard allowedRoles={['moderator', 'admin']}>
                         <ProfileModeration />
+                    </RoleGuard>
+                }
+            />
+            <Route
+                path="moderation/profile/details/:id"
+                element={
+                    <RoleGuard allowedRoles={['moderator', 'admin']}>
+                        <ProfileDetails />
                     </RoleGuard>
                 }
             />
@@ -468,6 +500,14 @@ const DashboardRoutes = () => {
                 }
             />
             <Route
+                path="moderation/session/details/:id"
+                element={
+                    <RoleGuard allowedRoles={['moderator', 'admin']}>
+                        <SessionDetails />
+                    </RoleGuard>
+                }
+            />
+            <Route
                 path="moderation/polls"
                 element={
                     <RoleGuard allowedRoles={['moderator', 'admin']}>
@@ -476,10 +516,26 @@ const DashboardRoutes = () => {
                 }
             />
             <Route
+                path="moderation/polls/details/:id"
+                element={
+                    <RoleGuard allowedRoles={['moderator', 'admin']}>
+                        <PollsDetails />
+                    </RoleGuard>
+                }
+            />
+            <Route
                 path="moderation/spots"
                 element={
                     <RoleGuard allowedRoles={['moderator', 'admin']}>
                         <SpotsModeration />
+                    </RoleGuard>
+                }
+            />
+            <Route
+                path="moderation/spots/details/:id"
+                element={
+                    <RoleGuard allowedRoles={['moderator', 'admin']}>
+                        <SpotsDetails />
                     </RoleGuard>
                 }
             />
@@ -765,7 +821,23 @@ const DashboardRoutes = () => {
                     </RoleGuard>
                 }
             />
-
+            {/* admin routes */}
+            <Route
+                path="moderators"
+                element={
+                    <RoleGuard allowedRoles={['admin']}>
+                        <AdminModeratorsPage />
+                    </RoleGuard>
+                }
+            />
+            <Route
+                path='mentor-profile/:id'
+                element={
+                    <RoleGuard allowedRoles={['moderator', 'admin']}>
+                        <MentorProfileDetail />
+                    </RoleGuard>
+                }
+            />
             {/* Default redirect to overview */}
             <Route path="" element={<Navigate to="overview" replace />} />
 

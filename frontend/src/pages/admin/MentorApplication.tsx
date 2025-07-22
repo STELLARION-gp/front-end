@@ -1,12 +1,31 @@
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useI18n } from '../../i18n/useI18n';
 import InputField from '../../components/InputField';
 import Button from '../../components/Button';
-import AvailabilityTimePicker from '../../components/AvailabilityTimePicker';
-import styles from '../../styles/pages/GuideApplication.module.scss';
 
-const initialForm = {
+import styles from '../../styles/pages/GuideApplication.module.scss';
+import AvailabilityTimePicker from '../../components/AvailabilityTimePicker';
+
+type DayOfWeek = 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
+type MentorForm = {
+    name: string;
+    email: string;
+    phone_number: string;
+    date_of_birth: string;
+    country: string;
+    profile_bio: string;
+    educational_background: string;
+    area_of_expertise: string[];
+    linkedin_profile: string;
+    intro_video_url: string;
+    max_mentees: number;
+    availability_schedule: Record<DayOfWeek, string[]>;
+    motivation_statement: string;
+    portfolio_attachments: string[];
+};
+
+const initialForm: MentorForm = {
     name: '',
     email: '',
     phone_number: '',
@@ -40,45 +59,45 @@ const MentorApplication = () => {
     const [success, setSuccess] = useState('');
 
     // Handle simple fields
-    const handleChange = (e) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target;
         setForm((prev) => ({ ...prev, [name]: type === 'number' ? Number(value) : value }));
     };
 
     // Handle array fields
-    const handleArrayChange = (name, idx, value) => {
+    const handleArrayChange = (name: 'area_of_expertise' | 'portfolio_attachments', idx: number, value: string) => {
         setForm((prev) => {
-            const arr = [...(prev[name] || [])];
+            const arr = [...(prev[name] as string[] || [])];
             arr[idx] = value;
             return { ...prev, [name]: arr };
         });
     };
-    const handleAddArrayItem = (name) => {
-        setForm((prev) => ({ ...prev, [name]: [...(prev[name] || []), ''] }));
+    const handleAddArrayItem = (name: 'area_of_expertise' | 'portfolio_attachments') => {
+        setForm((prev) => ({ ...prev, [name]: [...(prev[name] as string[] || []), ''] }));
     };
-    const handleRemoveArrayItem = (name, idx) => {
+    const handleRemoveArrayItem = (name: 'area_of_expertise' | 'portfolio_attachments', idx: number) => {
         setForm((prev) => {
-            const arr = [...(prev[name] || [])];
+            const arr = [...(prev[name] as string[] || [])];
             arr.splice(idx, 1);
             return { ...prev, [name]: arr };
         });
     };
 
     // Handle availability_schedule (object of day: [times])
-    const handleScheduleChange = (day, idx, value) => {
+    const handleScheduleChange = (day: DayOfWeek, idx: number, value: string) => {
         setForm((prev) => {
             const dayArr = [...(prev.availability_schedule[day] || [])];
             dayArr[idx] = value;
             return { ...prev, availability_schedule: { ...prev.availability_schedule, [day]: dayArr } };
         });
     };
-    const handleAddSchedule = (day) => {
+    const handleAddSchedule = (day: DayOfWeek) => {
         setForm((prev) => {
             const dayArr = [...(prev.availability_schedule[day] || []), ''];
             return { ...prev, availability_schedule: { ...prev.availability_schedule, [day]: dayArr } };
         });
     };
-    const handleRemoveSchedule = (day, idx) => {
+    const handleRemoveSchedule = (day: DayOfWeek, idx: number) => {
         setForm((prev) => {
             const dayArr = [...(prev.availability_schedule[day] || [])];
             dayArr.splice(idx, 1);
@@ -86,7 +105,7 @@ const MentorApplication = () => {
         });
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setLoading(true);
         setError('');
@@ -192,28 +211,30 @@ const MentorApplication = () => {
                     />
                     <div>
                         <label className={styles['mentor-label']}>{t('mentorManagement.areaOfExpertise', 'Area of Expertise')}</label>
-                        {form.area_of_expertise.map((exp, idx) => (
-                            <div key={idx} className={styles['guide-row']}>
-                                <InputField
-                                    label=""
-                                    id={`area_of_expertise_${idx}`}
-                                    value={exp}
-                                    onChange={e => handleArrayChange('area_of_expertise', idx, e.target.value)}
-                                    placeholder={t('mentorManagement.areaOfExpertisePlaceholder', 'Expertise')}
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => handleRemoveArrayItem('area_of_expertise', idx)}
-                                    className={styles['guide-remove-btn']}
-                                    aria-label={t('common.delete', 'Remove')}
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
-                                </button>
-                            </div>
-                        ))}
-                        <button type="button" onClick={() => handleAddArrayItem('area_of_expertise')} className="text-blue-400">{t('mentorManagement.addExpertise', 'Add Expertise')}</button>
+                        <div className={styles['array-item-container']}>
+                            {form.area_of_expertise.map((exp, idx) => (
+                                <div key={idx} className={styles['guide-row']}>
+                                    <InputField
+                                        label=""
+                                        id={`area_of_expertise_${idx}`}
+                                        value={exp}
+                                        onChange={e => handleArrayChange('area_of_expertise', idx, e.target.value)}
+                                        placeholder={t('mentorManagement.areaOfExpertisePlaceholder', 'Expertise')}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => handleRemoveArrayItem('area_of_expertise', idx)}
+                                        className={styles['guide-remove-btn']}
+                                        aria-label={t('common.delete', 'Remove')}
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            ))}
+                            <button type="button" onClick={() => handleAddArrayItem('area_of_expertise')} className={styles['add-button']}>{t('mentorManagement.addExpertise', 'Add Expertise')}</button>
+                        </div>
                     </div>
                     <InputField
                         label={t('mentorManagement.linkedinProfile', 'LinkedIn Profile')}
@@ -231,30 +252,32 @@ const MentorApplication = () => {
                     />
                     <div>
                         <label className={styles['mentor-label']}>{t('mentorManagement.availabilitySchedule', 'Availability Schedule')}</label>
-                        {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map(day => (
-                            <div key={day} className="mb-2">
-                                <div className="font-semibold capitalize">{t(`mentorManagement.days.${day}`, day)}</div>
-                                {(form.availability_schedule[day] || []).map((slot, idx) => (
-                                    <div key={idx} className={styles['guide-row']}>
-                                        <AvailabilityTimePicker
-                                            value={slot}
-                                            onChange={val => handleScheduleChange(day, idx, val)}
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={() => handleRemoveSchedule(day, idx)}
-                                            className={styles['guide-remove-btn']}
-                                            aria-label={t('common.delete', 'Remove')}
-                                        >
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                                            </svg>
-                                        </button>
-                                    </div>
-                                ))}
-                                <button type="button" onClick={() => handleAddSchedule(day)} className="text-blue-400">{t('mentorManagement.addTime', 'Add Time')}</button>
-                            </div>
-                        ))}
+                        <div className={styles['form-section']}>
+                            {(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as DayOfWeek[]).map(day => (
+                                <div key={day} className={styles['day-schedule']}>
+                                    <div className={styles['day-title']}>{t(`mentorManagement.days.${day}`, day)}</div>
+                                    {(form.availability_schedule[day] || []).map((slot: string, idx: number) => (
+                                        <div key={idx} className={styles['guide-row']}>
+                                            <AvailabilityTimePicker
+                                                value={slot}
+                                                onChange={val => handleScheduleChange(day, idx, val ?? '')}
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => handleRemoveSchedule(day, idx)}
+                                                className={styles['guide-remove-btn']}
+                                                aria-label={t('common.delete', 'Remove')}
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    ))}
+                                    <button type="button" onClick={() => handleAddSchedule(day)} className={styles['add-button']}>{t('mentorManagement.addTime', 'Add Time')}</button>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                     <div>
                         <label className={styles['guide-label']}>{t('mentorManagement.motivationStatement', 'Motivation Statement')}</label>
@@ -270,35 +293,37 @@ const MentorApplication = () => {
                     </div>
                     <div>
                         <label className={styles['mentor-label']}>{t('mentorManagement.portfolioAttachments', 'Portfolio Attachments')}</label>
-                        {form.portfolio_attachments.map((url, idx) => (
-                            <div key={idx} className={styles['guide-row']}>
-                                <InputField
-                                    label=""
-                                    id={`portfolio_attachments_${idx}`}
-                                    value={url}
-                                    onChange={e => handleArrayChange('portfolio_attachments', idx, e.target.value)}
-                                    placeholder={t('mentorManagement.portfolioAttachmentsPlaceholder', 'URL')}
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => handleRemoveArrayItem('portfolio_attachments', idx)}
-                                    className={styles['guide-remove-btn']}
-                                    aria-label={t('common.delete', 'Remove')}
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
-                                </button>
-                            </div>
-                        ))}
-                        <button type="button" onClick={() => handleAddArrayItem('portfolio_attachments')} className="text-blue-400">{t('mentorManagement.addAttachment', 'Add Attachment')}</button>
+                        <div className={styles['array-item-container']}>
+                            {form.portfolio_attachments.map((url, idx) => (
+                                <div key={idx} className={styles['guide-row']}>
+                                    <InputField
+                                        label=""
+                                        id={`portfolio_attachments_${idx}`}
+                                        value={url}
+                                        onChange={e => handleArrayChange('portfolio_attachments', idx, e.target.value)}
+                                        placeholder={t('mentorManagement.portfolioAttachmentsPlaceholder', 'URL')}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => handleRemoveArrayItem('portfolio_attachments', idx)}
+                                        className={styles['guide-remove-btn']}
+                                        aria-label={t('common.delete', 'Remove')}
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            ))}
+                            <button type="button" onClick={() => handleAddArrayItem('portfolio_attachments')} className={styles['add-button']}>{t('mentorManagement.addAttachment', 'Add Attachment')}</button>
+                        </div>
                     </div>
-                    {error && <div className="text-red-500 mt-2">{error}</div>}
-                    {success && <div className="text-green-600 mt-2">{success}</div>}
+                    {error && <div className={styles['error-message']}>{error}</div>}
+                    {success && <div className={styles['success-message']}>{success}</div>}
                     <div className={styles['guide-btn-row']}>
                         <Button
                             type="submit"
-                            className={styles['guide-btn']}
+                            // className={styles['guide-btn']}
                             disabled={loading}
                             loading={loading}
                         >
@@ -306,7 +331,7 @@ const MentorApplication = () => {
                         </Button>
                         <Button
                             type="button"
-                            className={styles['guide-btn-secondary']}
+                            // className={styles['guide-btn-secondary']}
                             variant="secondary"
                             onClick={() => window.history.back()}
                         >

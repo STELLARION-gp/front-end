@@ -1,4 +1,3 @@
-
 import '../../styles/pages/admin/FinanceAnalytics.scss'
 import React, { useState } from 'react';
 import Button from '../../components/Button';

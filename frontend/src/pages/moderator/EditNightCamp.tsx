@@ -1,0 +1,745 @@
+import React, { useState, useEffect, useContext } from 'react';
+import { FaCalendarAlt, FaMapMarkerAlt, FaUsers, FaUpload, FaPlus, FaMinus } from 'react-icons/fa';
+import { useNavigate, useParams } from 'react-router-dom';
+import Button from '../../components/Button';
+import { AuthContext } from '../../contexts/AuthContext';
+import '../../styles/pages/moderator/CreateNightCamp.scss';
+
+interface EditNightCampForm {
+  name: string;
+  organizedBy: string;
+  description: string;
+  date: string;
+  time: string;
+  location: string;
+  numberOfParticipants: number;
+  imageUrls: string[];
+  activities: string[];
+  equipment: {
+    provided: string[];
+    required: string[];
+    optional: string[];
+  };
+  volunteering: string[];
+  emergencyContact: string;
+  sponsoredBy: string;
+  status: string;
+}
+
+const EditNightCamp: React.FC = () => {
+  const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const authContext = useContext(AuthContext);
+  const [formData, setFormData] = useState<EditNightCampForm>({
+    name: '',
+    organizedBy: '',
+    description: '',
+    date: '',
+    time: '',
+    location: '',
+    numberOfParticipants: 10,
+    imageUrls: [''],
+    activities: [''],
+    equipment: {
+      provided: [''],
+      required: [''],
+      optional: ['']
+    },
+    volunteering: [''],
+    emergencyContact: '',
+    sponsoredBy: '',
+    status: 'pending'
+  });
+
+  // Check authentication and get current user information
+  useEffect(() => {
+    const initializeComponent = async () => {
+      try {
+        // Check if user is authenticated
+        if (!authContext?.user) {
+          console.log('❌ No authenticated user found, redirecting to login');
+          navigate('/login');
+          return;
+        }
+
+        // Check if user has moderator or admin role
+        if (authContext.userProfile?.role !== 'moderator' && authContext.userProfile?.role !== 'admin') {
+          console.log('❌ User does not have moderator privileges');
+          navigate('/dashboard');
+          return;
+        }
+
+        if (id) {
+          await fetchNightCamp();
+        }
+
+        console.log('✅ User authenticated as moderator/admin');
+      } catch (error) {
+        console.error('Error initializing component:', error);
+        navigate('/login');
+      }
+    };
+
+    initializeComponent();
+  }, [navigate, authContext, id]);
+
+  const fetchNightCamp = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await fetch(`http://localhost:5000/api/nightcamps/${id}`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch night camp details');
+      }
+
+      const result = await response.json();
+      const camp = result.data;
+
+      // Map backend data to form data
+      setFormData({
+        name: camp.name || '',
+        organizedBy: camp.organized_by || '',
+        description: camp.description || '',
+        date: camp.date ? new Date(camp.date).toISOString().split('T')[0] : '',
+        time: camp.time || '',
+        location: camp.location || '',
+        numberOfParticipants: camp.number_of_participants || 10,
+        imageUrls: camp.image_urls && camp.image_urls.length > 0 ? camp.image_urls : [''],
+        activities: camp.activities && camp.activities.length > 0 
+          ? camp.activities.map((act: any) => act.activity) 
+          : [''],
+        equipment: {
+          provided: camp.equipment?.filter((eq: any) => eq.category === 'provided').map((eq: any) => eq.equipment_name) || [''],
+          required: camp.equipment?.filter((eq: any) => eq.category === 'required').map((eq: any) => eq.equipment_name) || [''],
+          optional: camp.equipment?.filter((eq: any) => eq.category === 'optional').map((eq: any) => eq.equipment_name) || ['']
+        },
+        volunteering: camp.volunteering && camp.volunteering.length > 0 
+          ? camp.volunteering.map((vol: any) => vol.volunteering_role) 
+          : [''],
+        emergencyContact: camp.emergency_contact || '',
+        sponsoredBy: camp.sponsored_by || '',
+        status: camp.status || 'pending'
+      });
+
+    } catch (error) {
+      console.error('Error fetching night camp:', error);
+      setError('Failed to load night camp details');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleInputChange = (field: keyof EditNightCampForm, value: string | number | boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleArrayChange = (field: 'imageUrls' | 'activities' | 'volunteering', index: number, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: prev[field].map((item, i) => i === index ? value : item)
+    }));
+  };
+
+  const handleEquipmentChange = (category: 'provided' | 'required' | 'optional', index: number, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      equipment: {
+        ...prev.equipment,
+        [category]: prev.equipment[category].map((item, i) => i === index ? value : item)
+      }
+    }));
+  };
+
+  const addArrayItem = (field: 'imageUrls' | 'activities' | 'volunteering') => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: [...prev[field], '']
+    }));
+  };
+
+  const removeArrayItem = (field: 'imageUrls' | 'activities' | 'volunteering', index: number) => {
+    if (formData[field].length > 1) {
+      setFormData(prev => ({
+        ...prev,
+        [field]: prev[field].filter((_, i) => i !== index)
+      }));
+    }
+  };
+
+  const addEquipmentItem = (category: 'provided' | 'required' | 'optional') => {
+    setFormData(prev => ({
+      ...prev,
+      equipment: {
+        ...prev.equipment,
+        [category]: [...prev.equipment[category], '']
+      }
+    }));
+  };
+
+  const removeEquipmentItem = (category: 'provided' | 'required' | 'optional', index: number) => {
+    if (formData.equipment[category].length > 1) {
+      setFormData(prev => ({
+        ...prev,
+        equipment: {
+          ...prev.equipment,
+          [category]: prev.equipment[category].filter((_, i) => i !== index)
+        }
+      }));
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      // Check if user is still authenticated
+      if (!authContext?.user) {
+        throw new Error('User not authenticated');
+      }
+
+      // Filter out empty strings from arrays
+      const cleanedData = {
+        name: formData.name,
+        organized_by: formData.organizedBy,
+        sponsored_by: formData.sponsoredBy,
+        description: formData.description,
+        date: formData.date,
+        time: formData.time,
+        location: formData.location,
+        number_of_participants: formData.numberOfParticipants,
+        emergency_contact: formData.emergencyContact,
+        image_urls: formData.imageUrls.filter(url => url.trim() !== ''),
+        activities: formData.activities.filter(activity => activity.trim() !== ''),
+        equipment: {
+          provided: formData.equipment.provided.filter(item => item.trim() !== ''),
+          required: formData.equipment.required.filter(item => item.trim() !== ''),
+          optional: formData.equipment.optional.filter(item => item.trim() !== '')
+        },
+        volunteering_roles: formData.volunteering.filter(role => role.trim() !== ''),
+        status: formData.status
+      };
+
+      console.log('🏕️ Updating night camp with data:', cleanedData);
+
+      // Get Firebase ID token for authentication
+      const token = await authContext.user.getIdToken();
+      console.log('🔑 Firebase token obtained:', token ? 'Yes' : 'No');
+
+      const response = await fetch(`http://localhost:5000/api/nightcamps/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(cleanedData)
+      });
+
+      console.log('📡 Response status:', response.status);
+
+      if (!response.ok) {
+        const errorData = await response.text();
+        console.error('❌ Server error:', errorData);
+        throw new Error(`Failed to update night camp: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log('✅ Night Camp Updated successfully:', result);
+      
+      // Navigate back to night camps list
+      navigate('/dashboard/moderation/night-camps');
+    } catch (error) {
+      console.error('❌ Error updating night camp:', error);
+      setError('Failed to update night camp');
+      if (error instanceof Error && error.message.includes('authentication')) {
+        navigate('/login');
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="create-nightcamp">
+        <div className="create-header">
+          <div className="header-content">
+            <div className="header-left">
+              <Button
+                variant="ghost"
+                size="medium"
+                onClick={() => navigate('/dashboard/moderation/night-camps')}
+              >
+                ← Back
+              </Button>
+              <div className="title-section">
+                <h1>Loading Night Camp...</h1>
+                <p>Please wait while we load the camp details</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="create-nightcamp">
+        <div className="create-header">
+          <div className="header-content">
+            <div className="header-left">
+              <Button
+                variant="ghost"
+                size="medium"
+                onClick={() => navigate('/dashboard/moderation/night-camps')}
+              >
+                ← Back
+              </Button>
+              <div className="title-section">
+                <h1>Error Loading Night Camp</h1>
+                <p>{error}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="error-actions">
+          <Button variant="primary" onClick={fetchNightCamp}>
+            Try Again
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="create-nightcamp">
+      {/* Header */}
+      <div className="create-header">
+        <div className="header-content">
+          <div className="header-left">
+            <Button
+              variant="ghost"
+              size="medium"
+              onClick={() => navigate('/dashboard/moderation/night-camps')}
+            >
+              ← Back
+            </Button>
+            <div className="title-section">
+              <h1>Edit Night Camp Event</h1>
+              <p>Update the overnight stargazing experience details</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Form */}
+      <div className="create-content">
+        <form onSubmit={handleSubmit} className="camp-form">
+          <div className="form-grid">
+            {/* Basic Information */}
+            <div className="form-section">
+              <h3>Basic Information</h3>
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="name">Event Name *</label>
+                  <input
+                    type="text"
+                    id="name"
+                    value={formData.name}
+                    onChange={(e) => handleInputChange('name', e.target.value)}
+                    placeholder="Enter event name"
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="organizedBy">Organized By *</label>
+                  <input
+                    type="text"
+                    id="organizedBy"
+                    value={formData.organizedBy}
+                    onChange={(e) => handleInputChange('organizedBy', e.target.value)}
+                    placeholder="Organizer name"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="sponsoredBy">Sponsored By</label>
+                  <input
+                    type="text"
+                    id="sponsoredBy"
+                    value={formData.sponsoredBy}
+                    onChange={(e) => handleInputChange('sponsoredBy', e.target.value)}
+                    placeholder="Sponsor name (optional)"
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="status">Status</label>
+                  <select
+                    id="status"
+                    value={formData.status}
+                    onChange={(e) => handleInputChange('status', e.target.value)}
+                  >
+                    <option value="pending">Pending</option>
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
+                    <option value="needs-review">Needs Review</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="description">Description *</label>
+                <textarea
+                  id="description"
+                  rows={4}
+                  value={formData.description}
+                  onChange={(e) => handleInputChange('description', e.target.value)}
+                  placeholder="Describe the night camp experience..."
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Schedule & Location */}
+            <div className="form-section">
+              <h3>Schedule & Location</h3>
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="date">
+                    <FaCalendarAlt /> Date *
+                  </label>
+                  <input
+                    type="date"
+                    id="date"
+                    value={formData.date}
+                    onChange={(e) => handleInputChange('date', e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="time">Start Time</label>
+                  <input
+                    type="time"
+                    id="time"
+                    value={formData.time}
+                    onChange={(e) => handleInputChange('time', e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="location">
+                    <FaMapMarkerAlt /> Location *
+                  </label>
+                  <input
+                    type="text"
+                    id="location"
+                    value={formData.location}
+                    onChange={(e) => handleInputChange('location', e.target.value)}
+                    placeholder="Enter location details"
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="participants">
+                    <FaUsers /> Max Participants *
+                  </label>
+                  <input
+                    type="number"
+                    id="participants"
+                    min="1"
+                    max="100"
+                    value={formData.numberOfParticipants}
+                    onChange={(e) => handleInputChange('numberOfParticipants', parseInt(e.target.value))}
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Activities */}
+            <div className="form-section">
+              <h3>Activities</h3>
+              <div className="dynamic-list">
+                {formData.activities.map((activity, index) => (
+                  <div key={index} className="dynamic-item">
+                    <input
+                      type="text"
+                      value={activity}
+                      onChange={(e) => handleArrayChange('activities', index, e.target.value)}
+                      placeholder="Enter activity"
+                    />
+                    <div className="item-actions">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="small"
+                        onClick={() => addArrayItem('activities')}
+                      >
+                        <FaPlus />
+                      </Button>
+                      {formData.activities.length > 1 && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="small"
+                          onClick={() => removeArrayItem('activities', index)}
+                        >
+                          <FaMinus />
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Equipment */}
+            <div className="form-section">
+              <h3>Equipment</h3>
+              
+              <div className="equipment-category">
+                <h4>Provided Equipment</h4>
+                <div className="dynamic-list">
+                  {formData.equipment.provided.map((item, index) => (
+                    <div key={index} className="dynamic-item">
+                      <input
+                        type="text"
+                        value={item}
+                        onChange={(e) => handleEquipmentChange('provided', index, e.target.value)}
+                        placeholder="Equipment provided"
+                      />
+                      <div className="item-actions">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="small"
+                          onClick={() => addEquipmentItem('provided')}
+                        >
+                          <FaPlus />
+                        </Button>
+                        {formData.equipment.provided.length > 1 && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="small"
+                            onClick={() => removeEquipmentItem('provided', index)}
+                          >
+                            <FaMinus />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="equipment-category">
+                <h4>Required Equipment</h4>
+                <div className="dynamic-list">
+                  {formData.equipment.required.map((item, index) => (
+                    <div key={index} className="dynamic-item">
+                      <input
+                        type="text"
+                        value={item}
+                        onChange={(e) => handleEquipmentChange('required', index, e.target.value)}
+                        placeholder="Equipment required"
+                      />
+                      <div className="item-actions">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="small"
+                          onClick={() => addEquipmentItem('required')}
+                        >
+                          <FaPlus />
+                        </Button>
+                        {formData.equipment.required.length > 1 && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="small"
+                            onClick={() => removeEquipmentItem('required', index)}
+                          >
+                            <FaMinus />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="equipment-category">
+                <h4>Optional Equipment</h4>
+                <div className="dynamic-list">
+                  {formData.equipment.optional.map((item, index) => (
+                    <div key={index} className="dynamic-item">
+                      <input
+                        type="text"
+                        value={item}
+                        onChange={(e) => handleEquipmentChange('optional', index, e.target.value)}
+                        placeholder="Optional equipment"
+                      />
+                      <div className="item-actions">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="small"
+                          onClick={() => addEquipmentItem('optional')}
+                        >
+                          <FaPlus />
+                        </Button>
+                        {formData.equipment.optional.length > 1 && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="small"
+                            onClick={() => removeEquipmentItem('optional', index)}
+                          >
+                            <FaMinus />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Volunteering */}
+            <div className="form-section">
+              <h3>Volunteering Opportunities</h3>
+              <div className="dynamic-list">
+                {formData.volunteering.map((role, index) => (
+                  <div key={index} className="dynamic-item">
+                    <input
+                      type="text"
+                      value={role}
+                      onChange={(e) => handleArrayChange('volunteering', index, e.target.value)}
+                      placeholder="Enter volunteering role"
+                    />
+                    <div className="item-actions">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="small"
+                        onClick={() => addArrayItem('volunteering')}
+                      >
+                        <FaPlus />
+                      </Button>
+                      {formData.volunteering.length > 1 && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="small"
+                          onClick={() => removeArrayItem('volunteering', index)}
+                        >
+                          <FaMinus />
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Images */}
+            <div className="form-section">
+              <h3>
+                <FaUpload /> Images
+              </h3>
+              <div className="dynamic-list">
+                {formData.imageUrls.map((url, index) => (
+                  <div key={index} className="dynamic-item">
+                    <input
+                      type="url"
+                      value={url}
+                      onChange={(e) => handleArrayChange('imageUrls', index, e.target.value)}
+                      placeholder="Enter image URL"
+                    />
+                    <div className="item-actions">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="small"
+                        onClick={() => addArrayItem('imageUrls')}
+                      >
+                        <FaPlus />
+                      </Button>
+                      {formData.imageUrls.length > 1 && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="small"
+                          onClick={() => removeArrayItem('imageUrls', index)}
+                        >
+                          <FaMinus />
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Safety */}
+            <div className="form-section">
+              <h3>Safety Information</h3>
+              <div className="form-group">
+                <label htmlFor="emergencyContact">Emergency Contact *</label>
+                <input
+                  type="tel"
+                  id="emergencyContact"
+                  value={formData.emergencyContact}
+                  onChange={(e) => handleInputChange('emergencyContact', e.target.value)}
+                  placeholder="Emergency contact number"
+                  required
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Submit Actions */}
+          <div className="form-actions">
+            <Button
+              type="button"
+              variant="border"
+              size="large"
+              onClick={() => navigate('/dashboard/moderation/night-camps')}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              variant="primary"
+              size="large"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Updating...' : 'Update Night Camp'}
+            </Button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default EditNightCamp;

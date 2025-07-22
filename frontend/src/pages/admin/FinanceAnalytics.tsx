@@ -189,39 +189,9 @@ const FinanceAnalytics: React.FC = () => {
     </div>
   );
 
-  const monthlyRevenueData = [
-    { month: 'Jan', revenue: 120000 },
-    { month: 'Feb', revenue: 135000 },
-    { month: 'Mar', revenue: 142000 },
-    { month: 'Apr', revenue: 148000 },
-    { month: 'May', revenue: 151000 },
-    { month: 'Jun', revenue: 158000 },
-    { month: 'Jul', revenue: 162000 },
-  ];
+  
 
-  // Chart rendering function
-  const renderMonthlyRevenueChart = () => {
-    const maxRevenue = Math.max(...monthlyRevenueData.map(d => d.revenue));
-    return (
-      <div className="monthly-revenue-chart">
-        <h3 className="section-title">Monthly Revenue Trend</h3>
-        <div className="chart-bars">
-          {monthlyRevenueData.map((data) => (
-            <div key={data.month} className="chart-bar-item">
-              <div
-                className="chart-bar-fill"
-                style={{
-                  height: `${(data.revenue / maxRevenue) * 100}%`
-                }}
-                title={`Rs.${data.revenue.toLocaleString()}`}
-              />
-              <div className="chart-bar-label">{data.month}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  };
+  
 
   const renderOverview = () => {
     const totalRevenue = subscriptionPlans.reduce((sum, plan) => sum + plan.monthlyRevenue, 0) + 
@@ -356,8 +326,7 @@ const FinanceAnalytics: React.FC = () => {
             </div>
           </div>
         </div>
-        {/* Monthly Revenue Chart */}
-        {renderMonthlyRevenueChart()}
+       
       </div>
     );
   };

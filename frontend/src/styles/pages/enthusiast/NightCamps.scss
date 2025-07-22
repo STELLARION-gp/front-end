@@ -956,42 +956,288 @@
 }
 
 // Loading, Error, and Empty States
+// =========================
 .loading-message,
 .error-message,
 .no-camps-message {
   text-align: center;
   padding: 3rem 2rem;
   color: $text-color-secondary;
-  font-size: 1.125rem;
-}
-
-.error-message {
-  color: #dc2626;
+  font-size: $font-size-lg;
+  font-family: $font-outfit;
   
-  .retry-button {
-    margin-top: 1rem;
-    padding: 0.5rem 1rem;
-    background-color: #3b82f6;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: background-color 0.2s ease;
-
-    &:hover {
-      background-color: #2563eb;
-    }
+  &:before {
+    content: '';
+    display: block;
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 1rem auto;
+    border-radius: 50%;
+    opacity: 0.6;
   }
 }
 
 .loading-message {
-  color: #6b7280;
-  font-style: italic;
+  color: $color-info;
+  
+  &:before {
+    background: linear-gradient(45deg, $accent-color 25%, transparent 25%), 
+                linear-gradient(-45deg, $accent-color 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, $accent-color 75%), 
+                linear-gradient(-45deg, transparent 75%, $accent-color 75%);
+    background-size: 8px 8px;
+    background-position: 0 0, 0 4px, 4px -4px, -4px 0px;
+    animation: loadingAnimation 1.5s infinite linear;
+  }
+}
+
+.error-message {
+  color: $color-error;
+  
+  &:before {
+    background-color: $color-error;
+    content: '⚠';
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+  }
+  
+  .retry-button {
+    margin-top: $spacing-md;
+    padding: $spacing-sm $spacing-md;
+    background-color: $color-info;
+    color: $text-light;
+    border: none;
+    border-radius: $border-radius-md;
+    cursor: pointer;
+    font-size: $font-size-sm;
+    font-family: $font-outfit;
+    font-weight: 500;
+    transition: all $transition-medium ease;
+    
+    &:hover {
+      background-color: $accent-color-dark;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba($accent-color, 0.3);
+    }
+    
+    &:active {
+      transform: translateY(0);
+    }
+  }
 }
 
 .no-camps-message {
-  color: #9ca3af;
+  color: $text-color-secondary;
+  
+  &:before {
+    background-color: $text-color-secondary;
+    content: '📅';
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+  }
+}
+
+// Animation for loading state
+@keyframes loadingAnimation {
+  0% {
+    background-position: 0 0, 0 4px, 4px -4px, -4px 0px;
+  }
+  100% {
+    background-position: 8px 8px, 8px 12px, 12px 4px, 4px 8px;
+  }
+}
+
+// Volunteering Application Styles
+// =========================
+.volunteer-camps {
+  &__title {
+    color: $text-color;
+    font-family: $font-orbitron;
+    font-size: $font-size-2xl;
+    font-weight: 600;
+    margin-bottom: $spacing-lg;
+    text-align: center;
+    
+    &:before {
+      content: '🤝';
+      display: inline-block;
+      margin-right: $spacing-sm;
+      font-size: $font-size-xl;
+    }
+  }
+}
+
+// Enhanced Camp Info Styles for Volunteering
+.camp-info {
+  &__roles-header {
+    color: $accent-color;
+    font-family: $font-outfit;
+    font-size: $font-size-sm;
+    font-weight: 600;
+    margin: $spacing-md 0 $spacing-xs 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    
+    &:before {
+      content: '👥';
+      margin-right: $spacing-xs;
+    }
+  }
+  
+  &__roles {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    
+    li {
+      background: rgba($accent-color, 0.1);
+      border: 1px solid rgba($accent-color, 0.2);
+      border-radius: $border-radius-sm;
+      padding: $spacing-xs $spacing-sm;
+      margin-bottom: $spacing-xs;
+      color: $text-color;
+      font-size: $font-size-sm;
+      font-family: $font-outfit;
+      transition: all $transition-medium ease;
+      
+      &:hover {
+        background: rgba($accent-color, 0.15);
+        border-color: rgba($accent-color, 0.3);
+        transform: translateX(2px);
+      }
+      
+      &:before {
+        content: '•';
+        color: $accent-color;
+        margin-right: $spacing-xs;
+        font-weight: bold;
+      }
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+}
+
+// Enhanced Button Styles
+.btn--night-camps {
+  background: linear-gradient(135deg, $accent-color 0%, $accent-color-dark 100%);
+  color: $text-light;
+  border: none;
+  border-radius: $border-radius-md;
+  padding: $spacing-sm $spacing-md;
+  font-family: $font-outfit;
+  font-size: $font-size-sm;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all $transition-medium ease;
+  position: relative;
+  overflow: hidden;
+  
+  &:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+  }
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba($accent-color, 0.3);
+    
+    &:before {
+      left: 100%;
+    }
+  }
+  
+  &:active {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba($accent-color, 0.2);
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+    
+    &:hover {
+      transform: none;
+      box-shadow: none;
+      
+      &:before {
+        left: -100%;
+      }
+    }
+  }
+}
+
+// Card Grid Responsive Enhancements
+.card-grid {
+  &--medium {
+    .card-animate {
+      transition: all $transition-medium ease;
+      
+      &:hover {
+        transform: translateY(-4px) scale(1.02);
+        box-shadow: 0 12px 40px rgba($accent-color, 0.15);
+        
+        .camp-info__roles li {
+          background: rgba($accent-color, 0.2);
+          border-color: rgba($accent-color, 0.4);
+        }
+      }
+    }
+  }
+}
+
+// Responsive Design
+// =========================
+@media (max-width: 768px) {
+  .loading-message,
+  .error-message,
+  .no-camps-message {
+    padding: 2rem 1rem;
+    font-size: $font-size-base;
+    
+    &:before {
+      width: 36px;
+      height: 36px;
+      font-size: 18px;
+    }
+  }
+  
+  .volunteer-camps__title {
+    font-size: $font-size-xl;
+    margin-bottom: $spacing-md;
+    
+    &:before {
+      font-size: $font-size-lg;
+    }
+  }
+  
+  .camp-info__roles {
+    li {
+      padding: $spacing-xs;
+      font-size: $font-size-xs;
+    }
+  }
+  
+  .btn--night-camps {
+    padding: $spacing-xs $spacing-sm;
+    font-size: $font-size-xs;
+  }
 }
 
 

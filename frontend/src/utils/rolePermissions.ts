@@ -69,6 +69,7 @@ export const PAGE_ACCESS_CONTROL = {
     '/dashboard/vlogs': ['influencer'] as UserRole[],
     '/dashboard/polls': ['influencer'] as UserRole[],
     '/dashboard/followers': ['influencer'] as UserRole[],
+    '/dashboard/financial-analytics': ['admin'] as UserRole[],
 
 };
 
@@ -169,16 +170,17 @@ export const ROLE_BASED_MENU_ITEMS = {
         //{ label: 'Settings', icon: 'Cog6ToothIcon', href: '/dashboard/settings' },
     ],
     admin: [
-        { label: 'Overview', icon: 'HomeIcon', href: '/dashboard/overview' },
+        //{ label: 'Overview', icon: 'HomeIcon', href: '/dashboard/overview' },
         //{ label: 'Profile', icon: 'UserCircleIcon', href: '/dashboard/profile' },
-        { label: 'Blogs', icon: 'BookOpenIcon', href: '/dashboard/blogs' },
-        { label: 'Night Camps', icon: 'MoonIcon', href: '/dashboard/night-camps' },
-        { label: 'Stargazing Spot', icon: 'StarIcon', href: '/dashboard/stargazing' },
-        { label: 'Requests', icon: 'MoonIcon', href: '/dashboard/booking-requests' },
+        //{ label: 'Blogs', icon: 'BookOpenIcon', href: '/dashboard/blogs' },
+        //{ label: 'Night Camps', icon: 'MoonIcon', href: '/dashboard/night-camps' },
+        //{ label: 'Stargazing Spot', icon: 'StarIcon', href: '/dashboard/stargazing' },
+        { label: 'Requests', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/booking-requests' },
         { label: 'Mentors', icon: 'AcademicCapIcon', href: '/dashboard/system-mentors' },
-        { label: 'Events', icon: 'CalendarDaysIcon', href: '/dashboard/events' },
-        { label: 'Chat', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/chat' },
+        //{ label: 'Events', icon: 'CalendarDaysIcon', href: '/dashboard/events' },
+        //{ label: 'Chat', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/chat' },
         { label: 'Moderators', icon: 'ShieldCheckIcon', href: '/dashboard/moderators' },
+        { label: 'Revenue', icon: 'CurrencyDollarIcon', href: '/dashboard/financial-analytics' },
     ],
 } as const;
 

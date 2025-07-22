@@ -99,10 +99,14 @@ import Mentor from '../pages/admin/Mentor';
 import MentorApplication from '../pages/admin/MentorApplication';
 import MentorProfiles from '../pages/admin/MentorProfiles';
 import MentorProfileDetail from '../pages/admin/MentorProfileDetail';
+
+import FinanceAnalytics from '../pages/admin/FinanceAnalytics';
+
 import CreateNightCamp from '../pages/moderator/CreateNightCamp';
 import NightCampDetailsModerator from '../pages/moderator/NightCampDetails';
 import CreateEvent from '../pages/moderator/CreateEvent';
 import EventDetails from '../pages/moderator/EventDetails';
+
 
 // Create placeholder components for different pages - all memoized
 // const BlogsPage = memo(() => (
@@ -874,6 +878,18 @@ const DashboardRoutes = () => {
                     </RoleGuard>
                 }
             />
+
+
+            <Route
+                path="financial-analytics"
+                element={
+                    <RoleGuard allowedRoles={['admin']}>
+                        <FinanceAnalytics />
+                    </RoleGuard>
+                }
+
+            />
+
             {/* Default redirect to overview */}
             <Route path="" element={<Navigate to="overview" replace />} />
 

@@ -465,7 +465,7 @@ const NightCampDetails: React.FC = () => {
         <Button
           variant="ghost"
           size="medium"
-          onClick={() => navigate(`/dashboard/moderation/night-camps/${camp.id}/edit`)}
+          onClick={() => navigate(`/dashboard/moderation/night-camps/edit/${camp.id}`)}
         >
           <FaEdit /> Edit Event
         </Button>

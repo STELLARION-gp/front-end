@@ -72,8 +72,8 @@ const NightCamps: React.FC = () => {
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (!window.confirm('Are you sure you want to delete this night camp?')) {
+  const handleDelete = async (id: number, campName: string) => {
+    if (!window.confirm(`Are you sure you want to delete "${campName}"?\n\nThis action cannot be undone and will remove all associated activities, equipment, and volunteering information.`)) {
       return;
     }
 
@@ -81,6 +81,9 @@ const NightCamps: React.FC = () => {
       if (!authContext?.user) {
         throw new Error('User not authenticated');
       }
+
+      console.log(`🗑️ Deleting night camp with ID: ${id}`);
+      setError(null);
 
       const token = await authContext.user.getIdToken();
       const response = await fetch(`http://localhost:5000/api/nightcamps/${id}`, {
@@ -90,15 +93,32 @@ const NightCamps: React.FC = () => {
         }
       });
 
+      console.log('📡 Delete response status:', response.status);
+
       if (!response.ok) {
-        throw new Error('Failed to delete night camp');
+        const errorData = await response.text();
+        console.error('❌ Delete error:', errorData);
+        throw new Error(`Failed to delete night camp: ${response.status}`);
       }
 
+      console.log('✅ Night camp deleted successfully');
+      
+      // Show success message (you could add a toast notification here)
+      alert(`"${campName}" has been deleted successfully.`);
+      
       // Refresh the list
       fetchNightCamps();
     } catch (error) {
-      console.error('Error deleting night camp:', error);
-      setError('Failed to delete night camp');
+      console.error('❌ Error deleting night camp:', error);
+      setError(`Failed to delete "${campName}". Please try again.`);
+      
+      // Show error to user
+      if (error instanceof Error && error.message.includes('authentication')) {
+        alert('Authentication error. Please log in again.');
+        navigate('/login');
+      } else {
+        alert(`Error deleting "${campName}". Please try again.`);
+      }
     }
   };
 
@@ -241,14 +261,14 @@ const NightCamps: React.FC = () => {
                     <Button
                       variant="ghost"
                       size="small"
-                      onClick={() => navigate(`/dashboard/moderation/night-camps/${camp.id}/edit`)}
+                      onClick={() => navigate(`/dashboard/moderation/night-camps/edit/${camp.id}`)}
                     >
                       <FaEdit /> Edit
                     </Button>
                     <Button
                       variant="ghost"
                       size="small"
-                      onClick={() => handleDelete(camp.id)}
+                      onClick={() => handleDelete(camp.id, camp.name)}
                       className="delete-btn"
                     >
                       <FaTrash /> Delete

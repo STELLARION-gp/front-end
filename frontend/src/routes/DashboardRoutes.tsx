@@ -101,6 +101,7 @@ import MentorApplication from '../pages/admin/MentorApplication';
 import MentorProfiles from '../pages/admin/MentorProfiles';
 import MentorProfileDetail from '../pages/admin/MentorProfileDetail';
 import NightCampDetailsModerator from '../pages/moderator/NightCampDetails';
+import EditNightCamp from '../pages/moderator/EditNightCamp';
 import CreateEvent from '../pages/moderator/CreateEvent';
 import EventDetails from '../pages/moderator/EventDetails';
 
@@ -548,6 +549,14 @@ const DashboardRoutes = () => {
                 element={
                     <RoleGuard allowedRoles={['moderator', 'admin']}>
                         <NightCampDetailsModerator />
+                    </RoleGuard>
+                }
+            />
+            <Route
+                path="moderation/night-camps/edit/:id"
+                element={
+                    <RoleGuard allowedRoles={['moderator', 'admin']}>
+                        <EditNightCamp />
                     </RoleGuard>
                 }
             />

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaSearch, FaCalendarAlt, FaMapMarkerAlt, FaUsers, FaPlus, FaEye } from 'react-icons/fa';
+import { FaSearch, FaCalendarAlt, FaMapMarkerAlt, FaStar, FaUsers, FaPlus, FaEye } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import Button from '../../components/Button';
 import '../../styles/pages/moderator/EventModeration.scss';
@@ -22,6 +22,7 @@ interface PlatformEvent {
   status: 'pending' | 'approved' | 'rejected' | 'needs-review';
   priority: 'critical' | 'high' | 'medium' | 'low';
   reportCount: number;
+  organizerRating?: number;
 }
 
 const EventModeration: React.FC = () => {
@@ -51,7 +52,8 @@ const EventModeration: React.FC = () => {
         created_at: '2024-01-10T10:30:00Z',
         status: 'pending',
         priority: 'high',
-        reportCount: 0
+        reportCount: 0,
+        organizerRating: 4.5
       },
       {
         id: 'event-002',
@@ -70,7 +72,8 @@ const EventModeration: React.FC = () => {
         created_at: '2024-01-15T14:20:00Z',
         status: 'approved',
         priority: 'medium',
-        reportCount: 0
+        reportCount: 0,
+        organizerRating: 4.5
       },
       {
         id: 'event-003',
@@ -89,7 +92,8 @@ const EventModeration: React.FC = () => {
         created_at: '2024-01-05T09:15:00Z',
         status: 'needs-review',
         priority: 'low',
-        reportCount: 2
+        reportCount: 2,
+        organizerRating: 4.5
       }
     ];
 
@@ -119,15 +123,15 @@ const EventModeration: React.FC = () => {
     ));
   };
 
-  // const formatDate = (dateString: string) => {
-  //   return new Date(dateString).toLocaleDateString('en-US', {
-  //     year: 'numeric',
-  //     month: 'short',
-  //     day: 'numeric',
-  //     hour: '2-digit',
-  //     minute: '2-digit'
-  //   });
-  // };
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
 
   if (loading) {
     return (
@@ -267,9 +271,18 @@ const EventModeration: React.FC = () => {
                     <span className="event-value">{event.eventCategory}</span>
                   </div>
                   <div className="event-stat-item">
-                    <span className="event-label">Status:</span>
-                    <span className="event-value">{event.eventStatus}</span>
+                    <span className="event-label">Created:</span>
+                    <span className="event-value">{formatDate(event.created_at)}</span>
                   </div>
+                  {event.organizerRating && (
+                    <div className="event-stat-item">
+                      <span className="event-label">Rating:</span>
+                      <span className="event-value">
+                        <FaStar className="event-star-icon" />
+                        {event.organizerRating}
+                      </span>
+                    </div>
+                  )}
                   {event.reportCount > 0 && (
                     <div className="event-stat-item">
                       <span className="event-label">Reports:</span>

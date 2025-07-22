@@ -213,7 +213,7 @@ const FinanceAnalytics: React.FC = () => {
                 style={{
                   height: `${(data.revenue / maxRevenue) * 100}%`
                 }}
-                title={`$${data.revenue.toLocaleString()}`}
+                title={`Rs.${data.revenue.toLocaleString()}`}
               />
               <div className="chart-bar-label">{data.month}</div>
             </div>
@@ -252,7 +252,7 @@ const FinanceAnalytics: React.FC = () => {
               <DollarSign className="kpi-card__icon" />
               <span className="kpi-card__label">Total Revenue</span>
             </div>
-            <div className="kpi-card__value">${totalRevenue.toLocaleString()}</div>
+            <div className="kpi-card__value">Rs.{totalRevenue.toLocaleString()}</div>
             <div className="kpi-card__trend kpi-card__trend--positive">
               <ArrowUpRight size={16} />
               <span>+12.5% from last month</span>
@@ -276,9 +276,9 @@ const FinanceAnalytics: React.FC = () => {
               <Wallet className="kpi-card__icon" />
               <span className="kpi-card__label">Available Balance</span>
             </div>
-            <div className="kpi-card__value">${totalBalance.toLocaleString()}</div>
+            <div className="kpi-card__value">Rs.{totalBalance.toLocaleString()}</div>
             <div className="kpi-card__trend kpi-card__trend--neutral">
-              <span>After payments: ${totalPayments.toLocaleString()}</span>
+              <span>After payments: Rs.{totalPayments.toLocaleString()}</span>
             </div>
           </div>
 
@@ -307,7 +307,7 @@ const FinanceAnalytics: React.FC = () => {
                 </div>
               </div>
               <div className="breakdown-item__value">
-                ${subscriptionPlans.reduce((sum, plan) => sum + plan.monthlyRevenue, 0).toLocaleString()}
+                Rs.{subscriptionPlans.reduce((sum, plan) => sum + plan.monthlyRevenue, 0).toLocaleString()}
               </div>
               <div className="breakdown-item__bar">
                 <div 
@@ -326,7 +326,7 @@ const FinanceAnalytics: React.FC = () => {
                 </div>
               </div>
               <div className="breakdown-item__value">
-                ${sessionData.totalRevenue.toLocaleString()}
+                Rs.{sessionData.totalRevenue.toLocaleString()}
               </div>
               <div className="breakdown-item__bar">
                 <div 
@@ -345,7 +345,7 @@ const FinanceAnalytics: React.FC = () => {
                 </div>
               </div>
               <div className="breakdown-item__value">
-                ${guideData.totalRevenue.toLocaleString()}
+                Rs.{guideData.totalRevenue.toLocaleString()}
               </div>
               <div className="breakdown-item__bar">
                 <div 
@@ -381,7 +381,7 @@ const FinanceAnalytics: React.FC = () => {
               </div>
               <div className="subscription-card__title">
                 <h3>{plan.name} Plan</h3>
-                <p>${plan.monthlyPrice}/month</p>
+                <p>Rs.{plan.monthlyPrice}/month</p>
               </div>
             </div>
 
@@ -392,11 +392,11 @@ const FinanceAnalytics: React.FC = () => {
               </div>
               <div className="metric">
                 <span className="metric__label">Monthly Revenue</span>
-                <span className="metric__value">${plan.monthlyRevenue.toLocaleString()}</span>
+                <span className="metric__value">Rs.{plan.monthlyRevenue.toLocaleString()}</span>
               </div>
               <div className="metric">
                 <span className="metric__label">Yearly Revenue</span>
-                <span className="metric__value">${plan.yearlyRevenue.toLocaleString()}</span>
+                <span className="metric__value">Rs.{plan.yearlyRevenue.toLocaleString()}</span>
               </div>
               <div className="metric">
                 <span className="metric__label">Churn Rate</span>
@@ -427,13 +427,13 @@ const FinanceAnalytics: React.FC = () => {
           <div className="summary-item">
             <span className="summary-label">Monthly Recurring Revenue</span>
             <span className="summary-value">
-              ${subscriptionPlans.reduce((sum, plan) => sum + plan.monthlyRevenue, 0).toLocaleString()}
+              Rs.{subscriptionPlans.reduce((sum, plan) => sum + plan.monthlyRevenue, 0).toLocaleString()}
             </span>
           </div>
           <div className="summary-item">
             <span className="summary-label">Annual Recurring Revenue</span>
             <span className="summary-value">
-              ${subscriptionPlans.reduce((sum, plan) => sum + plan.yearlyRevenue, 0).toLocaleString()}
+              Rs.{subscriptionPlans.reduce((sum, plan) => sum + plan.yearlyRevenue, 0).toLocaleString()}
             </span>
           </div>
           <div className="summary-item">
@@ -463,7 +463,7 @@ const FinanceAnalytics: React.FC = () => {
             <DollarSign className="session-card__icon" />
             <h3>Total Revenue</h3>
           </div>
-          <div className="session-card__value">${sessionData.totalRevenue.toLocaleString()}</div>
+          <div className="session-card__value">Rs.{sessionData.totalRevenue.toLocaleString()}</div>
           <div className="session-card__detail">From {sessionData.totalSessions} sessions</div>
         </div>
 
@@ -472,7 +472,7 @@ const FinanceAnalytics: React.FC = () => {
             <ArrowDownRight className="session-card__icon" />
             <h3>Influencer Payments</h3>
           </div>
-          <div className="session-card__value">${sessionData.influencerPayments.toLocaleString()}</div>
+          <div className="session-card__value">Rs.{sessionData.influencerPayments.toLocaleString()}</div>
           <div className="session-card__detail">
             {((sessionData.influencerPayments / sessionData.totalRevenue) * 100).toFixed(1)}% of revenue
           </div>
@@ -483,7 +483,7 @@ const FinanceAnalytics: React.FC = () => {
             <Wallet className="session-card__icon" />
             <h3>Net Balance</h3>
           </div>
-          <div className="session-card__value">${sessionData.balance.toLocaleString()}</div>
+          <div className="session-card__value">Rs.{sessionData.balance.toLocaleString()}</div>
           <div className="session-card__detail">
             {((sessionData.balance / sessionData.totalRevenue) * 100).toFixed(1)}% profit margin
           </div>
@@ -521,17 +521,17 @@ const FinanceAnalytics: React.FC = () => {
           <h4>Revenue Flow</h4>
           <div className="flow-diagram">
             <div className="flow-step">
-              <div className="flow-amount">${sessionData.totalRevenue.toLocaleString()}</div>
+              <div className="flow-amount">Rs.{sessionData.totalRevenue.toLocaleString()}</div>
               <div className="flow-label">Total Revenue</div>
             </div>
             <div className="flow-arrow">→</div>
             <div className="flow-step">
-              <div className="flow-amount">-${sessionData.influencerPayments.toLocaleString()}</div>
+              <div className="flow-amount">-Rs.{sessionData.influencerPayments.toLocaleString()}</div>
               <div className="flow-label">Influencer Payments</div>
             </div>
             <div className="flow-arrow">→</div>
             <div className="flow-step">
-              <div className="flow-amount">${sessionData.balance.toLocaleString()}</div>
+              <div className="flow-amount">Rs.{sessionData.balance.toLocaleString()}</div>
               <div className="flow-label">Net Balance</div>
             </div>
           </div>
@@ -556,7 +556,7 @@ const FinanceAnalytics: React.FC = () => {
             <DollarSign className="guide-card__icon" />
             <h3>Total Revenue</h3>
           </div>
-          <div className="guide-card__value">${guideData.totalRevenue.toLocaleString()}</div>
+          <div className="guide-card__value">Rs.{guideData.totalRevenue.toLocaleString()}</div>
           <div className="guide-card__detail">From {guideData.totalSessions} sessions</div>
         </div>
 
@@ -565,7 +565,7 @@ const FinanceAnalytics: React.FC = () => {
             <ArrowDownRight className="guide-card__icon" />
             <h3>Guide Payments</h3>
           </div>
-          <div className="guide-card__value">${guideData.guidePayments.toLocaleString()}</div>
+          <div className="guide-card__value">Rs.{guideData.guidePayments.toLocaleString()}</div>
           <div className="guide-card__detail">
             {((guideData.guidePayments / guideData.totalRevenue) * 100).toFixed(1)}% of revenue
           </div>
@@ -576,7 +576,7 @@ const FinanceAnalytics: React.FC = () => {
             <Wallet className="guide-card__icon" />
             <h3>Net Balance</h3>
           </div>
-          <div className="guide-card__value">${guideData.balance.toLocaleString()}</div>
+          <div className="guide-card__value">Rs.{guideData.balance.toLocaleString()}</div>
           <div className="guide-card__detail">
             {((guideData.balance / guideData.totalRevenue) * 100).toFixed(1)}% profit margin
           </div>
@@ -611,7 +611,7 @@ const FinanceAnalytics: React.FC = () => {
               <div className="chart-bar">
                 <div className="chart-fill chart-fill--info" style={{width: '75%'}} />
               </div>
-              <div className="chart-value">${Math.round(guideData.totalRevenue / guideData.totalSessions)}</div>
+              <div className="chart-value">Rs.{Math.round(guideData.totalRevenue / guideData.totalSessions)}</div>
             </div>
           </div>
         </div>
@@ -620,17 +620,17 @@ const FinanceAnalytics: React.FC = () => {
           <h4>Revenue Flow</h4>
           <div className="flow-diagram">
             <div className="flow-step">
-              <div className="flow-amount">${guideData.totalRevenue.toLocaleString()}</div>
+              <div className="flow-amount">Rs.{guideData.totalRevenue.toLocaleString()}</div>
               <div className="flow-label">Total Revenue</div>
             </div>
             <div className="flow-arrow">→</div>
             <div className="flow-step">
-              <div className="flow-amount">-${guideData.guidePayments.toLocaleString()}</div>
+              <div className="flow-amount">-Rs.{guideData.guidePayments.toLocaleString()}</div>
               <div className="flow-label">Guide Payments</div>
             </div>
             <div className="flow-arrow">→</div>
             <div className="flow-step">
-              <div className="flow-amount">${guideData.balance.toLocaleString()}</div>
+              <div className="flow-amount">Rs.{guideData.balance.toLocaleString()}</div>
               <div className="flow-label">Net Balance</div>
             </div>
           </div>
@@ -700,7 +700,7 @@ const FinanceAnalytics: React.FC = () => {
                     <span className={`transaction-amount ${
                       transaction.subType.includes('payment') ? 'transaction-amount--negative' : 'transaction-amount--positive'
                     }`}>
-                      {transaction.subType.includes('payment') ? '-' : '+'}${transaction.amount.toFixed(2)}
+                      {transaction.subType.includes('payment') ? '-' : '+'}Rs.{transaction.amount.toFixed(2)}
                     </span>
                   </td>
                   <td>
@@ -754,7 +754,7 @@ const FinanceAnalytics: React.FC = () => {
               </div>
               <div className="detail-row">
                 <span className="detail-label">Amount:</span>
-                <span className="detail-value">${selectedTransaction.amount.toFixed(2)}</span>
+                <span className="detail-value">Rs.{selectedTransaction.amount.toFixed(2)}</span>
               </div>
               <div className="detail-row">
                 <span className="detail-label">Status:</span>

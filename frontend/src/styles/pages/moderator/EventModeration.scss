@@ -292,7 +292,7 @@
 
           .event-stats {
             display: grid;
-            grid-template-columns: repeat(3, minmax(120px, 120px));
+            grid-template-columns: repeat(2, minmax(320px, 320px));
             gap: 1rem;
 
             .event-stat-item {
@@ -313,6 +313,9 @@
                 display: flex;
                 align-items: center;
                 gap: 0.25rem;
+                background-color: rgba(194, 161, 252, 0.1);
+                padding: 0.25rem 1rem;
+                border-radius: 10px;
 
                 &.warning {
                   color: #F59E0B;

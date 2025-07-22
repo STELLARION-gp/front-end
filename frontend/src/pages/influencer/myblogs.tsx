@@ -192,6 +192,7 @@ export default function MyBlogs() {
     const authContext = useContext(AuthContext);
     const [activeTab, setActiveTab] = useState<ActiveSection>('myblogs');
     const [myBlogs, setMyBlogs] = useState<Blog[]>([]);
+    const [allBlogs, setAllBlogs] = useState<Blog[]>([]);
     const [newBlog, setNewBlog] = useState<{ title: string; content: string; image: File | null }>({ title: '', content: '', image: null });
     const [editingId, setEditingId] = useState<number | null>(null);
     const [showCreateForm, setShowCreateForm] = useState(false);
@@ -202,6 +203,7 @@ export default function MyBlogs() {
     const [imageUploading, setImageUploading] = useState(false);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [commentsLoading, setCommentsLoading] = useState(false);
+    const [exploreLoading, setExploreLoading] = useState(false);
 
     // Blog exploration states
     const [filter, setFilter] = React.useState({
@@ -219,6 +221,7 @@ export default function MyBlogs() {
     useEffect(() => {
         if (currentUser) {
             loadMyBlogs();
+            loadAllBlogs(); // Load all blogs for explore tab
             // Test Firebase Storage configuration
             testFirebaseStorage();
         }
@@ -421,6 +424,99 @@ export default function MyBlogs() {
         }
     };
 
+    // Load all blogs for the explore tab
+    const loadAllBlogs = async () => {
+        setExploreLoading(true);
+        try {
+            console.log('Loading all blogs for explore tab...');
+            
+            const response = await blogService.getBlogs({
+                status: 'published', // Only show published blogs in explore
+                limit: 50 // Get more blogs for explore
+            });
+            
+            console.log('All blogs API response:', response);
+            
+            if (response.success && response.data && response.data.blogs) {
+                // Convert API response to component format
+                const convertedBlogs: Blog[] = response.data.blogs.map((blog: any) => ({
+                    ...blog,
+                    // Use featured_image as the primary field
+                    image: blog.featured_image || FirebaseStorageService.DEFAULT_BLOG_IMAGE,
+                    image_url: blog.featured_image || FirebaseStorageService.DEFAULT_BLOG_IMAGE,
+                    featured_image: blog.featured_image || FirebaseStorageService.DEFAULT_BLOG_IMAGE,
+                    author: blog.author_display_name || blog.author_name || 'Unknown Author',
+                    date: blog.created_at,
+                    reach: blog.view_count || blog.views_count || 0,
+                    likes: blog.like_count || blog.likes_count || 0,
+                    rating: Math.random() * 2 + 3, // Random rating between 3-5 for demo
+                    comments: [], // Comments will be loaded separately when needed
+                    comment_count: blog.comment_count || 0,
+                    liked: blog.user_liked || false,
+                    published: blog.status === 'published',
+                    createdAt: blog.created_at
+                }));
+                
+                setAllBlogs(convertedBlogs);
+                console.log('Set all blogs from API:', convertedBlogs);
+            } else {
+                console.log('API response not successful or no data, using fallback blogs');
+                // Fallback to static data if API fails - filter only published blogs
+                const publishedBlogs = blogs.filter(blog => (blog as any).published !== false);
+                setAllBlogs(publishedBlogs.map(blog => ({
+                    ...blog,
+                    id: blog.id,
+                    title: blog.title,
+                    content: blog.content,
+                    author_id: 0,
+                    status: 'published' as const,
+                    view_count: (blog as any).reach || 0,
+                    like_count: (blog as any).likes || 0,
+                    comment_count: 0,
+                    tags: [],
+                    created_at: blog.createdAt || new Date().toISOString(),
+                    updated_at: blog.createdAt || new Date().toISOString(),
+                    date: blog.createdAt,
+                    reach: (blog as any).reach || 0,
+                    likes: (blog as any).likes || 0,
+                    comments: [],
+                    liked: false,
+                    published: true,
+                    featured_image: blog.image || FirebaseStorageService.DEFAULT_BLOG_IMAGE,
+                    image_url: blog.image || FirebaseStorageService.DEFAULT_BLOG_IMAGE
+                })));
+            }
+        } catch (err: any) {
+            console.error('Error loading all blogs:', err);
+            // Fallback to static data - filter only published blogs
+            const publishedBlogs = blogs.filter(blog => (blog as any).published !== false);
+            setAllBlogs(publishedBlogs.map(blog => ({
+                ...blog,
+                id: blog.id,
+                title: blog.title,
+                content: blog.content,
+                author_id: 0,
+                status: 'published' as const,
+                view_count: (blog as any).reach || 0,
+                like_count: (blog as any).likes || 0,
+                comment_count: 0,
+                tags: [],
+                created_at: blog.createdAt || new Date().toISOString(),
+                updated_at: blog.createdAt || new Date().toISOString(),
+                date: blog.createdAt,
+                reach: (blog as any).reach || 0,
+                likes: (blog as any).likes || 0,
+                comments: [],
+                liked: false,
+                published: true,
+                featured_image: blog.image || FirebaseStorageService.DEFAULT_BLOG_IMAGE,
+                image_url: blog.image || FirebaseStorageService.DEFAULT_BLOG_IMAGE
+            })));
+        } finally {
+            setExploreLoading(false);
+        }
+    };
+
     // Load comments for a specific blog from the backend
     const loadBlogComments = async (blogId: number) => {
         setCommentsLoading(true);
@@ -526,6 +622,13 @@ export default function MyBlogs() {
         return true;
     });
 
+    const filteredAllBlogs = allBlogs.filter(blog => {
+        if (filter.author && blog.author !== filter.author) return false;
+        if (filter.minRating && blog.rating && blog.rating < Number(filter.minRating)) return false;
+        if (filter.search && !blog.title.toLowerCase().includes(filter.search.toLowerCase()) && !blog.content.toLowerCase().includes(filter.search.toLowerCase())) return false;
+        return true;
+    });
+
     const filteredMyBlogs = myBlogs.filter(blog => {
         if (filter.status === 'published' && !blog.published) return false;
         if (filter.status === 'draft' && blog.published) return false;
@@ -533,7 +636,7 @@ export default function MyBlogs() {
         return true;
     });
 
-    const uniqueAuthors = Array.from(new Set(blogs.map(b => b.author)));
+    const uniqueAuthors = Array.from(new Set([...blogs.map(b => b.author), ...allBlogs.map(b => b.author || 'Unknown')]));
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -1238,18 +1341,24 @@ export default function MyBlogs() {
             </div>
             
             <div className="blogexplore-blog-list">
-                {filteredBlogs.map(blog => (
-                    <AstronomyBlogCard
-                        key={blog.id}
-                        image={blog.image}
-                        title={blog.title}
-                        author={blog.author}
-                        createdAt={blog.createdAt}
-                        rating={blog.rating}
-                        content={blog.content}
-                        onClick={() => navigate(`/dashboard/blogs/${blog.id}`)}
-                    />
-                ))}
+                {exploreLoading && activeTab === 'blogs' ? (
+                    <div style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>
+                        Loading blogs...
+                    </div>
+                ) : (
+                    (activeTab === 'blogs' ? filteredAllBlogs : filteredBlogs).map(blog => (
+                        <AstronomyBlogCard
+                            key={blog.id}
+                            image={(blog as any).image || (blog as any).featured_image || (blog as any).image_url || FirebaseStorageService.DEFAULT_BLOG_IMAGE}
+                            title={blog.title}
+                            author={(blog as any).author || 'Unknown Author'}
+                            createdAt={(blog as any).createdAt || (blog as any).date || (blog as any).created_at || new Date().toISOString()}
+                            rating={(blog as any).rating || 0}
+                            content={blog.content}
+                            onClick={() => navigate(`/dashboard/blogs/${blog.id}`)}
+                        />
+                    ))
+                )}
             </div>
         </div>
     );

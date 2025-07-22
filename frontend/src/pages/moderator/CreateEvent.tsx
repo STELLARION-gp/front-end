@@ -1,17 +1,24 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaCalendarAlt, FaEye, FaUser, FaSave } from 'react-icons/fa';
+import { FaCalendarAlt, FaUser, FaSave, FaImage } from 'react-icons/fa';
 import Button from '../../components/Button';
 import '../../styles/pages/moderator/CreateEvent.scss';
 
 interface CreateEventForm {
   event_name: string;
+  society_name: string;
   description: string;
   visibility: 'public' | 'private' | 'members-only';
-  best_time: string;
-  duration: string;
   date: string;
-  added_person: string;
+  time: string;
+  location: string;
+  event_category: string;
+  needed_volunteers_count: string;
+  organized_by: string;
+  image_urls: string[];
+  max_participants: string;
+  event_status: 'draft' | 'organized' | 'finalized';
+  created_at: string;
 }
 
 const CreateEvent: React.FC = () => {
@@ -19,18 +26,42 @@ const CreateEvent: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<CreateEventForm>({
     event_name: '',
+    society_name: '',
     description: '',
     visibility: 'public',
-    best_time: '',
-    duration: '',
     date: '',
-    added_person: ''
+    time: '',
+    location: '',
+    event_category: '',
+    needed_volunteers_count: '',
+    organized_by: '',
+    image_urls: [],
+    max_participants: '',
+    event_status: 'draft',
+    created_at: new Date().toISOString().split('T')[0] // Set current date as default
   });
 
-  const handleInputChange = (field: keyof CreateEventForm, value: string) => {
+  const handleInputChange = (field: keyof CreateEventForm, value: string | string[]) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
+    }));
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const files = Array.from(e.target.files).map(file => URL.createObjectURL(file));
+      setFormData(prev => ({
+        ...prev,
+        image_urls: [...prev.image_urls, ...files]
+      }));
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      image_urls: prev.image_urls.filter((_, i) => i !== index)
     }));
   };
 
@@ -66,7 +97,7 @@ const CreateEvent: React.FC = () => {
             </Button>
             <div className="title-section">
               <h1>Create Event</h1>
-              <p>Create a new community event for moderation</p>
+              <p>Create a new platform-organized event or competition</p>
             </div>
           </div>
         </div>
@@ -93,13 +124,25 @@ const CreateEvent: React.FC = () => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="added_person">Added by (Moderator) *</label>
+                <label htmlFor="society_name">Society Name *</label>
                 <input
                   type="text"
-                  id="added_person"
-                  value={formData.added_person}
-                  onChange={(e) => handleInputChange('added_person', e.target.value)}
-                  placeholder="Moderator name"
+                  id="society_name"
+                  value={formData.society_name}
+                  onChange={(e) => handleInputChange('society_name', e.target.value)}
+                  placeholder="Enter society name"
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="organized_by">Organized By *</label>
+                <input
+                  type="text"
+                  id="organized_by"
+                  value={formData.organized_by}
+                  onChange={(e) => handleInputChange('organized_by', e.target.value)}
+                  placeholder="Enter organizer name"
                   required
                 />
               </div>
@@ -133,12 +176,12 @@ const CreateEvent: React.FC = () => {
                   />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="best_time">Best Time *</label>
+                  <label htmlFor="time">Event Time *</label>
                   <input
                     type="text"
-                    id="best_time"
-                    value={formData.best_time}
-                    onChange={(e) => handleInputChange('best_time', e.target.value)}
+                    id="time"
+                    value={formData.time}
+                    onChange={(e) => handleInputChange('time', e.target.value)}
                     placeholder="e.g., 8:00 PM - 11:00 PM"
                     required
                   />
@@ -146,22 +189,90 @@ const CreateEvent: React.FC = () => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="duration">Duration *</label>
+                <label htmlFor="location">Location *</label>
                 <input
                   type="text"
-                  id="duration"
-                  value={formData.duration}
-                  onChange={(e) => handleInputChange('duration', e.target.value)}
-                  placeholder="e.g., 3 hours"
+                  id="location"
+                  value={formData.location}
+                  onChange={(e) => handleInputChange('location', e.target.value)}
+                  placeholder="Enter event location"
                   required
+                />
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="event_category">Event Category *</label>
+                  <input
+                    type="text"
+                    id="event_category"
+                    value={formData.event_category}
+                    onChange={(e) => handleInputChange('event_category', e.target.value)}
+                    placeholder="e.g., Workshop, Competition"
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="max_participants">Max Participants</label>
+                  <input
+                    type="number"
+                    id="max_participants"
+                    value={formData.max_participants}
+                    onChange={(e) => handleInputChange('max_participants', e.target.value)}
+                    placeholder="Maximum number of participants"
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="needed_volunteers_count">Needed Volunteers Count</label>
+                <input
+                  type="number"
+                  id="needed_volunteers_count"
+                  value={formData.needed_volunteers_count}
+                  onChange={(e) => handleInputChange('needed_volunteers_count', e.target.value)}
+                  placeholder="Number of volunteers needed"
                 />
               </div>
             </div>
 
-            {/* Visibility Settings */}
+            {/* Additional Settings */}
             <div className="form-section">
-              <h3><FaEye /> Visibility Settings</h3>
+              <h3><FaImage /> Additional Settings</h3>
               
+              <div className="form-group">
+                <label htmlFor="image_urls">Event Images</label>
+                <input
+                  type="file"
+                  id="image_urls"
+                  onChange={handleImageUpload}
+                  multiple
+                  accept="image/*"
+                />
+                <div className="image-preview">
+                  {formData.image_urls.map((url, index) => (
+                    <div key={index} className="image-preview-item">
+                      <img src={url} alt={`Event preview ${index}`} />
+                      <button type="button" onClick={() => removeImage(index)}>×</button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="event_status">Event Status *</label>
+                <select
+                  id="event_status"
+                  value={formData.event_status}
+                  onChange={(e) => handleInputChange('event_status', e.target.value as 'draft' | 'organized' | 'finalized')}
+                  required
+                >
+                  <option value="draft">Draft - Not visible to public</option>
+                  <option value="organized">Organized - Open for sponsoring</option>
+                  <option value="finalized">Finalized - Open for participant registration</option>
+                </select>
+              </div>
+
               <div className="form-group">
                 <label htmlFor="visibility">Event Visibility *</label>
                 <select
@@ -216,7 +327,7 @@ const CreateEvent: React.FC = () => {
               size="large"
               disabled={isSubmitting}
             >
-              <FaSave />
+              <FaSave /> 
               {isSubmitting ? 'Creating Event...' : 'Create Event'}
             </Button>
           </div>

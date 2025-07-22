@@ -337,7 +337,7 @@ const PollsDetails: React.FC = () => {
             <div className="card-content">
               <div className="creator-profile">
                 {/* <img src={poll.creator.avatar} alt={poll.creator.username} className="creator-avatar" /> */}
-                <img src={"https://www.svgrepo.com/show/384670/account-avatar-profile-user.svg"} className="creator-avatar" />
+                <img src={"https://www.svgrepo.com/show/384670/account-avatar-profile-user.svg"} className="creator-avatar" alt='img'/>
 
                 <div className="creator-details">
                   <div className="creator-username">

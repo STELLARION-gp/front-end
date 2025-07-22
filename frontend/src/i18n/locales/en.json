@@ -9,6 +9,8 @@
         "features": "Features",
         "team": "Team",
         "explore": "Explore",
+        "plans": "Subscription Plans",
+        "subscription": "Subscription",
         "adminPanel": "Admin Panel",
         "goToHome": "Go to Home",
         "scrollToTop": "Scroll to top",
@@ -363,5 +365,78 @@
         "message": "Are you sure you want to logout?",
         "confirmButton": "Logout",
         "cancelButton": "Cancel"
+    },
+    "subscription": {
+        "plans": {
+            "starseeker": {
+                "name": "StarSeeker Plan",
+                "description": "For curious learners, students, or casual space lovers starting their astronomy journey.",
+                "price": "Free",
+                "features": [
+                    "Access to basic astronomy lessons",
+                    "Daily NASA photo feed",
+                    "Monthly celestial event calendar",
+                    "Access to discussion forums",
+                    "Limited access to AI chatbot (3 questions/day)"
+                ]
+            },
+            "galaxy_explorer": {
+                "name": "Galaxy Explorer Plan",
+                "description": "For hobbyists, school students, teachers, and astronomy enthusiasts looking for more depth.",
+                "price": "LKR 990/month",
+                "priceUsd": "$5.90/month",
+                "features": [
+                    "Access to basic and intermediate astronomy lessons",
+                    "Daily NASA photo feed",
+                    "Monthly celestial event calendar",
+                    "Access to discussion forums",
+                    "Access to intermediate lessons & quizzes",
+                    "Unlimited AI chatbot questions",
+                    "RSVP to night camps & workshops"
+                ]
+            },
+            "cosmic_voyager": {
+                "name": "Cosmic Voyager Plan",
+                "description": "For advanced learners, educators, astro-nerds, and families wanting the full immersive experience.",
+                "price": "LKR 2,490/month",
+                "priceUsd": "$14.90/month",
+                "features": [
+                    "Access to basic, intermediate, advanced astronomy lessons & certifications",
+                    "Daily NASA photo feed",
+                    "Monthly celestial event calendar",
+                    "Access to discussion forums",
+                    "Access to intermediate lessons & quizzes",
+                    "Unlimited AI chatbot questions",
+                    "RSVP to night camps & workshops",
+                    "1-on-1 tutor sessions",
+                    "Priority access to exclusive night camps",
+                    "Early access to new features",
+                    "Feature request priority"
+                ]
+            }
+        },
+        "modal": {
+            "upgradeRequired": "Upgrade Required",
+            "upgradeMessage": "To access {{feature}}, you need to upgrade from {{currentPlan}} to {{requiredPlan}}.",
+            "currentPlan": "Current Plan: {{plan}}",
+            "upgradeTo": "Upgrade to {{plan}}",
+            "upgradeButton": "Upgrade Now",
+            "cancelButton": "Cancel"
+        },
+        "payment": {
+            "title": "Subscribe to {{planName}}",
+            "processing": "Processing Payment...",
+            "payButton": "Pay {{amount}}",
+            "securePayment": "Secure Payment with PayHere",
+            "planDetails": "Plan Details",
+            "includedFeatures": "Included Features",
+            "errorTitle": "Payment Error",
+            "loadingError": "PayHere payment gateway not loaded",
+            "orderError": "Failed to create payment order",
+            "missingFields": "Missing required PayHere fields: {{fields}}",
+            "paymentFailed": "Payment failed. Please try again.",
+            "timeout": "Payment timeout. Please try again.",
+            "closeButton": "Close"
+        }
     }
 }

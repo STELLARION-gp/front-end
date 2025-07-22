@@ -83,12 +83,12 @@ interface ApiResponse<T> {
  * Handles all profile-related API calls with proper error handling
  */
 class ProfileService {
-    private async getAuthToken(): Promise<string | null> {
+    private async getAuthToken(forceRefresh = false): Promise<string | null> {
         const user = auth.currentUser;
         if (!user) return null;
 
         try {
-            return await user.getIdToken();
+            return await user.getIdToken(forceRefresh);
         } catch (error) {
             console.error('Error getting auth token:', error);
             return null;
@@ -97,11 +97,12 @@ class ProfileService {
 
     private async makeRequest<T>(
         endpoint: string,
-        options: RequestInit = {}
+        options: RequestInit = {},
+        retry = true
     ): Promise<ApiResponse<T>> {
         console.log(`📡 Profile API Request: ${endpoint}`);
 
-        const token = await this.getAuthToken();
+        let token = await this.getAuthToken();
 
         if (!token) {
             console.error('❌ No authentication token available');
@@ -112,11 +113,13 @@ class ProfileService {
             };
         }
 
-        const headers: Record<string, string> = {
+        const buildHeaders = (tokenValue: string) => ({
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
+            'Authorization': `Bearer ${tokenValue}`,
             ...(options.headers as Record<string, string>),
-        };
+        });
+
+        let headers = buildHeaders(token);
 
         try {
             console.log(`🚀 Making request to: ${API_BASE_URL}${endpoint}`);
@@ -126,6 +129,49 @@ class ProfileService {
             });
 
             console.log(`📨 Response status: ${response.status}`);
+
+            // Handle token expiration with retry
+            if (response.status === 401 && retry) {
+                console.warn('🔄 Token expired or invalid, refreshing and retrying...');
+                token = await this.getAuthToken(true); // Force refresh
+                if (token) {
+                    headers = buildHeaders(token);
+                    const retryResponse = await fetch(`${API_BASE_URL}${endpoint}`, {
+                        ...options,
+                        headers,
+                    });
+                    
+                    console.log(`📨 Retry response status: ${retryResponse.status}`);
+                    
+                    if (retryResponse.status === 401) {
+                        return {
+                            success: false,
+                            error: 'authentication_failed',
+                            message: 'Authentication failed after token refresh'
+                        };
+                    }
+                    
+                    let retryData;
+                    try {
+                        retryData = await retryResponse.json();
+                    } catch (e) {
+                        retryData = null;
+                    }
+
+                    return {
+                        success: retryResponse.ok,
+                        data: retryData,
+                        error: retryResponse.ok ? undefined : retryData?.error || 'request_failed',
+                        message: retryData?.message
+                    };
+                } else {
+                    return {
+                        success: false,
+                        error: 'token_refresh_failed',
+                        message: 'Could not refresh authentication token'
+                    };
+                }
+            }
 
             let data;
             const contentType = response.headers.get('content-type');
@@ -184,11 +230,12 @@ class ProfileService {
 
     private async makeFileUploadRequest<T>(
         endpoint: string,
-        formData: FormData
+        formData: FormData,
+        retry = true
     ): Promise<ApiResponse<T>> {
         console.log(`📡 Profile File Upload: ${endpoint}`);
 
-        const token = await this.getAuthToken();
+        let token = await this.getAuthToken();
 
         if (!token) {
             console.error('❌ No authentication token available for file upload');
@@ -199,10 +246,12 @@ class ProfileService {
             };
         }
 
-        const headers: Record<string, string> = {
-            'Authorization': `Bearer ${token}`,
+        const buildHeaders = (tokenValue: string) => ({
+            'Authorization': `Bearer ${tokenValue}`,
             // Don't set Content-Type for FormData, let browser set it with boundary
-        };
+        });
+
+        let headers = buildHeaders(token);
 
         try {
             console.log(`🚀 Making file upload to: ${API_BASE_URL}${endpoint}`);
@@ -213,6 +262,55 @@ class ProfileService {
             });
 
             console.log(`📨 Upload response status: ${response.status}`);
+
+            // Handle token expiration with retry
+            if (response.status === 401 && retry) {
+                console.warn('🔄 Token expired or invalid during upload, refreshing and retrying...');
+                token = await this.getAuthToken(true); // Force refresh
+                if (token) {
+                    headers = buildHeaders(token);
+                    const retryResponse = await fetch(`${API_BASE_URL}${endpoint}`, {
+                        method: 'POST',
+                        headers,
+                        body: formData,
+                    });
+                    
+                    console.log(`📨 Upload retry response status: ${retryResponse.status}`);
+                    
+                    if (retryResponse.status === 401) {
+                        return {
+                            success: false,
+                            error: 'authentication_failed',
+                            message: 'Authentication failed after token refresh'
+                        };
+                    }
+                    
+                    let retryData;
+                    try {
+                        retryData = await retryResponse.json();
+                    } catch {
+                        const textResponse = await retryResponse.text();
+                        return {
+                            success: false,
+                            error: 'invalid_response',
+                            message: `Server returned non-JSON response: ${textResponse}`
+                        };
+                    }
+
+                    return {
+                        success: retryResponse.ok,
+                        data: retryData,
+                        error: retryResponse.ok ? undefined : retryData?.error || 'request_failed',
+                        message: retryData?.message
+                    };
+                } else {
+                    return {
+                        success: false,
+                        error: 'token_refresh_failed',
+                        message: 'Could not refresh authentication token'
+                    };
+                }
+            }
 
             let data;
             const contentType = response.headers.get('content-type');

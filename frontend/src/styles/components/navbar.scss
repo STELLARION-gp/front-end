@@ -540,108 +540,119 @@ nav,
     }
 }
 
-.utility-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(255, 255, 255, 0.05);
-    -webkit-backdrop-filter: blur(10px);
-    backdrop-filter: blur(10px);
-    color: rgba(255, 255, 255, 0.8);
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
+// .utility-btn {
+//     display: flex;
+//     align-items: center;
+//     justify-content: center;
+//     width: 36px !important;
+//     height: 36px !important;
+//     border-radius: 8px;
+//     border: 1px solid rgba(255, 255, 255, 0.1);
+//     background: rgba(255, 255, 255, 0.05);
+//     -webkit-backdrop-filter: blur(10px);
+//     backdrop-filter: blur(10px);
+//     color: rgba(255, 255, 255, 0.8);
+//     cursor: pointer;
+//     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+//     position: relative;
 
-    &:hover {
-        background: rgba(255, 255, 255, 0.1);
-        border-color: rgba(255, 255, 255, 0.2);
-        color: rgba(255, 255, 255, 0.95);
-    }
+//     &:hover {
+//         background: rgba(255, 255, 255, 0.1);
+//         border-color: rgba(255, 255, 255, 0.2);
+//         color: rgba(255, 255, 255, 0.95);
+//     }
 
-    &:active {
-        transform: translateY(0);
-        background: rgba(255, 255, 255, 0.15);
-    }
+//     &:active {
+//         transform: translateY(0);
+//         background: rgba(255, 255, 255, 0.15);
+//     }
 
-    .utility-icon {
-        width: 18px;
-        height: 18px;
-    }
+//     .utility-icon {
+//         width: 18px;
+//         height: 18px;
+//     }
 
-    .theme-icon {
-        width: 18px;
-        height: 18px;
-        display: block;
-        color: inherit;
-    }
+//     .theme-icon {
+//         width: 18px;
+//         height: 18px;
+//         display: block;
+//         color: inherit;
+//     }
 
-    .utility-text {
-        font-size: 10px;
-        font-weight: 600;
-        letter-spacing: 0.5px;
-        position: absolute;
-        bottom: 2px;
-        right: 2px;
-        background: rgba(0, 0, 0, 0.6);
-        color: white;
-        padding: 1px 3px;
-        border-radius: 3px;
-        line-height: 1;
-        min-width: 16px;
-        text-align: center;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-}
+//     .utility-text {
+//         font-size: 10px;
+//         font-weight: 600;
+//         letter-spacing: 0.5px;
+//         position: absolute;
+//         bottom: 2px;
+//         right: 2px;
+//         background: rgba(0, 0, 0, 0.6);
+//         color: white;
+//         padding: 1px 3px;
+//         border-radius: 3px;
+//         line-height: 1;
+//         min-width: 16px;
+//         text-align: center;
+//         white-space: nowrap;
+//         overflow: hidden;
+//         text-overflow: ellipsis;
+//     }
+// }
 
 .language-btn {
     position: relative;
+    width: 24px !important;
+    font-size: 12px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid $theme5;
+    transition: none !important; // remove inherited transition
+
+    &:hover {
+        transition: none !important; // override hover transitions
+        background: none !important; // reset background if changing
+        color: inherit !important;   // reset color if changing
+        transform: none !important;  // reset transform if applied
+        box-shadow: none !important; // reset shadow if applied
+        border: 1px solid $theme5 !important; // keep border consistent
+    }
 
     .language-letter {
-        font-size: 18px;
-        font-weight: 700;
-        color: rgba(255, 255, 255, 0.9);
+        width: 24px !important;
+        color: rgba(255, 255, 255, 0.9) !important;
         line-height: 1;
-        transition: all 0.3s ease;
-    }
-
-    &:hover .language-letter {
-        color: rgba(255, 255, 255, 1);
-        //transform: scale(1.1);
+        transition: none !important; // remove transition on inner letter
     }
 }
 
-.theme-btn {
-    .theme-icon-wrapper {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        height: 100%;
-    }
 
-    .theme-icon {
-        transition: all 0.3s ease;
-        display: block;
-        color: inherit;
-    }
+// .theme-btn {
+//     .theme-icon-wrapper {
+//         display: flex;
+//         align-items: center;
+//         justify-content: center;
+//         width: 100%;
+//         height: 100%;
+//     }
 
-    .theme-text {
-        font-size: 18px;
-        line-height: 1;
-        transition: all 0.3s ease;
-    }
+//     .theme-icon {
+//         transition: all 0.3s ease;
+//         display: block;
+//         color: inherit;
+//     }
 
-    &:hover .theme-icon,
-    &:hover .theme-text {
-        transform: rotate(15deg) scale(1.1);
-    }
-}
+//     .theme-text {
+//         font-size: 18px;
+//         line-height: 1;
+//         transition: all 0.3s ease;
+//     }
+
+//     &:hover .theme-icon,
+//     &:hover .theme-text {
+//         transform: rotate(15deg) scale(1.1);
+//     }
+// }
 
 /* Compact mode adjustments */
 .navbar-compact {

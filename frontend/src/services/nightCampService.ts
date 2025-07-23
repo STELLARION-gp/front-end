@@ -137,6 +137,13 @@ export interface VolunteerManagementData {
   availableSlots: number;
 }
 
+export interface ConfirmedRegistrationCount {
+  nightCampId: number;
+  confirmedRegistrations: number;
+  maxCapacity: number;
+  availableSlots: number;
+}
+
 export interface ApproveRegistrationRequest {
   registrationId: number;
 }
@@ -320,6 +327,17 @@ class NightCampService {
       return response.data;
     } catch (error) {
       console.error('Error fetching volunteer management data:', error);
+      throw error;
+    }
+  }
+
+  // Get confirmed registration count for a night camp (public endpoint)
+  async getConfirmedRegistrationCount(nightCampId: number): Promise<ConfirmedRegistrationCount> {
+    try {
+      const response = await this.makeRequest<{ data: ConfirmedRegistrationCount }>(`/nightcamps/${nightCampId}/confirmed-count`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching confirmed registration count:', error);
       throw error;
     }
   }

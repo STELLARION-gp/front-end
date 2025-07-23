@@ -289,11 +289,12 @@ const NightCamps = () => {
                 />
               </div>
             </CardContent>
-            <CardActions>
+            <CardActions >
               <Button 
                 size="small"
                 onClick={() => handleViewDetails(camp.id)}
                 className="btn--view-details"
+              
               >
                 <svg 
                   width="16" 

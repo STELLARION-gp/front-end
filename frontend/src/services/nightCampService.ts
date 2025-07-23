@@ -94,6 +94,58 @@ export interface UpdateVolunteeringApplicationRequest {
   emergency_contact_relationship?: string;
 }
 
+export interface NightCampRegistration {
+  id: number;
+  camp_id: number;
+  user_id: number;
+  status: 'confirmed' | 'cancelled' | 'waitlisted' | 'pending';
+  registered_date: string;
+  registered_time: string;
+  created_at: string;
+  updated_at: string;
+  night_camp_name?: string;
+  night_camp_date?: string;
+  night_camp_time?: string;
+  night_camp_location?: string;
+}
+
+export interface VolunteerInfo {
+  id: number;
+  user_id: number;
+  user_name: string;
+  email: string;
+  volunteering_role: string;
+  status: string;
+}
+
+export interface PendingRegistration {
+  id: number;
+  user_id: number;
+  user_name: string;
+  email: string;
+  registration_date: string;
+  status: 'pending';
+}
+
+export interface VolunteerManagementData {
+  nightCamp: NightCampWithDetails;
+  volunteers: VolunteerInfo[];
+  pendingRegistrations: PendingRegistration[];
+  approvedRegistrations: PendingRegistration[];
+  totalApproved: number;
+  maxCapacity: number;
+  availableSlots: number;
+}
+
+export interface ApproveRegistrationRequest {
+  registrationId: number;
+}
+
+export interface RejectRegistrationRequest {
+  registrationId: number;
+  reason?: string;
+}
+
 class NightCampService {
   private async getAuthToken(): Promise<string | null> {
     const user = auth.currentUser;
@@ -227,6 +279,86 @@ class NightCampService {
       return response.data || [];
     } catch (error) {
       console.error('Error fetching volunteering roles:', error);
+      throw error;
+    }
+  }
+
+  // Register for night camp
+  async registerForNightCamp(nightCampId: number): Promise<NightCampRegistration> {
+    try {
+      const response = await this.makeRequest<{ data: NightCampRegistration }>(
+        `/nightcamps/${nightCampId}/register`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error registering for night camp:', error);
+      throw error;
+    }
+  }
+
+  // Get user's night camp registrations
+  async getUserRegistrations(): Promise<NightCampRegistration[]> {
+    try {
+      const response = await this.makeRequest<{ data: NightCampRegistration[] }>('/nightcamps/registrations/my-registrations');
+      return response.data || [];
+    } catch (error) {
+      console.error('Error fetching user registrations:', error);
+      throw error;
+    }
+  }
+
+  // Get volunteer management data for a night camp
+  async getVolunteerManagement(nightCampId: number): Promise<VolunteerManagementData> {
+    try {
+      const response = await this.makeRequest<{ data: VolunteerManagementData }>(`/nightcamps/${nightCampId}/volunteer-management`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching volunteer management data:', error);
+      throw error;
+    }
+  }
+
+  // Approve a registration by volunteer
+  async approveRegistrationByVolunteer(registrationId: number): Promise<{ message: string }> {
+    try {
+      const response = await this.makeRequest<{ message: string }>(
+        `/nightcamps/volunteer/registrations/${registrationId}/approve`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      return response;
+    } catch (error) {
+      console.error('Error approving registration:', error);
+      throw error;
+    }
+  }
+
+  // Reject a registration by volunteer
+  async rejectRegistrationByVolunteer(registrationId: number, reason?: string): Promise<{ message: string }> {
+    try {
+      const response = await this.makeRequest<{ message: string }>(
+        `/nightcamps/volunteer/registrations/${registrationId}/reject`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ reason }),
+        }
+      );
+      return response;
+    } catch (error) {
+      console.error('Error rejecting registration:', error);
       throw error;
     }
   }

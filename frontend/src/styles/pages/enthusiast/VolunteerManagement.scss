@@ -1,0 +1,667 @@
+@use '../../abstracts/variables' as *;
+@use '../../abstracts/mixins' as *;
+
+// Volunteer Management Page Styles
+// =================================
+
+.volunteer-management {
+  height: 100%;
+  padding: 1rem;
+  overflow-y: auto;
+  box-sizing: border-box;
+  width: 100%;
+
+  &__container {
+    width: 100%;
+    margin: 0;
+    padding: 0 1rem;
+    padding-bottom: 4rem;
+    min-height: calc(100vh - 200px);
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+
+    .back-button {
+      background: none;
+      border: none;
+      color: $accent-color;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      padding: 0.5rem;
+      border-radius: $radius-sm;
+      transition: all 0.3s ease;
+      
+      &:hover {
+        background: rgba($accent-color, 0.1);
+        color: $accent-color-light;
+      }
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 2.25rem;
+      font-weight: 700;
+      color: $text-color;
+      font-family: $font-outfit;
+    }
+  }
+
+  .error-message,
+  .no-data-message {
+    text-align: center;
+    padding: 2rem;
+    margin: 2rem 0;
+    background: $secondary-color;
+    border-radius: $radius-lg;
+    border: 1px solid $border-color;
+    color: $text-color-secondary;
+
+    .retry-button {
+      margin-top: 1rem;
+      background: $color-error;
+      color: $text-light;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: $radius-md;
+      cursor: pointer;
+      font-weight: 600;
+      font-family: $font-outfit;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: darken($color-error, 10%);
+        transform: translateY(-2px);
+      }
+    }
+  }
+
+  .error-message {
+    color: $color-error;
+    border-color: rgba($color-error, 0.3);
+  }
+
+  .camp-overview {
+    margin-bottom: 3rem;
+    background: $secondary-color;
+    border-radius: $radius-lg;
+    padding: 2rem;
+    border: 1px solid $border-color;
+    width: 100%;
+    box-sizing: border-box;
+
+    h3 {
+      margin: 0 0 1.5rem 0;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: $text-color;
+      font-family: $font-outfit;
+    }
+
+    .camp-details {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+      margin-top: 1.5rem;
+      width: 100%;
+    }
+
+    .camp-detail-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      
+      .icon {
+        width: 1.25rem;
+        height: 1.25rem;
+        color: $accent-color;
+        flex-shrink: 0;
+      }
+
+      span {
+        font-size: 0.95rem;
+        color: $text-color-secondary;
+        font-family: $font-outfit;
+      }
+
+      .time-detail {
+        color: $text-color;
+        font-weight: 600;
+      }
+    }
+
+    .camp-additional-details {
+      margin-top: 2rem;
+      
+      .detail-section {
+        margin-bottom: 2rem;
+        
+        h4 {
+          margin: 0 0 0.75rem 0;
+          font-size: 1.125rem;
+          font-weight: 600;
+          color: $text-color;
+          font-family: $font-outfit;
+        }
+        
+        p {
+          margin: 0;
+          color: $text-color-secondary;
+          line-height: 1.6;
+          font-family: $font-outfit;
+        }
+        
+        .activities-list,
+        .equipment-list {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.75rem;
+          margin-top: 0.75rem;
+          
+          .activity-tag,
+          .equipment-tag {
+            background: linear-gradient(135deg, $accent-color, $accent-color-light);
+            color: $text-light;
+            padding: 0.375rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            font-family: $font-outfit;
+            transition: all 0.3s ease;
+            
+            &:hover {
+              transform: translateY(-2px);
+              box-shadow: 0 4px 12px rgba($accent-color, 0.3);
+            }
+          }
+          
+          .equipment-tag {
+            background: linear-gradient(135deg, $color-info, lighten($color-info, 15%));
+          }
+        }
+      }
+    }
+  }
+
+  .volunteers-section,
+  .pending-registrations-section,
+  .approved-registrations-section {
+    margin-bottom: 3rem;
+    width: 100%;
+    box-sizing: border-box;
+
+    h3 {
+      margin: 0 0 1.5rem 0;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: $text-color;
+      font-family: $font-outfit;
+    }
+
+    .volunteers-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+      width: 100%;
+    }
+
+    .volunteer-card {
+      padding: 1.5rem;
+      border: 1px solid $border-color;
+      border-radius: $radius-lg;
+      background: $secondary-color;
+      transition: all 0.3s ease;
+      width: 100%;
+      box-sizing: border-box;
+
+      &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        border-color: $accent-color;
+      }
+
+      .volunteer-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+
+        .volunteer-icon {
+          width: 2.5rem;
+          height: 2.5rem;
+          color: $accent-color;
+          flex-shrink: 0;
+        }
+
+        .volunteer-details {
+          display: flex;
+          flex-direction: column;
+          gap: 0.375rem;
+
+          .volunteer-name {
+            font-weight: 600;
+            color: $text-color;
+            font-size: 1rem;
+            font-family: $font-outfit;
+          }
+
+          .volunteer-email {
+            font-size: 0.875rem;
+            color: $text-color-secondary;
+            font-family: $font-outfit;
+          }
+
+          .volunteer-role {
+            font-size: 0.875rem;
+            color: $accent-color;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-family: $font-outfit;
+          }
+        }
+      }
+    }
+
+    .no-volunteers,
+    .no-registrations {
+      text-align: center;
+      padding: 3rem 2rem;
+      color: $text-color-secondary;
+      font-style: italic;
+      font-size: 1.125rem;
+      font-family: $font-outfit;
+      background: $secondary-color;
+      border-radius: $radius-lg;
+      border: 1px solid $border-color;
+      width: 100%;
+      box-sizing: border-box;
+    }
+  }
+
+  .registrations-table {
+    overflow-x: auto;
+    margin-top: 1.5rem;
+    border-radius: $radius-lg;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    box-sizing: border-box;
+
+    table {
+      width: 100%;
+      min-width: 800px;
+      border-collapse: collapse;
+      background: $secondary-color;
+      border-radius: $radius-lg;
+      overflow: hidden;
+
+      th {
+        background: linear-gradient(135deg, $primary-color, darken($primary-color, 5%));
+        color: $text-light;
+        padding: 1.25rem 1rem;
+        text-align: left;
+        font-weight: 700;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-family: $font-outfit;
+        border-bottom: 2px solid $accent-color;
+      }
+
+      td {
+        padding: 1.25rem 1rem;
+        border-bottom: 1px solid $border-color;
+        font-size: 0.95rem;
+        color: $text-color;
+        font-family: $font-outfit;
+
+        &:last-child {
+          border-bottom: none;
+        }
+      }
+
+      tr {
+        transition: all 0.3s ease;
+        
+        &:hover {
+          background: rgba($accent-color, 0.05);
+        }
+      }
+
+      .actions-cell {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+
+        .approve-btn {
+          background: linear-gradient(135deg, $color-success, lighten($color-success, 10%));
+          color: $text-light;
+          border: none;
+          padding: 0.625rem 1.25rem;
+          border-radius: $radius-md;
+          cursor: pointer;
+          font-size: 0.875rem;
+          font-weight: 600;
+          font-family: $font-outfit;
+          display: flex;
+          align-items: center;
+          gap: 0.375rem;
+          transition: all 0.3s ease;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+
+          &:hover:not(:disabled) {
+            background: linear-gradient(135deg, darken($color-success, 5%), $color-success);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba($color-success, 0.4);
+          }
+
+          &:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+          }
+
+          .action-icon {
+            width: 1rem;
+            height: 1rem;
+          }
+        }
+
+        .reject-btn {
+          background: linear-gradient(135deg, $color-error, lighten($color-error, 10%));
+          color: $text-light;
+          border: none;
+          padding: 0.625rem 1.25rem;
+          border-radius: $radius-md;
+          cursor: pointer;
+          font-size: 0.875rem;
+          font-weight: 600;
+          font-family: $font-outfit;
+          display: flex;
+          align-items: center;
+          gap: 0.375rem;
+          transition: all 0.3s ease;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+
+          &:hover:not(:disabled) {
+            background: linear-gradient(135deg, darken($color-error, 5%), $color-error);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba($color-error, 0.4);
+          }
+
+          &:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+          }
+
+          .action-icon {
+            width: 1rem;
+            height: 1rem;
+          }
+        }
+          padding: 0.25rem 0.75rem;
+          border-radius: 20px;
+          font-size: 0.85rem;
+          font-weight: 500;
+          text-transform: capitalize;
+
+        }
+
+        .status-badge {
+          padding: 0.375rem 0.75rem;
+          border-radius: 20px;
+          font-size: 0.75rem;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          font-family: $font-outfit;
+
+          &.status-approved {
+            background: linear-gradient(135deg, $color-success, lighten($color-success, 15%));
+            color: $text-light;
+          }
+
+          &.status-pending {
+            background: linear-gradient(135deg, $color-warning, lighten($color-warning, 15%));
+            color: $text-light;
+          }
+
+          &.status-rejected {
+            background: linear-gradient(135deg, $color-error, lighten($color-error, 15%));
+            color: $text-light;
+          }
+        }
+      }
+    }
+  }
+
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(4px);
+
+    .reject-modal {
+      background: $secondary-color;
+      padding: 2.5rem;
+      border-radius: $radius-lg;
+      max-width: 500px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      border: 1px solid $border-color;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+
+      h3 {
+        margin: 0 0 1.5rem 0;
+        color: $text-color;
+        font-size: 1.375rem;
+        font-weight: 700;
+        font-family: $font-outfit;
+      }
+
+      p {
+        margin: 0 0 1.5rem 0;
+        color: $text-color-secondary;
+        font-size: 1rem;
+        line-height: 1.6;
+        font-family: $font-outfit;
+      }
+
+      .reject-reason-textarea {
+        width: 100%;
+        border: 2px solid $border-color;
+        border-radius: $radius-md;
+        padding: 1rem;
+        font-size: 0.95rem;
+        font-family: $font-outfit;
+        resize: vertical;
+        margin-bottom: 2rem;
+        background: $primary-color;
+        color: $text-color;
+        min-height: 120px;
+        transition: all 0.3s ease;
+
+        &:focus {
+          outline: none;
+          border-color: $accent-color;
+          box-shadow: 0 0 0 3px rgba($accent-color, 0.1);
+        }
+
+        &::placeholder {
+          color: $text-color-secondary;
+        }
+      }
+
+      .modal-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+
+        button {
+          padding: 0.875rem 1.75rem;
+          border: none;
+          border-radius: $radius-md;
+          cursor: pointer;
+          font-size: 0.95rem;
+          font-weight: 600;
+          font-family: $font-outfit;
+          transition: all 0.3s ease;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+
+          &:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+          }
+        }
+
+        .cancel-btn {
+          background: transparent;
+          color: $text-color-secondary;
+          border: 2px solid $border-color;
+
+          &:hover:not(:disabled) {
+            background: $border-color;
+            color: $text-color;
+          }
+        }
+
+        .confirm-reject-btn {
+          background: linear-gradient(135deg, $color-error, darken($color-error, 5%));
+          color: $text-light;
+
+          &:hover:not(:disabled) {
+            background: linear-gradient(135deg, darken($color-error, 5%), darken($color-error, 10%));
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba($color-error, 0.4);
+          }
+        }
+      }
+    }
+  }
+
+
+// Responsive Design
+// =================
+@media (max-width: 768px) {
+  .volunteer-management {
+    padding: 0.5rem;
+
+    &__container {
+      padding: 0 0.5rem;
+      padding-bottom: 4rem;
+    }
+
+    &__header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+
+      h1 {
+        font-size: 1.875rem;
+      }
+    }
+
+    .camp-overview {
+      padding: 1.5rem;
+
+      .camp-details {
+        flex-direction: column;
+        gap: 1rem;
+      }
+    }
+
+    .volunteers-section,
+    .pending-registrations-section,
+    .approved-registrations-section {
+      .volunteers-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+    }
+
+    .registrations-table {
+      table {
+        font-size: 0.875rem;
+        min-width: 600px;
+
+        th,
+        td {
+          padding: 0.875rem 0.5rem;
+        }
+
+        .actions-cell {
+          flex-direction: column;
+          gap: 0.5rem;
+
+          button {
+            width: 100%;
+            font-size: 0.8rem;
+            padding: 0.5rem 0.75rem;
+          }
+        }
+      }
+    }
+
+    .modal-overlay .reject-modal {
+      margin: 1rem;
+      padding: 1.5rem;
+
+      .modal-actions {
+        flex-direction: column;
+        
+        button {
+          width: 100%;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .volunteer-management {
+    &__container {
+      padding: 0 0.25rem;
+      padding-bottom: 4rem;
+    }
+
+    &__header h1 {
+      font-size: 1.5rem;
+    }
+
+    .camp-overview {
+      padding: 1rem;
+    }
+
+    .volunteer-card {
+      padding: 1rem;
+    }
+
+    .registrations-table {
+      table {
+        font-size: 0.8rem;
+        min-width: 500px;
+        
+        th, td {
+          padding: 0.75rem 0.25rem;
+        }
+      }
+    }
+  }
+}

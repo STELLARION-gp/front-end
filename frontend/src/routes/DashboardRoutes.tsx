@@ -32,6 +32,7 @@ import AuthorProfilePageWrapper from '../pages/learner/AuthorProfilePageWrapper'
 import NasaImagesPage from '../pages/learner/NasaImagesPage';
 
 import NightCamps from '../pages/enthuasist/NightCamps';
+import VolunteerManagement from '../pages/enthuasist/VolunteerManagement';
 import Stargazing from '../pages/enthuasist/Stargazing';
 
 import ServiceListing from '../pages/guide/ServiceListing';
@@ -742,6 +743,15 @@ const DashboardRoutes = () => {
                 element={
                     <RoleGuard allowedRoles={['enthusiast', 'learner', 'guide','influencer']}>
                         <NightCamps />
+                    </RoleGuard>
+                }
+            />
+
+            <Route
+                path="volunteer-management/:nightCampId"
+                element={
+                    <RoleGuard allowedRoles={['enthusiast', 'influencer', 'guide', 'mentor']}>
+                        <VolunteerManagement />
                     </RoleGuard>
                 }
             />

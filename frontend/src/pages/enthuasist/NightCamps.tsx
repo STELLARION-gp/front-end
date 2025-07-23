@@ -25,7 +25,7 @@ const NightCamps = () => {
   const [error, setError] = useState<string | null>(null);
   const [applicationsError, setApplicationsError] = useState<string | null>(null);
   const [registrationsError, setRegistrationsError] = useState<string | null>(null);
-  const [campApprovedCounts, setCampApprovedCounts] = useState<{ [campId: number]: number }>({});
+  const [campConfirmedCounts, setCampConfirmedCounts] = useState<{ [campId: number]: number }>({});
 
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -52,30 +52,30 @@ const NightCamps = () => {
       setRealNightCamps(camps);
       
       // Load approved counts for each camp
-      await loadApprovedCounts(camps);
+      await loadConfirmedCounts(camps);
     } catch (err) {
       console.error('Failed to load night camps:', err);
       setError('Failed to load night camps. Please try again.');
     }
   };
 
-  const loadApprovedCounts = async (camps: NightCampWithDetails[]) => {
+  const loadConfirmedCounts = async (camps: NightCampWithDetails[]) => {
     const counts: { [campId: number]: number } = {};
     
-    // Fetch approved count for each camp
+    // Fetch confirmed registration count for each camp using the public endpoint
     await Promise.all(
       camps.map(async (camp) => {
         try {
-          const managementData = await nightCampService.getVolunteerManagement(camp.id);
-          counts[camp.id] = managementData.totalApproved;
+          const countData = await nightCampService.getConfirmedRegistrationCount(camp.id);
+          counts[camp.id] = countData.confirmedRegistrations;
         } catch (err) {
-          console.error(`Failed to load approved count for camp ${camp.id}:`, err);
+          console.error(`Failed to load confirmed registration count for camp ${camp.id}:`, err);
           counts[camp.id] = 0; // Default to 0 if we can't fetch the data
         }
       })
     );
     
-    setCampApprovedCounts(counts);
+    setCampConfirmedCounts(counts);
   };
 
   const loadUserApplications = async () => {
@@ -107,7 +107,7 @@ const NightCamps = () => {
       // Refresh the registrations list
       loadUserRegistrations();
       // Refresh approved counts for all camps
-      await loadApprovedCounts(realNightCamps);
+      await loadConfirmedCounts(realNightCamps);
       // Close any open modals
       setIsDetailsModalOpen(false);
       setIsModalOpen(false);
@@ -279,16 +279,16 @@ const NightCamps = () => {
               </div>
               <div className="camp-participation">
                 <div className="camp-participation__header">
-                  <span className="camp-participation__label">Available Spots</span>
+                  <span className="camp-participation__label">Registration Status</span>
                   <div className="camp-participation__count">
                     <span className="count-numbers">
-                      {(camp.number_of_participants - (campApprovedCounts[camp.id] || 0))} / {camp.number_of_participants} spots
+                      {(campConfirmedCounts[camp.id] || 0)} / {camp.number_of_participants} registered
                     </span>
                   </div>
                 </div>
                 <ProgressBar 
                   className="progress-bar--participants"
-                  current={campApprovedCounts[camp.id] || 0}
+                  current={campConfirmedCounts[camp.id] || 0}
                   max={camp.number_of_participants}
                 />
               </div>

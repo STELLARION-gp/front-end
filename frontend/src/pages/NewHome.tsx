@@ -10,6 +10,7 @@ import AboutSection from '../components/HomeComponents/AboutSection';
 import FeaturesSection from '../components/HomeComponents/FeatureSection';
 import CTASection from '../components/HomeComponents/CTASection';
 import astro from '../assets/astro.png';
+import astro2 from '../assets/astro3.png';
 
 
 const NewHome = () => {
@@ -49,6 +50,7 @@ const NewHome = () => {
           {/* Scrollable content on top of galaxy background */}
           <div className="new-home">
             <Hero />
+            <img src={astro2} alt="astro2" className='astro-floating-img2' />
             <StatsSection />
             <img src={astro} alt='astro' className='astro-floating-img' />
             <div id="about">

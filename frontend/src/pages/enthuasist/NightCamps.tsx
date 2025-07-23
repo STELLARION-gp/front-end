@@ -48,6 +48,7 @@ const NightCamps = () => {
     setError(null);
     try {
       const camps = await nightCampService.getAllNightCamps();
+      console.log('Loaded night camps with statuses:', camps.map(camp => ({ id: camp.id, name: camp.name, status: camp.status })));
       setRealNightCamps(camps);
       
       // Load approved counts for each camp
@@ -222,12 +223,15 @@ const NightCamps = () => {
     );
   }
 
-  if (realNightCamps.length === 0) {
+  // Filter only approved night camps for the upcoming section
+  const approvedCamps = realNightCamps.filter(camp => camp.status === 'approved');
+
+  if (approvedCamps.length === 0) {
     return (
       <div className="upcoming-camps">
         <h2 className="upcoming-camps__title">Upcoming Camps</h2>
         <div className="no-camps-message">
-          No upcoming night camps available at the moment.
+          No approved upcoming night camps available at the moment.
         </div>
       </div>
     );
@@ -237,7 +241,7 @@ const NightCamps = () => {
     <div className="upcoming-camps">
       <h2 className="upcoming-camps__title">Upcoming Camps</h2>
       <div className="card-grid card-grid--small">
-        {realNightCamps.map((camp, index) => (
+        {approvedCamps.map((camp, index) => (
           <Card 
             key={camp.id || index}
             variant="elevated"
@@ -353,11 +357,25 @@ const NightCamps = () => {
           );
         }
 
+        // Filter only approved night camps for volunteering
+        const approvedCampsForVolunteering = realNightCamps.filter(camp => camp.status === 'approved');
+
+        if (approvedCampsForVolunteering.length === 0) {
+          return (
+            <div className="volunteer-camps">
+              <h2 className="volunteer-camps__title">Join Organizing Committee</h2>
+              <div className="no-camps-message">
+                No approved night camps available for volunteering at the moment.
+              </div>
+            </div>
+          );
+        }
+
         return (
           <div className="volunteer-camps">
             <h2 className="upcoming-camps__title">Join Organizing Committee</h2>
             <div className="card-grid card-grid--medium">
-              {realNightCamps.map((camp, index) => (
+              {approvedCampsForVolunteering.map((camp, index) => (
                 <Card 
                   key={camp.id || index}
                   variant="elevated"

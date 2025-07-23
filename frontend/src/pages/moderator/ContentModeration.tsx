@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import '../../styles/pages/moderator/ContentModeration.scss';
 import Button from '../../components/Button';
 
-type ContentType = 'post' | 'comment' | 'image' | 'video' | 'link' | 'poll' | 'audio';
+type ContentType = 'post' | 'comment' | 'image' | 'video' | 'link' | 'audio';
 type ContentStatus = 'pending' | 'approved' | 'rejected';
 type PriorityLevel = 'low' | 'medium' | 'high' | 'critical';
 
@@ -86,15 +86,15 @@ const mockContentItems: ContentItem[] = [
   },
   {
     id: '6',
-    type: 'poll',
+    type: 'link',
     content: 'Which planet is your favorite? (Vote in comments)',
-    author: 'PollCreator',
+    author: 'SpamCreator',
     reportedBy: ['User202'],
     reportReason: ['Low quality'],
     status: 'rejected',
     createdAt: new Date('2024-01-13T12:10:00'),
     priority: 'low',
-    details: 'Poll was deemed too low effort for our community standards.'
+    details: 'link was deemed too low effort for our community standards.'
   },
   {
     id: '7',
@@ -148,7 +148,7 @@ export default function ContentModeration() {
       case 'image': return <FaImage />;
       case 'video': return <FaVideo />;
       case 'link': return '🔗';
-      case 'poll': return '📊';
+      // case 'poll': return '📊';
       case 'audio': return '🎵';
       default: return '📄';
     }
@@ -161,7 +161,7 @@ export default function ContentModeration() {
       case 'image': return '#2ed573';
       case 'video': return '#ff4757';
       case 'link': return '#ffa502';
-      case 'poll': return '#3742fa';
+      // case 'poll': return '#3742fa';
       case 'audio': return '#f39c12';
       default: return '#ffffff';
     }
@@ -230,7 +230,7 @@ export default function ContentModeration() {
           </div>
           <div className="filter-group">
             <h4>Type:</h4>
-            {(['all', 'post', 'comment', 'image', 'video', 'link', 'poll', 'audio'] as const).map(type => (
+            {(['all', 'post', 'comment', 'image', 'video', 'link', 'audio'] as const).map(type => (
               <Button
                 variant='primary'
                 size='medium'

@@ -225,8 +225,8 @@ export default function ContentModeration() {
           />
         </div>
 
-        <div className="filter-tabs">
-          <div className="filter-group">
+        <div className="filter-tabs1">
+          <div className="filter-group1">
             <h4>Status:</h4>
             {(['all', 'pending', 'approved', 'rejected'] as const).map(status => (
               <Button
@@ -240,7 +240,7 @@ export default function ContentModeration() {
               </Button>
             ))}
           </div>
-          <div className="filter-group">
+          <div className="filter-group1">
             <h4>Type:</h4>
             {(['all', 'post', 'comment', 'image', 'video', 'link', 'audio'] as const).map(type => (
               <Button

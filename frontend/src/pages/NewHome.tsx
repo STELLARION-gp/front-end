@@ -11,6 +11,7 @@ import FeaturesSection from '../components/HomeComponents/FeatureSection';
 import CTASection from '../components/HomeComponents/CTASection';
 import astro from '../assets/astro.png';
 import astro2 from '../assets/astro3.png';
+//import ActorsCarousel from '../components/HomeComponents/ActorsCarousel';
 
 
 const NewHome = () => {
@@ -59,6 +60,7 @@ const NewHome = () => {
             <div id="features">
               <FeaturesSection />
             </div>
+            {/* <ActorsCarousel /> */}
             <CTASection />
           </div>
 

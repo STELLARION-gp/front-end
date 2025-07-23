@@ -1,6 +1,7 @@
 import React from 'react';
 import { useRecommendedEvents } from '../../contexts/mentor/RecommendedEventsContext';
 import type { Event } from '../../contexts/mentor/RecommendedEventsContext';
+import '../../styles/pages/mentor/RecommendedEvents.scss';
 
 const allEvents: Event[] = [
   {
@@ -11,12 +12,27 @@ const allEvents: Event[] = [
   {
     id: 2,
     title: 'Robotics Bootcamp',
-    description: 'Hands-on robotics building and programming for all levels.',
+    description: 'Hands-on robotics building and programming for all levels.',  
   },
   {
     id: 3,
     title: 'Leadership Workshop',
     description: 'Develop leadership skills with group activities and expert talks.',
+  },
+  {
+    id: 4,
+    title: 'Solar System Exploration',
+    description: 'Journey through our solar system with interactive models and simulations.',
+  },
+  {
+    id: 5,
+    title: 'Deep Space Photography',
+    description: 'Learn astrophotography techniques to capture stunning celestial images.',
+  },
+  {
+    id: 6,
+    title: 'Telescope Building Workshop',
+    description: 'Build your own telescope from scratch with expert guidance.',
   },
 ];
 
@@ -24,34 +40,49 @@ const RecommendEventsPage: React.FC = () => {
   const { recommendedEvents, addEvent } = useRecommendedEvents();
 
   return (
-    <div className="max-w-4xl mx-auto py-8 px-4">
-      <h2 className="text-2xl font-bold text-gray-800 mb-8">All Events</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="dashboard-page mentor-dashboard mentor-dashboard-large recommend-events-page"
+         style={{ 
+           minHeight: '100vh', 
+           width: '100%', 
+           background: 'rgba(59,130,246,0.07)', 
+           borderRadius: 16, 
+           padding: '2rem', 
+           boxSizing: 'border-box' 
+         }}>
+      
+      <div className="page-header">
+        <h2 className="page-title">Recommend Events to Mentees</h2>
+        <p className="page-description">
+          Choose from available events to recommend to your mentees based on their interests and learning goals.
+        </p>
+      </div>
+
+      <div className="events-grid">
         {allEvents.map(event => {
           const isRecommended = recommendedEvents.some(e => e.id === event.id);
           return (
-            <div key={event.id} className="bg-white rounded-lg shadow p-6 flex flex-col justify-between border border-gray-100">
-              <div>
-                <h3 className="text-lg font-semibold text-blue-700 mb-2">{event.title}</h3>
-                <p className="text-gray-700">{event.description}</p>
+            <div key={event.id} className="event-card">
+              <div className="event-content">
+                <h3 className="event-title">{event.title}</h3>
+                <p className="event-description">{event.description}</p>
               </div>
-              <button
-                className={`mt-4 px-4 py-2 rounded font-medium self-end transition
-                  ${isRecommended
-                    ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                    : 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white hover:from-blue-600 hover:to-indigo-600'
-                  }`}
-                onClick={() => addEvent(event)}
-                disabled={isRecommended}
-              >
-                {isRecommended ? 'Recommended' : 'Recommend'}
-              </button>
+              
+              <div className="event-actions">
+                <button
+                  className={`recommend-btn ${isRecommended ? 'recommended' : ''}`}
+                  onClick={() => addEvent(event)}
+                  disabled={isRecommended}
+                >
+                  {isRecommended ? 'Already Recommended' : 'Recommend Event'}
+                </button>
+              </div>
             </div>
           );
         })}
       </div>
+      
     </div>
   );
 };
 
-export default RecommendEventsPage; 
+export default RecommendEventsPage;

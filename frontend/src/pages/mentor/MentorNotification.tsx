@@ -60,8 +60,8 @@ const MentorNotification: React.FC = () => {
             </div>
             <div className="mentor-notification__message">
               {menteeCount >= maxMentees 
-                ? `Availability automatically turned off. You have reached your maximum of ${maxMentees} mentees.`
-                : `Availability automatically turned on. You now have ${menteeCount} mentees (max: ${maxMentees}).`
+                ? `Availability automatically turned off.`
+                : `Availability automatically turned on.`
               }
             </div>
           </div>

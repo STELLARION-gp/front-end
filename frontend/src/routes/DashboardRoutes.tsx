@@ -19,7 +19,8 @@ import PollsModeration from '../pages/moderator/PollsModeration';
 import PollsDetails from '../pages/moderator/PollsDetails';
 import SpotsModeration from '../pages/moderator/SpotsModeration';
 import SpotsDetails from '../pages/moderator/SpotsDetails';
-import NightCampModeration from '../pages/moderator/NightCampModeration';
+import CreateNightCamp from '../pages/moderator/CreateNightCamp';
+import NightCampsModeration from '../pages/moderator/NightCamps';
 import EventModeration from '../pages/moderator/EventModeration';
 import PaymentProcessing from '../pages/guide/PaymentProcessing';
 import Button from '../components/Button';
@@ -31,6 +32,7 @@ import AuthorProfilePageWrapper from '../pages/learner/AuthorProfilePageWrapper'
 import NasaImagesPage from '../pages/learner/NasaImagesPage';
 
 import NightCamps from '../pages/enthuasist/NightCamps';
+import VolunteerManagement from '../pages/enthuasist/VolunteerManagement';
 import Stargazing from '../pages/enthuasist/Stargazing';
 
 import ServiceListing from '../pages/guide/ServiceListing';
@@ -99,11 +101,9 @@ import Mentor from '../pages/admin/Mentor';
 import MentorApplication from '../pages/admin/MentorApplication';
 import MentorProfiles from '../pages/admin/MentorProfiles';
 import MentorProfileDetail from '../pages/admin/MentorProfileDetail';
-
 import FinanceAnalytics from '../pages/admin/FinanceAnalytics';
-
-import CreateNightCamp from '../pages/moderator/CreateNightCamp';
 import NightCampDetailsModerator from '../pages/moderator/NightCampDetails';
+import EditNightCamp from '../pages/moderator/EditNightCamp';
 import CreateEvent from '../pages/moderator/CreateEvent';
 import EventDetails from '../pages/moderator/EventDetails';
 
@@ -556,7 +556,23 @@ const DashboardRoutes = () => {
                 }
             />
             <Route
+                path="moderation/night-camps/edit/:id"
+                element={
+                    <RoleGuard allowedRoles={['moderator', 'admin']}>
+                        <EditNightCamp />
+                    </RoleGuard>
+                }
+            />
+            <Route
                 path="moderation/night-camps/create"
+                element={
+                    <RoleGuard allowedRoles={['moderator', 'admin']}>
+                        <CreateNightCamp />
+                    </RoleGuard>
+                }
+            />
+            <Route
+                path="moderation/create-night-camp"
                 element={
                     <RoleGuard allowedRoles={['moderator', 'admin']}>
                         <CreateNightCamp />
@@ -567,7 +583,7 @@ const DashboardRoutes = () => {
                 path="moderation/night-camps"
                 element={
                     <RoleGuard allowedRoles={['moderator', 'admin']}>
-                        <NightCampModeration />
+                        <NightCampsModeration />
                     </RoleGuard>
                 }
             />
@@ -636,7 +652,9 @@ const DashboardRoutes = () => {
                 element={
                     <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
                         <MentorPauseProvider>
+                            <MenteeProvider>
                             <MentorDashboard />
+                            </MenteeProvider>
                         </MentorPauseProvider>
                     </RoleGuard>
                 }
@@ -729,6 +747,15 @@ const DashboardRoutes = () => {
                 element={
                     <RoleGuard allowedRoles={['enthusiast', 'learner', 'guide','influencer']}>
                         <NightCamps />
+                    </RoleGuard>
+                }
+            />
+
+            <Route
+                path="volunteer-management/:nightCampId"
+                element={
+                    <RoleGuard allowedRoles={['enthusiast', 'influencer', 'guide', 'mentor']}>
+                        <VolunteerManagement />
                     </RoleGuard>
                 }
             />

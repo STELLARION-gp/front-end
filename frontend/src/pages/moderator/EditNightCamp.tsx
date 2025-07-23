@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { FaCalendarAlt, FaMapMarkerAlt, FaUsers, FaDollarSign, FaUpload, FaPlus, FaMinus } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
+import { FaCalendarAlt, FaMapMarkerAlt, FaUsers, FaUpload, FaPlus, FaMinus } from 'react-icons/fa';
+import { useNavigate, useParams } from 'react-router-dom';
 import Button from '../../components/Button';
 import { AuthContext } from '../../contexts/AuthContext';
 import '../../styles/pages/moderator/CreateNightCamp.scss';
 
-interface CreateNightCampForm {
+interface EditNightCampForm {
   name: string;
   organizedBy: string;
   description: string;
@@ -14,7 +14,6 @@ interface CreateNightCampForm {
   location: string;
   numberOfParticipants: number;
   imageUrls: string[];
-  price: number;
   activities: string[];
   equipment: {
     provided: string[];
@@ -23,15 +22,18 @@ interface CreateNightCampForm {
   };
   volunteering: string[];
   emergencyContact: string;
-  duration: string;
-  weatherDependent: boolean;
+  sponsoredBy: string;
+  status: string;
 }
 
-const CreateNightCamp: React.FC = () => {
+const EditNightCamp: React.FC = () => {
   const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const authContext = useContext(AuthContext);
-  const [formData, setFormData] = useState<CreateNightCampForm>({
+  const [formData, setFormData] = useState<EditNightCampForm>({
     name: '',
     organizedBy: '',
     description: '',
@@ -40,7 +42,6 @@ const CreateNightCamp: React.FC = () => {
     location: '',
     numberOfParticipants: 10,
     imageUrls: [''],
-    price: 0,
     activities: [''],
     equipment: {
       provided: [''],
@@ -49,8 +50,8 @@ const CreateNightCamp: React.FC = () => {
     },
     volunteering: [''],
     emergencyContact: '',
-    duration: '',
-    weatherDependent: false
+    sponsoredBy: '',
+    status: 'pending'
   });
 
   // Check authentication and get current user information
@@ -71,18 +72,11 @@ const CreateNightCamp: React.FC = () => {
           return;
         }
 
-        // Set the organized by field with current user's display name
-        const displayName = authContext.userProfile?.displayName || 
-                           `${authContext.userProfile?.firstName || ''} ${authContext.userProfile?.lastName || ''}`.trim() || 
-                           authContext.user?.email || 
-                           'Unknown User';
-        
-        setFormData(prev => ({
-          ...prev,
-          organizedBy: displayName
-        }));
+        if (id) {
+          await fetchNightCamp();
+        }
 
-        console.log('✅ User authenticated as:', displayName, 'Role:', authContext.userProfile?.role);
+        console.log('✅ User authenticated as moderator/admin');
       } catch (error) {
         console.error('Error initializing component:', error);
         navigate('/login');
@@ -90,9 +84,57 @@ const CreateNightCamp: React.FC = () => {
     };
 
     initializeComponent();
-  }, [navigate, authContext]);
+  }, [navigate, authContext, id]);
 
-  const handleInputChange = (field: keyof CreateNightCampForm, value: string | number | boolean) => {
+  const fetchNightCamp = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await fetch(`http://localhost:5000/api/nightcamps/${id}`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch night camp details');
+      }
+
+      const result = await response.json();
+      const camp = result.data;
+
+      // Map backend data to form data
+      setFormData({
+        name: camp.name || '',
+        organizedBy: camp.organized_by || '',
+        description: camp.description || '',
+        date: camp.date ? new Date(camp.date).toISOString().split('T')[0] : '',
+        time: camp.time || '',
+        location: camp.location || '',
+        numberOfParticipants: camp.number_of_participants || 10,
+        imageUrls: camp.image_urls && camp.image_urls.length > 0 ? camp.image_urls : [''],
+        activities: camp.activities && camp.activities.length > 0 
+          ? camp.activities.map((act: any) => act.activity) 
+          : [''],
+        equipment: {
+          provided: camp.equipment?.filter((eq: any) => eq.category === 'provided').map((eq: any) => eq.equipment_name) || [''],
+          required: camp.equipment?.filter((eq: any) => eq.category === 'required').map((eq: any) => eq.equipment_name) || [''],
+          optional: camp.equipment?.filter((eq: any) => eq.category === 'optional').map((eq: any) => eq.equipment_name) || ['']
+        },
+        volunteering: camp.volunteering && camp.volunteering.length > 0 
+          ? camp.volunteering.map((vol: any) => vol.volunteering_role) 
+          : [''],
+        emergencyContact: camp.emergency_contact || '',
+        sponsoredBy: camp.sponsored_by || '',
+        status: camp.status || 'pending'
+      });
+
+    } catch (error) {
+      console.error('Error fetching night camp:', error);
+      setError('Failed to load night camp details');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleInputChange = (field: keyof EditNightCampForm, value: string | number | boolean) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -167,8 +209,8 @@ const CreateNightCamp: React.FC = () => {
       // Filter out empty strings from arrays
       const cleanedData = {
         name: formData.name,
-        // organized_by will be set by backend from authenticated user
-        sponsored_by: '', // Add sponsored_by field if needed
+        organized_by: formData.organizedBy,
+        sponsored_by: formData.sponsoredBy,
         description: formData.description,
         date: formData.date,
         time: formData.time,
@@ -182,17 +224,18 @@ const CreateNightCamp: React.FC = () => {
           required: formData.equipment.required.filter(item => item.trim() !== ''),
           optional: formData.equipment.optional.filter(item => item.trim() !== '')
         },
-        volunteering_roles: formData.volunteering.filter(role => role.trim() !== '')
+        volunteering_roles: formData.volunteering.filter(role => role.trim() !== ''),
+        status: formData.status
       };
 
-      console.log('🏕️ Creating night camp with data:', cleanedData);
+      console.log('🏕️ Updating night camp with data:', cleanedData);
 
       // Get Firebase ID token for authentication
       const token = await authContext.user.getIdToken();
       console.log('🔑 Firebase token obtained:', token ? 'Yes' : 'No');
 
-      const response = await fetch('http://localhost:5000/api/nightcamps/create', {
-        method: 'POST',
+      const response = await fetch(`http://localhost:5000/api/nightcamps/${id}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -205,17 +248,17 @@ const CreateNightCamp: React.FC = () => {
       if (!response.ok) {
         const errorData = await response.text();
         console.error('❌ Server error:', errorData);
-        throw new Error(`Failed to create night camp: ${response.status}`);
+        throw new Error(`Failed to update night camp: ${response.status}`);
       }
 
       const result = await response.json();
-      console.log('✅ Night Camp Created successfully:', result);
+      console.log('✅ Night Camp Updated successfully:', result);
       
-      // Navigate to night camps list or show success message
+      // Navigate back to night camps list
       navigate('/dashboard/moderation/night-camps');
     } catch (error) {
-      console.error('❌ Error creating night camp:', error);
-      // You can add a toast notification here
+      console.error('❌ Error updating night camp:', error);
+      setError('Failed to update night camp');
       if (error instanceof Error && error.message.includes('authentication')) {
         navigate('/login');
       }
@@ -223,6 +266,62 @@ const CreateNightCamp: React.FC = () => {
       setIsSubmitting(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="create-nightcamp">
+        <div className="create-header">
+          <div className="header-content">
+            <div className="header-left">
+              <Button
+                variant="ghost"
+                size="medium"
+                onClick={() => navigate('/dashboard/moderation/night-camps')}
+              >
+                ← Back
+              </Button>
+              <div className="title-section">
+                <h1>Loading Night Camp...</h1>
+                <p>Please wait while we load the camp details</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="create-nightcamp">
+        <div className="create-header">
+          <div className="header-content">
+            <div className="header-left">
+              <Button
+                variant="ghost"
+                size="medium"
+                onClick={() => navigate('/dashboard/moderation/night-camps')}
+              >
+                ← Back
+              </Button>
+              <div className="title-section">
+                <h1>Error Loading Night Camp</h1>
+                <p>{error}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="error-actions">
+          <Button variant="primary" onClick={fetchNightCamp}>
+            Try Again
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="create-nightcamp">
@@ -238,8 +337,8 @@ const CreateNightCamp: React.FC = () => {
               ← Back
             </Button>
             <div className="title-section">
-              <h1>Create Night Camp Event</h1>
-              <p>Create a new overnight stargazing experience</p>
+              <h1>Edit Night Camp Event</h1>
+              <p>Update the overnight stargazing experience details</p>
             </div>
           </div>
         </div>
@@ -270,18 +369,36 @@ const CreateNightCamp: React.FC = () => {
                     type="text"
                     id="organizedBy"
                     value={formData.organizedBy}
-                    placeholder="Loading user information..."
-                    readOnly
-                    disabled
-                    style={{ 
-                      backgroundColor: '#f5f5f5', 
-                      color: '#666', 
-                      cursor: 'not-allowed' 
-                    }}
+                    onChange={(e) => handleInputChange('organizedBy', e.target.value)}
+                    placeholder="Organizer name"
+                    required
                   />
-                  <small style={{ color: '#666', fontSize: '0.85em' }}>
-                    This field is automatically populated with your name
-                  </small>
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="sponsoredBy">Sponsored By</label>
+                  <input
+                    type="text"
+                    id="sponsoredBy"
+                    value={formData.sponsoredBy}
+                    onChange={(e) => handleInputChange('sponsoredBy', e.target.value)}
+                    placeholder="Sponsor name (optional)"
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="status">Status</label>
+                  <select
+                    id="status"
+                    value={formData.status}
+                    onChange={(e) => handleInputChange('status', e.target.value)}
+                  >
+                    <option value="pending">Pending</option>
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
+                    <option value="needs-review">Needs Review</option>
+                  </select>
                 </div>
               </div>
 
@@ -315,24 +432,12 @@ const CreateNightCamp: React.FC = () => {
                   />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="time">Start Time *</label>
+                  <label htmlFor="time">Start Time</label>
                   <input
                     type="time"
                     id="time"
                     value={formData.time}
                     onChange={(e) => handleInputChange('time', e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="duration">Duration *</label>
-                  <input
-                    type="text"
-                    id="duration"
-                    value={formData.duration}
-                    onChange={(e) => handleInputChange('duration', e.target.value)}
-                    placeholder="e.g., 10 hours"
-                    required
                   />
                 </div>
               </div>
@@ -365,38 +470,6 @@ const CreateNightCamp: React.FC = () => {
                     required
                   />
                 </div>
-              </div>
-
-              <div className="form-group">
-                <label className="checkbox-label">
-                  <input
-                    type="checkbox"
-                    checked={formData.weatherDependent}
-                    onChange={(e) => handleInputChange('weatherDependent', e.target.checked)}
-                  />
-                  <span className="checkmark"></span>
-                  Weather Dependent Event
-                </label>
-              </div>
-            </div>
-
-            {/* Pricing */}
-            <div className="form-section">
-              <h3>Pricing</h3>
-              <div className="form-group">
-                <label htmlFor="price">
-                  <FaDollarSign /> Total Price per Person *
-                </label>
-                <input
-                  type="number"
-                  id="price"
-                  min="0"
-                  step="0.01"
-                  value={formData.price}
-                  onChange={(e) => handleInputChange('price', parseFloat(e.target.value))}
-                  placeholder="0.00"
-                  required
-                />
               </div>
             </div>
 
@@ -660,7 +733,7 @@ const CreateNightCamp: React.FC = () => {
               size="large"
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'Creating...' : 'Create Night Camp'}
+              {isSubmitting ? 'Updating...' : 'Update Night Camp'}
             </Button>
           </div>
         </form>
@@ -669,4 +742,4 @@ const CreateNightCamp: React.FC = () => {
   );
 };
 
-export default CreateNightCamp;
+export default EditNightCamp;

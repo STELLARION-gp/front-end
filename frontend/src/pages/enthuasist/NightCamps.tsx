@@ -25,6 +25,7 @@ const NightCamps = () => {
   const [error, setError] = useState<string | null>(null);
   const [applicationsError, setApplicationsError] = useState<string | null>(null);
   const [registrationsError, setRegistrationsError] = useState<string | null>(null);
+  const [campApprovedCounts, setCampApprovedCounts] = useState<{ [campId: number]: number }>({});
 
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -48,10 +49,32 @@ const NightCamps = () => {
     try {
       const camps = await nightCampService.getAllNightCamps();
       setRealNightCamps(camps);
+      
+      // Load approved counts for each camp
+      await loadApprovedCounts(camps);
     } catch (err) {
       console.error('Failed to load night camps:', err);
       setError('Failed to load night camps. Please try again.');
     }
+  };
+
+  const loadApprovedCounts = async (camps: NightCampWithDetails[]) => {
+    const counts: { [campId: number]: number } = {};
+    
+    // Fetch approved count for each camp
+    await Promise.all(
+      camps.map(async (camp) => {
+        try {
+          const managementData = await nightCampService.getVolunteerManagement(camp.id);
+          counts[camp.id] = managementData.totalApproved;
+        } catch (err) {
+          console.error(`Failed to load approved count for camp ${camp.id}:`, err);
+          counts[camp.id] = 0; // Default to 0 if we can't fetch the data
+        }
+      })
+    );
+    
+    setCampApprovedCounts(counts);
   };
 
   const loadUserApplications = async () => {
@@ -82,6 +105,8 @@ const NightCamps = () => {
       alert('Registration submitted successfully! Your registration is pending approval.');
       // Refresh the registrations list
       loadUserRegistrations();
+      // Refresh approved counts for all camps
+      await loadApprovedCounts(realNightCamps);
       // Close any open modals
       setIsDetailsModalOpen(false);
       setIsModalOpen(false);
@@ -253,13 +278,13 @@ const NightCamps = () => {
                   <span className="camp-participation__label">Available Spots</span>
                   <div className="camp-participation__count">
                     <span className="count-numbers">
-                      {camp.number_of_participants} spots
+                      {(camp.number_of_participants - (campApprovedCounts[camp.id] || 0))} / {camp.number_of_participants} spots
                     </span>
                   </div>
                 </div>
                 <ProgressBar 
                   className="progress-bar--participants"
-                  current={0}
+                  current={campApprovedCounts[camp.id] || 0}
                   max={camp.number_of_participants}
                 />
               </div>

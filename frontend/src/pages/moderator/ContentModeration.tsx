@@ -39,6 +39,18 @@ const mockContentItems: ContentItem[] = [
   {
     id: '2',
     type: 'comment',
+    content: 'හොඳින් මතක තබා ගතයුතුයි.. මෙවැනි පෝසට් දාන්න එපා',
+    author: 'හිත් පහේ දත්ත',
+    reportedBy: ['PhotoPro789'],
+    reportReason: ['Harassment'],
+    status: 'pending',
+    createdAt: new Date('2025-01-15T09:15:00'),
+    priority: 'medium',
+    details: 'Comment appears to be attacking the original poster without constructive criticism.'
+  },
+  {
+    id: '8',
+    type: 'comment',
     content: 'This is definitely fake, no way you captured this with a phone camera!',
     author: 'SkepticalViewer',
     reportedBy: ['PhotoPro789'],

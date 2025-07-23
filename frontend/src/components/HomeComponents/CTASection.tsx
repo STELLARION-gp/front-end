@@ -1,9 +1,10 @@
 
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Rocket, ArrowRight, Sparkles, Globe } from 'lucide-react';
+import { Rocket, ArrowRight, Sparkles } from 'lucide-react';
 import { useI18n } from '../../i18n/useI18n';
 import Button from '../Button';
+import { useNavigate } from 'react-router-dom';
 import '../../styles/components/CTASection.scss';
 
 const CTASection: React.FC = () => {
@@ -30,6 +31,10 @@ const CTASection: React.FC = () => {
     const { t } = useI18n();
     const { tArray } = useI18n();
     const ctaFeatures = tArray('cta.features') as string[];
+    const navigate = useNavigate();
+    const handleCTAPrimary = () => {
+        navigate('/dashboard/overview');
+    };
     return (
         <section ref={sectionRef} className="cta-section">
             <div className="cta-container">
@@ -67,17 +72,18 @@ const CTASection: React.FC = () => {
                                 className="cta-primary"
                                 icon={<ArrowRight className="w-5 h-5" />}
                                 iconPosition="right"
+                                onClick={handleCTAPrimary}
                             >
                                 {t('cta.primary')}
                             </Button>
-                            <Button
+                            {/* <Button
                                 variant="primary"
                                 className="cta-primary"
                                 icon={<Globe className="w-5 h-5" />}
                                 iconPosition="left"
                             >
                                 {t('cta.demo')}
-                            </Button>
+                            </Button> */}
                         </div>
 
                         <div className="cta-features">

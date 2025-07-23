@@ -300,6 +300,9 @@
               justify-content: space-between;
               align-items: center;
               padding: 0.5rem 0;
+              background-color: rgba(194, 161, 252, 0.1);
+              padding: 10px 10px;
+              border-radius: 8px;
 
               .event-label {
                 color: white;
@@ -313,9 +316,9 @@
                 display: flex;
                 align-items: center;
                 gap: 0.25rem;
-                background-color: rgba(194, 161, 252, 0.1);
-                padding: 0.25rem 1rem;
-                border-radius: 10px;
+                // background-color: rgba(194, 161, 252, 0.1);
+                // padding: 0.25rem 1rem;
+                // border-radius: 10px;
 
                 &.warning {
                   color: #F59E0B;

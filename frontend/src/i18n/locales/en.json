@@ -12,6 +12,7 @@
         "plans": "Subscription Plans",
         "subscription": "Subscription",
         "adminPanel": "Admin Panel",
+        "backToHome": "Back to Home",
         "goToHome": "Go to Home",
         "scrollToTop": "Scroll to top",
         "currentLanguage": "Current language",
@@ -322,6 +323,7 @@
             "title": "Quick Links",
             "home": "Home",
             "about": "About",
+            "features": "Features",
             "dashboard": "Dashboard",
             "login": "Login"
         },

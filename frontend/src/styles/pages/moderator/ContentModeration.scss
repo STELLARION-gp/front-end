@@ -1,7 +1,6 @@
 // Content Moderation - Futuristic Space Theme
 .content-moderation {
   min-height: 100vh;
-  // background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
   color: #ffffff;
   font-family: 'Inter', 'Segoe UI', sans-serif;
 
@@ -110,7 +109,6 @@
     .search-box {
       position: relative;
       flex: 1;
-      // max-width: 400px;
       width: 100%;
 
       .search-icon {
@@ -144,9 +142,24 @@
       }
     }
 
-    .filter-tabs {
+    .filter-tabs1 {
       display: flex;
       gap: 0.5rem;
+      flex-wrap: wrap;
+
+      .filter-group1 {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+
+        h4 {
+          color: rgba(255, 255, 255, 0.7);
+          margin: 0 0.5rem 0 0;
+          font-size: 0.9rem;
+          font-weight: 500;
+        }
+      }
 
       .filter-tab {
         background: rgba(255, 255, 255, 0.05);
@@ -175,10 +188,6 @@
   .moderation-content {
     max-width: 1400px;
     margin: 0 auto;
-    // padding: 0 2rem 2rem;
-    display: grid;
-    // grid-template-columns: 1fr 400px;
-    // gap: 2rem;
     min-height: 60vh;
 
     .content-list {
@@ -186,6 +195,14 @@
       flex-direction: column;
       gap: 1rem;
       margin-bottom: 10px;
+      padding-bottom: 10px;
+
+      .empty-state {
+        text-align: center;
+        padding: 2rem;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 1.1rem;
+      }
 
       .content-item {
         background: rgba(255, 255, 255, 0.03);
@@ -217,13 +234,15 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            font-weight: 600;
 
             .type-icon {
-              font-size: 1.2rem;
+              font-size: 1rem;
+              display: flex;
+              align-items: center;
             }
 
             .type-label {
-              background: rgba(255, 255, 255, 0.1);
               padding: 0.25rem 0.75rem;
               border-radius: 15px;
               font-size: 0.8rem;
@@ -250,7 +269,6 @@
           .status-indicator {
             display: flex;
             align-items: center;
-            // margin-left: 0.75rem;
             padding: 0.22rem 0.7rem;
             border-radius: 15px;
             font-size: 0.8rem;
@@ -295,6 +313,11 @@
             gap: 1rem;
             font-size: 0.85rem;
             color: rgba(255, 255, 255, 0.6);
+
+            .community {
+              color: #667eea;
+              font-weight: 500;
+            }
           }
         }
 
@@ -376,7 +399,31 @@
             }
           }
         }
+      }
 
+      // Type-specific colors
+      .content-item {
+        .item-type[style*="color: #667eea"] { // post
+          .type-label { background: rgba(102, 126, 234, 0.2); }
+        }
+        .item-type[style*="color: #764ba2"] { // comment
+          .type-label { background: rgba(118, 75, 162, 0.2); }
+        }
+        .item-type[style*="color: #2ed573"] { // image
+          .type-label { background: rgba(46, 213, 115, 0.2); }
+        }
+        .item-type[style*="color: #ff4757"] { // video
+          .type-label { background: rgba(255, 71, 87, 0.2); }
+        }
+        .item-type[style*="color: #ffa502"] { // link
+          .type-label { background: rgba(255, 165, 2, 0.2); }
+        }
+        .item-type[style*="color: #3742fa"] { // poll
+          .type-label { background: rgba(55, 66, 250, 0.2); }
+        }
+        .item-type[style*="color: #f39c12"] { // audio
+          .type-label { background: rgba(243, 156, 18, 0.2); }
+        }
       }
     }
 
@@ -568,10 +615,30 @@
 
       .filter-tabs {
         justify-content: center;
+
+        .filter-group {
+          flex-direction: column;
+          align-items: flex-start;
+          
+          h4 {
+            margin-bottom: 0.5rem;
+          }
+        }
       }
     }
 
     .content-item {
+      .item-header {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+      
+      .item-meta {
+        flex-direction: column;
+        gap: 0.25rem;
+        align-items: flex-start;
+      }
+
       .item-actions {
         margin-top: 1rem;
         justify-content: center;

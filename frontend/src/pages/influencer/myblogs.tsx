@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Star, Edit2, Trash2, MessageCircle, Eye, Heart, Plus, Save, X, Send, BookOpen, Users, Calendar, EyeOff } from 'lucide-react';
+import { Star, MessageCircle, Heart, Plus, Save, X, Send, BookOpen, Users, Calendar } from 'lucide-react';
+import { FaEdit, FaTrash, FaEye, FaEyeSlash, FaHeart, FaComment } from 'react-icons/fa';
 import { useNavigate } from "react-router-dom";
 import Button from '../../components/Button';
 import InputField from '../../components/InputField';
@@ -64,123 +65,95 @@ const MyBlogCard: React.FC<{
     onTogglePublish: (id: number) => void;
     onView: (blog: Blog) => void;
 }> = ({ blog, onEdit, onDelete, onTogglePublish, onView }) => {
-    const renderStars = (rating: number) => {
-        const stars = [];
-        const fullStars = Math.floor(rating);
-        const hasHalfStar = rating % 1 !== 0;
-        
-        for (let i = 0; i < fullStars; i++) {
-            stars.push(<Star key={i} className="star filled" size={16} />);
-        }
-        
-        if (hasHalfStar) {
-            stars.push(<Star key="half" className="star half-filled" size={16} />);
-        }
-        
-        const emptyStars = 5 - Math.ceil(rating);
-        for (let i = 0; i < emptyStars; i++) {
-            stars.push(<Star key={`empty-${i}`} className="star empty" size={16} />);
-        }
-        
-        return stars;
-    };
-
     return (
-        <div className={`blog-card ${!blog.published ? 'draft' : ''}`}>
-            <div className="blog-image-container">
+        <div className={`myblog-card ${!blog.published ? 'myblog-card--draft' : 'myblog-card--published'}`}>
+            <div className="myblog-card__image-container">
                 {blog.image ? (
-                    <img src={blog.image} alt={blog.title} className="blog-image" />
+                    <img src={blog.image} alt={blog.title} className="myblog-card__image" />
                 ) : (
-                    <div className="blog-image-placeholder">
+                    <div className="myblog-card__image-placeholder">
                         <BookOpen size={48} />
                     </div>
                 )}
                 
-                <div className="blog-status-badge">
+                <div className="myblog-card__status-badge">
                     {blog.published ? (
-                        <span className="published-badge">Published</span>
+                        <span className="myblog-card__badge myblog-card__badge--published">Published</span>
                     ) : (
-                        <span className="draft-badge">Draft</span>
+                        <span className="myblog-card__badge myblog-card__badge--draft">Draft</span>
                     )}
                 </div>
 
-                <div className="blog-actions-overlay">
+                <div className="myblog-card__actions-overlay">
                     <button 
-                        className="action-btn edit-btn"
+                        className="myblog-card__action-btn myblog-card__action-btn--edit"
                         onClick={() => onEdit(blog.id)}
                         title="Edit"
                     >
-                        <Edit2 size={16} />
+                        ✏️
                     </button>
                     <button 
-                        className="action-btn delete-btn"
+                        className="myblog-card__action-btn myblog-card__action-btn--delete"
                         onClick={() => onDelete(blog.id)}
                         title="Delete"
                     >
-                        <Trash2 size={16} />
+                        🗑️
                     </button>
                     <button 
-                        className="action-btn publish-btn"
+                        className="myblog-card__action-btn myblog-card__action-btn--publish"
                         onClick={() => onTogglePublish(blog.id)}
                         title={blog.published ? "Unpublish" : "Publish"}
                     >
-                        {blog.published ? <EyeOff size={16} /> : <Eye size={16} />}
+                        {blog.published ? '🙈' : '👁️'}
                     </button>
                 </div>
             </div>
 
-            <div className="blog-content">
-                <h3 className="blog-title" onClick={() => onView(blog)}>
+            <div className="myblog-card__content">
+                <h3 className="myblog-card__title" onClick={() => onView(blog)}>
                     {blog.title}
                 </h3>
 
-                <div className="blog-meta">
-                    <div className="meta-item">
+                <div className="myblog-card__meta">
+                    <div className="myblog-card__meta-item">
                         <Users size={14} />
                         <span>{blog.author}</span>
                     </div>
-                    <div className="meta-item">
+                    <div className="myblog-card__meta-item">
                         <Calendar size={14} />
                         <span>{new Date(blog.createdAt || blog.created_at || blog.date || new Date()).toLocaleDateString()}</span>
                     </div>
                 </div>
 
-                <div className="blog-rating">
-                    <div className="stars">
-                        {renderStars(blog.rating || 0)}
-                    </div>
-                    <span className="rating-value">{blog.rating || 0}</span>
-                </div>
-
-                <p className="blog-excerpt">
+                <p className="myblog-card__excerpt">
                     {blog.content.length > 120 
                         ? `${blog.content.substring(0, 120)}...` 
                         : blog.content
                     }
                 </p>
 
-                <div className="blog-stats">
-                    <div className="stat-item">
-                        <Eye size={16} />
+                <div className="myblog-card__stats">
+                    <div className="myblog-card__stat-item">
+                        <FaEye size={16} />
                         <span>{blog.reach || blog.view_count || 0}</span>
                     </div>
-                    <div className="stat-item">
-                        <Heart size={16} />
+                    <div className="myblog-card__stat-item">
+                        <FaHeart size={16} />
                         <span>{blog.likes || blog.like_count || 0}</span>
                     </div>
-                    <div className="stat-item" title={`${blog.comment_count || 0} comment${(blog.comment_count || 0) !== 1 ? 's' : ''}`}>
-                        <MessageCircle size={16} />
+                    <div className="myblog-card__stat-item" title={`${blog.comment_count || 0} comment${(blog.comment_count || 0) !== 1 ? 's' : ''}`}>
+                        <FaComment size={16} />
                         <span>{blog.comment_count || 0}</span>
                     </div>
                 </div>
 
-                <div className="blog-actions-bottom">
-                    <button 
-                        className="see-more-btn"
+                <div className="myblog-card__actions-bottom">
+                    <Button
+                        className="myblog-card__see-more-btn"
                         onClick={() => onView(blog)}
                     >
                         See More
-                    </button>
+                    </Button>
                 </div>
             </div>
         </div>
@@ -1586,7 +1559,7 @@ export default function MyBlogs() {
                                     onClick={() => handlePublishBlog()}
                                     disabled={loading || imageUploading || !newBlog.title.trim() || !newBlog.content.trim()}
                                 >
-                                    <Eye size={16} />
+                                    <FaEye size={16} />
                                     {editingId ? 'Update & Publish' : 'Publish Blog'}
                                 </Button>
                             </div>
@@ -1632,184 +1605,122 @@ export default function MyBlogs() {
             )}
 
             {selectedBlog && (
-                <div className="blog-modal-overlay">
-                    <div className="blog-modal">
-                        <div className="modal-header">
-                            <h2>{selectedBlog.title}</h2>
-                            <Button onClick={() => setSelectedBlog(null)}>
+                <div className="stellarion-blog-detail-overlay">
+                    <div className="stellarion-blog-detail-modal">
+                        <div className="stellarion-modal-header">
+                            <h2 className="stellarion-modal-title">{selectedBlog.title}</h2>
+                            <button className="stellarion-modal-close" onClick={() => setSelectedBlog(null)}>
                                 <X size={20} />
-                            </Button>
+                            </button>
                         </div>
                         
-                        <div className="modal-content">
+                        <div className="stellarion-modal-content">
                             {selectedBlog.image && (
-                                <img src={selectedBlog.image} alt={selectedBlog.title} className="modal-image" />
+                                <img src={selectedBlog.image} alt={selectedBlog.title} className="stellarion-modal-image" />
                             )}
                             
-                            <div className="modal-meta">
-                                <span className="author">By {selectedBlog.author}</span>
-                                <span className="date">{new Date(selectedBlog.createdAt || selectedBlog.created_at || selectedBlog.date || new Date()).toLocaleDateString()}</span>
-                                <div className="rating">
+                            <div className="stellarion-modal-meta">
+                                <span className="stellarion-meta-author">By {selectedBlog.author}</span>
+                                <span className="stellarion-meta-date">{new Date(selectedBlog.createdAt || selectedBlog.created_at || selectedBlog.date || new Date()).toLocaleDateString()}</span>
+                                <div className="stellarion-meta-rating">
                                     {renderStars(selectedBlog.rating || 0)}
                                     <span>{selectedBlog.rating || 0}</span>
                                 </div>
-                                <span className={`status ${selectedBlog.published ? 'published' : 'draft'}`}>
+                                <span className={`stellarion-meta-status ${selectedBlog.published ? 'stellarion-status-published' : 'stellarion-status-draft'}`}>
                                     {selectedBlog.published ? 'Published' : 'Draft'}
                                 </span>
                             </div>
                             
-                            <div className="modal-stats">
-                                <span><Eye size={16} /> {selectedBlog.reach || selectedBlog.view_count || 0} views</span>
-                                <span><Heart size={16} /> {selectedBlog.likes || selectedBlog.like_count || 0} likes</span>
-                                <span><MessageCircle size={16} /> {selectedBlog.comment_count || 0} comments</span>
+                            <div className="stellarion-modal-stats">
+                                <span className="stellarion-stat-item"><FaEye size={16} /> {selectedBlog.reach || selectedBlog.view_count || 0} views</span>
+                                <span className="stellarion-stat-item"><FaHeart size={16} /> {selectedBlog.likes || selectedBlog.like_count || 0} likes</span>
+                                <span className="stellarion-stat-item"><FaComment size={16} /> {selectedBlog.comment_count || 0} comments</span>
                             </div>
                             
-                            <div className="modal-text">
+                            <div className="stellarion-modal-text">
                                 <p>{selectedBlog.content}</p>
                             </div>
 
-                            <div className="modal-actions" style={{ display: 'flex', gap: '1rem', margin: '1rem 0', flexWrap: 'wrap' }}>
+                            <div className="stellarion-modal-actions">
                                 <Button 
                                     onClick={() => {
                                         setSelectedBlog(null);
                                         handleEdit(selectedBlog.id);
                                     }} 
                                     variant="border"
+                                    className="stellarion-action-btn stellarion-action-edit"
                                 >
-                                    <Edit2 size={16} />
+                                    <FaEdit size={16} />
                                     Edit
                                 </Button>
                                 <Button 
                                     onClick={() => handleTogglePublish(selectedBlog.id)}
                                     variant="border"
+                                    className="stellarion-action-btn stellarion-action-publish"
                                 >
-                                    {selectedBlog.published ? <EyeOff size={16} /> : <Eye size={16} />}
+                                    {selectedBlog.published ? <FaEyeSlash size={16} /> : <FaEye size={16} />}
                                     {selectedBlog.published ? 'Unpublish' : 'Publish'}
                                 </Button>
                                 <Button 
                                     onClick={() => handleLike(selectedBlog.id)}
                                     variant={selectedBlog.liked ? 'secondary' : 'border'}
+                                    className={`stellarion-action-btn stellarion-action-like ${selectedBlog.liked ? 'stellarion-liked' : ''}`}
                                 >
                                     <Heart size={16} fill={selectedBlog.liked ? 'currentColor' : 'none'} />
                                     {selectedBlog.liked ? 'Liked' : 'Like'}
                                 </Button>
                             </div>
                             
-                            <div className="comments-section" style={{ marginTop: '2rem', borderTop: '1px solid #e5e7eb', paddingTop: '1.5rem' }}>
-                                <h3>
+                            <div className="stellarion-comments-section">
+                                <h3 className="stellarion-comments-title">
                                     Comments ({selectedBlog.comment_count || 0})
-                                    {commentsLoading && <span style={{ fontSize: '0.875rem', color: '#6b7280', marginLeft: '0.5rem' }}>Loading...</span>}
+                                    {commentsLoading && <span className="stellarion-loading-text">Loading...</span>}
                                 </h3>
                                 
-                                <div className="add-comment" 
-                                // style={{ 
-                                //     display: 'flex', 
-                                //     gap: '0.5rem', 
-                                //     marginBottom: '1.5rem',
-                                //     padding: '1rem',
-                                //     backgroundColor: '#f9fafb',
-                                //     borderRadius: '8px',
-                                //     border: '1px solid #e5e7eb'
-                                // }}
-                                >
+                                <div className="stellarion-add-comment">
                                     <input
                                         type="text"
                                         placeholder="Add a comment..."
                                         value={newComment}
                                         onChange={(e) => setNewComment(e.target.value)}
                                         onKeyPress={(e) => e.key === 'Enter' && handleAddComment(selectedBlog.id)}
-                                        // style={{ 
-                                        //     flex: 1, 
-                                        //     padding: '0.75rem', 
-                                        //     borderRadius: '6px', 
-                                        //     border: '1px solid #d1d5db',
-                                        //     backgroundColor: 'white',
-                                        //     fontSize: '0.875rem'
-                                        // }}
+                                        className="stellarion-comment-input"
                                     />
                                     <Button 
                                         onClick={() => handleAddComment(selectedBlog.id)}
                                         disabled={!newComment.trim()}
+                                        className="stellarion-comment-submit"
                                     >
                                         <Send size={16} />
                                     </Button>
                                 </div>
                                 
-                                <div className="comments-list" style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                                <div className="stellarion-comments-list">
                                     {(selectedBlog.comments || []).length === 0 ? (
-                                         <div 
-                                        // style={{ 
-                                        //     textAlign: 'center', 
-                                        //     padding: '2rem', 
-                                        //     color: '#6b7280', 
-                                        //     backgroundColor: '#f9fafb',
-                                        //     borderRadius: '8px',
-                                        //     border: '1px dashed #d1d5db'
-                                        // }}
-                                        >
-                                            <MessageCircle size={24} style={{ margin: '0 auto 0.5rem', opacity: 0.5 }} />
-                                            <p style={{ fontStyle: 'italic', margin: 0 }}>
-                                                No comments yet. Be the first to comment!
-                                            </p>
+                                         <div className="stellarion-no-comments">
+                                            <MessageCircle size={24} />
+                                            <p>No comments yet. Be the first to comment!</p>
                                         </div>
                                     ) : (
-                                        (selectedBlog.comments || []).map((comment, index) => (
-                                            <div key={comment.id} className="comment" 
-                                            // style={{ 
-                                            //     marginBottom: '1rem',
-                                            //     padding: '1rem',
-                                            //     backgroundColor: index % 2 === 0 ? '#ffffff' : '#f9fafb',
-                                            //     borderRadius: '8px',
-                                            //     border: '1px solid #e5e7eb'
-                                            // }}
-                                            >
-                                                <div className="comment-header" 
-                                                // style={{ 
-                                                //     display: 'flex', 
-                                                //     justifyContent: 'space-between', 
-                                                //     alignItems: 'center',
-                                                //     marginBottom: '0.5rem'
-                                                // }}
-                                                >
-                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                                        <span className="comment-author" 
-                                                        // style={{ 
-                                                        //     fontWeight: '600', 
-                                                        //     color: '#1f2937',
-                                                        //     fontSize: '0.875rem'
-                                                        // }}
-                                                        >
-                                                            {comment.user}
-                                                        </span>
-                                                        <span className="comment-timestamp" 
-                                                        // style={{ 
-                                                        //     color: '#6b7280',
-                                                        //     fontSize: '0.75rem'
-                                                        // }}
-                                                        >
-                                                            {comment.date}
-                                                        </span>
+                                        (selectedBlog.comments || []).map((comment) => (
+                                            <div key={comment.id} className="stellarion-comment">
+                                                <div className="stellarion-comment-header">
+                                                    <div className="stellarion-comment-user-info">
+                                                        <span className="stellarion-comment-author">{comment.user}</span>
+                                                        <span className="stellarion-comment-timestamp">{comment.date}</span>
                                                     </div>
                                                     {comment.user === 'You' && (
                                                         <Button 
                                                             onClick={() => handleDeleteComment(selectedBlog.id, comment.id)}
                                                             variant="ghost"
                                                             size="small"
+                                                            className="stellarion-comment-delete"
                                                         >
-                                                            <Trash2 size={14} />
+                                                            <FaTrash size={14} />
                                                         </Button>
                                                     )}
                                                 </div>
-                                                <p 
-                                                // style={{ 
-                                                //     margin: 0, 
-                                                //     color: '#374151',
-                                                //     fontSize: '0.875rem',
-                                                //     lineHeight: '1.5'
-                                                // }}
-                                                >
-                                                    {comment.text}
-                                                </p>
+                                                <p className="stellarion-comment-text">{comment.text}</p>
                                             </div>
                                         ))
                                     )}

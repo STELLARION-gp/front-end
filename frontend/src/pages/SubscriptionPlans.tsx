@@ -5,37 +5,15 @@ import { useLocalizedPlans } from '../services/planTranslationService';
 import LoadingSpinner from '../components/LoadingSpinner';
 import PaymentModal from '../components/payment/PaymentModal';
 import { motion } from 'framer-motion';
-import { 
-    CheckIcon, 
-    StarIcon, 
+import {
+    CheckIcon,
+    StarIcon,
     RocketLaunchIcon,
     GlobeAltIcon,
-    SparklesIcon 
+    SparklesIcon
 } from '@heroicons/react/24/outline';
-
-interface SubscriptionPlan {
-    id: number;
-    plan_type: string;
-    name: string;
-    description: string;
-    price_lkr: number;
-    price_usd?: number;
-    features: string[];
-    chatbot_questions_limit: number;
-    is_active: boolean;
-}
-
-interface UserSubscription {
-    subscription_plan: string;
-    subscription_status: string;
-    subscription_start_date: string;
-    subscription_end_date?: string;
-    plan_name: string;
-    plan_description: string;
-    features: string[];
-    chatbot_questions_used: number;
-    chatbot_questions_limit: number;
-}
+import { useNavigate } from 'react-router-dom';
+import type { SubscriptionPlan, UserSubscription } from '../types/subscription';
 
 const SubscriptionPlans: React.FC = () => {
     const { user } = useAuth();
@@ -47,6 +25,7 @@ const SubscriptionPlans: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [showPaymentModal, setShowPaymentModal] = useState(false);
     const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetchPlans();
@@ -67,6 +46,8 @@ const SubscriptionPlans: React.FC = () => {
         } catch (err) {
             setError('Failed to fetch subscription plans');
             console.error(err);
+        } finally {
+            setLoading(false); // Always stop loading after fetching plans
         }
     };
 
@@ -90,6 +71,10 @@ const SubscriptionPlans: React.FC = () => {
     };
 
     const handlePlanSelect = (plan: SubscriptionPlan) => {
+        if (!user) {
+            navigate('/login');
+            return;
+        }
         if (plan.plan_type === 'starseeker') {
             // Handle free plan directly
             handleFreePlanUpgrade(plan);
@@ -178,7 +163,7 @@ const SubscriptionPlans: React.FC = () => {
                         Choose Your <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Cosmic Journey</span>
                     </h1>
                     <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-                        Unlock the mysteries of the universe with our carefully crafted subscription plans. 
+                        Unlock the mysteries of the universe with our carefully crafted subscription plans.
                         Every astronaut begins with curiosity, but where will your journey take you?
                     </p>
                 </motion.div>
@@ -205,11 +190,10 @@ const SubscriptionPlans: React.FC = () => {
                                 )}
                             </div>
                             <div className="text-right">
-                                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                                    userSubscription.subscription_status === 'active' 
-                                        ? 'bg-green-500/20 text-green-400'
-                                        : 'bg-red-500/20 text-red-400'
-                                }`}>
+                                <span className={`px-3 py-1 rounded-full text-sm font-medium ${userSubscription.subscription_status === 'active'
+                                    ? 'bg-green-500/20 text-green-400'
+                                    : 'bg-red-500/20 text-red-400'
+                                    }`}>
                                     {userSubscription.subscription_status}
                                 </span>
                                 {userSubscription.subscription_end_date && (
@@ -240,9 +224,8 @@ const SubscriptionPlans: React.FC = () => {
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, delay: index * 0.1 }}
-                        className={`relative bg-gray-800 rounded-2xl overflow-hidden ${
-                            plan.plan_type === 'galaxy_explorer' ? 'ring-2 ring-purple-500 scale-105' : ''
-                        } ${isPlanCurrent(plan.plan_type) ? 'ring-2 ring-blue-500' : ''}`}
+                        className={`relative bg-gray-800 rounded-2xl overflow-hidden ${plan.plan_type === 'galaxy_explorer' ? 'ring-2 ring-purple-500 scale-105' : ''
+                            } ${isPlanCurrent(plan.plan_type) ? 'ring-2 ring-blue-500' : ''}`}
                     >
                         {/* Popular Badge */}
                         {plan.plan_type === 'galaxy_explorer' && (
@@ -272,7 +255,7 @@ const SubscriptionPlans: React.FC = () => {
                                 <p className="text-gray-400 text-sm mb-4">
                                     {getLocalizedPlan(plan).localizedDescription}
                                 </p>
-                                
+
                                 {/* Price */}
                                 <div className="mb-6">
                                     {plan.price_lkr === 0 ? (
@@ -307,19 +290,18 @@ const SubscriptionPlans: React.FC = () => {
                             <button
                                 onClick={() => handlePlanSelect(plan)}
                                 disabled={isPlanCurrent(plan.plan_type)}
-                                className={`w-full py-3 px-6 rounded-lg font-medium transition-all duration-200 ${
-                                    isPlanCurrent(plan.plan_type)
-                                        ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
-                                        : plan.plan_type === 'galaxy_explorer'
+                                className={`w-full py-3 px-6 rounded-lg font-medium transition-all duration-200 ${isPlanCurrent(plan.plan_type)
+                                    ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
+                                    : plan.plan_type === 'galaxy_explorer'
                                         ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 transform hover:scale-105'
                                         : 'bg-gray-700 text-white hover:bg-gray-600 transform hover:scale-105'
-                                }`}
+                                    }`}
                             >
                                 {isPlanCurrent(plan.plan_type)
                                     ? 'Current Plan'
                                     : plan.price_lkr === 0
-                                    ? 'Start Free Journey'
-                                    : 'Upgrade Now'
+                                        ? 'Start Free Journey'
+                                        : 'Upgrade Now'
                                 }
                             </button>
                         </div>

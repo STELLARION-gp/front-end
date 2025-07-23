@@ -12,6 +12,7 @@
         "plans": "දායකත්ව සැලසුම්",
         "subscription": "දායකත්වය",
         "adminPanel": "පරිපාලන මණ්ඩලය",
+        "goToHome": "මුල් පිටුවට යන්න",
         "backToHome": "මුල් පිටුවට යන්න",
         "scrollToTop": "ඉහළට අනුචලනය කරන්න",
         "currentLanguage": "වර්තමාන භාෂාව",
@@ -191,9 +192,10 @@
         "quickLinks": {
             "title": "ඉක්මන් සබැඳි",
             "home": "මුල් පිටුව",
-            "about": "අප ගැන",
-            "dashboard": "පරිපාලන පුවරුව",
-            "login": "ඇතුළු වන්න"
+            "about": "අපි ගැන",
+            "features": "විශේෂාංග",
+            "dashboard": "පාලක පුවරුව",
+            "login": "ඇතුල් වන්න"
         },
         "support": {
             "title": "සහාය",

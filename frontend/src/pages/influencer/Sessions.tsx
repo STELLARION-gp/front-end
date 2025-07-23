@@ -158,7 +158,7 @@ const Sessions = () => {
           <h3>Live Sessions</h3>
           <div className="sessions-list">
             {liveSessions.map(session => (
-              <div key={session.id} className={`session-card live-session ${!session.registrationEnabled ? 'registration-disabled' : ''}`}>
+              <div key={session.id} className={`influencer-session-card live-session ${!session.registrationEnabled ? 'registration-disabled' : ''}`}>
                 <div className="session-header">
                   <div className="session-title-info">
                     <h3>{session.title}</h3>
@@ -220,7 +220,7 @@ const Sessions = () => {
           <h3>Recorded Sessions</h3>
           <div className="sessions-list">
             {recordedSessions.map(session => (
-              <div key={session.id} className={`session-card recorded-session ${!session.registrationEnabled ? 'registration-disabled' : ''}`}>
+              <div key={session.id} className={`influencer-session-card recorded-session ${!session.registrationEnabled ? 'registration-disabled' : ''}`}>
                 <div className="session-header">
                   <div className="session-title-info">
                     <h3>{session.title}</h3>

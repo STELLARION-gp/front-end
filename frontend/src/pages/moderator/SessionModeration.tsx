@@ -14,7 +14,7 @@ interface SessionProposal {
     email: string;
     avatar: string;
   };
-  sessionType: 'mentoring' | 'group_learning' | 'workshop' | 'discussion';
+  sessionType: 'mentoring' | 'group_learning' | 'workshop' | 'discussion' | 'lecture';
   subject: string;
   date: string;
   time: string;
@@ -43,93 +43,145 @@ const SessionModeration: React.FC = () => {
   const [selectedFilter, setSelectedFilter] = useState('all');
 
   // Mock data for session proposals
-  const [sessions] = useState<SessionProposal[]>([
-    {
-      id: 'session_001',
-      title: 'Advanced React Patterns Workshop',
-      description: 'Deep dive into advanced React patterns including hooks, context, and state management with real-world examples.',
-      proposedBy: {
-        id: 'user_001',
-        username: 'ReactMaster',
-        email: 'react.master@example.com',
-        avatar: 'RM'
-      },
-      sessionType: 'workshop',
-      subject: 'React/Frontend Development',
-      date: '2024-01-15',
-      time: '14:00',
-      duration: 120,
-      location: 'online',
-      maxParticipants: 25,
-      requirements: ['Basic React knowledge', 'VS Code installed', 'Node.js 16+'],
-      status: 'pending',
-      priority: 'high',
-      submittedAt: '2024-01-10T10:30:00Z',
-      lastUpdated: '2024-01-10T10:30:00Z',
-      category: 'Technical',
-      targetAudience: 'Intermediate Developers',
-      tags: ['React', 'JavaScript', 'Frontend', 'Workshop'],
-      reports: {
-        count: 2,
-        reasons: ['Inappropriate content', 'Spam']
-      }
+const [sessions] = useState<SessionProposal[]>([
+  {
+    id: 'astro_001',
+    title: 'Advanced Astrophotography Techniques',
+    description: 'Master the art of capturing celestial objects with your DSLR or telescope, covering long exposures, stacking, and post-processing.',
+    proposedBy: {
+      id: 'user_101',
+      username: 'CosmicPhotographer',
+      email: 'cosmic.photo@example.com',
+      avatar: 'CP'
     },
-    {
-      id: 'session_002',
-      title: 'Astronomy for Beginners',
-      description: 'Learn the basics of stargazing, constellation identification, and using telescopes effectively.',
-      proposedBy: {
-        id: 'user_002',
-        username: 'StarGazer2024',
-        email: 'stargazer@example.com',
-        avatar: 'SG'
-      },
-      sessionType: 'group_learning',
-      subject: 'Astronomy',
-      date: '2024-01-20',
-      time: '19:00',
-      duration: 90,
-      location: 'physical',
-      venue: 'City Observatory',
-      maxParticipants: 15,
-      requirements: ['Interest in astronomy', 'Warm clothing'],
-      status: 'approved',
-      priority: 'medium',
-      submittedAt: '2024-01-08T15:45:00Z',
-      lastUpdated: '2024-01-09T09:15:00Z',
-      category: 'Science',
-      targetAudience: 'All levels',
-      tags: ['Astronomy', 'Stargazing', 'Science', 'Beginner-friendly']
-    },
-    {
-      id: 'session_003',
-      title: 'Machine Learning Fundamentals',
-      description: 'Introduction to ML concepts, algorithms, and practical applications using Python and scikit-learn.',
-      proposedBy: {
-        id: 'user_003',
-        username: 'MLEnthusiast',
-        email: 'ml.enthusiast@example.com',
-        avatar: 'ME'
-      },
-      sessionType: 'mentoring',
-      subject: 'Machine Learning',
-      date: '2024-01-25',
-      time: '16:00',
-      duration: 180,
-      location: 'hybrid',
-      venue: 'Tech Hub - Room 101',
-      maxParticipants: 12,
-      requirements: ['Python basics', 'Mathematics foundation', 'Jupyter Notebook'],
-      status: 'revision_requested',
-      priority: 'high',
-      submittedAt: '2024-01-05T11:20:00Z',
-      lastUpdated: '2024-01-07T14:30:00Z',
-      moderatorNotes: 'Please provide more detailed prerequisites and reduce session duration.',
-      category: 'Technical',
-      targetAudience: 'Intermediate',
-      tags: ['Machine Learning', 'Python', 'AI', 'Data Science']
+    sessionType: 'workshop',
+    subject: 'Astrophotography',
+    date: '2024-02-15',
+    time: '20:00',
+    duration: 120,
+    location: 'online',
+    maxParticipants: 20,
+    requirements: ['DSLR camera or telescope (optional)', 'Basic photography knowledge'],
+    status: 'pending',
+    priority: 'high',
+    submittedAt: '2024-01-10T10:30:00Z',
+    lastUpdated: '2024-01-10T10:30:00Z',
+    category: 'Astronomy',
+    targetAudience: 'Intermediate',
+    tags: ['Astrophotography', 'Photography', 'Night Sky', 'Workshop'],
+    reports: {
+      count: 1,
+      reasons: ['Scheduling conflict']
     }
-  ]);
+  },
+  {
+    id: 'astro_002',
+    title: 'සිංහල තාරකා විද්‍යාව: පැරණි සිංහල ජ්‍යොතිෂය හා තාරකා නිරීක්ෂණය',
+    description: 'සිංහල ජනතාවගේ තාරකා විද්‍යාත්මක දැනුම, ජ්‍යොතිෂ්‍ය ක්‍රම, සහ පැරණි තාරකා නිරීක්ෂණ ක්‍රම ගැන ඉගෙන ගනිමු.',
+    proposedBy: {
+      id: 'user_102',
+      username: 'SinhalaJyothishaya',
+      email: 'sinhala.jyothisha@example.com',
+      avatar: 'SJ'
+    },
+    sessionType: 'group_learning',
+    subject: 'Sinhala Astronomy',
+    date: '2024-02-20',
+    time: '18:30',
+    duration: 90,
+    location: 'physical',
+    venue: 'Colombo Planetarium',
+    maxParticipants: 30,
+    requirements: ['සිංහල භාෂා දැනුම', 'තාරකා විද්‍යාව පිළිබඳ උනන්දුව'],
+    status: 'approved',
+    priority: 'medium',
+    submittedAt: '2024-01-08T15:45:00Z',
+    lastUpdated: '2024-01-09T09:15:00Z',
+    category: 'Cultural Astronomy',
+    targetAudience: 'All levels',
+    tags: ['Sinhala Astronomy', 'Jyothishya', 'Cultural Heritage', 'Sinhala']
+  },
+  {
+    id: 'astro_003',
+    title: 'Black Holes and Gravitational Waves',
+    description: 'Explore the fascinating physics of black holes, gravitational waves, and their detection by LIGO and other observatories.',
+    proposedBy: {
+      id: 'user_103',
+      username: 'SpacePhysicist',
+      email: 'space.physics@example.com',
+      avatar: 'SP'
+    },
+    sessionType: 'lecture',
+    subject: 'Theoretical Astronomy',
+    date: '2024-02-25',
+    time: '19:30',
+    duration: 90,
+    location: 'hybrid',
+    venue: 'University Astrophysics Dept - Lecture Hall A',
+    maxParticipants: 50,
+    requirements: ['Basic physics knowledge helpful but not required'],
+    status: 'approved',
+    priority: 'high',
+    submittedAt: '2024-01-05T11:20:00Z',
+    lastUpdated: '2024-01-07T14:30:00Z',
+    category: 'Theoretical Astronomy',
+    targetAudience: 'Advanced',
+    tags: ['Black Holes', 'Gravitational Waves', 'LIGO', 'Theoretical Physics']
+  },
+  {
+    id: 'astro_004',
+    title: 'ශ්‍රී ලංකාවේ තාරකා නිරීක්ෂණ ස්ථාන හා මෙවලම්',
+    description: 'ශ්‍රී ලංකාවේ හොඳම තාරකා නිරීක්ෂණ ස්ථාන, භාවිතා කළ හැකි මෙවලම්, සහ දේශීය තාරකා සමාජ ගැන දැන ගනිමු.',
+    proposedBy: {
+      id: 'user_104',
+      username: 'LKAstronomy',
+      email: 'lk.astronomy@example.com',
+      avatar: 'LK'
+    },
+    sessionType: 'mentoring',
+    subject: 'Local Astronomy',
+    date: '2024-03-05',
+    time: '17:00',
+    duration: 60,
+    location: 'online',
+    maxParticipants: 40,
+    requirements: ['තාරකා විද්‍යාව පිළිබඳ උනන්දුව'],
+    status: 'pending',
+    priority: 'medium',
+    submittedAt: '2024-01-12T08:15:00Z',
+    lastUpdated: '2024-01-12T08:15:00Z',
+    category: 'Local Astronomy',
+    targetAudience: 'Beginner',
+    tags: ['Sri Lanka', 'Astronomy Locations', 'Sinhala', 'Beginner']
+  },
+  {
+    id: 'astro_005',
+    title: 'Exoplanet Discovery and Characterization',
+    description: 'Learn about the methods astronomers use to discover and characterize planets orbiting other stars in our galaxy.',
+    proposedBy: {
+      id: 'user_105',
+      username: 'ExoplanetHunter',
+      email: 'exoplanet.hunter@example.com',
+      avatar: 'EH'
+    },
+    sessionType: 'workshop',
+    subject: 'Exoplanets',
+    date: '2024-03-10',
+    time: '18:00',
+    duration: 120,
+    location: 'online',
+    maxParticipants: 25,
+    requirements: ['Basic astronomy knowledge'],
+    status: 'revision_requested',
+    priority: 'high',
+    submittedAt: '2024-01-15T14:20:00Z',
+    lastUpdated: '2024-01-18T11:10:00Z',
+    moderatorNotes: 'Please include more details about the data analysis techniques to be covered.',
+    category: 'Planetary Science',
+    targetAudience: 'Intermediate',
+    tags: ['Exoplanets', 'Space Exploration', 'Astrobiology', 'Research']
+  }
+]);
 
   const handleApprove = (sessionId: string) => {
     console.log('Approving session:', sessionId);
@@ -162,6 +214,7 @@ const SessionModeration: React.FC = () => {
       case 'mentoring': return '👨‍🏫';
       case 'group_learning': return '👥';
       case 'discussion': return '💬';
+      case 'lecture': return '📖';
       default: return '📚';
     }
   };

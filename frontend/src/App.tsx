@@ -19,7 +19,6 @@ import Signup from './pages/Signup.tsx';
 const About = lazy(() => import('./pages/About'));
 const NewHome = lazy(() => import('./pages/NewHome'));
 const SubscriptionPlans = lazy(() => import('./pages/SubscriptionPlans'));
-const SubscriptionTestPage = lazy(() => import('./pages/SubscriptionTestPage'));
 const PaymentSuccess = lazy(() => import('./pages/payment/PaymentSuccess'));
 const PaymentCancel = lazy(() => import('./pages/payment/PaymentCancel'));
 
@@ -48,16 +47,7 @@ const App: React.FC = () => {
 
                 {/* Subscription Routes */}
                 <Route path="/subscription/plans" element={
-                  <LazyPageWrapper skeletonProps={{ title: true, paragraphs: 2 }}>
                     <SubscriptionPlans />
-                  </LazyPageWrapper>
-                } />
-                
-                {/* Subscription Test Route */}
-                <Route path="/subscription/test" element={
-                  <LazyPageWrapper skeletonProps={{ title: true, paragraphs: 2 }}>
-                    <SubscriptionTestPage />
-                  </LazyPageWrapper>
                 } />
 
                 {/* Payment Routes */}

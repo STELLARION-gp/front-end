@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { FaArrowLeft, FaUser, FaBan, FaCheck, FaExclamationTriangle, FaClock, FaFlag, FaEnvelope, FaIdCard } from 'react-icons/fa';
+import { FaArrowLeft, FaUser, FaBan, FaCheck, FaExclamationTriangle, FaClock, FaFlag, FaEnvelope, FaIdCard, FaUserGraduate, FaUserTie } from 'react-icons/fa';
 import '../../styles/pages/moderator/ProfileDetails.scss';
 import Button from '../../components/Button';
 
@@ -10,22 +10,25 @@ interface ProfileReport {
   username: string;
   email: string;
   profileImage?: string;
-  reportedBy: string[];
-  reportReason: string[];
-  reportDetails: string;
-  status: 'pending' | 'approved' | 'banned' | 'warned';
+  reportedBy?: string[];
+  reportReason?: string[];
+  reportDetails?: string;
+  requestType?: 'role-upgrade' | 'learner-to-guide' | 'learner-to-influencer';
+  status: 'reported' | 'pending' | 'approved' | 'banned' | 'warned';
   accountCreated: Date;
   lastActive: Date;
   priority: 'low' | 'medium' | 'high' | 'critical';
-  violations: number;
-  joinedCommunities?: string[];
+  violations?: number;
+  currentRole?: string;
+  requestedRole?: string;
   totalPosts?: number;
   totalComments?: number;
+  joinedCommunities?: string[];
   reputation?: number;
 }
 
-// Mock data - in real app this would come from API
 const mockProfiles: ProfileReport[] = [
+  // Reported accounts
   {
     id: '1',
     userId: 'usr_123',
@@ -33,15 +36,15 @@ const mockProfiles: ProfileReport[] = [
     email: 'spam@example.com',
     reportedBy: ['User789', 'StarGazer01'],
     reportReason: ['Spam', 'Fake account'],
-    reportDetails: 'This account has been posting spam comments and appears to be automated. Multiple users have reported suspicious behavior including repetitive messages and bot-like posting patterns.',
-    status: 'pending',
+    reportDetails: 'This account has been posting spam comments and appears to be automated.',
+    status: 'reported',
     accountCreated: new Date('2024-01-10T08:00:00'),
     lastActive: new Date('2024-01-15T14:30:00'),
     priority: 'high',
     violations: 3,
-    joinedCommunities: ['Astrophotography', 'Deep Sky Objects'],
-    totalPosts: 45,
-    totalComments: 128,
+    totalPosts: 42,
+    totalComments: 156,
+    joinedCommunities: ['Astronomy Lovers', 'Space Explorers'],
     reputation: -15
   },
   {
@@ -51,34 +54,94 @@ const mockProfiles: ProfileReport[] = [
     email: 'toxic@example.com',
     reportedBy: ['CommunityMod', 'NightWatcher'],
     reportReason: ['Harassment', 'Inappropriate behavior'],
-    reportDetails: 'User has been harassing other members in astronomy discussions, using offensive language and making personal attacks.',
-    status: 'pending',
+    reportDetails: 'User has been harassing other members in astronomy discussions.',
+    status: 'reported',
     accountCreated: new Date('2023-12-15T10:00:00'),
     lastActive: new Date('2024-01-15T16:45:00'),
     priority: 'critical',
     violations: 7,
-    joinedCommunities: ['General Discussion', 'Equipment Reviews'],
-    totalPosts: 23,
-    totalComments: 156,
-    reputation: -42
+    totalPosts: 12,
+    totalComments: 89,
+    joinedCommunities: ['Cosmic Discussions', 'Telescope Enthusiasts'],
+    reputation: -32
   },
+  // Role upgrade requests
   {
     id: '3',
     userId: 'usr_789',
-    username: 'FakePhotographer',
-    email: 'fake@example.com',
-    reportedBy: ['PhotoExpert'],
-    reportReason: ['Copyright violation', 'Stolen content'],
-    reportDetails: 'Profile contains stolen astrophotography images without attribution. Claims ownership of professional astronomical photographs.',
+    username: 'AstroLearner',
+    email: 'learner@example.com',
     status: 'pending',
     accountCreated: new Date('2024-01-05T12:00:00'),
     lastActive: new Date('2024-01-14T20:15:00'),
+    priority: 'low',
+    requestType: 'learner-to-guide',
+    currentRole: 'Learner',
+    requestedRole: 'Guide',
+    totalPosts: 24,
+    totalComments: 112,
+    joinedCommunities: ['Beginner Astronomers', 'Stargazing 101'],
+    reputation: 45
+  },
+  {
+    id: '4',
+    userId: 'usr_101',
+    username: 'CosmicExplorer',
+    email: 'explorer@example.com',
+    status: 'pending',
+    accountCreated: new Date('2023-11-20T09:00:00'),
+    lastActive: new Date('2024-01-16T11:20:00'),
     priority: 'medium',
-    violations: 2,
-    joinedCommunities: ['Astrophotography', 'Image Sharing'],
-    totalPosts: 12,
-    totalComments: 34,
-    reputation: 8
+    requestType: 'learner-to-influencer',
+    currentRole: 'Learner',
+    requestedRole: 'Influencer',
+    totalPosts: 56,
+    totalComments: 203,
+    joinedCommunities: ['Deep Space', 'Astrophotography'],
+    reputation: 78
+  },
+  // Previously handled cases
+  {
+    id: '5',
+    userId: 'usr_202',
+    username: 'ApprovedUser',
+    email: 'approved@example.com',
+    status: 'approved',
+    accountCreated: new Date('2023-10-15T14:00:00'),
+    lastActive: new Date('2024-01-16T18:30:00'),
+    priority: 'low',
+    totalPosts: 32,
+    totalComments: 145,
+    joinedCommunities: ['Space Photography', 'Telescope Reviews'],
+    reputation: 56
+  },
+  {
+    id: '6',
+    userId: 'usr_303',
+    username: 'WarnedUser',
+    email: 'warned@example.com',
+    status: 'warned',
+    accountCreated: new Date('2023-09-10T11:00:00'),
+    lastActive: new Date('2024-01-15T22:15:00'),
+    priority: 'medium',
+    totalPosts: 18,
+    totalComments: 67,
+    joinedCommunities: ['Amateur Astronomers', 'Night Sky'],
+    reputation: 12
+  },
+  {
+    id: '7',
+    userId: 'usr_404',
+    username: 'BannedUser',
+    email: 'banned@example.com',
+    status: 'banned',
+    accountCreated: new Date('2023-08-05T16:00:00'),
+    lastActive: new Date('2024-01-10T19:45:00'),
+    priority: 'high',
+    totalPosts: 5,
+    totalComments: 23,
+    joinedCommunities: ['Space Debates', 'Cosmic Theories'],
+    reputation: -8
   }
 ];
 
@@ -118,11 +181,33 @@ export default function ProfileDetails() {
     }
   };
 
-  const getRiskLevel = (violations: number) => {
-    if (violations >= 5) return { level: 'High Risk', color: '#ff4757', class: 'high-risk' };
-    if (violations >= 3) return { level: 'Medium Risk', color: '#ffa502', class: 'medium-risk' };
-    if (violations >= 1) return { level: 'Low Risk', color: '#f39c12', class: 'low-risk' };
-    return { level: 'Clean', color: '#2ed573', class: 'clean' };
+  const handleApproveRequest = () => {
+    if (profile) {
+      setProfile({ ...profile, status: 'approved' });
+      // In real app, would make API call here
+    }
+  };
+
+  const handleRejectRequest = () => {
+    if (profile) {
+      setProfile({ ...profile, status: 'warned' });
+      // In real app, would make API call here
+    }
+  };
+
+  const getRiskLevel = (violations: number = 0) => {
+    if (violations >= 5) return { level: 'Critical Risk', class: 'critical' };
+    if (violations >= 3) return { level: 'High Risk', class: 'high-risk' };
+    if (violations >= 1) return { level: 'Medium Risk', class: 'medium-risk' };
+    return { level: 'Clean', class: 'clean' };
+  };
+
+  const getRequestTypeLabel = (requestType?: string) => {
+    switch(requestType) {
+      case 'learner-to-guide': return 'Guide Request';
+      case 'learner-to-influencer': return 'Influencer Request';
+      default: return 'Role Upgrade';
+    }
   };
 
   if (loading) {
@@ -155,6 +240,8 @@ export default function ProfileDetails() {
   }
 
   const riskLevel = getRiskLevel(profile.violations);
+  const isReported = profile.status === 'reported';
+  const isRequest = profile.status === 'pending';
 
   return (
     <div className="profile-details">
@@ -172,13 +259,17 @@ export default function ProfileDetails() {
               Back to Profile List
             </Button>
             <div className="title-section">
-              <h1>Profile Report Details</h1>
-              <p>Review and moderate this user profile</p>
+              <h1>
+                {isRequest ? 'Role Upgrade Request' : 'Profile Report Details'}
+              </h1>
+              <p>
+                {isRequest ? 'Review and process this role request' : 'Review and moderate this user profile'}
+              </p>
             </div>
           </div>
           
           <div className="header-actions">
-            {profile.status === 'pending' && (
+            {isReported && (
               <>
                 <Button
                   variant="success"
@@ -209,18 +300,42 @@ export default function ProfileDetails() {
                 </Button>
               </>
             )}
+            {isRequest && (
+              <>
+                <Button
+                  variant="success"
+                  size="medium"
+                  icon={<FaCheck />}
+                  iconPosition="left"
+                  onClick={handleApproveRequest}
+                >
+                  Approve Request
+                </Button>
+                <Button
+                  variant="danger"
+                  size="medium"
+                  icon={<FaBan />}
+                  iconPosition="left"
+                  onClick={handleRejectRequest}
+                >
+                  Reject Request
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </header>
 
       {/* Main Content */}
       <div className="details-content">
-        <div className="profile-card">
+        <div className={`profile-card ${isRequest ? 'request-card' : ''}`}>
           {/* Profile Header */}
           <div className="profile-header">
             <div className="user-section">
               <div className="avatar-large">
-                <FaUser />
+                {isRequest ? (
+                  profile.requestType === 'learner-to-influencer' ? <FaUserTie /> : <FaUserGraduate />
+                ) : <FaUser />}
               </div>
               <div className="user-info">
                 <h2 className="username">{profile.username}</h2>
@@ -233,6 +348,13 @@ export default function ProfileDetails() {
                     <FaIdCard className="meta-icon" />
                     ID: {profile.userId}
                   </span>
+                  {isRequest && (
+                    <div className="request-info">
+                      <span className="current-role">{profile.currentRole}</span>
+                      <span className="arrow">→</span>
+                      <span className="requested-role">{profile.requestedRole}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -240,9 +362,16 @@ export default function ProfileDetails() {
               <div className={`priority-badge priority-${profile.priority}`}>
                 {profile.priority} priority
               </div>
-              <div className={`risk-badge ${riskLevel.class}`}>
-                {riskLevel.level}
-              </div>
+              {isReported && (
+                <div className={`risk-badge ${riskLevel.class}`}>
+                  {riskLevel.level}
+                </div>
+              )}
+              {isRequest && (
+                <div className="request-type-badge">
+                  {getRequestTypeLabel(profile.requestType)}
+                </div>
+              )}
               <div className={`status-badge status-${profile.status}`}>
                 {profile.status}
               </div>
@@ -267,13 +396,15 @@ export default function ProfileDetails() {
                   {profile.lastActive.toLocaleString()}
                 </div>
               </div>
-              <div className="info-item">
-                <div className="info-label">Total Violations</div>
-                <div className={`info-value violations-count ${riskLevel.class}`}>
-                  <FaExclamationTriangle className="info-icon" />
-                  {profile.violations} ({riskLevel.level})
+              {isReported && (
+                <div className="info-item">
+                  <div className="info-label">Total Violations</div>
+                  <div className={`info-value violations-count ${riskLevel.class}`}>
+                    <FaExclamationTriangle className="info-icon" />
+                    {profile.violations} ({riskLevel.level})
+                  </div>
                 </div>
-              </div>
+              )}
               {profile.reputation !== undefined && (
                 <div className="info-item">
                   <div className="info-label">Reputation Score</div>
@@ -282,111 +413,167 @@ export default function ProfileDetails() {
                   </div>
                 </div>
               )}
-            </div>
-          </div>
-
-          {/* Activity Statistics */}
-          {(profile.totalPosts || profile.totalComments || profile.joinedCommunities) && (
-            <div className="activity-section">
-              <h3>Activity Statistics</h3>
-              <div className="activity-grid">
-                {profile.totalPosts !== undefined && (
-                  <div className="activity-stat">
-                    <span className="stat-number">{profile.totalPosts}</span>
-                    <span className="stat-label">Posts</span>
-                  </div>
-                )}
-                {profile.totalComments !== undefined && (
-                  <div className="activity-stat">
-                    <span className="stat-number">{profile.totalComments}</span>
-                    <span className="stat-label">Comments</span>
-                  </div>
-                )}
-                {profile.joinedCommunities && (
-                  <div className="activity-stat">
-                    <span className="stat-number">{profile.joinedCommunities.length}</span>
-                    <span className="stat-label">Communities</span>
-                  </div>
-                )}
-              </div>
-              {profile.joinedCommunities && (
-                <div className="communities-list">
-                  <h4>Joined Communities</h4>
-                  <div className="community-tags">
-                    {profile.joinedCommunities.map((community, index) => (
-                      <span key={index} className="community-tag">{community}</span>
-                    ))}
+              {isRequest && (
+                <div className="info-item">
+                  <div className="info-label">Request Type</div>
+                  <div className="info-value">
+                    {getRequestTypeLabel(profile.requestType)}
                   </div>
                 </div>
               )}
             </div>
-          )}
-
-          {/* Reports Section */}
-          <div className="reports-section">
-            <h3>
-              <FaFlag className="section-icon" />
-              Report Details ({profile.reportedBy.length} reports)
-            </h3>
-            
-            <div className="report-content">
-              <div className="reporters-section">
-                <h4>Reported by:</h4>
-                <div className="reporters-list">
-                  {profile.reportedBy.map((reporter, index) => (
-                    <span key={index} className="reporter-tag">{reporter}</span>
-                  ))}
-                </div>
-              </div>
-
-              <div className="reasons-section">
-                <h4>Report reasons:</h4>
-                <div className="reason-tags">
-                  {profile.reportReason.map((reason, index) => (
-                    <span key={index} className="reason-tag">{reason}</span>
-                  ))}
-                </div>
-              </div>
-
-              <div className="details-section">
-                <h4>Report details:</h4>
-                <div className="report-text">{profile.reportDetails}</div>
-              </div>
-            </div>
           </div>
 
-          {/* Action Buttons */}
-          {profile.status === 'pending' && (
-            <div className="action-section">
-              <Button
-                variant="success"
-                size="large"
-                icon={<FaCheck />}
-                iconPosition="left"
-                onClick={handleApprove}
-              >
-                Approve Profile
-              </Button>
-              <Button
-                variant="warning"
-                size="large"
-                icon={<FaExclamationTriangle />}
-                iconPosition="left"
-                onClick={handleWarn}
-              >
-                Issue Warning
-              </Button>
-              <Button
-                variant="danger"
-                size="large"
-                icon={<FaBan />}
-                iconPosition="left"
-                onClick={handleBan}
-              >
-                Ban User
-              </Button>
+          {/* Activity Statistics */}
+          <div className="activity-section">
+            <h3>Activity Statistics</h3>
+            <div className="activity-grid">
+              <div className="activity-stat">
+                <span className="stat-number">{profile.totalPosts || 0}</span>
+                <span className="stat-label">Posts</span>
+              </div>
+              <div className="activity-stat">
+                <span className="stat-number">{profile.totalComments || 0}</span>
+                <span className="stat-label">Comments</span>
+              </div>
+              <div className="activity-stat">
+                <span className="stat-number">{profile.joinedCommunities?.length || 0}</span>
+                <span className="stat-label">Communities</span>
+              </div>
+            </div>
+            {profile.joinedCommunities && profile.joinedCommunities.length > 0 && (
+              <div className="communities-list">
+                <h4>Joined Communities</h4>
+                <div className="community-tags">
+                  {profile.joinedCommunities.map((community, index) => (
+                    <span key={index} className="community-tag">{community}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Reports Section - Only for reported profiles */}
+          {isReported && (
+            <div className="reports-section">
+              <h3>
+                <FaFlag className="section-icon" />
+                Report Details ({profile.reportedBy?.length || 0} reports)
+              </h3>
+              
+              <div className="report-content">
+                <div className="reporters-section">
+                  <h4>Reported by:</h4>
+                  <div className="reporters-list">
+                    {profile.reportedBy?.map((reporter, index) => (
+                      <span key={index} className="reporter-tag">{reporter}</span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="reasons-section">
+                  <h4>Report reasons:</h4>
+                  <div className="reason-tags">
+                    {profile.reportReason?.map((reason, index) => (
+                      <span key={index} className="reason-tag">{reason}</span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="details-section">
+                  <h4>Report details:</h4>
+                  <div className="report-text">{profile.reportDetails}</div>
+                </div>
+              </div>
             </div>
           )}
+
+          {/* Request Details - Only for role requests */}
+          {isRequest && (
+            <div className="request-section">
+              <h3>
+                <FaUser className="section-icon" />
+                Role Upgrade Request Details
+              </h3>
+              <div className="request-content">
+                <div className="request-info-item">
+                  <h4>Current Role:</h4>
+                  <p>{profile.currentRole}</p>
+                </div>
+                <div className="request-info-item">
+                  <h4>Requested Role:</h4>
+                  <p>{profile.requestedRole}</p>
+                </div>
+                <div className="request-info-item">
+                  <h4>Request Type:</h4>
+                  <p>{getRequestTypeLabel(profile.requestType)}</p>
+                </div>
+                <div className="request-info-item">
+                  <h4>Request Justification:</h4>
+                  <div className="request-text">
+                    This user has demonstrated consistent positive contributions to the community and meets all requirements for the requested role.
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Action Buttons */}
+          <div className="action-section">
+            {isReported && (
+              <>
+                <Button
+                  variant="success"
+                  size="large"
+                  icon={<FaCheck />}
+                  iconPosition="left"
+                  onClick={handleApprove}
+                >
+                  Approve Profile
+                </Button>
+                <Button
+                  variant="warning"
+                  size="large"
+                  icon={<FaExclamationTriangle />}
+                  iconPosition="left"
+                  onClick={handleWarn}
+                >
+                  Issue Warning
+                </Button>
+                <Button
+                  variant="danger"
+                  size="large"
+                  icon={<FaBan />}
+                  iconPosition="left"
+                  onClick={handleBan}
+                >
+                  Ban User
+                </Button>
+              </>
+            )}
+            {isRequest && (
+              <>
+                <Button
+                  variant="success"
+                  size="large"
+                  icon={<FaCheck />}
+                  iconPosition="left"
+                  onClick={handleApproveRequest}
+                >
+                  Approve Request
+                </Button>
+                <Button
+                  variant="danger"
+                  size="large"
+                  icon={<FaBan />}
+                  iconPosition="left"
+                  onClick={handleRejectRequest}
+                >
+                  Reject Request
+                </Button>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>

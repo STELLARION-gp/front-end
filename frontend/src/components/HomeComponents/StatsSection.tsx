@@ -62,7 +62,7 @@ const StatItem: React.FC<StatItemProps> = ({ icon, value, label, delay }) => {
   return (
     <div
       ref={ref}
-      className={`stat-item ${isVisible ? 'animate' : ''}`}
+      className={`stat-item-border ${isVisible ? 'animate' : ''}`}
       style={{ animationDelay: `${delay}ms` }}
     >
       <div className="stat-icon">

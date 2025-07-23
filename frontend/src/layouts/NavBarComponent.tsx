@@ -175,7 +175,7 @@ const NavBarComponent = () => {
           <div className={`profile-placeholder ${avatarUrl ? 'hidden' : ''}`}>
             {displayName.charAt(0).toUpperCase()}
           </div>
-          {!forCompactMode && (
+          {/* {!forCompactMode && ( */}{(
             <div className="profile-dropdown">
               <div className="profile-info">
                 <p className="profile-name">{displayName}</p>
@@ -206,6 +206,14 @@ const NavBarComponent = () => {
           >
             {t('auth.signIn')}
           </Button>
+          <Button
+            variant="primary"
+            size="small"
+            href="/signup"
+            enableNavigationLoading={false}
+          >
+            {t('auth.signUp')}
+          </Button>
         </div>
       );
     }
@@ -216,9 +224,9 @@ const NavBarComponent = () => {
       <div className={`utility-buttons ${forCompactMode ? 'compact' : ''}`}>
         {/* Language Toggle Button */}
         <button
-          className="utility-btn language-btn"
+          className="language-btn"
           onClick={handleLanguageToggle}
-          title={t('navbar.currentLanguage') + `: ${currentLanguage.name}`}
+          //title={t('navbar.currentLanguage') + `: ${currentLanguage.name}`}
         >
           <span className="language-letter">{getLanguageIcon()}</span>
         </button>
@@ -258,7 +266,7 @@ const NavBarComponent = () => {
           <div className="navbar-section left-section">
             <a href="#features" className="nav-link" onClick={e => handleSectionLink(e, 'features')}>{t('navbar.features')}</a>
             <a href="#about" className="nav-link" onClick={e => handleSectionLink(e, 'about')}>{t('navbar.about')}</a>
-            <Link to="/subscription/plans" className="nav-link">{t('navbar.plans')}</Link>
+            {/* <Link to="/subscription/plans" className="nav-link">{t('navbar.plans')}</Link> */}
             <a href="#" className="nav-link">{t('navbar.contact')}</a>
           </div>
         )}

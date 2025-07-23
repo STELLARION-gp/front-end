@@ -63,22 +63,24 @@ const Hero = () => {
                     <span className="title-line-2 gradient-text">Infinite Cosmos</span>
                 </h1>
 
-                {/* Enhanced Description */}
-                <p className="hero-description">
-                    {t('hero.description')}
-                </p>
+                <div className="left-contents-hero">
+                    {/* Enhanced Description */}
+                    <p className="hero-description">
+                        {t('hero.description')}
+                    </p>
 
-                {/* Enhanced CTA Buttons */}
-                <div className="hero-actions">
-                    <Button
-                        className="hero-cta-primary"
-                        variant="primary"
-                        size="large"
-                        onClick={() => navigate('/dashboard/overview')}
-                    >
-                        <span>{t('hero.getStarted')}</span>
-                        <Rocket className="w-5 h-5" />
-                    </Button>
+                    {/* Enhanced CTA Buttons */}
+                    <div className="hero-actions">
+                        <Button
+                            className="hero-cta-primary"
+                            variant="primary"
+                            size="medium"
+                            onClick={() => navigate('/dashboard/overview')}
+                        >
+                            <span>{t('hero.getStarted')}</span>
+                            <Rocket className="w-5 h-5" />
+                        </Button>
+                    </div>
                 </div>
             </div>
         </section>

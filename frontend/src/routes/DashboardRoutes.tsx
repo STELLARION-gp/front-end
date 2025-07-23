@@ -652,9 +652,7 @@ const DashboardRoutes = () => {
                 element={
                     <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
                         <MentorPauseProvider>
-                            <MenteeProvider>
                             <MentorDashboard />
-                            </MenteeProvider>
                         </MentorPauseProvider>
                     </RoleGuard>
                 }

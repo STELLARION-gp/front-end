@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import logo from '../assets/logo-dark.png';
 import Button from '../components/Button';
 import { useAuth } from '../hooks/useAuth';
-import { RoleGuard } from '../components/RoleGuard';
+//import { RoleGuard } from '../components/RoleGuard';
 import { supportedLanguages } from '../i18n';
 
 import './../styles/components/navbar.scss';
@@ -286,9 +286,9 @@ const NavBarComponent = () => {
         {!isCompactMode && (
           <div className="navbar-section right-section">
             {/* <a href="#" className="nav-link">{t('navbar.team')}</a> */}
-            <RoleGuard>
+            {/* <RoleGuard>
               <a href="#" className="nav-link">{t('navbar.explore')}</a>
-            </RoleGuard>
+            </RoleGuard> */}
             {renderUtilityButtons()}
             {renderAuthContent()}
           </div>

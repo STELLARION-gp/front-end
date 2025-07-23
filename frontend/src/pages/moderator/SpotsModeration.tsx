@@ -310,26 +310,31 @@ const SpotsModeration: React.FC = () => {
                 </div>
 
                 <div className="spot-metadata">
-                  <div className="meta-item">
-                    <span className="label">Accessibility:</span>
-                    <span className="value">
-                      {getAccessibilityIcon(spot.accessibility)} {spot.accessibility}
-                    </span>
+                  <div className="metadata-section">
+                    <div className="meta-item">
+                      <span className="label">Accessibility:</span>
+                      <span className="value">
+                        {getAccessibilityIcon(spot.accessibility)} {spot.accessibility}
+                      </span>
+                    </div>
+                    <div className="meta-item">
+                      <span className="label">Light Pollution:</span>
+                      <span className="value">{getLightPollutionLabel(spot.lightPollution)}</span>
+                    </div>
                   </div>
-                  <div className="meta-item">
-                    <span className="label">Light Pollution:</span>
-                    <span className="value">{getLightPollutionLabel(spot.lightPollution)}</span>
-                  </div>
-                  <div className="meta-item">
-                    <span className="label">Rating:</span>
-                    <span className="value">
-                      <FaStar className="star-icon" />
-                      {spot.rating} ({spot.reviewCount} reviews)
-                    </span>
-                  </div>
-                  <div className="meta-item">
-                    <span className="label">Completeness:</span>
-                    <span className="value">{spot.verification.completenessScore}%</span>
+                  
+                  <div className="metadata-section">
+                    <div className="meta-item">
+                      <span className="label">Rating:</span>
+                      <span className="value">
+                        <FaStar className="star-icon" />
+                        {spot.rating} ({spot.reviewCount} reviews)
+                      </span>
+                    </div>
+                    <div className="meta-item">
+                      <span className="label">Completeness:</span>
+                      <span className="value">{spot.verification.completenessScore}%</span>
+                    </div>
                   </div>
                 </div>
 

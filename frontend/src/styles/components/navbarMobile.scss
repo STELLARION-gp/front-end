@@ -3,9 +3,9 @@
 // Variables
 $mobile-navbar-height: 70px;
 $mobile-navbar-mobile-height: 60px;
-$mobile-navbar-z-index: 1000;
-$mobile-menu-z-index: 1001;
-$mobile-hamburger-z-index: 1003;
+$mobile-navbar-z-index: 1;
+$mobile-menu-z-index: 2;
+$mobile-hamburger-z-index: 3;
 $mobile-transition-speed: 0.3s;
 $mobile-breakpoint-mobile: 768px;
 $mobile-breakpoint-tablet: 1024px;
@@ -75,6 +75,7 @@ $mobile-breakpoint-tablet: 1024px;
     margin: 0 auto;
     padding: 0;
     border-top: 3px solid #ffffff;
+    border-radius: 8px 10px 0 0;
 
     @include mobile-only {
         padding: 0 0.75rem;

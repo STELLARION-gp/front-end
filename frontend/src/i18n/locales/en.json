@@ -71,19 +71,19 @@
         "subtitle": "Discover the universe with our comprehensive suite of space exploration tools",
         "features": [
             {
-                "icon": "Satellite",
-                "title": "Satellite & Spacecraft Tracker",
-                "description": "Track real-time positions of ISS, SpaceX launches, and more with precision timing and orbital data."
-            },
-            {
-                "icon": "Map",
-                "title": "Interactive Star Maps",
-                "description": "Zoom across constellations, planets, and deep-sky objects with our intuitive star chart interface."
-            },
-            {
                 "icon": "Users",
-                "title": "Live Learning Sessions",
-                "description": "Join sessions by space tutors on black holes, rocket science, astrophysics, and more."
+                "title": "Mentorship & Learning Journeys",
+                "description": "Connect with astronomy mentors and follow personalized learning paths tailored to your interests—black holes, astrophotography, or planetary science."
+            },
+            {
+                "icon": "CalendarDays",
+                "title": "Night Camps & Celestial Events",
+                "description": "Join real-world astronomy night camps, witness eclipses or meteor showers, and explore verified stargazing spots across Sri Lanka."
+            },
+            {
+                "icon": "BotMessageSquare",
+                "title": "AI Chatbot 'Stella'",
+                "description": "Ask space questions, check facts, get grammar support, or explore astronomy topics instantly with Stella, your smart cosmic assistant."
             }
         ]
     },

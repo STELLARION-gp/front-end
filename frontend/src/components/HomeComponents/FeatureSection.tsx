@@ -1,6 +1,6 @@
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Satellite, Map, Users, ArrowRight } from 'lucide-react';
+import { Satellite, Map, Users, ArrowRight, CalendarDays, BotMessageSquare } from 'lucide-react';
 import { useI18n } from '../../i18n/useI18n';
 import '../../styles/components/FeaturesSection.scss';
 
@@ -73,6 +73,8 @@ const FeaturesSection: React.FC = () => {
     Satellite: <Satellite className="w-8 h-8" />,
     Map: <Map className="w-8 h-8" />,
     Users: <Users className="w-8 h-8" />,
+    CalendarDays: <CalendarDays className="w-8 h-8" />,
+    BotMessageSquare: <BotMessageSquare className="w-8 h-8" />,
   };
   const { tArray } = useI18n();
   type Feature = { icon: keyof typeof iconMap; title: string; description: string };

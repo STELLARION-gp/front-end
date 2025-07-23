@@ -1,20 +1,25 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { FaArrowLeft, FaFlag, FaCheck, FaTimes, FaUser, FaClock, FaExclamationTriangle } from 'react-icons/fa';
+import { FaArrowLeft, FaFlag, FaCheck, FaTimes, FaUser, FaClock, FaExclamationTriangle, FaImage, FaVideo, FaCommentAlt, FaFileAlt, FaLink, FaMusic } from 'react-icons/fa';
 import '../../styles/pages/moderator/ContentDetails.scss';
 import Button from '../../components/Button';
 
+type ContentType = 'post' | 'comment' | 'image' | 'video' | 'link' | 'audio';
+type ContentStatus = 'pending' | 'approved' | 'rejected';
+type PriorityLevel = 'low' | 'medium' | 'high' | 'critical';
+
 interface ContentItem {
   id: string;
-  type: 'post' | 'comment' | 'image' | 'video';
+  type: ContentType;
   content: string;
   author: string;
   reportedBy: string[];
   reportReason: string[];
-  status: 'pending' | 'approved' | 'rejected';
+  status: ContentStatus;
   createdAt: Date;
-  priority: 'low' | 'medium' | 'high' | 'critical';
-  fullContent?: string;
+  priority: PriorityLevel;
+  details?: string;
+  community?: string;
   metadata?: {
     likes: number;
     comments: number;
@@ -29,13 +34,14 @@ const mockContentItems: ContentItem[] = [
     id: '1',
     type: 'post',
     content: 'Check out this amazing view of the Milky Way from last night!',
-    fullContent: 'Check out this amazing view of the Milky Way from last night! I spent about 3 hours in the desert with my telescope and managed to capture this incredible shot. The conditions were perfect - no clouds, minimal light pollution, and very stable atmosphere. I used a Canon EOS R6 with a 24-70mm lens, ISO 3200, 30-second exposure. What do you think? Any tips for improving my astrophotography technique?',
+    details: 'Check out this amazing view of the Milky Way from last night! I spent about 3 hours in the desert with my telescope and managed to capture this incredible shot. The conditions were perfect - no clouds, minimal light pollution, and very stable atmosphere. I used a Canon EOS R6 with a 24-70mm lens, ISO 3200, 30-second exposure. What do you think? Any tips for improving my astrophotography technique?',
     author: 'StarGazer42',
     reportedBy: ['User123', 'Mod456'],
     reportReason: ['Inappropriate content', 'Spam'],
     status: 'pending',
     createdAt: new Date('2024-01-15T10:30:00'),
     priority: 'high',
+    community: 'Astronomy Lovers',
     metadata: {
       likes: 45,
       comments: 12,
@@ -47,7 +53,7 @@ const mockContentItems: ContentItem[] = [
     id: '2',
     type: 'comment',
     content: 'This is definitely fake, no way you captured this with a phone camera!',
-    fullContent: 'This is definitely fake, no way you captured this with a phone camera! Stop trying to fool people with your edited photos. Real astronomers know this is impossible.',
+    details: 'This is definitely fake, no way you captured this with a phone camera! Stop trying to fool people with your edited photos. Real astronomers know this is impossible.',
     author: 'SkepticalViewer',
     reportedBy: ['PhotoPro789'],
     reportReason: ['Harassment'],
@@ -65,7 +71,7 @@ const mockContentItems: ContentItem[] = [
     id: '3',
     type: 'image',
     content: '[Image: Saturn through telescope]',
-    fullContent: '[High-resolution image of Saturn with clearly visible rings, captured through a 8-inch Schmidt-Cassegrain telescope]',
+    details: '[High-resolution image of Saturn with clearly visible rings, captured through a 8-inch Schmidt-Cassegrain telescope]',
     author: 'PlanetHunter',
     reportedBy: ['User999'],
     reportReason: ['Copyright violation'],
@@ -77,6 +83,60 @@ const mockContentItems: ContentItem[] = [
       comments: 23,
       shares: 15,
       views: 456
+    }
+  },
+  {
+    id: '4',
+    type: 'video',
+    content: '[Video: Solar eclipse time-lapse]',
+    details: '[Video contains potentially misleading information about solar eclipse effects]',
+    author: 'CosmicVoyager',
+    reportedBy: ['User456', 'User789'],
+    reportReason: ['Graphic content', 'Misinformation'],
+    status: 'pending',
+    createdAt: new Date('2024-01-14T18:45:00'),
+    priority: 'critical',
+    metadata: {
+      likes: 120,
+      comments: 45,
+      shares: 32,
+      views: 890
+    }
+  },
+  {
+    id: '5',
+    type: 'link',
+    content: 'Interesting article about black holes: https://example.com/black-holes',
+    details: 'Link appears to be to a legitimate astronomy article but was flagged as spam.',
+    author: 'SpaceExplorer',
+    reportedBy: ['User101'],
+    reportReason: ['Spam'],
+    status: 'pending',
+    createdAt: new Date('2024-01-14T15:20:00'),
+    priority: 'medium',
+    metadata: {
+      likes: 15,
+      comments: 8,
+      shares: 3,
+      views: 150
+    }
+  },
+  {
+    id: '6',
+    type: 'audio',
+    content: '[Audio: Recording of meteor shower sounds]',
+    details: 'Audio verified as authentic recording after review.',
+    author: 'SoundCollector',
+    reportedBy: ['User303'],
+    reportReason: ['Fake content'],
+    status: 'approved',
+    createdAt: new Date('2024-01-12T20:30:00'),
+    priority: 'low',
+    metadata: {
+      likes: 34,
+      comments: 12,
+      shares: 5,
+      views: 210
     }
   }
 ];
@@ -110,13 +170,27 @@ export default function ContentDetails() {
     }
   };
 
-  const getTypeIcon = (type: string) => {
+  const getTypeIcon = (type: ContentType) => {
     switch (type) {
-      case 'post': return '📝';
-      case 'comment': return '💬';
-      case 'image': return '🖼️';
-      case 'video': return '🎥';
+      case 'post': return <FaFileAlt />;
+      case 'comment': return <FaCommentAlt />;
+      case 'image': return <FaImage />;
+      case 'video': return <FaVideo />;
+      case 'link': return <FaLink />;
+      case 'audio': return <FaMusic />;
       default: return '📄';
+    }
+  };
+
+  const getTypeColor = (type: ContentType) => {
+    switch (type) {
+      case 'post': return '#667eea';
+      case 'comment': return '#764ba2';
+      case 'image': return '#2ed573';
+      case 'video': return '#ff4757';
+      case 'link': return '#ffa502';
+      case 'audio': return '#f39c12';
+      default: return '#ffffff';
     }
   };
 
@@ -202,13 +276,13 @@ export default function ContentDetails() {
         <div className="content-card">
           {/* Content Header */}
           <div className="content-header">
-            <div className="content-type">
+            <div className="content-type" style={{ color: getTypeColor(content.type) }}>
               <span className="type-icon">{getTypeIcon(content.type)}</span>
               <span className="type-label">{content.type.charAt(0).toUpperCase() + content.type.slice(1)}</span>
             </div>
             <div className="content-status">
               <div className={`priority-badge priority-${content.priority}`}>
-                {content.priority} priority
+                {content.priority}
               </div>
               <div className={`status-badge status-${content.status}`}>
                 {content.status}
@@ -226,16 +300,28 @@ export default function ContentDetails() {
                   <FaClock className="clock-icon" />
                   {content.createdAt.toLocaleString()}
                 </span>
+                {content.community && (
+                  <span className="community">Posted in: {content.community}</span>
+                )}
               </div>
             </div>
           </div>
 
           {/* Content Body */}
           <div className="content-body">
-            <h3>Content</h3>
-            <div className="content-text">
-              {content.fullContent || content.content}
+            <h3>Content Preview</h3>
+            <div className="content-preview">
+              {content.content}
             </div>
+            
+            {content.details && (
+              <>
+                <h3>Full Content</h3>
+                <div className="content-text">
+                  {content.details}
+                </div>
+              </>
+            )}
           </div>
 
           {/* Metadata */}
@@ -300,7 +386,6 @@ export default function ContentDetails() {
                 icon={<FaCheck />}
                 iconPosition="left"
                 onClick={handleApprove}
-                // className="action-button"
               >
                 Approve Content
               </Button>
@@ -310,7 +395,6 @@ export default function ContentDetails() {
                 icon={<FaTimes />}
                 iconPosition="left"
                 onClick={handleReject}
-                // className="action-button"
               >
                 Reject Content
               </Button>

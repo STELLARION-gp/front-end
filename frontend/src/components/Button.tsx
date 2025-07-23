@@ -10,7 +10,7 @@ interface ButtonProps {
   px?: string;
   white?: boolean;
   variant?: "primary" | "secondary" | "success" | "warning" | "danger" | "border" | "ghost";
-  size?: "small" | "medium" | "large";
+  size?: "small" | "medium" | "large" | "xs";
   type?: "button" | "submit" | "reset";
   disabled?: boolean;
   loading?: boolean;

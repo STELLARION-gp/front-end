@@ -11,8 +11,8 @@ import InputField from '../components/InputField';
 import Message from '../components/Message';
 import LoadingOverlay from '../components/LoadingOverlay';
 import AuthScene3D from '../components/AuthScene3D';
-import signupImage from '../assets/signup.jpg';
-import logoDark from '../assets/logo-dark.png';
+import signupImage from '../assets/signup.webp';
+import logoDark from '../assets/logo-dark.webp';
 import '../styles/components/_auth.scss';
 
 const Signup: React.FC = () => {
@@ -33,11 +33,11 @@ const Signup: React.FC = () => {
 
   const handleGoogleSignIn = useCallback(async () => {
     setLoadingType('google');
-    
+
     // Add debug information
     debugAuthConfiguration();
     await testFirebaseConnection();
-    
+
     await withLoading(async () => {
       try {
         setError('');
@@ -78,6 +78,7 @@ const Signup: React.FC = () => {
   //   { value: 'admin', label: 'Admin', description: 'Administrative access' },
   // ];
 
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -95,6 +96,11 @@ const Signup: React.FC = () => {
 
     if (lastNameError) {
       setError(lastNameError);
+      return;
+    }
+
+    if (!emailRegex.test(email)) {
+      setError('Please enter a valid email address.');
       return;
     }
 

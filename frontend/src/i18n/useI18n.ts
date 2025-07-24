@@ -48,9 +48,15 @@ export const useI18n = () => {
      * @param key - Translation key
      * @param values - Values for interpolation
      */
-    const formatText = (key: string, values?: Record<string, string | number>) => {
-        return t(key, values);
+    const formatText = (key: string, values?: Record<string, string | number>, options?: any) => {
+        return t(key, { ...values, ...options });
     };
+
+    /**
+     * Get translation for arrays/objects (returnObjects: true)
+     * Usage: tArray('stats.items')
+     */
+    const tArray = (key: string) => t(key, { returnObjects: true });
 
     /**
      * Get all available languages
@@ -69,6 +75,7 @@ export const useI18n = () => {
 
     return {
         t,
+        tArray,
         i18n,
         changeLanguage,
         getCurrentLanguage,

@@ -65,6 +65,8 @@ export interface AuthContextType {
   // Debug and sync helpers
   getSyncStatus?: () => { pending: number; operations: Array<{ id: string; type: string; retryCount: number; timestamp: number }> };
   triggerSync?: () => Promise<void>;
+  authError: string | null;
+  setAuthError: (err: string | null) => void;
 }
 
 // Permission levels based on your backend roles

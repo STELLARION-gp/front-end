@@ -29,6 +29,7 @@ const Sessions = () => {
     difficulty: string
     link: string
     category: string
+    paymentType: string // 'free' | 'paid'
     materials: Material[]
     notes: string
   }>({
@@ -43,6 +44,7 @@ const Sessions = () => {
     difficulty: 'beginner',
     link: '',
     category: 'observation',
+    paymentType: 'paid', // default to paid
     materials: [],
     notes: ''
   })
@@ -156,7 +158,7 @@ const Sessions = () => {
           <h3>Live Sessions</h3>
           <div className="sessions-list">
             {liveSessions.map(session => (
-              <div key={session.id} className={`session-card live-session ${!session.registrationEnabled ? 'registration-disabled' : ''}`}>
+              <div key={session.id} className={`influencer-session-card live-session ${!session.registrationEnabled ? 'registration-disabled' : ''}`}>
                 <div className="session-header">
                   <div className="session-title-info">
                     <h3>{session.title}</h3>
@@ -164,15 +166,17 @@ const Sessions = () => {
                   </div>
                   <div className="session-status-container">
                     <span className="session-status live">LIVE</span>
-                    {!session.registrationEnabled && (
-                      <span className="registration-status disabled">Registration Closed</span>
-                    )}
                   </div>
                 </div>
                 <div className="session-details">
                   <p><span className="icon">📅</span> {session.date} at {session.time}</p>
                   <p><span className="icon">👥</span> {session.participants}/{session.maxParticipants} participants</p>
                   <p><span className="icon">💰</span> LKR {session.price}</p>
+                  <p className="session-payment-type">
+                    <span className={`payment-label ${session.price === 0 ? 'free' : 'paid'}`}>
+                      {session.price === 0 ? 'Free' : 'Paid'}
+                    </span>
+                  </p>
                   {!session.registrationEnabled && (
                     <p className="registration-note">⚠️ New registrations are currently disabled</p>
                   )}
@@ -191,37 +195,15 @@ const Sessions = () => {
                 <div className="registration-control-section">
                   <div className="control-header">
                     <h4>Registration Settings</h4>
-                
                   </div>
                   <div className="registration-toggle">
-                    <div className="toggle-options">
-                      <label className={`toggle-option ${session.registrationEnabled ? 'active' : ''}`}>
-                        <input 
-                          type="radio" 
-                          name={`registration-${session.id}`}
-                          checked={session.registrationEnabled === true}
-                          onChange={() => handleRegistrationChange(session.id, true)}
-                        />
-                        <span className="option-icon">🟢</span>
-                        <span className="option-text">
-                          <strong>Available</strong>
-            
-                        </span>
-                      </label>
-                      <label className={`toggle-option ${!session.registrationEnabled ? 'active' : ''}`}>
-                        <input 
-                          type="radio" 
-                          name={`registration-${session.id}`}
-                          checked={session.registrationEnabled === false}
-                          onChange={() => handleRegistrationChange(session.id, false)}
-                        />
-                        <span className="option-icon">🔴</span>
-                        <span className="option-text">
-                          <strong>Unavailable</strong>
-                          
-                        </span>
-                      </label>
-                    </div>
+                    <button
+                      type="button"
+                      className={`simple-toggle-btn${session.registrationEnabled ? ' enabled' : ''}`}
+                      onClick={() => handleRegistrationChange(session.id, !session.registrationEnabled)}
+                    >
+                      {session.registrationEnabled ? 'Registration Enabled' : 'Registration Disabled'}
+                    </button>
                   </div>
                 </div>
                 <div className="session-actions">
@@ -238,7 +220,7 @@ const Sessions = () => {
           <h3>Recorded Sessions</h3>
           <div className="sessions-list">
             {recordedSessions.map(session => (
-              <div key={session.id} className={`session-card recorded-session ${!session.registrationEnabled ? 'registration-disabled' : ''}`}>
+              <div key={session.id} className={`influencer-session-card recorded-session ${!session.registrationEnabled ? 'registration-disabled' : ''}`}>
                 <div className="session-header">
                   <div className="session-title-info">
                     <h3>{session.title}</h3>
@@ -246,13 +228,15 @@ const Sessions = () => {
                   </div>
                   <div className="session-status-container">
                     <span className="session-status recorded">RECORDED</span>
-                    {!session.registrationEnabled && (
-                      <span className="registration-status disabled">Unavailable</span>
-                    )}
                   </div>
                 </div>
                 <div className="session-details">
                   <p><span className="icon">💰</span> LKR {session.price}</p>
+                  <p className="session-payment-type">
+                    <span className={`payment-label ${session.price === 0 ? 'free' : 'paid'}`}>
+                      {session.price === 0 ? 'Free' : 'Paid'}
+                    </span>
+                  </p>
                   <p><span className="icon">📊</span> {session.purchases} purchases</p>
                   <p><span className="icon">⭐</span> {session.rating}/5.0</p>
                   <p><span className="icon">💵</span> LKR {session.earnings} earned</p>
@@ -277,34 +261,13 @@ const Sessions = () => {
                     <p className="control-description">Control whether users can purchase this session</p>
                   </div>
                   <div className="registration-toggle">
-                    <div className="toggle-options">
-                      <label className={`toggle-option ${session.registrationEnabled ? 'active' : ''}`}>
-                        <input 
-                          type="radio" 
-                          name={`availability-${session.id}`}
-                          checked={session.registrationEnabled === true}
-                          onChange={() => handleRegistrationChange(session.id, true)}
-                        />
-                        <span className="option-icon">🟢</span>
-                        <span className="option-text">
-                          <strong>Available</strong>
-                          
-                        </span>
-                      </label>
-                      <label className={`toggle-option ${!session.registrationEnabled ? 'active' : ''}`}>
-                        <input 
-                          type="radio" 
-                          name={`availability-${session.id}`}
-                          checked={session.registrationEnabled === false}
-                          onChange={() => handleRegistrationChange(session.id, false)}
-                        />
-                        <span className="option-icon">🔴</span>
-                        <span className="option-text">
-                          <strong>Unavailable</strong>
-                         
-                        </span>
-                      </label>
-                    </div>
+                    <button
+                      type="button"
+                      className={`simple-toggle-btn${session.registrationEnabled ? ' enabled' : ''}`}
+                      onClick={() => handleRegistrationChange(session.id, !session.registrationEnabled)}
+                    >
+                      {session.registrationEnabled ? 'Available for Purchase' : 'Unavailable for Purchase'}
+                    </button>
                   </div>
                 </div>
                 <div className="session-actions">
@@ -349,12 +312,24 @@ const Sessions = () => {
           </div>
 
           <div className="form-group">
+            <label>Session Payment Type</label>
+            <select
+              value={newSession.paymentType}
+              onChange={e => setNewSession({ ...newSession, paymentType: e.target.value })}
+            >
+              <option value="paid">Paid</option>
+              <option value="free">Free</option>
+            </select>
+          </div>
+
+          <div className="form-group">
             <label>Price (LKR)</label>
-            <input 
-              type="number" 
+            <input
+              type="number"
               value={newSession.price}
-              onChange={(e) => setNewSession({...newSession, price: e.target.value})}
-              placeholder="2500"
+              onChange={e => setNewSession({ ...newSession, price: e.target.value })}
+              placeholder={newSession.paymentType === 'free' ? '0' : '2500'}
+              disabled={newSession.paymentType === 'free'}
             />
           </div>
 
@@ -1194,6 +1169,8 @@ const Sessions = () => {
     </div>
   )
 }
+
+
 
 export default Sessions
 

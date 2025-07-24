@@ -5,6 +5,14 @@ import GalaxyHero from '../components/HeroComponents/GalaxyHero';
 import './../styles/pages/Hero.scss';
 //import Team from '../components/HomeComponents/Team';
 import Footer from '../components/Footer';
+import StatsSection from '../components/HomeComponents/StatsSection';
+import AboutSection from '../components/HomeComponents/AboutSection';
+import FeaturesSection from '../components/HomeComponents/FeatureSection';
+import CTASection from '../components/HomeComponents/CTASection';
+import astro from '../assets/astro.webp';
+import astro2 from '../assets/astro3.webp';
+//import ActorsCarousel from '../components/HomeComponents/ActorsCarousel';
+
 
 const NewHome = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -43,7 +51,17 @@ const NewHome = () => {
           {/* Scrollable content on top of galaxy background */}
           <div className="new-home">
             <Hero />
-            {/* <Team /> */}
+            <img src={astro2} alt="astro2" className='astro-floating-img2' />
+            <StatsSection />
+            <img src={astro} alt='astro' className='astro-floating-img' />
+            <div id="about">
+              <AboutSection />
+            </div>
+            <div id="features">
+              <FeaturesSection />
+            </div>
+            {/* <ActorsCarousel /> */}
+            <CTASection />
           </div>
 
           {/* Footer */}

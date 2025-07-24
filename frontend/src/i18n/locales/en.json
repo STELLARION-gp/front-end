@@ -9,7 +9,10 @@
         "features": "Features",
         "team": "Team",
         "explore": "Explore",
+        "plans": "Subscription Plans",
+        "subscription": "Subscription",
         "adminPanel": "Admin Panel",
+        "backToHome": "Back to Home",
         "goToHome": "Go to Home",
         "scrollToTop": "Scroll to top",
         "currentLanguage": "Current language",
@@ -29,6 +32,103 @@
         "description": "Join Stellarion — your guided gateway to space exploration, learning, and discovery. From space updates to immersive learning sessions, space is now just a click away.",
         "getStarted": "Get Started",
         "scrollToExplore": "Scroll to explore"
+    },
+    "about": {
+        "badge": "🧭 About Us",
+        "title": "Our Mission: Make the Cosmos Accessible to All",
+        "description1": "At Stellarion, we believe space should inspire and educate everyone — not just astronauts or scientists. Our platform combines the latest astronomical data, community-driven learning, and real-time tools to connect curious minds with the wonders of the universe.",
+        "description2": "Founded by space enthusiasts and supported by real-time NASA data, Stellarion is more than a site — it's a community. Whether you're a student, stargazer, researcher, or just dream of the stars, you're welcome here.",
+        "features": [
+            {
+                "icon": "Telescope",
+                "title": "Latest Data",
+                "description": "Real-time NASA data integration"
+            },
+            {
+                "icon": "Users",
+                "title": "Community Driven",
+                "description": "Learn together with space enthusiasts"
+            },
+            {
+                "icon": "Zap",
+                "title": "Real-time Tools",
+                "description": "Interactive space exploration tools"
+            },
+            {
+                "icon": "Heart",
+                "title": "For Everyone",
+                "description": "From students to researchers"
+            }
+        ],
+        "missionCard": {
+            "title": "Explore Together",
+            "description": "Join our community of space explorers",
+            "userCount": "+25K users"
+        }
+    },
+    "featuresSection": {
+        "badge": "✨ Core Features",
+        "title": "Everything You Need to Explore Space",
+        "subtitle": "Discover the universe with our comprehensive suite of space exploration tools",
+        "features": [
+            {
+                "icon": "Users",
+                "title": "Mentorship & Learning Journeys",
+                "description": "Connect with astronomy mentors and follow personalized learning paths tailored to your interests—black holes, astrophotography, or planetary science."
+            },
+            {
+                "icon": "CalendarDays",
+                "title": "Night Camps & Celestial Events",
+                "description": "Join real-world astronomy night camps, witness eclipses or meteor showers, and explore verified stargazing spots across Sri Lanka."
+            },
+            {
+                "icon": "BotMessageSquare",
+                "title": "AI Chatbot 'Stella'",
+                "description": "Ask space questions, check facts, get grammar support, or explore astronomy topics instantly with Stella, your smart cosmic assistant."
+            }
+        ]
+    },
+    "cta": {
+        "title": "Ready to Explore the Universe?",
+        "description": "Join thousands of space enthusiasts and start your cosmic journey today. Discover real-time satellite tracking, interactive star maps, and connect with a community that shares your passion for the stars.",
+        "primary": "Start Exploring",
+        "demo": "View Demo",
+        "features": [
+            "Free to start",
+            "Real-time data",
+            "Expert community"
+        ]
+    },
+    "stats": {
+        "title": "Our Impact Across the Galaxy",
+        "subtitle": "Join thousands of space enthusiasts exploring the cosmos together",
+        "items": [
+            {
+                "icon": "Globe",
+                "value": "25000",
+                "label": "Global Users"
+            },
+            {
+                "icon": "Rocket",
+                "value": "1200",
+                "label": "Celestial Events Tracked"
+            },
+            {
+                "icon": "Satellite",
+                "value": "600",
+                "label": "Active Satellite Feeds"
+            },
+            {
+                "icon": "GraduationCap",
+                "value": "300",
+                "label": "Expert-led Sessions"
+            },
+            {
+                "icon": "Star",
+                "value": "4.9",
+                "label": "Average User Rating"
+            }
+        ]
     },
     "auth": {
         "signIn": "Sign In",
@@ -75,7 +175,8 @@
             "achievements": "Achievements & Contributions",
             "notifications": "Notifications",
             "security": "Security",
-            "dangerZone": "Danger Zone"
+            "dangerZone": "Danger Zone",
+            "privacy": "Privacy"
         },
         "fields": {
             "firstName": "First Name",
@@ -106,7 +207,9 @@
             "github": "GitHub",
             "githubPlaceholder": "GitHub username",
             "linkedin": "LinkedIn",
-            "linkedinPlaceholder": "LinkedIn profile"
+            "linkedinPlaceholder": "LinkedIn profile",
+            "certifications": "Certifications",
+            "joinedCommunities": "Joined Communities"
         },
         "experienceLevels": {
             "beginner": "Beginner",
@@ -220,6 +323,7 @@
             "title": "Quick Links",
             "home": "Home",
             "about": "About",
+            "features": "Features",
             "dashboard": "Dashboard",
             "login": "Login"
         },
@@ -263,5 +367,78 @@
         "message": "Are you sure you want to logout?",
         "confirmButton": "Logout",
         "cancelButton": "Cancel"
+    },
+    "subscription": {
+        "plans": {
+            "starseeker": {
+                "name": "StarSeeker Plan",
+                "description": "For curious learners, students, or casual space lovers starting their astronomy journey.",
+                "price": "Free",
+                "features": [
+                    "Access to basic astronomy lessons",
+                    "Daily NASA photo feed",
+                    "Monthly celestial event calendar",
+                    "Access to discussion forums",
+                    "Limited access to AI chatbot (3 questions/day)"
+                ]
+            },
+            "galaxy_explorer": {
+                "name": "Galaxy Explorer Plan",
+                "description": "For hobbyists, school students, teachers, and astronomy enthusiasts looking for more depth.",
+                "price": "LKR 990/month",
+                "priceUsd": "$5.90/month",
+                "features": [
+                    "Access to basic and intermediate astronomy lessons",
+                    "Daily NASA photo feed",
+                    "Monthly celestial event calendar",
+                    "Access to discussion forums",
+                    "Access to intermediate lessons & quizzes",
+                    "Unlimited AI chatbot questions",
+                    "RSVP to night camps & workshops"
+                ]
+            },
+            "cosmic_voyager": {
+                "name": "Cosmic Voyager Plan",
+                "description": "For advanced learners, educators, astro-nerds, and families wanting the full immersive experience.",
+                "price": "LKR 2,490/month",
+                "priceUsd": "$14.90/month",
+                "features": [
+                    "Access to basic, intermediate, advanced astronomy lessons & certifications",
+                    "Daily NASA photo feed",
+                    "Monthly celestial event calendar",
+                    "Access to discussion forums",
+                    "Access to intermediate lessons & quizzes",
+                    "Unlimited AI chatbot questions",
+                    "RSVP to night camps & workshops",
+                    "1-on-1 tutor sessions",
+                    "Priority access to exclusive night camps",
+                    "Early access to new features",
+                    "Feature request priority"
+                ]
+            }
+        },
+        "modal": {
+            "upgradeRequired": "Upgrade Required",
+            "upgradeMessage": "To access {{feature}}, you need to upgrade from {{currentPlan}} to {{requiredPlan}}.",
+            "currentPlan": "Current Plan: {{plan}}",
+            "upgradeTo": "Upgrade to {{plan}}",
+            "upgradeButton": "Upgrade Now",
+            "cancelButton": "Cancel"
+        },
+        "payment": {
+            "title": "Subscribe to {{planName}}",
+            "processing": "Processing Payment...",
+            "payButton": "Pay {{amount}}",
+            "securePayment": "Secure Payment with PayHere",
+            "planDetails": "Plan Details",
+            "includedFeatures": "Included Features",
+            "errorTitle": "Payment Error",
+            "loadingError": "PayHere payment gateway not loaded",
+            "orderError": "Failed to create payment order",
+            "missingFields": "Missing required PayHere fields: {{fields}}",
+            "paymentFailed": "Payment failed. Please try again.",
+            "timeout": "Payment timeout. Please try again.",
+            "closeButton": "Close"
+        }
     }
 }

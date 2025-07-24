@@ -1,7 +1,7 @@
 import React from "react";
 import "../../styles/pages/mentor/MentorNotification.scss";
-import { useMentorPause } from "../../contexts/MentorPauseContext";
-import { useMentee } from "../../contexts/MenteeContext";
+import { useMentorPause } from "../../contexts/mentor/MentorPauseContext";
+import { useMentee } from "../../contexts/mentor/MenteeContext";
 
 interface MentorNotificationProps {
   name: string;
@@ -60,8 +60,8 @@ const MentorNotification: React.FC = () => {
             </div>
             <div className="mentor-notification__message">
               {menteeCount >= maxMentees 
-                ? `Availability automatically turned off. You have reached your maximum of ${maxMentees} mentees.`
-                : `Availability automatically turned on. You now have ${menteeCount} mentees (max: ${maxMentees}).`
+                ? `Availability automatically turned off.`
+                : `Availability automatically turned on.`
               }
             </div>
           </div>

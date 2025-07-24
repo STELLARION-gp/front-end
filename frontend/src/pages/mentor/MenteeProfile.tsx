@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import '../../styles/pages/mentor/menteeProfile.scss';
-import signupImg from '../../assets/signup.jpg';
+import signupImg from '../../assets/signup.webp';
 import groupChatIcon from '../../assets/groupchat.png';
 import { StarIcon } from '@heroicons/react/24/solid';
 import { DocumentTextIcon } from '@heroicons/react/24/outline';
@@ -65,6 +65,14 @@ const MenteeProfile: React.FC = () => {
                 </div>
               </div>
             </div>
+            {/* Learning Path Button */}
+            <button
+              className="mentee-profile-learnpath-btn mentor-btn-blue mentor-btn-small"
+              style={{ marginTop: 24, width: '100%' }}
+              onClick={() => navigate('/dashboard/learnpath')}
+            >
+              Learning Path
+            </button>
           </div>
           {/* Right: Documents & Stats */}
           <div className="mentee-profile-right">

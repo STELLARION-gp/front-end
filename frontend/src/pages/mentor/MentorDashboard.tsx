@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import Button from '../../components/Button';
 import { BellIcon, ChevronLeftIcon, ChevronRightIcon, PlusIcon, UserGroupIcon, CalendarDaysIcon, UsersIcon } from '@heroicons/react/24/outline';
-import avatarImg from '../../assets/world.png';
+import avatarImg from '../../assets/Mentee.png';
 import '../../styles/pages/mentor/mentorprofile.scss';
 import '../../styles/pages/Dashboard.scss';
 import '../../styles/components/_buttons.scss';
 import dayjs from 'dayjs';
 import { useNavigate } from 'react-router-dom';
 import '../../styles/pages/mentor/mentorDashboard.scss';
-import { useMentorPause } from '../../contexts/MentorPauseContext';
-import { useMentee } from '../../contexts/MenteeContext';
+import { useMentorPause } from '../../contexts/mentor/MentorPauseContext';
+import { useMentee } from '../../contexts/mentor/MenteeContext';
 
 const mentees = [
   { id: 1, name: 'Alice', img: avatarImg },

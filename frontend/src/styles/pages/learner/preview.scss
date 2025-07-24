@@ -5,33 +5,48 @@
     flex-direction: column;
     margin-bottom: 2rem;
 }
-.astronomy-card-container{
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1.5rem;
-    margin-top: 1rem;
-}
-.nasa-image-container {
+.astronomy-card-container,
+.nasa-image-container,
+.space-events-container,
+.competitions-container,
+.organized-events-container {
   display: flex;
   flex-wrap: wrap;
   gap: 1.5rem;
   margin-top: 1rem;
+  justify-content: flex-start;
 }
 
-
-.space-events-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.2rem;
-  margin-top: 1rem;
+// Make each card take up more width for 4 per row, with gap compensation
+.astronomy-card-container > *,
+.nasa-image-container > *,
+.space-events-container > *,
+.competitions-container > *,
+.organized-events-container > * {
+  flex: 0 1 calc(24% - 1.5rem); // slightly wider cards
+  min-width: 260px; // increase min width for better appearance
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
-
-
-.competitions-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.5rem;
-  margin-top: 1rem;
+// Responsive: stack cards on smaller screens
+@media (max-width: 1200px) {
+  .astronomy-card-container > *,
+  .nasa-image-container > *,
+  .space-events-container > *,
+  .competitions-container > *,
+  .organized-events-container > * {
+    flex: 0 1 calc(48% - 1.5rem);
+  }
+}
+@media (max-width: 700px) {
+  .astronomy-card-container > *,
+  .nasa-image-container > *,
+  .space-events-container > *,
+  .competitions-container > *,
+  .organized-events-container > * {
+    flex: 0 1 100%;
+    min-width: 0;
+  }
 }
 

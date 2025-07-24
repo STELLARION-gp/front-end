@@ -1,0 +1,499 @@
+// @import '../../variables.scss';
+
+.nightcamp-moderation {
+  min-height: 100vh;
+  // background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+  color: #ffffff;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+
+  // Header
+  .nightcamp-header {
+    padding: 2rem 0;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px 16px 0 0;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+
+    .nightcamp-header-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 2rem;
+
+      .nightcamp-header-left {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+
+        .nightcamp-title-section {
+          h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0 0 0.25rem 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+          }
+
+          p {
+            color: rgba(255, 255, 255, 0.7);
+            margin: 0;
+          }
+        }
+      }
+
+      .nightcamp-header-actions {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+      }
+    }
+  }
+
+  // Controls
+  .controls-section {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 10px;
+    border-radius: 0 0 16px 16px;
+
+
+    .nightcamp-search-box {
+      position: relative;
+      flex: 1;
+      // max-width: 400px;
+      width: 100%;
+
+      .nightcamp-search-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: rgba(255, 255, 255, 0.5);
+      }
+
+      input {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: white;
+        padding: 0.75rem 1rem 0.75rem 2.5rem;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+
+        &:focus {
+          outline: none;
+          border-color: #667eea;
+          background: rgba(255, 255, 255, 0.08);
+          box-shadow: 0 0 15px rgba(102, 126, 234, 0.2);
+        }
+
+        &::placeholder {
+          color: rgba(255, 255, 255, 0.4);
+        }
+      }
+    }
+
+    .filter-tabs {
+      display: flex;
+      gap: 0.5rem;
+
+      .filter-tab {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.7);
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.1);
+          color: white;
+        }
+
+        &.active {
+          background: linear-gradient(135deg, #667eea, #764ba2);
+          border-color: #667eea;
+          color: white;
+        }
+      }
+    }
+  }
+
+  // Main Content
+  .moderation-content1 {
+    max-width: 1400px;
+    margin: 0 auto;
+    // padding: 0 2rem 2rem;
+    min-height: 60vh;
+    padding-bottom: 10px;
+
+    .nightcamp-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+
+      .nightcamp-item {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        padding: 1.5rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.05);
+          border-color: rgba(255, 255, 255, 0.15);
+          transform: translateY(-2px);
+        }
+
+        &.selected {
+          border-color: #667eea;
+          background: rgba(102, 126, 234, 0.1);
+        }
+
+        .nightcamp-item-header {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          margin-bottom: 1rem;
+
+          .nightcamp-item-info {
+            display: flex;
+            gap: 1rem;
+            flex: 1;
+
+            .nightcamp-icon {
+              font-size: 2rem;
+              width: 60px;
+              height: 60px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              background: linear-gradient(135deg, var(--primary-color), var(--accent-primary));
+              border-radius: 12px;
+              color: white;
+              flex-shrink: 0;
+            }
+
+            .nightcamp-item-details {
+              flex: 1;
+
+              .nightcamp-title {
+                font-size: 1.3rem;
+                font-weight: 600;
+                margin: 0 0 0.5rem 0;
+                color: white;
+              }
+
+              .nightcamp-organizer {
+                font-size: 1.2rem;
+                font-weight: 600;
+                margin: 0 0 0.25rem 0;
+                color: white;
+              }
+
+              .nightcamp-meta {
+                display: flex;
+                gap: 1rem;
+                font-size: 0.85rem;
+                color: rgba(255, 255, 255, 0.6);
+                flex-wrap: wrap;
+
+                .nightcamp-meta-item {
+                  display: flex;
+                  align-items: center;
+                  gap: 0.5rem;
+                  color: var(--text-tertiary);
+                  font-size: 0.85rem;
+
+                  svg {
+                    color: var(--accent-primary);
+                    font-size: 0.8rem;
+                  }
+                }
+              }
+            }
+          }
+
+          .nightcamp-status-badges {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            align-items: flex-end;
+
+            .nightcamp-priority-badge {
+              padding: 0.25rem 0.75rem;
+              border-radius: 20px;
+              font-size: 0.75rem;
+              font-weight: 500;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+
+              &.priority-critical {
+                background: rgba(239, 68, 68, 0.1);
+                color: #EF4444;
+                border: 1px solid rgba(239, 68, 68, 0.2);
+              }
+
+              &.priority-high {
+                background: rgba(245, 158, 11, 0.1);
+                color: #F59E0B;
+                border: 1px solid rgba(245, 158, 11, 0.2);
+              }
+
+              &.priority-medium {
+                background: rgba(59, 130, 246, 0.1);
+                color: #3B82F6;
+                border: 1px solid rgba(59, 130, 246, 0.2);
+              }
+
+              &.priority-low {
+                background: rgba(34, 197, 94, 0.1);
+                color: #22C55E;
+                border: 1px solid rgba(34, 197, 94, 0.2);
+              }
+            }
+
+            .nightcamp-status-badge {
+              padding: 0.25rem 0.75rem;
+              border-radius: 20px;
+              font-size: 0.75rem;
+              font-weight: 500;
+              text-transform: capitalize;
+
+              &.status-pending {
+                background: rgba(245, 158, 11, 0.1);
+                color: #F59E0B;
+                border: 1px solid rgba(245, 158, 11, 0.2);
+              }
+
+              &.status-approved {
+                background: rgba(34, 197, 94, 0.1);
+                color: #22C55E;
+                border: 1px solid rgba(34, 197, 94, 0.2);
+              }
+
+              &.status-rejected {
+                background: rgba(239, 68, 68, 0.1);
+                color: #EF4444;
+                border: 1px solid rgba(239, 68, 68, 0.2);
+              }
+
+              &.status-needsreview {
+                background: rgba(168, 85, 247, 0.1);
+                color: #A855F7;
+                border: 1px solid rgba(168, 85, 247, 0.2);
+              }
+            }
+          }
+        }
+
+        .nightcamp-item-content {
+          margin-bottom: 1.5rem;
+
+          .nightcamp-description {
+            margin-bottom: 1rem;
+
+            p {
+              display: flex;
+              align-items: center;
+              gap: 0.5rem;
+              font-size: 0.85rem;
+              color: rgba(255, 255, 255, 0.7);
+            }
+          }
+
+          .nightcamp-stats {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(120px, 120px));
+            gap: 1rem;
+
+            .nightcamp-stat-item {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              padding: 0.5rem 0;
+
+              .nightcamp-label {
+                color: white;
+                font-size: 0.85rem;
+              }
+
+              .nightcamp-value {
+                color: var(--text-primary);
+                font-weight: 500;
+                font-size: 0.9rem;
+                display: flex;
+                align-items: center;
+                gap: 0.25rem;
+
+                &.warning {
+                  color: #F59E0B;
+                }
+
+                .nightcamp-star-icon {
+                  color: #F59E0B;
+                  font-size: 0.8rem;
+                }
+              }
+            }
+          }
+        }
+
+        .nightcamp-item-actions {
+          display: flex;
+          gap: 0.75rem;
+          justify-content: flex-end;
+          flex-wrap: wrap;
+        }
+      }
+    }
+  }
+
+  // Loading State
+  .nightcamp-loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    gap: 1rem;
+
+    .nightcamp-loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid var(--border-primary);
+      border-top: 4px solid var(--primary-color);
+      border-radius: 50%;
+      animation: nightcamp-spin 1s linear infinite;
+    }
+  }
+
+  @keyframes nightcamp-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  // Responsive Design
+  @media (max-width: 768px) {
+    .nightcamp-header {
+      padding: 1.5rem 1rem 1rem;
+
+      .nightcamp-header-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+
+        .nightcamp-header-left {
+          width: 100%;
+
+          .nightcamp-title-section h1 {
+            font-size: 1.5rem;
+          }
+        }
+
+        .nightcamp-header-actions {
+          width: 100%;
+          justify-content: flex-start;
+        }
+      }
+    }
+
+    .nightcamp-controls {
+      padding: 1rem;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 1rem;
+
+      .nightcamp-search-box {
+        max-width: none;
+      }
+
+      .nightcamp-filter-tabs {
+        justify-content: center;
+      }
+    }
+
+    .nightcamp-content {
+      padding: 1rem;
+
+      .nightcamp-list .nightcamp-item {
+        padding: 1rem;
+
+        .nightcamp-item-header {
+          flex-direction: column;
+          gap: 1rem;
+
+          .nightcamp-status-badges {
+            flex-direction: row;
+            align-items: center;
+          }
+        }
+
+        .nightcamp-item-content .nightcamp-stats {
+          grid-template-columns: 1fr;
+        }
+
+        .nightcamp-item-actions {
+          justify-content: center;
+        }
+      }
+    }
+  }
+
+  @media (max-width: 480px) {
+    .nightcamp-header .nightcamp-header-content .nightcamp-header-left {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+
+    .nightcamp-list .nightcamp-item {
+      .nightcamp-item-header .nightcamp-item-info {
+        flex-direction: column;
+        gap: 0.75rem;
+
+        .nightcamp-icon {
+          align-self: flex-start;
+          width: 50px;
+          height: 50px;
+          font-size: 1.5rem;
+        }
+      }
+
+      .nightcamp-item-content .nightcamp-meta {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .nightcamp-item-actions {
+        flex-direction: column;
+
+        button {
+          width: 100%;
+        }
+      }
+    }
+  }
+}
+

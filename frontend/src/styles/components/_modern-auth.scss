@@ -184,7 +184,8 @@
         align-items: center;
         justify-content: center;
 
-        @media (min-width: 768px) {
+        @media (min-width: 900px) {
+            //display: none;
             width: 50%;
             height: 38rem;
             /* Fixed height to match card */
@@ -306,7 +307,7 @@
 // Message component styles
 .auth-message {
     padding: 0.875rem 1rem;
-    margin-bottom: 1.25rem;
+    margin-bottom: 1rem;
     width: 100%;
     max-width: 360px;
     border-radius: 0.5rem;

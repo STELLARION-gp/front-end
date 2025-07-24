@@ -1,0 +1,85 @@
+
+// .mentor-profiles-bg {
+//   background: linear-gradient(135deg, #4f8cff 0%, #a259ff 100%);
+//   min-height: 100vh;
+//   padding-top: 2.5rem;
+//   padding-bottom: 2.5rem;
+// }
+.mentor-profiles-container {
+  
+  
+  
+  padding-right: 2rem;
+  
+  
+}
+.mentor-profiles-title {
+  font-size: 2.1rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.01em;
+  text-shadow: 0 2px 8px rgba(37,99,235,0.10);
+}
+.mentor-profiles-desc {
+  color: #b3b8c5;
+  font-size: 1.1rem;
+  margin-bottom: 2.2rem;
+}
+// Enhanced dark blue table styles for consistency
+.mentor-table {
+  width: 100%;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(37,99,235,0.13);
+  background: #19223a;
+}
+// Table header and cell alignment
+.mentor-table th {
+  background: #23283a;
+  color: #60a5fa;
+  font-weight: 700;
+  font-size: 1.1rem;
+  padding: 1rem 0.75rem;
+  border-bottom: 2px solid #2e3a5e;
+  letter-spacing: 0.01em;
+  text-align: left;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+.mentor-table td {
+  padding: 0.85rem 0.75rem;
+  font-size: 1rem;
+  color: #f1f5f9;
+  background: #19223a;
+  text-align: left;
+  border-bottom: 1px solid #23283a;
+  transition: background 0.2s, color 0.2s;
+}
+
+.mentor-table tr {
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+.mentor-table tr:hover td {
+  background: #23283a;
+  color: #60a5fa;
+  box-shadow: 0 2px 12px rgba(80,120,255,0.18);
+}
+.mentor-action-btn {
+  padding: 0.5rem 1.1rem;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  background: #b57aff;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(80,80,180,0.13);
+  transition: background 0.2s, transform 0.2s;
+  border: none;
+  cursor: pointer;
+}
+.mentor-action-btn:hover {
+  background: #a259ff;
+  transform: scale(1.05);
+}

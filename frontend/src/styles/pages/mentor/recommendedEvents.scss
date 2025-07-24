@@ -1,0 +1,89 @@
+.recommended-events-page {
+  width: 98%;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 2.5rem 1.5rem;
+  background: linear-gradient(120deg, #1e293b99 10%, #36476499 100%);
+  border-radius: 18px;
+  box-shadow: 0 4px 32px rgba(37, 99, 235, 0.1);
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+.recommended-events-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2.5rem;
+  h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #60a5fa;
+  }
+}
+.recommend-events-btn {
+  background: linear-gradient(90deg, #3b82f6 60%, #6366f1 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.7rem 1.6rem;
+  font-weight: 600;
+  font-size: 1.1rem;
+  box-shadow: 0 2px 8px rgba(59,130,246,0.08);
+  cursor: pointer;
+  transition: background 0.2s;
+  &:hover {
+    background: linear-gradient(90deg, #2563eb 60%, #4f46e5 100%);
+  }
+}
+.recommended-events-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+}
+.event-card {
+  background: linear-gradient(135deg, #232b3b 80%, #334155 100%);
+  border-radius: 12px;
+  box-shadow: 0 2px 16px 0 rgba(37,99,235,0.10);
+  padding: 1.2rem 1.2rem 1.1rem 1.2rem;
+  color: #e5e7eb;
+  max-width: 340px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  border: 2px solid #334155;
+  transition: box-shadow 0.2s, border-color 0.2s, transform 0.18s;
+  overflow: hidden;
+  &:hover {
+    border-color: #3b82f6;
+    box-shadow: 0 8px 32px 0 rgba(59,130,246,0.18), 0 4px 24px rgba(37,99,235,0.18);
+    transform: translateY(-2px) scale(1.018);
+  }
+}
+.event-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #60a5fa;
+  margin-bottom: 0.2rem;
+}
+.event-desc {
+  color: #cbd5e1;
+  font-size: 1rem;
+  margin-bottom: 0.2rem;
+}
+.event-details-btn {
+  background: #3b82f6;
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  padding: 0.5rem 1.2rem;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: not-allowed;
+  margin-top: 0.5rem;
+}
+.no-events {
+  color: #a0aec0;
+  font-style: italic;
+  padding: 2rem 0;
+} 

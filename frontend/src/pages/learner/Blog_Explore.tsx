@@ -21,6 +21,8 @@ const BlogExplore: React.FC = () => {
   const uniqueAuthors = Array.from(new Set(blogs.map(b => b.author)));
   return (
     <div className="blog-explore-page">
+      <h2>Explore Astronomy Blogs</h2>
+      <p>Discover the latest insights and discoveries in the field of astronomy.</p>
       <div className="blog-explore-head-cards">
         <div className="blog-stat-card">
           <BookOpenIcon className="blog-stat-icon" />
@@ -81,9 +83,8 @@ const BlogExplore: React.FC = () => {
           ))}
         </select>
       </div>
-      <h2>Explore Astronomy Blogs</h2>
-      <p>Discover the latest insights and discoveries in the field of astronomy.</p>
-      <div className="blog-list">
+      
+      <div className="astronomy-card-container">
         {filteredBlogs.map(blog => (
           <AstronomyBlogCard
             key={blog.id}

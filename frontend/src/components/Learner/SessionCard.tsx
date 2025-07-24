@@ -55,7 +55,7 @@ const SessionCard: React.FC<SessionCardProps> = ({
     </div>
     <div className="session-card-actions">
       <Button onClick={() => {}}>Register Now</Button>
-      <Button className="session-bookmark-btn">🔔 Reminder</Button>
+      <Button>🔔 Reminder</Button>
     </div>
   </div>
 );

@@ -215,19 +215,9 @@ const Stargazing: React.FC = () => {
     bestTime: '',
     description: '',
     image: '',
-    facilities: ['']
+    facilities: [''],
+    rating: 0
   });
-
-  const renderStars = (rating: number) => {
-    return Array.from({ length: 5 }, (_, index) => (
-      <span
-        key={index}
-        className={`star ${index < rating ? 'star--filled' : 'star--empty'}`}
-      >
-        ★
-      </span>
-    ));
-  };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -327,7 +317,8 @@ const Stargazing: React.FC = () => {
         bestTime: '',
         description: '',
         image: '',
-        facilities: ['']
+        facilities: [''],
+        rating: 0
       });
       setShowAddSpotModal(false);
       
@@ -344,7 +335,8 @@ const Stargazing: React.FC = () => {
       bestTime: '',
       description: '',
       image: '',
-      facilities: ['']
+      facilities: [''],
+      rating: 0
     });
   };
 
@@ -365,13 +357,27 @@ const Stargazing: React.FC = () => {
       return false;
     }
     
-    // Rating filter - show spots with rating >= selected rating
-    if (filters.rating > 0 && spot.rating < filters.rating) {
-      return false;
-    }
-    
     return true;
   });
+
+  const renderStars = (rating: number) => {
+    const totalStars = 5;
+    const filledStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 !== 0;
+    const stars = [];
+
+    for (let i = 0; i < totalStars; i++) {
+      if (i < filledStars) {
+        stars.push('★');
+      } else if (i === filledStars && hasHalfStar) {
+        stars.push('☆');
+      } else {
+        stars.push('☆');
+      }
+    }
+
+    return stars.join('');
+  };
 
   return (
     <div className="stargazing">
@@ -389,7 +395,7 @@ const Stargazing: React.FC = () => {
               onClick={() => setShowFilters(!showFilters)}
             >
               Filters
-              {hasActiveFilters() && <span className="filter-badge">●</span>}
+              {filters.location && <span className="filter-badge">●</span>}
             </button>
             <Button 
               className="stargazing__add-button"
@@ -412,24 +418,11 @@ const Stargazing: React.FC = () => {
                   onChange={(e) => setFilters({...filters, location: e.target.value})}
                 />
               </div>
-              <div className="stargazing__filter-group">
-                <label>Minimum Rating</label>
-                <select
-                  value={filters.rating}
-                  onChange={(e) => setFilters({...filters, rating: Number(e.target.value)})}
-                >
-                  <option value={0}>All Ratings</option>
-                  <option value={4.5}>4.5+ Stars</option>
-                  <option value={4.0}>4.0+ Stars</option>
-                  <option value={3.5}>3.5+ Stars</option>
-                  <option value={3.0}>3.0+ Stars</option>
-                </select>
-              </div>
               <div className="stargazing__filter-actions">
                 <button 
                   className="stargazing__clear-filters"
-                  onClick={clearFilters}
-                  disabled={!hasActiveFilters()}
+                  onClick={() => setFilters({ location: '', rating: 0 })}
+                  disabled={!filters.location}
                 >
                   Clear
                 </button>
@@ -442,13 +435,6 @@ const Stargazing: React.FC = () => {
       <div className="stargazing__grid">
         {filteredSpots.map((spot) => (
           <div key={spot.id} className="stargazing-card">
-            <div className="stargazing-card__rating-badge">
-              <span className="stargazing-card__rating-value">{spot.rating.toFixed(1)}</span>
-              <div className="stargazing-card__stars">
-                {renderStars(Math.floor(spot.rating))}
-              </div>
-            </div>
-            
             <div className="stargazing-card__image-container">
               <img 
                 src={spot.image} 
@@ -458,9 +444,24 @@ const Stargazing: React.FC = () => {
             </div>
 
             <div className="stargazing-card__content">
-              <div className="stargazing-card__content-top">
+              <div className="stargazing-card__content-top" style={{position: 'relative'}}>
                 <h3 className="stargazing-card__title">{spot.name}</h3>
-                
+                <div style={{
+                  position: 'absolute',
+                  top: 0,
+                  right: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '2px',
+                  fontSize: '1.1rem',
+                  borderRadius: '0 0 0 8px',
+                  padding: '2px 8px'
+                }}>
+                  <span style={{color: '#FFD700', letterSpacing: '1px'}}>
+                    {renderStars(spot.rating)}
+                  </span>
+                  <span style={{marginLeft: 4, color: '#fff', fontSize: '0.95em'}}>{spot.rating.toFixed(1)}</span>
+                </div>
                 <div className="stargazing-card__location">
                   <span className="stargazing-card__location-icon">📍</span>
                   <span className="stargazing-card__location-text">{spot.location}</span>
@@ -500,12 +501,6 @@ const Stargazing: React.FC = () => {
                 <div className="stargazing-modal__location">
                   <span className="stargazing-modal__location-icon">📍</span>
                   <span>{selectedSpot.location}</span>
-                </div>
-                <div className="stargazing-modal__rating">
-                  <span className="stargazing-modal__rating-value">{selectedSpot.rating.toFixed(1)}</span>
-                  <div className="stargazing-modal__stars">
-                    {renderStars(Math.floor(selectedSpot.rating))}
-                  </div>
                 </div>
               </div>
             </div>
@@ -560,21 +555,6 @@ const Stargazing: React.FC = () => {
                       </div>
 
                       <div className="review-form__field">
-                        <label htmlFor="rating">Rating</label>
-                        <select
-                          id="rating"
-                          value={reviewForm.rating}
-                          onChange={(e) => setReviewForm({...reviewForm, rating: Number(e.target.value)})}
-                        >
-                          <option value={5}>5 Stars - Excellent</option>
-                          <option value={4}>4 Stars - Very Good</option>
-                          <option value={3}>3 Stars - Good</option>
-                          <option value={2}>2 Stars - Fair</option>
-                          <option value={1}>1 Star - Poor</option>
-                        </select>
-                      </div>
-
-                      <div className="review-form__field">
                         <label htmlFor="reviewText">Your Review</label>
                         <textarea
                           id="reviewText"
@@ -608,10 +588,6 @@ const Stargazing: React.FC = () => {
                       <div className="review-item__header">
                         <div className="review-item__user-info">
                           <span className="review-item__user-name">{review.userName}</span>
-                          <div className="review-item__rating">
-                            <span className="review-item__rating-value">{review.rating.toFixed(1)}</span>
-                            {renderStars(review.rating)}
-                          </div>
                         </div>
                         <span className="review-item__date">{formatDate(review.date)}</span>
                       </div>
@@ -731,6 +707,30 @@ const Stargazing: React.FC = () => {
                 </div>
               </div>
 
+              {/* Add rating input */}
+              <div className="add-spot-form__row">
+                <div className="add-spot-form__group">
+                  <label htmlFor="spotRating">Rating (0-5)</label>
+                  <input
+                    type="number"
+                    id="spotRating"
+                    min={0}
+                    max={5}
+                    step={0.1}
+                    value={addSpotForm.rating ?? ''}
+                    onChange={e => {
+                      let val = parseFloat(e.target.value);
+                      if (isNaN(val)) val = 0;
+                      setAddSpotForm(prev => ({
+                        ...prev,
+                        rating: val
+                      }));
+                    }}
+                    placeholder="e.g., 4.5"
+                  />
+                </div>
+              </div>
+
               <div className="add-spot-form__actions">
                 <button
                   type="button"
@@ -753,5 +753,7 @@ const Stargazing: React.FC = () => {
     </div>
   );
 };
+
+
 
 export default Stargazing;

@@ -50,6 +50,13 @@
     min-width: 160px;
   }
 
+  &.btn--xs {
+    height: 24px;
+    padding: 0 8px;
+    font-size: 10px;
+    min-width: 64px;
+  }
+
   &.btn--full-width {
     width: 100%;
     min-width: unset;

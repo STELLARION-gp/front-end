@@ -1,0 +1,486 @@
+@use '../abstracts/colors' as *;
+
+.features-section {
+  position: relative;
+  padding: 120px 0;
+  background-color: $theme1;
+  overflow: hidden;
+  border-bottom: 2px solid rgba($theme5, 0.1);
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+      radial-gradient(circle at 80% 10%, rgba(139, 92, 246, 0.04) 0%, transparent 50%);
+    pointer-events: none;
+  }
+}
+
+.features-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  position: relative;
+  z-index: 2;
+}
+
+.features-header {
+  text-align: center;
+  margin-bottom: 80px;
+}
+
+.section-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 16px;
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 50px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: $galaxy-purple;
+  margin-bottom: 32px;
+  backdrop-filter: blur(10px);
+}
+
+.features-title {
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 24px;
+  line-height: 1.2;
+
+  .gradient-text {
+    background: linear-gradient(135deg, $galaxy-purple 0%, $galaxy-blue 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 2.5rem;
+  }
+}
+
+.features-subtitle {
+  font-size: 1.25rem;
+  color: #94a3b8;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 32px;
+  margin-bottom: 80px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}
+
+.feature-card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  padding: 40px 32px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(40px);
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  &:hover,
+  &.active {
+    transform: translateY(-8px);
+    border-color: rgba(139, 92, 246, 0.3);
+    box-shadow: 
+      0 20px 40px rgba(0, 0, 0, 0.3),
+      0 0 60px rgba(139, 92, 246, 0.2);
+
+    &::before {
+      opacity: 1;
+    }
+
+    .card-glow {
+      opacity: 1;
+    }
+
+    .feature-icon {
+      transform: scale(1.1);
+      background: linear-gradient(135deg, $galaxy-purple 0%, $galaxy-blue 100%);
+      color: #ffffff;
+    }
+
+    .feature-action {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  &.animate {
+    opacity: 1;
+    transform: translateY(0);
+    animation: slideInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+}
+
+.card-glow {
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(45deg, $theme2, $theme1);
+  border-radius: 26px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+}
+
+.card-content {
+  position: relative;
+  z-index: 2;
+}
+
+.feature-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%);
+  border-radius: 20px;
+  margin-bottom: 24px;
+  color: $galaxy-purple;
+  transition: all 0.3s ease;
+}
+
+.feature-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 16px;
+  line-height: 1.3;
+}
+
+.feature-description {
+  font-size: 1rem;
+  color: #94a3b8;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.feature-action {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: $galaxy-purple;
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: all 0.3s ease;
+
+  svg {
+    transition: transform 0.2s ease;
+  }
+
+  &:hover svg {
+    transform: translateX(4px);
+  }
+}
+
+// 3D Satellite Model
+.satellite-3d-container {
+  position: relative;
+  height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 60px;
+  perspective: 1000px;
+}
+
+.satellite-model {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  transform-style: preserve-3d;
+  animation: satelliteOrbit 20s linear infinite;
+}
+
+.satellite-body {
+  position: relative;
+  width: 60px;
+  height: 80px;
+  margin: 0 auto;
+  transform-style: preserve-3d;
+}
+
+.satellite-core {
+  width: 60px;
+  height: 80px;
+  background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+  border-radius: 8px;
+  position: relative;
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    background: linear-gradient(135deg, $galaxy-purple 0%, $galaxy-blue 100%);
+    border-radius: 4px;
+    opacity: 0.7;
+  }
+}
+
+.solar-panel {
+  position: absolute;
+  width: 80px;
+  height: 40px;
+  background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%);
+  border: 2px solid $galaxy-blue;
+  top: 50%;
+  transform: translateY(-50%);
+  
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    background: repeating-linear-gradient(
+      90deg,
+      rgba(59, 130, 246, 0.3) 0px,
+      rgba(59, 130, 246, 0.3) 8px,
+      transparent 8px,
+      transparent 12px
+    );
+  }
+
+  &.left {
+    left: -90px;
+    animation: solarPanelRotate 8s ease-in-out infinite;
+  }
+
+  &.right {
+    right: -90px;
+    animation: solarPanelRotate 8s ease-in-out infinite reverse;
+  }
+}
+
+.antenna {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 3px;
+  height: 20px;
+  background: linear-gradient(to top, #4a5568, $galaxy-purple);
+  border-radius: 2px;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 8px;
+    height: 8px;
+    background: $galaxy-purple;
+    border-radius: 50%;
+    box-shadow: 0 0 10px $galaxy-purple;
+  }
+}
+
+.dish {
+  position: absolute;
+  bottom: -15px;
+  right: -20px;
+  width: 30px;
+  height: 30px;
+  background: radial-gradient(circle, #4a5568 30%, #2d3748 100%);
+  border-radius: 50%;
+  border: 2px solid $galaxy-blue;
+  animation: dishRotate 6s linear infinite;
+}
+
+.orbit-ring {
+  position: absolute;
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 50%;
+  animation: orbitRotate 15s linear infinite;
+
+  &.ring-1 {
+    width: 300px;
+    height: 300px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation-duration: 15s;
+  }
+
+  &.ring-2 {
+    width: 400px;
+    height: 400px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation-duration: 25s;
+    animation-direction: reverse;
+  }
+
+  &.ring-3 {
+    width: 500px;
+    height: 500px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation-duration: 35s;
+  }
+}
+
+.floating-particles {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.particle {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: $galaxy-purple;
+  border-radius: 50%;
+  animation: particleFloat 4s ease-in-out infinite;
+  box-shadow: 0 0 6px $galaxy-purple;
+}
+
+// Animations
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes satelliteOrbit {
+  from {
+    transform: rotateY(0deg);
+  }
+  to {
+    transform: rotateY(360deg);
+  }
+}
+
+@keyframes solarPanelRotate {
+  0%, 100% {
+    transform: translateY(-50%) rotateZ(0deg);
+  }
+  50% {
+    transform: translateY(-50%) rotateZ(15deg);
+  }
+}
+
+@keyframes dishRotate {
+  from {
+    transform: rotateZ(0deg);
+  }
+  to {
+    transform: rotateZ(360deg);
+  }
+}
+
+@keyframes orbitRotate {
+  from {
+    transform: translate(-50%, -50%) rotateZ(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotateZ(360deg);
+  }
+}
+
+@keyframes particleFloat {
+  0%, 100% {
+    transform: translateY(0px) scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translateY(-20px) scale(1.2);
+    opacity: 1;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 1024px) {
+  .features-section {
+    padding: 80px 0;
+  }
+  
+  .satellite-3d-container {
+    height: 300px;
+  }
+  
+  .satellite-model {
+    width: 150px;
+    height: 150px;
+  }
+  
+  .orbit-ring {
+    &.ring-1 {
+      width: 250px;
+      height: 250px;
+    }
+    
+    &.ring-2 {
+      width: 320px;
+      height: 320px;
+    }
+    
+    &.ring-3 {
+      width: 400px;
+      height: 400px;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .features-section {
+    padding: 60px 0;
+  }
+  
+  .feature-card {
+    padding: 32px 24px;
+  }
+  
+  .satellite-3d-container {
+    height: 250px;
+    margin-top: 40px;
+  }
+}

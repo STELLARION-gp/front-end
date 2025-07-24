@@ -15,6 +15,7 @@ export interface LocalizedSubscriptionPlan {
     localizedFeatures: string[];
     localizedPrice: string;
     localizedPriceUsd?: string;
+    is_active: boolean;
 }
 
 export interface SubscriptionPlan {
@@ -26,6 +27,7 @@ export interface SubscriptionPlan {
     price_usd?: number;
     features: string[];
     chatbot_questions_limit: number;
+    is_active: boolean;
 }
 
 // Hook to get localized plan details

@@ -106,20 +106,20 @@ interface Feedback {
 }
 
 // Tab component
-const Tab: React.FC<{
-  label: string;
-  icon: React.ReactNode;
-  active: boolean;
-  onClick: () => void;
-}> = ({ label, icon, active, onClick }) => (
-  <div
-    className={`polls-tab ${active ? "active" : ""}`}
-    onClick={onClick}
-  >
-    {icon}
-    <span>{label}</span>
-  </div>
-);
+// const Tab: React.FC<{
+//   label: string;
+//   icon: React.ReactNode;
+//   active: boolean;
+//   onClick: () => void;
+// }> = ({ label, icon, active, onClick }) => (
+//   <div
+//     className={`polls-tab ${active ? "active" : ""}`}
+//     onClick={onClick}
+//   >
+//     {icon}
+//     <span>{label}</span>
+//   </div>
+// );
 
 // Progress bar component
 const ProgressBar: React.FC<{ percent: number; color?: string }> = ({

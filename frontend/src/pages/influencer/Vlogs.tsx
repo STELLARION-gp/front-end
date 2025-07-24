@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Edit2, Trash2, Eye, Heart, Plus, Save, X, Send, MessageCircle, Video } from 'lucide-react';
 import Button from '../../components/Button';
 import InputField from '../../components/InputField';
@@ -221,8 +221,9 @@ export default function Vlogs() {
 
                         <form onSubmit={editingId ? handleUpdateVlog : handleCreateVlog}>
                             <div className="form-group">
-                                <label>Vlog Title</label>
                                 <InputField
+                                    id="vlog-title"
+                                    label="Vlog Title"
                                     type="text"
                                     name="title"
                                     placeholder="Enter your vlog title..."
@@ -245,8 +246,9 @@ export default function Vlogs() {
                             </div>
 
                             <div className="form-group">
-                                <label>Upload Video</label>
+                                <label htmlFor="video-upload">Upload Video</label>
                                 <input
+                                    id="video-upload"
                                     type="file"
                                     name="video"
                                     accept="video/*"
@@ -322,14 +324,14 @@ export default function Vlogs() {
                             <div className="blog-actions-bottom">
                                 <Button
                                     onClick={() => handleLike(vlog.id)}
-                                    variant={vlog.liked ? 'secondary' : 'outline'}
+                                    variant={vlog.liked ? 'secondary' : 'border'}
                                 >
                                     <Heart size={16} fill={vlog.liked ? 'currentColor' : 'none'} />
                                     {vlog.liked ? 'Liked' : 'Like'}
                                 </Button>
                                 <Button
                                     onClick={() => setSelectedVlog(vlog)}
-                                    variant="outline"
+                                    variant="border"
                                 >
                                     Watch Vlog
                                 </Button>
@@ -405,7 +407,7 @@ export default function Vlogs() {
                                                 <Button
                                                     onClick={() => handleDeleteComment(selectedVlog.id, comment.id)}
                                                     variant="ghost"
-                                                    size="sm"
+                                                    size="small"
                                                 >
                                                     <Trash2 size={14} />
                                                 </Button>

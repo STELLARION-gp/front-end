@@ -540,7 +540,7 @@
 }
 
 /* Loading and Error States */
-.loading-state, .error-state {
+.loading-state-nasa, .error-state {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -550,7 +550,7 @@
   color: #cbd5e1;
 }
 
-.loading-spinner {
+.loading-spinner-nasa {
   font-size: 3rem;
   margin-bottom: 1rem;
   animation: rocket-spin 2s linear infinite;

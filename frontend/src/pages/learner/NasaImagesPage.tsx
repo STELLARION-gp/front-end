@@ -171,8 +171,8 @@ const NasaOpportunitiesPage: React.FC = () => {
       {/* Opportunities Grid */}
       <div className="opportunities-section">
         {loading && (
-          <div className="loading-state">
-            <div className="loading-spinner">🚀</div>
+          <div className="loading-state-nasa">
+            <div className="loading-spinner-nasa">🚀</div>
             <p>Loading NASA opportunities...</p>
           </div>
         )}

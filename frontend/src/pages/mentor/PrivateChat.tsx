@@ -19,7 +19,7 @@ import {
   MicrophoneIcon as MicIcon
 } from "@heroicons/react/24/outline";
 import { CheckCircleIcon as CheckCircleSolid } from "@heroicons/react/24/solid";
-import menteeImg from '../../assets/signup.jpg';
+import menteeImg from '../../assets/signup.webp';
 
 interface Message {
   id: number;

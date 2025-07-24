@@ -11,8 +11,8 @@ import InputField from '../components/InputField';
 import Message from '../components/Message';
 import LoadingOverlay from '../components/LoadingOverlay';
 import AuthScene3D from '../components/AuthScene3D';
-import signupImage from '../assets/signup.jpg';
-import logoDark from '../assets/logo-dark.png';
+import signupImage from '../assets/signup.webp';
+import logoDark from '../assets/logo-dark.webp';
 import '../styles/components/_auth.scss';
 
 const Signup: React.FC = () => {

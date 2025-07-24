@@ -9,8 +9,8 @@ import InputField from '../components/InputField';
 import Message from '../components/Message';
 import LoadingOverlay from '../components/LoadingOverlay';
 import AuthScene3D from '../components/AuthScene3D';
-import loginImage from '../assets/login.jpg';
-import logoDark from '../assets/logo-dark.png';
+import loginImage from '../assets/login.webp';
+import logoDark from '../assets/logo-dark.webp';
 import '../styles/components/_auth.scss';
 
 const Login: React.FC = () => {

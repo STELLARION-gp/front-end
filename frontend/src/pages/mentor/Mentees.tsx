@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import '../../styles/pages/mentor/mentees.scss';
-import signupImg from '../../assets/signup.jpg';
+import signupImg from '../../assets/signup.webp';
 import groupChatIcon from '../../assets/groupchat.png';
 import { useNavigate } from 'react-router-dom';
 import { useMentee } from '../../contexts/mentor/MenteeContext';

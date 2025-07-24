@@ -38,7 +38,7 @@ import {
   StarIcon as StarSolid,
   TrophyIcon as TrophySolid 
 } from "@heroicons/react/24/solid";
-import menteeImg from '../../assets/signup.jpg';
+import menteeImg from '../../assets/signup.webp';
 
 interface LearningResource {
   id: number;

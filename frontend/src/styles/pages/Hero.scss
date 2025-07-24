@@ -290,7 +290,6 @@ body {
   overflow: hidden;
 
   &:hover {
-    transform: translateY(-3px);
     box-shadow: 0 15px 40px rgba(139, 92, 246, 0.4);
 
     &::before {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import '../../styles/pages/influencer/Competitions.scss'
 
 type Competition = {
@@ -88,10 +88,10 @@ const mockUpdateReply = (reply: Reply): Promise<Reply> =>
 const mockDeleteReply = (): Promise<void> =>
     Promise.resolve();
 
-const mockLikeCompetition = (competitionId: string): Promise<void> =>
+const mockLikeCompetition = (): Promise<void> =>
     Promise.resolve();
 
-const mockLikeReply = (replyId: string): Promise<void> =>
+const mockLikeReply = (): Promise<void> =>
     Promise.resolve();
 
 const CompetitionsPage: React.FC = () => {
@@ -199,23 +199,23 @@ const CompetitionsPage: React.FC = () => {
         }
     };
 
-    const handleCancelEdit = () => {
-        setEditing(null);
-        setForm({ 
-            title: '', 
-            content: '', 
-            description: '',
-            deadline: '',
-            prizes: '',
-            requirements: '',
-            applicationLink: ''
-        });
-        setShowAddForm(false);
-    };
+    // const handleCancelEdit = () => {
+    //     setEditing(null);
+    //     setForm({ 
+    //         title: '', 
+    //         content: '', 
+    //         description: '',
+    //         deadline: '',
+    //         prizes: '',
+    //         requirements: '',
+    //         applicationLink: ''
+    //     });
+    //     setShowAddForm(false);
+    // };
 
     const handleLikeCompetition = async (competitionId: string) => {
         setLoading(true);
-        await mockLikeCompetition(competitionId);
+        await mockLikeCompetition();
         setCompetitions(comps =>
             comps.map(c =>
                 c.id === competitionId 
@@ -286,7 +286,7 @@ const CompetitionsPage: React.FC = () => {
 
     const handleLikeReply = async (competitionId: string, replyId: string) => {
         setLoading(true);
-        await mockLikeReply(replyId);
+        await mockLikeReply();
         setCompetitions(comps =>
             comps.map(c =>
                 c.id === competitionId 

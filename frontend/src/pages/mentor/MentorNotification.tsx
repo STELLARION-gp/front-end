@@ -3,11 +3,11 @@ import "../../styles/pages/mentor/MentorNotification.scss";
 import { useMentorPause } from "../../contexts/mentor/MentorPauseContext";
 import { useMentee } from "../../contexts/mentor/MenteeContext";
 
-interface MentorNotificationProps {
-  name: string;
-  message: string;
-  time?: string;
-}
+// interface MentorNotificationProps {
+//   name: string;
+//   message: string;
+//   time?: string;
+// }
 
 const notifications = [
   {

@@ -19,6 +19,7 @@ interface ButtonProps {
   fullWidth?: boolean;
   enableNavigationLoading?: boolean;
   navigationMessage?: string;
+  active?: boolean;
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -38,6 +39,7 @@ const Button: React.FC<ButtonProps> = ({
   fullWidth = false,
   enableNavigationLoading = false,
   navigationMessage = "Loading...",
+  active = false
 }) => {
   const buttonRef = useRef<HTMLButtonElement>(null);
   const linkRef = useRef<HTMLAnchorElement>(null);
@@ -126,8 +128,9 @@ const Button: React.FC<ButtonProps> = ({
   const fullWidthClass = fullWidth ? "btn--full-width" : "";
   const disabledClass = disabled ? "btn--disabled" : "";
   const loadingClass = loading ? "btn--loading" : "";
+  const activeClass = active ? "" : "";
 
-  const classes = `btn btn--${variant} ${sizeClass} ${fullWidthClass} ${disabledClass} ${loadingClass} ${className} ${px}`.trim();
+  const classes = `btn btn--${variant} ${sizeClass} ${fullWidthClass} ${disabledClass} ${loadingClass} ${className} ${px} ${activeClass}`.trim();
 
   const renderContent = () => (
     <>

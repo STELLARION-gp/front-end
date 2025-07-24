@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Button from '../../components/Button';
 import { BellIcon, ChevronLeftIcon, ChevronRightIcon, PlusIcon, UserGroupIcon, CalendarDaysIcon, UsersIcon } from '@heroicons/react/24/outline';
-import avatarImg from '../../assets/world.png';
+import avatarImg from '../../assets/Mentee.png';
 import '../../styles/pages/mentor/mentorprofile.scss';
 import '../../styles/pages/Dashboard.scss';
 import '../../styles/components/_buttons.scss';

@@ -314,29 +314,39 @@
           .spot-metadata {
             margin-bottom: 1rem;
             display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
+            gap: 1.5rem;
 
-            .meta-item {
+            .metadata-section {
+              flex: 1;
               display: flex;
-              justify-content: space-between;
-              align-items: center;
+              flex-direction: column;
+              gap: 0.5rem;
 
-              .label {
-                color: rgba(255, 255, 255, 0.6);
-                font-size: 0.8rem;
-                flex-shrink: 0;
-              }
-
-              .value {
-                color: rgba(255, 255, 255, 0.9);
-                font-size: 0.85rem;
+              .meta-item {
                 display: flex;
                 align-items: center;
-                gap: 0.25rem;
+                background-color: #667eea24;
+                border-radius: 10px;
+                padding: 12px 15px;
 
-                .star-icon {
-                  color: #ffa502;
+                .label {
+                  color: rgba(255, 255, 255, 0.6);
+                  font-size: 0.9rem;
+                  flex-shrink: 0;
+                  width: 100px; 
+                }
+
+                .value {
+                  color: rgba(255, 255, 255, 0.9);
+                  font-size: 0.85rem;
+                  display: flex;
+                  align-items: center;
+                  gap: 0.25rem;
+                  margin-left: 10px;
+
+                  .star-icon {
+                    color: #ffa502;
+                  }
                 }
               }
             }

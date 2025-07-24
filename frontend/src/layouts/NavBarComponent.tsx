@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState, memo, useMemo } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import logo from '../assets/logo-dark.png';
+import logo from '../assets/logo-dark.webp';
 import Button from '../components/Button';
 import { useAuth } from '../hooks/useAuth';
-import { RoleGuard } from '../components/RoleGuard';
+//import { RoleGuard } from '../components/RoleGuard';
 import { supportedLanguages } from '../i18n';
 
 import './../styles/components/navbar.scss';
@@ -32,7 +32,8 @@ const NavBarComponent = () => {
   }, [i18n.language]);
 
   // Determine if we should show compact mode based on current route
-  const isCompactMode = location.pathname !== '/' && !location.pathname.includes('/404');
+  const isHomePage = location.pathname === '/';
+  const isCompactMode = !isHomePage && !location.pathname.includes('/404');
 
   // Save route path in ref to avoid re-renders on route changes
   const routeRef = useRef(location.pathname);
@@ -174,7 +175,7 @@ const NavBarComponent = () => {
           <div className={`profile-placeholder ${avatarUrl ? 'hidden' : ''}`}>
             {displayName.charAt(0).toUpperCase()}
           </div>
-          {!forCompactMode && (
+          {/* {!forCompactMode && ( */}{(
             <div className="profile-dropdown">
               <div className="profile-info">
                 <p className="profile-name">{displayName}</p>
@@ -205,6 +206,14 @@ const NavBarComponent = () => {
           >
             {t('auth.signIn')}
           </Button>
+          <Button
+            variant="primary"
+            size="small"
+            href="/signup"
+            enableNavigationLoading={false}
+          >
+            {t('auth.signUp')}
+          </Button>
         </div>
       );
     }
@@ -215,9 +224,9 @@ const NavBarComponent = () => {
       <div className={`utility-buttons ${forCompactMode ? 'compact' : ''}`}>
         {/* Language Toggle Button */}
         <button
-          className="utility-btn language-btn"
+          className="language-btn"
           onClick={handleLanguageToggle}
-          title={t('navbar.currentLanguage') + `: ${currentLanguage.name}`}
+          //title={t('navbar.currentLanguage') + `: ${currentLanguage.name}`}
         >
           <span className="language-letter">{getLanguageIcon()}</span>
         </button>
@@ -236,15 +245,28 @@ const NavBarComponent = () => {
     );
   };
 
+  // Smooth scroll to section if on home page, otherwise navigate to home and then scroll
+  const handleSectionLink = (e: React.MouseEvent<HTMLAnchorElement>, sectionId: string) => {
+    e.preventDefault();
+    if (isHomePage) {
+      const el = document.getElementById(sectionId);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      window.location.href = `/#${sectionId}`;
+    }
+  };
+
   return (
     <nav className={`navbar-blur${hidden ? ' navbar-hidden' : ''}${isCompactMode ? ' navbar-compact' : ''}`}>
       <div className="navbar-inner">
         {/* Left Nav - Hidden in compact mode */}
         {!isCompactMode && (
           <div className="navbar-section left-section">
-            <a href="#" className="nav-link">{t('navbar.features')}</a>
-            <Link to="/about" className="nav-link">{t('navbar.about')}</Link>
-            <Link to="/subscription/plans" className="nav-link">{t('navbar.plans')}</Link>
+            <a href="#features" className="nav-link" onClick={e => handleSectionLink(e, 'features')}>{t('navbar.features')}</a>
+            <a href="#about" className="nav-link" onClick={e => handleSectionLink(e, 'about')}>{t('navbar.about')}</a>
+            {/* <Link to="/subscription/plans" className="nav-link">{t('navbar.plans')}</Link> */}
             <a href="#" className="nav-link">{t('navbar.contact')}</a>
           </div>
         )}
@@ -264,9 +286,9 @@ const NavBarComponent = () => {
         {!isCompactMode && (
           <div className="navbar-section right-section">
             {/* <a href="#" className="nav-link">{t('navbar.team')}</a> */}
-            <RoleGuard>
+            {/* <RoleGuard>
               <a href="#" className="nav-link">{t('navbar.explore')}</a>
-            </RoleGuard>
+            </RoleGuard> */}
             {renderUtilityButtons()}
             {renderAuthContent()}
           </div>

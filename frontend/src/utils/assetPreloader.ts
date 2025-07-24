@@ -33,9 +33,6 @@ export const preloadHomeAssets = async (): Promise<void> => {
         // Preload images
         await preloadImages(imageAssets);
 
-        // Additional delay to allow 3D components to initialize
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
         console.log('Homepage assets preloaded successfully');
     } catch (error) {
         console.warn('Asset preloading completed with some errors:', error);

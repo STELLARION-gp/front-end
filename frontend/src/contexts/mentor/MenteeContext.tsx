@@ -33,23 +33,31 @@ export const MenteeProvider: React.FC<MenteeProviderProps> = ({ children }) => {
   const [availabilityAutoToggled, setAvailabilityAutoToggled] = useState(false);
 
   // Auto-toggle availability when mentee count reaches maximum
-  useEffect(() => {
-    if (menteeCount >= maxMentees && isAccepting) {
-      setIsAccepting(false);
-      setAvailabilityAutoToggled(true);
-    } else if (menteeCount < maxMentees && !isAccepting && availabilityAutoToggled) {
-      setIsAccepting(true);
+
+  const acceptingToggle = () => {
+    setAvailabilityAutoToggled(true);
+    setTimeout(() => {
       setAvailabilityAutoToggled(false);
+    }, 3000)
+  }
+
+  useEffect(() => {
+    if (menteeCount >= maxMentees) {
+      acceptingToggle();
+      setIsAccepting(false);
+    } else {
+      acceptingToggle();
+      setIsAccepting(true);
     }
   }, [menteeCount, maxMentees, isAccepting, availabilityAutoToggled]);
 
   return (
-    <MenteeContext.Provider value={{ 
-      menteeCount, 
-      setMenteeCount, 
-      maxMentees, 
-      setMaxMentees, 
-      isAccepting, 
+    <MenteeContext.Provider value={{
+      menteeCount,
+      setMenteeCount,
+      maxMentees,
+      setMaxMentees,
+      isAccepting,
       setIsAccepting,
       availabilityAutoToggled,
       setAvailabilityAutoToggled

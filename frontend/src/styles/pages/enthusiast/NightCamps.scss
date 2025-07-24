@@ -957,39 +957,39 @@
 
 // Loading, Error, and Empty States
 // =========================
-.loading-message,
-.error-message,
-.no-camps-message {
-  text-align: center;
-  padding: 3rem 2rem;
-  color: $text-color-secondary;
-  font-size: $font-size-lg;
-  font-family: $font-outfit;
+// .loading-message,
+// .error-message,
+// .no-camps-message {
+//   text-align: center;
+//   padding: 3rem 2rem;
+//   color: $text-color-secondary;
+//   font-size: $font-size-lg;
+//   font-family: $font-outfit;
   
-  &:before {
-    content: '';
-    display: block;
-    width: 48px;
-    height: 48px;
-    margin: 0 auto 1rem auto;
-    border-radius: 50%;
-    opacity: 0.6;
-  }
-}
+//   &:before {
+//     content: '';
+//     display: block;
+//     width: 48px;
+//     height: 48px;
+//     margin: 0 auto 1rem auto;
+//     border-radius: 50%;
+//     opacity: 0.6;
+//   }
+// }
 
-.loading-message {
-  color: $color-info;
+// .loading-message {
+//   color: $color-info;
   
-  &:before {
-    background: linear-gradient(45deg, $accent-color 25%, transparent 25%), 
-                linear-gradient(-45deg, $accent-color 25%, transparent 25%), 
-                linear-gradient(45deg, transparent 75%, $accent-color 75%), 
-                linear-gradient(-45deg, transparent 75%, $accent-color 75%);
-    background-size: 8px 8px;
-    background-position: 0 0, 0 4px, 4px -4px, -4px 0px;
-    animation: loadingAnimation 1.5s infinite linear;
-  }
-}
+//   &:before {
+//     background: linear-gradient(45deg, $accent-color 25%, transparent 25%), 
+//                 linear-gradient(-45deg, $accent-color 25%, transparent 25%), 
+//                 linear-gradient(45deg, transparent 75%, $accent-color 75%), 
+//                 linear-gradient(-45deg, transparent 75%, $accent-color 75%);
+//     background-size: 8px 8px;
+//     background-position: 0 0, 0 4px, 4px -4px, -4px 0px;
+//     animation: loadingAnimation 1.5s infinite linear;
+//   }
+// }
 
 .error-message {
   color: $color-error;
@@ -1204,41 +1204,41 @@
 
 // Responsive Design
 // =========================
-@media (max-width: 768px) {
-  .loading-message,
-  .error-message,
-  .no-camps-message {
-    padding: 2rem 1rem;
-    font-size: $font-size-base;
+// @media (max-width: 768px) {
+//   .loading-message,
+//   .error-message,
+//   .no-camps-message {
+//     padding: 2rem 1rem;
+//     font-size: $font-size-base;
     
-    &:before {
-      width: 36px;
-      height: 36px;
-      font-size: 18px;
-    }
-  }
+//     &:before {
+//       width: 36px;
+//       height: 36px;
+//       font-size: 18px;
+//     }
+//   }
   
-  .volunteer-camps__title {
-    font-size: $font-size-xl;
-    margin-bottom: $spacing-md;
+//   .volunteer-camps__title {
+//     font-size: $font-size-xl;
+//     margin-bottom: $spacing-md;
     
-    &:before {
-      font-size: $font-size-lg;
-    }
-  }
+//     &:before {
+//       font-size: $font-size-lg;
+//     }
+//   }
   
-  .camp-info__roles {
-    li {
-      padding: $spacing-xs;
-      font-size: $font-size-xs;
-    }
-  }
+//   .camp-info__roles {
+//     li {
+//       padding: $spacing-xs;
+//       font-size: $font-size-xs;
+//     }
+//   }
   
-  .btn--night-camps {
-    padding: $spacing-xs $spacing-sm;
-    font-size: $font-size-xs;
-  }
-}
+//   .btn--night-camps {
+//     padding: $spacing-xs $spacing-sm;
+//     font-size: $font-size-xs;
+//   }
+// }
 
 
 
@@ -1295,12 +1295,12 @@
 }
 
 // Loading and Error Message Styles
-.loading-message, .error-message, .no-applications-message {
-  text-align: center;
-  padding: 3rem 1rem;
-  color: #9ca3af;
-  font-size: 1rem;
-}
+// .loading-message, .error-message, .no-applications-message {
+//   text-align: center;
+//   padding: 3rem 1rem;
+//   color: #9ca3af;
+//   font-size: 1rem;
+// }
 
 .error-message {
   color: #ef4444;

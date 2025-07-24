@@ -3,17 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { XMarkIcon, CreditCardIcon } from '@heroicons/react/24/outline';
 import { useTranslation } from 'react-i18next';
 import { useLocalizedPlans } from '../../services/planTranslationService';
-
-interface SubscriptionPlan {
-    id: number;
-    plan_type: string;
-    name: string;
-    description: string;
-    price_lkr: number;
-    price_usd?: number;
-    features: string[];
-    chatbot_questions_limit: number;
-}
+import type { SubscriptionPlan } from '../../types/subscription';
 
 interface PaymentModalProps {
     plan: SubscriptionPlan;
@@ -37,7 +27,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ plan, user, onClose, onSucc
             setError(null);
 
             const token = await user?.getIdToken();
-            
+
             // Create payment order
             const response = await fetch('http://localhost:5000/api/payments/create-order', {
                 method: 'POST',
@@ -53,46 +43,40 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ plan, user, onClose, onSucc
             });
 
             const data = await response.json();
-            
             if (!data.success) {
                 throw new Error(data.message || t('subscription.payment.orderError'));
             }
 
-            // Initialize PayHere payment
             const payhere = (window as any).payhere;
-            
             if (!payhere) {
-                throw new Error(t('subscription.payment.loadingError'));
+                throw new Error('PayHere payment gateway could not load. Check your script import.');
             }
 
-            // Debug: Log the payment data from backend
+            // Debug log
             console.log('Backend payment response:', data);
             console.log('PayHere data received:', data.data.payhere_data);
 
-            // Payment object
-            const payment = {
-                ...data.data.payhere_data,
-                onCompleted: function(orderId: string) {
-                    console.log("Payment completed. OrderID:", orderId);
-                    // Reset loading state and call success
-                    setLoading(false);
-                    onSuccess();
-                },
-                onDismissed: function() {
-                    console.log("Payment dismissed");
-                    setLoading(false);
-                },
-                onError: function(error: any) {
-                    console.log("Payment error:", error);
-                    setError(t('subscription.payment.paymentFailed'));
-                    setLoading(false);
-                }
+            // Attach global PayHere event handlers
+            payhere.onCompleted = (orderId: string) => {
+                console.log("Payment completed. OrderID:", orderId);
+                setLoading(false);
+                onSuccess();
             };
 
-            // Listen for messages from the payment success page
+            payhere.onDismissed = () => {
+                console.log("Payment dismissed");
+                setLoading(false);
+            };
+
+            payhere.onError = (error: any) => {
+                console.log("Payment error:", error);
+                setError(t('subscription.payment.paymentFailed'));
+                setLoading(false);
+            };
+
+            // Add event listener for redirect messages (if using return_url page)
             const handlePaymentMessage = (event: MessageEvent) => {
                 if (event.origin !== window.location.origin) return;
-                
                 if (event.data.type === 'PAYMENT_SUCCESS') {
                     console.log('Payment success message received from redirect');
                     setLoading(false);
@@ -104,31 +88,28 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ plan, user, onClose, onSucc
                     window.removeEventListener('message', handlePaymentMessage);
                 }
             };
-
-            // Add event listener for payment messages
             window.addEventListener('message', handlePaymentMessage);
 
-            // Auto-cleanup after 5 minutes
             setTimeout(() => {
                 window.removeEventListener('message', handlePaymentMessage);
                 if (loading) {
                     setLoading(false);
                     setError(t('subscription.payment.timeout'));
                 }
-            }, 300000); // 5 minutes
+            }, 300000); // 5 minutes timeout
 
-            // Debug: Log the final payment object being sent to PayHere
+            const payment = data.data.payhere_data; // Payment object from backend
+
+            // Debug: Final payment object
             console.log('Final PayHere payment object:', payment);
 
-            // Validate required fields before starting payment
+            // Validate required fields
             const requiredFields = ['merchant_id', 'order_id', 'amount', 'currency', 'hash', 'first_name', 'last_name', 'email'];
             const missingFields = requiredFields.filter(field => !payment[field]);
-            
             if (missingFields.length > 0) {
                 throw new Error(t('subscription.payment.missingFields', { fields: missingFields.join(', ') }));
             }
 
-            // Start payment
             console.log('Starting PayHere payment...');
             payhere.startPayment(payment);
 
@@ -137,6 +118,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ plan, user, onClose, onSucc
             setLoading(false);
         }
     };
+
 
     return (
         <AnimatePresence>
@@ -240,7 +222,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ plan, user, onClose, onSucc
                                 t('subscription.payment.payButton', { amount: localizedPlan.localizedPrice })
                             )}
                         </button>
-                        
+
                         <button
                             onClick={onClose}
                             disabled={loading}

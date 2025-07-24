@@ -1,4 +1,3 @@
-import React from 'react';
 import Button from '../../components/Button';
 import avatarImg from '../../assets/world.png';
 import '../../styles/pages/mentor/mentorprofile.scss';

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState } from "react";
 import "../../styles/pages/mentor/LearnPath.scss";
 import {
   AcademicCapIcon,
@@ -12,16 +12,11 @@ import {
   GlobeAltIcon,
   MagnifyingGlassIcon,
   PlusIcon,
-  PencilIcon,
-  TrashIcon,
-  EllipsisVerticalIcon,
-  XMarkIcon,
   ArrowRightIcon,
   ChevronDownIcon,
   ChevronUpIcon,
   RocketLaunchIcon,
   SunIcon,
-  MoonIcon,
   SparklesIcon,
   EyeIcon,
   FilmIcon,
@@ -29,13 +24,11 @@ import {
   TrophyIcon,
   ChartBarIcon,
   CalendarIcon,
-  UsersIcon,
   LightBulbIcon,
   CogIcon
 } from "@heroicons/react/24/outline";
 import { 
   CheckCircleIcon as CheckCircleSolid, 
-  StarIcon as StarSolid,
   TrophyIcon as TrophySolid 
 } from "@heroicons/react/24/solid";
 import menteeImg from '../../assets/signup.webp';
@@ -345,10 +338,14 @@ const LearnPath: React.FC = () => {
   const [learningPath, setLearningPath] = useState<LearningPath>(mockLearningPath);
   const [searchTerm, setSearchTerm] = useState("");
   const [showAddModule, setShowAddModule] = useState(false);
-  const [selectedModule, setSelectedModule] = useState<LearningModule | null>(null);
-  const [showModuleOptions, setShowModuleOptions] = useState<number | null>(null);
+  //const [selectedModule, setSelectedModule] = useState<LearningModule | null>(null);
+  //const [showModuleOptions, setShowModuleOptions] = useState<number | null>(null);
   const [showSettings, setShowSettings] = useState(false);
   const [activeView, setActiveView] = useState<"overview" | "modules" | "progress" | "resources">("modules");
+
+  console.log("Add Module Data: ", showAddModule);
+  console.log("Settings Data: ", showSettings);
+
 
   // Toggle module expansion
   const toggleModule = (moduleId: number) => {

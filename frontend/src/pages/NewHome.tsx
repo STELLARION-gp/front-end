@@ -9,8 +9,8 @@ import StatsSection from '../components/HomeComponents/StatsSection';
 import AboutSection from '../components/HomeComponents/AboutSection';
 import FeaturesSection from '../components/HomeComponents/FeatureSection';
 import CTASection from '../components/HomeComponents/CTASection';
-import astro from '../assets/astro.png';
-import astro2 from '../assets/astro3.png';
+import astro from '../assets/astro.webp';
+import astro2 from '../assets/astro3.webp';
 //import ActorsCarousel from '../components/HomeComponents/ActorsCarousel';
 
 

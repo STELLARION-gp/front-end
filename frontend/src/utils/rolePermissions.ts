@@ -123,7 +123,7 @@ export const ROLE_BASED_MENU_ITEMS = {
         {label: 'Competitions', icon: 'TrophyIcon', href: '/dashboard/competitions' },
         {label: 'Polls', icon: 'DocumentTextIcon', href: '/dashboard/polls' },
         { label: 'Astro Hub', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/astrohub' },
-        { label: 'Sponsorships', icon: 'CurrencyDollarIcon', href: '/dashboard/sponsorships' },
+        // { label: 'Sponsorships', icon: 'CurrencyDollarIcon', href: '/dashboard/sponsorships' },
         { label: 'Followers', icon: 'UsersIcon', href: '/dashboard/followers' },
 
         //{ label: 'Settings', icon: 'Cog6ToothIcon', href: '/dashboard/settings' },

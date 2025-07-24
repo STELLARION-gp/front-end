@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, memo, useMemo } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import logo from '../assets/logo-dark.png';
+import logo from '../assets/logo-dark.webp';
 import Button from '../components/Button';
 import { useAuth } from '../hooks/useAuth';
 //import { RoleGuard } from '../components/RoleGuard';

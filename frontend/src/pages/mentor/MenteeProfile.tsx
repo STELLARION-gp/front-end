@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import '../../styles/pages/mentor/menteeProfile.scss';
-import signupImg from '../../assets/signup.jpg';
+import signupImg from '../../assets/signup.webp';
 import groupChatIcon from '../../assets/groupchat.png';
 import { StarIcon } from '@heroicons/react/24/solid';
 import { DocumentTextIcon } from '@heroicons/react/24/outline';

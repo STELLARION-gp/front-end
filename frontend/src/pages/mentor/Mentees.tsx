@@ -7,14 +7,14 @@ import { useMentee } from '../../contexts/mentor/MenteeContext';
 
 const mentees = [
   { id: 1, name: 'Luna Skywatchet', img: signupImg },
-  { id: 2, name: 'Luna Skywatchet', img: signupImg },
-  { id: 3, name: 'Luna Skywatchet', img: signupImg },
-  { id: 4, name: 'Luna Skywatchet', img: signupImg },
-  { id: 5, name: 'Luna Skywatchet', img: signupImg },
-  { id: 6, name: 'Luna Skywatchet', img: signupImg },
-  { id: 7, name: 'Luna Skywatchet', img: signupImg },
-  { id: 8, name: 'Luna Skywatchet', img: signupImg },
-  { id: 9, name: 'Luna Skywatchet', img: signupImg }
+  { id: 2, name: 'Heshan Malith', img: signupImg },
+  { id: 3, name: 'Senesh Dinelka', img: signupImg },
+  { id: 4, name: 'Kalindu Mendis', img: signupImg },
+  { id: 5, name: 'Maleesha tharindu', img: signupImg },
+  { id: 6, name: 'Adam Sam', img: signupImg },
+  { id: 7, name: 'Freddy Johnas', img: signupImg },
+  { id: 8, name: 'Liam Collins', img: signupImg },
+  { id: 9, name: 'Andrew Swane', img: signupImg }
 ];
 
 const Mentees: React.FC = () => {

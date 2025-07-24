@@ -24,13 +24,13 @@ function getYoutubeId(url: string) {
 const initialVideos: VideoContent[] = [
   {
     id: 1,
-    url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-    title: 'Mentorship Kickoff',
+    url: 'https://www.youtube.com/watch?v=0rHUDWjR5gg',
+    title: 'Introduction to Astronomy',
   },
   {
     id: 2,
-    url: 'https://www.youtube.com/watch?v=ysz5S6PUM-U',
-    title: 'Effective Communication',
+    url: 'https://www.youtube.com/watch?v=L-Wtlev6suc',
+    title: 'Observational Techniques in Astronomy',
   },
 ];
 

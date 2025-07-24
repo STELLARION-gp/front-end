@@ -106,6 +106,14 @@ import NightCampDetailsModerator from '../pages/moderator/NightCampDetails';
 import EditNightCamp from '../pages/moderator/EditNightCamp';
 import CreateEvent from '../pages/moderator/CreateEvent';
 import EventDetails from '../pages/moderator/EventDetails';
+import MentorActiveLog from '../pages/mentor/MentorActiveLog';
+import RecommendEventsPage from '../pages/mentor/RecommendEventsPage';
+import RecommendedEvents from '../pages/mentor/RecommendedEvents';
+import RecommendedContents from '../pages/mentor/RecommendedContents';
+import PrivateChat from '../pages/mentor/PrivateChat';
+import GroupChatPage from '../pages/mentor/GroupChatPage';
+import { RecommendedEventsProvider } from '../contexts/mentor/RecommendedEventsContext';
+
 
 
 // Create placeholder components for different pages - all memoized
@@ -652,9 +660,7 @@ const DashboardRoutes = () => {
                 element={
                     <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
                         <MentorPauseProvider>
-                            <MenteeProvider>
                             <MentorDashboard />
-                            </MenteeProvider>
                         </MentorPauseProvider>
                     </RoleGuard>
                 }
@@ -713,7 +719,7 @@ const DashboardRoutes = () => {
                         </RoleGuard>
                     }
                 /> */}
-            {/* <Route
+            <Route
                     path="recommended-contents"
                     element={
                         <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
@@ -725,7 +731,9 @@ const DashboardRoutes = () => {
                     path="recommended-events"
                     element={
                         <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
+                            <RecommendedEventsProvider>
                             <RecommendedEvents />
+                            </RecommendedEventsProvider>
                         </RoleGuard>
                     }
                 />
@@ -733,15 +741,40 @@ const DashboardRoutes = () => {
                     path="recommend-events"
                     element={
                         <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
+                            <RecommendedEventsProvider>
                             <RecommendEventsPage />
+                            </RecommendedEventsProvider>
                         </RoleGuard>
                     }
                 />
-                
+    
+            <Route
+                    path="mentoractivelog"
+                    element={
+                        <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
+                            <MentorActiveLog />
+                        </RoleGuard>
+                    }
                 />
-                
-                
-                 */}
+
+            <Route
+                    path="privatechat"
+                    element={
+                        <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
+                            <PrivateChat />
+                        </RoleGuard>
+                    }
+                />
+            
+            <Route
+                    path="groupchat"
+                    element={
+                        <RoleGuard allowedRoles={['mentor', 'moderator', 'admin']}>
+                            <GroupChatPage />
+                        </RoleGuard>
+                    }
+                />
+
             <Route
                 path="night-camps"
                 element={

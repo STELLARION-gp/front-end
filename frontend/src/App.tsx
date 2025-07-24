@@ -13,6 +13,7 @@ import DashboardRoutes from './routes/DashboardRoutes';
 import NotFound from './pages/NotFound'; // Direct import, not lazy
 import Login from './pages/Login.tsx';
 import Signup from './pages/Signup.tsx';
+import { MenteeProvider } from './contexts/mentor/MenteeContext.tsx';
 
 
 // Lazy load other pages for better performance
@@ -26,6 +27,7 @@ const App: React.FC = () => {
   return (
     <LoadingProvider>
       <AuthProvider>
+        <MenteeProvider>
         <BrowserRouter>
           <Routes>
             {/* Auth routes outside of BaseLayout (no navbar) */}
@@ -70,6 +72,7 @@ const App: React.FC = () => {
             </Route>
           </Routes>
         </BrowserRouter>
+        </MenteeProvider>
       </AuthProvider>
     </LoadingProvider>
   );

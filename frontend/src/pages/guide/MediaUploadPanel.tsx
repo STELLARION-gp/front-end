@@ -1,8 +1,10 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { flushSync } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import Button from '../../components/Button';
 import '../../styles/pages/guide/_mediaUploadPanel.scss';
+import { apiService } from '../../services/api';
+import { auth } from '../../firebase';
 
 // Simple Upload Icon Component
 const UploadIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
@@ -85,17 +87,28 @@ const ArrowLeft: React.FC<{ className?: string }> = ({ className = "" }) => (
 );
 
 interface MediaFile {
-  id: string;
-  file: File;
-  url: string;
-  type: 'image' | 'video';
+  id: string | number;
+  file?: File; // present only for newly added local files pre-upload mapping
+  url: string; // blob: URL or server file_path
+  type: 'image' | 'video' | 'other';
   name: string;
-  size: number;
+  size: number; // bytes
   uploadDate: Date;
   description?: string;
   tourName?: string;
   location?: string;
   tags?: string[];
+  file_path?: string; // server path
+  file_type?: string; // original mime from server
+}
+
+interface ServerMediaFile {
+  id: number | string;
+  file_name: string;
+  file_path: string;
+  file_type: string;
+  file_size: number;
+  created_at?: string;
 }
 
 interface MediaUploadPanelProps {
@@ -120,8 +133,8 @@ interface AlbumData {
 
 const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
   onMediaUploaded,
-  maxFileSize = 50, // 50MB default
-  allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'video/mp4', 'video/webm', 'video/quicktime']
+  maxFileSize = 5, // backend limit 5MB
+  allowedTypes = ['image/jpeg', 'image/png', 'video/mp4', 'application/pdf']
 }) => {
   const navigate = useNavigate();
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
@@ -143,106 +156,72 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [loadingExisting, setLoadingExisting] = useState(true);
+  const [listError, setListError] = useState<string | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const generateId = () => Math.random().toString(36).substr(2, 9);
-
   const validateFile = useCallback((file: File): string | null => {
-    if (!allowedTypes.includes(file.type)) {
-      return `File type ${file.type} is not supported. Please upload images (JPEG, PNG, WebP) or videos (MP4, WebM, MOV).`;
+    const ext = file.name.split('.').pop()?.toLowerCase();
+    const allowedExt = ['jpg', 'jpeg', 'png', 'mp4', 'pdf'];
+    if (!ext || !allowedExt.includes(ext)) {
+      return `Unsupported file extension .${ext || 'unknown'}. Allowed: ${allowedExt.join(', ')}`;
     }
     if (file.size > maxFileSize * 1024 * 1024) {
       return `File size exceeds ${maxFileSize}MB limit.`;
     }
     return null;
-  }, [allowedTypes, maxFileSize]);
+  }, [maxFileSize]);
 
-  const processFile = useCallback((file: File): Promise<MediaFile> => {
-    return new Promise((resolve, reject) => {
-      const validation = validateFile(file);
-      if (validation) {
-        reject(new Error(validation));
-        return;
-      }
-
-      const id = generateId();
-      const url = URL.createObjectURL(file);
-      const type = file.type.startsWith('image/') ? 'image' : 'video';
-
-      const mediaFile: MediaFile = {
-        id,
-        file,
-        url,
-        type,
-        name: file.name,
-        size: file.size,
-        uploadDate: new Date(),
-      };
-
-      resolve(mediaFile);
-    });
-  }, [validateFile]);
-
+  // Handle one or multiple files: upload each, prepend server-returned file object
   const handleFiles = async (files: FileList | File[]) => {
+    setUploadError(null);
     const commonData = uploadMode.type === 'album' ? {
       description: albumData.description,
       tourName: albumData.tourName,
       location: albumData.location,
       tags: albumData.tags
     } : {};
-
-    // Convert FileList to array if necessary
     const fileArray = Array.isArray(files) ? files : Array.from(files);
-
-    // Process files sequentially for better progress tracking
-    for (let i = 0; i < fileArray.length; i++) {
-      const file = fileArray[i];
-      
+    for (const file of fileArray) {
+      const validationError = validateFile(file);
+      if (validationError) {
+        setUploadError(validationError);
+        continue;
+      }
       try {
         setUploadProgress(prev => ({ ...prev, [file.name]: 0 }));
-        
-        const mediaFile = await processFile(file);
-        
-        // Simulate realistic upload progress
-        let progress = 0;
-        const progressInterval = setInterval(() => {
-          progress += Math.random() * 12 + 8; // Random increment between 8-20%
-          
-          setUploadProgress(prev => ({ ...prev, [file.name]: Math.min(progress, 100) }));
-          
-          if (progress >= 100) {
-            clearInterval(progressInterval);
-            
-            // Apply common album data if in album mode
-            const finalMediaFile = { ...mediaFile, ...commonData };
-            
-            // Add the file to media files immediately after completion
-            setMediaFiles(prev => [...prev, finalMediaFile]);
-            
-            // Complete the progress after a short delay
-            setTimeout(() => {
-              setUploadProgress(prev => {
-                const updated = { ...prev };
-                delete updated[file.name];
-                return updated;
-              });
-              
-              // Call onMediaUploaded for this individual file
-              onMediaUploaded?.([finalMediaFile]);
-            }, 300);
-          }
-        }, 120);
-        
-      } catch (error) {
-        console.error(`Error processing file ${file.name}:`, error);
-        setUploadProgress(prev => {
-          const updated = { ...prev };
-          delete updated[file.name];
-          return updated;
-        });
+        const result: unknown = await apiService.uploadMedia(file);
+        const serverFile = (result && typeof result === 'object' && 'file' in result) ? (result as { file: ServerMediaFile }).file : undefined;
+        if (serverFile) {
+          const type: MediaFile['type'] = serverFile.file_type?.startsWith('image/')
+            ? 'image'
+            : (serverFile.file_type?.startsWith('video/') ? 'video' : 'other');
+          const mapped: MediaFile = {
+            id: serverFile.id,
+            url: serverFile.file_path, // treat directly (absolute URLs already fine)
+            type,
+            name: serverFile.file_name,
+            size: serverFile.file_size,
+            uploadDate: new Date(serverFile.created_at || Date.now()),
+            file_path: serverFile.file_path,
+            file_type: serverFile.file_type,
+            ...commonData
+          };
+          // Prepend new file
+          setMediaFiles(prev => [mapped, ...prev]);
+          onMediaUploaded?.([mapped]);
+        }
+        setUploadProgress(prev => ({ ...prev, [file.name]: 100 }));
+      } catch (uploadErr: unknown) {
+        const message = uploadErr instanceof Error ? uploadErr.message : 'Upload failed';
+        setUploadError(message);
+        setUploadProgress(prev => { const u = { ...prev }; delete u[file.name]; return u; });
+      } finally {
+        // Remove progress entry after brief delay
+        setTimeout(() => setUploadProgress(prev => { const u = { ...prev }; delete u[file.name]; return u; }), 400);
       }
     }
-
   };
 
   const handleDrag = (e: React.DragEvent) => {
@@ -390,21 +369,19 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
     });
   };
 
-  const deleteMedia = (id: string) => {
+  const deleteMedia = (id: string | number) => {
     setMediaFiles(prev => {
       const updated = prev.filter(media => media.id !== id);
       const mediaToDelete = prev.find(media => media.id === id);
-      if (mediaToDelete) {
+      if (mediaToDelete && mediaToDelete.url.startsWith('blob:')) {
         URL.revokeObjectURL(mediaToDelete.url);
       }
       return updated;
     });
-    if (selectedMedia?.id === id) {
-      setSelectedMedia(null);
-    }
+    if (selectedMedia?.id === id) setSelectedMedia(null);
   };
 
-  const updateMediaDetails = (id: string, updates: Partial<MediaFile>) => {
+  const updateMediaDetails = (id: string | number, updates: Partial<MediaFile>) => {
     setMediaFiles(prev => prev.map(media => 
       media.id === id ? { ...media, ...updates } : media
     ));
@@ -422,54 +399,65 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
   };
 
   const handleSubmitToDatabase = async () => {
-    if (mediaFiles.length === 0) {
-      alert('No media files to submit. Please upload some files first.');
-      return;
-    }
-
     setIsSubmitting(true);
-    setSubmitSuccess(false);
-
     try {
-      // Simulate API call to backend database
-      // In a real implementation, this would send the media files data to your backend
-      const mediaData = mediaFiles.map(media => ({
-        id: media.id,
-        name: media.name,
-        type: media.type,
-        size: media.size,
-        description: media.description,
-        tourName: media.tourName,
-        location: media.location,
-        tags: media.tags,
-        uploadDate: media.uploadDate.toISOString(),
-        // In real implementation, you'd upload the actual file and get a URL back
-        fileUrl: media.url // This would be a permanent URL from your storage service
-      }));
-
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      // Simulate API call
-      console.log('Submitting media files to database:', mediaData);
-      
-      // Simulate successful response
+      const refreshed: unknown = await apiService.listMedia();
+      const files: ServerMediaFile[] = (refreshed && typeof refreshed === 'object' && 'files' in refreshed)
+        ? (refreshed as { files: ServerMediaFile[] }).files
+        : [];
+      setMediaFiles(files.map((f) => ({
+        id: f.id,
+        url: f.file_path,
+        type: f.file_type?.startsWith('image/') ? 'image' : (f.file_type?.startsWith('video/') ? 'video' : 'other'),
+        name: f.file_name,
+        size: f.file_size,
+        uploadDate: new Date(f.created_at || Date.now()),
+        file_path: f.file_path,
+        file_type: f.file_type
+      })));
       setSubmitSuccess(true);
-      
-      // Show success message
-      alert(`Successfully saved ${mediaFiles.length} media files to the database!`);
-      
-      // Wait a moment for user to see success message, then refresh page
-      setTimeout(() => {
-        window.location.reload();
-      }, 1500);
-      
-    } catch (error) {
-      console.error('Error submitting media files:', error);
-      alert('Failed to save media files to database. Please try again.');
+      setTimeout(() => setSubmitSuccess(false), 2500);
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : 'Failed to refresh media list';
+      alert(message);
+    } finally {
       setIsSubmitting(false);
     }
   };
+
+  // Initial fetch of existing media
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      setListError(null);
+      try {
+        if (!auth.currentUser) {
+          setListError('Please log in to view media');
+          return;
+        }
+        const data: unknown = await apiService.listMedia();
+        if (!mounted) return;
+        const files: ServerMediaFile[] = (data && typeof data === 'object' && 'files' in data)
+          ? (data as { files: ServerMediaFile[] }).files
+          : [];
+        setMediaFiles(files.map((f) => ({
+          id: f.id,
+    url: f.file_path,
+          type: f.file_type?.startsWith('image/') ? 'image' : (f.file_type?.startsWith('video/') ? 'video' : 'other'),
+          name: f.file_name,
+          size: f.file_size,
+          uploadDate: new Date(f.created_at || Date.now()),
+          file_path: f.file_path,
+          file_type: f.file_type
+        })));
+      } catch (err: unknown) {
+        if (mounted) setListError(err instanceof Error ? err.message : 'Failed to load media');
+      } finally {
+        if (mounted) setLoadingExisting(false);
+      }
+    })();
+    return () => { mounted = false; };
+  }, []);
 
   const filteredMedia = mediaFiles.filter(media => {
     const matchesFilter = filter === 'all' || 
@@ -502,9 +490,10 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
         <div className="header-main">
           <div className="header-content">
             <h2 className="panel-title">Media Upload Portal</h2>
-            <p className="panel-subtitle">
-              Upload astronomy tour photos and videos, then submit them to your database
-            </p>
+            <p className="panel-subtitle">Upload astronomy tour photos and videos (JPG, PNG, MP4, PDF)</p>
+            {loadingExisting && <p className="loading-text">Loading your media...</p>}
+            {listError && <p className="error-text">{listError}</p>}
+            {uploadError && <p className="error-text">{uploadError}</p>}
           </div>
           
           <div className="header-actions">
@@ -564,8 +553,8 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
           </h3>
           <p>or click to browse {uploadMode.type === 'album' ? 'files' : 'file'}</p>
           <div className="upload-info">
-            <span>Supports: JPEG, PNG, WebP, MP4, WebM, MOV</span>
-            <span>Max size: {maxFileSize}MB per file</span>
+            <span>Supports: JPG, JPEG, PNG, MP4, PDF</span>
+            <span>Max size: {maxFileSize}MB</span>
             {uploadMode.type === 'album' ? (
               <span><GalaxyIcon className="info-icon" /> Album mode: Upload multiple files with shared details</span>
             ) : (
@@ -669,16 +658,12 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
       )}
 
       {/* Submit to Database Section */}
-      {mediaFiles.length > 0 && (
+  {mediaFiles.length > 0 && (
         <div className="submit-section">
           <div className="submit-info">
-            <h3><RocketIcon className="submit-icon" /> Ready to Submit</h3>
-            <p>
-              You have {mediaFiles.length} media file{mediaFiles.length > 1 ? 's' : ''} ready to be submitted to your astronomy tour database.
-            </p>
-            <p className="submit-warning">
-              ⚠️ After successful submission, the page will refresh to start a new upload session.
-            </p>
+            <h3><RocketIcon className="submit-icon" /> Manage Uploaded Media</h3>
+            <p>You currently have {mediaFiles.length} media file{mediaFiles.length > 1 ? 's' : ''} stored.</p>
+            <p className="submit-warning">Use Refresh to sync with server if you've uploaded from another tab.</p>
           </div>
           <div className="submit-actions">
             <Button
@@ -689,11 +674,11 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
               loading={isSubmitting}
               fullWidth={true}
             >
-              {isSubmitting ? 'Submitting to Database...' : `Submit ${mediaFiles.length} Files to Database`}
+              {isSubmitting ? 'Refreshing...' : `Refresh (${mediaFiles.length}) Media List`}
             </Button>
             {submitSuccess && (
               <div className="success-message">
-                ✅ Successfully submitted to database! Refreshing page...
+                ✅ Media list refreshed
               </div>
             )}
           </div>

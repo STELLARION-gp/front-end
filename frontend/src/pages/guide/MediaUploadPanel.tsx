@@ -191,7 +191,7 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
                 size="medium"
                 icon={<ArrowLeftIcon />}
                 iconPosition="left"
-                onClick={() => navigate('/dashboard/services')}
+                onClick={() => navigate('/dashboard/media')}
               >
                 Back to Services
               </Button>

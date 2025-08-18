@@ -44,7 +44,7 @@ function extractAxiosError(err: unknown): never {
   throw err instanceof Error ? err : new Error('Unknown upload error');
 }
 
-export async function uploadSingleTour(file: File, meta: TourMeta) {
+export async function uploadSingleTour(file: File, meta: TourMeta, onProgress?: (p:number)=>void) {
   try {
     const form = new FormData();
     buildMetaForm(form, meta);
@@ -52,13 +52,18 @@ export async function uploadSingleTour(file: File, meta: TourMeta) {
     logDebug('uploadSingleTour meta', meta);
     logDebug('uploadSingleTour file', { name: file.name, size: file.size, type: file.type });
     const headers = await getAuthHeader();
-    return (await axios.post(`${API_BASE}/tours/upload-single`, form, { headers })).data;
+    return (await axios.post(`${API_BASE}/tours/upload-single`, form, { headers, onUploadProgress: evt => {
+      if (evt.total) {
+        const pct = Math.round((evt.loaded / evt.total) * 100);
+        onProgress?.(pct);
+      }
+    }})).data;
   } catch (e) {
     extractAxiosError(e);
   }
 }
 
-export async function uploadAlbumTour(files: File[], meta: TourMeta) {
+export async function uploadAlbumTour(files: File[], meta: TourMeta, onProgress?: (p:number)=>void) {
   try {
     const form = new FormData();
     buildMetaForm(form, meta);
@@ -66,7 +71,12 @@ export async function uploadAlbumTour(files: File[], meta: TourMeta) {
     logDebug('uploadAlbumTour meta', meta);
     logDebug('uploadAlbumTour files', files.map(f => ({ name: f.name, size: f.size, type: f.type })));
     const headers = await getAuthHeader();
-    return (await axios.post(`${API_BASE}/tours/upload-album`, form, { headers })).data;
+    return (await axios.post(`${API_BASE}/tours/upload-album`, form, { headers, onUploadProgress: evt => {
+      if (evt.total) {
+        const pct = Math.round((evt.loaded / evt.total) * 100);
+        onProgress?.(pct);
+      }
+    }})).data;
   } catch (e) {
     extractAxiosError(e);
   }

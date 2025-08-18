@@ -1,23 +1,11 @@
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { flushSync } from 'react-dom';
-import { useNavigate } from 'react-router-dom';
 import Button from '../../components/Button';
 import '../../styles/pages/guide/_mediaUploadPanel.scss';
 import { apiService } from '../../services/api';
 import { auth } from '../../firebase';
+import { uploadSingleTour, uploadAlbumTour } from '../../services/apiTours';
 
-// Simple Upload Icon Component
-const UploadIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
-  <svg className={className} width="48" height="48" viewBox="0 0 24 24" fill="none">
-    <path
-      d="M12 2L12 12M12 2L8 6M12 2L16 6M3 12L3 20C3 20.5523 3.44772 21 4 21L20 21C20.5523 21 21 20.5523 21 20L21 12"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
 
 const PlusIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
   <svg className={className} width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -74,17 +62,6 @@ const TelescopeIcon: React.FC<{ className?: string }> = ({ className = "" }) => 
   </svg>
 );
 
-const ArrowLeft: React.FC<{ className?: string }> = ({ className = "" }) => (
-  <svg className={className} width="16" height="16" viewBox="0 0 24 24" fill="none">
-    <path
-      d="M19 12H5M12 19L5 12L12 5"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
 
 interface MediaFile {
   id: string | number;
@@ -117,29 +94,15 @@ interface MediaUploadPanelProps {
   allowedTypes?: string[];
 }
 
-interface UploadMode {
-  type: 'single' | 'album';
-  albumName?: string;
-  albumDescription?: string;
-}
-
-interface AlbumData {
-  name: string;
-  description: string;
-  tourName: string;
-  location: string;
-  tags: string[];
-}
+interface UploadMode { type: 'single' | 'album'; }
 
 const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
   onMediaUploaded,
-  maxFileSize = 5, // backend limit 5MB
+  // maxFileSize removed (backend already validates size)
   allowedTypes = ['image/jpeg', 'image/png', 'video/mp4', 'application/pdf']
 }) => {
-  const navigate = useNavigate();
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
   const [dragActive, setDragActive] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState<{ [key: string]: number }>({});
   const [selectedMedia, setSelectedMedia] = useState<MediaFile | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [filter, setFilter] = useState<'all' | 'images' | 'videos'>('all');
@@ -147,80 +110,69 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
   const [uploadMode, setUploadMode] = useState<UploadMode>({ type: 'single' });
   const [showAlbumModal, setShowAlbumModal] = useState(false);
   const [pendingFiles, setPendingFiles] = useState<File[] | null>(null);
-  const [albumData, setAlbumData] = useState<AlbumData>({
-    name: '',
-    description: '',
-    tourName: '',
-    location: '',
-    tags: []
-  });
+  const [tourForm, setTourForm] = useState({ tour_name: '', description: '', location: '', tags: '' });
+  const [submitMsg, setSubmitMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitSuccess, setSubmitSuccess] = useState(false);
-  const [loadingExisting, setLoadingExisting] = useState(true);
-  const [listError, setListError] = useState<string | null>(null);
+  // removed loadingExisting/listError (legacy refresh logic retained minimal)
   const [uploadError, setUploadError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const validateFile = useCallback((file: File): string | null => {
-    const ext = file.name.split('.').pop()?.toLowerCase();
-    const allowedExt = ['jpg', 'jpeg', 'png', 'mp4', 'pdf'];
-    if (!ext || !allowedExt.includes(ext)) {
-      return `Unsupported file extension .${ext || 'unknown'}. Allowed: ${allowedExt.join(', ')}`;
-    }
-    if (file.size > maxFileSize * 1024 * 1024) {
-      return `File size exceeds ${maxFileSize}MB limit.`;
-    }
-    return null;
-  }, [maxFileSize]);
 
   // Handle one or multiple files: upload each, prepend server-returned file object
   const handleFiles = async (files: FileList | File[]) => {
     setUploadError(null);
-    const commonData = uploadMode.type === 'album' ? {
-      description: albumData.description,
-      tourName: albumData.tourName,
-      location: albumData.location,
-      tags: albumData.tags
-    } : {};
     const fileArray = Array.isArray(files) ? files : Array.from(files);
-    for (const file of fileArray) {
-      const validationError = validateFile(file);
-      if (validationError) {
-        setUploadError(validationError);
-        continue;
-      }
-      try {
-        setUploadProgress(prev => ({ ...prev, [file.name]: 0 }));
-        const result: unknown = await apiService.uploadMedia(file);
-        const serverFile = (result && typeof result === 'object' && 'file' in result) ? (result as { file: ServerMediaFile }).file : undefined;
-        if (serverFile) {
-          const type: MediaFile['type'] = serverFile.file_type?.startsWith('image/')
-            ? 'image'
-            : (serverFile.file_type?.startsWith('video/') ? 'video' : 'other');
-          const mapped: MediaFile = {
-            id: serverFile.id,
-            url: serverFile.file_path, // treat directly (absolute URLs already fine)
-            type,
-            name: serverFile.file_name,
-            size: serverFile.file_size,
-            uploadDate: new Date(serverFile.created_at || Date.now()),
-            file_path: serverFile.file_path,
-            file_type: serverFile.file_type,
-            ...commonData
-          };
-          // Prepend new file
-          setMediaFiles(prev => [mapped, ...prev]);
-          onMediaUploaded?.([mapped]);
+    if (!tourForm.tour_name || !tourForm.description || !tourForm.location) {
+      setUploadError('Please fill Tour Name, Description, and Location before uploading.');
+      return;
+    }
+    try {
+      setIsSubmitting(true);
+  interface UploadResponse { media?: ServerMediaFile[] }
+      let res: UploadResponse | undefined;
+      // Basic client-side validation to avoid server 500s
+      const MAX_SIZE_MB = 5;
+      for (const f of fileArray) {
+        if (f.size > MAX_SIZE_MB * 1024 * 1024) {
+          setUploadError(`File ${f.name} exceeds ${MAX_SIZE_MB}MB limit.`);
+          setIsSubmitting(false);
+          return;
         }
-        setUploadProgress(prev => ({ ...prev, [file.name]: 100 }));
-      } catch (uploadErr: unknown) {
-        const message = uploadErr instanceof Error ? uploadErr.message : 'Upload failed';
-        setUploadError(message);
-        setUploadProgress(prev => { const u = { ...prev }; delete u[file.name]; return u; });
-      } finally {
-        // Remove progress entry after brief delay
-        setTimeout(() => setUploadProgress(prev => { const u = { ...prev }; delete u[file.name]; return u; }), 400);
       }
+      if (uploadMode.type === 'single') {
+        if (fileArray.length !== 1) {
+          setUploadError('Single mode expects exactly one file');
+          return;
+        }
+  res = await uploadSingleTour(fileArray[0], tourForm) as unknown as UploadResponse;
+      } else {
+  res = await uploadAlbumTour(fileArray, tourForm) as unknown as UploadResponse;
+      }
+      setSubmitMsg({ type: 'success', text: 'Upload successful' });
+      if (onMediaUploaded) {
+  const mediaResp: ServerMediaFile[] = res?.media || [];
+  const media: MediaFile[] = mediaResp.map(m => ({
+            id: m.id,
+            url: m.file_path,
+      type: m.file_type.startsWith('image') ? 'image' : (m.file_type.startsWith('video') ? 'video' : 'other'),
+            name: m.file_name,
+            size: m.file_size,
+            uploadDate: new Date(m.created_at || Date.now()),
+            file_path: m.file_path,
+            file_type: m.file_type,
+            tourName: tourForm.tour_name,
+            location: tourForm.location,
+            description: tourForm.description,
+            tags: tourForm.tags ? tourForm.tags.split(',').map(t=>t.trim()) : []
+        }));
+        onMediaUploaded(media);
+      }
+    } catch (e) {
+      const message = e instanceof Error ? e.message : 'Upload failed';
+      setSubmitMsg({ type: 'error', text: message });
+      setUploadError(message);
+    } finally {
+      setIsSubmitting(false);
+      setTimeout(() => setSubmitMsg(null), 4000);
     }
   };
 
@@ -347,26 +299,14 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
       // Close the modal and reset state
       setShowAlbumModal(false);
       setPendingFiles(null);
-      setAlbumData({
-        name: '',
-        description: '',
-        tourName: '',
-        location: '',
-        tags: []
-      });
+      setTourForm({ tour_name: '', description: '', location: '', tags: '' });
     }
   };
 
   const cancelAlbumUpload = () => {
     setShowAlbumModal(false);
     setPendingFiles(null);
-    setAlbumData({
-      name: '',
-      description: '',
-      tourName: '',
-      location: '',
-      tags: []
-    });
+    setTourForm({ tour_name: '', description: '', location: '', tags: '' });
   };
 
   const deleteMedia = (id: string | number) => {
@@ -415,8 +355,8 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
         file_path: f.file_path,
         file_type: f.file_type
       })));
-      setSubmitSuccess(true);
-      setTimeout(() => setSubmitSuccess(false), 2500);
+      setSubmitMsg({ type: 'success', text: 'Media list refreshed' });
+      setTimeout(() => setSubmitMsg(null), 2500);
     } catch (e: unknown) {
       const message = e instanceof Error ? e.message : 'Failed to refresh media list';
       alert(message);
@@ -427,22 +367,15 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
 
   // Initial fetch of existing media
   useEffect(() => {
-    let mounted = true;
     (async () => {
-      setListError(null);
       try {
-        if (!auth.currentUser) {
-          setListError('Please log in to view media');
-          return;
-        }
+        if (!auth.currentUser) return;
         const data: unknown = await apiService.listMedia();
-        if (!mounted) return;
         const files: ServerMediaFile[] = (data && typeof data === 'object' && 'files' in data)
-          ? (data as { files: ServerMediaFile[] }).files
-          : [];
-        setMediaFiles(files.map((f) => ({
+          ? (data as { files: ServerMediaFile[] }).files : [];
+        setMediaFiles(files.map(f => ({
           id: f.id,
-    url: f.file_path,
+          url: f.file_path,
           type: f.file_type?.startsWith('image/') ? 'image' : (f.file_type?.startsWith('video/') ? 'video' : 'other'),
           name: f.file_name,
           size: f.file_size,
@@ -450,13 +383,8 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
           file_path: f.file_path,
           file_type: f.file_type
         })));
-      } catch (err: unknown) {
-        if (mounted) setListError(err instanceof Error ? err.message : 'Failed to load media');
-      } finally {
-        if (mounted) setLoadingExisting(false);
-      }
+      } catch { /* silent initial load */ }
     })();
-    return () => { mounted = false; };
   }, []);
 
   const filteredMedia = mediaFiles.filter(media => {
@@ -476,91 +404,34 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
   const renderMediaContent = () => (
     <div className="media-upload-panel">
       <div className="media-upload-header">
-        <div className="header-top">
-          <Button
-            variant="secondary"
-            size="medium"
-            icon={<ArrowLeft className="w-4 h-4" />}
-            iconPosition="left"
-            onClick={() => navigate(-1)}
-          >
-            Back to Dashboard
-          </Button>
-        </div>
-        <div className="header-main">
-          <div className="header-content">
-            <h2 className="panel-title">Media Upload Portal</h2>
-            <p className="panel-subtitle">Upload astronomy tour photos and videos (JPG, PNG, MP4, PDF)</p>
-            {loadingExisting && <p className="loading-text">Loading your media...</p>}
-            {listError && <p className="error-text">{listError}</p>}
-            {uploadError && <p className="error-text">{uploadError}</p>}
-          </div>
-          
-          <div className="header-actions">
-          <div className="upload-mode-tabs">
-            <Button
-              variant={uploadMode.type === 'single' ? 'primary' : 'secondary'}
-              size="small"
-              onClick={() => setUploadMode({ type: 'single' })}
-              className="mode-tab-component"
-            >
-              Single Upload
-            </Button>
-            <Button
-              variant={uploadMode.type === 'album' ? 'primary' : 'secondary'}
-              size="small"
-              onClick={() => setUploadMode({ type: 'album' })}
-              className="mode-tab-component"
-            >
-              Album Upload
-            </Button>
-          </div>
-          
-          <div className="upload-buttons">
-            <Button
-              variant="primary"
-              size="medium"
-              onClick={openFileDialog}
-              icon={<RocketIcon className="upload-icon" />}
-              iconPosition="left"
-              className="upload-btn-component"
-            >
-              {uploadMode.type === 'album' ? 'Upload Album' : 'Upload Media'}
-            </Button>
+        <div className="flex items-center gap-4 mb-4">
+          <div className="flex gap-2">
+            <button type="button" onClick={() => setUploadMode({ type: 'single' })} className={`px-3 py-1 rounded text-sm border ${uploadMode.type==='single'?'bg-indigo-600 text-white':'bg-white/5 text-gray-300'}`}>Single Upload</button>
+            <button type="button" onClick={() => setUploadMode({ type: 'album' })} className={`px-3 py-1 rounded text-sm border ${uploadMode.type==='album'?'bg-indigo-600 text-white':'bg-white/5 text-gray-300'}`}>Album Upload</button>
           </div>
         </div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
+          <input className="border rounded px-3 py-2 bg-white/5" placeholder="Tour Name *" value={tourForm.tour_name} onChange={e=>setTourForm(f=>({...f,tour_name:e.target.value}))} />
+          <input className="border rounded px-3 py-2 bg-white/5" placeholder="Location *" value={tourForm.location} onChange={e=>setTourForm(f=>({...f,location:e.target.value}))} />
+          <input className="border rounded px-3 py-2 bg-white/5" placeholder="Tags (comma separated)" value={tourForm.tags} onChange={e=>setTourForm(f=>({...f,tags:e.target.value}))} />
+          <input className="border rounded px-3 py-2 bg-white/5 md:col-span-1" placeholder="Description *" value={tourForm.description} onChange={e=>setTourForm(f=>({...f,description:e.target.value}))} />
         </div>
+        {submitMsg && <div className={`text-sm mb-2 ${submitMsg.type==='success'?'text-green-500':'text-red-500'}`}>{submitMsg.text}</div>}
+        {uploadError && <div className="text-sm text-red-500 mb-2">{uploadError}</div>}
       </div>
-
+      
       {/* Upload Area */}
       <div 
-        className={`upload-area ${dragActive ? 'drag-active' : ''}`}
+        className={`upload-area ${dragActive ? 'drag-active' : ''} border-2 border-dashed rounded p-10 text-center cursor-pointer`}
         onDragEnter={handleDragIn}
         onDragLeave={handleDragOut}
         onDragOver={handleDrag}
         onDrop={handleDrop}
         onClick={openFileDialog}
       >
-        <div className="upload-content">
-          <div className="upload-icon">
-            <UploadIcon className="upload-svg-icon" />
-          </div>
-          <h3>
-            {uploadMode.type === 'album' 
-              ? 'Drop multiple files to create an album' 
-              : 'Drop a media file here'
-            }
-          </h3>
-          <p>or click to browse {uploadMode.type === 'album' ? 'files' : 'file'}</p>
-          <div className="upload-info">
-            <span>Supports: JPG, JPEG, PNG, MP4, PDF</span>
-            <span>Max size: {maxFileSize}MB</span>
-            {uploadMode.type === 'album' ? (
-              <span><GalaxyIcon className="info-icon" /> Album mode: Upload multiple files with shared details</span>
-            ) : (
-              <span><StarIcon className="info-icon" /> Single mode: Upload one file at a time</span>
-            )}
-          </div>
+        <div className="upload-content space-y-3">
+          <p className="text-sm text-gray-400">{uploadMode.type==='single'?'Click or drag a file to upload a new Tour with one media file.':'Click or drag files to upload a Tour Album.'}</p>
+          <button type="button" onClick={openFileDialog} className="px-4 py-2 bg-indigo-600 text-white rounded disabled:opacity-50" disabled={!tourForm.tour_name||!tourForm.description||!tourForm.location||isSubmitting}>{isSubmitting?'Uploading...': uploadMode.type==='single'?'Select File':'Select Files'}</button>
         </div>
       </div>
 
@@ -576,23 +447,7 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
         aria-label={uploadMode.type === 'album' ? 'Upload multiple media files for album' : 'Upload single media file'}
       />
 
-      {/* Upload Progress */}
-      {Object.keys(uploadProgress).length > 0 && (
-        <div className="upload-progress-section">
-          <h3>Uploading Files...</h3>
-          {Object.entries(uploadProgress).map(([fileName, progress]) => (
-            <div key={fileName} className="progress-item">
-              <span className="file-name">{fileName}</span>
-              <div className="progress-bar">
-                <div 
-                  className={`progress-fill progress-${Math.min(Math.round(progress / 5) * 5, 100)}`}
-                />
-              </div>
-              <span className="progress-text">{Math.round(progress)}%</span>
-            </div>
-          ))}
-        </div>
-      )}
+  {/* Upload Progress - currently not implemented for tour upload */}
 
       {/* Media Controls */}
       {mediaFiles.length > 0 && (
@@ -676,7 +531,7 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
             >
               {isSubmitting ? 'Refreshing...' : `Refresh (${mediaFiles.length}) Media List`}
             </Button>
-            {submitSuccess && (
+            {submitMsg && submitMsg.type === 'success' && (
               <div className="success-message">
                 ✅ Media list refreshed
               </div>
@@ -811,8 +666,8 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
                   <input
                     type="text"
                     id="albumName"
-                    value={albumData.name}
-                    onChange={(e) => setAlbumData(prev => ({ ...prev, name: e.target.value }))}
+                    value={tourForm.tour_name}
+                    onChange={(e) => setTourForm(f => ({ ...f, tour_name: e.target.value }))}
                     placeholder="e.g., Saturn Observation Night"
                   />
                 </div>
@@ -821,8 +676,8 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
                   <label htmlFor="albumDescription">Album Description:</label>
                   <textarea
                     id="albumDescription"
-                    value={albumData.description}
-                    onChange={(e) => setAlbumData(prev => ({ ...prev, description: e.target.value }))}
+                    value={tourForm.description}
+                    onChange={(e) => setTourForm(f => ({ ...f, description: e.target.value }))}
                     placeholder="Describe this collection of photos/videos..."
                     rows={3}
                   />
@@ -833,8 +688,8 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
                   <input
                     type="text"
                     id="albumTourName"
-                    value={albumData.tourName}
-                    onChange={(e) => setAlbumData(prev => ({ ...prev, tourName: e.target.value }))}
+                    value={tourForm.tour_name}
+                    onChange={(e) => setTourForm(f => ({ ...f, tour_name: e.target.value }))}
                     placeholder="e.g., Stargazing Night at Mount Wilson"
                   />
                 </div>
@@ -844,8 +699,8 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
                   <input
                     type="text"
                     id="albumLocation"
-                    value={albumData.location}
-                    onChange={(e) => setAlbumData(prev => ({ ...prev, location: e.target.value }))}
+                    value={tourForm.location}
+                    onChange={(e) => setTourForm(f => ({ ...f, location: e.target.value }))}
                     placeholder="e.g., Mount Wilson Observatory, California"
                   />
                 </div>
@@ -855,11 +710,8 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
                   <input
                     type="text"
                     id="albumTags"
-                    value={albumData.tags.join(', ')}
-                    onChange={(e) => setAlbumData(prev => ({ 
-                      ...prev, 
-                      tags: e.target.value.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0)
-                    }))}
+                    value={tourForm.tags}
+                    onChange={(e) => setTourForm(f => ({ ...f, tags: e.target.value }))}
                     placeholder="e.g., telescope, saturn, rings, astrophotography"
                   />
                   <small>Separate tags with commas</small>

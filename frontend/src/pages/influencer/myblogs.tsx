@@ -304,38 +304,38 @@ export default function MyBlogs() {
             console.log('Found existing demo blogs:', existingUserBlogs);
             
             // Create sample blogs for the current user (always create some for demo)
-            const sampleBlogs = [
-                {
-                    id: Date.now() + 1,
-                    title: "Welcome to Your Astronomy Blog",
-                    content: "Welcome to your personal astronomy blog dashboard! Here you can create, edit, and manage your cosmic discoveries and insights. This is a sample blog created automatically for you. Feel free to edit or delete it and create your own amazing content about the universe!",
-                    image: FirebaseStorageService.DEFAULT_BLOG_IMAGE,
-                    author: currentUserName,
-                    createdAt: new Date().toISOString(),
-                    rating: 4.5,
-                    reach: 125,
-                    likes: 23,
-                    comments: [], // Will be loaded from backend
-                    liked: false
-                },
-                {
-                    id: Date.now() + 2,
-                    title: "Getting Started with Stargazing",
-                    content: "Stargazing is one of the most rewarding hobbies you can pursue. All you need is a clear night sky and curiosity about the cosmos. Start by identifying bright stars and constellations, then gradually work your way up to planets, star clusters, and nebulae. This sample post shows how your blogs might look!",
-                    image: FirebaseStorageService.DEFAULT_BLOG_IMAGE,
-                    author: currentUserName,
-                    createdAt: new Date(Date.now() - 86400000).toISOString(), // Yesterday
-                    rating: 4.8,
-                    reach: 89,
-                    likes: 34,
-                    comments: [], // Will be loaded from backend
-                    liked: false
-                }
-            ];
+            // const sampleBlogs = [
+            //     {
+            //         id: Date.now() + 1,
+            //         title: "Welcome to Your Astronomy Blog",
+            //         content: "Welcome to your personal astronomy blog dashboard! Here you can create, edit, and manage your cosmic discoveries and insights. This is a sample blog created automatically for you. Feel free to edit or delete it and create your own amazing content about the universe!",
+            //         image: FirebaseStorageService.DEFAULT_BLOG_IMAGE,
+            //         author: currentUserName,
+            //         createdAt: new Date().toISOString(),
+            //         rating: 4.5,
+            //         reach: 125,
+            //         likes: 23,
+            //         comments: [], // Will be loaded from backend
+            //         liked: false
+            //     },
+            //     {
+            //         id: Date.now() + 2,
+            //         title: "Getting Started with Stargazing",
+            //         content: "Stargazing is one of the most rewarding hobbies you can pursue. All you need is a clear night sky and curiosity about the cosmos. Start by identifying bright stars and constellations, then gradually work your way up to planets, star clusters, and nebulae. This sample post shows how your blogs might look!",
+            //         image: FirebaseStorageService.DEFAULT_BLOG_IMAGE,
+            //         author: currentUserName,
+            //         createdAt: new Date(Date.now() - 86400000).toISOString(), // Yesterday
+            //         rating: 4.8,
+            //         reach: 89,
+            //         likes: 34,
+            //         comments: [], // Will be loaded from backend
+            //         liked: false
+            //     }
+            // ];
             
             // Use existing blogs if any, otherwise use sample blogs
-            const userDemoBlogs: any[] = existingUserBlogs.length > 0 ? existingUserBlogs : sampleBlogs;
-            
+            const userDemoBlogs: any[] = existingUserBlogs.length > 0 ? existingUserBlogs : [];
+
             const convertedBlogs: Blog[] = userDemoBlogs.map(blog => ({
                 ...blog,
                 author_id: 0,

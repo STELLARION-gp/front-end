@@ -1,1065 +1,294 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
+import { listTours, deleteTour, updateTour } from '../../services/apiTours';
+import type { TourRecord, MediaUpload } from '../../services/apiTours';
 import Button from '../../components/Button';
-import Card from '../../components/Card';
-import { Image, Video, Eye, Heart, Upload, Search, Grid, List, Folder, Filter, ArrowUpDown, Play, Download, Share, X, ChevronLeft, ChevronRight } from 'lucide-react';
-import '../../styles/pages/guide/_guideMediaDashboard.scss';
+import { Upload } from "lucide-react"; 
+import { useNavigate } from 'react-router-dom';
 
-interface MediaItem {
-  id: number;
-  title: string;
-  type: 'image' | 'video';
-  url: string;
-  thumbnail: string;
-  tour: string;
-  location: string;
-  date: string;
-  tags: string[];
-  size: string;
-  views: number;
-  likes: number;
-  description?: string;
-}
 
-const mockMediaData: MediaItem[] = [
-  {
-    id: 1,
-    title: "Saturn Ring Structure Analysis",
-    type: "image" as const,
-    url: "https://picsum.photos/800/600?random=1",
-    thumbnail: "https://picsum.photos/400/300?random=1",
-    tour: "Saturn Observation Night",
-    location: "Mount Wilson Observatory",
-    date: "2025-06-15",
-    tags: ["saturn", "rings", "telescope", "planetary"],
-    size: "2.4 MB",
-    views: 245,
-    likes: 32,
-    description: "Detailed capture of Saturn's ring system showing the Cassini Division"
-  },
-  {
-    id: 2,
-    title: "Jupiter's Great Red Spot",
-    type: "video" as const,
-    url: "#",
-    thumbnail: "https://picsum.photos/400/300?random=2",
-    tour: "Jupiter Close-up Session",
-    location: "Palomar Observatory",
-    date: "2025-06-10",
-    tags: ["jupiter", "storm", "timelapse", "planetary"],
-    size: "45.2 MB",
-    views: 412,
-    likes: 67,
-    description: "Time-lapse showing the rotation of Jupiter's Great Red Spot"
-  },
-  {
-    id: 3,
-    title: "Andromeda Galaxy Core",
-    type: "image" as const,
-    url: "https://picsum.photos/800/600?random=3",
-    thumbnail: "https://picsum.photos/400/300?random=3",
-    tour: "Deep Space Photography",
-    location: "Dark Sky Reserve",
-    date: "2025-06-08",
-    tags: ["galaxy", "andromeda", "deep-space", "astrophotography"],
-    size: "5.8 MB",
-    views: 892,
-    likes: 156,
-    description: "High-resolution capture of Andromeda's galactic core"
-  },
-  {
-    id: 4,
-    title: "Lunar Eclipse Sequence",
-    type: "video" as const,
-    url: "#",
-    thumbnail: "https://picsum.photos/400/300?random=4",
-    tour: "Lunar Eclipse Special",
-    location: "City Observatory",
-    date: "2025-06-05",
-    tags: ["moon", "eclipse", "lunar", "timelapse"],
-    size: "67.3 MB",
-    views: 634,
-    likes: 98,
-    description: "Complete lunar eclipse sequence from start to totality"
-  },
-  {
-    id: 5,
-    title: "Orion Nebula Details",
-    type: "image" as const,
-    url: "https://picsum.photos/800/600?random=5",
-    thumbnail: "https://picsum.photos/400/300?random=5",
-    tour: "Nebula Photography Workshop",
-    location: "Remote Desert Site",
-    date: "2025-06-03",
-    tags: ["nebula", "orion", "star-formation", "deep-space"],
-    size: "4.1 MB",
-    views: 523,
-    likes: 89,
-    description: "Detailed view of star formation in the Orion Nebula"
-  },
-  {
-    id: 6,
-    title: "Mars Opposition 2025",
-    type: "image" as const,
-    url: "https://picsum.photos/800/600?random=6",
-    thumbnail: "https://picsum.photos/400/300?random=6",
-    tour: "Mars Opposition Special",
-    location: "High Altitude Observatory",
-    date: "2025-06-01",
-    tags: ["mars", "opposition", "planetary", "surface"],
-    size: "3.2 MB",
-    views: 367,
-    likes: 54,
-    description: "Mars at its closest approach showing surface features"
-  },
-  {
-    id: 7,
-    title: "Milky Way Panorama",
-    type: "image" as const,
-    url: "https://picsum.photos/800/600?random=7",
-    thumbnail: "https://picsum.photos/400/300?random=7",
-    tour: "Galactic Center Tour",
-    location: "Atacama Desert",
-    date: "2025-05-28",
-    tags: ["milky-way", "panorama", "galactic-center", "night-sky"],
-    size: "12.8 MB",
-    views: 1247,
-    likes: 203,
-    description: "Stunning panoramic view of the Milky Way's galactic center"
-  },
-  {
-    id: 8,
-    title: "International Space Station Transit",
-    type: "video" as const,
-    url: "#",
-    thumbnail: "https://picsum.photos/400/300?random=8",
-    tour: "ISS Observation Session",
-    location: "Kennedy Space Center",
-    date: "2025-05-25",
-    tags: ["iss", "transit", "space-station", "orbital"],
-    size: "89.7 MB",
-    views: 756,
-    likes: 124,
-    description: "ISS transit across the moon's surface captured in real-time"
-  },
-  {
-    id: 9,
-    title: "Venus Transit Composite",
-    type: "image" as const,
-    url: "https://picsum.photos/800/600?random=9",
-    thumbnail: "https://picsum.photos/400/300?random=9",
-    tour: "Planetary Transits Workshop",
-    location: "Mauna Kea Observatory",
-    date: "2025-05-22",
-    tags: ["venus", "transit", "solar", "composite"],
-    size: "6.3 MB",
-    views: 445,
-    likes: 78,
-    description: "Composite image showing Venus transit across the sun's disk"
-  },
-  {
-    id: 10,
-    title: "Comet NEOWISE Trail",
-    type: "video" as const,
-    url: "#",
-    thumbnail: "https://picsum.photos/400/300?random=10",
-    tour: "Comet Hunting Expedition",
-    location: "Rocky Mountain Observatory",
-    date: "2025-05-20",
-    tags: ["comet", "neowise", "tail", "timelapse"],
-    size: "134.5 MB",
-    views: 923,
-    likes: 167,
-    description: "Time-lapse of Comet NEOWISE's magnificent tail development"
-  },
-  {
-    id: 11,
-    title: "Solar Flare Activity",
-    type: "image" as const,
-    url: "https://picsum.photos/800/600?random=11",
-    thumbnail: "https://picsum.photos/400/300?random=11",
-    tour: "Solar Observation Day",
-    location: "National Solar Observatory",
-    date: "2025-05-18",
-    tags: ["solar-flare", "sun", "chromosphere", "magnetic-field"],
-    size: "8.9 MB",
-    views: 612,
-    likes: 95,
-    description: "Spectacular solar flare captured with hydrogen-alpha filter"
-  },
-  {
-    id: 12,
-    title: "Ring Nebula in Lyra",
-    type: "image" as const,
-    url: "https://picsum.photos/800/600?random=12",
-    thumbnail: "https://picsum.photos/400/300?random=12",
-    tour: "Planetary Nebulae Tour",
-    location: "Apache Point Observatory",
-    date: "2025-05-15",
-    tags: ["ring-nebula", "lyra", "planetary-nebula", "dying-star"],
-    size: "7.2 MB",
-    views: 834,
-    likes: 142,
-    description: "The famous Ring Nebula showing intricate gas shell structure"
-  },
-  {
-    id: 13,
-    title: "Meteor Shower Peak",
-    type: "video" as const,
-    url: "#",
-    thumbnail: "https://picsum.photos/400/300?random=13",
-    tour: "Perseid Meteor Watch",
-    location: "Death Valley",
-    date: "2025-05-12",
-    tags: ["meteor-shower", "perseids", "shooting-stars", "night-sky"],
-    size: "156.3 MB",
-    views: 1456,
-    likes: 278,
-    description: "Peak activity of the Perseid meteor shower with multiple fireballs"
-  },
-  {
-    id: 14,
-    title: "Eagle Nebula Pillars",
-    type: "image" as const,
-    url: "https://picsum.photos/800/600?random=14",
-    thumbnail: "https://picsum.photos/400/300?random=14",
-    tour: "Deep Space Photography",
-    location: "Las Campanas Observatory",
-    date: "2025-05-10",
-    tags: ["eagle-nebula", "pillars-of-creation", "star-formation", "emission"],
-    size: "15.4 MB",
-    views: 1123,
-    likes: 198,
-    description: "The iconic Pillars of Creation in the Eagle Nebula"
-  },
-  {
-    id: 15,
-    title: "Binary Star Eclipse",
-    type: "video" as const,
-    url: "#",
-    thumbnail: "https://picsum.photos/400/300?random=15",
-    tour: "Variable Stars Program",
-    location: "Lowell Observatory",
-    date: "2025-05-08",
-    tags: ["binary-star", "eclipse", "variable", "photometry"],
-    size: "78.9 MB",
-    views: 567,
-    likes: 89,
-    description: "Eclipsing binary star system showing dramatic brightness changes"
-  },
-  {
-    id: 16,
-    title: "Aurora Borealis Dance",
-    type: "video" as const,
-    url: "#",
-    thumbnail: "https://picsum.photos/400/300?random=16",
-    tour: "Northern Lights Expedition",
-    location: "Fairbanks, Alaska",
-    date: "2025-05-05",
-    tags: ["aurora", "northern-lights", "geomagnetic", "atmosphere"],
-    size: "198.7 MB",
-    views: 2134,
-    likes: 456,
-    description: "Mesmerizing aurora borealis dancing across the arctic sky"
-  },
-  {
-    id: 17,
-    title: "Horsehead Nebula Silhouette",
-    type: "image" as const,
-    url: "https://picsum.photos/800/600?random=17",
-    thumbnail: "https://picsum.photos/400/300?random=17",
-    tour: "Orion Constellation Tour",
-    location: "Cerro Tololo Observatory",
-    date: "2025-05-03",
-    tags: ["horsehead-nebula", "dark-nebula", "orion", "silhouette"],
-    size: "9.6 MB",
-    views: 789,
-    likes: 134,
-    description: "The distinctive silhouette of the Horsehead Nebula in Orion"
-  },
-  {
-    id: 18,
-    title: "Supernova Remnant",
-    type: "image" as const,
-    url: "https://picsum.photos/800/600?random=18",
-    thumbnail: "https://picsum.photos/400/300?random=18",
-    tour: "Stellar Evolution Workshop",
-    location: "Keck Observatory",
-    date: "2025-05-01",
-    tags: ["supernova", "remnant", "shock-wave", "stellar-death"],
-    size: "11.2 MB",
-    views: 645,
-    likes: 107,
-    description: "Expanding shock waves from an ancient supernova explosion"
-  },
-    {
-    id: 19,
-    title: "Supernova Remnant",
-    type: "image" as const,
-    url: "https://picsum.photos/800/600?random=18",
-    thumbnail: "https://picsum.photos/400/300?random=18",
-    tour: "Stellar Evolution Workshop",
-    location: "Keck Observatory",
-    date: "2025-05-01",
-    tags: ["supernova", "remnant", "shock-wave", "stellar-death"],
-    size: "11.2 MB",
-    views: 645,
-    likes: 107,
-    description: "Expanding shock waves from an ancient supernova explosion"
-  }
-];
-
-// Pagination constants
-const ITEMS_PER_PAGE = 18;
+interface SliderState { index: number; }
 
 const GuideMediaDashboard: React.FC = () => {
   const navigate = useNavigate();
-  
-  // State Management
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedFilter, setSelectedFilter] = useState<'all' | 'images' | 'videos'>('all');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [selectedMedia, setSelectedMedia] = useState<MediaItem | null>(null);
-  const [selectedTour, setSelectedTour] = useState<string>('all');
-  const [sortBy, setSortBy] = useState<'date' | 'views' | 'likes' | 'title'>('date');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [isImageZoomed, setIsImageZoomed] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null);
-  const [touchEnd, setTouchEnd] = useState<{ x: number; y: number } | null>(null);
+  const [tours, setTours] = React.useState<TourRecord[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+  const [editingId, setEditingId] = React.useState<number | null>(null);
+  const [editForm, setEditForm] = React.useState({ tour_name: '', description: '', location: '', tags: '' });
+  const [msg, setMsg] = React.useState<{type:'success'|'error'; text:string}|null>(null);
+  const [viewer, setViewer] = React.useState<{tourId:number; media:MediaUpload[]; start:number}|null>(null);
+  const [sliderPositions, setSliderPositions] = React.useState<Record<number, SliderState>>({});
+  // Search & Filters
+  const [search, setSearch] = React.useState('');
+  const [debouncedSearch, setDebouncedSearch] = React.useState('');
+  const [tagFilter, setTagFilter] = React.useState<string>('');
+  const [locationFilter, setLocationFilter] = React.useState<string>('');
+  const [dateFilter, setDateFilter] = React.useState<'all'|'7'|'30'>('all');
 
-  // Body scroll lock for modal
-  useEffect(() => {
-    if (selectedMedia) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
+  React.useEffect(()=>{ (async()=>{ try{ const data = await listTours(); const list:TourRecord[] = data.tours||[]; setTours(list); const init:Record<number,SliderState>={}; list.forEach(t=>init[t.tour_id]={index:0}); setSliderPositions(init);} catch(e){ setError(e instanceof Error? e.message:'Failed to load'); } finally { setLoading(false);} })(); },[]);
+
+  const beginEdit = (t:TourRecord)=>{ setEditingId(t.tour_id); setEditForm({ tour_name:t.tour_name, description:t.description, location:t.location, tags:t.tags||'' }); };
+  const cancel = ()=> setEditingId(null);
+  const save = async(id:number)=>{ try{ await updateTour(id, editForm); setTours(p=>p.map(t=>t.tour_id===id?{...t,...editForm}:t)); setMsg({type:'success',text:'Updated'}); setEditingId(null);}catch(e){ setMsg({type:'error',text: e instanceof Error? e.message:'Update failed'});} finally { setTimeout(()=>setMsg(null),2500);} };
+  const remove = async(id:number)=>{ if(!confirm('Delete tour?')) return; try{ await deleteTour(id); setTours(p=>p.filter(t=>t.tour_id!==id)); setMsg({type:'success',text:'Deleted'});}catch(e){ setMsg({type:'error',text: e instanceof Error? e.message:'Delete failed'});} finally { setTimeout(()=>setMsg(null),2500);} };
+  const openViewer = (tourId:number, media:MediaUpload[], start:number)=> setViewer({tourId, media, start});
+  const closeViewer = ()=> setViewer(null);
+  const nextSlide = (tourId:number, len:number)=> setSliderPositions(p=>{ const cur = p[tourId]?.index||0; return {...p, [tourId]:{index:(cur+1)%len}}});
+  const prevSlide = (tourId:number, len:number)=> setSliderPositions(p=>{ const cur = p[tourId]?.index||0; return {...p, [tourId]:{index:(cur-1+len)%len}}});
+
+  // Modal keyboard navigation
+  React.useEffect(()=>{
+    if(!viewer) return; 
+    const handler = (e:KeyboardEvent)=>{
+      if(e.key==='Escape') closeViewer();
+      if(e.key==='ArrowRight') setViewer(v=> v? ({...v,start:(v.start+1)%v.media.length}):v);
+      if(e.key==='ArrowLeft') setViewer(v=> v? ({...v,start:(v.start-1+v.media.length)%v.media.length}):v);
     };
-  }, [selectedMedia]);
+    window.addEventListener('keydown', handler);
+    return ()=> window.removeEventListener('keydown', handler);
+  },[viewer]);
 
-  // Get unique tours for filter
-  const tours = useMemo(() => 
-    ['all', ...Array.from(new Set(mockMediaData.map(item => item.tour)))], 
-    []
-  );
+  // derive unique tags & locations (memoized)
+  const allTags = React.useMemo(()=>{
+    const s = new Set<string>();
+    tours.forEach(t=> (t.tags||'').split(',').map(x=>x.trim()).filter(Boolean).forEach(x=> s.add(x)) );
+    return Array.from(s).sort();
+  },[tours]);
+  const allLocations = React.useMemo(()=>{
+    const s = new Set<string>();
+    tours.forEach(t=> t.location && s.add(t.location));
+    return Array.from(s).sort();
+  },[tours]);
 
-  // Filter and sort media
-  const filteredAndSortedMedia = useMemo(() => {
-    const filtered = mockMediaData.filter(item => {
-      const matchesSearch = searchTerm === '' || 
-                           item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           item.tour.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           item.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           item.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
-      
-      const matchesType = selectedFilter === 'all' || 
-                         (selectedFilter === 'images' && item.type === 'image') ||
-                         (selectedFilter === 'videos' && item.type === 'video');
-      
-      const matchesTour = selectedTour === 'all' || item.tour === selectedTour;
-      
-      return matchesSearch && matchesType && matchesTour;
-    });
+  // debounce search input
+  React.useEffect(()=>{ const id = setTimeout(()=> setDebouncedSearch(search.trim().toLowerCase()), 250); return ()=> clearTimeout(id); },[search]);
 
-    // Sort the filtered results
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case 'views':
-          return b.views - a.views;
-        case 'likes':
-          return b.likes - a.likes;
-        case 'title':
-          return a.title.localeCompare(b.title);
-        case 'date':
-        default:
-          return new Date(b.date).getTime() - new Date(a.date).getTime();
+  const filteredTours = React.useMemo(()=> {
+    return tours.filter(t=> {
+      // search
+      const hay = (t.tour_name+' '+t.description).toLowerCase();
+      if (debouncedSearch && !hay.includes(debouncedSearch)) return false;
+      // tag filter
+      if (tagFilter) {
+        const tagsArr = (t.tags||'').split(',').map(s=>s.trim().toLowerCase()).filter(Boolean);
+        if (!tagsArr.includes(tagFilter.toLowerCase())) return false;
       }
-    });
-
-    return filtered;
-  }, [searchTerm, selectedFilter, selectedTour, sortBy]);
-
-  // Pagination logic
-  const totalPages = Math.ceil(filteredAndSortedMedia.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const paginatedMedia = filteredAndSortedMedia.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-
-  // Reset to first page when filters change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [selectedFilter, selectedTour, searchTerm, sortBy]);
-
-  // Statistics
-  const stats = useMemo(() => ({
-    total: mockMediaData.length,
-    images: mockMediaData.filter(item => item.type === 'image').length,
-    videos: mockMediaData.filter(item => item.type === 'video').length,
-    totalViews: mockMediaData.reduce((sum, item) => sum + item.views, 0),
-    totalLikes: mockMediaData.reduce((sum, item) => sum + item.likes, 0),
-    totalSize: mockMediaData.reduce((sum, item) => sum + parseFloat(item.size), 0).toFixed(1)
-  }), []);
-
-  // Handle media item actions
-  const handleDownload = (item: MediaItem, e: React.MouseEvent) => {
-    e.stopPropagation();
-    // TODO: Implement download functionality
-    console.log('Download:', item.title);
-  };
-
-  const handleShare = (item: MediaItem, e: React.MouseEvent) => {
-    e.stopPropagation();
-    // TODO: Implement share functionality
-    console.log('Share:', item.title);
-  };
-
-  const handleMediaClick = (item: MediaItem) => {
-    setIsLoading(true);
-    setSelectedMedia(item);
-    setIsImageZoomed(false);
-    
-    // Simulate loading time for better UX
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 200);
-  };
-
-  // Navigate between media items
-  const navigateMedia = useCallback((direction: 'prev' | 'next') => {
-    if (!selectedMedia) return;
-
-    const currentIndex = filteredAndSortedMedia.findIndex(item => item.id === selectedMedia.id);
-    let newIndex;
-
-    if (direction === 'prev') {
-      newIndex = currentIndex > 0 ? currentIndex - 1 : filteredAndSortedMedia.length - 1;
-    } else {
-      newIndex = currentIndex < filteredAndSortedMedia.length - 1 ? currentIndex + 1 : 0;
-    }
-
-    setSelectedMedia(filteredAndSortedMedia[newIndex]);
-    setIsImageZoomed(false);
-  }, [selectedMedia, filteredAndSortedMedia]);
-
-  // Handle image zoom
-  const handleImageZoom = useCallback(() => {
-    if (selectedMedia?.type === 'image') {
-      setIsImageZoomed(!isImageZoomed);
-    }
-  }, [selectedMedia, isImageZoomed]);
-
-  // Keyboard navigation for modal
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (!selectedMedia) return;
-
-      switch (event.key) {
-        case 'Escape':
-          setSelectedMedia(null);
-          setIsImageZoomed(false);
-          break;
-        case 'ArrowLeft':
-          event.preventDefault();
-          navigateMedia('prev');
-          break;
-        case 'ArrowRight':
-          event.preventDefault();
-          navigateMedia('next');
-          break;
-        case ' ':
-          if (selectedMedia.type === 'image') {
-            event.preventDefault();
-            handleImageZoom();
-          }
-          break;
+      if (locationFilter && t.location !== locationFilter) return false;
+      if (dateFilter!=='all' && t.created_at) {
+        const days = parseInt(dateFilter,10);
+        const created = new Date(t.created_at).getTime();
+        const cutoff = Date.now() - days*24*60*60*1000;
+        if (created < cutoff) return false;
       }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedMedia, isImageZoomed, filteredAndSortedMedia, navigateMedia, handleImageZoom]);
-
-  // Touch handlers for swipe navigation
-  const handleTouchStart = (e: React.TouchEvent) => {
-    setTouchEnd(null);
-    setTouchStart({
-      x: e.targetTouches[0].clientX,
-      y: e.targetTouches[0].clientY,
+      return true;
     });
-  };
+  },[tours, debouncedSearch, tagFilter, locationFilter, dateFilter]);
 
-  const handleTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd({
-      x: e.targetTouches[0].clientX,
-      y: e.targetTouches[0].clientY,
-    });
-  };
-
-  const handleTouchEnd = () => {
-    if (!touchStart || !touchEnd) return;
-    
-    const distanceX = touchStart.x - touchEnd.x;
-    const distanceY = touchStart.y - touchEnd.y;
-    const isLeftSwipe = distanceX > 50 && Math.abs(distanceY) < 100;
-    const isRightSwipe = distanceX < -50 && Math.abs(distanceY) < 100;
-    
-    if (selectedMedia && filteredAndSortedMedia.length > 1) {
-      if (isLeftSwipe) {
-        navigateMedia('next');
-      } else if (isRightSwipe) {
-        navigateMedia('prev');
-      }
-    }
-  };
-
-  // Close modal
-  const closeModal = () => {
-    setSelectedMedia(null);
-    setIsImageZoomed(false);
-    setIsLoading(false);
-  };
+  if (loading) return <div className="p-6 text-sm text-gray-400">Loading tours...</div>;
+  if (error) return <div className="p-6 text-sm text-red-500">{error}</div>;
 
   return (
-    <div className="dashboard-page-new">
-      {/* Page Header */}
-      <div className="page-header">
-        <h2>Media Gallery</h2>
-        <div className="header-actions">
-          <Button 
-            variant="primary" 
-            size="medium"
-            onClick={() => navigate('/dashboard/media/upload')}
-          >
-            <Upload className="w-4 h-4 mr-2" />
-            Upload New Media
-          </Button>
-        </div>
-      </div>
+    <div className="p-4 md:p-10 max-w-[1400px] mx-auto flex flex-col gap-10">
+        <div className="service-listing__header">
+        <div className="header-content">
+          <div className="title-section">
+            <h1 className="page-title">Tours Feed</h1>
+            <p className="page-subtitle">
+              Discover, manage, and showcase every journey with style and detail.
+            </p>
+          </div>
+            <div className="header-actions">
 
-      {/* Statistics Cards */}
-      <div className="stats-grid">
-        <Card className="stat-card images" variant="outlined">
-          <div className="stat-content">
-            <div className="stat-icon2">
-              <Image className="w-6 h-6" />
-            </div>
-            <div className="stat-info">
-              <span className="stat-label">Images</span>
-              <strong className="stat-value">{stats.images}</strong>
-            </div>
-          </div>
-        </Card>
-        
-        <Card className="stat-card videos" variant="outlined">
-          <div className="stat-content">
-            <div className="stat-icon2">
-              <Video className="w-6 h-6" />
-            </div>
-            <div className="stat-info">
-              <span className="stat-label">Videos</span>
-              <strong className="stat-value">{stats.videos}</strong>
-            </div>
-          </div>
-        </Card>
-        
-        <Card className="stat-card views" variant="outlined">
-          <div className="stat-content">
-            <div className="stat-icon2">
-              <Eye className="w-6 h-6" />
-            </div>
-            <div className="stat-info">
-              <span className="stat-label">Total Views</span>
-              <strong className="stat-value">{stats.totalViews.toLocaleString()}</strong>
-            </div>
-          </div>
-        </Card>
-        
-        <Card className="stat-card likes" variant="outlined">
-          <div className="stat-content">
-            <div className="stat-icon2">
-              <Heart className="w-6 h-6" />
-            </div>
-            <div className="stat-info">
-              <span className="stat-label">Total Likes</span>
-              <strong className="stat-value">{stats.totalLikes}</strong>
-            </div>
-          </div>
-        </Card>
-      </div>
-
-      {/* Controls Section */}
-      <div className="controls-section">
-        <div className="search-container">
-          <Search className="search-icon" />
-          <input
-            type="text"
-            placeholder="Search by title, tour, location, or tags..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="search-input"
-          />
-        </div>
-
-        <div className="filters-container">
-          <div className="filter-group">
-            <Folder className="filter-icon" />
-            <select
-              value={selectedTour}
-              onChange={(e) => setSelectedTour(e.target.value)}
-              className="filter-select"
-              title="Filter by tour"
-            >
-              {tours.map(tour => (
-                <option key={tour} value={tour}>
-                  {tour === 'all' ? 'All Tours' : tour}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="filter-group">
-            <Filter className="filter-icon" />
-            <div className="filter-buttons">
-              <button
-                onClick={() => setSelectedFilter('all')}
-                className={`filter-btn ${selectedFilter === 'all' ? 'active' : ''}`}
-              >
-                All ({mockMediaData.length})
-              </button>
-              <button
-                onClick={() => setSelectedFilter('images')}
-                className={`filter-btn ${selectedFilter === 'images' ? 'active' : ''}`}
-              >
-                Images ({stats.images})
-              </button>
-              <button
-                onClick={() => setSelectedFilter('videos')}
-                className={`filter-btn ${selectedFilter === 'videos' ? 'active' : ''}`}
-              >
-                Videos ({stats.videos})
-              </button>
-            </div>
-          </div>
-
-          <div className="filter-group">
-            <ArrowUpDown className="filter-icon" />
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as 'date' | 'views' | 'likes' | 'title')}
-              className="filter-select"
-              title="Sort by"
-            >
-              <option value="date">Latest First</option>
-              <option value="views">Most Views</option>
-              <option value="likes">Most Likes</option>
-              <option value="title">Title A-Z</option>
-            </select>
-          </div>
-
-          <div className="view-mode-group">
-            <button
-              onClick={() => setViewMode('grid')}
-              className={`view-btn ${viewMode === 'grid' ? 'active' : ''}`}
-              title="Grid View"
-            >
-              <Grid className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setViewMode('list')}
-              className={`view-btn ${viewMode === 'list' ? 'active' : ''}`}
-              title="List View"
-            >
-              <List className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Media Gallery */}
-      <div className={`media-gallery ${viewMode}`}>
-        {paginatedMedia.length > 0 ? (
-          paginatedMedia.map((item) => (
-            <div
-              key={item.id}
-              className="media-item"
-            >
-              <div 
-                className="media-preview"
-                onClick={() => handleMediaClick(item)}
-              >
-                <img
-                  src={item.thumbnail}
-                  alt={item.title}
-                  className="media-thumbnail"
-                  onError={(e) => {
-                    e.currentTarget.src = 'https://picsum.photos/400/300?random=' + item.id;
-                  }}
-                />
-                {item.type === 'video' && (
-                  <div className="video-overlay">
-                    <Play className="play-icon" />
-                  </div>
-                )}
-                <div className="media-overlay">
-                  <div className="overlay-actions">
-                    <button 
-                      className="action-btn" 
-                      title="Download"
-                      onClick={(e) => handleDownload(item, e)}
-                    >
-                      <Download className="w-4 h-4" />
-                    </button>
-                    <button 
-                      className="action-btn" 
-                      title="Share"
-                      onClick={(e) => handleShare(item, e)}
-                    >
-                      <Share className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-              
-              <div 
-                className="media-info"
-                onClick={() => handleMediaClick(item)}
-              >
-                <h3 className="media-title">{item.title}</h3>
-                <div className="media-meta">
-                  <div className="meta-item">
-                    <Folder className="w-4 h-4" />
-                    <span>{item.tour}</span>
-                  </div>
-                  <div className="meta-item">
-                    <span>📍 {item.location}</span>
-                  </div>
-                  <div className="meta-item">
-                    <span>📅 {new Date(item.date).toLocaleDateString()}</span>
-                  </div>
-                </div>
-                <div className="media-stats">
-                  <div className="stat">
-                    <Eye className="w-4 h-4" />
-                    <span>{item.views}</span>
-                  </div>
-                  <div className="stat">
-                    <Heart className="w-4 h-4" />
-                    <span>{item.likes}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))
-        ) : (
-          <div className="empty-state">
-            <div className="empty-icon">🌌</div>
-            <h3>No cosmic captures found</h3>
-            <p>Start your journey by uploading stunning astronomy photos and videos</p>
-            <Button 
-              variant="primary" 
-              size="large"
+            <Button
+              variant="secondary"
+              size="medium"
+              icon={<Upload />}
+              iconPosition="left"
               onClick={() => navigate('/dashboard/media/upload')}
             >
-              <Upload className="w-4 h-4 mr-2" />
-              Upload Your First Media
+              Upload Media
             </Button>
-          </div>
-        )}
-      </div>
 
-      {/* Pagination Controls */}
-      {totalPages > 1 && (
-        <div className="pagination-controls" >
-          <Button
-            onClick={() => {
-              console.log('Previous clicked, currentPage:', currentPage);
-              setCurrentPage(prev => Math.max(prev - 1, 1));
-            }}
-              variant="primary" 
-              size="medium"
-              disabled={currentPage === 1}            
-          >
-            <ChevronLeft className="w-4 h-4" />
-            PREV
-          </Button>
-          
-          <div className="pagination-info">
-            <span className="current-page">
-              Page {currentPage} of {totalPages}
-            </span>
-            <span className="items-info">
-              Showing {startIndex + 1}-{Math.min(startIndex + ITEMS_PER_PAGE, filteredAndSortedMedia.length)} of {filteredAndSortedMedia.length} items
-            </span>
-          </div>
-          
-          <Button
-            onClick={() => {
-              console.log('Next clicked, currentPage:', currentPage);
-              setCurrentPage(prev => Math.min(prev + 1, totalPages));
-            }}
-              variant="primary" 
-              size="medium"
-          >
-            NEXT
-          <ChevronRight className="w-4 h-4" />
-          </Button>
         </div>
-      )}
-
-      {/* Media Preview Modal */}
-      {selectedMedia && (
-        <div className="media-modal" onClick={closeModal}>
-          <div className="modal-backdrop" />
-          <div 
-            className="modal-container"
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-          >
-            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-              {/* Modal Header */}
-              <div className="modal-header">
-                <div className="header-content">
-                  <div className="media-type-badge">
-                    {selectedMedia.type === 'image' ? (
-                      <><Image className="w-4 h-4" /> Image</>
-                    ) : (
-                      <><Video className="w-4 h-4" /> Video</>
-                    )}
+        </div>
+      </div>
+      {/* Search + Filters */}
+      <section className="flex flex-col gap-6 rounded-xl bg-white/5 backdrop-blur-md border border-white/10 p-5 shadow-sm">
+        <div className="flex flex-col lg:flex-row gap-4 lg:items-center">
+          <div className="relative flex-1">
+            <input
+              type="text"
+              value={search}
+              onChange={e=> setSearch(e.target.value)}
+              placeholder="Search tours..."
+              className="w-full rounded-lg bg-slate-900/40 border border-white/10 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400/60 focus:border-indigo-300 placeholder:text-slate-400 backdrop-blur"
+              aria-label="Search tours"
+            />
+            {search && (
+              <button aria-label="Clear search" onClick={()=> setSearch('')} className="absolute top-1/2 -translate-y-1/2 right-2 text-xs text-white/60 hover:text-white">✕</button>
+            )}
+          </div>
+          <div className="flex gap-3 flex-wrap">
+            <select aria-label="Filter by tag" value={tagFilter} onChange={e=> setTagFilter(e.target.value)} className="rounded-lg bg-slate-900/40 border border-white/10 px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-400/60 min-w-[140px]">
+              <option value="">All Tags</option>
+              {allTags.map(tag=> <option key={tag} value={tag}>{tag}</option>)}
+            </select>
+            <select aria-label="Filter by location" value={locationFilter} onChange={e=> setLocationFilter(e.target.value)} className="rounded-lg bg-slate-900/40 border border-white/10 px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-400/60 min-w-[140px]">
+              <option value="">All Locations</option>
+              {allLocations.map(loc=> <option key={loc} value={loc}>{loc}</option>)}
+            </select>
+            <select aria-label="Filter by date" value={dateFilter} onChange={e=> setDateFilter(e.target.value as 'all'|'7'|'30')} className="rounded-lg bg-slate-900/40 border border-white/10 px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-400/60 min-w-[120px]">
+              <option value="all">All Time</option>
+              <option value="7">Last 7d</option>
+              <option value="30">Last 30d</option>
+            </select>
+            <button onClick={()=> { setTagFilter(''); setLocationFilter(''); setDateFilter('all'); }} className="text-xs px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white transition">Reset</button>
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-4 text-[11px] text-white/40">
+          <span>{filteredTours.length} / {tours.length} visible</span>
+          {debouncedSearch && <span className="px-2 py-0.5 bg-indigo-500/20 rounded-full text-indigo-200">search:"{debouncedSearch}"</span>}
+          {tagFilter && <span className="px-2 py-0.5 bg-fuchsia-500/20 rounded-full text-fuchsia-200">#{tagFilter}</span>}
+          {locationFilter && <span className="px-2 py-0.5 bg-emerald-500/20 rounded-full text-emerald-200">{locationFilter}</span>}
+          {dateFilter!=='all' && <span className="px-2 py-0.5 bg-sky-500/20 rounded-full text-sky-200">≤ {dateFilter}d</span>}
+        </div>
+      </section>
+      {filteredTours.length===0 && <p className="text-sm text-gray-400">No tours match your filters.</p>}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-10 md:gap-12 auto-rows-fr">
+        {filteredTours.map(t=> {
+          const sliderIndex = sliderPositions[t.tour_id]?.index||0;
+          const media = t.media||[];
+          return (
+          <article key={t.tour_id} className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-slate-800/70 via-slate-800/40 to-slate-700/30 border border-white/10 shadow-[0_4px_30px_-10px_rgba(0,0,0,0.5)] backdrop-blur-md transition hover:shadow-[0_8px_40px_-8px_rgba(0,0,0,0.6)] hover:border-indigo-400/40 flex flex-col h-full">
+            <div className="p-6 flex flex-col gap-5 flex-1">
+              {editingId===t.tour_id ? (
+                <div className="space-y-3 animate-fadeIn">
+                  <input aria-label="Tour name" placeholder="Tour name" className="w-full rounded-md px-4 py-2.5 bg-white/10 focus:outline-none focus:ring-2 focus:ring-indigo-400/60 text-sm" value={editForm.tour_name} onChange={e=>setEditForm(f=>({...f,tour_name:e.target.value}))} />
+                  <textarea aria-label="Description" placeholder="Description" className="w-full rounded-md px-4 py-2.5 bg-white/10 focus:outline-none focus:ring-2 focus:ring-indigo-400/60 text-sm min-h-[120px] resize-y" value={editForm.description} onChange={e=>setEditForm(f=>({...f,description:e.target.value}))} />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <input aria-label="Location" placeholder="Location" className="rounded-md px-4 py-2.5 bg-white/10 focus:outline-none focus:ring-2 focus:ring-indigo-400/60 text-sm" value={editForm.location} onChange={e=>setEditForm(f=>({...f,location:e.target.value}))} />
+                    <input className="rounded-md px-4 py-2.5 bg-white/10 focus:outline-none focus:ring-2 focus:ring-indigo-400/60 text-sm" value={editForm.tags} onChange={e=>setEditForm(f=>({...f,tags:e.target.value}))} placeholder="tags (comma separated)" />
                   </div>
-                  <h2 className="modal-title">{selectedMedia.title}</h2>
-                  <p className="modal-subtitle">
-                    {selectedMedia.tour} • {selectedMedia.location}
-                    {filteredAndSortedMedia.length > 1 && (
-                      <span className="media-counter">
-                        • {filteredAndSortedMedia.findIndex(item => item.id === selectedMedia.id) + 1} of {filteredAndSortedMedia.length}
-                      </span>
-                    )}
-                  </p>
-                </div>
-                <button 
-                  className="close-btn"
-                  onClick={closeModal}
-                  title="Close modal (ESC)"
-                  aria-label="Close modal"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-              
-              {/* Modal Body */}
-              <div className="modal-body">
-                <div className="modal-layout">
-                  {/* Media Preview */}
-                  <div className="media-section">
-                    <div className="media-preview-container">
-                      {/* Navigation Buttons */}
-                      {filteredAndSortedMedia.length > 1 && (
-                        <>
-                          <button 
-                            className="nav-button nav-prev"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              navigateMedia('prev');
-                            }}
-                            title="Previous media (←)"
-                            aria-label="Previous media"
-                          >
-                            <ChevronLeft className="w-6 h-6" />
-                          </button>
-                          <button 
-                            className="nav-button nav-next"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              navigateMedia('next');
-                            }}
-                            title="Next media (→)"
-                            aria-label="Next media"
-                          >
-                            <ChevronRight className="w-6 h-6" />
-                          </button>
-                        </>
-                      )}
-
-                      {isLoading ? (
-                        <div className="media-loading">
-                          <div className="loading-spinner"></div>
-                          <p>Loading media...</p>
-                        </div>
-                      ) : selectedMedia.type === 'image' ? (
-                        <img 
-                          src={selectedMedia.url} 
-                          alt={selectedMedia.title}
-                          className={`modal-media ${isImageZoomed ? 'zoomed' : ''}`}
-                          onClick={handleImageZoom}
-                          title={isImageZoomed ? "Click to zoom out" : "Click to zoom in (Space)"}
-                          onError={(e) => {
-                            e.currentTarget.src = selectedMedia.thumbnail;
-                          }}
-                        />
-                      ) : (
-                        <div className="video-preview-container">
-                          <img 
-                            src={selectedMedia.thumbnail} 
-                            alt={selectedMedia.title}
-                            className="video-background"
-                          />
-                          <div className="video-overlay-large">
-                            <div className="play-button-large">
-                              <Play className="w-8 h-8" />
-                            </div>
-                            <p className="video-text">Click to play video</p>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                    
-                    {/* Media Actions */}
-                    <div className="media-actions-bar">
-                      <div className="action-group">
-                        <button 
-                          className="action-button primary"
-                          title="Download"
-                          onClick={(e) => handleDownload(selectedMedia, e)}
-                        >
-                          <Download className="w-5 h-5" />
-                        </button>
-                        <button 
-                          className="action-button secondary"
-                          title="Share"
-                          onClick={(e) => handleShare(selectedMedia, e)}
-                        >
-                          <Share className="w-5 h-5" />
-                        </button>
-                      </div>
-                      <div className="engagement-stats">
-                        <div className="stat-item">
-                          <Eye className="w-4 h-4" />
-                          <span>{selectedMedia.views.toLocaleString()} views</span>
-                        </div>
-                        <div className="stat-item">
-                          <Heart className="w-4 h-4" />
-                          <span>{selectedMedia.likes} likes</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Information Panel */}
-                  <div className="info-section">
-                    <div className="info-content">
-                      {/* Description */}
-                      {selectedMedia.description && (
-                        <div className="description-card">
-                          <h3 className="section-title">Description</h3>
-                          <p className="description-text">{selectedMedia.description}</p>
-                        </div>
-                      )}
-
-                      {/* Details Grid */}
-                      <div className="details-card">
-                        <h3 className="section-title">Details</h3>
-                        <div className="details-grid">
-                          <div className="detail-item">
-                            <div className="detail-icon">
-                              <Folder className="w-4 h-4" />
-                            </div>
-                            <div className="detail-content">
-                              <span className="detail-label">Tour</span>
-                              <span className="detail-value">{selectedMedia.tour}</span>
-                            </div>
-                          </div>
-                          
-                          <div className="detail-item">
-                            <div className="detail-icon">
-                              📍
-                            </div>
-                            <div className="detail-content">
-                              <span className="detail-label">Location</span>
-                              <span className="detail-value">{selectedMedia.location}</span>
-                            </div>
-                          </div>
-                          
-                          <div className="detail-item">
-                            <div className="detail-icon">
-                              📅
-                            </div>
-                            <div className="detail-content">
-                              <span className="detail-label">Date Captured</span>
-                              <span className="detail-value">
-                                {new Date(selectedMedia.date).toLocaleDateString('en-US', {
-                                  year: 'numeric',
-                                  month: 'long',
-                                  day: 'numeric'
-                                })}
-                              </span>
-                            </div>
-                          </div>
-                          
-                          <div className="detail-item">
-                            <div className="detail-icon">
-                              💾
-                            </div>
-                            <div className="detail-content">
-                              <span className="detail-label">File Size</span>
-                              <span className="detail-value">{selectedMedia.size}</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Tags */}
-                      <div className="tags-card">
-                        <h3 className="section-title">Tags</h3>
-                        <div className="tags-container">
-                          {selectedMedia.tags.map((tag, index) => (
-                            <span key={index} className="tag">
-                              #{tag}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Edit Button */}
-                      <div className="edit-section">
-                        <Button variant="border" size="medium" className="edit-button">
-                          Edit Details
-                        </Button>
-                      </div>
-
-                      {/* Navigation Help */}
-                      <div className="navigation-help">
-                        <div className="help-title">Quick Actions</div>
-                        <div className="help-shortcuts">
-                          <span className="shortcut">
-                            <kbd>ESC</kbd> Close
-                          </span>
-                          {selectedMedia.type === 'image' && (
-                            <span className="shortcut">
-                              <kbd>SPACE</kbd> Zoom
-                            </span>
-                          )}
-                          {filteredAndSortedMedia.length > 1 && (
-                            <>
-                              <span className="shortcut">
-                                <kbd>←</kbd> Previous
-                              </span>
-                              <span className="shortcut">
-                                <kbd>→</kbd> Next
-                              </span>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    </div>
+                  <div className="flex gap-3 pt-1">
+                    <button onClick={()=>save(t.tour_id)} className="px-5 py-2 text-xs font-medium rounded-md bg-gradient-to-r from-emerald-500 to-green-600 text-white shadow hover:from-emerald-400 hover:to-green-500 transition">Save</button>
+                    <button onClick={cancel} className="px-5 py-2 text-xs font-medium rounded-md bg-white/10 hover:bg-white/20 text-white transition">Cancel</button>
                   </div>
                 </div>
+              ) : (
+                <header className="space-y-2">
+                  <h3 className="text-xl font-semibold leading-tight tracking-tight text-white/90">{t.tour_name}</h3>
+                  <div className="flex flex-wrap items-center gap-3 text-xs">
+                    <span className="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-200 tracking-wide font-medium">{t.location}</span>
+                    {t.created_at && <span className="text-[11px] text-white/40">{new Date(t.created_at).toLocaleDateString()}</span>}
+                  </div>
+                  <p className="text-sm text-white/70 whitespace-pre-wrap leading-relaxed">{t.description}</p>
+                  {t.tags && <div className="flex flex-wrap gap-1 pt-1">{t.tags.split(',').map(s=>s.trim()).filter(Boolean).map(tag=> <span key={tag} className="text-[10px] px-2 py-0.5 rounded-full bg-gradient-to-r from-indigo-600/40 to-fuchsia-600/40 text-indigo-100/90 border border-indigo-400/20">#{tag}</span>)}</div>}
+                </header>
+              )}
+              {media.length>0 && (
+                <div className="relative group rounded-xl overflow-hidden">
+                  <div className="overflow-hidden rounded-xl aspect-[16/9] bg-black/40">
+                    {media.map((m,i)=> (
+                      <img loading="lazy" key={m.id} src={m.file_path} alt={m.file_name} onClick={()=>openViewer(t.tour_id, media, i)} className={`absolute inset-0 w-full h-full object-cover select-none transition-opacity duration-700 ease-out ${i===sliderIndex? 'opacity-100 scale-100':'opacity-0 scale-105'}`} />
+                    ))}
+                    <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/40 via-black/5 to-transparent opacity-80" />
+                  </div>
+                  {media.length>1 && (
+                    <>
+                      <button aria-label="Previous image" onClick={()=>prevSlide(t.tour_id, media.length)} className="absolute left-3 top-1/2 -translate-y-1/2 backdrop-blur-sm bg-black/40 hover:bg-black/60 text-white px-3 py-2 rounded-full text-xs opacity-0 group-hover:opacity-100 transition shadow">‹</button>
+                      <button aria-label="Next image" onClick={()=>nextSlide(t.tour_id, media.length)} className="absolute right-3 top-1/2 -translate-y-1/2 backdrop-blur-sm bg-black/40 hover:bg-black/60 text-white px-3 py-2 rounded-full text-xs opacity-0 group-hover:opacity-100 transition shadow">›</button>
+                      <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5">
+                        {media.map((_,i)=>(<button aria-label={`Go to slide ${i+1}`} key={i} onClick={()=>setSliderPositions(p=>({...p,[t.tour_id]:{index:i}}))} className={`w-2.5 h-2.5 rounded-full border border-white/40 transition ${i===sliderIndex?'bg-white':'bg-white/20 hover:bg-white/40'}`} />))}
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+              <div className="flex flex-wrap items-center gap-3 pt-2 mt-auto border-t border-white/5">
+                {editingId===t.tour_id ? null : <button onClick={()=>beginEdit(t)} className="group btn-edit px-4 py-1.5 text-xs font-medium rounded-md bg-gradient-to-r from-indigo-500 to-violet-600 text-white shadow-sm transition hover:from-indigo-400 hover:to-violet-500 flex items-center gap-1.5">{/* pen icon */}<svg className="w-3.5 h-3.5 opacity-80 group-hover:opacity-100" viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793z"/><path d="M14.414 8.414L11.586 5.586 4 13.172V16h2.828l7.586-7.586z"/></svg><span>Edit</span></button>}
+                <button onClick={()=>remove(t.tour_id)} className="group px-4 py-1.5 text-xs font-medium rounded-md bg-gradient-to-r from-rose-500 to-red-600 text-white shadow-sm transition hover:from-rose-400 hover:to-red-500 flex items-center gap-1.5">{/* trash */}<svg className="w-3.5 h-3.5 opacity-80 group-hover:opacity-100" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M8.257 3.099A1 1 0 019.228 2h1.543a1 1 0 01.97 1.099L11.5 4H16a1 1 0 010 2h-.278l-.76 9.121A2 2 0 0113.967 17H6.033a2 2 0 01-1.995-1.879L3.278 6H3a1 1 0 110-2h4.5l.757-0.901zM8 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 10-2 0v6a1 1 0 102 0V8z" clipRule="evenodd"/></svg><span>Delete</span></button>
+                {media.length>0 && <button onClick={()=>openViewer(t.tour_id, media, sliderIndex)} className="group ml-auto px-4 py-1.5 text-xs font-medium rounded-md bg-white/10 hover:bg-white/20 text-white transition flex items-center gap-1.5">{/* eye */}<svg className="w-4 h-4 opacity-80 group-hover:opacity-100" viewBox="0 0 24 24" fill="currentColor"><path d="M12 5c-7.633 0-11 7-11 7s3.367 7 11 7 11-7 11-7-3.367-7-11-7zm0 12a5 5 0 110-10 5 5 0 010 10zm0-8a3 3 0 100 6 3 3 0 000-6z"/></svg><span>Viewer</span></button>}
               </div>
             </div>
+          </article>);
+        })}
+      </div>
+
+      {viewer && (
+        <div className='fixed inset-0 z-1000 flex items-center justify-center p-4 bg-black/60 backdrop-blur-lg animate-fadeIn'>        
+          <div className="mt-20 fixed inset-0 z-1000 flex items-center justify-center p-4 animate-fadeIn" role="dialog" aria-modal="true">
+          {/* Close button - positioned top right but larger and always visible */}
+          <button 
+            onClick={closeViewer} 
+            aria-label="Close viewer" 
+            className="absolute top-0 right-10 z-10 w-14 text-white text-lg p-3 rounded-md bg-red-800/20 hover:bg-red-700/55 backdrop-blur transition-all hover:scale-110 shadow-lg border border-white/10"
+          >
+            ✕
+          </button>
+
+          <div className="relative w-full max-w-6xl mx-auto">
+            <div className="relative aspect-[16/9] bg-gradient-to-br from-gray-900/80 to-black/90 rounded-xl overflow-hidden shadow-2xl border border-white/10">
+              {viewer.media.map((m,i) => (
+                <img 
+                  loading="lazy" 
+                  key={m.id} 
+                  src={m.file_path} 
+                  alt={m.file_name} 
+                  className={`absolute inset-0 w-full h-full object-contain transition-opacity duration-300 ease-in-out ${i===viewer.start? 'opacity-100':'opacity-0'} select-none`} 
+                />
+              ))}
+              
+              {viewer.media.length > 1 && (
+                <>
+                  <button 
+                    aria-label="Previous image" 
+                    onClick={() => setViewer(v => v ? ({...v, start: (v.start-1+v.media.length)%v.media.length}) : v)} 
+                    className="absolute w-12 h-12 left-6 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center bg-black/70 hover:bg-black/90 text-white rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 border border-white/20 hover:border-white/40 group"
+                  >
+                    <svg 
+                      xmlns="http://www.w3.org/2000/svg" 
+                      viewBox="0 0 24 24" 
+                      fill="currentColor" 
+                      className="w-6 h-6 transform group-hover:scale-125 transition-transform"
+                    >
+                      <path fillRule="evenodd" d="M11.03 3.97a.75.75 0 010 1.06l-6.22 6.22H21a.75.75 0 010 1.5H4.81l6.22 6.22a.75.75 0 11-1.06 1.06l-7.5-7.5a.75.75 0 010-1.06l7.5-7.5a.75.75 0 011.06 0z" clipRule="evenodd" />
+                    </svg>
+                    <span className="sr-only">Previous</span>
+                  </button>
+                  
+                  <button 
+                    aria-label="Next image" 
+                    onClick={() => setViewer(v => v ? ({...v, start: (v.start+1)%v.media.length}) : v)} 
+                    className="absolute w-12 h-12 right-6 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center bg-black/70 hover:bg-black/90 text-white rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 border border-white/20 hover:border-white/40 group"
+                  >
+                    <svg 
+                      xmlns="http://www.w3.org/2000/svg" 
+                      viewBox="0 0 24 24" 
+                      fill="currentColor" 
+                      className="w-6 h-6 transform group-hover:scale-125 transition-transform"
+                    >
+                      <path fillRule="evenodd" d="M12.97 3.97a.75.75 0 011.06 0l7.5 7.5a.75.75 0 010 1.06l-7.5 7.5a.75.75 0 11-1.06-1.06l6.22-6.22H3a.75.75 0 010-1.5h16.19l-6.22-6.22a.75.75 0 010-1.06z" clipRule="evenodd" />
+                    </svg>
+                    <span className="sr-only">Next</span>
+                  </button>
+                </>
+              )}
+            </div>
+            
+            {/* Navigation dots - more stylish with animation */}
+            <div className="flex justify-center gap-1 mb-3 mt-1">
+              {viewer.media.map((m,i) => (
+                <button 
+                  aria-label={`Go to image ${i+1}`} 
+                  key={m.id} 
+                  onClick={() => setViewer(v => v ? ({...v, start: i}) : v)} 
+                  className={`w-1 h-1 rounded-full ring-1 ring-white/40 transition-all duration-200 ${i===viewer.start ? 'bg-white scale-60' : 'bg-white/30 hover:bg-white/50 scale-50'}`} 
+                />
+              ))}
+            </div>
           </div>
-        </div>
+        </div></div>
+
       )}
     </div>
   );

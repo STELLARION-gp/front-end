@@ -328,6 +328,32 @@
     }
   }
 
+  // Simple overall progress bar (waiting bay flow)
+  .progress-shell { position: relative; }
+  .progress-bar { width:0%; }
+  // Progress widths in 5% increments
+  .progress-bar.p0 { width:0%; }
+  .progress-bar.p5 { width:5%; }
+  .progress-bar.p10 { width:10%; }
+  .progress-bar.p15 { width:15%; }
+  .progress-bar.p20 { width:20%; }
+  .progress-bar.p25 { width:25%; }
+  .progress-bar.p30 { width:30%; }
+  .progress-bar.p35 { width:35%; }
+  .progress-bar.p40 { width:40%; }
+  .progress-bar.p45 { width:45%; }
+  .progress-bar.p50 { width:50%; }
+  .progress-bar.p55 { width:55%; }
+  .progress-bar.p60 { width:60%; }
+  .progress-bar.p65 { width:65%; }
+  .progress-bar.p70 { width:70%; }
+  .progress-bar.p75 { width:75%; }
+  .progress-bar.p80 { width:80%; }
+  .progress-bar.p85 { width:85%; }
+  .progress-bar.p90 { width:90%; }
+  .progress-bar.p95 { width:95%; }
+  .progress-bar.p100 { width:100%; }
+
   .hidden-file-input {
     display: none !important;
   }

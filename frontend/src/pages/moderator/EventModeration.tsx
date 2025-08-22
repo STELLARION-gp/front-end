@@ -3,6 +3,8 @@ import { FaSearch, FaCalendarAlt, FaMapMarkerAlt, FaStar, FaUsers, FaPlus, FaEye
 import { useNavigate } from 'react-router-dom';
 import Button from '../../components/Button';
 import '../../styles/pages/moderator/EventModeration.scss';
+import { listEvents, moderateEvent, mapBackendEvent } from '../../services/eventsService';
+import { profileService } from '../../services/profileService';
 
 interface PlatformEvent {
   id: string;
@@ -19,10 +21,11 @@ interface PlatformEvent {
   maxParticipants: number;
   eventStatus: 'draft' | 'organized' | 'finalized';
   created_at: string;
-  status: 'pending' | 'approved' | 'rejected' | 'needs-review';
+  status: 'pending' | 'approved' | 'rejected';
   priority: 'critical' | 'high' | 'medium' | 'low';
   reportCount: number;
   organizerRating?: number;
+  created_by?: number; // backend user id of creator
 }
 
 const EventModeration: React.FC = () => {
@@ -31,76 +34,52 @@ const EventModeration: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [loading, setLoading] = useState(true);
+  const [currentUser, setCurrentUser] = useState<{id:number; role:string}|null>(null);
+  const [moderating, setModerating] = useState<number|null>(null);
+  const [error, setError] = useState<string|null>(null);
 
-  // Mock data for platform events
-  useEffect(() => {
-    const mockEvents: PlatformEvent[] = [
-      {
-        id: 'event-001',
-        eventName: 'Astronomy Workshop 2024',
-        societyName: 'Space Explorers Society',
-        date: '2024-03-15',
-        time: '18:00',
-        location: 'Main Campus Auditorium',
-        eventCategory: 'Workshop',
-        neededVolunteers: 5,
-        description: 'Learn about celestial navigation and telescope handling in this hands-on workshop.',
-        organizedBy: 'Dr. Sarah Chen',
-        imageUrls: ['img1.jpg', 'img2.jpg'],
-        maxParticipants: 50,
-        eventStatus: 'finalized',
-        created_at: '2024-01-10T10:30:00Z',
-        status: 'pending',
-        priority: 'high',
-        reportCount: 0,
-        organizerRating: 4.5
-      },
-      {
-        id: 'event-002',
-        eventName: 'Annual Stargazing Night',
-        societyName: 'Astronomy Club',
-        date: '2024-04-20',
-        time: '20:00',
-        location: 'University Observatory',
-        eventCategory: 'Observation',
-        neededVolunteers: 8,
-        description: 'Join us for a night of stargazing with professional telescopes and guided tours of the night sky.',
-        organizedBy: 'Prof. James Wilson',
-        imageUrls: ['img3.jpg'],
-        maxParticipants: 100,
-        eventStatus: 'organized',
-        created_at: '2024-01-15T14:20:00Z',
-        status: 'approved',
-        priority: 'medium',
-        reportCount: 0,
-        organizerRating: 4.5
-      },
-      {
-        id: 'event-003',
-        eventName: 'Cosmic Photography Contest',
-        societyName: 'Photography Society',
-        date: '2024-05-10',
-        time: '14:00',
-        location: 'Arts Building Gallery',
-        eventCategory: 'Competition',
-        neededVolunteers: 3,
-        description: 'Submit your best astrophotography shots for a chance to win prizes and exhibition space.',
-        organizedBy: 'Lisa Thompson',
-        imageUrls: [],
-        maxParticipants: 30,
-        eventStatus: 'draft',
-        created_at: '2024-01-05T09:15:00Z',
-        status: 'needs-review',
-        priority: 'low',
-        reportCount: 2,
-        organizerRating: 4.5
+  // Load real events
+  useEffect(()=> {
+    (async()=>{
+      try {
+        setLoading(true);
+        setError(null);
+        // current user profile
+        const profileRes = await profileService.getUserProfile();
+        if (profileRes.success && profileRes.data?.id) {
+          setCurrentUser({ id: profileRes.data.id, role: profileRes.data.role || 'learner' });
+        }
+        const res = await listEvents();
+        const backendEvents = (res.events || []).map((e:unknown)=> mapBackendEvent(e));
+  type BackendMapped = ReturnType<typeof mapBackendEvent>;
+  const mapped: PlatformEvent[] = backendEvents.map((ev: BackendMapped) => ({
+          id: ev.id,
+          eventName: ev.eventName,
+          societyName: ev.societyName,
+          date: ev.date,
+          time: ev.time,
+          location: ev.location,
+          eventCategory: ev.eventCategory,
+          neededVolunteers: ev.neededVolunteers,
+          description: ev.description,
+          organizedBy: ev.organizedBy,
+          imageUrls: ev.imageUrls,
+          maxParticipants: ev.maxParticipants,
+          eventStatus: ev.eventStatus as PlatformEvent['eventStatus'],
+          created_at: ev.created_at,
+          status: (ev.status as PlatformEvent['status']) || 'pending',
+          priority: ev.priority,
+          reportCount: ev.reportCount,
+          organizerRating: undefined,
+          created_by: ev.created_by
+        }));
+        setEvents(mapped);
+      } catch (err) {
+        setError(err instanceof Error? err.message:'Failed to load events');
+      } finally {
+        setLoading(false);
       }
-    ];
-
-    setTimeout(() => {
-      setEvents(mockEvents);
-      setLoading(false);
-    }, 1000);
+    })();
   }, []);
 
   const filteredEvents = events.filter(event => {
@@ -111,16 +90,27 @@ const EventModeration: React.FC = () => {
     return matchesSearch && matchesFilter;
   });
 
-  const handleApprove = (eventId: string) => {
-    setEvents(prev => prev.map(event =>
-      event.id === eventId ? { ...event, status: 'approved' as const } : event
-    ));
+  const canModerate = (ev: PlatformEvent) => {
+    if(!currentUser) return false;
+    const roleOk = ['admin','moderator'].includes(currentUser.role);
+    if(!roleOk) return false;
+    // Prevent moderators (but not admins) from moderating their own events
+    if(currentUser.role === 'moderator' && ev.created_by && ev.created_by === currentUser.id) return false;
+    return true;
   };
 
-  const handleReject = (eventId: string) => {
-    setEvents(prev => prev.map(event =>
-      event.id === eventId ? { ...event, status: 'rejected' as const } : event
-    ));
+  const moderate = async (eventId: string, action: 'approve'|'reject') => {
+    const prev = events;
+    try {
+      setModerating(Number(eventId));
+      // optimistic update
+      setEvents(prev.map(ev => ev.id===eventId ? { ...ev, status: action==='approve'?'approved':'rejected'} : ev));
+      await moderateEvent(Number(eventId), action);
+    } catch(e) {
+      // rollback on failure
+      setEvents(prev);
+      setError(e instanceof Error? e.message:'Moderation failed');
+    } finally { setModerating(null); }
   };
 
   const formatDate = (dateString: string) => {
@@ -162,6 +152,7 @@ const EventModeration: React.FC = () => {
 
   return (
     <div className="event-moderation">
+      {error && <div className="p-4 text-sm text-red-400">{error}</div>}
       {/* Header */}
       <div className="event-header">
         <div className="event-header-content">
@@ -203,7 +194,7 @@ const EventModeration: React.FC = () => {
         </div>
         
         <div className="event-filter-tabs">
-          {['all', 'pending', 'approved', 'needs-review', 'rejected'].map(filter => (
+          {['all', 'pending', 'approved', 'rejected'].map(filter => (
             <Button
               key={filter}
               variant={filterStatus === filter ? 'primary' : 'ghost'}
@@ -300,22 +291,26 @@ const EventModeration: React.FC = () => {
                 >
                   <FaEye /> View Details
                 </Button>
-                <Button
-                  variant="success"
-                  size="small"
-                  onClick={() => handleApprove(event.id)}
-                  disabled={event.status === 'approved'}
-                >
-                  ✓ Approve
-                </Button>
-                <Button
-                  variant="danger"
-                  size="small"
-                  onClick={() => handleReject(event.id)}
-                  disabled={event.status === 'rejected'}
-                >
-                  ✗ Reject
-                </Button>
+                {canModerate(event) && event.status==='pending' && (
+                  <>
+                    <Button
+                      variant="success"
+                      size="small"
+                      onClick={() => { moderate(event.id,'approve'); }}
+                      disabled={moderating===Number(event.id)}
+                    >
+                      {moderating===Number(event.id)? '...' : '✓ Approve'}
+                    </Button>
+                    <Button
+                      variant="danger"
+                      size="small"
+                      onClick={() => { moderate(event.id,'reject'); }}
+                      disabled={moderating===Number(event.id)}
+                    >
+                      {moderating===Number(event.id)? '...' : '✗ Reject'}
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
           ))}

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Button from '../../components/Button';
 import '../../styles/pages/enthusiast/AstroHub.scss';
+import { chatService, type GroupChat, type ChatMessage, type CreateGroupRequest } from '../../services/chatService';
 
 interface AstronomicalEvent {
   id: number;
@@ -79,16 +80,6 @@ interface DiscussionReply {
   postedTime: string;
   likes: number;
   isLiked: boolean;
-}
-
-interface GroupChat {
-  id: number;
-  name: string;
-  description: string;
-  members: number;
-  lastMessage: string;
-  lastMessageTime: string;
-  isActive: boolean;
 }
 
 const astronomicalEvents: AstronomicalEvent[] = [
@@ -567,45 +558,6 @@ const myDiscussions: Discussion[] = [
   }
 ];
 
-const groupChats: GroupChat[] = [
-  {
-    id: 1,
-    name: "Sri Lanka Astronomers",
-    description: "Main discussion group for astronomy enthusiasts in Sri Lanka",
-    members: 1247,
-    lastMessage: "Anyone observing the ISS pass tonight?",
-    lastMessageTime: "15 min ago",
-    isActive: true
-  },
-  {
-    id: 2,
-    name: "Astrophotography Sri Lanka",
-    description: "Share your astrophotography work and techniques",
-    members: 432,
-    lastMessage: "Amazing Milky Way shot from Ella!",
-    lastMessageTime: "1 hour ago",
-    isActive: true
-  },
-  {
-    id: 3,
-    name: "Telescope Buyers & Sellers",
-    description: "Buy, sell, and trade astronomical equipment",
-    members: 289,
-    lastMessage: "Selling Celestron NexStar 6SE in excellent condition",
-    lastMessageTime: "3 hours ago",
-    isActive: false
-  },
-  {
-    id: 4,
-    name: "Meteor Shower Alerts",
-    description: "Real-time alerts and observations for meteor showers",
-    members: 156,
-    lastMessage: "Perseids peak activity confirmed for tonight!",
-    lastMessageTime: "45 min ago",
-    isActive: true
-  }
-];
-
 const AstroHub: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'events' | 'news' | 'discussions' | 'my-discussions' | 'chats'>('events');
   const [selectedNews, setSelectedNews] = useState<SpaceNews | null>(null);
@@ -637,6 +589,16 @@ const AstroHub: React.FC = () => {
   const [newGroupType, setNewGroupType] = useState<'public' | 'private'>('public');
   const [newChatMessage, setNewChatMessage] = useState('');
 
+  // Real chat data states
+  const [realGroupChats, setRealGroupChats] = useState<GroupChat[]>([]);
+  const [userGroups, setUserGroups] = useState<GroupChat[]>([]);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [chatLoading, setChatLoading] = useState(false);
+  const [chatError, setChatError] = useState<string | null>(null);
+  const [messagesLoading, setMessagesLoading] = useState(false);
+  const [messagesError, setMessagesError] = useState<string | null>(null);
+  const [membershipRefresh, setMembershipRefresh] = useState(0); // Force UI refresh for membership changes
+
   // Success alert state
   const [successAlert, setSuccessAlert] = useState<{ show: boolean; message: string }>({ 
     show: false, 
@@ -649,7 +611,133 @@ const AstroHub: React.FC = () => {
   const [filteredNews, setFilteredNews] = useState(spaceNews);
   const [filteredDiscussions, setFilteredDiscussions] = useState(discussions);
   const [filteredMyDiscussions, setFilteredMyDiscussions] = useState(myDiscussions);
-  const [filteredGroupChats, setFilteredGroupChats] = useState(groupChats);
+  const [filteredGroupChats, setFilteredGroupChats] = useState<GroupChat[]>([]);
+
+  // Load group chats data
+  useEffect(() => {
+    if (activeTab === 'chats') {
+      loadGroupChats();
+      loadUserGroups(); // Also load user's joined groups
+    }
+  }, [activeTab]);
+
+  // Load user groups when component mounts (in case user switches tabs quickly)
+  useEffect(() => {
+    loadUserGroups();
+  }, []);
+
+  // Auto-scroll to bottom when new messages are loaded
+  useEffect(() => {
+    if (showGroupChat && chatMessages.length > 0) {
+      // Small delay to ensure DOM is updated
+      setTimeout(() => {
+        const messagesContainer = document.querySelector('.group-chat__messages');
+        if (messagesContainer) {
+          messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+      }, 100);
+    }
+  }, [chatMessages, showGroupChat]);
+
+  // Load group chats (only call when needed to avoid overwriting new groups)
+  const loadGroupChats = async (forceReload = false) => {
+    // If we already have groups and this isn't a forced reload, skip loading
+    if (!forceReload && realGroupChats && realGroupChats.length > 0) {
+      console.log('Skipping group chat reload - already have', realGroupChats.length, 'groups');
+      return;
+    }
+    
+    setChatLoading(true);
+    setChatError(null);
+    try {
+      const response = await chatService.getGroups({
+        page: 1,
+        limit: 50,
+        type: 'all'
+      });
+      
+      console.log('Raw API response:', response);
+      
+      // Handle both possible response structures: response.groups or response.data.groups
+      let apiGroups: any[] = [];
+      if ((response as any).data?.groups) {
+        // If the response has response.data.groups structure
+        apiGroups = (response as any).data.groups;
+        console.log('Using response.data.groups:', apiGroups);
+      } else if (response.groups) {
+        // If the response has response.groups structure (expected)
+        apiGroups = response.groups;
+        console.log('Using response.groups:', apiGroups);
+      } else {
+        console.warn('No groups found in response');
+        apiGroups = [];
+      }
+      
+      // Filter out any invalid items from the response
+      const validGroups = apiGroups.filter((chat: any) => {
+        const isValid = chat && chat.id && typeof chat.id === 'number';
+        if (!isValid) {
+          console.warn('Invalid chat object found:', chat);
+        }
+        return isValid;
+      });
+      
+      console.log('Valid groups after filtering:', validGroups);
+      console.log('Setting realGroupChats and filteredGroupChats to:', validGroups.length, 'groups');
+      setRealGroupChats(validGroups);
+      setFilteredGroupChats(validGroups);
+      
+      // Clear search query to show all groups
+      setSearchQuery('');
+    } catch (error) {
+      console.error('Failed to load group chats:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to load group chats. Please try again.';
+      setChatError(errorMessage);
+      // Set empty arrays as fallback
+      setRealGroupChats([]);
+      setFilteredGroupChats([]);
+    } finally {
+      setChatLoading(false);
+    }
+  };
+
+  // Load user's joined groups to check membership status
+  const loadUserGroups = async () => {
+    try {
+      console.log('Loading user groups...');
+      const response = await chatService.getUserGroups();
+      console.log('User groups response:', response);
+      
+      // Handle both possible response structures
+      let apiUserGroups: any[] = [];
+      if ((response as any).data?.groups) {
+        apiUserGroups = (response as any).data.groups;
+      } else if (response.groups) {
+        apiUserGroups = response.groups;
+      } else {
+        console.warn('No user groups found in response');
+        apiUserGroups = [];
+      }
+      
+      // Filter out any invalid groups
+      const validUserGroups = apiUserGroups.filter((group: any) => {
+        const isValid = group && group.id && typeof group.id === 'number';
+        if (!isValid) {
+          console.warn('Invalid user group object found:', group);
+        }
+        return isValid;
+      });
+      
+      console.log('Setting user groups to:', validUserGroups.map(g => ({ id: g.id, name: g.name })));
+      setUserGroups(validUserGroups);
+      
+      // Trigger membership refresh to update UI
+      setMembershipRefresh(prev => prev + 1);
+    } catch (error) {
+      console.error('Failed to load user groups:', error);
+      setUserGroups([]);
+    }
+  };
 
   // Show success alert function
   const showSuccessAlert = (message: string) => {
@@ -696,10 +784,12 @@ const AstroHub: React.FC = () => {
     setFilteredMyDiscussions(newFilteredMyDiscussions);
 
     // Filter group chats
-    const newFilteredGroupChats = groupChats.filter(chat =>
-      chat.name.toLowerCase().includes(lowerQuery) ||
-      chat.description.toLowerCase().includes(lowerQuery)
-    );
+    const newFilteredGroupChats = (realGroupChats || [])
+      .filter((chat) => chat && chat.id) // Remove any undefined or invalid items
+      .filter((chat: GroupChat) =>
+        chat.name.toLowerCase().includes(lowerQuery) ||
+        chat.description.toLowerCase().includes(lowerQuery)
+      );
     setFilteredGroupChats(newFilteredGroupChats);
   };
 
@@ -1068,35 +1158,180 @@ const AstroHub: React.FC = () => {
     setNewGroupDescription('');
     setNewGroupType('public');
     setNewChatMessage('');
+    
+    // Clear chat messages when leaving a chat
+    setChatMessages([]);
+    setMessagesError(null);
   };
 
-  const handleCreateGroup = () => {
+  const handleCreateGroup = async () => {
     if (newGroupName.trim() && newGroupDescription.trim()) {
-      const newGroup: GroupChat = {
-        id: groupChats.length + 1,
-        name: newGroupName.trim(),
-        description: newGroupDescription.trim(),
-        members: 1, // Current user
-        lastMessage: "Group created!",
-        lastMessageTime: "Just now",
-        isActive: true
-      };
+      setChatLoading(true);
+      setChatError(null);
       
-      // Add to group chats array (in a real app, this would be an API call)
-      groupChats.unshift(newGroup);
-      
-      // Reset form and go back to group chats list
-      handleBackToGroupChats();
-      showSuccessAlert('Group created successfully!');
+      try {
+        const createGroupRequest: CreateGroupRequest = {
+          name: newGroupName.trim(),
+          description: newGroupDescription.trim(),
+          type: newGroupType
+        };
+        
+        const response = await chatService.createGroup(createGroupRequest);
+        console.log('Create group response:', response);
+        
+        // Add to local state with validation
+        if (response.group && response.group.id) {
+          const updatedGroups = [response.group, ...(realGroupChats || [])];
+          console.log('Updating groups - before:', realGroupChats?.length || 0, 'after:', updatedGroups.length);
+          setRealGroupChats(updatedGroups);
+          setFilteredGroupChats(updatedGroups);
+          
+          // Also add to user groups since the creator automatically becomes a member
+          const updatedUserGroups = [response.group, ...(userGroups || [])];
+          setUserGroups(updatedUserGroups);
+          setMembershipRefresh(prev => prev + 1);
+          
+          // Clear search query to ensure new group is visible
+          setSearchQuery('');
+        }
+        
+        // Reset form and go back to group chats list
+        handleBackToGroupChats();
+        showSuccessAlert('Group created successfully!');
+      } catch (error) {
+        console.error('Failed to create group:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Failed to create group. Please try again.';
+        setChatError(errorMessage);
+      } finally {
+        setChatLoading(false);
+      }
     }
   };
 
-  const handleJoinChat = (chat: GroupChat) => {
-    setSelectedGroupChat(chat);
-    setShowGroupChat(true);
-    setShowCreateGroup(false);
-    setShowGroupInfo(false);
-    showSuccessAlert(`Joined ${chat.name} successfully!`);
+  const handleJoinChat = async (chat: GroupChat) => {
+    try {
+      setChatLoading(true);
+      setChatError(null);
+      
+      // Try to join the group
+      try {
+        await chatService.joinGroup(chat.id);
+        showSuccessAlert(`Joined ${chat.name} successfully!`);
+      } catch (joinError: any) {
+        // If already a member, that's okay - continue to open the chat
+        if (joinError?.message?.includes('already a member')) {
+          console.log('User is already a member, proceeding to open chat');
+        } else {
+          // If it's a different error, re-throw it
+          throw joinError;
+        }
+      }
+      
+      // Refresh user groups to ensure membership status is correct
+      await loadUserGroups();
+      
+      // Add to user groups if not already there (backup in case API refresh is slow)
+      const isAlreadyInUserGroups = userGroups.some(userGroup => userGroup.id === chat.id);
+      if (!isAlreadyInUserGroups) {
+        const updatedUserGroups = [chat, ...(userGroups || [])];
+        setUserGroups(updatedUserGroups);
+        setMembershipRefresh(prev => prev + 1);
+      }
+      
+      // Load the chat messages
+      await loadChatMessages(chat.id);
+      
+      // Set the selected chat and show the chat interface
+      setSelectedGroupChat(chat);
+      setShowGroupChat(true);
+      setShowCreateGroup(false);
+      setShowGroupInfo(false);
+      
+    } catch (error) {
+      console.error('Failed to join group:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to join group. Please try again.';
+      setChatError(errorMessage);
+    } finally {
+      setChatLoading(false);
+    }
+  };
+
+  // Handle opening chat for existing members
+  const handleOpenChat = async (chat: GroupChat) => {
+    try {
+      setChatLoading(true);
+      setChatError(null);
+      
+      // Load the chat messages (no need to join since already a member)
+      await loadChatMessages(chat.id);
+      
+      // Set the selected chat and show the chat interface
+      setSelectedGroupChat(chat);
+      setShowGroupChat(true);
+      setShowCreateGroup(false);
+      setShowGroupInfo(false);
+      
+      showSuccessAlert(`Opened ${chat.name} chat!`);
+    } catch (error) {
+      console.error('Failed to open chat:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to open chat. Please try again.';
+      setChatError(errorMessage);
+    } finally {
+      setChatLoading(false);
+    }
+  };
+
+  // Combined handler that determines whether to join or open chat
+  const handleChatAction = async (chat: GroupChat) => {
+    if (isUserMemberOfGroup(chat)) {
+      await handleOpenChat(chat);
+    } else {
+      await handleJoinChat(chat);
+    }
+  };
+
+  // Load chat messages for a specific group
+  const loadChatMessages = async (groupId: number) => {
+    try {
+      setMessagesLoading(true);
+      setMessagesError(null);
+      
+      const response = await chatService.getGroupMessages(groupId, {
+        page: 1,
+        limit: 50
+      });
+      
+      console.log('Loaded messages for group', groupId, ':', response);
+      
+      // Handle both possible response structures
+      let apiMessages: any[] = [];
+      if ((response as any).data?.messages) {
+        apiMessages = (response as any).data.messages;
+      } else if (response.messages) {
+        apiMessages = response.messages;
+      } else {
+        console.warn('No messages found in response');
+        apiMessages = [];
+      }
+      
+      // Filter out any invalid messages
+      const validMessages = apiMessages.filter((message: any) => {
+        const isValid = message && message.id && typeof message.id === 'number';
+        if (!isValid) {
+          console.warn('Invalid message object found:', message);
+        }
+        return isValid;
+      });
+      
+      setChatMessages(validMessages);
+    } catch (error) {
+      console.error('Failed to load chat messages:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to load messages. Please try again.';
+      setMessagesError(errorMessage);
+      setChatMessages([]);
+    } finally {
+      setMessagesLoading(false);
+    }
   };
 
   const handleViewGroupInfo = (chat: GroupChat) => {
@@ -1106,12 +1341,149 @@ const AstroHub: React.FC = () => {
     setShowGroupChat(false);
   };
 
-  const handleSendChatMessage = () => {
+  const handleSendChatMessage = async () => {
     if (newChatMessage.trim() && selectedGroupChat) {
-      // In a real app, this would send the message to the chat server
-      console.log(`Sending message to ${selectedGroupChat.name}: ${newChatMessage}`);
-      setNewChatMessage('');
-      showSuccessAlert('Message sent successfully!');
+      try {
+        setMessagesLoading(true);
+        setMessagesError(null);
+        
+        const response = await chatService.sendMessage(selectedGroupChat.id, {
+          content: newChatMessage.trim(),
+          message_type: 'text'
+        });
+        
+        console.log('Message sent successfully:', response);
+        
+        // Clear the input
+        setNewChatMessage('');
+        
+        // Reload messages to show the new message
+        await loadChatMessages(selectedGroupChat.id);
+        
+        showSuccessAlert('Message sent successfully!');
+      } catch (error) {
+        console.error('Failed to send message:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Failed to send message. Please try again.';
+        setMessagesError(errorMessage);
+      } finally {
+        setMessagesLoading(false);
+      }
+    }
+  };
+
+  // Helper functions for chat display
+  const getChatMemberCount = (chat: GroupChat): number => {
+    if (!chat) {
+      console.warn('getChatMemberCount called with undefined chat');
+      return 0;
+    }
+    if (!chat.id) {
+      console.warn('getChatMemberCount called with chat missing id:', chat);
+      return 0;
+    }
+    return chat.member_count || chat.members?.length || 0;
+  };
+
+  // Format message timestamp - handles ISO format "2025-08-18T10:55:46.837Z"
+  const formatMessageTime = (timestamp: string): string => {
+    try {
+      const date = new Date(timestamp);
+      
+      if (isNaN(date.getTime())) {
+        console.warn('Invalid date:', timestamp);
+        return 'Invalid Date';
+      }
+      
+      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    } catch (error) {
+      console.error('Error formatting message time:', error, timestamp);
+      return 'Invalid Date';
+    }
+  };
+
+  // Get current user ID (this should come from auth context in real app)
+  const getCurrentUserId = (): number => {
+    return 289; // Hardcoded for now - replace with actual auth
+  };
+
+  // Get username from message object
+  const getMessageUsername = (message: any): string => {
+    // First try to use the user object if available
+    if (message.user) {
+      if (message.user.display_name) return message.user.display_name;
+      if (message.user.first_name && message.user.last_name) {
+        return `${message.user.first_name} ${message.user.last_name}`;
+      }
+      if (message.user.first_name) return message.user.first_name;
+    }
+    
+    // Fallback to user ID mapping
+    const currentUserId = getCurrentUserId();
+    if (message.user_id === currentUserId) {
+      return 'You';
+    }
+    
+    return `User ${message.user_id}`;
+  };
+
+  // Get user initials from message object
+  const getMessageUserInitials = (message: any): string => {
+    // First try to use the user object if available
+    if (message.user) {
+      if (message.user.display_name) {
+        const name = message.user.display_name;
+        if (name.includes(' ')) {
+          const parts = name.split(' ');
+          return parts[0].charAt(0).toUpperCase() + parts[1].charAt(0).toUpperCase();
+        }
+        return name.charAt(0).toUpperCase();
+      }
+      if (message.user.first_name && message.user.last_name) {
+        return message.user.first_name.charAt(0).toUpperCase() + message.user.last_name.charAt(0).toUpperCase();
+      }
+      if (message.user.first_name) {
+        return message.user.first_name.charAt(0).toUpperCase();
+      }
+    }
+    
+    // Fallback
+    const currentUserId = getCurrentUserId();
+    if (message.user_id === currentUserId) {
+      return 'Y';
+    }
+    
+    return 'U';
+  };
+
+  // Check if current user is a member of the group
+  const isUserMemberOfGroup = (chat: GroupChat): boolean => {
+    if (!chat || !chat.id) {
+      console.log('isUserMemberOfGroup: Invalid chat object', chat);
+      return false;
+    }
+    
+    // Include membershipRefresh in the calculation to force re-evaluation
+    const currentUserGroups = [...userGroups]; // Create a fresh reference
+    const isMember = currentUserGroups.some(userGroup => userGroup && userGroup.id === chat.id);
+    
+    console.log(`isUserMemberOfGroup: Checking if user is member of group ${chat.id} (${chat.name}):`, isMember, 'refresh:', membershipRefresh);
+    console.log('User groups:', currentUserGroups.map(g => ({ id: g?.id, name: g?.name })));
+    return isMember;
+  };
+
+  const formatLastMessageTime = (time: string | undefined): string => {
+    if (!time) return 'No messages yet';
+    try {
+      const date = new Date(time);
+      const now = new Date();
+      const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
+      
+      if (diffInMinutes < 1) return 'Just now';
+      if (diffInMinutes < 60) return `${diffInMinutes} min ago`;
+      if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)} hours ago`;
+      return date.toLocaleDateString();
+    } catch {
+      return time;
     }
   };
 
@@ -1690,6 +2062,9 @@ const AstroHub: React.FC = () => {
   };
 
   const renderGroupInfo = (chat: GroupChat) => {
+    const memberCount = getChatMemberCount(chat);
+    const lastMessageTime = formatLastMessageTime(chat.last_message_time);
+    
     return (
       <div className="group-info">
         <div className="group-info__header">
@@ -1712,9 +2087,9 @@ const AstroHub: React.FC = () => {
             <div className="group-info__details">
               <h1 className="group-info__title">{chat.name}</h1>
               <div className="group-info__status">
-                <span className={`status-indicator ${chat.isActive ? 'online' : 'offline'}`}></span>
-                <span className="status-text">{chat.isActive ? 'Active' : 'Inactive'}</span>
-                <span className="member-count">{chat.members} members</span>
+                <span className={`status-indicator ${chat.is_active ? 'online' : 'offline'}`}></span>
+                <span className="status-text">{chat.is_active ? 'Active' : 'Inactive'}</span>
+                <span className="member-count">{memberCount} members</span>
               </div>
               <p className="group-info__description">{chat.description}</p>
             </div>
@@ -1722,15 +2097,15 @@ const AstroHub: React.FC = () => {
 
           <div className="group-info__stats">
             <div className="stat-card">
-              <div className="stat-number">{chat.members}</div>
+              <div className="stat-number">{memberCount}</div>
               <div className="stat-label">Members</div>
             </div>
             <div className="stat-card">
-              <div className="stat-number">Active</div>
+              <div className="stat-number">{chat.is_active ? 'Active' : 'Inactive'}</div>
               <div className="stat-label">Status</div>
             </div>
             <div className="stat-card">
-              <div className="stat-number">{chat.lastMessageTime}</div>
+              <div className="stat-number">{lastMessageTime}</div>
               <div className="stat-label">Last Activity</div>
             </div>
           </div>
@@ -1739,8 +2114,8 @@ const AstroHub: React.FC = () => {
             <h3>Recent Activity</h3>
             <div className="recent-message">
               <div className="message-content">
-                <span className="message-text">"{chat.lastMessage}"</span>
-                <span className="message-time">{chat.lastMessageTime}</span>
+                <span className="message-text">"{chat.last_message || 'No messages yet'}"</span>
+                <span className="message-time">{lastMessageTime}</span>
               </div>
             </div>
           </div>
@@ -1749,9 +2124,9 @@ const AstroHub: React.FC = () => {
             <Button 
               variant="primary" 
               size="medium"
-              onClick={() => handleJoinChat(chat)}
+              onClick={() => handleChatAction(chat)}
             >
-              Join This Group
+              {isUserMemberOfGroup(chat) ? 'Open Chat' : 'Join This Group'}
             </Button>
             <Button 
               variant="secondary" 
@@ -1767,45 +2142,8 @@ const AstroHub: React.FC = () => {
   };
 
   const renderGroupChat = (chat: GroupChat) => {
-    // Sample chat messages for demo
-    const sampleMessages = [
-      {
-        id: 1,
-        userName: "AstroEnthusiast",
-        message: "Has anyone seen the ISS pass tonight? It should be visible around 9:30 PM.",
-        time: "8:45 PM",
-        avatar: "A"
-      },
-      {
-        id: 2,
-        userName: "StarGazer92",
-        message: "Yes! Just spotted it. Amazing pass tonight, very bright!",
-        time: "9:32 PM",
-        avatar: "S"
-      },
-      {
-        id: 3,
-        userName: "TelescopeGuru",
-        message: "I managed to get some photos. The timing was perfect with Jupiter in the background.",
-        time: "9:45 PM",
-        avatar: "T"
-      },
-      {
-        id: 4,
-        userName: "CurrentUser",
-        message: "That's awesome! Would love to see those photos when you process them.",
-        time: "9:47 PM",
-        avatar: "C"
-      },
-      {
-        id: 5,
-        userName: "ColomboStargazer",
-        message: "Next pass is tomorrow at 8:15 PM. Lower altitude but still should be visible.",
-        time: "10:12 PM",
-        avatar: "C"
-      }
-    ];
-
+    const memberCount = getChatMemberCount(chat);
+    
     return (
       <div className="group-chat">
         <div className="group-chat__header">
@@ -1820,29 +2158,58 @@ const AstroHub: React.FC = () => {
           <div className="group-chat__info">
             <h1 className="group-chat__title">{chat.name}</h1>
             <div className="group-chat__status">
-              <span className={`status-indicator ${chat.isActive ? 'online' : 'offline'}`}></span>
-              <span className="member-count">{chat.members} members online</span>
+              <span className={`status-indicator ${chat.is_active ? 'online' : 'offline'}`}></span>
+              <span className="member-count">{memberCount} members</span>
             </div>
           </div>
         </div>
         
         <div className="group-chat__content">
-          <div className="group-chat__messages">
-            {sampleMessages.map((message) => (
-              <div key={message.id} className={`chat-message ${message.userName === 'CurrentUser' ? 'own-message' : ''}`}>
-                <div className="chat-message__avatar">
-                  {message.avatar}
+          {messagesLoading ? (
+            <div className="chat-loading-message">
+              <p>Loading messages...</p>
+            </div>
+          ) : messagesError ? (
+            <div className="error-message">
+              <p>{messagesError}</p>
+              <Button variant="secondary" size="small" onClick={() => loadChatMessages(chat.id)}>
+                Try Again
+              </Button>
+            </div>
+          ) : (
+            <div className="group-chat__messages">
+              
+              {chatMessages && chatMessages.length > 0 ? (
+                chatMessages.map((message) => {
+                  // console.log('Message object:', message);
+                  const currentUserId = getCurrentUserId();
+                  const isOwnMessage = message.user_id === currentUserId;
+                  const messageTime = formatMessageTime((message as any).updated_at || (message as any).created_at);
+                  const userName = getMessageUsername(message);
+                  const userInitials = getMessageUserInitials(message);
+                  
+                  return (
+                    <div key={message.id} className={`chat-message ${isOwnMessage ? 'own-message' : ''}`}>
+                      <div className="chat-message__avatar">
+                        {userInitials}
+                      </div>
+                      <div className="chat-message__content">
+                        <div className="chat-message__header">
+                          <span className="chat-message__username">{userName}</span>
+                          <span className="chat-message__time">{messageTime}</span>
+                        </div>
+                        <p className="chat-message__text">{(message as any).message_text || message.content}</p>
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="no-messages">
+                  <p>No messages yet. Be the first to send a message!</p>
                 </div>
-                <div className="chat-message__content">
-                  <div className="chat-message__header">
-                    <span className="chat-message__username">{message.userName}</span>
-                    <span className="chat-message__time">{message.time}</span>
-                  </div>
-                  <p className="chat-message__text">{message.message}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+              )}
+            </div>
+          )}
 
           <div className="group-chat__input">
             <div className="chat-input-container">
@@ -1852,6 +2219,7 @@ const AstroHub: React.FC = () => {
                 placeholder="Type your message..."
                 className="chat-input"
                 rows={2}
+                disabled={messagesLoading}
                 onKeyPress={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
@@ -1863,10 +2231,10 @@ const AstroHub: React.FC = () => {
                 variant="primary" 
                 size="small"
                 onClick={handleSendChatMessage}
-                disabled={!newChatMessage.trim()}
+                disabled={!newChatMessage.trim() || messagesLoading}
                 className="send-button"
               >
-                Send
+                {messagesLoading ? 'Sending...' : 'Send'}
               </Button>
             </div>
           </div>
@@ -2129,54 +2497,92 @@ const AstroHub: React.FC = () => {
                 variant="primary" 
                 className="create-chat-btn"
                 onClick={handleCreateNewGroup}
+                disabled={chatLoading}
               >
                 Create New Group
               </Button>
             </div>
-            <div className="chats-grid">
-              {filteredGroupChats.length > 0 ? (
-                filteredGroupChats.map((chat) => (
-                  <div key={chat.id} className={`chat-card ${chat.isActive ? 'active' : ''}`}>
-                    <div className="chat-card__header">
-                      <div className="chat-card__title-section">
-                        <h3 className="chat-card__title">{chat.name}</h3>
-                        <div className="chat-card__status">
-                          <span className={`status-indicator ${chat.isActive ? 'online' : 'offline'}`}></span>
-                          <span className="member-count">{chat.members} members</span>
+            
+            {chatError && (
+              <div className="error-message">
+                <p>{chatError}</p>
+                <Button variant="secondary" size="small" onClick={() => loadGroupChats(true)}>
+                  Try Again
+                </Button>
+              </div>
+            )}
+            
+            {chatLoading ? (
+              <div className="chat-loading-message">
+                <p>Loading group chats...</p>
+              </div>
+            ) : (
+              <div className="chats-grid">
+              {(() => {
+                console.log('Rendering chats - filteredGroupChats:', filteredGroupChats?.length, 'realGroupChats:', realGroupChats?.length, 'searchQuery:', searchQuery);
+                return null;
+              })()}
+              {(filteredGroupChats && filteredGroupChats.length > 0) ? (
+                filteredGroupChats
+                  .filter((chat) => chat && chat.id) // Filter out any undefined or invalid items
+                  .map((chat) => {
+                    if (!chat || !chat.id) return null; // Extra safety check
+                    console.log('Rendering chat:', chat);
+                    const memberCount = getChatMemberCount(chat);
+                    const lastMessageTime = formatLastMessageTime(chat.last_message_time);
+                  
+                  return (
+                    <div key={chat.id} className={`chat-card ${chat.is_active ? 'active' : ''}`}>
+                      <div className="chat-card__header">
+                        <div className="chat-card__title-section">
+                          <h3 className="chat-card__title">{chat.name || 'Unnamed Group'}</h3>
+                          <div className="chat-card__status">
+                            <span className={`status-indicator ${chat.is_active ? 'online' : 'offline'}`}></span>
+                            <span className="member-count">{memberCount} members</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <p className="chat-card__description">{chat.description}</p>
-                    <div className="chat-card__last-message">
-                      <div className="last-message-content">
-                        <span className="last-message-text">"{chat.lastMessage}"</span>
-                        <span className="last-message-time">{chat.lastMessageTime}</span>
+                      <p className="chat-card__description">{chat.description || 'No description available'}</p>
+                      <div className="chat-card__last-message">
+                        <div className="last-message-content">
+                          <span className="last-message-text">"{chat.last_message || 'No messages yet'}"</span>
+                          <span className="last-message-time">{lastMessageTime}</span>
+                        </div>
+                      </div>
+                      <div className="chat-card__actions">
+                        <Button 
+                          variant="primary" 
+                          size="small"
+                          onClick={() => handleChatAction(chat)}
+                        >
+                          {isUserMemberOfGroup(chat) ? 'Open Chat' : 'Join Chat'}
+                        </Button>
+                        <Button 
+                          variant="secondary" 
+                          size="small"
+                          onClick={() => handleViewGroupInfo(chat)}
+                        >
+                          View Info
+                        </Button>
                       </div>
                     </div>
-                    <div className="chat-card__actions">
-                      <Button 
-                        variant="primary" 
-                        size="small"
-                        onClick={() => handleJoinChat(chat)}
-                      >
-                        Join Chat
-                      </Button>
-                      <Button 
-                        variant="secondary" 
-                        size="small"
-                        onClick={() => handleViewGroupInfo(chat)}
-                      >
-                        View Info
-                      </Button>
-                    </div>
-                  </div>
-                ))
+                  );
+                })
+                .filter(Boolean) // Remove any null values from the map
               ) : (
                 <div className="no-results">
-                  <p>No group chats found matching your search.</p>
+                  {searchQuery ? (
+                    <p>No group chats found matching "{searchQuery}". Try a different search term.</p>
+                  ) : (
+                    <div>
+                      <p>No group chats available yet.</p>
+                      <p>Be the first to create a new group chat!</p>
+                    </div>
+                  )}
                 </div>
               )}
-            </div>
+              </div>
+            )}
           </div>
         );
 

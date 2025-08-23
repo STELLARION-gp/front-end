@@ -1612,7 +1612,7 @@
 // Group Chat Styles
 .group-chat {
   text-align: center;
-  max-width: 1000px;
+  max-width: 1000px; // Increased from 1000px for wider message area
   margin: 0 auto;
   height: 80vh;
   display: flex;
@@ -1701,12 +1701,16 @@
 
   &__messages {
     flex: 1;
-    padding: 2rem;
+    padding: 1.5rem 3rem; // Reduced top/bottom padding, increased side padding for wider use
     overflow-y: auto;
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
     max-height: calc(80vh - 200px);
+
+    @media (max-width: 768px) {
+      padding: 1.5rem 1rem; // Smaller padding on mobile
+    }
 
     &::-webkit-scrollbar {
       width: 6px;
@@ -1773,10 +1777,10 @@
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
     padding: 1rem 1.5rem;
-    max-width: 70%;
+    max-width: 85%; // Increased from 70% for better readability
 
     @media (max-width: 768px) {
-      max-width: 85%;
+      max-width: 95%; // Increased from 85% for mobile
     }
   }
 

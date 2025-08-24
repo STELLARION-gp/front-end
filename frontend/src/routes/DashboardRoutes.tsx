@@ -806,7 +806,7 @@ const DashboardRoutes = () => {
             <Route
                 path="astrohub"
                 element={
-                    <RoleGuard allowedRoles={['enthusiast', 'influencer', 'learner', 'guide']}>
+                    <RoleGuard allowedRoles={['enthusiast', 'influencer', 'learner', 'guide','moderator']}>
                         <AstroHub />
                     </RoleGuard>
                 }

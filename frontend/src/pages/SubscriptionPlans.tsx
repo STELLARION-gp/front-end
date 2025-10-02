@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { useTranslation } from 'react-i18next';
+//import { useTranslation } from 'react-i18next';
 import { useLocalizedPlans } from '../services/planTranslationService';
 import LoadingSpinner from '../components/LoadingSpinner';
 import PaymentModal from '../components/payment/PaymentModal';
@@ -17,7 +17,7 @@ import type { SubscriptionPlan, UserSubscription } from '../types/subscription';
 
 const SubscriptionPlans: React.FC = () => {
     const { user } = useAuth();
-    const { t } = useTranslation();
+    //const { t } = useTranslation();
     const { getLocalizedPlan } = useLocalizedPlans();
     const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
     const [userSubscription, setUserSubscription] = useState<UserSubscription | null>(null);

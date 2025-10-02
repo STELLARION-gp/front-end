@@ -1,3 +1,4 @@
+@use "sass:color";
 @use '../../abstracts/variables' as *;
 @use '../../abstracts/mixins' as *;
 
@@ -111,7 +112,7 @@ $error: #EF4444 !default; // Fallback definition for error color if not defined 
   
   .poll-error-message {
     background-color: rgba($error, 0.2);
-    color: lighten($error, 15%);
+    color: color.adjust($error, $lightness: 15%);
     padding: 1rem;
     border-radius: 8px;
     margin-bottom: 1.5rem;
@@ -173,7 +174,7 @@ $error: #EF4444 !default; // Fallback definition for error color if not defined 
         
         .remove-option-btn {
           background-color: rgba($error, 0.1);
-          color: lighten($error, 15%);
+          color: color.adjust($error, $lightness: 15%);
           border: 1px solid rgba($error, 0.3);
           border-radius: 8px;
           padding: 0.5rem;
@@ -626,7 +627,7 @@ $error: #EF4444 !default; // Fallback definition for error color if not defined 
     
     .feedback-count {
       background: rgba($accent-color, 0.2);
-      color: lighten($accent-color, 15%);
+      color: color.adjust($accent-color, $lightness: 15%);
       padding: 0.25rem 0.75rem;
       border-radius: 999px;
       font-size: 0.85rem;

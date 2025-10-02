@@ -3,21 +3,23 @@ import { useNavigate } from 'react-router-dom';
 import { FaCalendarAlt, FaUser, FaSave, FaImage } from 'react-icons/fa';
 import Button from '../../components/Button';
 import '../../styles/pages/moderator/CreateEvent.scss';
+import { createEvent, type EventPayload } from '../../services/eventsService';
 
 interface CreateEventForm {
-  event_name: string;
-  society_name: string;
+  eventName: string;
+  societyName: string;
   description: string;
   visibility: 'public' | 'private' | 'members-only';
   date: string;
   time: string;
   location: string;
-  event_category: string;
-  needed_volunteers_count: string;
-  organized_by: string;
-  image_urls: string[];
-  max_participants: string;
-  event_status: 'draft' | 'organized' | 'finalized';
+  eventCategory: string;
+  neededVolunteers: string; // string for input
+  organizedBy: string;
+  images: File[];
+  imageUrls: string[];
+  maxParticipants: string;
+  eventStatus: 'draft' | 'organized' | 'finalized';
   created_at: string;
 }
 
@@ -25,20 +27,21 @@ const CreateEvent: React.FC = () => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<CreateEventForm>({
-    event_name: '',
-    society_name: '',
+    eventName: '',
+    societyName: '',
     description: '',
     visibility: 'public',
     date: '',
     time: '',
     location: '',
-    event_category: '',
-    needed_volunteers_count: '',
-    organized_by: '',
-    image_urls: [],
-    max_participants: '',
-    event_status: 'draft',
-    created_at: new Date().toISOString().split('T')[0] // Set current date as default
+    eventCategory: '',
+    neededVolunteers: '',
+    organizedBy: '',
+    images: [],
+    imageUrls: [],
+    maxParticipants: '',
+    eventStatus: 'draft',
+    created_at: new Date().toISOString().split('T')[0]
   });
 
   const handleInputChange = (field: keyof CreateEventForm, value: string | string[]) => {
@@ -50,10 +53,12 @@ const CreateEvent: React.FC = () => {
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const files = Array.from(e.target.files).map(file => URL.createObjectURL(file));
+      const fileArr = Array.from(e.target.files);
+      const previewUrls = fileArr.map(file => URL.createObjectURL(file));
       setFormData(prev => ({
         ...prev,
-        image_urls: [...prev.image_urls, ...files]
+  images: [...prev.images, ...fileArr],
+  imageUrls: [...prev.imageUrls, ...previewUrls]
       }));
     }
   };
@@ -61,22 +66,44 @@ const CreateEvent: React.FC = () => {
   const removeImage = (index: number) => {
     setFormData(prev => ({
       ...prev,
-      image_urls: prev.image_urls.filter((_, i) => i !== index)
+  images: prev.images.filter((_, i) => i !== index),
+  imageUrls: prev.imageUrls.filter((_, i) => i !== index)
     }));
   };
+
+  const [apiError, setApiError] = useState<string | null>(null);
+  const [apiSuccess, setApiSuccess] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      console.log('Event Created:', formData);
-      navigate('/dashboard/moderation/events');
+      setApiError(null); setApiSuccess(null);
+      // Build payload converting numeric fields
+      const payload: EventPayload = {
+        eventName: formData.eventName.trim(),
+        societyName: formData.societyName.trim(),
+        description: formData.description.trim(),
+        visibility: formData.visibility,
+        date: formData.date,
+        time: formData.time,
+        location: formData.location.trim(),
+        eventCategory: formData.eventCategory.trim(),
+        neededVolunteers: formData.neededVolunteers ? Number(formData.neededVolunteers) : undefined,
+        organizedBy: formData.organizedBy.trim(),
+        maxParticipants: formData.maxParticipants ? Number(formData.maxParticipants) : undefined,
+        eventStatus: formData.eventStatus,
+        images: formData.images.length ? formData.images : undefined,
+        imageUrls: undefined
+      };
+      await createEvent(payload);
+      setApiSuccess('Event created successfully');
+      // Optional: small delay then navigate
+      setTimeout(()=> navigate('/dashboard/moderation/events'), 800);
     } catch (error) {
       console.error('Error creating event:', error);
+      setApiError(error instanceof Error ? error.message : 'Failed to create event');
     } finally {
       setIsSubmitting(false);
     }
@@ -112,36 +139,36 @@ const CreateEvent: React.FC = () => {
               <h3><FaUser /> Basic Information</h3>
               
               <div className="form-group">
-                <label htmlFor="event_name">Event Name *</label>
+                <label htmlFor="eventName">Event Name *</label>
                 <input
                   type="text"
-                  id="event_name"
-                  value={formData.event_name}
-                  onChange={(e) => handleInputChange('event_name', e.target.value)}
+                  id="eventName"
+                  value={formData.eventName}
+                  onChange={(e) => handleInputChange('eventName', e.target.value)}
                   placeholder="Enter event name"
                   required
                 />
               </div>
 
               <div className="form-group">
-                <label htmlFor="society_name">Society Name *</label>
+                <label htmlFor="societyName">Society Name *</label>
                 <input
                   type="text"
-                  id="society_name"
-                  value={formData.society_name}
-                  onChange={(e) => handleInputChange('society_name', e.target.value)}
+                  id="societyName"
+                  value={formData.societyName}
+                  onChange={(e) => handleInputChange('societyName', e.target.value)}
                   placeholder="Enter society name"
                   required
                 />
               </div>
 
               <div className="form-group">
-                <label htmlFor="organized_by">Organized By *</label>
+                <label htmlFor="organizedBy">Organized By *</label>
                 <input
                   type="text"
-                  id="organized_by"
-                  value={formData.organized_by}
-                  onChange={(e) => handleInputChange('organized_by', e.target.value)}
+                  id="organizedBy"
+                  value={formData.organizedBy}
+                  onChange={(e) => handleInputChange('organizedBy', e.target.value)}
                   placeholder="Enter organizer name"
                   required
                 />
@@ -205,9 +232,9 @@ const CreateEvent: React.FC = () => {
                   <label htmlFor="event_category">Event Category *</label>
                   <input
                     type="text"
-                    id="event_category"
-                    value={formData.event_category}
-                    onChange={(e) => handleInputChange('event_category', e.target.value)}
+                    id="eventCategory"
+                    value={formData.eventCategory}
+                    onChange={(e) => handleInputChange('eventCategory', e.target.value)}
                     placeholder="e.g., Workshop, Competition"
                     required
                   />
@@ -216,21 +243,21 @@ const CreateEvent: React.FC = () => {
                   <label htmlFor="max_participants">Max Participants</label>
                   <input
                     type="number"
-                    id="max_participants"
-                    value={formData.max_participants}
-                    onChange={(e) => handleInputChange('max_participants', e.target.value)}
+                    id="maxParticipants"
+                    value={formData.maxParticipants}
+                    onChange={(e) => handleInputChange('maxParticipants', e.target.value)}
                     placeholder="Maximum number of participants"
                   />
                 </div>
               </div>
 
               <div className="form-group">
-                <label htmlFor="needed_volunteers_count">Needed Volunteers Count</label>
+                <label htmlFor="neededVolunteers">Needed Volunteers Count</label>
                 <input
                   type="number"
-                  id="needed_volunteers_count"
-                  value={formData.needed_volunteers_count}
-                  onChange={(e) => handleInputChange('needed_volunteers_count', e.target.value)}
+                  id="neededVolunteers"
+                  value={formData.neededVolunteers}
+                  onChange={(e) => handleInputChange('neededVolunteers', e.target.value)}
                   placeholder="Number of volunteers needed"
                 />
               </div>
@@ -241,16 +268,16 @@ const CreateEvent: React.FC = () => {
               <h3><FaImage /> Additional Settings</h3>
               
               <div className="form-group">
-                <label htmlFor="image_urls">Event Images</label>
+                <label htmlFor="imageUrls">Event Images</label>
                 <input
                   type="file"
-                  id="image_urls"
+                  id="imageUrls"
                   onChange={handleImageUpload}
                   multiple
                   accept="image/*"
                 />
                 <div className="image-preview">
-                  {formData.image_urls.map((url, index) => (
+                  {formData.imageUrls.map((url, index) => (
                     <div key={index} className="image-preview-item">
                       <img src={url} alt={`Event preview ${index}`} />
                       <button type="button" onClick={() => removeImage(index)}>×</button>
@@ -260,11 +287,11 @@ const CreateEvent: React.FC = () => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="event_status">Event Status *</label>
+                <label htmlFor="eventStatus">Event Status *</label>
                 <select
-                  id="event_status"
-                  value={formData.event_status}
-                  onChange={(e) => handleInputChange('event_status', e.target.value as 'draft' | 'organized' | 'finalized')}
+                  id="eventStatus"
+                  value={formData.eventStatus}
+                  onChange={(e) => handleInputChange('eventStatus', e.target.value as 'draft' | 'organized' | 'finalized')}
                   required
                 >
                   <option value="draft">Draft - Not visible to public</option>
@@ -311,7 +338,9 @@ const CreateEvent: React.FC = () => {
           </div>
 
           {/* Submit Actions */}
-          <div className="form-actions">
+          <div className="form-actions flex flex-col gap-4">
+            {apiError && <div className="text-sm text-red-400">{apiError}</div>}
+            {apiSuccess && <div className="text-sm text-green-400">{apiSuccess}</div>}
             <Button
               type="button"
               variant="border"

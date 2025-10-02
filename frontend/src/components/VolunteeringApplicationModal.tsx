@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Button from './Button';
-import './VolunteeringApplicationModal.scss';
+import './../styles/components/VolunteeringApplicationModal.scss';
 
 interface VolunteeringApplicationModalProps {
   isOpen: boolean;

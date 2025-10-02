@@ -340,16 +340,16 @@ const Stargazing: React.FC = () => {
     });
   };
 
-  const clearFilters = () => {
-    setFilters({
-      location: '',
-      rating: 0
-    });
-  };
+  // const clearFilters = () => {
+  //   setFilters({
+  //     location: '',
+  //     rating: 0
+  //   });
+  // };
 
-  const hasActiveFilters = () => {
-    return filters.location || filters.rating > 0;
-  };
+  // const hasActiveFilters = () => {
+  //   return filters.location || filters.rating > 0;
+  // };
 
   const filteredSpots = stargazingSpots.filter(spot => {
     // Location filter

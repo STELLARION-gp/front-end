@@ -3,13 +3,12 @@
 .stats-section {
     position: relative;
     padding: 120px 0;
-    //background: linear-gradient(0deg, $theme1 0%, $theme1 100%);
-    // background: linear-gradient(180deg,
-    //         rgba($theme1, 0.85) 0%,
-    //         rgba($theme1, 1.0) 100%);
-    background-color: $theme1;
+    background: linear-gradient(180deg,
+            rgba($theme1, 0.2) 0%,
+            rgba($theme1, 0.5) 50%,
+            rgba($theme1, 1.0) 100%);
     overflow: hidden;
-    //background: rgba(0, 0, 0, 0.15);
+    border: none;
 
     &::before {
         content: '';
@@ -20,10 +19,6 @@
         bottom: 0;
         background:
             radial-gradient(circle at 30% 80%, rgba(139, 92, 246, 0.08) 0%, transparent 40%);
-        // background:
-        //     radial-gradient(circle at 20% 30%, rgba(139, 92, 246, 0.1) 0%, transparent 40%),
-        //     radial-gradient(circle at 80% 30%, rgba(139, 92, 246, 0.07) 0%, transparent 30%);
-        //radial-gradient(circle at 80% 70%, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
 
         
     }

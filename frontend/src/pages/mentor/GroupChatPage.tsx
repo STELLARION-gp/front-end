@@ -1,14 +1,11 @@
-// GroupChatPage.tsx (final)
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import "../../styles/pages/mentor/GroupChatPage.scss";
 import { 
   PaperAirplaneIcon, 
-  PaperClipIcon, 
-  UserIcon, 
+  PaperClipIcon,  
   PhoneIcon,
   VideoCameraIcon,
   PhoneXMarkIcon,
-  MicrophoneIcon,
   MagnifyingGlassIcon,
   EllipsisVerticalIcon,
   XMarkIcon,

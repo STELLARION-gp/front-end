@@ -161,12 +161,12 @@
     }
 
     &:active:not(:disabled):not(.btn--disabled) {
-      transform: translate(0.1rem, 0.1rem);
       box-shadow: 0px 5px 15px -10px rgba($theme3, 0.6);
+      // REMOVED: transform: translate(0.1rem, 0.1rem);
 
       .btn__circle {
-        transform: translate(-50%, -50%) scale(0.98);
-        transition: transform 0.1s ease;
+        // REMOVED: transform: translate(-50%, -50%) scale(0.98);
+        // REMOVED: transition: transform 0.1s ease;
       }
     }
   }
@@ -179,12 +179,12 @@
     &:hover:not(:disabled):not(.btn--disabled) {
       color: $text-light;
       background-position: 100%;
-      transform: translateX(0.5rem);
+      // REMOVED: transform: translateX(0.5rem);
     }
 
     &:active:not(:disabled):not(.btn--disabled) {
-      transform: translate(0.5rem, 0.5rem);
       box-shadow: 0px 10px 20px -15px rgba($theme2, 0.75);
+      // REMOVED: transform: translate(0.5rem, 0.5rem);
     }
   }
 
@@ -196,12 +196,12 @@
     &:hover:not(:disabled):not(.btn--disabled) {
       color: $text-light;
       background-position: 100%;
-      transform: translateX(0.5rem);
+      // REMOVED: transform: translateX(0.5rem);
     }
 
     &:active:not(:disabled):not(.btn--disabled) {
-      transform: translate(0.5rem, 0.5rem);
       box-shadow: 0px 10px 20px -15px rgba(#10b981, 0.75);
+      // REMOVED: transform: translate(0.5rem, 0.5rem);
     }
   }
 
@@ -213,12 +213,12 @@
     &:hover:not(:disabled):not(.btn--disabled) {
       color: $text-light;
       background-position: 100%;
-      transform: translateX(0.5rem);
+      // REMOVED: transform: translateX(0.5rem);
     }
 
     &:active:not(:disabled):not(.btn--disabled) {
-      transform: translate(0.5rem, 0.5rem);
       box-shadow: 0px 10px 20px -15px rgba(#f59e0b, 0.75);
+      // REMOVED: transform: translate(0.5rem, 0.5rem);
     }
   }
 
@@ -230,12 +230,12 @@
     &:hover:not(:disabled):not(.btn--disabled) {
       color: $text-light;
       background-position: 100%;
-      transform: translateX(0.5rem);
+      // REMOVED: transform: translateX(0.5rem);
     }
 
     &:active:not(:disabled):not(.btn--disabled) {
-      transform: translate(0.5rem, 0.5rem);
       box-shadow: 0px 10px 20px -15px rgba(#ef4444, 0.75);
+      // REMOVED: transform: translate(0.5rem, 0.5rem);
     }
   }
 
@@ -248,12 +248,12 @@
       color: $theme3;
       border-color: $theme3;
       background-position: 100%;
-      transform: translateX(0.5rem);
+      // REMOVED: transform: translateX(0.5rem);
     }
 
     &:active:not(:disabled):not(.btn--disabled) {
-      transform: translate(0.5rem, 0.5rem);
       box-shadow: 0px 10px 20px -15px rgba($theme4, 0.4);
+      // REMOVED: transform: translate(0.5rem, 0.5rem);
     }
   }
 
@@ -267,12 +267,12 @@
       color: $text-light;
       border-color: rgba($text-light, 0.2);
       background-position: 100%;
-      transform: translateX(0.25rem);
+      // REMOVED: transform: translateX(0.25rem);
     }
 
     &:active:not(:disabled):not(.btn--disabled) {
-      transform: translate(0.25rem, 0.25rem);
       box-shadow: 0px 5px 10px -10px rgba($text-light, 0.3);
+      // REMOVED: transform: translate(0.25rem, 0.25rem);
     }
   }
 
@@ -285,12 +285,12 @@
     &:hover:not(:disabled):not(.btn--disabled) {
       color: $theme1;
       background-position: 100%;
-      transform: translateX(0.5rem);
+      // REMOVED: transform: translateX(0.5rem);
     }
 
     &:active:not(:disabled):not(.btn--disabled) {
-      transform: translate(0.5rem, 0.5rem);
       box-shadow: 0px 10px 20px -15px rgba($text-light, 0.5);
+      // REMOVED: transform: translate(0.5rem, 0.5rem);
     }
 
     .btn__content,

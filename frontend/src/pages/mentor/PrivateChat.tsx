@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import "../../styles/pages/mentor/PrivateChat.scss";
 import { 
   PaperAirplaneIcon, 
@@ -14,7 +14,6 @@ import {
   FilmIcon,
   MusicalNoteIcon,
   CameraIcon,
-  MicrophoneIcon,
   SpeakerXMarkIcon,
   MicrophoneIcon as MicIcon
 } from "@heroicons/react/24/outline";
@@ -189,8 +188,10 @@ const PrivateChat: React.FC = () => {
   const [showScrollDown, setShowScrollDown] = useState(false);
   const [cameraActive, setCameraActive] = useState(false);
   const recordingIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const audioChunksRef = useRef<Blob[]>([]);
+  //const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  //const audioChunksRef = useRef<Blob[]>([]);
+
+  console.log("Is Camera Active: ", cameraActive);
 
   // Simulate typing indicator
   useEffect(() => {
@@ -304,19 +305,19 @@ const PrivateChat: React.FC = () => {
     }
   };
 
-  const cancelRecording = () => {
-    setIsRecording(false);
-    setRecordingTime(0);
+  // const cancelRecording = () => {
+  //   setIsRecording(false);
+  //   setRecordingTime(0);
     
-    if (recordingIntervalRef.current) {
-      clearInterval(recordingIntervalRef.current);
-      recordingIntervalRef.current = null;
-    }
-  };
+  //   if (recordingIntervalRef.current) {
+  //     clearInterval(recordingIntervalRef.current);
+  //     recordingIntervalRef.current = null;
+  //   }
+  // };
 
   // Play audio message
   const playAudioMessage = (audioUrl: string) => {
-    alert("Playing voice message! In a real app, this would play the recorded audio.");
+    alert("Playing voice message! In a real app, this would play the recorded audio : " + audioUrl);
   };
 
   // Activate camera
@@ -434,7 +435,7 @@ const PrivateChat: React.FC = () => {
               {msg.isVoiceMessage && (
                 <button 
                   className="play-audio-btn"
-                  onClick={() => playAudioMessage("")}
+                  onClick={() => playAudioMessage(msg.audioUrl || "")}
                 >
                   ▶️ Play Voice Message
                 </button>
@@ -544,7 +545,7 @@ const PrivateChat: React.FC = () => {
                 onMouseDown={!isRecording ? startRecording : undefined}
                 onMouseUp={!isRecording ? stopRecording : undefined}
               >
-                <MicrophoneIcon width={36} height={36} className="action-icon" />
+                <MicIcon width={36} height={36} className="action-icon" />
                 {isRecording && (
                   <span className="recording-indicator">
                     {Math.floor(recordingTime / 60)}:{(recordingTime % 60).toString().padStart(2, '0')}

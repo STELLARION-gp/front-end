@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, memo, useMemo } from 'react';
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, Link , useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import logo from '../assets/logo-dark.webp';
 import Button from '../components/Button';
@@ -15,7 +15,8 @@ const MobileNavBar = () => {
     const { user, userProfile, logout } = useAuth();
     const { t, i18n } = useTranslation();
     const lastScroll = useRef(window.scrollY);
-    const mobileMenuRef = useRef(null);
+    const mobileMenuRef = useRef<HTMLDivElement>(null);
+    const navigate = useNavigate();
 
     // Get current language from i18n
     const currentLanguage = useMemo(() => {
@@ -30,10 +31,14 @@ const MobileNavBar = () => {
 
     // Close mobile menu when clicking outside
     useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (mobileMenuOpen && mobileMenuRef.current && !mobileMenuRef.current.contains(event.target)) {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (
+                mobileMenuOpen &&
+                mobileMenuRef.current &&
+                !mobileMenuRef.current.contains(event.target as Node)
+            ) {
                 // Check if click is not on hamburger button
-                if (!event.target.closest('.mobile-hamburger')) {
+                if (!(event.target instanceof Element) || !event.target.closest('.mobile-hamburger')) {
                     setMobileMenuOpen(false);
                 }
             }
@@ -42,7 +47,7 @@ const MobileNavBar = () => {
         if (mobileMenuOpen) {
             document.addEventListener('mousedown', handleClickOutside);
         }
-        
+
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [mobileMenuOpen]);
 
@@ -67,7 +72,7 @@ const MobileNavBar = () => {
         const handleScroll = () => {
             // Don't hide navbar when mobile menu is open
             if (mobileMenuOpen) return;
-            
+
             const current = window.scrollY;
             if (current > lastScroll.current && current > 80) {
                 setHidden(true);
@@ -76,7 +81,7 @@ const MobileNavBar = () => {
             }
             lastScroll.current = current;
         };
-        
+
         window.addEventListener('scroll', handleScroll, { passive: true });
         return () => window.removeEventListener('scroll', handleScroll);
     }, [mobileMenuOpen]);
@@ -117,12 +122,12 @@ const MobileNavBar = () => {
         }
     };
 
-    const toggleMobileMenu = (e) => {
+    const toggleMobileMenu = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.stopPropagation();
         setMobileMenuOpen(!mobileMenuOpen);
     };
 
-    const handleSectionLink = (e, sectionId) => {
+    const handleSectionLink = (e: React.MouseEvent<HTMLButtonElement>, sectionId: string) => {
         e.preventDefault();
         setMobileMenuOpen(false);
 
@@ -154,9 +159,9 @@ const MobileNavBar = () => {
                                     alt="Profile"
                                     className="mobile-profile-avatar"
                                     onError={(e) => {
-                                        const target = e.target;
+                                        const target = e.target as HTMLImageElement;
                                         target.style.display = 'none';
-                                        const placeholder = target.nextElementSibling;
+                                        const placeholder = target.nextElementSibling as HTMLElement | null;
                                         if (placeholder) {
                                             placeholder.classList.remove('mobile-hidden');
                                         }
@@ -173,28 +178,32 @@ const MobileNavBar = () => {
                         </div>
                     </div>
                     <div className="mobile-profile-links">
-                        <Link 
-                            to="/dashboard/overview" 
+                        <Link
+                            to="/dashboard/overview"
                             className="mobile-nav-link"
                             onClick={handleMobileNavClick}
                         >
                             {t('navbar.dashboard')}
                         </Link>
-                        <Link 
-                            to="/dashboard/profile" 
+                        <Link
+                            to="/dashboard/profile"
                             className="mobile-nav-link"
                             onClick={handleMobileNavClick}
                         >
                             {t('navbar.profileNav')}
                         </Link>
-                        <Link 
-                            to="/subscription/plans" 
+                        <Link
+                            to="/subscription/plans"
                             className="mobile-nav-link"
                             onClick={handleMobileNavClick}
                         >
                             {t('navbar.subscription')}
                         </Link>
-                        <button onClick={handleLogout} className="mobile-nav-link mobile-logout-btn">
+                        <button
+                            onClick={handleLogout}
+                            className="mobile-nav-link mobile-logout-btn"
+                            type="button"
+                        >
                             {t('auth.signOut')}
                         </button>
                     </div>
@@ -206,18 +215,16 @@ const MobileNavBar = () => {
                     <Button
                         variant="primary"
                         size="small"
-                        href="/login"
                         enableNavigationLoading={false}
-                        onClick={handleMobileNavClick}
+                        onClick={() => navigate('/login')}
                     >
                         {t('auth.signIn')}
                     </Button>
                     <Button
                         variant="primary"
                         size="small"
-                        href="/signup"
+                        onClick={() => navigate('/signup')}
                         enableNavigationLoading={false}
-                        onClick={handleMobileNavClick}
                     >
                         {t('auth.signUp')}
                     </Button>
@@ -275,27 +282,27 @@ const MobileNavBar = () => {
                 <div className="mobile-menu-content" ref={mobileMenuRef}>
                     {/* Navigation Links */}
                     <div className="mobile-nav-links">
-                        <a
-                            href="#features"
+                        <button
                             className="mobile-nav-link"
                             onClick={e => handleSectionLink(e, 'features')}
+                            type="button"
                         >
                             {t('navbar.features')}
-                        </a>
-                        <a
-                            href="#about"
+                        </button>
+                        <button
                             className="mobile-nav-link"
                             onClick={e => handleSectionLink(e, 'about')}
+                            type="button"
                         >
                             {t('navbar.about')}
-                        </a>
-                        <a
-                            href="#contact"
+                        </button>
+                        <button
                             className="mobile-nav-link"
                             onClick={e => handleSectionLink(e, 'contact')}
+                            type="button"
                         >
                             {t('navbar.contact')}
-                        </a>
+                        </button>
                     </div>
 
                     {/* Auth Content */}
@@ -305,9 +312,17 @@ const MobileNavBar = () => {
 
             {/* Background overlay to close menu */}
             {mobileMenuOpen && (
-                <div 
-                    className="mobile-menu-backdrop" 
+                <div
+                    className="mobile-menu-backdrop"
                     onClick={() => setMobileMenuOpen(false)}
+                    role="button"
+                    tabIndex={0}
+                    aria-label="Close mobile menu"
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            setMobileMenuOpen(false);
+                        }
+                    }}
                 />
             )}
         </>

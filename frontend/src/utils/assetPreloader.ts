@@ -22,11 +22,9 @@ export const preloadImages = async (imageSources: string[]): Promise<void> => {
 export const preloadHomeAssets = async (): Promise<void> => {
     // List of critical homepage assets to preload
     const imageAssets = [
-        '/src/assets/logo-light.png',
-        '/src/assets/logo-dark.png',
-        '/src/assets/astro.png',
-        '/src/assets/world.png',
-        '/src/assets/world2.png',
+        '/src/assets/logo-dark.webp',
+        '/src/assets/astro.webp',
+        '/src/assets/astro3.webp'
     ];
 
     try {

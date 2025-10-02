@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, memo, useMemo } from 'react';
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, Link , useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import logo from '../assets/logo-dark.webp';
 import Button from '../components/Button';
@@ -17,6 +17,7 @@ const NavBarComponent = () => {
   const { user, userProfile, logout } = useAuth();
   const { t, i18n } = useTranslation();
   const lastScroll = useRef(window.scrollY);
+  const navigate = useNavigate();
 
   // Get current language from i18n with logging
   const currentLanguage = useMemo(() => {
@@ -94,34 +95,6 @@ const NavBarComponent = () => {
 
     console.log(`Language switched to: ${nextLanguage.name} (${nextLanguage.code})`);
   };
-
-  // const handleThemeToggle = () => {
-  //   const themes = ['system', 'light', 'dark'];
-  //   const currentIndex = themes.indexOf(currentTheme);
-  //   const nextIndex = (currentIndex + 1) % themes.length;
-  //   const nextTheme = themes[nextIndex];
-  //   setCurrentTheme(nextTheme);
-
-  //   // Apply theme to document
-  //   document.documentElement.setAttribute('data-theme', nextTheme);
-  //   localStorage.setItem('theme', nextTheme);
-  //   console.log(`Theme switched to: ${nextTheme}`);
-  // };
-
-  // const getThemeIcon = () => {
-  //   console.log('Getting theme icon for theme:', currentTheme);
-  //   switch (currentTheme) {
-  //     case 'light':
-  //       // Sun emoji for light theme
-  //       return <span className="theme-text">☀️</span>;
-  //     case 'dark':
-  //       // Moon emoji for dark theme
-  //       return <span className="theme-text">🌙</span>;
-  //     default:
-  //       // Computer emoji for system theme
-  //       return <span className="theme-text">💻</span>;
-  //   }
-  // };
 
   const getLanguageIcon = () => {
     console.log('Getting language icon for language:', currentLanguage.code);
@@ -201,15 +174,15 @@ const NavBarComponent = () => {
           <Button
             variant="primary"
             size="small"
-            href="/login"
             enableNavigationLoading={false}
+            onClick={() => navigate('/login')}
           >
             {t('auth.signIn')}
           </Button>
           <Button
             variant="primary"
             size="small"
-            href="/signup"
+            onClick={() => navigate('/signup')}
             enableNavigationLoading={false}
           >
             {t('auth.signUp')}

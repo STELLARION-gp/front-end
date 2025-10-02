@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react';
+import { useCallback, useRef } from 'react';
 import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
 
 const containerStyle = {
@@ -11,14 +11,27 @@ const defaultCenter = {
     lng: 80.7718,
 };
 
-const LocationPicker = ({ value, onChange, apiKey }) => {
+type LatLng = {
+    lat: number;
+    lng: number;
+};
+
+type LocationPickerProps = {
+    value?: LatLng | null;
+    onChange: (value: LatLng) => void;
+    apiKey: string;
+};
+
+const LocationPicker: React.FC<LocationPickerProps> = ({ value, onChange, apiKey }) => {
     const { isLoaded } = useJsApiLoader({
         googleMapsApiKey: apiKey,
     });
-    const mapRef = useRef(null);
+    const mapRef = useRef<google.maps.Map | null>(null);
 
-    const handleMapClick = useCallback((e) => {
-        onChange({ lat: e.latLng.lat(), lng: e.latLng.lng() });
+    const handleMapClick = useCallback((e: google.maps.MapMouseEvent) => {
+        if (e.latLng) {
+            onChange({ lat: e.latLng.lat(), lng: e.latLng.lng() });
+        }
     }, [onChange]);
 
     return isLoaded ? (
@@ -27,7 +40,7 @@ const LocationPicker = ({ value, onChange, apiKey }) => {
             center={value || defaultCenter}
             zoom={value ? 12 : 7}
             onClick={handleMapClick}
-            onLoad={map => (mapRef.current = map)}
+            onLoad={(map) => { mapRef.current = map; }}
         >
             {value && <Marker position={value} />}
         </GoogleMap>

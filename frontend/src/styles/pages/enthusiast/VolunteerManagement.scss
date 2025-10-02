@@ -1,3 +1,4 @@
+@use "sass:color";
 @use '../../abstracts/variables' as *;
 @use '../../abstracts/mixins' as *;
 
@@ -74,7 +75,9 @@
       transition: all 0.3s ease;
 
       &:hover {
-        background: darken($color-error, 10%);
+        background: color.adjust($color-error, $lightness: -10%);
+        background: color.scale($color-error , $lightness: -16%);
+        
         transform: translateY(-2px);
       }
     }
@@ -180,7 +183,7 @@
           }
           
           .equipment-tag {
-            background: linear-gradient(135deg, $color-info, lighten($color-info, 15%));
+            background: linear-gradient(135deg, $color-info, color.scale($color-info, $lightness: 15%));
           }
         }
       }
@@ -300,7 +303,7 @@
       overflow: hidden;
 
       th {
-        background: linear-gradient(135deg, $primary-color, darken($primary-color, 5%));
+        background: linear-gradient(135deg, $primary-color, color.adjust($primary-color, $lightness: -5%));
         color: $text-light;
         padding: 1.25rem 1rem;
         text-align: left;
@@ -338,7 +341,7 @@
         align-items: center;
 
         .approve-btn {
-          background: linear-gradient(135deg, $color-success, lighten($color-success, 10%));
+          background: linear-gradient(135deg, $color-success, color.scale($color-success, $lightness: 16.5%));
           color: $text-light;
           border: none;
           padding: 0.625rem 1.25rem;
@@ -355,7 +358,7 @@
           letter-spacing: 0.5px;
 
           &:hover:not(:disabled) {
-            background: linear-gradient(135deg, darken($color-success, 5%), $color-success);
+            background: linear-gradient(135deg, color.scale($color-success, $lightness: -12.6865671642%), $color-success);
             transform: translateY(-2px);
             box-shadow: 0 6px 15px rgba($color-success, 0.4);
           }
@@ -373,7 +376,7 @@
         }
 
         .reject-btn {
-          background: linear-gradient(135deg, $color-error, lighten($color-error, 10%));
+          background: linear-gradient(135deg, $color-error, color.scale($color-error, $lightness: 10%));
           color: $text-light;
           border: none;
           padding: 0.625rem 1.25rem;
@@ -390,7 +393,7 @@
           letter-spacing: 0.5px;
 
           &:hover:not(:disabled) {
-            background: linear-gradient(135deg, darken($color-error, 5%), $color-error);
+            background: linear-gradient(135deg, color.scale($color-error, $lightness: -8.3061889251%), $color-error);
             transform: translateY(-2px);
             box-shadow: 0 6px 15px rgba($color-error, 0.4);
           }
@@ -424,17 +427,17 @@
           font-family: $font-outfit;
 
           &.status-approved {
-            background: linear-gradient(135deg, $color-success, lighten($color-success, 15%));
+            background: linear-gradient(135deg, $color-success, color.scale($color-success, $lightness: 15%));
             color: $text-light;
           }
 
           &.status-pending {
-            background: linear-gradient(135deg, $color-warning, lighten($color-warning, 15%));
+            background: linear-gradient(135deg, $color-warning, color.adjust($color-warning, $lightness: 15%));
             color: $text-light;
           }
 
           &.status-rejected {
-            background: linear-gradient(135deg, $color-error, lighten($color-error, 15%));
+            background: linear-gradient(135deg, $color-error, color.scale($color-error, $lightness: 15%));
             color: $text-light;
           }
         }
@@ -543,11 +546,11 @@
         }
 
         .confirm-reject-btn {
-          background: linear-gradient(135deg, $color-error, darken($color-error, 5%));
+          background: linear-gradient(135deg, $color-error, color.scale($color-error, $lightness: -8.3061889251%));
           color: $text-light;
 
           &:hover:not(:disabled) {
-            background: linear-gradient(135deg, darken($color-error, 5%), darken($color-error, 10%));
+            background: linear-gradient(135deg, color.adjust($color-error, $lightness: -5%), color.scale($color-error, $lightness: -8.3061889251%));
             transform: translateY(-2px);
             box-shadow: 0 6px 15px rgba($color-error, 0.4);
           }

@@ -167,6 +167,42 @@ class ApiService {
   async getChatbotHealth() {
     return this.makeRequest('/chatbot/health');
   }
+
+  /* ================= Media Upload ================= */
+  /** List current user's media uploads */
+  async listMedia() {
+    return this.makeRequest('/media'); // expects { files: [...] }
+  }
+
+  /** Upload a single media file using multipart/form-data (field name: file) */
+  async uploadMedia(file: File) {
+    const token = await this.getAuthToken();
+    if (!token) throw new Error('Not authenticated');
+    const form = new FormData();
+    form.append('file', file);
+
+    const doUpload = async (forceRefresh = false) => {
+      const authToken = forceRefresh ? await this.getAuthToken(true) : token;
+      const response = await fetch(`${API_BASE_URL}/media`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${authToken}`
+        },
+        body: form
+      });
+      if (response.status === 401 && !forceRefresh) {
+        // retry once with refreshed token
+        return doUpload(true);
+      }
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || `Upload failed (${response.status})`);
+      }
+      return response.json(); // expected { file: {...} }
+    };
+
+    return doUpload(false);
+  }
 }
 
 export const apiService = new ApiService();

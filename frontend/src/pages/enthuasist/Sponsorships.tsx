@@ -45,7 +45,7 @@ interface PaymentData {
   paymentMethod: 'card' | 'bank' | 'paypal';
   cardDetails: CardDetails | null;
   sponsorDetails: SponsorDetails;
-  eventId?: string;
+  eventId?: string | number;
 }
 
 const Sponsorships: React.FC = () => {
@@ -122,7 +122,7 @@ const Sponsorships: React.FC = () => {
           expiryDate,
           cvv,
           cardholderName
-        } : undefined,
+        } : null,
         sponsorDetails: {
           name: sponsorName,
           email: sponsorEmail,

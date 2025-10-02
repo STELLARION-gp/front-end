@@ -4,7 +4,6 @@ import GuideLearnerChat from "../../components/Learner/GuideLearnerChat";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import "../../styles/pages/learner/ServicesTab.scss";
-import { Button } from "@headlessui/react";
 
 const ServicesTab: React.FC = () => {
   const services = [
@@ -52,22 +51,22 @@ const ServicesTab: React.FC = () => {
   };
 
   // Get booked dates for calendar
-  const bookedDates = services.filter(s => s.status === "Booked").map(s => new Date(s.date));
+  //const bookedDates = services.filter(s => s.status === "Booked").map(s => new Date(s.date));
   // Map date string to service name for tooltip
   const dateServiceMap = Object.fromEntries(
     services.filter(s => s.status === "Booked").map(s => [s.date, s.service])
   );
 
   // Calendar tile content and tooltip
-  const tileContent = ({ date, view }: { date: Date; view: string }) => {
-    if (view === "month") {
-      const dateStr = date.toISOString().slice(0, 10);
-      if (dateServiceMap[dateStr]) {
-        return <div className="calendar-dot" />;
-      }
-    }
-    return null;
-  };
+  // const tileContent = ({ date, view }: { date: Date; view: string }) => {
+  //   if (view === "month") {
+  //     const dateStr = date.toISOString().slice(0, 10);
+  //     if (dateServiceMap[dateStr]) {
+  //       return <div className="calendar-dot" />;
+  //     }
+  //   }
+  //   return null;
+  // };
   const tileClassName = ({ date, view }: { date: Date; view: string }) => {
     if (view === "month") {
       const dateStr = date.toISOString().slice(0, 10);

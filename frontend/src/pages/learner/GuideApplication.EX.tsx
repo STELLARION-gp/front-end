@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import SelectLanguage from '../../components/SelectLanguage';
+import { useState } from 'react';
 import LocationPicker from '../../components/LocationPicker';
 import AvailabilityTimePicker from '../../components/AvailabilityTimePicker';
 import { useNavigate } from 'react-router-dom';
@@ -8,16 +7,34 @@ import Button from '../../components/Button';
 import { useI18n } from '../../i18n/useI18n';
 import styles from '../../styles/pages/GuideApplication.module.scss';
 
+type DayOfWeek = 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
+interface GuideApplicationForm {
+    phone_number: string;
+    country: string;
+    languages_spoken: string[];
+    certifications: string[];
+    stargazing_expertise: string[];
+    operating_locations: ({ lat: number; lng: number } | null)[];
+    profile_bio: string;
+    services_offered: string[];
+    max_group_size: number;
+    pricing_min: string;
+    pricing_max: string;
+    photos_or_videos_links: string[];
+    availability_schedule: { [K in DayOfWeek]: string[] };
+    payment_method_pref: string;
+}
+
 const GuideApplication = () => {
     const navigate = useNavigate();
     const { t } = useI18n();
-    const [form, setForm] = useState({
+    const [form, setForm] = useState<GuideApplicationForm>({
         phone_number: '',
         country: '',
         languages_spoken: [''],
         certifications: [''],
         stargazing_expertise: [''],
-        operating_locations: [null], // {lat, lng}
+        operating_locations: [null],
         profile_bio: '',
         services_offered: [''],
         max_group_size: 10,
@@ -39,61 +56,64 @@ const GuideApplication = () => {
     const [error, setError] = useState('');
 
     // Handle simple fields
-    const handleChange = (e) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target;
         setForm((prev) => ({ ...prev, [name]: type === 'number' ? Number(value) : value }));
     };
 
     // Handle array fields
-    const handleArrayChange = (name, idx, value) => {
+    const handleArrayChange = <K extends keyof GuideApplicationForm>(name: K, idx: number, value: GuideApplicationForm[K] extends (infer U)[] ? U : never) => {
         setForm((prev) => {
-            const arr = [...(prev[name] || [])];
+            const arr = Array.isArray(prev[name]) ? [...(prev[name] as any[])] : [];
             arr[idx] = value;
             return { ...prev, [name]: arr };
         });
     };
     // For location array
-    const handleLocationChange = (idx, value) => {
+    const handleLocationChange = (idx: number, value: { lat: number; lng: number } | null) => {
         setForm((prev) => {
-            const arr = [...(prev.operating_locations || [])];
+            const arr = [...prev.operating_locations];
             arr[idx] = value;
             return { ...prev, operating_locations: arr };
         });
     };
-    const handleAddArrayItem = (name) => {
-        setForm((prev) => ({ ...prev, [name]: [...(prev[name] || []), ''] }));
-    };
-    const handleRemoveArrayItem = (name, idx) => {
+    const handleAddArrayItem = <K extends keyof GuideApplicationForm>(name: K) => {
         setForm((prev) => {
-            const arr = [...(prev[name] || [])];
+            const arr = Array.isArray(prev[name]) ? [...(prev[name] as any[]), ''] : [''];
+            return { ...prev, [name]: arr };
+        });
+    };
+    const handleRemoveArrayItem = <K extends keyof GuideApplicationForm>(name: K, idx: number) => {
+        setForm((prev) => {
+            const arr = Array.isArray(prev[name]) ? [...(prev[name] as any[])] : [];
             arr.splice(idx, 1);
             return { ...prev, [name]: arr };
         });
     };
 
     // Handle availability_schedule (object of day: [times])
-    const handleScheduleChange = (day, idx, value) => {
+    const handleScheduleChange = (day: DayOfWeek, idx: number, value: string) => {
         setForm((prev) => {
-            const dayArr = [...(prev.availability_schedule[day] || [])];
+            const dayArr = [...prev.availability_schedule[day]];
             dayArr[idx] = value;
             return { ...prev, availability_schedule: { ...prev.availability_schedule, [day]: dayArr } };
         });
     };
-    const handleAddSchedule = (day) => {
+    const handleAddSchedule = (day: DayOfWeek) => {
         setForm((prev) => {
-            const dayArr = [...(prev.availability_schedule[day] || []), ''];
+            const dayArr = [...prev.availability_schedule[day], ''];
             return { ...prev, availability_schedule: { ...prev.availability_schedule, [day]: dayArr } };
         });
     };
-    const handleRemoveSchedule = (day, idx) => {
+    const handleRemoveSchedule = (day: DayOfWeek, idx: number) => {
         setForm((prev) => {
-            const dayArr = [...(prev.availability_schedule[day] || [])];
+            const dayArr = [...prev.availability_schedule[day]];
             dayArr.splice(idx, 1);
             return { ...prev, availability_schedule: { ...prev.availability_schedule, [day]: dayArr } };
         });
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setLoading(true);
         setError('');
@@ -159,7 +179,7 @@ const GuideApplication = () => {
                                                         } else {
                                                             newVal = newVal.filter(l => l !== option);
                                                         }
-                                                        handleArrayChange('languages_spoken', idx, newVal);
+                                                        handleArrayChange('languages_spoken', idx, newVal.toString());
                                                     }}
                                                     className={styles['checkbox-input']}
                                                     style={{ marginRight: 6 }}
@@ -339,14 +359,14 @@ const GuideApplication = () => {
                     </div>
                     <div>
                         <label className={styles['guide-label']}>{t('guideApplication.fields.availability_schedule', 'Availability Schedule')}</label>
-                        {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map(day => (
+                        {(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as DayOfWeek[]).map(day => (
                             <div key={day} className="mb-2">
                                 <div className="font-semibold capitalize">{t(`guideApplication.days.${day}`, day)}</div>
                                 {(form.availability_schedule[day] || []).map((slot, idx) => (
                                     <div key={idx} className={styles['guide-row']}>
                                         <AvailabilityTimePicker
                                             value={slot}
-                                            onChange={val => handleScheduleChange(day, idx, val)}
+                                            onChange={val => handleScheduleChange(day, idx, val ?? '')}
                                         />
                                         <button
                                             type="button"

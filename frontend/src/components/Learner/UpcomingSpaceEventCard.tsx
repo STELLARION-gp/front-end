@@ -16,7 +16,6 @@ interface UpcomingSpaceEventCardProps {
 const UpcomingSpaceEventCard: React.FC<UpcomingSpaceEventCardProps> = ({
   event,
   date,
-  category,
   imageUrl,
   visibility,
   bestTime,

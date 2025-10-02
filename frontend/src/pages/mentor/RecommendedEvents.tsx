@@ -1,4 +1,3 @@
-import React from 'react';
 import { useRecommendedEvents } from '../../contexts/mentor/RecommendedEventsContext';
 import { useNavigate } from 'react-router-dom';
 import '../../styles/pages/mentor/recommendedEvents.scss';

@@ -67,17 +67,7 @@ const Signup: React.FC = () => {
       setLoadingType(null);
     });
   }, [withLoading, signInWithGoogle, navigate]);
-
-  // const roles: { value: UserRole; label: string; description: string }[] = [
-  //   { value: 'learner', label: 'Learner', description: 'I want to learn and explore' },
-  //   { value: 'mentor', label: 'Mentor', description: 'I want to teach and guide others' },
-  //   { value: 'guide', label: 'Guide', description: 'I want to provide guidance and support' },
-  //   { value: 'influencer', label: 'Influencer', description: 'I want to inspire and influence others' },
-  //   { value: 'enthusiast', label: 'Enthusiast', description: 'I am passionate about astronomy' },
-  //   { value: 'moderator', label: 'Moderator', description: 'I want to help moderate the community' },
-  //   { value: 'admin', label: 'Admin', description: 'Administrative access' },
-  // ];
-
+  
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();

@@ -149,7 +149,7 @@ const Profile: React.FC = () => {
   // Add state for role upgrade options
   const [selectedUpgradeRole, setSelectedUpgradeRole] = useState<string>('');
   const navigate = useNavigate();
-  const [roleUpgradeReason, setRoleUpgradeReason] = useState<string>('');
+  //const [roleUpgradeReason, setRoleUpgradeReason] = useState<string>('');
   const [deleteAccountPassword, setDeleteAccountPassword] = useState<string>('');
 
   // Validation functions
@@ -511,44 +511,44 @@ const Profile: React.FC = () => {
     }
   };
 
-  const handleRoleUpgrade = async () => {
-    if (!selectedUpgradeRole && currentUserProfile.role === 'learner') {
-      setErrors({ roleUpgrade: 'Please select a role to upgrade to' });
-      return;
-    }
+  // const handleRoleUpgrade = async () => {
+  //   if (!selectedUpgradeRole && currentUserProfile.role === 'learner') {
+  //     setErrors({ roleUpgrade: 'Please select a role to upgrade to' });
+  //     return;
+  //   }
 
-    if (!roleUpgradeReason.trim()) {
-      setErrors({ roleUpgrade: 'Please provide a reason for the role upgrade' });
-      return;
-    }
+  //   if (!roleUpgradeReason.trim()) {
+  //     setErrors({ roleUpgrade: 'Please provide a reason for the role upgrade' });
+  //     return;
+  //   }
 
-    setLoading(true);
-    setErrors({});
+  //   setLoading(true);
+  //   setErrors({});
 
-    try {
-      const requestedRole = selectedUpgradeRole || getNextRole(currentUserProfile.role || 'learner') || '';
+  //   try {
+  //     const requestedRole = selectedUpgradeRole || getNextRole(currentUserProfile.role || 'learner') || '';
 
-      const response = await profileService.requestRoleUpgrade({
-        requested_role: requestedRole,
-        reason: roleUpgradeReason,
-        supporting_evidence: []
-      });
+  //     const response = await profileService.requestRoleUpgrade({
+  //       requested_role: requestedRole,
+  //       reason: roleUpgradeReason,
+  //       supporting_evidence: []
+  //     });
 
-      if (response.success) {
-        setShowRoleUpgradeModal(false);
-        setSelectedUpgradeRole('');
-        setRoleUpgradeReason('');
-        alert('Role upgrade request submitted successfully!');
-      } else {
-        setErrors({ roleUpgrade: response.message || 'Failed to submit role upgrade request' });
-      }
-    } catch (error) {
-      console.error('Error requesting role upgrade:', error);
-      setErrors({ roleUpgrade: 'Failed to submit role upgrade request' });
-    } finally {
-      setLoading(false);
-    }
-  };
+  //     if (response.success) {
+  //       setShowRoleUpgradeModal(false);
+  //       setSelectedUpgradeRole('');
+  //       setRoleUpgradeReason('');
+  //       alert('Role upgrade request submitted successfully!');
+  //     } else {
+  //       setErrors({ roleUpgrade: response.message || 'Failed to submit role upgrade request' });
+  //     }
+  //   } catch (error) {
+  //     console.error('Error requesting role upgrade:', error);
+  //     setErrors({ roleUpgrade: 'Failed to submit role upgrade request' });
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   const handleDataExport = async () => {
     setLoading(true);

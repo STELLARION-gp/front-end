@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { FaCalendarAlt, FaMapMarkerAlt, FaUsers, FaStar, FaCheck, FaTimes, FaClock } from 'react-icons/fa';
+import { FaCalendarAlt, FaMapMarkerAlt, FaUsers, FaCheck, FaTimes, FaClock } from 'react-icons/fa';
 import { useParams, useNavigate } from 'react-router-dom';
 import Button from '../../components/Button';
 import '../../styles/pages/moderator/EventDetails.scss';
+import { getEvent, moderateEvent, mapBackendEvent } from '../../services/eventsService';
+import { profileService } from '../../services/profileService';
 
+// Narrowed interface to match backend mapping (extra UI-only props optional)
 interface PlatformEvent {
   id: string;
   eventName: string;
@@ -14,38 +17,25 @@ interface PlatformEvent {
   eventCategory: string;
   neededVolunteers: number;
   description: string;
-  organizedBy: {
-    name: string;
-    avatar: string;
-    userId: string;
-    rating: number;
-    totalEvents: number;
-    email: string;
-    phone: string;
-  };
+  organizedBy: string; // backend provides a string
   imageUrls: string[];
   maxParticipants: number;
-  eventStatus: 'draft' | 'organized' | 'finalized';
+  eventStatus: string; // 'draft'|'organized'|'finalized'
   created_at: string;
-  status: 'pending' | 'approved' | 'rejected' | 'needs-review';
+  status: 'pending' | 'approved' | 'rejected';
   priority: 'critical' | 'high' | 'medium' | 'low';
   reportCount: number;
-  approvalDeadline: string;
-  verificationChecks: {
-    contentVerified: boolean;
-    organizerVerified: boolean;
-    locationChecked: boolean;
-    safetyChecked: boolean;
+  created_by?: number;
+  moderated_by?: number | null;
+  // Optional presentation fields
+  activities?: string[];
+  requirements?: string[];
+  verificationChecks?: {
+    contentVerified?: boolean;
+    organizerVerified?: boolean;
+    locationChecked?: boolean;
+    safetyChecked?: boolean;
   };
-  activities: string[];
-  requirements: string[];
-  reports?: Array<{
-    id: string;
-    reason: string;
-    description: string;
-    submittedBy: string;
-    submittedAt: string;
-  }>;
 }
 
 const EventDetails: React.FC = () => {
@@ -54,81 +44,55 @@ const EventDetails: React.FC = () => {
   const [event, setEvent] = useState<PlatformEvent | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
+  const [error, setError] = useState<string|null>(null);
+  const [moderating, setModerating] = useState(false);
+  const [currentUser, setCurrentUser] = useState<{id:number; role:string}|null>(null);
 
   useEffect(() => {
-    // Mock data fetch
-    const mockEvent: PlatformEvent = {
-      id: id || 'event-001',
-      eventName: 'Astronomy Workshop 2024',
-      societyName: 'Space Explorers Society',
-      date: '2024-03-15',
-      time: '18:00 - 21:00',
-      location: 'Main Campus Auditorium',
-      eventCategory: 'Workshop',
-      neededVolunteers: 5,
-      description: 'Learn about celestial navigation and telescope handling in this hands-on workshop. Participants will get practical experience with different types of telescopes and learn how to identify major constellations and celestial objects.',
-      organizedBy: {
-        name: 'Dr. Sarah Chen',
-        avatar: 'SC',
-        userId: 'user_456',
-        rating: 4.8,
-        totalEvents: 23,
-        email: 'sarah.chen@university.edu',
-        phone: '+1-555-0123'
-      },
-      imageUrls: [
-        '/api/placeholder/400/300',
-        '/api/placeholder/400/300'
-      ],
-      maxParticipants: 50,
-      eventStatus: 'finalized',
-      created_at: '2024-01-10T10:30:00Z',
-      status: 'pending',
-      priority: 'high',
-      reportCount: 0,
-      approvalDeadline: '2024-01-25T23:59:59Z',
-      verificationChecks: {
-        contentVerified: true,
-        organizerVerified: true,
-        locationChecked: true,
-        safetyChecked: false
-      },
-      activities: [
-        'Telescope handling workshop',
-        'Constellation identification',
-        'Planet observation',
-        'Q&A session with astronomers'
-      ],
-      requirements: [
-        'No prior experience needed',
-        'Comfortable clothing',
-        'Notebook (optional)'
-      ]
-    };
-
-    setTimeout(() => {
-      setEvent(mockEvent);
-      setLoading(false);
-    }, 1000);
+    (async()=>{
+      if(!id) { setError('Missing event id'); setLoading(false); return; }
+      try {
+        setLoading(true); setError(null);
+        // load user profile
+        const profileRes = await profileService.getUserProfile();
+        if(profileRes.success && profileRes.data?.id){
+          setCurrentUser({ id: profileRes.data.id, role: profileRes.data.role || 'learner' });
+        }
+        // fetch event
+        const res = await getEvent(Number(id));
+        // backend expected response shape { success, event }
+        const raw = res.event ? res.event : res; // fallback if directly event object
+        const mapped = mapBackendEvent(raw);
+        setEvent(mapped as PlatformEvent);
+      } catch(e){
+        setError(e instanceof Error? e.message:'Failed to load event');
+      } finally { setLoading(false); }
+    })();
   }, [id]);
 
-  const handleApprove = () => {
-    if (event) {
-      setEvent({ ...event, status: 'approved' });
-    }
+  const canModerate = () => {
+    if(!event || !currentUser) return false;
+    const roleOk = ['admin','moderator'].includes(currentUser.role);
+    if(!roleOk) return false;
+    if(currentUser.role==='moderator' && event.created_by && event.created_by===currentUser.id) return false;
+    return event.status==='pending';
   };
 
-  const handleReject = () => {
-    if (event) {
-      setEvent({ ...event, status: 'rejected' });
-    }
+  const doModerate = async(action:'approve'|'reject') => {
+    if(!event) return;
+    setModerating(true); const previous = event.status;
+    try {
+      setEvent({...event, status: action==='approve'?'approved':'rejected'});
+      await moderateEvent(Number(event.id), action);
+    } catch(e) {
+      setEvent({...event, status: previous});
+      setError(e instanceof Error? e.message:'Moderation failed');
+    } finally { setModerating(false); }
   };
-
-  const handleRequestChanges = () => {
-    if (event) {
-      setEvent({ ...event, status: 'needs-review' });
-    }
-  };
+  // Legacy helpers referencing removed mock fields mapped to optional
+  const verificationChecks = event?.verificationChecks || { contentVerified:false, organizerVerified:false, locationChecked:false, safetyChecked:false };
+  const activities = event?.activities || [];
+  const requirements = event?.requirements || [];
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -139,9 +103,10 @@ const EventDetails: React.FC = () => {
     });
   };
 
-  const getCompletionPercentage = (checks: PlatformEvent['verificationChecks']) => {
-    const total = Object.keys(checks).length;
-    const completed = Object.values(checks).filter(Boolean).length;
+  const getCompletionPercentage = (checks: typeof verificationChecks) => {
+    const entries = Object.entries(checks || {});
+    const total = entries.length || 1;
+    const completed = entries.filter(([,v])=>!!v).length;
     return Math.round((completed / total) * 100);
   };
 
@@ -215,13 +180,11 @@ const EventDetails: React.FC = () => {
             </div>
           </div>
           <div className="header-badges">
-            <div className={`priority-badge priority-${event.priority}`}>
-              {event.priority}
+              <div className={`priority-badge priority-${event.priority}`}>
+                {event.priority}
+              </div>
+              <div className={`status-badge status-${event.status}`}>{event.status}</div>
             </div>
-            <div className={`status-badge status-${event.status.replace('-', '')}`}>
-              {event.status.replace('-', ' ')}
-            </div>
-          </div>
         </div>
       </div>
 
@@ -289,7 +252,7 @@ const EventDetails: React.FC = () => {
                 <div className="info-card">
                   <h3>Activities</h3>
                   <div className="activities-list">
-                    {event.activities.map((activity, index) => (
+                    {activities.map((activity, index) => (
                       <div key={index} className="activity-item">
                         <FaCheck className="check-icon" />
                         <span>{activity}</span>
@@ -301,7 +264,7 @@ const EventDetails: React.FC = () => {
                 <div className="info-card">
                   <h3>Requirements</h3>
                   <div className="activities-list">
-                    {event.requirements.map((requirement, index) => (
+                    {requirements.map((requirement, index) => (
                       <div key={index} className="activity-item">
                         <FaCheck className="check-icon" />
                         <span>{requirement}</span>
@@ -333,7 +296,7 @@ const EventDetails: React.FC = () => {
                       </div>
                       <div className="stats-cell">
                         <span className="stat-label"> VERIFIED - </span>
-                        <span className="stat-value">{getCompletionPercentage(event.verificationChecks)}%</span>
+                        <span className="stat-value">{getCompletionPercentage(verificationChecks)}%</span>
                       </div>
                     </div>
                   </div>
@@ -385,27 +348,19 @@ const EventDetails: React.FC = () => {
               <h3>Organizer Information</h3>
               <div className="organizer-profile">
                 <div className="organizer-avatar-large">
-                  {event.organizedBy.avatar}
+          {event.organizedBy?.[0] || 'O'}
                 </div>
                 <div className="organizer-details">
-                  <h4>{event.organizedBy.name}</h4>
-                  <div className="organizer-rating">
-                    <FaStar className="star-icon" />
-                    <span>{event.organizedBy.rating}</span>
-                    <span>({event.organizedBy.totalEvents} events)</span>
-                  </div>
+          <h4>{event.organizedBy}</h4>
+          <div className="organizer-rating text-xs opacity-70">Organizer</div>
                   <div className="contact-info">
                     <div className="contact-item">
                       <strong>Society:</strong>
                       <span>{event.societyName}</span>
                     </div>
                     <div className="contact-item">
-                      <strong>Email:</strong>
-                      <span>{event.organizedBy.email}</span>
-                    </div>
-                    <div className="contact-item">
-                      <strong>Phone:</strong>
-                      <span>{event.organizedBy.phone}</span>
+            <strong>Created:</strong>
+            <span>{new Date(event.created_at).toLocaleString()}</span>
                     </div>
                   </div>
                 </div>
@@ -420,17 +375,17 @@ const EventDetails: React.FC = () => {
               <h3>Verification Status</h3>
               <div className="verification-progress">
                 <div className="progress-header">
-                  <span>Overall Progress: {getCompletionPercentage(event.verificationChecks)}%</span>
+                  <span>Overall Progress: {getCompletionPercentage(verificationChecks)}%</span>
                 </div>
                 <div className="progress-bar">
                   <div
                     className="progress-fill"
-                    style={{ width: `${getCompletionPercentage(event.verificationChecks)}%` }}
+                    data-progress={getCompletionPercentage(verificationChecks)}
                   ></div>
                 </div>
               </div>
               <div className="verification-checklist">
-                {Object.entries(event.verificationChecks).map(([key, checked]) => (
+                {Object.entries(verificationChecks).map(([key, checked]) => (
                   <div key={key} className={`verification-item ${checked ? 'verified' : 'pending'}`}>
                     <div className="verification-icon">
                       {checked ? <FaCheck /> : <FaClock />}
@@ -445,31 +400,31 @@ const EventDetails: React.FC = () => {
       </div>
 
       {/* Actions */}
+      {error && <div className="p-3 text-sm text-red-400">{error}</div>}
       <div className="details-actions">
-        <Button
-          variant="success"
-          size="medium"
-          onClick={handleApprove}
-          disabled={event.status === 'approved'}
-        >
-          <FaCheck /> Approve Event
-        </Button>
-        <Button
-          variant="warning"
-          size="medium"
-          onClick={handleRequestChanges}
-          disabled={event.status === 'needs-review'}
-        >
-          <FaClock /> Request Changes
-        </Button>
-        <Button
-          variant="danger"
-          size="medium"
-          onClick={handleReject}
-          disabled={event.status === 'rejected'}
-        >
-          <FaTimes /> Reject Event
-        </Button>
+        {canModerate() && (
+          <>
+            <Button
+              variant="success"
+              size="medium"
+              onClick={()=>doModerate('approve')}
+              disabled={moderating}
+            >
+              {moderating? '...' : <><FaCheck /> Approve Event</>}
+            </Button>
+            <Button
+              variant="danger"
+              size="medium"
+              onClick={()=>doModerate('reject')}
+              disabled={moderating}
+            >
+              {moderating? '...' : <><FaTimes /> Reject Event</>}
+            </Button>
+          </>
+        )}
+        {!canModerate() && event.status==='pending' && (
+          <div className="text-xs opacity-70">You can't moderate this event (either not authorized or you're the creator).</div>
+        )}
       </div>
     </div>
   );

@@ -2,6 +2,10 @@ import React, { useState, useEffect } from 'react';
 import Button from '../../components/Button';
 import '../../styles/pages/enthusiast/AstroHub.scss';
 import { chatService, type GroupChat, type ChatMessage, type CreateGroupRequest } from '../../services/chatService';
+import SpaceNewsModal from '../../components/SpaceNewsModal';
+import { spaceNewsService, type SpaceNews as RealSpaceNews } from '../../services/spaceNewsService';
+import { useAuth } from '../../hooks/useAuth';
+
 
 interface AstronomicalEvent {
   id: number;
@@ -559,6 +563,7 @@ const myDiscussions: Discussion[] = [
 ];
 
 const AstroHub: React.FC = () => {
+  const { userProfile } = useAuth();
   const [activeTab, setActiveTab] = useState<'events' | 'news' | 'discussions' | 'my-discussions' | 'chats'>('events');
   const [selectedNews, setSelectedNews] = useState<SpaceNews | null>(null);
   const [selectedDiscussion, setSelectedDiscussion] = useState<Discussion | null>(null);
@@ -599,6 +604,16 @@ const AstroHub: React.FC = () => {
   const [messagesError, setMessagesError] = useState<string | null>(null);
   const [membershipRefresh, setMembershipRefresh] = useState(0); // Force UI refresh for membership changes
 
+  // Space News states
+  const [realSpaceNews, setRealSpaceNews] = useState<RealSpaceNews[]>([]);
+  const [spaceNewsLoading, setSpaceNewsLoading] = useState(false);
+  const [spaceNewsError, setSpaceNewsError] = useState<string | null>(null);
+  const [showCreateSpaceNews, setShowCreateSpaceNews] = useState(false);
+  const [selectedRealNews, setSelectedRealNews] = useState<RealSpaceNews | null>(null);
+  const [realNewsComments, setRealNewsComments] = useState<any[]>([]);
+  const [commentsLoading, setCommentsLoading] = useState(false);
+  const [newsLikesState, setNewsLikesState] = useState<{[key: number]: { isLiked: boolean; count: number }}>({});
+
   // Success alert state
   const [successAlert, setSuccessAlert] = useState<{ show: boolean; message: string }>({ 
     show: false, 
@@ -609,6 +624,7 @@ const AstroHub: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredEvents, setFilteredEvents] = useState(astronomicalEvents);
   const [filteredNews, setFilteredNews] = useState(spaceNews);
+  const [filteredRealNews, setFilteredRealNews] = useState<RealSpaceNews[]>([]);
   const [filteredDiscussions, setFilteredDiscussions] = useState(discussions);
   const [filteredMyDiscussions, setFilteredMyDiscussions] = useState(myDiscussions);
   const [filteredGroupChats, setFilteredGroupChats] = useState<GroupChat[]>([]);
@@ -638,6 +654,37 @@ const AstroHub: React.FC = () => {
       }, 100);
     }
   }, [chatMessages, showGroupChat]);
+
+  // Load space news when news tab is active
+  useEffect(() => {
+    const loadSpaceNews = async () => {
+      try {
+        setSpaceNewsLoading(true);
+        setSpaceNewsError(null);
+        const response = await spaceNewsService.getSpaceNews();
+        const news = response.spaceNews;
+        setRealSpaceNews(news);
+        setFilteredRealNews(news);
+      } catch (error) {
+        console.error('Failed to load space news:', error);
+        setSpaceNewsError('Failed to load space news');
+      } finally {
+        setSpaceNewsLoading(false);
+      }
+    };
+
+    if (activeTab === 'news') {
+      loadSpaceNews();
+    }
+  }, [activeTab]);
+
+  // Check user's role for moderator features
+  const isModerator = userProfile?.role === 'admin' || userProfile?.role === 'moderator';
+
+  // Filter discussions based on current user
+  const currentUserDiscussions = discussions.filter(discussion => 
+    discussion.author === 'current_user' // Replace with actual user check
+  );
 
   // Load group chats (only call when needed to avoid overwriting new groups)
   const loadGroupChats = async (forceReload = false) => {
@@ -761,12 +808,13 @@ const AstroHub: React.FC = () => {
     setFilteredEvents(newFilteredEvents);
 
     // Filter news
-    const newFilteredNews = spaceNews.filter(article =>
+    const newFilteredRealNews = realSpaceNews.filter(article =>
       article.title.toLowerCase().includes(lowerQuery) ||
-      article.summary.toLowerCase().includes(lowerQuery) ||
-      article.source.toLowerCase().includes(lowerQuery)
+      article.content.toLowerCase().includes(lowerQuery) ||
+      article.category.toLowerCase().includes(lowerQuery) ||
+      article.publisher.name.toLowerCase().includes(lowerQuery)
     );
-    setFilteredNews(newFilteredNews);
+    setFilteredRealNews(newFilteredRealNews);
 
     // Filter discussions
     const newFilteredDiscussions = discussions.filter(discussion =>
@@ -797,11 +845,139 @@ const AstroHub: React.FC = () => {
     setSelectedNews(article);
   };
 
+  const handleViewRealNewsDetails = async (article: RealSpaceNews) => {
+    try {
+      // Load the full article with comments
+      setSelectedRealNews(article);
+      setCommentsLoading(true);
+      
+      // Get comments for this article
+      const commentsResponse = await spaceNewsService.getComments(article.id);
+      setRealNewsComments(commentsResponse.comments);
+      
+      // Initialize like state for this article
+      setNewsLikesState(prev => ({
+        ...prev,
+        [article.id]: {
+          isLiked: false, // TODO: Get actual like status from backend
+          count: article.number_of_likes
+        }
+      }));
+    } catch (error) {
+      console.error('Failed to load news details:', error);
+      showSuccessAlert('Failed to load news details');
+    } finally {
+      setCommentsLoading(false);
+    }
+  };
+
   const handleBackToNews = () => {
     setSelectedNews(null);
+    setSelectedRealNews(null);
+    setRealNewsComments([]);
     setNewComment('');
     setReplyingTo(null);
     setNewReply('');
+  };
+
+  const handleRealNewsLike = async (newsId: number) => {
+    try {
+      const response = await spaceNewsService.toggleLike(newsId);
+      
+      // Update like state
+      setNewsLikesState(prev => ({
+        ...prev,
+        [newsId]: {
+          isLiked: response.isLiked,
+          count: response.likeCount
+        }
+      }));
+
+      // Update the news in the list
+      setRealSpaceNews(prev => prev.map(news => 
+        news.id === newsId 
+          ? { ...news, number_of_likes: response.likeCount }
+          : news
+      ));
+
+      showSuccessAlert(response.isLiked ? 'News liked!' : 'News unliked!');
+    } catch (error) {
+      console.error('Failed to toggle like:', error);
+      showSuccessAlert('Failed to toggle like');
+    }
+  };
+
+  const handleAddRealNewsComment = async (newsId: number, content: string, parentCommentId?: number) => {
+    try {
+      const newComment = await spaceNewsService.addComment(newsId, {
+        content,
+        parent_comment_id: parentCommentId
+      });
+
+      if (parentCommentId) {
+        // Update replies for existing comment
+        setRealNewsComments(prev => prev.map(comment => 
+          comment.id === parentCommentId
+            ? { ...comment, replies: [...(comment.replies || []), newComment] }
+            : comment
+        ));
+      } else {
+        // Add new top-level comment
+        setRealNewsComments(prev => [newComment, ...prev]);
+      }
+
+      // Update comment count in the news list
+      setRealSpaceNews(prev => prev.map(news => 
+        news.id === newsId 
+          ? { ...news, number_of_comments: news.number_of_comments + 1 }
+          : news
+      ));
+
+      setNewComment('');
+      setNewReply('');
+      setReplyingTo(null);
+      showSuccessAlert('Comment added successfully!');
+    } catch (error) {
+      console.error('Failed to add comment:', error);
+      showSuccessAlert('Failed to add comment');
+    }
+  };
+
+  const handleUpdateRealNewsComment = async (newsId: number, commentId: number, content: string) => {
+    try {
+      const updatedComment = await spaceNewsService.updateComment(newsId, commentId, { content });
+      
+      setRealNewsComments(prev => prev.map(comment => 
+        comment.id === commentId ? updatedComment : comment
+      ));
+
+      setEditingComment(null);
+      setEditText('');
+      showSuccessAlert('Comment updated successfully!');
+    } catch (error) {
+      console.error('Failed to update comment:', error);
+      showSuccessAlert('Failed to update comment');
+    }
+  };
+
+  const handleDeleteRealNewsComment = async (newsId: number, commentId: number) => {
+    try {
+      await spaceNewsService.deleteComment(newsId, commentId);
+      
+      setRealNewsComments(prev => prev.filter(comment => comment.id !== commentId));
+
+      // Update comment count in the news list
+      setRealSpaceNews(prev => prev.map(news => 
+        news.id === newsId 
+          ? { ...news, number_of_comments: news.number_of_comments - 1 }
+          : news
+      ));
+
+      showSuccessAlert('Comment deleted successfully!');
+    } catch (error) {
+      console.error('Failed to delete comment:', error);
+      showSuccessAlert('Failed to delete comment');
+    }
   };
 
   const handleAddComment = () => {
@@ -1503,7 +1679,7 @@ const AstroHub: React.FC = () => {
         
         <div className="news-details__content">
           <div className="news-details__image">
-            <img src={article.image} alt={article.title} />
+            <img src={'https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?w=400&h=250&fit=crop'} alt={article.title} />
             <div className="news-details__source">{article.source}</div>
           </div>
           
@@ -1749,6 +1925,248 @@ const AstroHub: React.FC = () => {
               </div>
             ))}
           </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderRealNewsDetails = (article: RealSpaceNews) => {
+    const likeState = newsLikesState[article.id] || { isLiked: false, count: article.number_of_likes };
+
+    return (
+      <div className="news-details">
+        <div className="news-details__header">
+          <Button 
+            variant="secondary" 
+            size="small" 
+            onClick={handleBackToNews}
+            className="back-button"
+          >
+            ← Back to News
+          </Button>
+        </div>
+        
+        <div className="news-details__content">
+          <div className="news-details__image">
+            <img 
+              src={article.image_urls?.[0] || 'https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?w=400&h=250&fit=crop'} 
+              alt={article.title} 
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = 'https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?w=400&h=250&fit=crop';
+              }}
+            />
+            <div className="news-details__source">{article.category}</div>
+          </div>
+          
+          <div className="news-details__info">
+            <div className="news-details__meta">
+              <span className="news-details__date">{new Date(article.publish_date).toLocaleDateString()}</span>
+              <span className="news-details__read-time">5 min read</span>
+              <span className="news-details__author">By {article.publisher.name}</span>
+            </div>
+            
+            <h1 className="news-details__title">{article.title}</h1>
+            
+            <div className="news-details__stats">
+              <button 
+                className={`news-like-button ${likeState.isLiked ? 'liked' : ''}`}
+                onClick={() => handleRealNewsLike(article.id)}
+              >
+                <span className="like-icon">❤️</span>
+                <span className="like-count">{likeState.count} likes</span>
+              </button>
+              <span className="news-details__comments">{article.number_of_comments} comments</span>
+            </div>
+            
+            <div className="news-details__body">
+              <div className="news-details__full-content">
+                {article.content.split('\n').map((paragraph, index) => (
+                  <p key={index}>{paragraph}</p>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="news-discussions">
+          <div className="news-discussions__header">
+            <h2>Comments ({realNewsComments.length})</h2>
+          </div>
+
+          <div className="news-discussions__add-comment">
+            <textarea
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              placeholder="Share your thoughts about this news..."
+              className="comment-textarea"
+              rows={3}
+            />
+            <Button 
+              variant="primary" 
+              size="small" 
+              onClick={() => handleAddRealNewsComment(article.id, newComment)}
+              disabled={!newComment.trim()}
+            >
+              Post Comment
+            </Button>
+          </div>
+
+          {commentsLoading ? (
+            <div className="loading-message">Loading comments...</div>
+          ) : (
+            <div className="news-discussions__list">
+              {realNewsComments.map((comment) => (
+                <div key={comment.id} className="discussion-thread">
+                  <div className="discussion-comment">
+                    <div className="discussion-comment__header">
+                      <div className="discussion-comment__avatar">
+                        {comment.user.name.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="discussion-comment__info">
+                        <span className="discussion-comment__username">{comment.user.name}</span>
+                        <span className="discussion-comment__time">
+                          {new Date(comment.created_at).toLocaleDateString()}
+                          {comment.is_edited && <span className="edited-indicator"> (edited)</span>}
+                        </span>
+                      </div>
+                    </div>
+                    {editingComment === comment.id ? (
+                      <div className="edit-form">
+                        <textarea
+                          value={editText}
+                          onChange={(e) => setEditText(e.target.value)}
+                          className="edit-textarea"
+                          rows={3}
+                        />
+                        <div className="edit-actions">
+                          <Button 
+                            variant="primary" 
+                            size="small" 
+                            onClick={() => handleUpdateRealNewsComment(article.id, comment.id, editText)}
+                            disabled={!editText.trim()}
+                          >
+                            Save
+                          </Button>
+                          <Button 
+                            variant="secondary" 
+                            size="small" 
+                            onClick={() => {
+                              setEditingComment(null);
+                              setEditText('');
+                            }}
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="discussion-comment__text">{comment.content}</p>
+                    )}
+                    <div className="discussion-comment__footer">
+                      <div className="discussion-comment__actions">
+                        <Button 
+                          variant="secondary" 
+                          size="small"
+                          onClick={() => setReplyingTo(replyingTo === comment.id ? null : comment.id)}
+                        >
+                          {replyingTo === comment.id ? 'Cancel' : 'Reply'}
+                        </Button>
+                        {userProfile && comment.user.id.toString() === userProfile.uid && (
+                          <>
+                            <Button 
+                              variant="secondary" 
+                              size="small"
+                              onClick={() => {
+                                setEditingComment(comment.id);
+                                setEditText(comment.content);
+                              }}
+                            >
+                              Edit
+                            </Button>
+                            <Button 
+                              variant="secondary" 
+                              size="small"
+                              onClick={() => handleDeleteRealNewsComment(article.id, comment.id)}
+                            >
+                              Delete
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {comment.replies && comment.replies.length > 0 && (
+                    <div className="discussion-replies">
+                      {comment.replies.map((reply: any) => (
+                        <div key={reply.id} className="discussion-reply">
+                          <div className="discussion-comment__header">
+                            <div className="discussion-comment__avatar">
+                              {reply.user.name.charAt(0).toUpperCase()}
+                            </div>
+                            <div className="discussion-comment__info">
+                              <span className="discussion-comment__username">{reply.user.name}</span>
+                              <span className="discussion-comment__time">
+                                {new Date(reply.created_at).toLocaleDateString()}
+                                {reply.is_edited && <span className="edited-indicator"> (edited)</span>}
+                              </span>
+                            </div>
+                          </div>
+                          <p className="discussion-comment__text">{reply.content}</p>
+                          {userProfile && reply.user.id.toString() === userProfile.uid && (
+                            <div className="discussion-comment__footer">
+                              <div className="discussion-comment__actions">
+                                <Button 
+                                  variant="secondary" 
+                                  size="small"
+                                  onClick={() => handleDeleteRealNewsComment(article.id, reply.id)}
+                                >
+                                  Delete
+                                </Button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {replyingTo === comment.id && (
+                    <div className="discussion-reply-form">
+                      <textarea
+                        value={newReply}
+                        onChange={(e) => setNewReply(e.target.value)}
+                        placeholder="Write a reply..."
+                        className="reply-textarea"
+                        rows={2}
+                      />
+                      <div className="reply-actions">
+                        <Button 
+                          variant="primary" 
+                          size="small" 
+                          onClick={() => handleAddRealNewsComment(article.id, newReply, comment.id)}
+                          disabled={!newReply.trim()}
+                        >
+                          Post Reply
+                        </Button>
+                        <Button 
+                          variant="secondary" 
+                          size="small" 
+                          onClick={() => {
+                            setReplyingTo(null);
+                            setNewReply('');
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     );
@@ -2297,7 +2715,12 @@ const AstroHub: React.FC = () => {
         );
 
       case 'news':
-        // If a news article is selected, show detailed view
+        // If a real news article is selected, show real news detailed view
+        if (selectedRealNews) {
+          return renderRealNewsDetails(selectedRealNews);
+        }
+        
+        // If a mock news article is selected, show mock news detailed view
         if (selectedNews) {
           return renderNewsDetails(selectedNews);
         }
@@ -2307,31 +2730,57 @@ const AstroHub: React.FC = () => {
           <div className="news-section">
             <div className="section-header">
               <h2>Latest Space News</h2>
+              {isModerator && (
+                <Button
+                  onClick={() => setShowCreateSpaceNews(true)}
+                  variant="primary"
+                  size="small"
+                >
+                  Create News
+                </Button>
+              )}
             </div>
             <div className="news-grid">
-              {filteredNews.length > 0 ? (
-                filteredNews.map((article) => (
+              {spaceNewsLoading ? (
+                <div className="loading-message">Loading space news...</div>
+              ) : spaceNewsError ? (
+                <div className="error-message">{spaceNewsError}</div>
+              ) : filteredRealNews.length > 0 ? (
+                filteredRealNews.map((article) => (
                   <div key={article.id} className="news-card">
                     <div className="news-card__image">
-                      <img src={article.image} alt={article.title} />
-                      <div className="news-card__source">{article.source}</div>
+                      <img 
+                        src={article.image_urls?.[0] || 'https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?w=400&h=250&fit=crop'} 
+                        alt={article.title}
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = 'https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?w=400&h=250&fit=crop';
+                        }}
+                      />
+                      <div className="news-card__source">{article.category}</div>
                     </div>
                     <div className="news-card__content">
                       <div className="news-card__meta">
-                        <span className="news-card__date">{article.date}</span>
-                        <span className="news-card__read-time">{article.readTime} read</span>
+                        <span className="news-card__date">
+                          {new Date(article.publish_date).toLocaleDateString()}
+                        </span>
+                        <span className="news-card__author">
+                          By {article.publisher.name}
+                        </span>
                       </div>
                       <h3 className="news-card__title">{article.title}</h3>
-                      <p className="news-card__summary">{article.summary}</p>
+                      <p className="news-card__summary">
+                        {article.content.substring(0, 150)}...
+                      </p>
                       <div className="news-card__stats">
-                        <span className="news-card__likes">{article.likes} likes</span>
-                        <span className="news-card__comments">{article.comments} comments</span>
+                        <span className="news-card__likes">{article.number_of_likes} likes</span>
+                        <span className="news-card__comments">{article.number_of_comments} comments</span>
                       </div>
                       <Button 
                         variant="secondary" 
                         size="small" 
                         className="news-card__read-more"
-                        onClick={() => handleViewNewsDetails(article)}
+                        onClick={() => handleViewRealNewsDetails(article)}
                       >
                         View More Details
                       </Button>
@@ -2344,6 +2793,35 @@ const AstroHub: React.FC = () => {
                 </div>
               )}
             </div>
+
+            {/* Space News Modal */}
+            {showCreateSpaceNews && (
+              <SpaceNewsModal
+                isOpen={showCreateSpaceNews}
+                onClose={() => setShowCreateSpaceNews(false)}
+                onSuccess={(message: string) => {
+                  setSuccessAlert({ show: true, message });
+                  setShowCreateSpaceNews(false);
+                  // Reload space news after creation
+                  if (activeTab === 'news') {
+                    const loadSpaceNews = async () => {
+                      try {
+                        setSpaceNewsLoading(true);
+                        const response = await spaceNewsService.getSpaceNews();
+                        const news = response.spaceNews;
+                        setRealSpaceNews(news);
+                        setFilteredRealNews(news);
+                      } catch (error) {
+                        console.error('Failed to reload space news:', error);
+                      } finally {
+                        setSpaceNewsLoading(false);
+                      }
+                    };
+                    loadSpaceNews();
+                  }
+                }}
+              />
+            )}
           </div>
         );
 

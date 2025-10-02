@@ -175,4 +175,84 @@ export const spaceNewsService = {
     const response = await makeRequest(endpoint);
     return response.data.categories;
   },
+
+  // Toggle like on space news
+  toggleLike: async (id: number): Promise<{ isLiked: boolean; likeCount: number }> => {
+    const headers = await getAuthHeaders();
+    const endpoint = `/space-news/${id}/like`;
+    
+    const response = await makeRequest(endpoint, {
+      method: 'POST',
+      headers,
+    });
+    
+    return response.data;
+  },
+
+  // Get comments for space news
+  getComments: async (id: number, params: {
+    page?: number;
+    limit?: number;
+  } = {}): Promise<{
+    comments: SpaceNewsComment[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      pages: number;
+    };
+  }> => {
+    const searchParams = new URLSearchParams();
+    
+    if (params.page) searchParams.append('page', params.page.toString());
+    if (params.limit) searchParams.append('limit', params.limit.toString());
+
+    const endpoint = `/space-news/${id}/comments?${searchParams.toString()}`;
+    const response = await makeRequest(endpoint);
+    return response.data;
+  },
+
+  // Add comment to space news
+  addComment: async (id: number, commentData: {
+    content: string;
+    parent_comment_id?: number;
+  }): Promise<SpaceNewsComment> => {
+    const headers = await getAuthHeaders();
+    const endpoint = `/space-news/${id}/comments`;
+    
+    const response = await makeRequest(endpoint, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(commentData),
+    });
+    
+    return response.data;
+  },
+
+  // Update comment
+  updateComment: async (id: number, commentId: number, commentData: {
+    content: string;
+  }): Promise<SpaceNewsComment> => {
+    const headers = await getAuthHeaders();
+    const endpoint = `/space-news/${id}/comments/${commentId}`;
+    
+    const response = await makeRequest(endpoint, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify(commentData),
+    });
+    
+    return response.data;
+  },
+
+  // Delete comment
+  deleteComment: async (id: number, commentId: number): Promise<void> => {
+    const headers = await getAuthHeaders();
+    const endpoint = `/space-news/${id}/comments/${commentId}`;
+    
+    await makeRequest(endpoint, {
+      method: 'DELETE',
+      headers,
+    });
+  },
 };

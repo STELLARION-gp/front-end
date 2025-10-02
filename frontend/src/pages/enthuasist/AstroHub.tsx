@@ -2,6 +2,10 @@ import React, { useState, useEffect } from 'react';
 import Button from '../../components/Button';
 import '../../styles/pages/enthusiast/AstroHub.scss';
 import { chatService, type GroupChat, type ChatMessage, type CreateGroupRequest } from '../../services/chatService';
+import SpaceNewsModal from '../../components/SpaceNewsModal';
+import { spaceNewsService, type SpaceNews as RealSpaceNews } from '../../services/spaceNewsService';
+import { useAuth } from '../../hooks/useAuth';
+
 
 interface AstronomicalEvent {
   id: number;
@@ -559,6 +563,7 @@ const myDiscussions: Discussion[] = [
 ];
 
 const AstroHub: React.FC = () => {
+  const { userProfile } = useAuth();
   const [activeTab, setActiveTab] = useState<'events' | 'news' | 'discussions' | 'my-discussions' | 'chats'>('events');
   const [selectedNews, setSelectedNews] = useState<SpaceNews | null>(null);
   const [selectedDiscussion, setSelectedDiscussion] = useState<Discussion | null>(null);
@@ -599,6 +604,12 @@ const AstroHub: React.FC = () => {
   const [messagesError, setMessagesError] = useState<string | null>(null);
   const [membershipRefresh, setMembershipRefresh] = useState(0); // Force UI refresh for membership changes
 
+  // Space News states
+  const [realSpaceNews, setRealSpaceNews] = useState<RealSpaceNews[]>([]);
+  const [spaceNewsLoading, setSpaceNewsLoading] = useState(false);
+  const [spaceNewsError, setSpaceNewsError] = useState<string | null>(null);
+  const [showCreateSpaceNews, setShowCreateSpaceNews] = useState(false);
+
   // Success alert state
   const [successAlert, setSuccessAlert] = useState<{ show: boolean; message: string }>({ 
     show: false, 
@@ -609,6 +620,7 @@ const AstroHub: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredEvents, setFilteredEvents] = useState(astronomicalEvents);
   const [filteredNews, setFilteredNews] = useState(spaceNews);
+  const [filteredRealNews, setFilteredRealNews] = useState<RealSpaceNews[]>([]);
   const [filteredDiscussions, setFilteredDiscussions] = useState(discussions);
   const [filteredMyDiscussions, setFilteredMyDiscussions] = useState(myDiscussions);
   const [filteredGroupChats, setFilteredGroupChats] = useState<GroupChat[]>([]);
@@ -638,6 +650,37 @@ const AstroHub: React.FC = () => {
       }, 100);
     }
   }, [chatMessages, showGroupChat]);
+
+  // Load space news when news tab is active
+  useEffect(() => {
+    const loadSpaceNews = async () => {
+      try {
+        setSpaceNewsLoading(true);
+        setSpaceNewsError(null);
+        const response = await spaceNewsService.getSpaceNews();
+        const news = response.spaceNews;
+        setRealSpaceNews(news);
+        setFilteredRealNews(news);
+      } catch (error) {
+        console.error('Failed to load space news:', error);
+        setSpaceNewsError('Failed to load space news');
+      } finally {
+        setSpaceNewsLoading(false);
+      }
+    };
+
+    if (activeTab === 'news') {
+      loadSpaceNews();
+    }
+  }, [activeTab]);
+
+  // Check user's role for moderator features
+  const isModerator = userProfile?.role === 'admin' || userProfile?.role === 'moderator';
+
+  // Filter discussions based on current user
+  const currentUserDiscussions = discussions.filter(discussion => 
+    discussion.author === 'current_user' // Replace with actual user check
+  );
 
   // Load group chats (only call when needed to avoid overwriting new groups)
   const loadGroupChats = async (forceReload = false) => {
@@ -761,12 +804,13 @@ const AstroHub: React.FC = () => {
     setFilteredEvents(newFilteredEvents);
 
     // Filter news
-    const newFilteredNews = spaceNews.filter(article =>
+    const newFilteredRealNews = realSpaceNews.filter(article =>
       article.title.toLowerCase().includes(lowerQuery) ||
-      article.summary.toLowerCase().includes(lowerQuery) ||
-      article.source.toLowerCase().includes(lowerQuery)
+      article.content.toLowerCase().includes(lowerQuery) ||
+      article.category.toLowerCase().includes(lowerQuery) ||
+      article.publisher.name.toLowerCase().includes(lowerQuery)
     );
-    setFilteredNews(newFilteredNews);
+    setFilteredRealNews(newFilteredRealNews);
 
     // Filter discussions
     const newFilteredDiscussions = discussions.filter(discussion =>
@@ -2307,31 +2351,69 @@ const AstroHub: React.FC = () => {
           <div className="news-section">
             <div className="section-header">
               <h2>Latest Space News</h2>
+              {isModerator && (
+                <Button
+                  onClick={() => setShowCreateSpaceNews(true)}
+                  variant="primary"
+                  size="small"
+                >
+                  Create News
+                </Button>
+              )}
             </div>
             <div className="news-grid">
-              {filteredNews.length > 0 ? (
-                filteredNews.map((article) => (
+              {spaceNewsLoading ? (
+                <div className="loading-message">Loading space news...</div>
+              ) : spaceNewsError ? (
+                <div className="error-message">{spaceNewsError}</div>
+              ) : filteredRealNews.length > 0 ? (
+                filteredRealNews.map((article) => (
                   <div key={article.id} className="news-card">
                     <div className="news-card__image">
-                      <img src={article.image} alt={article.title} />
-                      <div className="news-card__source">{article.source}</div>
+                      <img 
+                        src={article.image_urls?.[0] || '/default-space-news.jpg'} 
+                        alt={article.title} 
+                      />
+                      <div className="news-card__source">{article.category}</div>
                     </div>
                     <div className="news-card__content">
                       <div className="news-card__meta">
-                        <span className="news-card__date">{article.date}</span>
-                        <span className="news-card__read-time">{article.readTime} read</span>
+                        <span className="news-card__date">
+                          {new Date(article.publish_date).toLocaleDateString()}
+                        </span>
+                        <span className="news-card__author">
+                          By {article.publisher.name}
+                        </span>
                       </div>
                       <h3 className="news-card__title">{article.title}</h3>
-                      <p className="news-card__summary">{article.summary}</p>
+                      <p className="news-card__summary">
+                        {article.content.substring(0, 150)}...
+                      </p>
                       <div className="news-card__stats">
-                        <span className="news-card__likes">{article.likes} likes</span>
-                        <span className="news-card__comments">{article.comments} comments</span>
+                        <span className="news-card__likes">{article.number_of_likes} likes</span>
+                        <span className="news-card__comments">{article.number_of_comments} comments</span>
                       </div>
                       <Button 
                         variant="secondary" 
                         size="small" 
                         className="news-card__read-more"
-                        onClick={() => handleViewNewsDetails(article)}
+                        onClick={() => {
+                          // Convert RealSpaceNews to SpaceNews format for existing handler
+                          const convertedArticle = {
+                            id: article.id,
+                            title: article.title,
+                            summary: article.content.substring(0, 200),
+                            content: article.content,
+                            image: article.image_urls?.[0] || '/default-space-news.jpg',
+                            date: new Date(article.publish_date).toLocaleDateString(),
+                            readTime: '5 min',
+                            source: article.category,
+                            likes: article.number_of_likes,
+                            comments: article.number_of_comments,
+                            isLiked: false // Default value
+                          };
+                          handleViewNewsDetails(convertedArticle);
+                        }}
                       >
                         View More Details
                       </Button>
@@ -2344,6 +2426,35 @@ const AstroHub: React.FC = () => {
                 </div>
               )}
             </div>
+
+            {/* Space News Modal */}
+            {showCreateSpaceNews && (
+              <SpaceNewsModal
+                isOpen={showCreateSpaceNews}
+                onClose={() => setShowCreateSpaceNews(false)}
+                onSuccess={(message: string) => {
+                  setSuccessAlert({ show: true, message });
+                  setShowCreateSpaceNews(false);
+                  // Reload space news after creation
+                  if (activeTab === 'news') {
+                    const loadSpaceNews = async () => {
+                      try {
+                        setSpaceNewsLoading(true);
+                        const response = await spaceNewsService.getSpaceNews();
+                        const news = response.spaceNews;
+                        setRealSpaceNews(news);
+                        setFilteredRealNews(news);
+                      } catch (error) {
+                        console.error('Failed to reload space news:', error);
+                      } finally {
+                        setSpaceNewsLoading(false);
+                      }
+                    };
+                    loadSpaceNews();
+                  }
+                }}
+              />
+            )}
           </div>
         );
 

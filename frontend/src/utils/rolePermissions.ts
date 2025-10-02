@@ -164,7 +164,7 @@ export const ROLE_BASED_MENU_ITEMS = {
         { label: 'Requests', icon: 'MoonIcon', href: '/dashboard/booking-requests' },
         { label: 'Mentor', icon: 'AcademicCapIcon', href: '/dashboard/mentor' },
         { label: 'Events', icon: 'CalendarDaysIcon', href: '/dashboard/events' },
-        { label: 'Chat', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/chat' },
+        { label: 'Astro Hub', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/astrohub' },
         { label: 'Sessions', icon: 'UsersIcon', href: '/dashboard/sessions' },
         { label: 'Moderation', icon: 'ShieldCheckIcon', href: '/dashboard/moderation' },
         //{ label: 'Settings', icon: 'Cog6ToothIcon', href: '/dashboard/settings' },

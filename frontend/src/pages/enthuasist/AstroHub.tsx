@@ -4,6 +4,7 @@ import '../../styles/pages/enthusiast/AstroHub.scss';
 import { chatService, type GroupChat, type ChatMessage, type CreateGroupRequest } from '../../services/chatService';
 import SpaceNewsModal from '../../components/SpaceNewsModal';
 import { spaceNewsService, type SpaceNews as RealSpaceNews } from '../../services/spaceNewsService';
+import { spaceDiscussionService, type Discussion as BackendDiscussion, type DiscussionComment as BackendDiscussionComment, type CreateDiscussionRequest, type AddCommentRequest } from '../../services/spaceDiscussionService';
 import { useAuth } from '../../hooks/useAuth';
 
 
@@ -56,24 +57,61 @@ interface NewsReply {
 interface Discussion {
   id: number;
   title: string;
-  author: string;
-  replies: number;
-  lastActivity: string;
+  author?: string; // For display compatibility
+  author_id?: number;
+  replies?: number; // For display compatibility
+  replies_count?: number;
+  lastActivity?: string; // For display compatibility
+  last_activity?: string;
   category: string;
-  isSticky?: boolean;
+  isSticky?: boolean; // For display compatibility
+  is_sticky?: boolean;
+  is_closed?: boolean;
   content?: string;
-  discussions?: DiscussionComment[];
+  views_count?: number;
+  created_at?: string;
+  updated_at?: string;
+  discussions?: DiscussionComment[]; // For display compatibility
+  comments?: BackendDiscussionComment[];
+  _count?: {
+    comments: number;
+    likes: number;
+  };
+  isLiked?: boolean;
+  authorInfo?: {
+    id: number;
+    display_name: string;
+    first_name: string;
+    last_name: string;
+  };
 }
 
 interface DiscussionComment {
   id: number;
-  userName: string;
+  userName?: string; // For display compatibility
+  user_id?: number;
+  discussion_id?: number;
+  parent_id?: number;
   userAvatar?: string;
-  comment: string;
-  postedTime: string;
-  likes: number;
-  isLiked: boolean;
+  comment?: string; // For display compatibility
+  content?: string;
+  postedTime?: string; // For display compatibility
+  created_at?: string;
+  updated_at?: string;
+  likes?: number; // For display compatibility
+  is_edited?: boolean;
+  isLiked?: boolean;
   replies?: DiscussionReply[];
+  user?: {
+    id: number;
+    display_name: string;
+    first_name: string;
+    last_name: string;
+  };
+  _count?: {
+    likes: number;
+    replies: number;
+  };
 }
 
 interface DiscussionReply {
@@ -620,6 +658,27 @@ const AstroHub: React.FC = () => {
     message: '' 
   });
 
+  // Real Discussion states
+  const [realDiscussions, setRealDiscussions] = useState<Discussion[]>([]);
+  const [myRealDiscussions, setMyRealDiscussions] = useState<Discussion[]>([]);
+  const [discussionCategories, setDiscussionCategories] = useState<string[]>([]);
+  const [discussionsLoading, setDiscussionsLoading] = useState(false);
+  const [discussionsError, setDiscussionsError] = useState<string | null>(null);
+  const [discussionPagination, setDiscussionPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalDiscussions: 0,
+    hasNextPage: false,
+    hasPrevPage: false
+  });
+  const [myDiscussionPagination, setMyDiscussionPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalDiscussions: 0,
+    hasNextPage: false,
+    hasPrevPage: false
+  });
+
   // Search states for filtering
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredEvents, setFilteredEvents] = useState(astronomicalEvents);
@@ -678,8 +737,107 @@ const AstroHub: React.FC = () => {
     }
   }, [activeTab]);
 
+  // Load discussions when discussions tab is active
+  useEffect(() => {
+    const loadDiscussions = async () => {
+      try {
+        setDiscussionsLoading(true);
+        setDiscussionsError(null);
+        const response = await spaceDiscussionService.getDiscussions({
+          page: 1,
+          limit: 20,
+          sortBy: 'last_activity',
+          order: 'desc'
+        });
+        const transformedDiscussions = response.discussions.map(transformBackendDiscussion);
+        setRealDiscussions(transformedDiscussions);
+        setDiscussionPagination(response.pagination);
+      } catch (error) {
+        console.error('Failed to load discussions:', error);
+        setDiscussionsError('Failed to load discussions');
+      } finally {
+        setDiscussionsLoading(false);
+      }
+    };
+
+    if (activeTab === 'discussions') {
+      loadDiscussions();
+    }
+  }, [activeTab]);
+
+  // Load my discussions when my-discussions tab is active
+  useEffect(() => {
+    const loadMyDiscussions = async () => {
+      try {
+        setDiscussionsLoading(true);
+        setDiscussionsError(null);
+        const response = await spaceDiscussionService.getMyDiscussions({
+          page: 1,
+          limit: 20
+        });
+        const transformedDiscussions = response.discussions.map(transformBackendDiscussion);
+        setMyRealDiscussions(transformedDiscussions);
+        setMyDiscussionPagination(response.pagination);
+      } catch (error) {
+        console.error('Failed to load my discussions:', error);
+        setDiscussionsError('Failed to load my discussions');
+      } finally {
+        setDiscussionsLoading(false);
+      }
+    };
+
+    if (activeTab === 'my-discussions') {
+      loadMyDiscussions();
+    }
+  }, [activeTab]);
+
+  // Load discussion categories when component mounts
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const categories = await spaceDiscussionService.getDiscussionCategories();
+        setDiscussionCategories(categories);
+      } catch (error) {
+        console.error('Failed to load discussion categories:', error);
+      }
+    };
+
+    loadCategories();
+  }, []);
+
   // Check user's role for moderator features
   const isModerator = userProfile?.role === 'admin' || userProfile?.role === 'moderator';
+
+  // Helper function to transform backend discussion to frontend format
+  const transformBackendDiscussion = (backendDiscussion: any): Discussion => {
+    return {
+      id: backendDiscussion.id,
+      title: backendDiscussion.title,
+      author: backendDiscussion.author ? 
+        `${backendDiscussion.author.display_name || backendDiscussion.author.first_name || 'Unknown'}` : 
+        'Unknown',
+      author_id: backendDiscussion.author_id,
+      replies: backendDiscussion._count?.comments || backendDiscussion.replies_count || 0,
+      replies_count: backendDiscussion._count?.comments || backendDiscussion.replies_count || 0,
+      lastActivity: backendDiscussion.last_activity ? 
+        new Date(backendDiscussion.last_activity).toLocaleString() : 
+        'Unknown',
+      last_activity: backendDiscussion.last_activity,
+      category: backendDiscussion.category,
+      isSticky: backendDiscussion.is_sticky || false,
+      is_sticky: backendDiscussion.is_sticky || false,
+      is_closed: backendDiscussion.is_closed || false,
+      content: backendDiscussion.content,
+      views_count: backendDiscussion.views_count || 0,
+      created_at: backendDiscussion.created_at,
+      updated_at: backendDiscussion.updated_at,
+      authorInfo: backendDiscussion.author,
+      _count: backendDiscussion._count,
+      isLiked: backendDiscussion.isLiked || false,
+      comments: backendDiscussion.comments,
+      discussions: backendDiscussion.comments // For backward compatibility
+    };
+  };
 
   // Filter discussions based on current user
   const currentUserDiscussions = discussions.filter(discussion => 
@@ -819,7 +977,7 @@ const AstroHub: React.FC = () => {
     // Filter discussions
     const newFilteredDiscussions = discussions.filter(discussion =>
       discussion.title.toLowerCase().includes(lowerQuery) ||
-      discussion.author.toLowerCase().includes(lowerQuery) ||
+      (discussion.author || '').toLowerCase().includes(lowerQuery) ||
       discussion.category.toLowerCase().includes(lowerQuery)
     );
     setFilteredDiscussions(newFilteredDiscussions);
@@ -980,6 +1138,122 @@ const AstroHub: React.FC = () => {
     }
   };
 
+  // Discussion interaction handlers
+  const handleToggleDiscussionLike = async (discussionId: number) => {
+    try {
+      const result = await spaceDiscussionService.toggleDiscussionLike(discussionId);
+      
+      // Update the selected discussion if it's the one being liked
+      if (selectedDiscussion && selectedDiscussion.id === discussionId) {
+        setSelectedDiscussion(prev => prev ? {
+          ...prev,
+          isLiked: result.isLiked,
+          _count: {
+            comments: prev._count?.comments || 0,
+            likes: result.likeCount
+          }
+        } : null);
+      }
+      
+      // Update the discussion in the lists
+      setRealDiscussions(prev => prev.map(disc => 
+        disc.id === discussionId ? { ...disc, isLiked: result.isLiked } : disc
+      ));
+      setMyRealDiscussions(prev => prev.map(disc => 
+        disc.id === discussionId ? { ...disc, isLiked: result.isLiked } : disc
+      ));
+      
+    } catch (error) {
+      console.error('Failed to toggle discussion like:', error);
+      showSuccessAlert('Failed to update like. Please try again.');
+    }
+  };
+
+  const handleAddDiscussionComment = async () => {
+    if (newComment.trim() && selectedDiscussion) {
+      try {
+        const commentData: AddCommentRequest = {
+          content: newComment.trim(),
+          parentId: replyingTo || undefined
+        };
+        
+        const newCommentResponse = await spaceDiscussionService.addComment(selectedDiscussion.id, commentData);
+        
+        // Reload the discussion to get updated comments
+        const updatedDiscussion = await spaceDiscussionService.getDiscussionById(selectedDiscussion.id);
+        const transformedDiscussion = transformBackendDiscussion(updatedDiscussion);
+        setSelectedDiscussion(transformedDiscussion);
+        
+        // Clear the comment form
+        setNewComment('');
+        setReplyingTo(null);
+        showSuccessAlert('Comment added successfully!');
+        
+      } catch (error) {
+        console.error('Failed to add comment:', error);
+        showSuccessAlert('Failed to add comment. Please try again.');
+      }
+    }
+  };
+
+  const handleToggleCommentLike = async (commentId: number) => {
+    try {
+      const result = await spaceDiscussionService.toggleCommentLike(commentId);
+      
+      // Reload the discussion to get updated comment likes
+      if (selectedDiscussion) {
+        const updatedDiscussion = await spaceDiscussionService.getDiscussionById(selectedDiscussion.id);
+        const transformedDiscussion = transformBackendDiscussion(updatedDiscussion);
+        setSelectedDiscussion(transformedDiscussion);
+      }
+      
+    } catch (error) {
+      console.error('Failed to toggle comment like:', error);
+      showSuccessAlert('Failed to update like. Please try again.');
+    }
+  };
+
+  const handleEditDiscussionComment = async (commentId: number, newContent: string) => {
+    try {
+      await spaceDiscussionService.updateComment(commentId, { content: newContent });
+      
+      // Reload the discussion to get updated comments
+      if (selectedDiscussion) {
+        const updatedDiscussion = await spaceDiscussionService.getDiscussionById(selectedDiscussion.id);
+        const transformedDiscussion = transformBackendDiscussion(updatedDiscussion);
+        setSelectedDiscussion(transformedDiscussion);
+      }
+      
+      setEditingComment(null);
+      setEditText('');
+      showSuccessAlert('Comment updated successfully!');
+      
+    } catch (error) {
+      console.error('Failed to update comment:', error);
+      showSuccessAlert('Failed to update comment. Please try again.');
+    }
+  };
+
+  const handleDeleteDiscussionComment = async (commentId: number) => {
+    try {
+      await spaceDiscussionService.deleteComment(commentId);
+      
+      // Reload the discussion to get updated comments
+      if (selectedDiscussion) {
+        const updatedDiscussion = await spaceDiscussionService.getDiscussionById(selectedDiscussion.id);
+        const transformedDiscussion = transformBackendDiscussion(updatedDiscussion);
+        setSelectedDiscussion(transformedDiscussion);
+      }
+      
+      showSuccessAlert('Comment deleted successfully!');
+      
+    } catch (error) {
+      console.error('Failed to delete comment:', error);
+      showSuccessAlert('Failed to delete comment. Please try again.');
+    }
+  };
+
+  // Space News handlers (existing)
   const handleAddComment = () => {
     if (newComment.trim() && selectedNews) {
       const newDiscussion: NewsDiscussion = {
@@ -1065,7 +1339,7 @@ const AstroHub: React.FC = () => {
     }
   };
 
-  const handleToggleCommentLike = (discussionId: number) => {
+  const handleToggleNewsCommentLike = (discussionId: number) => {
     if (selectedNews) {
       const updatedDiscussions = selectedNews.discussions?.map(discussion => {
         if (discussion.id === discussionId) {
@@ -1258,14 +1532,38 @@ const AstroHub: React.FC = () => {
   };
 
   // Discussion navigation handlers
-  const handleJoinDiscussionFromCommunity = (discussion: Discussion) => {
-    setDiscussionContext('community');
-    setSelectedDiscussion(discussion);
+  const handleJoinDiscussionFromCommunity = async (discussion: Discussion) => {
+    try {
+      setDiscussionContext('community');
+      setDiscussionsLoading(true);
+      
+      // Load full discussion details with comments
+      const fullDiscussion = await spaceDiscussionService.getDiscussionById(discussion.id);
+      const transformedDiscussion = transformBackendDiscussion(fullDiscussion);
+      setSelectedDiscussion(transformedDiscussion);
+    } catch (error) {
+      console.error('Failed to load discussion details:', error);
+      showSuccessAlert('Failed to load discussion details. Please try again.');
+    } finally {
+      setDiscussionsLoading(false);
+    }
   };
 
-  const handleJoinDiscussionFromMyDiscussions = (discussion: Discussion) => {
-    setDiscussionContext('my-discussions');
-    setSelectedDiscussion(discussion);
+  const handleJoinDiscussionFromMyDiscussions = async (discussion: Discussion) => {
+    try {
+      setDiscussionContext('my-discussions');
+      setDiscussionsLoading(true);
+      
+      // Load full discussion details with comments
+      const fullDiscussion = await spaceDiscussionService.getDiscussionById(discussion.id);
+      const transformedDiscussion = transformBackendDiscussion(fullDiscussion);
+      setSelectedDiscussion(transformedDiscussion);
+    } catch (error) {
+      console.error('Failed to load discussion details:', error);
+      showSuccessAlert('Failed to load discussion details. Please try again.');
+    } finally {
+      setDiscussionsLoading(false);
+    }
   };
 
   const handleBackToDiscussions = () => {
@@ -1293,27 +1591,40 @@ const AstroHub: React.FC = () => {
     setNewDiscussionCategory('General');
   };
 
-  const handleCreateDiscussion = () => {
+  const handleCreateDiscussion = async () => {
     if (newDiscussionTitle.trim() && newDiscussionContent.trim()) {
-      const newDiscussion: Discussion = {
-        id: discussions.length + 1,
-        title: newDiscussionTitle.trim(),
-        author: "CurrentUser",
-        replies: 0,
-        lastActivity: "Just now",
-        category: newDiscussionCategory,
-        isSticky: false
-      };
-      
-      // Add to discussions array (in a real app, this would be an API call)
-      discussions.unshift(newDiscussion);
-      
-      // Reset form and go back to discussions list
-      setShowCreateDiscussion(false);
-      setNewDiscussionTitle('');
-      setNewDiscussionContent('');
-      setNewDiscussionCategory('General');
-      showSuccessAlert('Discussion created successfully!');
+      try {
+        setDiscussionsLoading(true);
+        
+        const newDiscussionData: CreateDiscussionRequest = {
+          title: newDiscussionTitle.trim(),
+          content: newDiscussionContent.trim(),
+          category: newDiscussionCategory
+        };
+        
+        const createdDiscussion = await spaceDiscussionService.createDiscussion(newDiscussionData);
+        const transformedDiscussion = transformBackendDiscussion(createdDiscussion);
+        
+        // Add to the appropriate discussion list
+        if (discussionContext === 'community') {
+          setRealDiscussions(prev => [transformedDiscussion, ...prev]);
+        } else {
+          setMyRealDiscussions(prev => [transformedDiscussion, ...prev]);
+        }
+        
+        // Reset form and go back to discussions list
+        setShowCreateDiscussion(false);
+        setNewDiscussionTitle('');
+        setNewDiscussionContent('');
+        setNewDiscussionCategory('General');
+        showSuccessAlert('Discussion created successfully!');
+        
+      } catch (error) {
+        console.error('Failed to create discussion:', error);
+        showSuccessAlert('Failed to create discussion. Please try again.');
+      } finally {
+        setDiscussionsLoading(false);
+      }
     }
   };
 
@@ -1820,10 +2131,10 @@ const AstroHub: React.FC = () => {
                       <div key={reply.id} className="discussion-reply">
                         <div className="discussion-comment__header">
                           <div className="discussion-comment__avatar">
-                            {reply.userName.charAt(0).toUpperCase()}
+                            {(reply.userName || 'Unknown').charAt(0).toUpperCase()}
                           </div>
                           <div className="discussion-comment__info">
-                            <span className="discussion-comment__username">{reply.userName}</span>
+                            <span className="discussion-comment__username">{reply.userName || 'Unknown'}</span>
                             <span className="discussion-comment__time">{reply.postedTime}</span>
                           </div>
                         </div>
@@ -1867,7 +2178,7 @@ const AstroHub: React.FC = () => {
                             <span className="like-icon">❤️</span>
                             <span className="like-count">{reply.likes}</span>
                           </button>
-                          {reply.userName === "CurrentUser" && (
+                          {(reply.userName || '') === "CurrentUser" && (
                             <div className="discussion-comment__actions">
                               <Button 
                                 variant="secondary" 
@@ -2198,10 +2509,10 @@ const AstroHub: React.FC = () => {
             
             <div className="discussion-details__author-info">
               <div className="discussion-details__avatar">
-                {discussion.author.charAt(0).toUpperCase()}
+                {(discussion.author || 'Unknown').charAt(0).toUpperCase()}
               </div>
               <div className="author-details">
-                <span className="discussion-details__author">Started by {discussion.author}</span>
+                <span className="discussion-details__author">Started by {discussion.author || 'Unknown'}</span>
                 <span className="discussion-details__replies">{discussion.replies} replies</span>
               </div>
             </div>
@@ -2224,7 +2535,7 @@ const AstroHub: React.FC = () => {
             <Button 
               variant="primary" 
               size="small" 
-              onClick={handleAddComment}
+              onClick={handleAddDiscussionComment}
               disabled={!newComment.trim()}
             >
               Post Reply
@@ -2237,10 +2548,10 @@ const AstroHub: React.FC = () => {
               <div className="discussion-comment">
                 <div className="discussion-comment__header">
                   <div className="discussion-comment__avatar">
-                    {discussion.author.charAt(0).toUpperCase()}
+                    {(discussion.author || 'Unknown').charAt(0).toUpperCase()}
                   </div>
                   <div className="discussion-comment__info">
-                    <span className="discussion-comment__username">{discussion.author}</span>
+                    <span className="discussion-comment__username">{discussion.author || 'Unknown'}</span>
                     <span className="discussion-comment__time">Started this discussion</span>
                   </div>
                 </div>
@@ -2249,29 +2560,54 @@ const AstroHub: React.FC = () => {
             </div>
 
             {/* Discussion replies */}
-            {discussion.discussions && discussion.discussions.length > 0 ? (
+            {discussion.comments && discussion.comments.length > 0 ? (
               <div className="discussion-thread-list">
-                {discussion.discussions.map((comment) => (
+                {discussion.comments.map((comment) => (
                   <div key={comment.id} className="discussion-thread">
                     <div className="discussion-comment">
                       <div className="discussion-comment__header">
                         <div className="discussion-comment__avatar">
-                          {comment.userName.charAt(0).toUpperCase()}
+                          {(comment.user?.display_name || comment.user?.first_name || 'Unknown').charAt(0).toUpperCase()}
                         </div>
                         <div className="discussion-comment__info">
-                          <span className="discussion-comment__username">{comment.userName}</span>
-                          <span className="discussion-comment__time">{comment.postedTime}</span>
+                          <span className="discussion-comment__username">
+                            {comment.user?.display_name || 
+                             (comment.user?.first_name && comment.user?.last_name 
+                               ? `${comment.user.first_name} ${comment.user.last_name}` 
+                               : comment.user?.first_name || 'Unknown')}
+                          </span>
+                          <span className="discussion-comment__time">
+                            {new Date(comment.created_at).toLocaleString()}
+                          </span>
                         </div>
                       </div>
-                      <p className="discussion-comment__text">{comment.comment}</p>
+                      <p className="discussion-comment__text">{comment.content}</p>
                       <div className="discussion-comment__footer">
                         <button 
-                          className={`comment-like-button ${comment.isLiked ? 'liked' : ''}`}
-                          onClick={() => {/* Add like functionality for discussion comments */}}
+                          className={`comment-like-button`}
+                          onClick={() => handleToggleCommentLike(comment.id)}
                         >
                           <span className="like-icon">❤️</span>
-                          <span className="like-count">{comment.likes}</span>
+                          <span className="like-count">{comment._count?.likes || 0}</span>
                         </button>
+                        {userProfile?.uid && String(userProfile.uid) === String(comment.user_id) && (
+                          <div className="discussion-comment__actions">
+                            <Button 
+                              variant="secondary" 
+                              size="small"
+                              onClick={() => handleEditDiscussionComment(comment.id, comment.content)}
+                            >
+                              Edit
+                            </Button>
+                            <Button 
+                              variant="secondary" 
+                              size="small"
+                              onClick={() => handleDeleteDiscussionComment(comment.id)}
+                            >
+                              Delete
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     </div>
 
@@ -2281,22 +2617,47 @@ const AstroHub: React.FC = () => {
                           <div key={reply.id} className="discussion-reply">
                             <div className="discussion-comment__header">
                               <div className="discussion-comment__avatar">
-                                {reply.userName.charAt(0).toUpperCase()}
+                                {(reply.user?.display_name || reply.user?.first_name || 'Unknown').charAt(0).toUpperCase()}
                               </div>
                               <div className="discussion-comment__info">
-                                <span className="discussion-comment__username">{reply.userName}</span>
-                                <span className="discussion-comment__time">{reply.postedTime}</span>
+                                <span className="discussion-comment__username">
+                                  {reply.user?.display_name || 
+                                   (reply.user?.first_name && reply.user?.last_name 
+                                     ? `${reply.user.first_name} ${reply.user.last_name}` 
+                                     : reply.user?.first_name || 'Unknown')}
+                                </span>
+                                <span className="discussion-comment__time">
+                                  {new Date(reply.created_at).toLocaleString()}
+                                </span>
                               </div>
                             </div>
-                            <p className="discussion-comment__text">{reply.comment}</p>
+                            <p className="discussion-comment__text">{reply.content}</p>
                             <div className="discussion-comment__footer">
                               <button 
-                                className={`reply-like-button ${reply.isLiked ? 'liked' : ''}`}
-                                onClick={() => {/* Add like functionality for replies */}}
+                                className={`reply-like-button`}
+                                onClick={() => handleToggleCommentLike(reply.id)}
                               >
                                 <span className="like-icon">❤️</span>
-                                <span className="like-count">{reply.likes}</span>
+                                <span className="like-count">{reply._count?.likes || 0}</span>
                               </button>
+                              {userProfile?.uid && String(userProfile.uid) === String(reply.user_id) && (
+                                <div className="discussion-comment__actions">
+                                  <Button 
+                                    variant="secondary" 
+                                    size="small"
+                                    onClick={() => handleEditDiscussionComment(reply.id, reply.content)}
+                                  >
+                                    Edit
+                                  </Button>
+                                  <Button 
+                                    variant="secondary" 
+                                    size="small"
+                                    onClick={() => handleDeleteDiscussionComment(reply.id)}
+                                  >
+                                    Delete
+                                  </Button>
+                                </div>
+                              )}
                             </div>
                           </div>
                         ))}
@@ -2355,13 +2716,21 @@ const AstroHub: React.FC = () => {
                 onChange={(e) => setNewDiscussionCategory(e.target.value)}
                 className="form-select"
               >
-                <option value="General">General</option>
-                <option value="Equipment">Equipment</option>
-                <option value="Photography">Photography</option>
-                <option value="Observation">Observation</option>
-                <option value="Travel">Travel</option>
-                <option value="Events">Events</option>
-                <option value="Science">Science</option>
+                {discussionCategories.length > 0 ? (
+                  discussionCategories.map(category => (
+                    <option key={category} value={category}>{category}</option>
+                  ))
+                ) : (
+                  <>
+                    <option value="General">General</option>
+                    <option value="Equipment">Equipment</option>
+                    <option value="Photography">Photography</option>
+                    <option value="Observation">Observation</option>
+                    <option value="Travel">Travel</option>
+                    <option value="Events">Events</option>
+                    <option value="Science">Science</option>
+                  </>
+                )}
               </select>
             </div>
 
@@ -2859,19 +3228,55 @@ const AstroHub: React.FC = () => {
               </div>
             </div>
             <div className="discussions-list">
-              {filteredDiscussions.length > 0 ? (
-                filteredDiscussions.map((discussion) => (
-                  <div key={discussion.id} className={`discussion-item ${discussion.isSticky ? 'sticky' : ''}`}>
+              {discussionsLoading ? (
+                <div className="loading-state">
+                  <p>Loading discussions...</p>
+                </div>
+              ) : discussionsError ? (
+                <div className="error-state">
+                  <p>{discussionsError}</p>
+                  <Button variant="secondary" onClick={() => {
+                    if (activeTab === 'discussions') {
+                      // Reload discussions
+                      const loadDiscussions = async () => {
+                        try {
+                          setDiscussionsLoading(true);
+                          setDiscussionsError(null);
+                          const response = await spaceDiscussionService.getDiscussions({
+                            page: 1,
+                            limit: 20,
+                            sortBy: 'last_activity',
+                            order: 'desc'
+                          });
+                          const transformedDiscussions = response.discussions.map(transformBackendDiscussion);
+                          setRealDiscussions(transformedDiscussions);
+                          setDiscussionPagination(response.pagination);
+                        } catch (error) {
+                          console.error('Failed to load discussions:', error);
+                          setDiscussionsError('Failed to load discussions');
+                        } finally {
+                          setDiscussionsLoading(false);
+                        }
+                      };
+                      loadDiscussions();
+                    }
+                  }}>
+                    Try Again
+                  </Button>
+                </div>
+              ) : realDiscussions.length > 0 ? (
+                realDiscussions.map((discussion) => (
+                  <div key={discussion.id} className={`discussion-item ${discussion.isSticky || discussion.is_sticky ? 'sticky' : ''}`}>
                     <div className="discussion-item__main">
                       <div className="discussion-item__header">
-                        {discussion.isSticky && <span className="sticky-badge">📌 Pinned</span>}
+                        {(discussion.isSticky || discussion.is_sticky) && <span className="sticky-badge">📌 Pinned</span>}
                         <span className="category-badge">{discussion.category}</span>
                       </div>
                       <h3 className="discussion-item__title">{discussion.title}</h3>
                       <div className="discussion-item__meta">
-                        <span className="discussion-item__author">by {discussion.author}</span>
-                        <span className="discussion-item__replies">{discussion.replies} replies</span>
-                        <span className="discussion-item__activity">Last activity: {discussion.lastActivity}</span>
+                        <span className="discussion-item__author">by {discussion.author || 'Unknown'}</span>
+                        <span className="discussion-item__replies">{discussion.replies || discussion.replies_count || 0} replies</span>
+                        <span className="discussion-item__activity">Last activity: {discussion.lastActivity || new Date(discussion.last_activity || '').toLocaleString()}</span>
                       </div>
                     </div>
                     <Button 
@@ -2885,7 +3290,7 @@ const AstroHub: React.FC = () => {
                 ))
               ) : (
                 <div className="no-results">
-                  <p>No discussions found matching your search.</p>
+                  <p>No discussions found. Be the first to start a discussion!</p>
                 </div>
               )}
             </div>
@@ -2917,19 +3322,53 @@ const AstroHub: React.FC = () => {
               </Button>
             </div>
             <div className="discussions-list">
-              {filteredMyDiscussions.length > 0 ? (
-                filteredMyDiscussions.map((discussion) => (
-                  <div key={discussion.id} className={`discussion-item ${discussion.isSticky ? 'sticky' : ''}`}>
+              {discussionsLoading ? (
+                <div className="loading-state">
+                  <p>Loading your discussions...</p>
+                </div>
+              ) : discussionsError ? (
+                <div className="error-state">
+                  <p>{discussionsError}</p>
+                  <Button variant="secondary" onClick={() => {
+                    if (activeTab === 'my-discussions') {
+                      // Reload my discussions
+                      const loadMyDiscussions = async () => {
+                        try {
+                          setDiscussionsLoading(true);
+                          setDiscussionsError(null);
+                          const response = await spaceDiscussionService.getMyDiscussions({
+                            page: 1,
+                            limit: 20
+                          });
+                          const transformedDiscussions = response.discussions.map(transformBackendDiscussion);
+                          setMyRealDiscussions(transformedDiscussions);
+                          setMyDiscussionPagination(response.pagination);
+                        } catch (error) {
+                          console.error('Failed to load my discussions:', error);
+                          setDiscussionsError('Failed to load my discussions');
+                        } finally {
+                          setDiscussionsLoading(false);
+                        }
+                      };
+                      loadMyDiscussions();
+                    }
+                  }}>
+                    Try Again
+                  </Button>
+                </div>
+              ) : myRealDiscussions.length > 0 ? (
+                myRealDiscussions.map((discussion) => (
+                  <div key={discussion.id} className={`discussion-item ${discussion.isSticky || discussion.is_sticky ? 'sticky' : ''}`}>
                     <div className="discussion-item__main">
                       <div className="discussion-item__header">
-                        {discussion.isSticky && <span className="sticky-badge">📌 Pinned</span>}
+                        {(discussion.isSticky || discussion.is_sticky) && <span className="sticky-badge">📌 Pinned</span>}
                         <span className="category-badge">{discussion.category}</span>
                       </div>
                       <h3 className="discussion-item__title">{discussion.title}</h3>
                       <div className="discussion-item__meta">
-                        <span className="discussion-item__author">by {discussion.author}</span>
-                        <span className="discussion-item__replies">{discussion.replies} replies</span>
-                        <span className="discussion-item__activity">Last activity: {discussion.lastActivity}</span>
+                        <span className="discussion-item__author">by {discussion.author || 'You'}</span>
+                        <span className="discussion-item__replies">{discussion.replies || discussion.replies_count || 0} replies</span>
+                        <span className="discussion-item__activity">Last activity: {discussion.lastActivity || new Date(discussion.last_activity || '').toLocaleString()}</span>
                       </div>
                     </div>
                     <Button 
@@ -2943,7 +3382,7 @@ const AstroHub: React.FC = () => {
                 ))
               ) : (
                 <div className="no-results">
-                  <p>No discussions found matching your search.</p>
+                  <p>You haven't created any discussions yet. Start your first discussion!</p>
                 </div>
               )}
             </div>

@@ -3,7 +3,9 @@ import Button from '../../components/Button';
 import '../../styles/pages/enthusiast/AstroHub.scss';
 import { chatService, type GroupChat, type ChatMessage, type CreateGroupRequest } from '../../services/chatService';
 import SpaceNewsModal from '../../components/SpaceNewsModal';
+import AstronomyEventModal from '../../components/AstronomyEventModal';
 import { spaceNewsService, type SpaceNews as RealSpaceNews } from '../../services/spaceNewsService';
+import { astronomyEventsService, type AstronomyEvent as RealAstronomyEvent } from '../../services/astronomyEventsService';
 import { spaceDiscussionService, type Discussion as BackendDiscussion, type DiscussionComment as BackendDiscussionComment, type CreateDiscussionRequest, type AddCommentRequest } from '../../services/spaceDiscussionService';
 import { useAuth } from '../../hooks/useAuth';
 
@@ -652,6 +654,14 @@ const AstroHub: React.FC = () => {
   const [commentsLoading, setCommentsLoading] = useState(false);
   const [newsLikesState, setNewsLikesState] = useState<{[key: number]: { isLiked: boolean; count: number }}>({});
 
+  // Astronomy Events states (replacing mock data)
+  const [realAstronomyEvents, setRealAstronomyEvents] = useState<RealAstronomyEvent[]>([]);
+  const [astronomyEventsLoading, setAstronomyEventsLoading] = useState(false);
+  const [astronomyEventsError, setAstronomyEventsError] = useState<string | null>(null);
+  const [showCreateAstronomyEvent, setShowCreateAstronomyEvent] = useState(false);
+  const [filteredEvents, setFilteredEvents] = useState<RealAstronomyEvent[]>([]);
+  const [eventReminders, setEventReminders] = useState<{[key: number]: boolean}>({});
+
   // Success alert state
   const [successAlert, setSuccessAlert] = useState<{ show: boolean; message: string }>({ 
     show: false, 
@@ -681,7 +691,6 @@ const AstroHub: React.FC = () => {
 
   // Search states for filtering
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredEvents, setFilteredEvents] = useState(astronomicalEvents);
   const [filteredNews, setFilteredNews] = useState(spaceNews);
   const [filteredRealNews, setFilteredRealNews] = useState<RealSpaceNews[]>([]);
   const [filteredDiscussions, setFilteredDiscussions] = useState(discussions);
@@ -734,6 +743,41 @@ const AstroHub: React.FC = () => {
 
     if (activeTab === 'news') {
       loadSpaceNews();
+    }
+  }, [activeTab]);
+
+  // Load astronomy events when events tab is active
+  useEffect(() => {
+    const loadAstronomyEvents = async () => {
+      try {
+        setAstronomyEventsLoading(true);
+        setAstronomyEventsError(null);
+        const response = await astronomyEventsService.getEvents();
+        const events = response.events;
+        setRealAstronomyEvents(events);
+        setFilteredEvents(events);
+        
+        // Load user reminders
+        try {
+          const reminders = await astronomyEventsService.getUserReminders();
+          const reminderMap: {[key: number]: boolean} = {};
+          reminders.forEach((eventId: number) => {
+            reminderMap[eventId] = true;
+          });
+          setEventReminders(reminderMap);
+        } catch (reminderError) {
+          console.error('Failed to load reminders:', reminderError);
+        }
+      } catch (error) {
+        console.error('Failed to load astronomy events:', error);
+        setAstronomyEventsError('Failed to load astronomy events');
+      } finally {
+        setAstronomyEventsLoading(false);
+      }
+    };
+
+    if (activeTab === 'events') {
+      loadAstronomyEvents();
     }
   }, [activeTab]);
 
@@ -957,11 +1001,13 @@ const AstroHub: React.FC = () => {
     setSearchQuery(query);
     const lowerQuery = query.toLowerCase();
 
-    // Filter events
-    const newFilteredEvents = astronomicalEvents.filter(event =>
+    // Filter astronomy events (now the main events)
+    const newFilteredEvents = realAstronomyEvents.filter(event =>
       event.name.toLowerCase().includes(lowerQuery) ||
       event.description.toLowerCase().includes(lowerQuery) ||
-      event.visibility.toLowerCase().includes(lowerQuery)
+      event.event_type.toLowerCase().includes(lowerQuery) ||
+      event.visibility.toLowerCase().includes(lowerQuery) ||
+      (event.best_time && event.best_time.toLowerCase().includes(lowerQuery))
     );
     setFilteredEvents(newFilteredEvents);
 
@@ -1001,6 +1047,36 @@ const AstroHub: React.FC = () => {
 
   const handleViewNewsDetails = (article: SpaceNews) => {
     setSelectedNews(article);
+  };
+
+  // Handle astronomy event reminder toggle
+  const handleEventReminderToggle = async (eventId: number) => {
+    try {
+      const hasReminder = eventReminders[eventId];
+      
+      if (hasReminder) {
+        await astronomyEventsService.removeEventReminder(eventId);
+        setEventReminders(prev => ({
+          ...prev,
+          [eventId]: false
+        }));
+        showSuccessAlert('Reminder removed successfully!');
+      } else {
+        // Set reminder for 1 hour before the event (you can customize this)
+        await astronomyEventsService.setEventReminder(eventId, {
+          reminder_time: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 hours from now as example
+          notification_type: 'email'
+        });
+        setEventReminders(prev => ({
+          ...prev,
+          [eventId]: true
+        }));
+        showSuccessAlert('Reminder set successfully!');
+      }
+    } catch (error) {
+      console.error('Failed to toggle reminder:', error);
+      showSuccessAlert('Failed to update reminder');
+    }
   };
 
   const handleViewRealNewsDetails = async (article: RealSpaceNews) => {
@@ -3036,50 +3112,125 @@ const AstroHub: React.FC = () => {
         return (
           <div className="events-section">
             <div className="section-header">
-              <h2>Upcoming Astronomical Events</h2>
+              <h2>Astronomy Events</h2>
+              {isModerator && (
+                <Button
+                  onClick={() => setShowCreateAstronomyEvent(true)}
+                  variant="primary"
+                  size="small"
+                >
+                  Add Event
+                </Button>
+              )}
             </div>
             <div className="events-grid">
-              {filteredEvents.length > 0 ? (
+              {astronomyEventsLoading ? (
+                <div className="loading-message">Loading astronomy events...</div>
+              ) : astronomyEventsError ? (
+                <div className="error-message">{astronomyEventsError}</div>
+              ) : filteredEvents.length > 0 ? (
                 filteredEvents.map((event) => (
                   <div key={event.id} className="event-card">
                     <div className="event-card__image">
-                      <img src={event.image} alt={event.name} />
+                      <img 
+                        src={event.image_url || 'https://images.unsplash.com/photo-1502134249126-9f3755a50d78?w=400&h=250&fit=crop'} 
+                        alt={event.name}
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = 'https://images.unsplash.com/photo-1502134249126-9f3755a50d78?w=400&h=250&fit=crop';
+                        }}
+                      />
                       <div className="event-card__date-badge">
-                        {event.date}
+                        {new Date(event.event_date).toLocaleDateString()}
                       </div>
+                      {event.event_type && (
+                        <div className="event-card__type">
+                          {event.event_type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                        </div>
+                      )}
                     </div>
                     <div className="event-card__content">
+                      <div className="event-card__meta">
+                        <span className="event-card__visibility">{event.visibility}</span>
+                        <span className="event-card__duration">{event.duration}</span>
+                      </div>
                       <h3 className="event-card__title">{event.name}</h3>
                       <p className="event-card__description">{event.description}</p>
                       <div className="event-card__details">
+                        {event.best_time && (
+                          <div className="event-detail">
+                            <span className="event-detail__label">Best Time:</span>
+                            <span className="event-detail__value">{event.best_time}</span>
+                          </div>
+                        )}
+                        {event.end_date && (
+                          <div className="event-detail">
+                            <span className="event-detail__label">End Date:</span>
+                            <span className="event-detail__value">{new Date(event.end_date).toLocaleDateString()}</span>
+                          </div>
+                        )}
                         <div className="event-detail">
                           <span className="event-detail__label">Visibility:</span>
-                          <span className="event-detail__value">{event.visibility}</span>
+                          <span className="event-detail__value">{event.visibility.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
                         </div>
-                        <div className="event-detail">
-                          <span className="event-detail__label">Best Time:</span>
-                          <span className="event-detail__value">{event.bestTime}</span>
+                      </div>
+                      <div className="event-card__footer">
+                        <div className="event-card__creator">
+                          Created by {event.creator.display_name || `${event.creator.first_name} ${event.creator.last_name}`.trim()}
                         </div>
-                        <div className="event-detail">
-                          <span className="event-detail__label">Duration:</span>
-                          <span className="event-detail__value">{event.duration}</span>
+                        <div className="event-card__stats">
+                          {event._count?.reminders && (
+                            <span className="reminder-count">{event._count.reminders} reminders</span>
+                          )}
                         </div>
                       </div>
                       <div className="event-card__actions">
-                        <Button variant="primary" size="small">
-                          Set Reminder
+                        <Button 
+                          variant={eventReminders[event.id] ? "secondary" : "primary"} 
+                          size="small"
+                          onClick={() => handleEventReminderToggle(event.id)}
+                        >
+                          {eventReminders[event.id] ? "Remove Reminder" : "Set Reminder"}
                         </Button>
-                        
                       </div>
                     </div>
                   </div>
                 ))
               ) : (
                 <div className="no-results">
-                  <p>No astronomical events found matching your search.</p>
+                  <p>No astronomy events found matching your search.</p>
                 </div>
               )}
             </div>
+
+            {/* Astronomy Event Modal */}
+            {showCreateAstronomyEvent && (
+              <AstronomyEventModal
+                isOpen={showCreateAstronomyEvent}
+                onClose={() => setShowCreateAstronomyEvent(false)}
+                onSuccess={(message: string) => {
+                  setSuccessAlert({ show: true, message });
+                  setShowCreateAstronomyEvent(false);
+                  // Reload astronomy events after creation
+                  if (activeTab === 'events') {
+                    const loadAstronomyEvents = async () => {
+                      try {
+                        setAstronomyEventsLoading(true);
+                        const response = await astronomyEventsService.getEvents();
+                        const events = response.events;
+                        setRealAstronomyEvents(events);
+                        setFilteredEvents(events);
+                      } catch (error) {
+                        console.error('Failed to reload astronomy events:', error);
+                      } finally {
+                        setAstronomyEventsLoading(false);
+                      }
+                    };
+                    loadAstronomyEvents();
+                  }
+                }}
+              />
+            )}
           </div>
         );
 
@@ -3528,7 +3679,7 @@ const AstroHub: React.FC = () => {
               handleSearch(''); // Clear search when switching tabs
             }}
           >
-            Astronomical Events
+            Astronomy Events
           </Button>
           <Button 
             variant={activeTab === 'news' ? 'primary' : 'secondary'}
@@ -3565,7 +3716,7 @@ const AstroHub: React.FC = () => {
         <div className="search-container">
           <input
             type="text"
-            placeholder={`Search ${activeTab === 'events' ? 'astronomical events' : 
+            placeholder={`Search ${activeTab === 'events' ? 'astronomy events' : 
               activeTab === 'news' ? 'space news' : 
               activeTab === 'discussions' ? 'discussions' : 
               activeTab === 'my-discussions' ? 'my discussions' : 'group chats'}...`}

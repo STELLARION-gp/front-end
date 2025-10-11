@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import Button from '../../components/Button';
-import stargazingSpotService from '../../services/stargazingSpotService';
+import stargazingSpotService from '../../services/stargazingSpotService.ts';
 import { AuthContext } from '../../contexts/AuthContext';
 import type { 
   StargazingSpot as ApiStargazingSpot, 
@@ -8,7 +8,7 @@ import type {
   CreateStargazingSpotRequest,
   CreateReviewRequest,
   StargazingSpotFilters
-} from '../../services/stargazingSpotService';
+} from '../../services/stargazingSpotService.ts';
 import '../../styles/pages/enthusiast/Stargazing.scss';
 
 interface Review {

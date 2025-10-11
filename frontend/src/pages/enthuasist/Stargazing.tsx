@@ -1,5 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import Button from '../../components/Button';
+import stargazingSpotService from '../../services/stargazingSpotService';
+import { AuthContext } from '../../contexts/AuthContext';
+import type { 
+  StargazingSpot as ApiStargazingSpot, 
+  StargazingSpotReview as ApiStargazingSpotReview,
+  CreateStargazingSpotRequest,
+  CreateReviewRequest,
+  StargazingSpotFilters
+} from '../../services/stargazingSpotService';
 import '../../styles/pages/enthusiast/Stargazing.scss';
 
 interface Review {
@@ -10,196 +19,82 @@ interface Review {
   date: string;
 }
 
+// Updated interface to match API structure
 interface StargazingSpot {
   id: number;
   name: string;
   location: string;
-  image: string;
+  image: string; // Keep as 'image' for frontend compatibility
   rating: number;
-  bestTime: string;
+  bestTime: string; // Keep as 'bestTime' for frontend compatibility  
   description: string;
   facilities: string[];
   reviews: Review[];
+  // Additional API fields
+  image_url?: string;
+  best_time?: string;
+  created_by?: number;
+  is_active?: boolean;
+  created_at?: string;
+  updated_at?: string;
+  creator?: {
+    id: number;
+    display_name?: string;
+    first_name?: string;
+    last_name?: string;
+  };
+  review_count?: number;
+  average_rating?: number;
 }
 
-const stargazingSpots: StargazingSpot[] = [
-  {
-    id: 1,
-    name: "Horton Plains National Park",
-    location: "Nuwara Eliya, Central Province",
-    image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=250&fit=crop",
-    rating: 4.9,
-    bestTime: "8:30 PM - 5:30 AM",
-    description: "Located at 2,100m elevation, Horton Plains offers exceptional stargazing with minimal light pollution. The high altitude and cool climate provide crystal-clear night skies perfect for observing constellations and the Milky Way.",
-    facilities: ["Camping Permits", "Parking", "Nature Trails", "Visitor Center", "Restrooms", "Wildlife Viewing"],
-    reviews: [
-      {
-        id: 1,
-        userName: "Tharindu_Astro",
-        rating: 5,
-        reviewText: "Amazing experience! The high altitude makes the stars incredibly bright. Saw the Southern Cross clearly and even some shooting stars. The cold weather is worth it for these views!",
-        date: "2024-06-15"
-      },
-      {
-        id: 2,
-        userName: "NaturePhotoLK",
-        rating: 5,
-        reviewText: "Perfect for astrophotography! The lack of light pollution here is incredible. Captured some stunning Milky Way shots. Remember to bring warm clothes - it gets very cold at night.",
-        date: "2024-06-10"
-      },
-      {
-        id: 3,
-        userName: "HikingBuddySL",
-        rating: 4,
-        reviewText: "Beautiful stargazing spot! World's End provides an amazing backdrop. The camping experience under these stars is unforgettable. Wildlife Department staff are very helpful.",
-        date: "2024-06-05"
-      }
-    ]
-  },
-  {
-    id: 2,
-    name: "Pidurangala Rock",
-    location: "Sigiriya, North Central Province",
-    image: "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=400&h=250&fit=crop",
-    rating: 4.7,
-    bestTime: "9:00 PM - 4:30 AM",
-    description: "Ancient rock formation offering panoramic views of the Cultural Triangle. The elevated position provides excellent stargazing opportunities with Sigiriya Rock as a dramatic silhouette against the night sky.",
-    facilities: ["Parking", "Local Guides", "Temple Access", "Photography Spots", "Hiking Trails"],
-    reviews: [
-      {
-        id: 1,
-        userName: "CulturalExplorerLK",
-        rating: 5,
-        reviewText: "Magical experience! Watching the stars above with Sigiriya Rock in view is absolutely breathtaking. The climb is challenging but worth every step for this view.",
-        date: "2024-06-18"
-      },
-      {
-        id: 2,
-        userName: "AncientWondersSL",
-        rating: 4,
-        reviewText: "Great combination of history and astronomy. The ancient temple adds a spiritual element to stargazing. Best visited during dry season for clearest skies.",
-        date: "2024-06-12"
-      }
-    ]
-  },
-  {
-    id: 3,
-    name: "Knuckles Mountain Range",
-    location: "Matale & Kandy Districts",
-    image: "https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?w=400&h=250&fit=crop",
-    rating: 4.8,
-    bestTime: "8:00 PM - 5:00 AM",
-    description: "UNESCO World Heritage site offering pristine night skies away from city lights. The mountain peaks provide multiple elevated viewing points with spectacular 360-degree views of the star-filled sky.",
-    facilities: ["Eco-lodges", "Camping Sites", "Hiking Trails", "Local Guides", "Village Homestays", "Organic Food"],
-    reviews: [
-      {
-        id: 1,
-        userName: "MountaineerSL",
-        rating: 5,
-        reviewText: "Absolutely pristine skies! The biodiversity here is amazing during the day, and the stars at night are phenomenal. Stayed at a village homestay - locals are incredibly welcoming.",
-        date: "2024-06-20"
-      },
-      {
-        id: 2,
-        userName: "EcoTouristLK",
-        rating: 5,
-        reviewText: "Best stargazing experience in Sri Lanka! The lack of light pollution combined with high altitude creates perfect conditions. The mini-world's end viewpoint is spectacular.",
-        date: "2024-06-14"
-      },
-      {
-        id: 3,
-        userName: "NightSkyWatcher",
-        rating: 4,
-        reviewText: "Incredible experience! Multiple viewpoints mean you can choose your perfect spot. The trek can be challenging, but the reward is worth it. Saw satellites passing overhead clearly.",
-        date: "2024-06-08"
-      }
-    ]
-  },
-  {
-    id: 4,
-    name: "Yala National Park - Block 1",
-    location: "Hambantota & Monaragala Districts",
-    image: "https://images.unsplash.com/photo-1502134249126-9f3755a50d78?w=400&h=250&fit=crop",
-    rating: 4.6,
-    bestTime: "9:30 PM - 4:30 AM",
-    description: "Famous wildlife park that transforms into a stargazer's paradise after dark. The open savanna landscape provides unobstructed horizon views, perfect for observing rising constellations and meteor showers.",
-    facilities: ["Safari Camping", "Wildlife Lodges", "Park Rangers", "4WD Access", "Photography Hides", "Visitor Center"],
-    reviews: [
-      {
-        id: 1,
-        userName: "WildlifeLoverSL",
-        rating: 5,
-        reviewText: "Unique experience combining wildlife and astronomy! Heard leopards calling while watching the stars. The open landscape provides amazing horizon views. Night camping is unforgettable.",
-        date: "2024-06-16"
-      },
-      {
-        id: 2,
-        userName: "SafariGuide_Yala",
-        rating: 4,
-        reviewText: "Great spot for stargazing after the safari ends. The lack of artificial lights in the park makes for excellent star visibility. Rangers are knowledgeable about local astronomy too.",
-        date: "2024-06-11"
-      }
-    ]
-  },
-  {
-    id: 5,
-    name: "Mannar Island - Baobab Hill",
-    location: "Mannar District, Northern Province",
-    image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=250&fit=crop",
-    rating: 4.5,
-    bestTime: "8:45 PM - 5:15 AM",
-    description: "Remote island location with ancient baobab trees creating a unique stargazing atmosphere. The isolation from major cities ensures dark skies, while the coastal location offers views of stars reflecting on the water.",
-    facilities: ["Camping Areas", "Local Guesthouses", "Fishing Boats", "Historical Sites", "Beach Access", "Cultural Tours"],
-    reviews: [
-      {
-        id: 1,
-        userName: "IslandExplorerLK",
-        rating: 5,
-        reviewText: "Most unique stargazing spot in Sri Lanka! The ancient baobab trees silhouetted against the stars create an otherworldly atmosphere. Very peaceful and isolated.",
-        date: "2024-06-19"
-      },
-      {
-        id: 2,
-        userName: "CulturalTravelerSL",
-        rating: 4,
-        reviewText: "Fascinating combination of history, culture, and astronomy. The local Tamil community shares amazing stories about star navigation. Best accessed by boat during calm weather.",
-        date: "2024-06-13"
-      }
-    ]
-  },
-  {
-    id: 6,
-    name: "Ella Rock Summit",
-    location: "Ella, Uva Province",
-    image: "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=400&h=250&fit=crop",
-    rating: 4.7,
-    bestTime: "8:30 PM - 5:00 AM",
-    description: "Iconic viewpoint offering spectacular views of the hill country and night sky. The elevated position at 1,041m provides excellent stargazing conditions with the Southern Cross prominently visible.",
-    facilities: ["Hiking Trails", "Local Guides", "Tea Estate Views", "Photography Points", "Village Guesthouses", "Railway Access"],
-    reviews: [
-      {
-        id: 1,
-        userName: "HillCountryHiker",
-        rating: 5,
-        reviewText: "Incredible 360-degree views! The train journey to Ella adds to the adventure. Watching stars above the tea plantations is magical. The Southern Cross is clearly visible from here.",
-        date: "2024-06-17"
-      },
-      {
-        id: 2,
-        userName: "BackpackerSL",
-        rating: 4,
-        reviewText: "Popular spot but worth the crowd. The hike up can be challenging in the dark, so bring good torches. The reward is amazing views of both the hill country and stars above.",
-        date: "2024-06-09"
-      }
-    ]
-  }
-];
+// Helper function to transform API data to frontend format
+const transformApiSpotToFrontend = (apiSpot: ApiStargazingSpot): StargazingSpot => {
+  return {
+    id: apiSpot.id,
+    name: apiSpot.name,
+    location: apiSpot.location,
+    image: apiSpot.image_url || 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=250&fit=crop',
+    rating: apiSpot.rating,
+    bestTime: apiSpot.best_time || '',
+    description: apiSpot.description,
+    facilities: apiSpot.facilities,
+    reviews: apiSpot.reviews?.map((review: ApiStargazingSpotReview) => ({
+      id: review.id,
+      userName: review.user?.display_name || review.user?.first_name || 'Anonymous',
+      rating: review.rating,
+      reviewText: review.review_text,
+      date: new Date(review.created_at).toISOString().split('T')[0]
+    })) || [],
+    // Include API fields for backend operations
+    image_url: apiSpot.image_url,
+    best_time: apiSpot.best_time,
+    created_by: apiSpot.created_by,
+    is_active: apiSpot.is_active,
+    created_at: apiSpot.created_at,
+    updated_at: apiSpot.updated_at,
+    creator: apiSpot.creator,
+    review_count: apiSpot.review_count,
+    average_rating: apiSpot.average_rating
+  };
+};
 
 const Stargazing: React.FC = () => {
+  // Get authentication context
+  const authContext = useContext(AuthContext);
+  const user = authContext?.user;
+  
+  // State for stargazing spots data
+  const [stargazingSpots, setStargazingSpots] = useState<StargazingSpot[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
+  // UI state
   const [selectedSpot, setSelectedSpot] = useState<StargazingSpot | null>(null);
   const [showAddReview, setShowAddReview] = useState(false);
   const [showAddSpotModal, setShowAddSpotModal] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  
+  // Form state
   const [filters, setFilters] = useState({
     location: '',
     rating: 0
@@ -218,6 +113,60 @@ const Stargazing: React.FC = () => {
     facilities: [''],
     rating: 0
   });
+
+  // Loading states for operations
+  const [submittingReview, setSubmittingReview] = useState(false);
+  const [submittingSpot, setSubmittingSpot] = useState(false);
+
+  // Success alert state
+  const [successAlert, setSuccessAlert] = useState<{ show: boolean; message: string }>({ 
+    show: false, 
+    message: '' 
+  });
+
+  // Fetch stargazing spots on component mount
+  useEffect(() => {
+    fetchStargazingSpots();
+  }, []);
+
+  // Show success alert function
+  const showSuccessAlert = (message: string) => {
+    setSuccessAlert({ show: true, message });
+    setTimeout(() => {
+      setSuccessAlert({ show: false, message: '' });
+    }, 4000);
+  };
+
+  const fetchStargazingSpots = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const apiFilters: StargazingSpotFilters = {
+        limit: 50, // Get more spots for the initial load
+        sort_by: 'rating',
+        sort_order: 'desc'
+      };
+      
+      if (filters.location) {
+        apiFilters.location = filters.location;
+      }
+      
+      const response = await stargazingSpotService.getAllStargazingSpots(apiFilters);
+      
+      if (response.success && response.data) {
+        const transformedSpots = response.data.map(transformApiSpotToFrontend);
+        setStargazingSpots(transformedSpots);
+      } else {
+        setError('Failed to fetch stargazing spots');
+      }
+    } catch (err) {
+      console.error('Error fetching stargazing spots:', err);
+      setError('Failed to load stargazing spots. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -243,22 +192,63 @@ const Stargazing: React.FC = () => {
     setShowAddReview(true);
   };
 
-  const handleSubmitReview = (e: React.FormEvent) => {
+  const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (selectedSpot && reviewForm.userName.trim() && reviewForm.reviewText.trim()) {
-      // In a real app, this would be sent to a backend
-      console.log('Submitting review:', {
-        spotId: selectedSpot.id,
-        ...reviewForm,
-        date: new Date().toISOString().split('T')[0]
-      });
-      
-      // Reset form and close
-      setReviewForm({ userName: '', rating: 5, reviewText: '' });
-      setShowAddReview(false);
-      
-      // Show success message (in a real app, you'd update the state with the new review)
-      alert('Thank you for your review! It has been submitted successfully.');
+    
+    // Check if user is authenticated
+    if (!user) {
+      showSuccessAlert('You must be logged in to submit a review.');
+      return;
+    }
+    
+    if (selectedSpot && reviewForm.reviewText.trim()) {
+      try {
+        setSubmittingReview(true);
+        
+        const reviewData: CreateReviewRequest = {
+          rating: reviewForm.rating,
+          review_text: reviewForm.reviewText.trim()
+        };
+
+        const response = await stargazingSpotService.addReview(selectedSpot.id, reviewData);
+        
+        if (response.success) {
+          // Reset form and close
+          setReviewForm({ userName: '', rating: 5, reviewText: '' });
+          setShowAddReview(false);
+          
+          // Refresh the selected spot to show the new review
+          await refreshSelectedSpot();
+          
+          showSuccessAlert('Thank you for your review! It has been submitted successfully.');
+        } else {
+          showSuccessAlert(response.message || 'Failed to submit review. Please try again.');
+        }
+      } catch (error) {
+        console.error('Error submitting review:', error);
+        showSuccessAlert('Failed to submit review. Please try again.');
+      } finally {
+        setSubmittingReview(false);
+      }
+    }
+  };
+
+  const refreshSelectedSpot = async () => {
+    if (selectedSpot) {
+      try {
+        const response = await stargazingSpotService.getStargazingSpotById(selectedSpot.id);
+        if (response.success && response.data) {
+          const updatedSpot = transformApiSpotToFrontend(response.data);
+          setSelectedSpot(updatedSpot);
+          
+          // Also update the spot in the main list
+          setStargazingSpots(prev => 
+            prev.map(spot => spot.id === updatedSpot.id ? updatedSpot : spot)
+          );
+        }
+      } catch (error) {
+        console.error('Error refreshing spot:', error);
+      }
     }
   };
 
@@ -298,32 +288,57 @@ const Stargazing: React.FC = () => {
     }));
   };
 
-  const handleSubmitAddSpot = (e: React.FormEvent) => {
+  const handleSubmitAddSpot = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Check if user is authenticated
+    if (!user) {
+      showSuccessAlert('You must be logged in to create a stargazing spot.');
+      return;
+    }
+    
     if (addSpotForm.name.trim() && addSpotForm.location.trim() && addSpotForm.description.trim()) {
-      // In a real app, this would be sent to a backend
-      console.log('Adding new stargazing spot:', {
-        ...addSpotForm,
-        id: stargazingSpots.length + 1,
-        rating: 0,
-        reviews: [],
-        facilities: addSpotForm.facilities.filter(f => f.trim())
-      });
-      
-      // Reset form and close modal
-      setAddSpotForm({
-        name: '',
-        location: '',
-        bestTime: '',
-        description: '',
-        image: '',
-        facilities: [''],
-        rating: 0
-      });
-      setShowAddSpotModal(false);
-      
-      // Show success message
-      alert('Stargazing spot added successfully!');
+      try {
+        setSubmittingSpot(true);
+        
+        const spotData: CreateStargazingSpotRequest = {
+          name: addSpotForm.name.trim(),
+          location: addSpotForm.location.trim(),
+          description: addSpotForm.description.trim(),
+          best_time: addSpotForm.bestTime.trim() || undefined,
+          image_url: addSpotForm.image.trim() || undefined,
+          facilities: addSpotForm.facilities.filter(f => f.trim()),
+          rating: addSpotForm.rating > 0 ? addSpotForm.rating : undefined
+        };
+
+        const response = await stargazingSpotService.createStargazingSpot(spotData);
+        
+        if (response.success && response.data) {
+          // Reset form and close modal
+          setAddSpotForm({
+            name: '',
+            location: '',
+            bestTime: '',
+            description: '',
+            image: '',
+            facilities: [''],
+            rating: 0
+          });
+          setShowAddSpotModal(false);
+          
+          // Refresh the spots list to include the new spot
+          await fetchStargazingSpots();
+          
+          showSuccessAlert('Stargazing spot added successfully!');
+        } else {
+          showSuccessAlert(response.message || 'Failed to create stargazing spot. Please try again.');
+        }
+      } catch (error) {
+        console.error('Error creating stargazing spot:', error);
+        showSuccessAlert('Failed to create stargazing spot. Please try again.');
+      } finally {
+        setSubmittingSpot(false);
+      }
     }
   };
 
@@ -351,14 +366,18 @@ const Stargazing: React.FC = () => {
   //   return filters.location || filters.rating > 0;
   // };
 
-  const filteredSpots = stargazingSpots.filter(spot => {
-    // Location filter
-    if (filters.location && !spot.location.toLowerCase().includes(filters.location.toLowerCase())) {
-      return false;
-    }
-    
-    return true;
-  });
+  // Handle filter changes and trigger API calls
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (!loading) {
+        fetchStargazingSpots();
+      }
+    }, 500); // Debounce filter changes
+
+    return () => clearTimeout(timeoutId);
+  }, [filters.location]);
+
+  const filteredSpots = stargazingSpots; // Filtering is now handled by the API
 
   const renderStars = (rating: number) => {
     const totalStars = 5;
@@ -432,8 +451,36 @@ const Stargazing: React.FC = () => {
         )}
       </div>
 
-      <div className="stargazing__grid">
-        {filteredSpots.map((spot) => (
+      {/* Loading State */}
+      {loading && (
+        <div className="stargazing__loading">
+          <div className="stargazing__loading-spinner"></div>
+          <p>Loading stargazing spots...</p>
+        </div>
+      )}
+
+      {/* Error State */}
+      {error && (
+        <div className="stargazing__error">
+          <p>{error}</p>
+          <button 
+            className="stargazing__retry-button"
+            onClick={fetchStargazingSpots}
+          >
+            Try Again
+          </button>
+        </div>
+      )}
+
+      {/* Spots Grid */}
+      {!loading && !error && (
+        <div className="stargazing__grid">
+          {filteredSpots.length === 0 ? (
+            <div className="stargazing__no-results">
+              <p>No stargazing spots found. Try adjusting your filters or add a new spot!</p>
+            </div>
+          ) : (
+            filteredSpots.map((spot) => (
           <div key={spot.id} className="stargazing-card">
             <div className="stargazing-card__image-container">
               <img 
@@ -483,9 +530,10 @@ const Stargazing: React.FC = () => {
                 </div>
               </div>
             </div>
-        
-        ))}
-      </div>
+            ))
+          )}
+        </div>
+      )}
 
       {/* Modal for detailed view */}
       {selectedSpot && (
@@ -543,18 +591,6 @@ const Stargazing: React.FC = () => {
                     <h4>Write a Review</h4>
                     <form onSubmit={handleSubmitReview}>
                       <div className="review-form__field">
-                        <label htmlFor="userName">Your Name</label>
-                        <input
-                          type="text"
-                          id="userName"
-                          value={reviewForm.userName}
-                          onChange={(e) => setReviewForm({...reviewForm, userName: e.target.value})}
-                          required
-                          placeholder="Enter your name"
-                        />
-                      </div>
-
-                      <div className="review-form__field">
                         <label htmlFor="reviewText">Your Review</label>
                         <textarea
                           id="reviewText"
@@ -567,13 +603,18 @@ const Stargazing: React.FC = () => {
                       </div>
 
                       <div className="review-form__actions">
-                        <Button type="submit" className="review-form__submit">
-                          Submit Review
+                        <Button 
+                          type="submit" 
+                          className="review-form__submit"
+                          disabled={submittingReview}
+                        >
+                          {submittingReview ? 'Submitting...' : 'Submit Review'}
                         </Button>
                         <Button 
                           type="button" 
                           onClick={handleCancelReview}
                           className="review-form__cancel"
+                          disabled={submittingReview}
                         >
                           Cancel
                         </Button>
@@ -736,18 +777,38 @@ const Stargazing: React.FC = () => {
                   type="button"
                   className="add-spot-form__cancel"
                   onClick={handleCancelAddSpot}
+                  disabled={submittingSpot}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   className="add-spot-form__submit"
+                  disabled={submittingSpot}
                 >
-                  Add Stargazing Spot
+                  {submittingSpot ? 'Adding...' : 'Add Stargazing Spot'}
                 </button>
               </div>
             </form>
           </div>
+        </div>
+      )}
+
+      {/* Success Alert */}
+      {successAlert.show && (
+        <div className={`success-alert ${successAlert.show ? 'show' : ''}`}>
+          <svg className="success-alert__icon" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+          </svg>
+          <span className="success-alert__message">{successAlert.message}</span>
+          <button 
+            className="success-alert__close"
+            onClick={() => setSuccessAlert({ show: false, message: '' })}
+          >
+            <svg viewBox="0 0 14 14" fill="none">
+              <path d="M13 1L1 13M1 1l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
         </div>
       )}
     </div>

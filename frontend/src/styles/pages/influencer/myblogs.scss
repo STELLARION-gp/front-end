@@ -1304,3 +1304,279 @@
     background-color: transparent;
 
 }
+
+// ========================================
+// BLOG IMAGE UPLOAD DROPZONE
+// ========================================
+
+.blog-image-dropzone {
+    position: relative;
+    border: 2px dashed rgba(96, 165, 250, 0.3);
+    border-radius: 16px;
+    padding: 3rem 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    background: linear-gradient(135deg, rgba(96, 165, 250, 0.03), rgba(59, 130, 246, 0.05));
+    backdrop-filter: blur(8px);
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+        border-color: rgba(96, 165, 250, 0.5);
+        background: linear-gradient(135deg, rgba(96, 165, 250, 0.08), rgba(59, 130, 246, 0.1));
+        transform: translateY(-4px);
+        box-shadow: 0 8px 32px rgba(96, 165, 250, 0.15);
+    }
+
+    &.drag-active {
+        border-color: #60a5fa;
+        background: linear-gradient(135deg, rgba(96, 165, 250, 0.15), rgba(59, 130, 246, 0.2));
+        transform: scale(1.02);
+        box-shadow: 
+            0 12px 40px rgba(96, 165, 250, 0.25),
+            inset 0 0 40px rgba(96, 165, 250, 0.1);
+        
+        .dropzone-icon {
+            transform: scale(1.1) translateY(-8px);
+            color: #60a5fa;
+        }
+    }
+}
+
+.dropzone-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.dropzone-icon {
+    color: #60a5fa;
+    opacity: 0.7;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    filter: drop-shadow(0 4px 12px rgba(96, 165, 250, 0.2));
+}
+
+.dropzone-text {
+    color: #e2e8f0;
+    font-size: 1.125rem;
+    font-weight: 500;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.dropzone-hint {
+    color: #94a3b8;
+    font-size: 0.875rem;
+    margin: 0;
+    opacity: 0.8;
+}
+
+.blog-file-input-hidden {
+    position: absolute;
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    overflow: hidden;
+    z-index: -1;
+}
+
+.blog-image-preview-container {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    max-width: 500px;
+    margin: 0 auto;
+    border: 2px solid rgba(96, 165, 250, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+
+    &:hover {
+        border-color: rgba(96, 165, 250, 0.4);
+        box-shadow: 0 12px 48px rgba(0, 0, 0, 0.4);
+        
+        .blog-image-overlay {
+            opacity: 1;
+        }
+
+        .blog-image-remove-btn {
+            opacity: 1;
+        }
+    }
+}
+
+.blog-image-preview {
+    width: 100%;
+    height: auto;
+    max-height: 300px;
+    object-fit: cover;
+    display: block;
+}
+
+.blog-image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to bottom, 
+        rgba(0, 0, 0, 0.4) 0%, 
+        rgba(0, 0, 0, 0.6) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    backdrop-filter: blur(4px);
+}
+
+.blog-image-change-btn {
+    padding: 0.875rem 1.5rem;
+    background: linear-gradient(135deg, rgba(96, 165, 250, 0.9), rgba(59, 130, 246, 0.9));
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    color: white;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 16px rgba(96, 165, 250, 0.3);
+
+    &:hover {
+        background: linear-gradient(135deg, #60a5fa, #3b82f6);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(96, 165, 250, 0.4);
+        border-color: rgba(255, 255, 255, 0.5);
+    }
+
+    &:active {
+        transform: translateY(0);
+    }
+}
+
+.blog-image-remove-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.95), rgba(220, 38, 38, 0.95));
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0;
+    backdrop-filter: blur(10px);
+    z-index: 10;
+    box-shadow: 0 4px 16px rgba(239, 68, 68, 0.4);
+
+    &:hover {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        transform: scale(1.1);
+        box-shadow: 0 6px 24px rgba(239, 68, 68, 0.5);
+        border-color: rgba(255, 255, 255, 0.5);
+    }
+
+    &:active {
+        transform: scale(0.95);
+    }
+
+    svg {
+        display: block;
+    }
+}
+
+.blog-image-uploading {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    margin-top: 0.75rem;
+    background: linear-gradient(135deg, rgba(96, 165, 250, 0.1), rgba(59, 130, 246, 0.05));
+    border-radius: 12px;
+    border: 1px solid rgba(96, 165, 250, 0.2);
+    color: #60a5fa;
+    font-size: 0.875rem;
+    font-weight: 500;
+
+    span {
+        flex: 1;
+    }
+}
+
+.uploading-spinner {
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(96, 165, 250, 0.2);
+    border-top-color: #60a5fa;
+    border-radius: 50%;
+    animation: uploadingSpin 0.8s linear infinite;
+}
+
+@keyframes uploadingSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.blog-image-help-text {
+    display: block;
+    margin-top: 0.75rem;
+    color: #94a3b8;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    opacity: 0.9;
+}
+
+@media (max-width: 768px) {
+    .blog-image-dropzone {
+        padding: 2rem 1rem;
+        min-height: 160px;
+    }
+
+    .dropzone-icon {
+        width: 36px;
+        height: 36px;
+    }
+
+    .dropzone-text {
+        font-size: 1rem;
+    }
+
+    .dropzone-hint {
+        font-size: 0.8rem;
+    }
+
+    .blog-image-preview-container {
+        max-width: 100%;
+    }
+
+    .blog-image-preview {
+        max-height: 200px;
+    }
+
+    .blog-image-remove-btn {
+        width: 32px;
+        height: 32px;
+        top: 8px;
+        right: 8px;
+
+        svg {
+            width: 14px;
+            height: 14px;
+        }
+    }
+
+    .blog-image-change-btn {
+        padding: 0.75rem 1.25rem;
+        font-size: 0.875rem;
+    }
+}

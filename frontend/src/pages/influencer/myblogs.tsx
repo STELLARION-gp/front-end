@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { Star, MessageCircle, Heart, Plus, Save, X, Send, BookOpen, Users, Calendar } from 'lucide-react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
+import { Star, MessageCircle, Heart, Plus, Save, X, Send, BookOpen, Users, Calendar, Upload } from 'lucide-react';
 import { FaEdit, FaTrash, FaEye, FaEyeSlash, FaHeart, FaComment } from 'react-icons/fa';
 import { useNavigate } from "react-router-dom";
 import Button from '../../components/Button';
@@ -11,7 +11,7 @@ import "../../styles/pages/learner/blog_explore.scss"
 import "../../styles/pages/learner/BlogPage.scss"
 import { AuthContext } from '../../contexts/AuthContext';
 import { blogService } from '../../services/blogService';
-import type { CreateBlogRequest } from '../../services/blogService';
+import type { CreateBlogRequest, UpdateBlogRequest } from '../../services/blogService';
 import { FirebaseStorageService } from '../../services/firebaseStorage';
 
 type ActiveSection = 'blogs' | 'myblogs';
@@ -177,6 +177,8 @@ export default function MyBlogs() {
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [commentsLoading, setCommentsLoading] = useState(false);
     const [exploreLoading, setExploreLoading] = useState(false);
+    const [dragActive, setDragActive] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     // Blog exploration states
     const [filter, setFilter] = React.useState({
@@ -633,6 +635,67 @@ export default function MyBlogs() {
         }
     };
 
+    // Drag and drop handlers for image upload
+    const handleDrag = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+    };
+
+    const handleDragIn = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setDragActive(true);
+    };
+
+    const handleDragOut = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setDragActive(false);
+    };
+
+    const handleDrop = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setDragActive(false);
+        
+        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+            const file = e.dataTransfer.files[0];
+            
+            // Validate file type
+            if (file.type.startsWith('image/')) {
+                setNewBlog((prev) => ({
+                    ...prev,
+                    image: file,
+                }));
+                
+                // Create preview URL
+                const previewUrl = URL.createObjectURL(file);
+                setImagePreview(previewUrl);
+            } else {
+                setError('Please upload an image file (JPEG, PNG, GIF, etc.)');
+                setTimeout(() => setError(null), 3000);
+            }
+        }
+    };
+
+    const openFileDialog = () => {
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+            fileInputRef.current.click();
+        }
+    };
+
+    const removeImagePreview = () => {
+        if (imagePreview) {
+            // Only revoke if it's a blob URL (not a Firebase URL)
+            if (imagePreview.startsWith('blob:')) {
+                URL.revokeObjectURL(imagePreview);
+            }
+        }
+        setImagePreview(null);
+        setNewBlog((prev) => ({ ...prev, image: null }));
+    };
+
     const handleCreateBlog = async (e: React.FormEvent) => {
         e.preventDefault();
         console.log('Creating blog:', newBlog);
@@ -648,24 +711,16 @@ export default function MyBlogs() {
         }
 
         setLoading(true);
-        let imageUrl: string = FirebaseStorageService.DEFAULT_BLOG_IMAGE;
+        setImageUploading(!!newBlog.image);
 
         try {
-            // Upload image if provided, otherwise use default
-            if (newBlog.image) {
-                setImageUploading(true);
-                // Don't pass blogId during creation since it doesn't exist yet
-                imageUrl = await FirebaseStorageService.uploadBlogImage(newBlog.image);
-                setImageUploading(false);
-            }
-
             const blogData: CreateBlogRequest = {
                 title: newBlog.title,
                 content: newBlog.content,
                 status: 'draft',
-                featured_image: imageUrl,
                 tags: [],
-                metadata: {}
+                metadata: {},
+                image: newBlog.image || undefined // Send File directly to backend
             };
 
             const response = await blogService.createBlog(blogData);
@@ -674,7 +729,7 @@ export default function MyBlogs() {
                 // Convert API response to component format
                 const newBlogPost: Blog = {
                     ...response.data,
-                    // Use featured_image as the primary field
+                    // Use featured_image from backend response
                     image: response.data.featured_image || FirebaseStorageService.DEFAULT_BLOG_IMAGE,
                     image_url: response.data.featured_image || FirebaseStorageService.DEFAULT_BLOG_IMAGE,
                     featured_image: response.data.featured_image || FirebaseStorageService.DEFAULT_BLOG_IMAGE,
@@ -684,7 +739,7 @@ export default function MyBlogs() {
                     likes: response.data.like_count || response.data.likes_count || 0,
                     rating: 0,
                     comments: [], // Comments will be loaded when needed
-                    comment_count: response.data.comment_count || 0, // Use backend comment count
+                    comment_count: response.data.comment_count || 0,
                     liked: false,
                     published: response.data.status === 'published',
                     createdAt: response.data.created_at
@@ -700,18 +755,10 @@ export default function MyBlogs() {
             } else {
                 throw new Error('Failed to create blog');
             }
-        } catch (err: any) {
-            console.error('Error creating blog:', err);
+        } catch (err: unknown) {
+            const error = err as Error;
+            console.error('Error creating blog:', error);
             setError('Failed to create blog. Please try again.');
-            
-            // Clean up uploaded image if blog creation failed
-            if (newBlog.image && imageUrl && imageUrl !== FirebaseStorageService.DEFAULT_BLOG_IMAGE) {
-                try {
-                    await FirebaseStorageService.deleteImage(imageUrl);
-                } catch (deleteErr) {
-                    console.error('Error cleaning up image:', deleteErr);
-                }
-            }
             
             // Fallback to local creation for demo
             const newId = myBlogs.length ? Math.max(...myBlogs.map(b => b.id)) + 1 : 1000;
@@ -781,42 +828,16 @@ export default function MyBlogs() {
             }
 
             setLoading(true);
-            let imageUrl: string = FirebaseStorageService.DEFAULT_BLOG_IMAGE;
+            setImageUploading(!!newBlog.image);
 
             try {
-                // Check authentication state first
-                console.log('Authentication check:');
-                console.log('- AuthContext user:', currentUser);
-                console.log('- Firebase auth user:', authContext);
-                
-                // Test auth token
-                try {
-                    const testResponse = await fetch('http://localhost:5000/api/blogs', {
-                        headers: {
-                            'Authorization': `Bearer ${await (authContext as any)?.user?.getIdToken?.()}`
-                        }
-                    });
-                    console.log('Test API call status:', testResponse.status);
-                } catch (testErr) {
-                    console.log('Test API call failed:', testErr);
-                }
-
-                // Upload image if provided, otherwise use default
-                if (newBlog.image) {
-                    setImageUploading(true);
-                    // Don't pass blogId during creation since it doesn't exist yet
-                    imageUrl = await FirebaseStorageService.uploadBlogImage(newBlog.image);
-                    setImageUploading(false);
-                }
-
-                // Enable API call for blog creation
                 const blogData: CreateBlogRequest = {
                     title: newBlog.title,
                     content: newBlog.content,
                     status: 'published',
-                    featured_image: imageUrl,
                     tags: [],
-                    metadata: {}
+                    metadata: {},
+                    image: newBlog.image || undefined // Send File directly to backend
                 };
 
                 console.log('Publishing blog with data:', blogData);
@@ -828,7 +849,7 @@ export default function MyBlogs() {
                     // Convert API response to component format
                     const newBlogPost: Blog = {
                         ...response.data,
-                        // Use featured_image as the primary field
+                        // Use featured_image from backend response
                         image: response.data.featured_image || FirebaseStorageService.DEFAULT_BLOG_IMAGE,
                         image_url: response.data.featured_image || FirebaseStorageService.DEFAULT_BLOG_IMAGE,
                         featured_image: response.data.featured_image || FirebaseStorageService.DEFAULT_BLOG_IMAGE,
@@ -838,7 +859,7 @@ export default function MyBlogs() {
                         likes: response.data.like_count || response.data.likes_count || 0,
                         rating: 0,
                         comments: [], // Comments will be loaded when needed
-                        comment_count: response.data.comment_count || 0, // Use backend comment count
+                        comment_count: response.data.comment_count || 0,
                         liked: false,
                         published: response.data.status === 'published',
                         createdAt: response.data.created_at
@@ -854,20 +875,12 @@ export default function MyBlogs() {
                 } else {
                     throw new Error('Failed to create blog');
                 }
-            } catch (err: any) {
-                console.error('Error publishing blog:', err);
-                setError(`Failed to publish blog: ${err.message}`);
+            } catch (err: unknown) {
+                const error = err as Error;
+                console.error('Error publishing blog:', error);
+                setError(`Failed to publish blog: ${error.message}`);
                 
-                // Clean up uploaded image if blog creation failed
-                if (newBlog.image && imageUrl !== FirebaseStorageService.DEFAULT_BLOG_IMAGE) {
-                    try {
-                        await FirebaseStorageService.deleteImage(imageUrl);
-                    } catch (deleteErr) {
-                        console.error('Error cleaning up image:', deleteErr);
-                    }
-                }
-                
-                // For now, always fallback to local creation since there might be auth issues
+                // Fallback to local creation for demo
                 console.log('Falling back to local blog creation');
                 const newId = myBlogs.length ? Math.max(...myBlogs.map(b => b.id)) + 1 : 1000;
                 const currentDate = new Date().toISOString();
@@ -955,100 +968,79 @@ export default function MyBlogs() {
         }
         
         setLoading(true);
-        let imageUrl: string | undefined;
-        const existingBlog = myBlogs.find(b => b.id === editingId);
+        setImageUploading(!!newBlog.image);
         
         try {
-            // Handle image upload/removal logic
-            if (newBlog.image) {
-                // User selected a new image
-                setImageUploading(true);
-                imageUrl = await FirebaseStorageService.uploadBlogImage(newBlog.image, editingId.toString());
-                setImageUploading(false);
-                
-                // Delete old image if it exists and it's not the default image
-                if (existingBlog?.featured_image && existingBlog.featured_image !== FirebaseStorageService.DEFAULT_BLOG_IMAGE) {
-                    try {
-                        await FirebaseStorageService.deleteImage(existingBlog.featured_image);
-                    } catch (deleteErr) {
-                        console.error('Error deleting old image:', deleteErr);
-                    }
-                }
-            } else if (imagePreview === null && existingBlog?.featured_image) {
-                // User removed the image (set preview to null), use default
-                imageUrl = FirebaseStorageService.DEFAULT_BLOG_IMAGE;
-                // Delete old image if it's not the default
-                if (existingBlog.featured_image !== FirebaseStorageService.DEFAULT_BLOG_IMAGE) {
-                    try {
-                        await FirebaseStorageService.deleteImage(existingBlog.featured_image);
-                    } catch (deleteErr) {
-                        console.error('Error deleting old image:', deleteErr);
-                    }
-                }
-            } else {
-                // Keep existing image URL or use default
-                imageUrl = existingBlog?.featured_image || FirebaseStorageService.DEFAULT_BLOG_IMAGE;
-            }
-
-            const updateData = {
+            // Build update data - backend handles image replacement
+            const updateData: UpdateBlogRequest = {
                 title: newBlog.title,
                 content: newBlog.content,
                 status: publish ? 'published' as const : 'draft' as const,
-                featured_image: imageUrl
+                image: newBlog.image || undefined // Send File directly to backend
             };
 
-            try {
-                await blogService.updateBlog(editingId, updateData);
-            } catch (apiErr) {
-                console.error('API update failed, continuing with local update:', apiErr);
+            // If user removed the image (imagePreview is null but no new image)
+            // we can send a flag or empty value - adjust based on backend handling
+            if (imagePreview === null && !newBlog.image) {
+                // Backend should handle this case - might need to send a specific flag
+                // For now, just update without sending image field
             }
+
+            const response = await blogService.updateBlog(editingId, updateData);
             
-            setMyBlogs(
-                myBlogs.map((b) =>
-                    b.id === editingId
-                        ? {
-                                ...b,
-                                title: newBlog.title,
-                                content: newBlog.content,
-                                image: imageUrl,
-                                image_url: imageUrl,
-                                featured_image: imageUrl,
-                                published: publish !== undefined ? publish : b.published,
-                                status: publish ? 'published' : 'draft'
-                            }
-                        : b
-                )
-            );
-            
-            // Update selected blog if it's the one being edited
-            if (selectedBlog?.id === editingId) {
-                setSelectedBlog(prev => prev ? {
-                    ...prev,
-                    title: newBlog.title,
-                    content: newBlog.content,
-                    image: imageUrl,
-                    image_url: imageUrl,
-                    featured_image: imageUrl,
-                    published: publish !== undefined ? publish : prev.published,
-                    status: publish ? 'published' : 'draft'
-                } : null);
+            if (response.success) {
+                const imageUrl = response.data.featured_image || FirebaseStorageService.DEFAULT_BLOG_IMAGE;
+                
+                setMyBlogs(
+                    myBlogs.map((b) =>
+                        b.id === editingId
+                            ? {
+                                    ...b,
+                                    title: newBlog.title,
+                                    content: newBlog.content,
+                                    image: imageUrl,
+                                    image_url: imageUrl,
+                                    featured_image: imageUrl,
+                                    published: publish !== undefined ? publish : b.published,
+                                    status: publish ? 'published' : 'draft'
+                                }
+                            : b
+                    )
+                );
+                
+                // Update selected blog if it's the one being edited
+                if (selectedBlog?.id === editingId) {
+                    setSelectedBlog(prev => prev ? {
+                        ...prev,
+                        title: newBlog.title,
+                        content: newBlog.content,
+                        image: imageUrl,
+                        image_url: imageUrl,
+                        featured_image: imageUrl,
+                        published: publish !== undefined ? publish : prev.published,
+                        status: publish ? 'published' : 'draft'
+                    } : null);
+                }
+                
+                // Show success message
+                setError(null);
+                const successMsg = publish ? 'Blog updated and published successfully!' : 'Blog updated as draft successfully!';
+                setSuccessMessage(successMsg);
+                console.log(successMsg);
+                
+                // Clear success message after 3 seconds
+                setTimeout(() => setSuccessMessage(null), 3000);
+                
+                setEditingId(null);
+                setNewBlog({ title: '', content: '', image: null });
+                setImagePreview(null);
+                setShowCreateForm(false);
+            } else {
+                throw new Error('Update failed');
             }
-            
-            // Show success message
-            setError(null);
-            const successMsg = publish ? 'Blog updated and published successfully!' : 'Blog updated as draft successfully!';
-            setSuccessMessage(successMsg);
-            console.log(successMsg);
-            
-            // Clear success message after 3 seconds
-            setTimeout(() => setSuccessMessage(null), 3000);
-            
-            setEditingId(null);
-            setNewBlog({ title: '', content: '', image: null });
-            setImagePreview(null);
-            setShowCreateForm(false);
-        } catch (err: any) {
-            console.error('Error updating blog:', err);
+        } catch (err: unknown) {
+            const error = err as Error;
+            console.error('Error updating blog:', error);
             setError('Failed to update blog. Please try again.');
         } finally {
             setLoading(false);
@@ -1469,65 +1461,85 @@ export default function MyBlogs() {
                             
                             <div className="form-group">
                                 <label>Featured Image (Optional)</label>
-                                <input 
-                                    type="file" 
-                                    name="image" 
-                                    accept="image/*" 
-                                    onChange={handleInputChange}
-                                    style={{ 
-                                        width: '100%', 
-                                        padding: '0.5rem', 
-                                        borderRadius: '8px', 
-                                        border: '1px solid #334155'
-                                    }}
-                                />
-                                {imagePreview && (
-                                    <div style={{ marginTop: '0.5rem', position: 'relative' }}>
+                                
+                                {!imagePreview ? (
+                                    <div 
+                                        className={`blog-image-dropzone ${dragActive ? 'drag-active' : ''}`}
+                                        onDragEnter={handleDragIn}
+                                        onDragLeave={handleDragOut}
+                                        onDragOver={handleDrag}
+                                        onDrop={handleDrop}
+                                        onClick={openFileDialog}
+                                    >
+                                        <input 
+                                            ref={fileInputRef}
+                                            type="file" 
+                                            name="image" 
+                                            accept="image/*" 
+                                            onChange={handleInputChange}
+                                            className="blog-file-input-hidden"
+                                        />
+                                        <div className="dropzone-content">
+                                            <Upload size={48} className="dropzone-icon" />
+                                            <p className="dropzone-text">
+                                                {dragActive 
+                                                    ? 'Drop your image here' 
+                                                    : 'Drag & drop an image, or click to browse'
+                                                }
+                                            </p>
+                                            <p className="dropzone-hint">
+                                                Recommended: 1200x600px (2:1 ratio) • JPG, PNG, GIF
+                                            </p>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="blog-image-preview-container">
                                         <img 
                                             src={imagePreview} 
-                                            alt="Preview" 
-                                            style={{ 
-                                                maxWidth: '200px', 
-                                                maxHeight: '150px', 
-                                                borderRadius: '8px',
-                                                objectFit: 'cover'
-                                            }} 
+                                            alt="Blog preview" 
+                                            className="blog-image-preview"
                                         />
-                                        {editingId && (
+                                        <button
+                                            onClick={removeImagePreview}
+                                            type="button"
+                                            className="blog-image-remove-btn"
+                                            title="Remove image"
+                                            aria-label="Remove image"
+                                        >
+                                            <X size={16} />
+                                        </button>
+                                        <div className="blog-image-overlay">
                                             <button
-                                                onClick={() => setImagePreview(null)}
+                                                onClick={openFileDialog}
                                                 type="button"
-                                                style={{ 
-                                                    position: 'absolute', 
-                                                    top: '4px', 
-                                                    right: '4px', 
-                                                    background: 'rgba(0,0,0,0.7)',
-                                                    color: 'white',
-                                                    border: 'none',
-                                                    borderRadius: '4px',
-                                                    minWidth: 'auto',
-                                                    padding: '4px',
-                                                    cursor: 'pointer',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'center'
-                                                }}
+                                                className="blog-image-change-btn"
                                             >
-                                                <X size={12} />
+                                                Change Image
                                             </button>
-                                        )}
+                                        </div>
+                                        <input 
+                                            ref={fileInputRef}
+                                            type="file" 
+                                            name="image" 
+                                            accept="image/*" 
+                                            onChange={handleInputChange}
+                                            className="blog-file-input-hidden"
+                                        />
                                     </div>
                                 )}
+                                
                                 {imageUploading && (
-                                    <div style={{ color: '#6b7280', fontSize: '0.875rem', marginTop: '0.5rem' }}>
-                                        Uploading image...
+                                    <div className="blog-image-uploading">
+                                        <div className="uploading-spinner"></div>
+                                        <span>Uploading image...</span>
                                     </div>
                                 )}
-                                <small style={{ color: '#6b7280', fontSize: '0.875rem' }}>
+                                
+                                <small className="blog-image-help-text">
                                     {editingId 
                                         ? 'Upload a new image to replace the current one, or leave unchanged.'
                                         : 'If no image is selected, a default astronomy image will be used.'
-                                    } Recommended: 1200x600px or 2:1 aspect ratio
+                                    }
                                 </small>
                             </div>
                             

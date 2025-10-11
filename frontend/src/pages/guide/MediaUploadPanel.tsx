@@ -23,6 +23,28 @@ const ArrowLeftIcon: React.FC<{ className?: string }> = ({ className = "" }) => 
   </svg>
 );
 
+const CheckCircleIcon: React.FC = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+    <path d="M8 12l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+
+const AlertCircleIcon: React.FC = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+    <path d="M12 8v4m0 4h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+  </svg>
+);
+
+const UploadCloudIcon: React.FC = () => (
+  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+    <path d="M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7h-1"/>
+    <polyline points="9 15 12 12 15 15"/>
+    <line x1="12" y1="12" x2="12" y2="21"/>
+  </svg>
+);
+
 interface MediaUploadPanelProps { allowedTypes?: string[]; }
 
 interface UploadMode { type: 'single' | 'album'; }
@@ -182,98 +204,251 @@ const MediaUploadPanel: React.FC<MediaUploadPanelProps> = ({
 
   const renderMediaContent = () => (
     <div className="media-upload-panel">
-        {/* Header */}
-        <div className="set-availability__header">
-          <div className="header-content">
-            <div className="header-navigation">
-              <Button
-                variant="primary"
-                size="medium"
-                icon={<ArrowLeftIcon />}
-                iconPosition="left"
-                onClick={() => navigate('/dashboard/media')}
-              >
-                Back to Services
-              </Button>
-            </div>
-            
-            <div className="title-section">
-              <h1 className="page-title">Media Upload Panel</h1>
-              <div className="flex items-center justify-center">
-                <p>
-                  One Click Away from Sharing Memories.
-                </p>
-              </div>
+      {/* Toast Notifications */}
+      {successMsg && (
+        <div className="toast-notification toast-success">
+          <div className="toast-icon">
+            <CheckCircleIcon />
+          </div>
+          <div className="toast-content">
+            <div className="toast-title">Success!</div>
+            <div className="toast-message">{successMsg}</div>
+          </div>
+        </div>
+      )}
+      {errorMsg && (
+        <div className="toast-notification toast-error">
+          <div className="toast-icon">
+            <AlertCircleIcon />
+          </div>
+          <div className="toast-content">
+            <div className="toast-title">Upload Failed</div>
+            <div className="toast-message">{errorMsg}</div>
+          </div>
+        </div>
+      )}
+
+      {/* Header */}
+      <div className="set-availability__header">
+        <div className="header-content">
+          <div className="header-navigation">
+            <Button
+              variant="primary"
+              size="medium"
+              icon={<ArrowLeftIcon />}
+              iconPosition="left"
+              onClick={() => navigate('/dashboard/media')}
+            >
+              Back to Services
+            </Button>
+          </div>
+          
+          <div className="title-section">
+            <h1 className="page-title">Media Upload Panel</h1>
+            <div className="flex items-center justify-center">
+              <p className="page-subtitle">
+                One Click Away from Sharing Memories.
+              </p>
             </div>
           </div>
         </div>
-      <div className="media-upload-header space-y-4">
-        <div className="flex gap-2">
-          <button type="button" onClick={() => setUploadMode({ type: 'single' })} className={`px-3 py-1 rounded text-sm border ${uploadMode.type==='single'?'bg-indigo-600 text-white':'bg-white/5 text-gray-300'}`}>Single</button>
-          <button type="button" onClick={() => setUploadMode({ type: 'album' })} className={`px-3 py-1 rounded text-sm border ${uploadMode.type==='album'?'bg-indigo-600 text-white':'bg-white/5 text-gray-300'}`}>Album</button>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-          <input className="border rounded px-3 py-2 bg-white/5" placeholder="Tour Name *" value={tourForm.tour_name} onChange={e=>setTourForm(f=>({...f,tour_name:e.target.value}))} />
-          <input className="border rounded px-3 py-2 bg-white/5" placeholder="Location *" value={tourForm.location} onChange={e=>setTourForm(f=>({...f,location:e.target.value}))} />
-          <input className="border rounded px-3 py-2 bg-white/5" placeholder="Tags (comma separated)" value={tourForm.tags} onChange={e=>setTourForm(f=>({...f,tags:e.target.value}))} />
-          <input className="border rounded px-3 py-2 bg-white/5" placeholder="Description *" value={tourForm.description} onChange={e=>setTourForm(f=>({...f,description:e.target.value}))} />
-        </div>
-        {errorMsg && <div className="text-sm text-red-500">{errorMsg}</div>}
-        {successMsg && <div className="text-sm text-green-500">{successMsg}</div>}
-      </div>
-      
-      {/* Upload Area */}
-      <div className={`upload-area ${dragActive ? 'drag-active' : ''} border-2 border-dashed rounded p-8 text-center`} onDragEnter={handleDragIn} onDragLeave={handleDragOut} onDragOver={handleDrag} onDrop={handleDrop}>
-        <p className="text-sm text-gray-400 mb-3">{uploadMode.type==='single'?'Choose a file':'Select multiple files'} or drag & drop here.</p>
-        <Button variant="primary" size="small" onClick={openFileDialog} disabled={isUploading}>Add {uploadMode.type==='single'?'File':'Files'}</Button>
       </div>
 
-      {/* Hidden File Input */}
-      <input
-        key={uploadMode.type} // Force re-render when mode changes
-        ref={fileInputRef}
-        type="file"
-        accept={allowedTypes.join(',')}
-        onChange={handleFileInput}
-        className="hidden-file-input"
-        multiple={uploadMode.type === 'album'}
-        aria-label={uploadMode.type === 'album' ? 'Upload multiple media files for album' : 'Upload single media file'}
-      />
-      {/* Waiting Bay */}
-      <div className="mt-6 space-y-4">
-        {pending.length > 0 && (
-          <div className="rounded border border-white/10 bg-white/5 p-4">
-            <div className="flex items-center justify-between mb-3">
-              <h4 className="font-medium text-sm">Waiting Bay ({pending.length} file{pending.length>1?'s':''})</h4>
-              {!isUploading && <button onClick={resetPanel} className="text-xs text-gray-400 hover:text-white">Clear All</button>}
+      {/* Main Content Card */}
+      <div className="upload-content-card">
+        {/* Mode Selector */}
+        <div className="mode-selector-container">
+          <div className="mode-selector">
+            <button 
+              type="button" 
+              onClick={() => setUploadMode({ type: 'single' })} 
+              className={`mode-btn ${uploadMode.type === 'single' ? 'active' : ''}`}
+            >
+              <span className="mode-icon">📷</span>
+              <span>Single</span>
+            </button>
+            <button 
+              type="button" 
+              onClick={() => setUploadMode({ type: 'album' })} 
+              className={`mode-btn ${uploadMode.type === 'album' ? 'active' : ''}`}
+            >
+              <span className="mode-icon">🖼️</span>
+              <span>Album</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Tour Metadata Form */}
+        <div className="tour-form-grid">
+          <div className="form-group">
+            <label className="form-label">Tour Name <span className="required">*</span></label>
+            <input 
+              className="form-input" 
+              placeholder="Enter tour name" 
+              value={tourForm.tour_name} 
+              onChange={e => setTourForm(f => ({...f, tour_name: e.target.value}))} 
+            />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Location <span className="required">*</span></label>
+            <input 
+              className="form-input" 
+              placeholder="Enter location" 
+              value={tourForm.location} 
+              onChange={e => setTourForm(f => ({...f, location: e.target.value}))} 
+            />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Tags</label>
+            <input 
+              className="form-input" 
+              placeholder="astronomy, education" 
+              value={tourForm.tags} 
+              onChange={e => setTourForm(f => ({...f, tags: e.target.value}))} 
+            />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Description <span className="required">*</span></label>
+            <input 
+              className="form-input" 
+              placeholder="Brief description" 
+              value={tourForm.description} 
+              onChange={e => setTourForm(f => ({...f, description: e.target.value}))} 
+            />
+          </div>
+        </div>
+
+        {/* Upload Drop Zone */}
+        <div 
+          className={`upload-dropzone ${dragActive ? 'drag-active' : ''}`} 
+          onDragEnter={handleDragIn} 
+          onDragLeave={handleDragOut} 
+          onDragOver={handleDrag} 
+          onDrop={handleDrop}
+        >
+          <div className="dropzone-content">
+            <div className="dropzone-icon">
+              <UploadCloudIcon />
             </div>
-            <div className="grid md:grid-cols-3 gap-4">
+            <h3 className="dropzone-title">
+              {uploadMode.type === 'single' ? 'Drop your file here' : 'Drop multiple files here'}
+            </h3>
+            <p className="dropzone-subtitle">
+              or click the button below to browse
+            </p>
+            <div className="mt-4">
+              <Button 
+                variant="primary" 
+                size="small" 
+                onClick={openFileDialog} 
+                disabled={isUploading}
+              >
+                {uploadMode.type === 'single' ? 'Select File' : 'Select Files'}
+              </Button>
+            </div>
+            <p className="dropzone-formats">
+              Supported: JPEG, PNG, MP4, PDF
+            </p>
+          </div>
+        </div>
+
+        {/* Hidden File Input */}
+        <input
+          key={uploadMode.type}
+          ref={fileInputRef}
+          type="file"
+          accept={allowedTypes.join(',')}
+          onChange={handleFileInput}
+          className="hidden-file-input"
+          multiple={uploadMode.type === 'album'}
+          aria-label={uploadMode.type === 'album' ? 'Upload multiple media files for album' : 'Upload single media file'}
+        />
+
+        {/* Waiting Bay */}
+        {pending.length > 0 && (
+          <div className="waiting-bay">
+            <div className="waiting-bay-header">
+              <div className="waiting-bay-title">
+                <span className="pulse-dot"></span>
+                <h4>Waiting Bay</h4>
+                <span className="file-count">{pending.length} file{pending.length > 1 ? 's' : ''}</span>
+              </div>
+              {!isUploading && (
+                <button onClick={resetPanel} className="clear-all-btn">
+                  Clear All
+                </button>
+              )}
+            </div>
+            <div className="waiting-bay-grid">
               {pending.map(f => (
-                <div key={f.id} className="relative group border border-white/10 rounded overflow-hidden bg-black/30">
-                  {f.type.startsWith('image') ? (
-                    <img src={f.preview} alt={f.name} className="h-32 w-full object-cover" />
-                  ) : (
-                    <div className="h-32 flex items-center justify-center text-xs text-gray-400">{f.type}</div>
-                  )}
-                  <div className="p-2 text-xs truncate">{f.name}</div>
+                <div key={f.id} className="file-card">
+                  <div className="file-preview">
+                    {f.type.startsWith('image') ? (
+                      <img src={f.preview} alt={f.name} className="preview-image" />
+                    ) : (
+                      <div className="preview-placeholder">
+                        <span className="file-ext">{f.type.split('/')[1]?.toUpperCase()}</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="file-info">
+                    <div className="file-name" title={f.name}>{f.name}</div>
+                    <div className="file-size">{(f.size / 1024).toFixed(1)} KB</div>
+                  </div>
                   {!isUploading && (
-                    <button onClick={()=>removePending(f.id)} className="absolute top-1 right-1 bg-red-600/80 hover:bg-red-600 text-white rounded px-1 text-[10px]">✕</button>
+                    <button 
+                      onClick={() => removePending(f.id)} 
+                      className="remove-file-btn"
+                      aria-label="Remove file"
+                      title="Remove file"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M12 4L4 12M4 4l8 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                      </svg>
+                    </button>
                   )}
                 </div>
               ))}
             </div>
           </div>
         )}
+
+        {/* Progress Bar */}
         {isUploading && (
-          <div className="w-full bg-white/10 rounded h-3 overflow-hidden progress-shell">
-            {(() => { const b = Math.min(100, Math.max(0, Math.round(overallProgress/5)*5)); return <div className={`h-full bg-indigo-500 transition-all duration-200 progress-bar p${b}`} /> })()}
+          <div className="upload-progress-container">
+            <div className="progress-info">
+              <span className="progress-label">Uploading...</span>
+              <span className="progress-percentage">{overallProgress}%</span>
+            </div>
+            <div className="progress-bar-wrapper">
+              <div 
+                className="progress-bar-fill" 
+                data-progress={overallProgress}
+              >
+                <div className="progress-shimmer"></div>
+              </div>
+            </div>
           </div>
         )}
-        <div className="flex gap-3">
-          <Button variant="primary" size="medium" onClick={startUpload} disabled={pending.length===0 || isUploading || !tourForm.tour_name || !tourForm.description || !tourForm.location}>
-            {isUploading ? `Uploading ${overallProgress}%` : `Upload ${pending.length||''} ${uploadMode.type==='single'?'File':'Files'}`}
+
+        {/* Action Buttons */}
+        <div className="action-buttons">
+          <Button 
+            variant="primary" 
+            size="medium" 
+            onClick={startUpload} 
+            disabled={pending.length === 0 || isUploading || !tourForm.tour_name || !tourForm.description || !tourForm.location}
+          >
+            {isUploading ? `Uploading ${overallProgress}%` : `Upload ${pending.length || ''} ${uploadMode.type === 'single' ? 'File' : 'Files'}`}
           </Button>
-          <Button variant="secondary" size="medium" onClick={resetPanel} disabled={isUploading || pending.length===0}>Reset</Button>
+          <Button 
+            variant="secondary" 
+            size="medium" 
+            onClick={resetPanel} 
+            disabled={isUploading || pending.length === 0}
+          >
+            Reset
+          </Button>
         </div>
       </div>
     </div>

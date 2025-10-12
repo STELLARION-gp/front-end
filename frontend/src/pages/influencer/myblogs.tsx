@@ -31,7 +31,7 @@ type Blog = {
     image_url?: string;
     featured_image?: string; // Backend field
     author_id: number;
-    status: 'draft' | 'published' | 'archived';
+    status: 'draft' | 'published' | 'archived' | 'pending' | 'approved' | 'rejected';
     published_at?: string;
     view_count: number;
     like_count: number;
@@ -77,8 +77,14 @@ const MyBlogCard: React.FC<{
                 )}
                 
                 <div className="myblog-card__status-badge">
-                    {blog.published ? (
-                        <span className="myblog-card__badge myblog-card__badge--published">Published</span>
+                    {blog.status === 'published' || blog.status === 'approved' ? (
+                        <span className="myblog-card__badge myblog-card__badge--published">
+                            {blog.status === 'approved' ? 'Approved' : 'Published'}
+                        </span>
+                    ) : blog.status === 'pending' ? (
+                        <span className="myblog-card__badge myblog-card__badge--pending">Pending Approval</span>
+                    ) : blog.status === 'rejected' ? (
+                        <span className="myblog-card__badge myblog-card__badge--rejected">Rejected</span>
                     ) : (
                         <span className="myblog-card__badge myblog-card__badge--draft">Draft</span>
                     )}
@@ -717,7 +723,7 @@ export default function MyBlogs() {
             const blogData: CreateBlogRequest = {
                 title: newBlog.title,
                 content: newBlog.content,
-                status: 'draft',
+                status: 'pending', // Changed to pending for moderator approval
                 tags: [],
                 metadata: {},
                 image: newBlog.image || undefined // Send File directly to backend
@@ -834,7 +840,7 @@ export default function MyBlogs() {
                 const blogData: CreateBlogRequest = {
                     title: newBlog.title,
                     content: newBlog.content,
-                    status: 'published',
+                    status: 'pending', // Changed to pending for moderator approval
                     tags: [],
                     metadata: {},
                     image: newBlog.image || undefined // Send File directly to backend
@@ -870,7 +876,7 @@ export default function MyBlogs() {
                     setImagePreview(null);
                     setShowCreateForm(false);
                     setError(null);
-                    setSuccessMessage('Blog published successfully!');
+                    setSuccessMessage('Blog submitted for moderator approval!');
                     setTimeout(() => setSuccessMessage(null), 3000);
                 } else {
                     throw new Error('Failed to create blog');
@@ -975,7 +981,7 @@ export default function MyBlogs() {
             const updateData: UpdateBlogRequest = {
                 title: newBlog.title,
                 content: newBlog.content,
-                status: publish ? 'published' as const : 'draft' as const,
+                status: publish ? 'pending' as const : 'draft' as const, // Changed to pending for moderator approval
                 image: newBlog.image || undefined // Send File directly to backend
             };
 
@@ -1002,7 +1008,7 @@ export default function MyBlogs() {
                                     image_url: imageUrl,
                                     featured_image: imageUrl,
                                     published: publish !== undefined ? publish : b.published,
-                                    status: publish ? 'published' : 'draft'
+                                    status: publish ? 'pending' : 'draft' // Changed to pending for moderator approval
                                 }
                             : b
                     )
@@ -1018,13 +1024,13 @@ export default function MyBlogs() {
                         image_url: imageUrl,
                         featured_image: imageUrl,
                         published: publish !== undefined ? publish : prev.published,
-                        status: publish ? 'published' : 'draft'
+                        status: publish ? 'pending' : 'draft' // Changed to pending for moderator approval
                     } : null);
                 }
                 
                 // Show success message
                 setError(null);
-                const successMsg = publish ? 'Blog updated and published successfully!' : 'Blog updated as draft successfully!';
+                const successMsg = publish ? 'Blog submitted for moderator approval!' : 'Blog updated as draft successfully!';
                 setSuccessMessage(successMsg);
                 console.log(successMsg);
                 

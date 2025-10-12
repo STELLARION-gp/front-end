@@ -1,183 +1,108 @@
-import { useState } from 'react';
-import { FaArrowLeft, FaFlag, FaEye, FaCheck, FaTimes, FaSearch, FaImage, FaVideo, FaCommentAlt, FaFileAlt } from 'react-icons/fa';
+import { useState, useEffect, useCallback } from 'react';
+import { FaArrowLeft, FaEye, FaCheck, FaTimes, FaSearch, FaFileAlt } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import '../../styles/pages/moderator/ContentModeration.scss';
 import Button from '../../components/Button';
+import { blogService } from '../../services/blogService';
+import type { Blog } from '../../services/blogService';
 
-type ContentType = 'post' | 'comment' | 'image' | 'video' | 'link' | 'audio';
-type ContentStatus = 'pending' | 'approved' | 'rejected';
 type PriorityLevel = 'low' | 'medium' | 'high' | 'critical';
 
-interface ContentItem {
-  id: string;
-  type: ContentType;
-  content: string;
-  author: string;
-  reportedBy: string[];
-  reportReason: string[];
-  status: ContentStatus;
-  createdAt: Date;
-  priority: PriorityLevel;
-  details?: string;
-  community?: string;
+interface BlogPost extends Blog {
+  priority?: PriorityLevel;
+  reportedBy?: string[];
+  reportReason?: string[];
 }
-
-const mockContentItems: ContentItem[] = [
-  {
-    id: '1',
-    type: 'post',
-    content: 'Check out this amazing view of the Milky Way from last night!',
-    author: 'StarGazer42',
-    reportedBy: ['User123', 'Mod456'],
-    reportReason: ['Inappropriate content', 'Spam'],
-    status: 'pending',
-    createdAt: new Date('2024-01-15T10:30:00'),
-    priority: 'high',
-    details: 'This post contains an image of the Milky Way with questionable authenticity.',
-    community: 'Astronomy Lovers'
-  },
-  {
-    id: '2',
-    type: 'comment',
-    content: 'හොඳින් මතක තබා ගතයුතුයි.. මෙවැනි පෝසට් දාන්න එපා',
-    author: 'හිත් පහේ දත්ත',
-    reportedBy: ['PhotoPro789'],
-    reportReason: ['Harassment'],
-    status: 'pending',
-    createdAt: new Date('2025-01-15T09:15:00'),
-    priority: 'medium',
-    details: 'Comment appears to be attacking the original poster without constructive criticism.'
-  },
-  {
-    id: '8',
-    type: 'comment',
-    content: 'This is definitely fake, no way you captured this with a phone camera!',
-    author: 'SkepticalViewer',
-    reportedBy: ['PhotoPro789'],
-    reportReason: ['Harassment'],
-    status: 'pending',
-    createdAt: new Date('2024-01-15T09:15:00'),
-    priority: 'medium',
-    details: 'Comment appears to be attacking the original poster without constructive criticism.'
-  },
-  {
-    id: '3',
-    type: 'image',
-    content: '[Image: Saturn through telescope]',
-    author: 'PlanetHunter',
-    reportedBy: ['User999'],
-    reportReason: ['Copyright violation'],
-    status: 'approved',
-    createdAt: new Date('2024-01-15T08:00:00'),
-    priority: 'low',
-    details: 'Image appears to be original content after verification.'
-  },
-  {
-    id: '4',
-    type: 'video',
-    content: '[Video: Solar eclipse time-lapse]',
-    author: 'CosmicVoyager',
-    reportedBy: ['User456', 'User789'],
-    reportReason: ['Graphic content', 'Misinformation'],
-    status: 'pending',
-    createdAt: new Date('2024-01-14T18:45:00'),
-    priority: 'critical',
-    details: 'Video contains potentially misleading information about solar eclipse effects.'
-  },
-  {
-    id: '5',
-    type: 'link',
-    content: 'Interesting article about black holes: https://example.com/black-holes',
-    author: 'SpaceExplorer',
-    reportedBy: ['User101'],
-    reportReason: ['Spam'],
-    status: 'pending',
-    createdAt: new Date('2024-01-14T15:20:00'),
-    priority: 'medium',
-    details: 'Link appears to be to a legitimate astronomy article but was flagged as spam.'
-  },
-  {
-    id: '6',
-    type: 'link',
-    content: 'Which planet is your favorite? (Vote in comments)',
-    author: 'SpamCreator',
-    reportedBy: ['User202'],
-    reportReason: ['Low quality'],
-    status: 'rejected',
-    createdAt: new Date('2024-01-13T12:10:00'),
-    priority: 'low',
-    details: 'link was deemed too low effort for our community standards.'
-  },
-  {
-    id: '7',
-    type: 'audio',
-    content: '[Audio: Recording of meteor shower sounds]',
-    author: 'SoundCollector',
-    reportedBy: ['User303'],
-    reportReason: ['Fake content'],
-    status: 'approved',
-    createdAt: new Date('2024-01-12T20:30:00'),
-    priority: 'low',
-    details: 'Audio verified as authentic recording after review.'
-  }
-];
 
 export default function ContentModeration() {
   const navigate = useNavigate();
-  const [contentItems, setContentItems] = useState<ContentItem[]>(mockContentItems);
-  const [statusFilter, setStatusFilter] = useState<ContentStatus | 'all'>('pending');
-  const [typeFilter, setTypeFilter] = useState<ContentType | 'all'>('all');
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+    const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'published' | 'rejected'>('pending');
   const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleApprove = (itemId: string) => {
-    setContentItems(prev =>
-      prev.map(item =>
-        item.id === itemId ? { ...item, status: 'approved' } : item
-      )
-    );
+  // Calculate priority based on blog metrics
+  const calculatePriority = (blog: Blog): PriorityLevel => {
+    const age = Date.now() - new Date(blog.created_at).getTime();
+    const hoursSinceCreation = age / (1000 * 60 * 60);
+    
+    // High priority if pending for more than 24 hours
+    if (blog.status === 'pending' && hoursSinceCreation > 24) return 'high';
+    // Medium priority if pending for more than 12 hours
+    if (blog.status === 'pending' && hoursSinceCreation > 12) return 'medium';
+    // Low priority otherwise
+    return 'low';
   };
 
-  const handleReject = (itemId: string) => {
-    setContentItems(prev =>
-      prev.map(item =>
-        item.id === itemId ? { ...item, status: 'rejected' } : item
-      )
-    );
+  const loadBlogPosts = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const filters = statusFilter === 'all' ? {} : { status: statusFilter };
+      const response = await blogService.getBlogs(filters);
+      
+      if (response.success && response.data.blogs) {
+        // Convert API blogs to BlogPost with priority calculation
+        const posts: BlogPost[] = response.data.blogs.map((blog: Blog): BlogPost => ({
+          ...blog,
+          priority: calculatePriority(blog),
+          reportedBy: [], // Will be populated when we add reporting feature
+          reportReason: []
+        }));
+        setBlogPosts(posts);
+      } else {
+        setError('Failed to load blog posts');
+      }
+    } catch (err) {
+      console.error('Error loading blog posts:', err);
+      setError('Failed to load blog posts. Please try again.');
+      // Fallback to empty array
+      setBlogPosts([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [statusFilter]);
+
+  // Load blog posts from API
+  useEffect(() => {
+    loadBlogPosts();
+  }, [loadBlogPosts]);
+
+  const handleApprove = async (blogId: number) => {
+    try {
+      await blogService.updateBlog(blogId, { status: 'approved' });
+      setBlogPosts(prev =>
+        prev.map(post =>
+          post.id === blogId ? { ...post, status: 'approved' } : post
+        )
+      );
+    } catch (err) {
+      console.error('Error approving blog:', err);
+      alert('Failed to approve blog. Please try again.');
+    }
   };
 
-  const filteredItems = contentItems.filter(item => {
-    const matchesStatus = statusFilter === 'all' || item.status === statusFilter;
-    const matchesType = typeFilter === 'all' || item.type === typeFilter;
-    const matchesSearch = item.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         item.author.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesStatus && matchesType && matchesSearch;
+  const handleReject = async (blogId: number) => {
+    try {
+      await blogService.updateBlog(blogId, { status: 'rejected' });
+      setBlogPosts(prev =>
+        prev.map(post =>
+          post.id === blogId ? { ...post, status: 'rejected' } : post
+        )
+      );
+    } catch (err) {
+      console.error('Error rejecting blog:', err);
+      alert('Failed to reject blog. Please try again.');
+    }
+  };
+
+  const filteredPosts = blogPosts.filter(post => {
+    const matchesSearch = post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         post.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (post.author_display_name || post.author_name || '').toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesSearch;
   });
-
-  const getTypeIcon = (type: ContentType) => {
-    switch (type) {
-      case 'post': return <FaFileAlt />;
-      case 'comment': return <FaCommentAlt />;
-      case 'image': return <FaImage />;
-      case 'video': return <FaVideo />;
-      case 'link': return '🔗';
-      // case 'poll': return '📊';
-      case 'audio': return '🎵';
-      default: return '📄';
-    }
-  };
-
-  const getTypeColor = (type: ContentType) => {
-    switch (type) {
-      case 'post': return '#667eea';
-      case 'comment': return '#764ba2';
-      case 'image': return '#2ed573';
-      case 'video': return '#ff4757';
-      case 'link': return '#ffa502';
-      // case 'poll': return '#3742fa';
-      case 'audio': return '#f39c12';
-      default: return '#ffffff';
-    }
-  };
 
   return (
     <div className="content-moderation">
@@ -195,19 +120,19 @@ export default function ContentModeration() {
               Go back
             </Button>
             <div className="title-section">
-              <h1>Content Moderation</h1>
-              <p>Review and moderate user-generated content</p>
+              <h1>Blog Post Moderation</h1>
+              <p>Review and moderate blog submissions</p>
             </div>
           </div>
           
           <div className="header-stats">
             <div className="stat-card">
-              <span className="stat-number">{filteredItems.filter(i => i.status === 'pending').length}</span>
+              <span className="stat-number">{filteredPosts.filter(p => p.status === 'pending').length}</span>
               <span className="stat-label">Pending</span>
             </div>
             <div className="stat-card">
-              <span className="stat-number">{filteredItems.length}</span>
-              <span className="stat-label">Showing</span>
+              <span className="stat-number">{filteredPosts.length}</span>
+              <span className="stat-label">Total</span>
             </div>
           </div>
         </div>
@@ -219,7 +144,7 @@ export default function ContentModeration() {
           <FaSearch className="search-icon" />
           <input
             type="text"
-            placeholder="Search content or authors..."
+            placeholder="Search by title, content, or author..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -228,7 +153,7 @@ export default function ContentModeration() {
         <div className="filter-tabs1">
           <div className="filter-group1">
             <h4>Status:</h4>
-            {(['all', 'pending', 'approved', 'rejected'] as const).map(status => (
+            {(['all', 'pending', 'published', 'rejected'] as const).map(status => (
               <Button
                 variant='primary'
                 size='large'
@@ -240,103 +165,114 @@ export default function ContentModeration() {
               </Button>
             ))}
           </div>
-          <div className="filter-group1">
-            <h4>Type:</h4>
-            {(['all', 'post', 'comment', 'image', 'video', 'link', 'audio'] as const).map(type => (
-              <Button
-                variant='primary'
-                size='medium'
-                key={type}
-                className={`filter-tab ${typeFilter === type ? 'active' : ''}`}
-                onClick={() => setTypeFilter(type)}
-              >
-                {type.charAt(0).toUpperCase() + type.slice(1)}
-              </Button>
-            ))}
-          </div>
         </div>
       </div>
+
+      {/* Error Message */}
+      {error && (
+        <div className="error-message">
+          <p>{error}</p>
+        </div>
+      )}
 
       {/* Main Content */}
       <div className="moderation-content">
         <div className="content-list">
-          {filteredItems.length === 0 ? (
+          {loading ? (
+            <div className="loading-state">
+              <div className="loading-spinner"></div>
+              <p>Loading blog posts...</p>
+            </div>
+          ) : filteredPosts.length === 0 ? (
             <div className="empty-state">
-              <p>No content items found matching your filters.</p>
+              <FaFileAlt className="empty-icon" />
+              <h3>No blog posts found</h3>
+              <p>No blog posts matching your filters.</p>
             </div>
           ) : (
-            filteredItems.map(item => (
+            filteredPosts.map(post => (
               <div
-                key={item.id}
-                className={`content-item priority-${item.priority} status-${item.status}`}
-                onClick={() => navigate(`/dashboard/moderation/content/details/${item.id}`)}
+                key={post.id}
+                className={`content-item priority-${post.priority} status-${post.status}`}
               >
                 <div className="item-header">
-                  <div className="item-type" style={{ color: getTypeColor(item.type) }}>
-                    <span className="type-icon">{getTypeIcon(item.type)}</span>
-                    <span className="type-label">{item.type.charAt(0).toUpperCase() + item.type.slice(1)}</span>
+                  <div className="header-left">
+                    <div className="item-type">
+                      <span className="type-icon"><FaFileAlt /></span>
+                      <span className="type-label">Blog Post</span>
+                    </div>
+                    {post.priority && (
+                      <div className={`priority-badge priority-${post.priority}`}>
+                        {post.priority}
+                      </div>
+                    )}
                   </div>
-                  <div className={`priority-badge priority-${item.priority}`}>
-                    {item.priority}
-                  </div>
-                  <div className={`status-indicator status-${item.status}`}>
-                    {item.status}
+                  <div className={`status-indicator1 status-${post.status}`}>
+                    {post.status}
                   </div>
                 </div>
 
-                <div className="item-content">
-                  <p className="content-text">{item.content}</p>
+                <div className="item-content"
+                  onClick={() => navigate(`/dashboard/moderation/content/details/${post.id}`)}
+                >
+                  <h3 className="blog-title">{post.title}</h3>
+                  <p className="content-text">
+                    {post.excerpt || post.content.substring(0, 200)}
+                    {post.content.length > 200 ? '...' : ''}
+                  </p>
                   <div className="item-meta">
-                    <span className="author">by {item.author}</span>
-                    <span className="created">{item.createdAt.toLocaleDateString()}</span>
-                    {item.community && <span className="community">in {item.community}</span>}
+                    <span className="author">
+                      by {post.author_display_name || post.author_name || 'Unknown Author'}
+                    </span>
+                    <span className="created">
+                      {new Date(post.created_at).toLocaleDateString()}
+                    </span>
+                    <span className="stats">
+                      {post.view_count} views · {post.like_count} likes · {post.comment_count} comments
+                    </span>
                   </div>
-                </div>
-
-                <div className="item-reports">
-                  <div className="report-info">
-                    <FaFlag className="flag-icon" />
-                    <span>{item.reportedBy.length} report{item.reportedBy.length !== 1 ? 's' : ''}</span>
-                  </div>
-                  <div className="report-reasons">
-                    {item.reportReason.map((reason, index) => (
-                      <span key={index} className="reason-tag">{reason}</span>
-                    ))}
-                  </div>
+                  {post.featured_image && (
+                    <div className="blog-image-preview">
+                      <img src={post.featured_image} alt={post.title} />
+                    </div>
+                  )}
                 </div>
 
                 <div className="item-actions">
                   <button
-                    className="action-btn view-btn"
+                    className="action-btn view-btn1"
                     onClick={(e) => {
                       e.stopPropagation();
-                      navigate(`/dashboard/moderation/content/details/${item.id}`);
+                      navigate(`/dashboard/moderation/content/details/${post.id}`);
                     }}
-                    title="View content details"
+                    title="View blog details"
                   >
                     <FaEye />
+                    <span>View</span>
                   </button>
-                  {item.status === 'pending' && (
+                  {post.status === 'pending' && (
                     <>
                       <button
                         className="action-btn approve-btn"
-                        title="Approve content"
+                        title="Approve blog post"
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleApprove(item.id);
+                          handleApprove(post.id);
                         }}
                       >
                         <FaCheck />
+                        <span>Approve</span>
                       </button>
                       <button
                         className="action-btn reject-btn"
-                        title="Reject content"
+                        title="Reject blog post"
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleReject(item.id);
+                          handleReject(post.id);
                         }}
                       >
                         <FaTimes />
+                        <span>Reject</span>
                       </button>
                     </>
                   )}

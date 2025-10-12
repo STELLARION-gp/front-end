@@ -11,7 +11,7 @@ export interface Blog {
     image_url?: string; // Legacy field for compatibility
     featured_image?: string; // Backend field
     author_id: number;
-    status: 'draft' | 'published' | 'archived';
+    status: 'draft' | 'published' | 'archived' | 'pending' | 'approved' | 'rejected';
     published_at?: string;
     view_count: number;
     like_count: number;
@@ -48,7 +48,7 @@ export interface CreateBlogRequest {
     excerpt?: string;
     featured_image?: string; // For backward compatibility (URL)
     image?: File; // For multipart upload
-    status?: 'draft' | 'published';
+    status?: 'draft' | 'published' | 'pending';
     tags?: string[];
     metadata?: Record<string, any>;
 }
@@ -59,13 +59,13 @@ export interface UpdateBlogRequest {
     excerpt?: string;
     featured_image?: string; // For backward compatibility (URL)
     image?: File; // For multipart upload
-    status?: 'draft' | 'published';
+    status?: 'draft' | 'published' | 'pending' | 'approved' | 'rejected';
     tags?: string[];
     metadata?: Record<string, any>;
 }
 
 export interface BlogFilters {
-    status?: 'draft' | 'published' | 'archived';
+    status?: 'draft' | 'published' | 'archived' | 'pending' | 'approved' | 'rejected';
     author_id?: number;
     search?: string;
     tags?: string[];

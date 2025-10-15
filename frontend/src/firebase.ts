@@ -1,6 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
 
 // Firebase config
 const firebaseConfig = {
@@ -25,6 +26,9 @@ if (typeof window !== "undefined") {
 // Auth instance
 const auth = getAuth(app);
 
+// Firestore instance
+const db = getFirestore(app);
+
 // Google Auth Provider
 const googleProvider = new GoogleAuthProvider();
 googleProvider.addScope('profile');
@@ -39,4 +43,4 @@ console.log('🔧 Firebase initialized with config:', {
   authDomain: firebaseConfig.authDomain
 });
 
-export { app, auth, analytics, googleProvider };
+export { app, auth, analytics, googleProvider, db };

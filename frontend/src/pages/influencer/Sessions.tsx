@@ -5,6 +5,7 @@ import '../../styles/pages/influencer/Sessions.scss';
 import '../../styles/pages/influencer/SessionsNotification.scss';
 import Button from '../../components/Button';
 import { sessionsService } from '../../services/sessionsService'
+import pollService, { type Poll } from '../../services/pollService'
 import { auth } from '../../firebase'
 import type { 
   Session as APISession, 
@@ -83,6 +84,23 @@ const Sessions = () => {
     notes: ''
   })
 
+  // Poll state
+  const [polls, setPolls] = useState<Poll[]>([])
+  const [pollsLoading, setPollsLoading] = useState(false)
+  const [pollsError, setPollsError] = useState<string | null>(null)
+  const [newPoll, setNewPoll] = useState({
+    title: '',
+    description: ''
+  })
+  const [selectedPoll, setSelectedPoll] = useState<Poll | null>(null)
+  const [pollStats, setPollStats] = useState<{
+    totalVotes: number
+    yesPercentage: number
+    maybePercentage: number
+    noPercentage: number
+    commentCount: number
+  } | null>(null)
+
   // Show notification helper
   const showNotification = (type: 'success' | 'error' | 'info', message: string) => {
     setNotification({ show: true, type, message })
@@ -97,11 +115,11 @@ const Sessions = () => {
       if (user) {
         setIsAuthenticated(true)
         setUserEmail(user.email)
-        console.log('✅ User authenticated:', user.email)
+        console.log('User authenticated:', user.email)
       } else {
         setIsAuthenticated(false)
         setUserEmail(null)
-        console.warn('⚠️ User not authenticated')
+        console.warn(' User not authenticated')
       }
     })
 
@@ -115,6 +133,16 @@ const Sessions = () => {
     }
   }, [activeTab, isAuthenticated])
 
+  // Load polls when polls tab is active
+  useEffect(() => {
+    if (activeTab === 'polls' && isAuthenticated) {
+      console.log('Polls tab activated, loading polls...')
+      loadPolls()
+    } else if (activeTab === 'polls' && !isAuthenticated) {
+      console.warn('Cannot load polls: user not authenticated')
+    }
+  }, [activeTab, isAuthenticated])
+
   // Load user's sessions from API
   const loadMySessions = async (filters?: SessionFilters) => {
     if (!isAuthenticated) {
@@ -125,7 +153,7 @@ const Sessions = () => {
     setLoading(true)
     setError(null)
     try {
-      console.log('📋 Loading sessions for user:', userEmail)
+      console.log(' Loading sessions for user:', userEmail)
       const response = await sessionsService.getMySessions({
         page: currentPage,
         limit: 10,
@@ -134,9 +162,9 @@ const Sessions = () => {
         ...filters
       })
       setMySessions(response.data || [])
-      console.log('✅ Loaded', response.data?.length || 0, 'sessions')
+      console.log('Loaded', response.data?.length || 0, 'sessions')
     } catch (err) {
-      console.error('❌ Error loading sessions:', err)
+      console.error(' Error loading sessions:', err)
       const errorMessage = err instanceof Error ? err.message : 'Failed to load sessions'
       setError(errorMessage)
       
@@ -154,7 +182,7 @@ const Sessions = () => {
     e.preventDefault()
     
     if (!isAuthenticated) {
-      showNotification('error', '🔒 Please log in to create a session.')
+      showNotification('error', ' Please log in to create a session.')
       return
     }
 
@@ -162,7 +190,7 @@ const Sessions = () => {
     setError(null)
     
     try {
-      console.log('📝 Creating session for user:', userEmail)
+      console.log(' Creating session for user:', userEmail)
       const sessionData: CreateSessionRequest = {
         title: newSession.title,
         description: newSession.description,
@@ -655,6 +683,104 @@ const Sessions = () => {
     </div>
   )
 
+  // Poll Functions
+  const loadPolls = async () => {
+    setPollsLoading(true)
+    setPollsError(null)
+    try {
+      const response = await pollService.getPolls()
+      setPolls(response.data || [])
+      console.log('Loaded', response.data?.length || 0, 'polls')
+    } catch (err) {
+      console.error('Error loading polls:', err)
+      setPollsError(err instanceof Error ? err.message : 'Failed to load polls')
+    } finally {
+      setPollsLoading(false)
+    }
+  }
+
+  const handleCreatePoll = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!newPoll.title.trim()) {
+      showNotification('error', 'Please enter a poll title')
+      return
+    }
+
+    setPollsLoading(true)
+    try {
+      await pollService.createPoll({
+        title: newPoll.title,
+        description: newPoll.description || undefined
+      })
+      
+      showNotification('success', ' Poll created successfully!')
+      setNewPoll({ title: '', description: '' })
+      loadPolls() // Reload polls
+    } catch (err) {
+      console.error(' Error creating poll:', err)
+      showNotification('error', 'Failed to create poll: ' + (err instanceof Error ? err.message : 'Unknown error'))
+    } finally {
+      setPollsLoading(false)
+    }
+  }
+
+  const handleViewPollDetails = async (poll: Poll) => {
+    setSelectedPoll(poll)
+    try {
+      const stats = await pollService.getPollStats(poll.id)
+      setPollStats(stats)
+    } catch (err) {
+      console.error('Error loading poll stats:', err)
+      showNotification('error', 'Failed to load poll statistics')
+    }
+  }
+
+  const handleClosePoll = async (pollId: number) => {
+    try {
+      await pollService.closePoll(pollId)
+      showNotification('success', ' Poll closed successfully!')
+      loadPolls()
+      if (selectedPoll?.id === pollId) {
+        setSelectedPoll(prev => prev ? { ...prev, is_active: false } : null)
+      }
+    } catch (err) {
+      console.error('Error closing poll:', err)
+      showNotification('error', 'Failed to close poll')
+    }
+  }
+
+  const handleReopenPoll = async (pollId: number) => {
+    try {
+      await pollService.reopenPoll(pollId)
+      showNotification('success', ' Poll reopened successfully!')
+      loadPolls()
+      if (selectedPoll?.id === pollId) {
+        setSelectedPoll(prev => prev ? { ...prev, is_active: true } : null)
+      }
+    } catch (err) {
+      console.error('Error reopening poll:', err)
+      showNotification('error', 'Failed to reopen poll')
+    }
+  }
+
+  const handleDeletePoll = async (pollId: number) => {
+    if (!confirm('Are you sure you want to delete this poll? This action cannot be undone.')) return
+    
+    try {
+      await pollService.deletePoll(pollId)
+      showNotification('success', '🗑️ Poll deleted successfully!')
+      loadPolls()
+      if (selectedPoll?.id === pollId) {
+        setSelectedPoll(null)
+        setPollStats(null)
+      }
+    } catch (err) {
+      console.error('Error deleting poll:', err)
+      showNotification('error', 'Failed to delete poll')
+    }
+  }
+
   const renderAnalytics = () => (
     <div className="analytics-dashboard">
       <div className="analytics-header">
@@ -891,6 +1017,235 @@ const Sessions = () => {
       </div>
     </div>
   )
+
+  const renderPolls = () => {
+    console.log('📊 Rendering polls tab, polls count:', polls.length, 'loading:', pollsLoading, 'error:', pollsError)
+    
+    return (
+      <div className="polls-section">
+        {/* Create Poll Form */}
+        <div className="create-poll-card">
+          <h3>Create New Poll</h3>
+          <p className="section-description">Create a poll to gather feedback from your audience about session ideas</p>
+          
+          <form onSubmit={handleCreatePoll}>
+            <div className="form-group">
+              <label htmlFor="poll-title">
+                Poll Question <span className="required">*</span>
+              </label>
+              <input
+                type="text"
+                id="poll-title"
+                placeholder="e.g., What session topic would you like next?"
+                value={newPoll.title}
+                onChange={(e) => setNewPoll({ ...newPoll, title: e.target.value })}
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="poll-description">
+                Additional Details (Optional)
+              </label>
+              <textarea
+                id="poll-description"
+                placeholder="Add more context or details about this poll..."
+                value={newPoll.description}
+                onChange={(e) => setNewPoll({ ...newPoll, description: e.target.value })}
+                rows={3}
+              />
+            </div>
+
+            <div className="form-actions">
+              <Button type="submit" disabled={pollsLoading}>
+                {pollsLoading ? 'Creating...' : '📊 Create Poll'}
+              </Button>
+            </div>
+          </form>
+        </div>
+
+        {/* Polls List */}
+        <div className="polls-list-section">
+          <h3>Your Polls ({polls.length})</h3>
+          
+          {pollsLoading && !polls.length && (
+            <div className="loading-state">Loading polls...</div>
+          )}
+
+          {pollsError && (
+            <div className="error-state">
+              <p>⚠️ {pollsError}</p>
+              <Button onClick={loadPolls}>Retry</Button>
+            </div>
+          )}
+
+          {!pollsLoading && !pollsError && polls.length === 0 && (
+            <div className="empty-state">
+              <p>No polls created yet. Create your first poll above!</p>
+            </div>
+          )}
+
+          {polls.length > 0 && (
+            <div className="polls-grid">
+              {polls.map((poll) => (
+                <div key={poll.id} className={`poll-card ${!poll.is_active ? 'closed' : ''}`}>
+                  <div className="poll-header">
+                    <h4>{poll.title}</h4>
+                    <span className={`poll-status ${poll.is_active ? 'active' : 'closed'}`}>
+                      {poll.is_active ? '🟢 Active' : '🔴 Closed'}
+                    </span>
+                  </div>
+
+                  {poll.description && (
+                    <p className="poll-description">{poll.description}</p>
+                  )}
+
+                  <div className="poll-meta">
+                    <span>📅 {new Date(poll.created_at).toLocaleDateString()}</span>
+                    <span>💬 {poll.comment_count || 0} comments</span>
+                  </div>
+
+                  <div className="poll-actions">
+                    <Button 
+                      variant="secondary" 
+                      size="small"
+                      onClick={() => handleViewPollDetails(poll)}
+                    >
+                      📊 View Results
+                    </Button>
+                    
+                    {poll.is_active ? (
+                      <Button 
+                        variant="secondary" 
+                        size="small"
+                        onClick={() => handleClosePoll(poll.id)}
+                      >
+                        ⏸️ Close Poll
+                      </Button>
+                    ) : (
+                      <Button 
+                        variant="secondary" 
+                        size="small"
+                        onClick={() => handleReopenPoll(poll.id)}
+                      >
+                        ▶️ Reopen
+                      </Button>
+                    )}
+                    
+                    <Button 
+                      variant="danger" 
+                      size="small"
+                      onClick={() => handleDeletePoll(poll.id)}
+                    >
+                      🗑️ Delete
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Poll Details Modal */}
+        {selectedPoll && (
+          <div className="modal-overlay" onClick={() => setSelectedPoll(null)}>
+            <div className="modal-content poll-details-modal" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <h3>Poll Results</h3>
+                <button className="close-btn" onClick={() => setSelectedPoll(null)}>×</button>
+              </div>
+
+              <div className="modal-body">
+                <h4>{selectedPoll.title}</h4>
+                {selectedPoll.description && (
+                  <p className="poll-description">{selectedPoll.description}</p>
+                )}
+
+                {pollStats && (
+                  <div className="poll-results">
+                    <div className="total-votes">
+                      <strong>Total Votes: {pollStats.totalVotes}</strong>
+                    </div>
+
+                    <div className="vote-breakdown">
+                      <div className="vote-option yes">
+                        <div className="vote-label">
+                          <span>👍 Yes</span>
+                          <span className="vote-count">
+                            {Math.round(pollStats.totalVotes * pollStats.yesPercentage / 100)} votes
+                          </span>
+                        </div>
+                        <div className="vote-bar">
+                          <div 
+                            className="vote-fill yes-fill"
+                            style={{ width: `${pollStats.yesPercentage}%` }}
+                          />
+                        </div>
+                        <span className="vote-percentage">
+                          {pollStats.yesPercentage.toFixed(1)}%
+                        </span>
+                      </div>
+
+                      <div className="vote-option maybe">
+                        <div className="vote-label">
+                          <span>🤔 Maybe</span>
+                          <span className="vote-count">
+                            {Math.round(pollStats.totalVotes * pollStats.maybePercentage / 100)} votes
+                          </span>
+                        </div>
+                        <div className="vote-bar">
+                          <div 
+                            className="vote-fill maybe-fill"
+                            style={{ width: `${pollStats.maybePercentage}%` }}
+                          />
+                        </div>
+                        <span className="vote-percentage">
+                          {pollStats.maybePercentage.toFixed(1)}%
+                        </span>
+                      </div>
+
+                      <div className="vote-option no">
+                        <div className="vote-label">
+                          <span>👎 No</span>
+                          <span className="vote-count">
+                            {Math.round(pollStats.totalVotes * pollStats.noPercentage / 100)} votes
+                          </span>
+                        </div>
+                        <div className="vote-bar">
+                          <div 
+                            className="vote-fill no-fill"
+                            style={{ width: `${pollStats.noPercentage}%` }}
+                          />
+                        </div>
+                        <span className="vote-percentage">
+                          {pollStats.noPercentage.toFixed(1)}%
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="poll-info">
+                      <p>💬 {pollStats.commentCount} comments</p>
+                      <p>📅 Created: {new Date(selectedPoll.created_at).toLocaleString()}</p>
+                    </div>
+                  </div>
+                )}
+
+                {!pollStats && pollsLoading && (
+                  <div className="loading-state">Loading statistics...</div>
+                )}
+              </div>
+
+              <div className="modal-footer">
+                <Button variant="secondary" onClick={() => setSelectedPoll(null)}>
+                  Close
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    )
+  }
 
   const renderManageSessionModal = () => {
     if (!showManageModal || !selectedSession) return null
@@ -1291,6 +1646,12 @@ const Sessions = () => {
           Create Session
         </Button>
         <Button 
+          variant={activeTab === 'polls' ? 'primary' : 'secondary'}
+          onClick={() => setActiveTab('polls')}
+        >
+          Polls
+        </Button>
+        <Button 
           variant={activeTab === 'analytics' ? 'primary' : 'secondary'}
           onClick={() => setActiveTab('analytics')}
         >
@@ -1301,6 +1662,7 @@ const Sessions = () => {
       <div className="sessions-content">
         {activeTab === 'my-sessions' && renderMyServices()}
         {activeTab === 'new-session' && renderNewSession()}
+        {activeTab === 'polls' && renderPolls()}
         {activeTab === 'analytics' && renderAnalytics()}
       </div>
 

@@ -1,17 +1,18 @@
-import { useEffect, useRef, useState, memo, useMemo } from 'react';
-import { useLocation, Link , useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import logo from '../assets/logo-dark.webp';
-import Button from '../components/Button';
-import { useAuth } from '../hooks/useAuth';
+import { useEffect, useRef, useState, memo, useMemo } from "react";
+import { useLocation, Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import logo from "../assets/logo-dark.webp";
+import Button from "../components/Button";
+import { useAuth } from "../hooks/useAuth";
 //import { RoleGuard } from '../components/RoleGuard';
-import { supportedLanguages } from '../i18n';
-import { NotificationBell } from '../components/NotificationBell';
+import { supportedLanguages } from "../i18n";
+import { NotificationBell } from "../components/NotificationBell";
 
-import './../styles/components/navbar.scss';
+import "./../styles/components/navbar.scss";
 
 const NavBarComponent = () => {
   const [hidden, setHidden] = useState(false);
+  const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
   //const [currentTheme, setCurrentTheme] = useState('system');
   // Removed language state variable - using i18n directly
   const location = useLocation();
@@ -19,31 +20,34 @@ const NavBarComponent = () => {
   const { t, i18n } = useTranslation();
   const lastScroll = useRef(window.scrollY);
   const navigate = useNavigate();
+  const languageDropdownRef = useRef<HTMLDivElement>(null);
 
   // Get current language from i18n with logging
   const currentLanguage = useMemo(() => {
-    const currentLang = supportedLanguages.find(lang => lang.code === i18n.language) || supportedLanguages[0];
-    console.log('Current language detected:', currentLang);
+    const currentLang =
+      supportedLanguages.find((lang) => lang.code === i18n.language) ||
+      supportedLanguages[0];
+    console.log("Current language detected:", currentLang);
     return currentLang;
   }, [i18n.language]);
 
   // Track language changes and force re-render
   useEffect(() => {
-    console.log('NavBar re-rendered with language:', i18n.language);
+    console.log("NavBar re-rendered with language:", i18n.language);
     // Language is tracked directly via i18n
   }, [i18n.language]);
 
   // Determine if we should show compact mode based on current route
-  const isHomePage = location.pathname === '/';
-  const isCompactMode = !isHomePage && !location.pathname.includes('/404');
+  const isHomePage = location.pathname === "/";
+  const isCompactMode = !isHomePage && !location.pathname.includes("/404");
 
   // Save route path in ref to avoid re-renders on route changes
   const routeRef = useRef(location.pathname);
 
   // Only update compact mode when truly needed (home vs other pages)
   const shouldUpdateCompactMode =
-    (routeRef.current === '/' && location.pathname !== '/') ||
-    (routeRef.current !== '/' && location.pathname === '/');
+    (routeRef.current === "/" && location.pathname !== "/") ||
+    (routeRef.current !== "/" && location.pathname === "/");
 
   // Update ref only when needed for comparison
   if (shouldUpdateCompactMode) {
@@ -60,65 +64,88 @@ const NavBarComponent = () => {
       }
       lastScroll.current = current;
     };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   useEffect(() => {
     // Initialize theme from localStorage
-    const savedTheme = localStorage.getItem('theme') || 'system';
+    const savedTheme = localStorage.getItem("theme") || "system";
     //setCurrentTheme(savedTheme);
-    document.documentElement.setAttribute('data-theme', savedTheme);
+    document.documentElement.setAttribute("data-theme", savedTheme);
   }, []);
 
   useEffect(() => {
     // Debug: Log when language changes
-    console.log('🌐 Current language in navbar:', i18n.language, currentLanguage);
+    console.log(
+      "🌐 Current language in navbar:",
+      i18n.language,
+      currentLanguage
+    );
   }, [i18n.language, currentLanguage]);
+
+  // Close language dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        languageDropdownRef.current &&
+        !languageDropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsLanguageDropdownOpen(false);
+      }
+    };
+
+    if (isLanguageDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isLanguageDropdownOpen]);
 
   const handleLogoClick = () => {
     if (isCompactMode) {
       // Navigate to home page when in compact mode
-      window.location.href = '/';
+      window.location.href = "/";
     } else {
       // Already on home page, just navigate to top
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
   const handleLanguageToggle = () => {
-    const currentIndex = supportedLanguages.findIndex(lang => lang.code === currentLanguage.code);
-    const nextIndex = (currentIndex + 1) % supportedLanguages.length;
-    const nextLanguage = supportedLanguages[nextIndex];
+    setIsLanguageDropdownOpen(!isLanguageDropdownOpen);
+  };
 
-    // Use i18n.changeLanguage directly
-    i18n.changeLanguage(nextLanguage.code);
-
-    console.log(`Language switched to: ${nextLanguage.name} (${nextLanguage.code})`);
+  const handleLanguageSelect = (langCode: string) => {
+    i18n.changeLanguage(langCode);
+    setIsLanguageDropdownOpen(false);
+    console.log(`Language switched to: ${langCode}`);
   };
 
   const getLanguageIcon = () => {
-    console.log('Getting language icon for language:', currentLanguage.code);
+    console.log("Getting language icon for language:", currentLanguage.code);
     // Use appropriate letters for each language
     switch (currentLanguage.code) {
-      case 'sin':
-        return 'සි'; // Sinhala letters
-      case 'ta':
-        return 'த'; // Tamil letter
-      case 'en':
-        return 'En'; // English
+      case "sin":
+        return "සි"; // Sinhala letters
+      case "ta":
+        return "த"; // Tamil letter
+      case "en":
+        return "En"; // English
       default:
-        return 'En'; // Default to English
+        return "En"; // Default to English
     }
-  }
+  };
 
   const handleLogout = async () => {
     try {
       await logout();
       // Use window.location.href to force a full page reload after logout
-      window.location.href = '/';
+      window.location.href = "/";
     } catch (error) {
-      console.error('Error during logout:', error);
+      console.error("Error during logout:", error);
     }
   };
 
@@ -126,7 +153,8 @@ const NavBarComponent = () => {
     if (user) {
       // User is logged in - show profile picture or placeholder
       const avatarUrl = user.photoURL || userProfile?.profileData?.avatar;
-      const displayName = user.displayName || userProfile?.displayName || user.email || 'User';
+      const displayName =
+        user.displayName || userProfile?.displayName || user.email || "User";
 
       return (
         <div className="profile-section">
@@ -138,33 +166,40 @@ const NavBarComponent = () => {
               onError={(e) => {
                 // Hide the image and show placeholder if image fails to load
                 const target = e.target as HTMLImageElement;
-                target.style.display = 'none';
+                target.style.display = "none";
                 const placeholder = target.nextElementSibling as HTMLElement;
                 if (placeholder) {
-                  placeholder.classList.remove('hidden');
+                  placeholder.classList.remove("hidden");
                 }
               }}
             />
           ) : null}
-          <div className={`profile-placeholder ${avatarUrl ? 'hidden' : ''}`}>
+          <div className={`profile-placeholder ${avatarUrl ? "hidden" : ""}`}>
             {displayName.charAt(0).toUpperCase()}
           </div>
-          {/* {!forCompactMode && ( */}{(
+          {/* {!forCompactMode && ( */}
+          {
             <div className="profile-dropdown">
               <div className="profile-info">
                 <p className="profile-name">{displayName}</p>
-                <p className="profile-role">{userProfile?.role || 'User'}</p>
+                <p className="profile-role">{userProfile?.role || "User"}</p>
               </div>
               <div className="profile-actions">
-                <Link to="/dashboard/overview" className="dropdown-link">{t('navbar.dashboard')}</Link>
-                <Link to="/dashboard/profile" className="dropdown-link">{t('navbar.profileNav')}</Link>
-                <Link to="/subscription/plans" className="dropdown-link">{t('navbar.subscription')}</Link>
+                <Link to="/dashboard/overview" className="dropdown-link">
+                  {t("navbar.dashboard")}
+                </Link>
+                <Link to="/dashboard/profile" className="dropdown-link">
+                  {t("navbar.profileNav")}
+                </Link>
+                <Link to="/subscription/plans" className="dropdown-link">
+                  {t("navbar.subscription")}
+                </Link>
                 <button onClick={handleLogout} className="dropdown-link logout">
-                  {t('auth.signOut')}
+                  {t("auth.signOut")}
                 </button>
               </div>
             </div>
-          )}
+          }
         </div>
       );
     } else {
@@ -176,17 +211,17 @@ const NavBarComponent = () => {
             variant="primary"
             size="small"
             enableNavigationLoading={false}
-            onClick={() => navigate('/login')}
+            onClick={() => navigate("/login")}
           >
-            {t('auth.signIn')}
+            {t("auth.signIn")}
           </Button>
           <Button
             variant="primary"
             size="small"
-            onClick={() => navigate('/signup')}
+            onClick={() => navigate("/signup")}
             enableNavigationLoading={false}
           >
-            {t('auth.signUp')}
+            {t("auth.signUp")}
           </Button>
         </div>
       );
@@ -195,18 +230,65 @@ const NavBarComponent = () => {
 
   const renderUtilityButtons = (forCompactMode = false) => {
     return (
-      <div className={`utility-buttons ${forCompactMode ? 'compact' : ''}`}>
+      <div className={`utility-buttons ${forCompactMode ? "compact" : ""}`}>
         {/* Notification Bell */}
         {user && <NotificationBell />}
-        
-        {/* Language Toggle Button */}
-        <button
-          className="language-btn"
-          onClick={handleLanguageToggle}
-          //title={t('navbar.currentLanguage') + `: ${currentLanguage.name}`}
-        >
-          <span className="language-letter">{getLanguageIcon()}</span>
-        </button>
+
+        {/* Language Dropdown */}
+        <div className="language-dropdown-container" ref={languageDropdownRef}>
+          <button
+            className={`language-btn ${isLanguageDropdownOpen ? "active" : ""}`}
+            onClick={handleLanguageToggle}
+            aria-expanded={isLanguageDropdownOpen}
+            aria-label="Select language"
+          >
+            <span className="language-letter">{getLanguageIcon()}</span>
+          </button>
+
+          {isLanguageDropdownOpen && (
+            <div className="language-dropdown">
+              <div className="language-dropdown-header">
+                <h3>Select Language</h3>
+              </div>
+              <div className="language-list">
+                {supportedLanguages.map((lang) => (
+                  <button
+                    key={lang.code}
+                    className={`language-item ${
+                      currentLanguage.code === lang.code ? "active" : ""
+                    }`}
+                    onClick={() => handleLanguageSelect(lang.code)}
+                  >
+                    <span className="language-icon">{lang.flag}</span>
+                    <div className="language-info">
+                      <span className="language-name">{lang.name}</span>
+                      <span className="language-code">
+                        {lang.code.toUpperCase()}
+                      </span>
+                    </div>
+                    {currentLanguage.code === lang.code && (
+                      <svg
+                        className="check-icon"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                      >
+                        <path
+                          d="M13.3334 4L6.00002 11.3333L2.66669 8"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* Theme Toggle Button */}
         {/* <button
@@ -223,12 +305,15 @@ const NavBarComponent = () => {
   };
 
   // Smooth scroll to section if on home page, otherwise navigate to home and then scroll
-  const handleSectionLink = (e: React.MouseEvent<HTMLAnchorElement>, sectionId: string) => {
+  const handleSectionLink = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    sectionId: string
+  ) => {
     e.preventDefault();
     if (isHomePage) {
       const el = document.getElementById(sectionId);
       if (el) {
-        el.scrollIntoView({ behavior: 'smooth' });
+        el.scrollIntoView({ behavior: "smooth" });
       }
     } else {
       window.location.href = `/#${sectionId}`;
@@ -236,26 +321,46 @@ const NavBarComponent = () => {
   };
 
   return (
-    <nav className={`navbar-blur${hidden ? ' navbar-hidden' : ''}${isCompactMode ? ' navbar-compact' : ''}`}>
+    <nav
+      className={`navbar-blur${hidden ? " navbar-hidden" : ""}${
+        isCompactMode ? " navbar-compact" : ""
+      }`}
+    >
       <div className="navbar-inner">
         {/* Left Nav - Hidden in compact mode */}
         {!isCompactMode && (
           <div className="navbar-section left-section">
-            <a href="#features" className="nav-link" onClick={e => handleSectionLink(e, 'features')}>{t('navbar.features')}</a>
-            <a href="#about" className="nav-link" onClick={e => handleSectionLink(e, 'about')}>{t('navbar.about')}</a>
+            <a
+              href="#features"
+              className="nav-link"
+              onClick={(e) => handleSectionLink(e, "features")}
+            >
+              {t("navbar.features")}
+            </a>
+            <a
+              href="#about"
+              className="nav-link"
+              onClick={(e) => handleSectionLink(e, "about")}
+            >
+              {t("navbar.about")}
+            </a>
             {/* <Link to="/subscription/plans" className="nav-link">{t('navbar.plans')}</Link> */}
-            <a href="#" className="nav-link">{t('navbar.contact')}</a>
+            <a href="#" className="nav-link">
+              {t("navbar.contact")}
+            </a>
           </div>
         )}
 
         {/* Logo */}
-        <div className={`navbar-logo${isCompactMode ? ' logo-left' : ''}`}>
+        <div className={`navbar-logo${isCompactMode ? " logo-left" : ""}`}>
           <img
             src={logo}
             alt="logo"
             className="nav-logo"
             onClick={handleLogoClick}
-            title={isCompactMode ? t('navbar.goToHome') : t('navbar.scrollToTop')}
+            title={
+              isCompactMode ? t("navbar.goToHome") : t("navbar.scrollToTop")
+            }
           />
         </div>
 

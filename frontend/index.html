@@ -1,15 +1,20 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/assets/favic.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>S T E L L A R I O N</title>
-    <!-- PayHere Payment Gateway -->
-    <script type="text/javascript" src="https://www.payhere.lk/lib/payhere.js"></script>
   </head>
   <body>
     <div id="root"></div>
+    <!-- PayHere Payment Gateway -->
+    <!-- NOTE: Use PRODUCTION script URL even for sandbox mode -->
+    <!-- The sandbox: true flag in payment object handles sandbox mode -->
+    <script
+      type="text/javascript"
+      src="https://www.payhere.lk/lib/payhere.js"
+    ></script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

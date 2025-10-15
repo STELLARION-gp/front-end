@@ -1,13 +1,16 @@
-import React, { useState, useRef, useEffect } from 'react';
-import '../styles/components/_chatbot.scss';
-import { XIcon, Rocket, Trash2 } from 'lucide-react';
-import { useChatbot } from '../hooks/chatbot/useChatbot';
-import chatbot from '../../src/assets/chatbot.png'
+import React, { useRef, useEffect } from "react";
+import "../styles/components/_chatbot.scss";
+import { XIcon, Rocket, Trash2 } from "lucide-react";
+import { useChatbot } from "../hooks/chatbot/useChatbot";
+import { useChatbotContext } from "../contexts/ChatbotContext";
+import chatbot from "../../src/assets/chatbot.png";
 
 const Chatbot: React.FC = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [inputValue, setInputValue] = useState('');
-  const [backendStatus, setBackendStatus] = useState<'connected' | 'disconnected' | 'checking'>('checking');
+  const { isOpen, toggleChatbot } = useChatbotContext();
+  const [inputValue, setInputValue] = React.useState("");
+  const [backendStatus, setBackendStatus] = React.useState<
+    "connected" | "disconnected" | "checking"
+  >("checking");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -18,15 +21,16 @@ const Chatbot: React.FC = () => {
   useEffect(() => {
     const checkBackendConnection = async () => {
       try {
-        const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+        const backendUrl =
+          import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
         const response = await fetch(`${backendUrl}/api/chatbot/health`);
         if (response.ok) {
-          setBackendStatus('connected');
+          setBackendStatus("connected");
         } else {
-          setBackendStatus('disconnected');
+          setBackendStatus("disconnected");
         }
       } catch {
-        setBackendStatus('disconnected');
+        setBackendStatus("disconnected");
       }
     };
 
@@ -44,64 +48,52 @@ const Chatbot: React.FC = () => {
   // Prevent body scroll when chat is open
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
+      // Focus input when opening
+      setTimeout(() => inputRef.current?.focus(), 100);
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     }
 
     // Cleanup function to restore scrolling when component unmounts
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     };
   }, [isOpen]);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  const toggleChatbot = () => {
-    setIsOpen(!isOpen);
-    if (!isOpen) {
-      // Focus input when opening
-      setTimeout(() => inputRef.current?.focus(), 100);
-    }
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
 
     const messageText = inputValue.trim();
-    setInputValue('');
+    setInputValue("");
     await sendMessage(messageText);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
     }
   };
 
   const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
+    return date.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
     });
   };
 
   return (
     <>
       <div className="chatbot-fab" onClick={toggleChatbot}>
-        <img
-          src={chatbot}
-          alt="Chatbot"
-          className="chatbot-fab-icon"
-        />
+        <img src={chatbot} alt="Chatbot" className="chatbot-fab-icon" />
         {messages.length > 1 && (
-          <div className="message-indicator">
-            {messages.length - 1}
-          </div>
+          <div className="message-indicator">{messages.length - 1}</div>
         )}
       </div>
 
@@ -113,24 +105,33 @@ const Chatbot: React.FC = () => {
           <div className="chatbot-status">
             <div className={`status-dot ${backendStatus}`}></div>
             <span>
-              {backendStatus === 'connected' ? 'AI Connected' :
-                backendStatus === 'disconnected' ? 'Local Mode' :
-                  'Connecting...'}
+              {backendStatus === "connected"
+                ? "AI Connected"
+                : backendStatus === "disconnected"
+                ? "Local Mode"
+                : "Connecting..."}
             </span>
           </div>
 
           {/* Control buttons in top-right */}
           <div className="chatbot-controls">
-            <button className="control-btn delete-btn" onClick={clearMessages} title="Clear chat">
+            <button
+              className="control-btn delete-btn"
+              onClick={clearMessages}
+              title="Clear chat"
+            >
               <Trash2 size={18} />
             </button>
-            <button className="control-btn" onClick={toggleChatbot} title="Close">
+            <button
+              className="control-btn"
+              onClick={toggleChatbot}
+              title="Close"
+            >
               <XIcon size={18} />
             </button>
           </div>
 
           <div className="chatbot-window">
-
             <>
               <div className="chatbot-messages">
                 {messages.map((message) => (
@@ -148,7 +149,9 @@ const Chatbot: React.FC = () => {
                         <div className="message-text">{message.text}</div>
                       )}
                     </div>
-                    <div className="message-time">{formatTime(message.timestamp)}</div>
+                    <div className="message-time">
+                      {formatTime(message.timestamp)}
+                    </div>
                   </div>
                 ))}
                 <div ref={messagesEndRef} />
@@ -167,7 +170,7 @@ const Chatbot: React.FC = () => {
                     disabled={isLoading}
                   />
                   <button
-                    className={`send-btn ${inputValue.trim() ? 'active' : ''}`}
+                    className={`send-btn ${inputValue.trim() ? "active" : ""}`}
                     onClick={handleSendMessage}
                     disabled={!inputValue.trim() || isLoading}
                     title="Send message"

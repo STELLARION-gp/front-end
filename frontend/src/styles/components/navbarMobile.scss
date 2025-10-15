@@ -197,6 +197,10 @@ $mobile-breakpoint-tablet: 1024px;
 
 // Mobile language toggle
 .mobile-language-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    
     @include mobile-desktop-only {
         display: none;
     }

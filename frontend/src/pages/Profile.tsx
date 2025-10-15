@@ -1,11 +1,16 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import RoleUpgradeModal from '../components/RoleUpgradeModal';
-import { useAuth } from '../hooks/useAuth';
-import LoadingSpinner from '../components/LoadingSpinner';
-import Button from '../components/Button';
-import { useI18n } from '../i18n/useI18n';
-import { profileService, type ProfileData as ApiProfileData, type SettingsData as ApiSettingsData } from '../services/profileService';
+import React, { useState, useRef, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import RoleUpgradeModal from "../components/RoleUpgradeModal";
+import { useAuth } from "../hooks/useAuth";
+import LoadingSpinner from "../components/LoadingSpinner";
+import Button from "../components/Button";
+import { useI18n } from "../i18n/useI18n";
+import {
+  profileService,
+  type ProfileData as ApiProfileData,
+  type SettingsData as ApiSettingsData,
+} from "../services/profileService";
+import SubscriptionManager from "../components/subscription/SubscriptionManager";
 import {
   User,
   Settings,
@@ -28,8 +33,8 @@ import {
   Bell,
   Lock,
   Eye,
-  AlertTriangle
-} from 'lucide-react';
+  AlertTriangle,
+} from "lucide-react";
 
 interface ProfileData {
   // Basic Info
@@ -41,7 +46,7 @@ interface ProfileData {
   linkedin?: string;
 
   // Community-specific fields
-  astronomyExperience?: 'beginner' | 'intermediate' | 'advanced' | 'expert';
+  astronomyExperience?: "beginner" | "intermediate" | "advanced" | "expert";
   favoriteAstronomyFields?: string[];
   telescopeOwned?: boolean;
   telescopeType?: string;
@@ -71,7 +76,7 @@ interface SettingsData {
   language: string;
   emailNotifications: boolean;
   pushNotifications: boolean;
-  profileVisibility: 'public' | 'private' | 'community-only';
+  profileVisibility: "public" | "private" | "community-only";
   allowDirectMessages: boolean;
   showOnlineStatus: boolean;
 }
@@ -82,22 +87,24 @@ const Profile: React.FC = () => {
   const currentLang = getCurrentLanguage().code;
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [activeTab, setActiveTab] = useState<'profile' | 'settings'>('profile');
+  const [activeTab, setActiveTab] = useState<"profile" | "settings">("profile");
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showRoleUpgradeModal, setShowRoleUpgradeModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [loadedProfile, setLoadedProfile] = useState<ApiProfileData | null>(null);
+  const [loadedProfile, setLoadedProfile] = useState<ApiProfileData | null>(
+    null
+  );
 
   const [profileData, setProfileData] = useState<ProfileData>({
-    bio: '',
-    location: '',
-    website: '',
-    github: '',
-    linkedin: '',
-    astronomyExperience: 'beginner',
+    bio: "",
+    location: "",
+    website: "",
+    github: "",
+    linkedin: "",
+    astronomyExperience: "beginner",
     favoriteAstronomyFields: [],
     telescopeOwned: false,
     observationExperience: 0,
@@ -110,21 +117,21 @@ const Profile: React.FC = () => {
     currentProjects: [],
     achievements: [],
     contributions: [],
-    joinedCommunities: []
+    joinedCommunities: [],
   });
 
   const [settings, setSettings] = useState<SettingsData>({
     language: currentLang,
     emailNotifications: true,
     pushNotifications: true,
-    profileVisibility: 'public',
+    profileVisibility: "public",
     allowDirectMessages: true,
-    showOnlineStatus: true
+    showOnlineStatus: true,
   });
 
   // Update settings language when i18n language changes
   useEffect(() => {
-    setSettings(prev => ({ ...prev, language: currentLang }));
+    setSettings((prev) => ({ ...prev, language: currentLang }));
   }, [currentLang]);
 
   // Force re-render when language changes to ensure all text updates
@@ -134,23 +141,24 @@ const Profile: React.FC = () => {
   }, [currentLang]);
 
   const [editForm, setEditForm] = useState({
-    firstName: user?.displayName?.split(' ')[0] || '',
-    lastName: user?.displayName?.split(' ')[1] || '',
-    email: user?.email || '',
-    displayName: user?.displayName || ''
+    firstName: user?.displayName?.split(" ")[0] || "",
+    lastName: user?.displayName?.split(" ")[1] || "",
+    email: user?.email || "",
+    displayName: user?.displayName || "",
   });
 
   const [passwordForm, setPasswordForm] = useState({
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: ''
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
   });
 
   // Add state for role upgrade options
-  const [selectedUpgradeRole, setSelectedUpgradeRole] = useState<string>('');
+  const [selectedUpgradeRole, setSelectedUpgradeRole] = useState<string>("");
   const navigate = useNavigate();
   //const [roleUpgradeReason, setRoleUpgradeReason] = useState<string>('');
-  const [deleteAccountPassword, setDeleteAccountPassword] = useState<string>('');
+  const [deleteAccountPassword, setDeleteAccountPassword] =
+    useState<string>("");
 
   // Validation functions
   const validateEmail = (email: string) => {
@@ -159,40 +167,52 @@ const Profile: React.FC = () => {
   };
 
   const validateDisplayName = (displayName: string) => {
-    return displayName.length >= 3 && displayName.length <= 30 && /^[a-zA-Z0-9_-]+$/.test(displayName);
+    return (
+      displayName.length >= 3 &&
+      displayName.length <= 30 &&
+      /^[a-zA-Z0-9_-]+$/.test(displayName)
+    );
   };
 
   const validatePassword = (password: string) => {
-    return password.length >= 8 && /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/.test(password);
+    return (
+      password.length >= 8 &&
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/.test(
+        password
+      )
+    );
   };
 
   const roleHierarchy = {
-    'learner': 0,
-    'enthusiast': 1,
-    'guide': 2,
-    'mentor': 3,
-    'influencer': 4,
-    'moderator': 5,
-    'admin': 6
+    learner: 0,
+    enthusiast: 1,
+    guide: 2,
+    mentor: 3,
+    influencer: 4,
+    moderator: 5,
+    admin: 6,
   };
 
   const roleIcons = {
-    'learner': User,
-    'enthusiast': Heart,
-    'guide': Users,
-    'mentor': Award,
-    'influencer': Star,
-    'moderator': Shield,
-    'admin': Crown
+    learner: User,
+    enthusiast: Heart,
+    guide: Users,
+    mentor: Award,
+    influencer: Star,
+    moderator: Shield,
+    admin: Crown,
   };
 
   const getAvailableRoleUpgrades = (currentRole: string) => {
-    if (currentRole === 'learner') {
-      return ['enthusiast', 'guide', 'influencer'];
+    if (currentRole === "learner") {
+      return ["enthusiast", "guide", "influencer"];
     }
-    const currentLevel = roleHierarchy[currentRole as keyof typeof roleHierarchy];
+    const currentLevel =
+      roleHierarchy[currentRole as keyof typeof roleHierarchy];
     const roleEntries = Object.entries(roleHierarchy);
-    const nextRoleEntry = roleEntries.find(([, level]) => level === currentLevel + 1);
+    const nextRoleEntry = roleEntries.find(
+      ([, level]) => level === currentLevel + 1
+    );
     return nextRoleEntry ? [nextRoleEntry[0]] : [];
   };
 
@@ -206,67 +226,79 @@ const Profile: React.FC = () => {
     try {
       setLoading(true);
       setErrors({}); // Clear previous errors
-      console.log('🔄 Loading user profile...');
-      console.log('👤 Current user:', user);
-      console.log('🔐 User authenticated:', !!user);
+      console.log("🔄 Loading user profile...");
+      console.log("👤 Current user:", user);
+      console.log("🔐 User authenticated:", !!user);
 
       // Check if user is authenticated
       if (!user) {
-        console.error('❌ No user authenticated when trying to load profile');
-        setErrors({ profile: 'User not authenticated. Please log in.' });
+        console.error("❌ No user authenticated when trying to load profile");
+        setErrors({ profile: "User not authenticated. Please log in." });
         return;
       }
 
       const response = await profileService.getUserProfile();
-      console.log('📡 Profile API Response:', response);
+      console.log("📡 Profile API Response:", response);
 
       if (response.success && response.data) {
-        console.log('✅ Profile loaded successfully');
+        console.log("✅ Profile loaded successfully");
         const apiProfile = response.data;
         setLoadedProfile(apiProfile);
 
         // Update basic user info
         setEditForm({
-          firstName: apiProfile.first_name || '',
-          lastName: apiProfile.last_name || '',
-          email: apiProfile.email || '',
-          displayName: apiProfile.display_name || ''
+          firstName: apiProfile.first_name || "",
+          lastName: apiProfile.last_name || "",
+          email: apiProfile.email || "",
+          displayName: apiProfile.display_name || "",
         });
 
         // Update profile data - map from API format to component format
         if (apiProfile.profile_data) {
           setProfileData({
             profilePicture: apiProfile.profile_data.profile_picture,
-            bio: apiProfile.profile_data.bio || '',
-            location: apiProfile.profile_data.location || '',
-            website: apiProfile.profile_data.website || '',
-            github: apiProfile.profile_data.github || '',
-            linkedin: apiProfile.profile_data.linkedin || '',
-            astronomyExperience: apiProfile.profile_data.astronomy_experience || 'beginner',
-            favoriteAstronomyFields: apiProfile.profile_data.favorite_astronomy_fields || [],
+            bio: apiProfile.profile_data.bio || "",
+            location: apiProfile.profile_data.location || "",
+            website: apiProfile.profile_data.website || "",
+            github: apiProfile.profile_data.github || "",
+            linkedin: apiProfile.profile_data.linkedin || "",
+            astronomyExperience:
+              apiProfile.profile_data.astronomy_experience || "beginner",
+            favoriteAstronomyFields:
+              apiProfile.profile_data.favorite_astronomy_fields || [],
             telescopeOwned: apiProfile.profile_data.telescope_owned || false,
-            telescopeType: apiProfile.profile_data.telescope_type || '',
-            observationExperience: apiProfile.profile_data.observation_experience || 0,
+            telescopeType: apiProfile.profile_data.telescope_type || "",
+            observationExperience:
+              apiProfile.profile_data.observation_experience || 0,
             certifications: apiProfile.profile_data.certifications || [],
             achievements: apiProfile.profile_data.achievements || [],
             contributions: apiProfile.profile_data.contributions || [],
             joinedCommunities: apiProfile.profile_data.joined_communities || [],
             // Role-specific data
-            mentoringAreas: apiProfile.role_specific_data?.mentoring_areas || [],
-            yearsOfExperience: apiProfile.role_specific_data?.years_of_experience || 0,
-            socialMediaFollowers: apiProfile.role_specific_data?.social_media_followers || 0,
-            contentPlatforms: apiProfile.role_specific_data?.content_platforms || [],
+            mentoringAreas:
+              apiProfile.role_specific_data?.mentoring_areas || [],
+            yearsOfExperience:
+              apiProfile.role_specific_data?.years_of_experience || 0,
+            socialMediaFollowers:
+              apiProfile.role_specific_data?.social_media_followers || 0,
+            contentPlatforms:
+              apiProfile.role_specific_data?.content_platforms || [],
             learningGoals: apiProfile.role_specific_data?.learning_goals || [],
-            currentProjects: apiProfile.role_specific_data?.current_projects || []
+            currentProjects:
+              apiProfile.role_specific_data?.current_projects || [],
           });
         }
       } else {
-        console.error('❌ Profile API failed:', response);
-        setErrors({ profile: response.message || 'Failed to load profile' });
+        console.error("❌ Profile API failed:", response);
+        setErrors({ profile: response.message || "Failed to load profile" });
       }
     } catch (error) {
-      console.error('❌ Error loading profile:', error);
-      setErrors({ profile: `Failed to load profile data: ${error instanceof Error ? error.message : 'Unknown error'}` });
+      console.error("❌ Error loading profile:", error);
+      setErrors({
+        profile: `Failed to load profile data: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`,
+      });
     } finally {
       setLoading(false);
     }
@@ -274,22 +306,22 @@ const Profile: React.FC = () => {
 
   const loadUserSettings = useCallback(async () => {
     try {
-      console.log('🔄 Loading user settings...');
-      console.log('👤 Current user:', user);
-      console.log('🔐 User authenticated:', !!user);
+      console.log("🔄 Loading user settings...");
+      console.log("👤 Current user:", user);
+      console.log("🔐 User authenticated:", !!user);
 
       // Check if user is authenticated
       if (!user) {
-        console.error('❌ No user authenticated when trying to load settings');
-        setErrors({ settings: 'User not authenticated. Please log in.' });
+        console.error("❌ No user authenticated when trying to load settings");
+        setErrors({ settings: "User not authenticated. Please log in." });
         return;
       }
 
       const response = await profileService.getUserSettings();
-      console.log('📡 Settings API Response:', response);
+      console.log("📡 Settings API Response:", response);
 
       if (response.success && response.data) {
-        console.log('✅ Settings loaded successfully');
+        console.log("✅ Settings loaded successfully");
         const apiSettings = response.data;
         setSettings({
           language: apiSettings.language,
@@ -297,15 +329,19 @@ const Profile: React.FC = () => {
           pushNotifications: apiSettings.push_notifications,
           profileVisibility: apiSettings.profile_visibility,
           allowDirectMessages: apiSettings.allow_direct_messages,
-          showOnlineStatus: apiSettings.show_online_status
+          showOnlineStatus: apiSettings.show_online_status,
         });
       } else {
-        console.error('❌ Settings API failed:', response);
-        setErrors({ settings: response.message || 'Failed to load settings' });
+        console.error("❌ Settings API failed:", response);
+        setErrors({ settings: response.message || "Failed to load settings" });
       }
     } catch (error) {
-      console.error('❌ Error loading settings:', error);
-      setErrors({ settings: `Failed to load settings data: ${error instanceof Error ? error.message : 'Unknown error'}` });
+      console.error("❌ Error loading settings:", error);
+      setErrors({
+        settings: `Failed to load settings data: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`,
+      });
     }
   }, [user]);
 
@@ -317,7 +353,9 @@ const Profile: React.FC = () => {
     }
   }, [user, loadUserProfile, loadUserSettings]);
 
-  const handleProfilePictureChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleProfilePictureChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -328,21 +366,21 @@ const Profile: React.FC = () => {
 
       if (response.success && response.data) {
         // Update profile picture in state
-        setProfileData(prev => ({
+        setProfileData((prev) => ({
           ...prev,
-          profilePicture: response.data!.profile_picture_url
+          profilePicture: response.data!.profile_picture_url,
         }));
       } else {
-        setErrors({ avatar: response.message || 'Failed to upload avatar' });
+        setErrors({ avatar: response.message || "Failed to upload avatar" });
       }
     } catch (error) {
-      console.error('Error uploading avatar:', error);
-      setErrors({ avatar: 'Failed to upload avatar' });
+      console.error("Error uploading avatar:", error);
+      setErrors({ avatar: "Failed to upload avatar" });
     } finally {
       setLoading(false);
       // Reset file input
       if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+        fileInputRef.current.value = "";
       }
     }
   };
@@ -350,12 +388,15 @@ const Profile: React.FC = () => {
   const handleSaveProfile = async () => {
     // Validate form data
     if (!validateDisplayName(editForm.displayName)) {
-      setErrors({ displayName: 'Display name must be 3-30 characters and contain only letters, numbers, _ and -' });
+      setErrors({
+        displayName:
+          "Display name must be 3-30 characters and contain only letters, numbers, _ and -",
+      });
       return;
     }
 
     if (!validateEmail(editForm.email)) {
-      setErrors({ email: 'Please enter a valid email address' });
+      setErrors({ email: "Please enter a valid email address" });
       return;
     }
 
@@ -382,7 +423,7 @@ const Profile: React.FC = () => {
           certifications: profileData.certifications,
           achievements: profileData.achievements,
           contributions: profileData.contributions,
-          joined_communities: profileData.joinedCommunities
+          joined_communities: profileData.joinedCommunities,
         },
         role_specific_data: {
           mentoring_areas: profileData.mentoringAreas,
@@ -390,8 +431,8 @@ const Profile: React.FC = () => {
           social_media_followers: profileData.socialMediaFollowers,
           content_platforms: profileData.contentPlatforms,
           learning_goals: profileData.learningGoals,
-          current_projects: profileData.currentProjects
-        }
+          current_projects: profileData.currentProjects,
+        },
       };
 
       const response = await profileService.updateUserProfile(profilePayload);
@@ -401,11 +442,11 @@ const Profile: React.FC = () => {
         // Optionally reload profile to get updated data
         await loadUserProfile();
       } else {
-        setErrors({ profile: response.message || 'Failed to save profile' });
+        setErrors({ profile: response.message || "Failed to save profile" });
       }
     } catch (error) {
-      console.error('Error saving profile:', error);
-      setErrors({ profile: 'Failed to save profile' });
+      console.error("Error saving profile:", error);
+      setErrors({ profile: "Failed to save profile" });
     } finally {
       setLoading(false);
     }
@@ -423,7 +464,7 @@ const Profile: React.FC = () => {
         push_notifications: settings.pushNotifications,
         profile_visibility: settings.profileVisibility,
         allow_direct_messages: settings.allowDirectMessages,
-        show_online_status: settings.showOnlineStatus
+        show_online_status: settings.showOnlineStatus,
       };
 
       const response = await profileService.updateUserSettings(settingsPayload);
@@ -434,11 +475,11 @@ const Profile: React.FC = () => {
           changeLanguage(settings.language);
         }
       } else {
-        setErrors({ settings: response.message || 'Failed to save settings' });
+        setErrors({ settings: response.message || "Failed to save settings" });
       }
     } catch (error) {
-      console.error('Error saving settings:', error);
-      setErrors({ settings: 'Failed to save settings' });
+      console.error("Error saving settings:", error);
+      setErrors({ settings: "Failed to save settings" });
     } finally {
       setLoading(false);
     }
@@ -446,12 +487,15 @@ const Profile: React.FC = () => {
 
   const handleChangePassword = async () => {
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      setErrors({ password: 'Passwords do not match' });
+      setErrors({ password: "Passwords do not match" });
       return;
     }
 
     if (!validatePassword(passwordForm.newPassword)) {
-      setErrors({ password: 'Password must be at least 8 characters with uppercase, lowercase, number, and special character' });
+      setErrors({
+        password:
+          "Password must be at least 8 characters with uppercase, lowercase, number, and special character",
+      });
       return;
     }
 
@@ -461,20 +505,26 @@ const Profile: React.FC = () => {
     try {
       const response = await profileService.changePassword({
         current_password: passwordForm.currentPassword,
-        new_password: passwordForm.newPassword
+        new_password: passwordForm.newPassword,
       });
 
       if (response.success) {
         setShowPasswordModal(false);
-        setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+        setPasswordForm({
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        });
         // Show success message
-        alert('Password changed successfully');
+        alert("Password changed successfully");
       } else {
-        setErrors({ password: response.message || 'Failed to change password' });
+        setErrors({
+          password: response.message || "Failed to change password",
+        });
       }
     } catch (error) {
-      console.error('Error changing password:', error);
-      setErrors({ password: 'Failed to change password' });
+      console.error("Error changing password:", error);
+      setErrors({ password: "Failed to change password" });
     } finally {
       setLoading(false);
     }
@@ -482,7 +532,7 @@ const Profile: React.FC = () => {
 
   const handleDeleteAccount = async () => {
     if (!deleteAccountPassword) {
-      setErrors({ account: 'Please enter your password to confirm' });
+      setErrors({ account: "Please enter your password to confirm" });
       return;
     }
 
@@ -491,21 +541,21 @@ const Profile: React.FC = () => {
 
     try {
       const response = await profileService.deleteAccount({
-        confirmation: 'DELETE',
-        password: deleteAccountPassword
+        confirmation: "DELETE",
+        password: deleteAccountPassword,
       });
 
       if (response.success) {
         // Account deletion successful - redirect to logout
-        alert('Account deleted successfully');
+        alert("Account deleted successfully");
         // Add logout logic here if needed
-        window.location.href = '/';
+        window.location.href = "/";
       } else {
-        setErrors({ account: response.message || 'Failed to delete account' });
+        setErrors({ account: response.message || "Failed to delete account" });
       }
     } catch (error) {
-      console.error('Error deleting account:', error);
-      setErrors({ account: 'Failed to delete account' });
+      console.error("Error deleting account:", error);
+      setErrors({ account: "Failed to delete account" });
     } finally {
       setLoading(false);
     }
@@ -559,27 +609,45 @@ const Profile: React.FC = () => {
 
       if (response.success && response.data) {
         // Open download URL in new tab
-        window.open(response.data.download_url, '_blank');
+        window.open(response.data.download_url, "_blank");
       } else {
-        setErrors({ export: response.message || 'Failed to export data' });
-        alert('Failed to export data: ' + (response.message || 'Unknown error'));
+        setErrors({ export: response.message || "Failed to export data" });
+        alert(
+          "Failed to export data: " + (response.message || "Unknown error")
+        );
       }
     } catch (error) {
-      console.error('Error exporting data:', error);
-      setErrors({ export: 'Failed to export data' });
-      alert('Failed to export data. Please try again.');
+      console.error("Error exporting data:", error);
+      setErrors({ export: "Failed to export data" });
+      alert("Failed to export data. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   const astronomyFields = [
-    'Astrophysics', 'Cosmology', 'Planetary Science', 'Stellar Astronomy',
-    'Galactic Astronomy', 'Exoplanets', 'Solar System', 'Deep Sky Objects',
-    'Astrophotography', 'Radio Astronomy', 'X-ray Astronomy', 'Gravitational Waves'
+    "Astrophysics",
+    "Cosmology",
+    "Planetary Science",
+    "Stellar Astronomy",
+    "Galactic Astronomy",
+    "Exoplanets",
+    "Solar System",
+    "Deep Sky Objects",
+    "Astrophotography",
+    "Radio Astronomy",
+    "X-ray Astronomy",
+    "Gravitational Waves",
   ];
 
-  const contentPlatforms = ['YouTube', 'Instagram', 'TikTok', 'Twitter', 'Blog', 'Podcast'];
+  const contentPlatforms = [
+    "YouTube",
+    "Instagram",
+    "TikTok",
+    "Twitter",
+    "Blog",
+    "Podcast",
+  ];
 
   if (!user || !userProfile || !isLanguageReady) {
     return (
@@ -591,31 +659,35 @@ const Profile: React.FC = () => {
 
   // User profile data - from API or fallback to defaults
   const currentUserProfile = loadedProfile || {
-    id: user?.uid || '1',
+    id: user?.uid || "1",
     first_name: editForm.firstName,
     last_name: editForm.lastName,
-    display_name: user?.displayName || userProfile?.displayName || 'John Doe',
-    email: user?.email || userProfile?.email || 'john@example.com',
-    role: userProfile?.role || 'learner',
+    display_name: user?.displayName || userProfile?.displayName || "John Doe",
+    email: user?.email || userProfile?.email || "john@example.com",
+    role: userProfile?.role || "learner",
     is_active: userProfile?.isActive ?? true,
-    created_at: userProfile?.createdAt?.toISOString() || new Date('2024-01-01').toISOString(),
-    last_login: userProfile?.lastLogin?.toISOString() || new Date().toISOString(),
+    created_at:
+      userProfile?.createdAt?.toISOString() ||
+      new Date("2024-01-01").toISOString(),
+    last_login:
+      userProfile?.lastLogin?.toISOString() || new Date().toISOString(),
   };
 
-  const RoleIcon = roleIcons[currentUserProfile.role as keyof typeof roleIcons] || User;
-  const nextRole = getNextRole(currentUserProfile.role || 'learner');
+  const RoleIcon =
+    roleIcons[currentUserProfile.role as keyof typeof roleIcons] || User;
+  const nextRole = getNextRole(currentUserProfile.role || "learner");
 
   // Helper function to get display values from profile
   const getDisplayValue = (profile: typeof currentUserProfile) => {
     return {
-      firstName: profile.first_name || '',
-      lastName: profile.last_name || '',
-      displayName: profile.display_name || '',
-      email: profile.email || '',
-      role: profile.role || 'learner',
+      firstName: profile.first_name || "",
+      lastName: profile.last_name || "",
+      displayName: profile.display_name || "",
+      email: profile.email || "",
+      role: profile.role || "learner",
       isActive: profile.is_active ?? true,
       createdAt: profile.created_at ? new Date(profile.created_at) : new Date(),
-      lastLogin: profile.last_login ? new Date(profile.last_login) : new Date()
+      lastLogin: profile.last_login ? new Date(profile.last_login) : new Date(),
     };
   };
 
@@ -624,7 +696,6 @@ const Profile: React.FC = () => {
   return (
     <div className="profile-page">
       <div className="profile-container">
-
         {/* Error Display */}
         {Object.keys(errors).length > 0 && (
           <div className="mb-4 p-4 bg-red-900/50 border border-red-500 rounded-lg">
@@ -645,7 +716,11 @@ const Profile: React.FC = () => {
               <div className="profile-avatar-pr-container">
                 <div className="profile-avatar-pr overflow-hidden">
                   {profileData.profilePicture ? (
-                    <img src={profileData.profilePicture} alt="Profile" className="w-full h-full object-cover" />
+                    <img
+                      src={profileData.profilePicture}
+                      alt="Profile"
+                      className="w-full h-full object-cover"
+                    />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
                       <User size={48} className="text-gray-400" />
@@ -676,12 +751,24 @@ const Profile: React.FC = () => {
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
                       <h1 className="profile-name">
-                        {userProfile.displayName || `${displayProfile.firstName} ${displayProfile.lastName}`}
+                        {userProfile.displayName ||
+                          `${displayProfile.firstName} ${displayProfile.lastName}`}
                       </h1>
-                      <div className={`profile-status ${displayProfile.isActive ? 'status-active' : 'status-inactive'
-                        }`}>
-                        <div className={`status-dot ${displayProfile.isActive ? 'active' : 'inactive'}`} />
-                        {displayProfile.isActive ? t('profile.status.active') : t('profile.status.inactive')}
+                      <div
+                        className={`profile-status ${
+                          displayProfile.isActive
+                            ? "status-active"
+                            : "status-inactive"
+                        }`}
+                      >
+                        <div
+                          className={`status-dot ${
+                            displayProfile.isActive ? "active" : "inactive"
+                          }`}
+                        />
+                        {displayProfile.isActive
+                          ? t("profile.status.active")
+                          : t("profile.status.inactive")}
                       </div>
                     </div>
 
@@ -691,9 +778,13 @@ const Profile: React.FC = () => {
                         <span>{displayProfile.email}</span>
                       </div>
                       <div className="profile-role">
-                        <div className={`role-badge role-${currentUserProfile.role}`}>
+                        <div
+                          className={`role-badge role-${currentUserProfile.role}`}
+                        >
                           <RoleIcon size={16} />
-                          <span>{t(`profile.roles.${currentUserProfile.role}`)}</span>
+                          <span>
+                            {t(`profile.roles.${currentUserProfile.role}`)}
+                          </span>
                         </div>
                         {nextRole && (
                           <button
@@ -712,9 +803,14 @@ const Profile: React.FC = () => {
                     )}
 
                     <div className="profile-meta">
-                      <span>Joined {displayProfile.createdAt.toLocaleDateString()}</span>
+                      <span>
+                        Joined {displayProfile.createdAt.toLocaleDateString()}
+                      </span>
                       {displayProfile.lastLogin && (
-                        <span>Last active {displayProfile.lastLogin.toLocaleDateString()}</span>
+                        <span>
+                          Last active{" "}
+                          {displayProfile.lastLogin.toLocaleDateString()}
+                        </span>
                       )}
                     </div>
                   </div>
@@ -727,7 +823,9 @@ const Profile: React.FC = () => {
                       icon={<Edit3 size={16} />}
                       iconPosition="left"
                     >
-                      {isEditing ? t('profile.cancel') : t('profile.editProfile')}
+                      {isEditing
+                        ? t("profile.cancel")
+                        : t("profile.editProfile")}
                     </Button>
                   </div>
                 </div>
@@ -742,26 +840,28 @@ const Profile: React.FC = () => {
           <div className="profile-tabs">
             <div className="tab-nav">
               <button
-                onClick={() => setActiveTab('profile')}
-                className={`tab-button ${activeTab === 'profile' ? 'active' : ''
-                  }`}
+                onClick={() => setActiveTab("profile")}
+                className={`tab-button ${
+                  activeTab === "profile" ? "active" : ""
+                }`}
               >
                 <User size={18} />
-                {t('profile.tabs.details')}
+                {t("profile.tabs.details")}
               </button>
               <button
-                onClick={() => setActiveTab('settings')}
-                className={`tab-button ${activeTab === 'settings' ? 'active' : ''
-                  }`}
+                onClick={() => setActiveTab("settings")}
+                className={`tab-button ${
+                  activeTab === "settings" ? "active" : ""
+                }`}
               >
                 <Settings size={18} />
-                {t('profile.tabs.settings')}
+                {t("profile.tabs.settings")}
               </button>
             </div>
           </div>
 
           {/* Tab Content */}
-          {activeTab === 'profile' && (
+          {activeTab === "profile" && (
             <div className="profile-content">
               {/* Basic Information */}
               <div className="profile-card">
@@ -769,69 +869,113 @@ const Profile: React.FC = () => {
                   <div className="profile-section-profile">
                     <div className="section-header">
                       <User size={20} className="section-icon" />
-                      <h3 className="section-title">{t('profile.sections.basicInfo')}</h3>
+                      <h3 className="section-title">
+                        {t("profile.sections.basicInfo")}
+                      </h3>
                     </div>
 
                     {isEditing ? (
                       <div className="profile-form">
                         <div className="form-group">
-                          <label className="form-label">{t('profile.fields.firstName')}</label>
+                          <label className="form-label">
+                            {t("profile.fields.firstName")}
+                          </label>
                           <input
                             type="text"
                             id="firstName"
                             value={editForm.firstName}
-                            onChange={(e) => setEditForm(prev => ({ ...prev, firstName: e.target.value }))}
+                            onChange={(e) =>
+                              setEditForm((prev) => ({
+                                ...prev,
+                                firstName: e.target.value,
+                              }))
+                            }
                             className="form-input"
-                            placeholder={t('profile.fields.firstName')}
+                            placeholder={t("profile.fields.firstName")}
                           />
                         </div>
                         <div className="form-group">
-                          <label className="form-label">{t('profile.fields.lastName')}</label>
+                          <label className="form-label">
+                            {t("profile.fields.lastName")}
+                          </label>
                           <input
                             type="text"
                             id="lastName"
                             value={editForm.lastName}
-                            onChange={(e) => setEditForm(prev => ({ ...prev, lastName: e.target.value }))}
+                            onChange={(e) =>
+                              setEditForm((prev) => ({
+                                ...prev,
+                                lastName: e.target.value,
+                              }))
+                            }
                             className="form-input"
-                            placeholder={t('profile.fields.lastName')}
+                            placeholder={t("profile.fields.lastName")}
                           />
                         </div>
                         <div className="form-group">
-                          <label className="form-label">{t('profile.fields.displayName')}</label>
+                          <label className="form-label">
+                            {t("profile.fields.displayName")}
+                          </label>
                           <input
                             type="text"
                             id="displayName"
                             value={editForm.displayName}
-                            onChange={(e) => setEditForm(prev => ({ ...prev, displayName: e.target.value }))}
+                            onChange={(e) =>
+                              setEditForm((prev) => ({
+                                ...prev,
+                                displayName: e.target.value,
+                              }))
+                            }
                             className="form-input"
-                            placeholder={t('profile.fields.displayName')}
+                            placeholder={t("profile.fields.displayName")}
                           />
                           {errors.displayName && (
-                            <div className="text-red-400 text-sm mt-1">{errors.displayName}</div>
+                            <div className="text-red-400 text-sm mt-1">
+                              {errors.displayName}
+                            </div>
                           )}
                         </div>
                         <div className="form-group">
-                          <label className="form-label">{t('profile.fields.email')}</label>
+                          <label className="form-label">
+                            {t("profile.fields.email")}
+                          </label>
                           <input
                             type="email"
                             id="email"
                             value={editForm.email}
-                            onChange={(e) => setEditForm(prev => ({ ...prev, email: e.target.value }))}
+                            onChange={(e) =>
+                              setEditForm((prev) => ({
+                                ...prev,
+                                email: e.target.value,
+                              }))
+                            }
                             className="form-input"
-                            placeholder={t('profile.fields.email')}
+                            placeholder={t("profile.fields.email")}
                           />
                           {errors.email && (
-                            <div className="text-red-400 text-sm mt-1">{errors.email}</div>
+                            <div className="text-red-400 text-sm mt-1">
+                              {errors.email}
+                            </div>
                           )}
                         </div>
                         <div className="form-group">
-                          <label className="form-label">{t('profile.fields.bio')}</label>
+                          <label className="form-label">
+                            {t("profile.fields.bio")}
+                          </label>
                           <textarea
                             value={profileData.bio}
-                            onChange={(e) => setProfileData(prev => ({ ...prev, bio: e.target.value }))}
+                            onChange={(e) =>
+                              setProfileData((prev) => ({
+                                ...prev,
+                                bio: e.target.value,
+                              }))
+                            }
                             className="form-textarea"
                             rows={4}
-                            placeholder={t('profile.fields.bioPlaceholder') || 'Tell us about yourself...'}
+                            placeholder={
+                              t("profile.fields.bioPlaceholder") ||
+                              "Tell us about yourself..."
+                            }
                           />
                         </div>
                         <Button
@@ -842,27 +986,43 @@ const Profile: React.FC = () => {
                           fullWidth={true}
                           loading={loading}
                         >
-                          {t('profile.saveChanges')}
+                          {t("profile.saveChanges")}
                         </Button>
                       </div>
                     ) : (
                       <div className="section-content">
                         <div className="field-group">
-                          <span className="field-label">{t('profile.fields.firstName')}:</span>
-                          <span className="field-value">{displayProfile.firstName} {displayProfile.lastName}</span>
+                          <span className="field-label">
+                            {t("profile.fields.firstName")}:
+                          </span>
+                          <span className="field-value">
+                            {displayProfile.firstName} {displayProfile.lastName}
+                          </span>
                         </div>
                         <div className="field-group">
-                          <span className="field-label">{t('profile.fields.displayName')}:</span>
-                          <span className="field-value">{displayProfile.displayName}</span>
+                          <span className="field-label">
+                            {t("profile.fields.displayName")}:
+                          </span>
+                          <span className="field-value">
+                            {displayProfile.displayName}
+                          </span>
                         </div>
                         <div className="field-group">
-                          <span className="field-label">{t('profile.fields.email')}:</span>
-                          <span className="field-value">{displayProfile.email}</span>
+                          <span className="field-label">
+                            {t("profile.fields.email")}:
+                          </span>
+                          <span className="field-value">
+                            {displayProfile.email}
+                          </span>
                         </div>
                         {profileData.bio && (
                           <div className="field-group">
-                            <span className="field-label">{t('profile.fields.bio')}:</span>
-                            <p className="field-value mt-1">{profileData.bio}</p>
+                            <span className="field-label">
+                              {t("profile.fields.bio")}:
+                            </span>
+                            <p className="field-value mt-1">
+                              {profileData.bio}
+                            </p>
                           </div>
                         )}
                       </div>
@@ -871,44 +1031,67 @@ const Profile: React.FC = () => {
                 </div>
               </div>
 
+              {/* Subscription Management */}
+              <SubscriptionManager />
+
               {/* Astronomy Experience */}
               <div className="profile-card">
                 <div className="p-6">
                   <div className="profile-section-profile">
                     <div className="section-header">
                       <Telescope size={20} className="section-icon" />
-                      <h3 className="section-title">{t('profile.sections.astronomyInfo')}</h3>
+                      <h3 className="section-title">
+                        {t("profile.sections.astronomyInfo")}
+                      </h3>
                     </div>
 
                     <div className="profile-form">
                       <div className="form-group">
-                        <label className="form-label">{t('profile.fields.astronomyExperience')}</label>
+                        <label className="form-label">
+                          {t("profile.fields.astronomyExperience")}
+                        </label>
                         <select
                           value={profileData.astronomyExperience}
-                          onChange={(e) => setProfileData(prev => ({
-                            ...prev,
-                            astronomyExperience: e.target.value as ProfileData['astronomyExperience']
-                          }))}
+                          onChange={(e) =>
+                            setProfileData((prev) => ({
+                              ...prev,
+                              astronomyExperience: e.target
+                                .value as ProfileData["astronomyExperience"],
+                            }))
+                          }
                           className="form-select"
                           disabled={!isEditing}
                           aria-label="Astronomy experience level"
                         >
-                          <option value="beginner">{t('profile.experienceLevels.beginner')}</option>
-                          <option value="intermediate">{t('profile.experienceLevels.intermediate')}</option>
-                          <option value="advanced">{t('profile.experienceLevels.advanced')}</option>
-                          <option value="expert">{t('profile.experienceLevels.expert')}</option>
+                          <option value="beginner">
+                            {t("profile.experienceLevels.beginner")}
+                          </option>
+                          <option value="intermediate">
+                            {t("profile.experienceLevels.intermediate")}
+                          </option>
+                          <option value="advanced">
+                            {t("profile.experienceLevels.advanced")}
+                          </option>
+                          <option value="expert">
+                            {t("profile.experienceLevels.expert")}
+                          </option>
                         </select>
                       </div>
 
                       <div className="form-group">
-                        <label className="form-label">{t('profile.fields.observationExperience')}</label>
+                        <label className="form-label">
+                          {t("profile.fields.observationExperience")}
+                        </label>
                         <input
                           type="number"
                           value={profileData.observationExperience}
-                          onChange={(e) => setProfileData(prev => ({
-                            ...prev,
-                            observationExperience: parseInt(e.target.value) || 0
-                          }))}
+                          onChange={(e) =>
+                            setProfileData((prev) => ({
+                              ...prev,
+                              observationExperience:
+                                parseInt(e.target.value) || 0,
+                            }))
+                          }
                           className="form-input"
                           disabled={!isEditing}
                           min="0"
@@ -917,27 +1100,45 @@ const Profile: React.FC = () => {
                       </div>
 
                       <div className="form-group">
-                        <label className="form-label">{t('profile.fields.favoriteFields')}</label>
+                        <label className="form-label">
+                          {t("profile.fields.favoriteFields")}
+                        </label>
                         <div className="tag-selection">
-                          {astronomyFields.map(field => (
+                          {astronomyFields.map((field) => (
                             <button
                               key={field}
                               onClick={() => {
                                 if (!isEditing) return;
-                                setProfileData(prev => ({
+                                setProfileData((prev) => ({
                                   ...prev,
-                                  favoriteAstronomyFields: prev.favoriteAstronomyFields?.includes(field)
-                                    ? prev.favoriteAstronomyFields.filter(f => f !== field)
-                                    : [...(prev.favoriteAstronomyFields || []), field]
+                                  favoriteAstronomyFields:
+                                    prev.favoriteAstronomyFields?.includes(
+                                      field
+                                    )
+                                      ? prev.favoriteAstronomyFields.filter(
+                                          (f) => f !== field
+                                        )
+                                      : [
+                                          ...(prev.favoriteAstronomyFields ||
+                                            []),
+                                          field,
+                                        ],
                                 }));
                               }}
-                              className={`tag ${profileData.favoriteAstronomyFields?.includes(field)
-                                ? 'tag-selected'
-                                : 'tag-unselected'
-                                }`}
+                              className={`tag ${
+                                profileData.favoriteAstronomyFields?.includes(
+                                  field
+                                )
+                                  ? "tag-selected"
+                                  : "tag-unselected"
+                              }`}
                               disabled={!isEditing}
                             >
-                              {t(`profile.astronomyFields.${field.toLowerCase().replace(/\s+/g, '')}`) || field}
+                              {t(
+                                `profile.astronomyFields.${field
+                                  .toLowerCase()
+                                  .replace(/\s+/g, "")}`
+                              ) || field}
                             </button>
                           ))}
                         </div>
@@ -948,30 +1149,45 @@ const Profile: React.FC = () => {
                           type="checkbox"
                           id="telescopeOwned"
                           checked={profileData.telescopeOwned}
-                          onChange={(e) => setProfileData(prev => ({
-                            ...prev,
-                            telescopeOwned: e.target.checked
-                          }))}
+                          onChange={(e) =>
+                            setProfileData((prev) => ({
+                              ...prev,
+                              telescopeOwned: e.target.checked,
+                            }))
+                          }
                           className="form-checkbox"
                           disabled={!isEditing}
                           aria-label="I own a telescope"
                         />
-                        <label htmlFor="telescopeOwned" className="checkbox-label">{t('profile.fields.telescopeOwned')}</label>
+                        <label
+                          htmlFor="telescopeOwned"
+                          className="checkbox-label"
+                        >
+                          {t("profile.fields.telescopeOwned")}
+                        </label>
                       </div>
 
                       {profileData.telescopeOwned && (
                         <div className="form-group">
-                          <label className="form-label">{t('profile.fields.telescopeType')}</label>
+                          <label className="form-label">
+                            {t("profile.fields.telescopeType")}
+                          </label>
                           <input
                             type="text"
                             id="telescopeType"
-                            value={profileData.telescopeType || ''}
-                            onChange={(e) => setProfileData(prev => ({
-                              ...prev,
-                              telescopeType: e.target.value
-                            }))} disabled={!isEditing}
+                            value={profileData.telescopeType || ""}
+                            onChange={(e) =>
+                              setProfileData((prev) => ({
+                                ...prev,
+                                telescopeType: e.target.value,
+                              }))
+                            }
+                            disabled={!isEditing}
                             className="form-input"
-                            placeholder={t('profile.fields.telescopeType') || 'e.g., Celestron NexStar 8SE'}
+                            placeholder={
+                              t("profile.fields.telescopeType") ||
+                              "e.g., Celestron NexStar 8SE"
+                            }
                           />
                         </div>
                       )}
@@ -981,44 +1197,65 @@ const Profile: React.FC = () => {
               </div>
 
               {/* Role-Specific Information */}
-              {(currentUserProfile.role === 'mentor' || currentUserProfile.role === 'guide') && (
+              {(currentUserProfile.role === "mentor" ||
+                currentUserProfile.role === "guide") && (
                 <div className="profile-card">
                   <div className="p-6">
                     <div className="profile-section-profile">
                       <div className="section-header">
                         <Award size={20} className="section-icon" />
-                        <h3 className="section-title">{t('profile.sections.roleSpecific')}</h3>
+                        <h3 className="section-title">
+                          {t("profile.sections.roleSpecific")}
+                        </h3>
                       </div>
 
                       <div className="profile-form">
                         <div className="form-group">
-                          <label className="form-label">{t('profile.fields.yearsOfExperience')}</label>
+                          <label className="form-label">
+                            {t("profile.fields.yearsOfExperience")}
+                          </label>
                           <input
                             type="number"
                             id="yearsOfExperience"
-                            value={profileData.yearsOfExperience?.toString() || ''}
-                            onChange={(e) => setProfileData(prev => ({
-                              ...prev,
-                              yearsOfExperience: parseInt(e.target.value) || 0
-                            }))}
+                            value={
+                              profileData.yearsOfExperience?.toString() || ""
+                            }
+                            onChange={(e) =>
+                              setProfileData((prev) => ({
+                                ...prev,
+                                yearsOfExperience:
+                                  parseInt(e.target.value) || 0,
+                              }))
+                            }
                             disabled={!isEditing}
                             min="0"
                             className="form-input"
-                            placeholder={t('profile.fields.yearsOfExperience')}
+                            placeholder={t("profile.fields.yearsOfExperience")}
                           />
                         </div>
 
                         <div className="form-group">
-                          <label className="form-label">{t('profile.fields.mentoringAreas')}</label>
+                          <label className="form-label">
+                            {t("profile.fields.mentoringAreas")}
+                          </label>
                           <textarea
-                            value={profileData.mentoringAreas?.join(', ') || ''}
-                            onChange={(e) => setProfileData(prev => ({
-                              ...prev,
-                              mentoringAreas: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
-                            }))} className="form-textarea"
+                            value={profileData.mentoringAreas?.join(", ") || ""}
+                            onChange={(e) =>
+                              setProfileData((prev) => ({
+                                ...prev,
+                                mentoringAreas: e.target.value
+                                  .split(",")
+                                  .map((s) => s.trim())
+                                  .filter(Boolean),
+                              }))
+                            }
+                            className="form-textarea"
                             rows={3}
                             disabled={!isEditing}
-                            placeholder={t('profile.fields.mentoringAreas') || 'Astrophotography, Telescope setup, Observation planning...'}
+                            placeholder={
+                              t("profile.fields.mentoringAreas") ||
+                              "Astrophotography, Telescope setup, Observation planning..."
+                            }
                           />
                         </div>
                       </div>
@@ -1027,52 +1264,74 @@ const Profile: React.FC = () => {
                 </div>
               )}
 
-              {currentUserProfile.role === 'influencer' && (
+              {currentUserProfile.role === "influencer" && (
                 <div className="profile-card">
                   <div className="p-6">
                     <div className="profile-section-profile">
                       <div className="section-header">
                         <Star size={20} className="section-icon" />
-                        <h3 className="section-title">{t('profile.sections.roleSpecific')}</h3>
+                        <h3 className="section-title">
+                          {t("profile.sections.roleSpecific")}
+                        </h3>
                       </div>
 
                       <div className="profile-form">
                         <div className="form-group">
-                          <label className="form-label">{t('profile.fields.socialMediaFollowers')}</label>
+                          <label className="form-label">
+                            {t("profile.fields.socialMediaFollowers")}
+                          </label>
                           <input
                             type="number"
                             id="socialMediaFollowers"
-                            value={profileData.socialMediaFollowers?.toString() || ''}
-                            onChange={(e) => setProfileData(prev => ({
-                              ...prev,
-                              socialMediaFollowers: parseInt(e.target.value) || 0
-                            }))}
+                            value={
+                              profileData.socialMediaFollowers?.toString() || ""
+                            }
+                            onChange={(e) =>
+                              setProfileData((prev) => ({
+                                ...prev,
+                                socialMediaFollowers:
+                                  parseInt(e.target.value) || 0,
+                              }))
+                            }
                             disabled={!isEditing}
                             min="0"
                             className="form-input"
-                            placeholder={t('profile.fields.socialMediaFollowers')}
+                            placeholder={t(
+                              "profile.fields.socialMediaFollowers"
+                            )}
                           />
                         </div>
 
                         <div className="form-group">
-                          <label className="form-label">{t('profile.fields.contentPlatforms')}</label>
+                          <label className="form-label">
+                            {t("profile.fields.contentPlatforms")}
+                          </label>
                           <div className="tag-selection">
-                            {contentPlatforms.map(platform => (
+                            {contentPlatforms.map((platform) => (
                               <button
                                 key={platform}
                                 onClick={() => {
                                   if (!isEditing) return;
-                                  setProfileData(prev => ({
+                                  setProfileData((prev) => ({
                                     ...prev,
-                                    contentPlatforms: prev.contentPlatforms?.includes(platform)
-                                      ? prev.contentPlatforms.filter(p => p !== platform)
-                                      : [...(prev.contentPlatforms || []), platform]
+                                    contentPlatforms:
+                                      prev.contentPlatforms?.includes(platform)
+                                        ? prev.contentPlatforms.filter(
+                                            (p) => p !== platform
+                                          )
+                                        : [
+                                            ...(prev.contentPlatforms || []),
+                                            platform,
+                                          ],
                                   }));
                                 }}
-                                className={`tag ${profileData.contentPlatforms?.includes(platform)
-                                  ? 'tag-selected'
-                                  : 'tag-unselected'
-                                  }`}
+                                className={`tag ${
+                                  profileData.contentPlatforms?.includes(
+                                    platform
+                                  )
+                                    ? "tag-selected"
+                                    : "tag-unselected"
+                                }`}
                                 disabled={!isEditing}
                               >
                                 {platform}
@@ -1086,41 +1345,68 @@ const Profile: React.FC = () => {
                 </div>
               )}
 
-              {(currentUserProfile.role === 'learner' || currentUserProfile.role === 'enthusiast') && (
+              {(currentUserProfile.role === "learner" ||
+                currentUserProfile.role === "enthusiast") && (
                 <div className="profile-card">
                   <div className="p-6">
                     <div className="profile-section-profile">
                       <div className="section-header">
                         <Rocket size={20} className="section-icon" />
-                        <h3 className="section-title">{t('profile.sections.roleSpecific')}</h3>
+                        <h3 className="section-title">
+                          {t("profile.sections.roleSpecific")}
+                        </h3>
                       </div>
 
                       <div className="profile-form">
                         <div className="form-group">
-                          <label className="form-label">{t('profile.fields.learningGoals')}</label>
+                          <label className="form-label">
+                            {t("profile.fields.learningGoals")}
+                          </label>
                           <textarea
-                            value={profileData.learningGoals?.join(', ') || ''}
-                            onChange={(e) => setProfileData(prev => ({
-                              ...prev,
-                              learningGoals: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
-                            }))} className="form-textarea"
+                            value={profileData.learningGoals?.join(", ") || ""}
+                            onChange={(e) =>
+                              setProfileData((prev) => ({
+                                ...prev,
+                                learningGoals: e.target.value
+                                  .split(",")
+                                  .map((s) => s.trim())
+                                  .filter(Boolean),
+                              }))
+                            }
+                            className="form-textarea"
                             rows={3}
                             disabled={!isEditing}
-                            placeholder={t('profile.fields.learningGoals') || 'Learn astrophotography, Master telescope operation...'}
+                            placeholder={
+                              t("profile.fields.learningGoals") ||
+                              "Learn astrophotography, Master telescope operation..."
+                            }
                           />
                         </div>
 
                         <div className="form-group">
-                          <label className="form-label">{t('profile.fields.currentProjects')}</label>
+                          <label className="form-label">
+                            {t("profile.fields.currentProjects")}
+                          </label>
                           <textarea
-                            value={profileData.currentProjects?.join(', ') || ''}
-                            onChange={(e) => setProfileData(prev => ({
-                              ...prev,
-                              currentProjects: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
-                            }))} className="form-textarea"
+                            value={
+                              profileData.currentProjects?.join(", ") || ""
+                            }
+                            onChange={(e) =>
+                              setProfileData((prev) => ({
+                                ...prev,
+                                currentProjects: e.target.value
+                                  .split(",")
+                                  .map((s) => s.trim())
+                                  .filter(Boolean),
+                              }))
+                            }
+                            className="form-textarea"
                             rows={3}
                             disabled={!isEditing}
-                            placeholder={t('profile.fields.currentProjects') || 'Building a telescope, Photographing Orion Nebula...'}
+                            placeholder={
+                              t("profile.fields.currentProjects") ||
+                              "Building a telescope, Photographing Orion Nebula..."
+                            }
                           />
                         </div>
                       </div>
@@ -1135,70 +1421,112 @@ const Profile: React.FC = () => {
                   <div className="profile-section-profile">
                     <div className="section-header">
                       <Globe size={20} className="section-icon" />
-                      <h3 className="section-title">{t('profile.sections.socialLinks')}</h3>
+                      <h3 className="section-title">
+                        {t("profile.sections.socialLinks")}
+                      </h3>
                     </div>
 
                     <div className="profile-form">
                       <div className="form-group">
-                        <label className="form-label">{t('profile.fields.location')}</label>
+                        <label className="form-label">
+                          {t("profile.fields.location")}
+                        </label>
                         <div className="input-with-icon">
                           <MapPin size={16} className="input-icon" />
                           <input
                             type="text"
                             id="location"
-                            value={profileData.location || ''}
-                            onChange={(e) => setProfileData(prev => ({ ...prev, location: e.target.value }))}
+                            value={profileData.location || ""}
+                            onChange={(e) =>
+                              setProfileData((prev) => ({
+                                ...prev,
+                                location: e.target.value,
+                              }))
+                            }
                             disabled={!isEditing}
                             className="form-input"
-                            placeholder={t('profile.fields.locationPlaceholder') || 'Your location'}
+                            placeholder={
+                              t("profile.fields.locationPlaceholder") ||
+                              "Your location"
+                            }
                           />
                         </div>
                       </div>
 
                       <div className="form-group">
-                        <label className="form-label">{t('profile.fields.website')}</label>
+                        <label className="form-label">
+                          {t("profile.fields.website")}
+                        </label>
                         <div className="input-with-icon">
                           <Globe size={16} className="input-icon" />
                           <input
                             type="url"
                             id="website"
-                            value={profileData.website || ''}
-                            onChange={(e) => setProfileData(prev => ({ ...prev, website: e.target.value }))}
+                            value={profileData.website || ""}
+                            onChange={(e) =>
+                              setProfileData((prev) => ({
+                                ...prev,
+                                website: e.target.value,
+                              }))
+                            }
                             disabled={!isEditing}
                             className="form-input"
-                            placeholder={t('profile.fields.websitePlaceholder') || 'Your website'}
+                            placeholder={
+                              t("profile.fields.websitePlaceholder") ||
+                              "Your website"
+                            }
                           />
                         </div>
                       </div>
 
                       <div className="form-group">
-                        <label className="form-label">{t('profile.fields.github')}</label>
+                        <label className="form-label">
+                          {t("profile.fields.github")}
+                        </label>
                         <div className="input-with-icon">
                           <Github size={16} className="input-icon" />
                           <input
                             type="text"
                             id="github"
-                            value={profileData.github || ''}
-                            onChange={(e) => setProfileData(prev => ({ ...prev, github: e.target.value }))}
+                            value={profileData.github || ""}
+                            onChange={(e) =>
+                              setProfileData((prev) => ({
+                                ...prev,
+                                github: e.target.value,
+                              }))
+                            }
                             disabled={!isEditing}
                             className="form-input"
-                            placeholder={t('profile.fields.githubPlaceholder') || 'GitHub username'}
+                            placeholder={
+                              t("profile.fields.githubPlaceholder") ||
+                              "GitHub username"
+                            }
                           />
                         </div>
                       </div>
 
                       <div className="form-group">
-                        <label className="form-label">{t('profile.fields.linkedin')}</label>
+                        <label className="form-label">
+                          {t("profile.fields.linkedin")}
+                        </label>
                         <div className="input-with-icon">
                           <Linkedin size={16} className="input-icon" />
                           <input
                             type="text"
                             id="linkedin"
-                            value={profileData.linkedin || ''}
-                            onChange={(e) => setProfileData(prev => ({ ...prev, linkedin: e.target.value }))}
+                            value={profileData.linkedin || ""}
+                            onChange={(e) =>
+                              setProfileData((prev) => ({
+                                ...prev,
+                                linkedin: e.target.value,
+                              }))
+                            }
                             disabled={!isEditing}
                             className="form-input"
-                            placeholder={t('profile.fields.linkedinPlaceholder') || 'LinkedIn profile'}
+                            placeholder={
+                              t("profile.fields.linkedinPlaceholder") ||
+                              "LinkedIn profile"
+                            }
                           />
                         </div>
                       </div>
@@ -1213,37 +1541,57 @@ const Profile: React.FC = () => {
                   <div className="profile-section-profile">
                     <div className="section-header">
                       <Award size={20} className="section-icon" />
-                      <h3 className="section-title">{t('profile.sections.achievements')}</h3>
+                      <h3 className="section-title">
+                        {t("profile.sections.achievements")}
+                      </h3>
                     </div>
 
                     <div className="profile-form">
                       <div className="form-group">
-                        <label className="form-label">{t('profile.fields.achievements')}</label>
+                        <label className="form-label">
+                          {t("profile.fields.achievements")}
+                        </label>
                         <textarea
-                          value={profileData.achievements?.join('\n') || ''}
-                          onChange={(e) => setProfileData(prev => ({
-                            ...prev,
-                            achievements: e.target.value.split('\n').filter(Boolean)
-                          }))}
+                          value={profileData.achievements?.join("\n") || ""}
+                          onChange={(e) =>
+                            setProfileData((prev) => ({
+                              ...prev,
+                              achievements: e.target.value
+                                .split("\n")
+                                .filter(Boolean),
+                            }))
+                          }
                           className="form-textarea"
                           rows={4}
                           disabled={!isEditing}
-                          placeholder={t('profile.fields.achievementsPlaceholder') || 'List your achievements (one per line)'}
+                          placeholder={
+                            t("profile.fields.achievementsPlaceholder") ||
+                            "List your achievements (one per line)"
+                          }
                         />
                       </div>
 
                       <div className="form-group">
-                        <label className="form-label">{t('profile.fields.contributions')}</label>
+                        <label className="form-label">
+                          {t("profile.fields.contributions")}
+                        </label>
                         <textarea
-                          value={profileData.contributions?.join('\n') || ''}
-                          onChange={(e) => setProfileData(prev => ({
-                            ...prev,
-                            contributions: e.target.value.split('\n').filter(Boolean)
-                          }))}
+                          value={profileData.contributions?.join("\n") || ""}
+                          onChange={(e) =>
+                            setProfileData((prev) => ({
+                              ...prev,
+                              contributions: e.target.value
+                                .split("\n")
+                                .filter(Boolean),
+                            }))
+                          }
                           className="form-textarea"
                           rows={4}
                           disabled={!isEditing}
-                          placeholder={t('profile.fields.contributionsPlaceholder') || 'List your contributions (one per line)'}
+                          placeholder={
+                            t("profile.fields.contributionsPlaceholder") ||
+                            "List your contributions (one per line)"
+                          }
                         />
                       </div>
                     </div>
@@ -1253,7 +1601,7 @@ const Profile: React.FC = () => {
             </div>
           )}
 
-          {activeTab === 'settings' && (
+          {activeTab === "settings" && (
             <div className="profile-content">
               {/* General Settings */}
               <div className="profile-card">
@@ -1261,16 +1609,23 @@ const Profile: React.FC = () => {
                   <div className="profile-section-profile">
                     <div className="section-header">
                       <Settings size={20} className="section-icon" />
-                      <h3 className="section-title">{t('profile.tabs.settings')}</h3>
+                      <h3 className="section-title">
+                        {t("profile.tabs.settings")}
+                      </h3>
                     </div>
 
                     <div className="profile-form">
                       <div className="form-group">
-                        <label className="form-label">{t('profile.settings.language')}</label>
+                        <label className="form-label">
+                          {t("profile.settings.language")}
+                        </label>
                         <select
                           value={settings.language}
                           onChange={(e) => {
-                            setSettings(prev => ({ ...prev, language: e.target.value }));
+                            setSettings((prev) => ({
+                              ...prev,
+                              language: e.target.value,
+                            }));
                             // Also update the app language immediately
                             changeLanguage(e.target.value);
                           }}
@@ -1284,19 +1639,30 @@ const Profile: React.FC = () => {
                       </div>
 
                       <div className="form-group">
-                        <label className="form-label">{t('profile.settings.profileVisibility')}</label>
+                        <label className="form-label">
+                          {t("profile.settings.profileVisibility")}
+                        </label>
                         <select
                           value={settings.profileVisibility}
-                          onChange={(e) => setSettings(prev => ({
-                            ...prev,
-                            profileVisibility: e.target.value as SettingsData['profileVisibility']
-                          }))}
+                          onChange={(e) =>
+                            setSettings((prev) => ({
+                              ...prev,
+                              profileVisibility: e.target
+                                .value as SettingsData["profileVisibility"],
+                            }))
+                          }
                           className="form-select"
                           aria-label="Profile visibility setting"
                         >
-                          <option value="public">{t('profile.visibility.public')}</option>
-                          <option value="community-only">{t('profile.visibility.community')}</option>
-                          <option value="private">{t('profile.visibility.private')}</option>
+                          <option value="public">
+                            {t("profile.visibility.public")}
+                          </option>
+                          <option value="community-only">
+                            {t("profile.visibility.community")}
+                          </option>
+                          <option value="private">
+                            {t("profile.visibility.private")}
+                          </option>
                         </select>
                       </div>
 
@@ -1308,7 +1674,7 @@ const Profile: React.FC = () => {
                         fullWidth={true}
                         loading={loading}
                       >
-                        {t('profile.saveSettings')}
+                        {t("profile.saveSettings")}
                       </Button>
                     </div>
                   </div>
@@ -1321,23 +1687,31 @@ const Profile: React.FC = () => {
                   <div className="profile-section-profile">
                     <div className="section-header">
                       <Bell size={20} className="section-icon" />
-                      <h3 className="section-title">{t('profile.sections.notifications')}</h3>
+                      <h3 className="section-title">
+                        {t("profile.sections.notifications")}
+                      </h3>
                     </div>
 
                     <div className="space-y-4">
                       <div className="settings-toggle">
                         <div className="toggle-info">
-                          <div className="toggle-title">{t('profile.settings.emailNotifications')}</div>
-                          <div className="toggle-description">{t('profile.settings.emailNotifications')}</div>
+                          <div className="toggle-title">
+                            {t("profile.settings.emailNotifications")}
+                          </div>
+                          <div className="toggle-description">
+                            {t("profile.settings.emailNotifications")}
+                          </div>
                         </div>
                         <div className="toggle-switch">
                           <input
                             type="checkbox"
                             checked={settings.emailNotifications}
-                            onChange={(e) => setSettings(prev => ({
-                              ...prev,
-                              emailNotifications: e.target.checked
-                            }))}
+                            onChange={(e) =>
+                              setSettings((prev) => ({
+                                ...prev,
+                                emailNotifications: e.target.checked,
+                              }))
+                            }
                             aria-label="Email notifications"
                           />
                           <span className="toggle-slider"></span>
@@ -1346,17 +1720,23 @@ const Profile: React.FC = () => {
 
                       <div className="settings-toggle">
                         <div className="toggle-info">
-                          <div className="toggle-title">{t('profile.settings.pushNotifications')}</div>
-                          <div className="toggle-description">{t('profile.settings.pushNotifications')}</div>
+                          <div className="toggle-title">
+                            {t("profile.settings.pushNotifications")}
+                          </div>
+                          <div className="toggle-description">
+                            {t("profile.settings.pushNotifications")}
+                          </div>
                         </div>
                         <div className="toggle-switch">
                           <input
                             type="checkbox"
                             checked={settings.pushNotifications}
-                            onChange={(e) => setSettings(prev => ({
-                              ...prev,
-                              pushNotifications: e.target.checked
-                            }))}
+                            onChange={(e) =>
+                              setSettings((prev) => ({
+                                ...prev,
+                                pushNotifications: e.target.checked,
+                              }))
+                            }
                             aria-label="Push notifications"
                           />
                           <span className="toggle-slider"></span>
@@ -1365,17 +1745,23 @@ const Profile: React.FC = () => {
 
                       <div className="settings-toggle">
                         <div className="toggle-info">
-                          <div className="toggle-title">{t('profile.settings.showOnlineStatus')}</div>
-                          <div className="toggle-description">{t('profile.settings.showOnlineStatus')}</div>
+                          <div className="toggle-title">
+                            {t("profile.settings.showOnlineStatus")}
+                          </div>
+                          <div className="toggle-description">
+                            {t("profile.settings.showOnlineStatus")}
+                          </div>
                         </div>
                         <div className="toggle-switch">
                           <input
                             type="checkbox"
                             checked={settings.showOnlineStatus}
-                            onChange={(e) => setSettings(prev => ({
-                              ...prev,
-                              showOnlineStatus: e.target.checked
-                            }))}
+                            onChange={(e) =>
+                              setSettings((prev) => ({
+                                ...prev,
+                                showOnlineStatus: e.target.checked,
+                              }))
+                            }
                             aria-label="Show online status"
                           />
                           <span className="toggle-slider"></span>
@@ -1384,17 +1770,23 @@ const Profile: React.FC = () => {
 
                       <div className="settings-toggle">
                         <div className="toggle-info">
-                          <div className="toggle-title">{t('profile.settings.allowDirectMessages')}</div>
-                          <div className="toggle-description">{t('profile.settings.allowDirectMessages')}</div>
+                          <div className="toggle-title">
+                            {t("profile.settings.allowDirectMessages")}
+                          </div>
+                          <div className="toggle-description">
+                            {t("profile.settings.allowDirectMessages")}
+                          </div>
                         </div>
                         <div className="toggle-switch">
                           <input
                             type="checkbox"
                             checked={settings.allowDirectMessages}
-                            onChange={(e) => setSettings(prev => ({
-                              ...prev,
-                              allowDirectMessages: e.target.checked
-                            }))}
+                            onChange={(e) =>
+                              setSettings((prev) => ({
+                                ...prev,
+                                allowDirectMessages: e.target.checked,
+                              }))
+                            }
                             aria-label="Allow direct messages"
                           />
                           <span className="toggle-slider"></span>
@@ -1411,7 +1803,9 @@ const Profile: React.FC = () => {
                   <div className="profile-section-profile">
                     <div className="section-header">
                       <Lock size={20} className="section-icon" />
-                      <h3 className="section-title">{t('profile.sections.security')}</h3>
+                      <h3 className="section-title">
+                        {t("profile.sections.security")}
+                      </h3>
                     </div>
 
                     <div className="profile-form">
@@ -1423,7 +1817,7 @@ const Profile: React.FC = () => {
                         icon={<Lock size={16} />}
                         iconPosition="left"
                       >
-                        {t('profile.actions.changePassword')}
+                        {t("profile.actions.changePassword")}
                       </Button>
 
                       <Button
@@ -1435,7 +1829,7 @@ const Profile: React.FC = () => {
                         iconPosition="left"
                         disabled={loading}
                       >
-                        {t('profile.actions.downloadData')}
+                        {t("profile.actions.downloadData")}
                       </Button>
                     </div>
                   </div>
@@ -1447,14 +1841,18 @@ const Profile: React.FC = () => {
                 <div className="p-6">
                   <div className="danger-header">
                     <AlertTriangle className="danger-icon" size={20} />
-                    <h3 className="danger-title">{t('profile.sections.dangerZone')}</h3>
+                    <h3 className="danger-title">
+                      {t("profile.sections.dangerZone")}
+                    </h3>
                   </div>
 
                   <div className="space-y-4">
                     <div>
-                      <h4 className="font-medium text-red-300 mb-2">{t('profile.actions.deleteAccount')}</h4>
+                      <h4 className="font-medium text-red-300 mb-2">
+                        {t("profile.actions.deleteAccount")}
+                      </h4>
                       <p className="text-sm text-gray-400 mb-4">
-                        {t('profile.modals.deleteAccount.warning')}
+                        {t("profile.modals.deleteAccount.warning")}
                       </p>
                       <Button
                         onClick={() => setShowDeleteModal(true)}
@@ -1463,7 +1861,7 @@ const Profile: React.FC = () => {
                         icon={<Trash2 size={16} />}
                         iconPosition="left"
                       >
-                        {t('profile.actions.deleteAccount')}
+                        {t("profile.actions.deleteAccount")}
                       </Button>
                     </div>
                   </div>
@@ -1479,47 +1877,76 @@ const Profile: React.FC = () => {
         <div className="profile-modal-overlay">
           <div className="profile-modal">
             <div className="modal-header">
-              <h3 className="modal-title">{t('profile.modals.changePassword.title')}</h3>
+              <h3 className="modal-title">
+                {t("profile.modals.changePassword.title")}
+              </h3>
             </div>
 
             <div className="modal-content">
               <div className="profile-form">
                 <div className="form-group">
-                  <label className="form-label">{t('profile.modals.changePassword.currentPassword')}</label>
+                  <label className="form-label">
+                    {t("profile.modals.changePassword.currentPassword")}
+                  </label>
                   <input
                     type="password"
                     id="currentPassword"
                     value={passwordForm.currentPassword}
-                    onChange={(e) => setPasswordForm(prev => ({ ...prev, currentPassword: e.target.value }))}
+                    onChange={(e) =>
+                      setPasswordForm((prev) => ({
+                        ...prev,
+                        currentPassword: e.target.value,
+                      }))
+                    }
                     className="form-input"
-                    placeholder={t('profile.modals.changePassword.currentPassword')}
+                    placeholder={t(
+                      "profile.modals.changePassword.currentPassword"
+                    )}
                   />
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">{t('profile.modals.changePassword.newPassword')}</label>
+                  <label className="form-label">
+                    {t("profile.modals.changePassword.newPassword")}
+                  </label>
                   <input
                     type="password"
                     id="newPassword"
                     value={passwordForm.newPassword}
-                    onChange={(e) => setPasswordForm(prev => ({ ...prev, newPassword: e.target.value }))}
+                    onChange={(e) =>
+                      setPasswordForm((prev) => ({
+                        ...prev,
+                        newPassword: e.target.value,
+                      }))
+                    }
                     className="form-input"
-                    placeholder={t('profile.modals.changePassword.newPassword')}
+                    placeholder={t("profile.modals.changePassword.newPassword")}
                   />
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">{t('profile.modals.changePassword.confirmPassword')}</label>
+                  <label className="form-label">
+                    {t("profile.modals.changePassword.confirmPassword")}
+                  </label>
                   <input
                     type="password"
                     id="confirmPassword"
                     value={passwordForm.confirmPassword}
-                    onChange={(e) => setPasswordForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                    onChange={(e) =>
+                      setPasswordForm((prev) => ({
+                        ...prev,
+                        confirmPassword: e.target.value,
+                      }))
+                    }
                     className="form-input"
-                    placeholder={t('profile.modals.changePassword.confirmPassword')}
+                    placeholder={t(
+                      "profile.modals.changePassword.confirmPassword"
+                    )}
                   />
                   {errors.password && (
-                    <div className="text-red-400 text-sm mt-1">{errors.password}</div>
+                    <div className="text-red-400 text-sm mt-1">
+                      {errors.password}
+                    </div>
                   )}
                 </div>
               </div>
@@ -1531,7 +1958,7 @@ const Profile: React.FC = () => {
                 variant="secondary"
                 size="medium"
               >
-                {t('common.cancel')}
+                {t("common.cancel")}
               </Button>
               <Button
                 onClick={handleChangePassword}
@@ -1540,7 +1967,7 @@ const Profile: React.FC = () => {
                 size="medium"
                 loading={loading}
               >
-                {t('profile.actions.changePassword')}
+                {t("profile.actions.changePassword")}
               </Button>
             </div>
           </div>
@@ -1548,7 +1975,7 @@ const Profile: React.FC = () => {
       )}
 
       {/* Role Upgrade Modal */}
-      {showRoleUpgradeModal && currentUserProfile.role === 'learner' && (
+      {showRoleUpgradeModal && currentUserProfile.role === "learner" && (
         <RoleUpgradeModal
           isOpen={showRoleUpgradeModal}
           onClose={() => setShowRoleUpgradeModal(false)}
@@ -1556,11 +1983,11 @@ const Profile: React.FC = () => {
           setSelectedRole={setSelectedUpgradeRole}
           onSelect={(role) => {
             setShowRoleUpgradeModal(false);
-            setSelectedUpgradeRole('');
-            if (role === 'guide') {
-              navigate('/dashboard/guide-application');
-            } else if (role === 'influencer') {
-              navigate('/dashboard/influencer-application');
+            setSelectedUpgradeRole("");
+            if (role === "guide") {
+              navigate("/dashboard/guide-application");
+            } else if (role === "influencer") {
+              navigate("/dashboard/influencer-application");
             }
           }}
         />
@@ -1571,21 +1998,25 @@ const Profile: React.FC = () => {
         <div className="profile-modal-overlay">
           <div className="profile-modal">
             <div className="modal-header">
-              <h3 className="modal-title text-red-400">{t('profile.actions.deleteAccount')}</h3>
+              <h3 className="modal-title text-red-400">
+                {t("profile.actions.deleteAccount")}
+              </h3>
             </div>
 
             <div className="modal-content">
               <div className="space-y-4">
                 <p className="text-gray-300">
-                  {t('profile.modals.deleteAccount.warning')}
+                  {t("profile.modals.deleteAccount.warning")}
                 </p>
 
                 <p className="text-sm text-gray-400">
-                  {t('profile.modals.deleteAccount.details')}
+                  {t("profile.modals.deleteAccount.details")}
                 </p>
 
                 <div className="form-group">
-                  <label className="form-label">{t('profile.modals.deleteAccount.confirmation')}</label>
+                  <label className="form-label">
+                    {t("profile.modals.deleteAccount.confirmation")}
+                  </label>
                   <input
                     type="text"
                     id="deleteConfirmation"
@@ -1605,7 +2036,9 @@ const Profile: React.FC = () => {
                     placeholder="Enter your password"
                   />
                   {errors.account && (
-                    <div className="text-red-400 text-sm mt-1">{errors.account}</div>
+                    <div className="text-red-400 text-sm mt-1">
+                      {errors.account}
+                    </div>
                   )}
                 </div>
               </div>
@@ -1617,7 +2050,7 @@ const Profile: React.FC = () => {
                 variant="secondary"
                 size="medium"
               >
-                {t('common.cancel')}
+                {t("common.cancel")}
               </Button>
               <Button
                 onClick={handleDeleteAccount}
@@ -1626,7 +2059,7 @@ const Profile: React.FC = () => {
                 size="medium"
                 loading={loading}
               >
-                {t('profile.actions.deleteAccount')}
+                {t("profile.actions.deleteAccount")}
               </Button>
             </div>
           </div>

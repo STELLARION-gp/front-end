@@ -198,6 +198,29 @@ export class NotificationService {
   }
 
   /**
+   * Mark a notification as read and schedule deletion after 1 day
+   */
+  static async markAsReadWithAutoDelete(notificationId: string): Promise<void> {
+    try {
+      const notificationRef = doc(db, NOTIFICATIONS_COLLECTION, notificationId);
+      const oneDayFromNow = new Date();
+      oneDayFromNow.setDate(oneDayFromNow.getDate() + 1);
+
+      await updateDoc(notificationRef, {
+        read: true,
+        updatedAt: Timestamp.now(),
+        expiresAt: Timestamp.fromDate(oneDayFromNow),
+      });
+    } catch (error) {
+      console.error(
+        "Error marking notification as read with auto-delete:",
+        error
+      );
+      throw error;
+    }
+  }
+
+  /**
    * Mark a notification as unread
    */
   static async markAsUnread(notificationId: string): Promise<void> {

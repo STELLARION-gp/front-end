@@ -27,13 +27,6 @@ const Sessions = () => {
   const [currentPage] = useState(1)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [userEmail, setUserEmail] = useState<string | null>(null)
-  type Material = {
-    id: number
-    name: string
-    type: string
-    file: File | null
-    url: string
-  }
 
   const [newSession, setNewSession] = useState<{
     title: string
@@ -48,7 +41,6 @@ const Sessions = () => {
     link: string
     category: string
     paymentType: string // 'free' | 'paid'
-    materials: Material[]
     notes: string
   }>({
     title: '',
@@ -63,7 +55,6 @@ const Sessions = () => {
     link: '',
     category: 'observation',
     paymentType: 'paid', // default to paid
-    materials: [],
     notes: ''
   })
 
@@ -151,7 +142,6 @@ const Sessions = () => {
         max_participants: parseInt(newSession.maxParticipants) || undefined,
         difficulty_level: newSession.difficulty as 'beginner' | 'intermediate' | 'advanced',
         session_link: newSession.link || undefined,
-        materials: newSession.materials.map(m => m.name),
         session_notes: newSession.notes || undefined
       }
 
@@ -172,7 +162,6 @@ const Sessions = () => {
         link: '',
         category: 'observation',
         paymentType: 'paid',
-        materials: [],
         notes: ''
       })
       
@@ -311,53 +300,6 @@ const Sessions = () => {
     } else {
       alert('No meeting link configured for this session')
     }
-  }
-
-  const handleAddMaterial = () => {
-    const newMaterial = {
-      id: Date.now(),
-      name: '',
-      type: 'pdf',
-      file: null,
-      url: ''
-    }
-    setNewSession({
-      ...newSession,
-      materials: [...newSession.materials, newMaterial]
-    })
-  }
-
-  const handleRemoveMaterial = (materialId: number) => {
-    setNewSession({
-      ...newSession,
-      materials: newSession.materials.filter(material => material.id !== materialId)
-    })
-  }
-
-  const handleMaterialChange = (
-    materialId: number,
-    field: keyof Material,
-    value: string | File | null
-  ) => {
-    setNewSession({
-      ...newSession,
-      materials: newSession.materials.map(material =>
-        material.id === materialId
-          ? { ...material, [field]: value }
-          : material
-      )
-    })
-  }
-
-  const handleFileUpload = (materialId: number, file: File) => {
-    setNewSession({
-      ...newSession,
-      materials: newSession.materials.map(material =>
-        material.id === materialId
-          ? { ...material, file: file, name: file.name }
-          : material
-      )
-    })
   }
 
   const renderMyServices = () => {
@@ -685,91 +627,6 @@ const Sessions = () => {
             rows={4}
             required
           />
-        </div>
-
-        <div className="materials-section">
-          <h3>Session Materials</h3>
-          <p className="materials-description">Add materials that participants will receive with this session</p>
-          
-          {newSession.materials.map((material) => (
-            <div key={material.id} className="material-item-form">
-              <div className="material-form-grid">
-                <div className="form-group">
-                  <label>Material Name</label>
-                  <input
-                    type="text"
-                    value={material.name}
-                    onChange={(e) => handleMaterialChange(material.id, 'name', e.target.value)}
-                    placeholder="Enter material name"
-                  />
-                </div>
-                
-                <div className="form-group">
-                  <label>Material Type</label>
-                  <select
-                    value={material.type}
-                    onChange={(e) => handleMaterialChange(material.id, 'type', e.target.value)}
-                  >
-                    <option value="pdf">PDF Document</option>
-                    <option value="video">Video</option>
-                    <option value="image">Image</option>
-                    <option value="audio">Audio</option>
-                    <option value="link">External Link</option>
-                  </select>
-                </div>
-
-                {material.type === 'link' ? (
-                  <div className="form-group">
-                    <label>URL</label>
-                    <input
-                      type="url"
-                      value={material.url}
-                      onChange={(e) => handleMaterialChange(material.id, 'url', e.target.value)}
-                      placeholder="https://example.com"
-                    />
-                  </div>
-                ) : (
-                  <div className="form-group">
-                    <label>Upload File</label>
-                    <input
-                      type="file"
-                      onChange={(e) => {
-                        if (e.target.files && e.target.files[0]) {
-                          handleFileUpload(material.id, e.target.files[0]);
-                        }
-                      }}
-                      accept={
-                        material.type === 'pdf' ? '.pdf' :
-                        material.type === 'video' ? '.mp4,.mov,.avi' :
-                        material.type === 'image' ? '.jpg,.jpeg,.png,.gif' :
-                        material.type === 'audio' ? '.mp3,.wav,.ogg' : '*'
-                      }
-                    />
-                  </div>
-                )}
-
-                <div className="material-actions">
-                  <Button 
-                    type="button"
-                    variant="secondary"
-                    onClick={() => handleRemoveMaterial(material.id)}
-                  >
-                    Remove
-                  </Button>
-                </div>
-              </div>
-            </div>
-          ))}
-
-          <div className="add-material-section">
-            <Button 
-              type="button"
-              variant="secondary"
-              onClick={handleAddMaterial}
-            >
-              + Add Material
-            </Button>
-          </div>
         </div>
 
         <div className="form-group full-width">
@@ -1164,22 +1021,6 @@ const Sessions = () => {
                   <span className="participant-name">Mike Johnson</span>
                   <span className="participant-email">mike@example.com</span>
                   <span className="participant-status">Pending</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="session-materials">
-              <h4>Session Materials</h4>
-              <div className="materials-list">
-                <div className="material-item">
-                  <span className="material-icon">📄</span>
-                  <span className="material-name">Introduction to Deep Space.pdf</span>
-                  <Button variant="secondary" size="small">Download</Button>
-                </div>
-                <div className="material-item">
-                  <span className="material-icon">🎥</span>
-                  <span className="material-name">Setup Tutorial.mp4</span>
-                  <Button variant="secondary" size="small">View</Button>
                 </div>
               </div>
             </div>

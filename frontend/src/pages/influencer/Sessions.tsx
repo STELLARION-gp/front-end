@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import type React from 'react'
 import '../../styles/pages/influencer/Sessions.scss';
+import '../../styles/pages/influencer/SessionsNotification.scss';
 import Button from '../../components/Button';
 import { sessionsService } from '../../services/sessionsService'
 import { auth } from '../../firebase'
@@ -19,6 +20,17 @@ const Sessions = () => {
   const [showEditModal, setShowEditModal] = useState(false)
   const [showAnalyticsModal, setShowAnalyticsModal] = useState(false)
   const [selectedSession, setSelectedSession] = useState<APISession | null>(null)
+  const [editForm, setEditForm] = useState<{
+    title: string
+    price: number
+    description: string
+    difficulty_level: string
+  }>({
+    title: '',
+    price: 0,
+    description: '',
+    difficulty_level: 'beginner'
+  })
   
   // API state
   const [mySessions, setMySessions] = useState<APISession[]>([])
@@ -27,6 +39,15 @@ const Sessions = () => {
   const [currentPage] = useState(1)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [userEmail, setUserEmail] = useState<string | null>(null)
+  const [notification, setNotification] = useState<{
+    show: boolean
+    type: 'success' | 'error' | 'info'
+    message: string
+  }>({
+    show: false,
+    type: 'success',
+    message: ''
+  })
 
   const [newSession, setNewSession] = useState<{
     title: string
@@ -57,6 +78,14 @@ const Sessions = () => {
     paymentType: 'paid', // default to paid
     notes: ''
   })
+
+  // Show notification helper
+  const showNotification = (type: 'success' | 'error' | 'info', message: string) => {
+    setNotification({ show: true, type, message })
+    setTimeout(() => {
+      setNotification({ show: false, type, message: '' })
+    }, 5000) // Auto-hide after 5 seconds
+  }
 
   // Check authentication status
   useEffect(() => {
@@ -121,7 +150,7 @@ const Sessions = () => {
     e.preventDefault()
     
     if (!isAuthenticated) {
-      alert('Please log in to create a session.')
+      showNotification('error', '🔒 Please log in to create a session.')
       return
     }
 
@@ -168,18 +197,17 @@ const Sessions = () => {
       setActiveTab('my-sessions')
       loadMySessions()
       
-      alert('Session created successfully!')
+      showNotification('success', '✨ Session created successfully!')
     } catch (err) {
       console.error('Error creating session:', err)
       setError(err instanceof Error ? err.message : 'Failed to create session')
-      alert('Failed to create session: ' + (err instanceof Error ? err.message : 'Unknown error'))
+      showNotification('error', 'Failed to create session: ' + (err instanceof Error ? err.message : 'Unknown error'))
     } finally {
       setLoading(false)
     }
   }
 
   // Update an existing session
-  // TODO: Connect this to the Edit modal form submission
   const handleUpdateSession = async (sessionId: number, updates: UpdateSessionRequest) => {
     setLoading(true)
     setError(null)
@@ -192,57 +220,11 @@ const Sessions = () => {
       loadMySessions()
       setShowEditModal(false)
       
-      alert('Session updated successfully!')
+      showNotification('success', '✅ Session updated successfully!')
     } catch (err) {
       console.error('Error updating session:', err)
       setError(err instanceof Error ? err.message : 'Failed to update session')
-      alert('Failed to update session: ' + (err instanceof Error ? err.message : 'Unknown error'))
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  // Disable a session
-  const handleDisableSession = async (sessionId: number) => {
-    if (!confirm('Are you sure you want to disable this session?')) return
-    
-    setLoading(true)
-    setError(null)
-    
-    try {
-      await sessionsService.disableSession(sessionId)
-      console.log('Session disabled successfully')
-      
-      // Reload sessions
-      loadMySessions()
-      
-      alert('Session disabled successfully!')
-    } catch (err) {
-      console.error('Error disabling session:', err)
-      setError(err instanceof Error ? err.message : 'Failed to disable session')
-      alert('Failed to disable session: ' + (err instanceof Error ? err.message : 'Unknown error'))
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  // Enable a session
-  const handleEnableSession = async (sessionId: number) => {
-    setLoading(true)
-    setError(null)
-    
-    try {
-      await sessionsService.enableSession(sessionId)
-      console.log('Session enabled successfully')
-      
-      // Reload sessions
-      loadMySessions()
-      
-      alert('Session enabled successfully!')
-    } catch (err) {
-      console.error('Error enabling session:', err)
-      setError(err instanceof Error ? err.message : 'Failed to enable session')
-      alert('Failed to enable session: ' + (err instanceof Error ? err.message : 'Unknown error'))
+      showNotification('error', 'Failed to update session: ' + (err instanceof Error ? err.message : 'Unknown error'))
     } finally {
       setLoading(false)
     }
@@ -262,27 +244,25 @@ const Sessions = () => {
       // Reload sessions
       loadMySessions()
       
-      alert('Session deleted successfully!')
+      showNotification('success', '🗑️ Session deleted successfully!')
     } catch (err) {
       console.error('Error deleting session:', err)
       setError(err instanceof Error ? err.message : 'Failed to delete session')
-      alert('Failed to delete session: ' + (err instanceof Error ? err.message : 'Unknown error'))
+      showNotification('error', 'Failed to delete session: ' + (err instanceof Error ? err.message : 'Unknown error'))
     } finally {
       setLoading(false)
     }
   }
 
-  const handleRegistrationChange = (sessionId: number, isEnabled: boolean) => {
-    // Handle registration status change by enabling/disabling the session
-    if (isEnabled) {
-      handleEnableSession(sessionId)
-    } else {
-      handleDisableSession(sessionId)
-    }
-  }
-
   const handleEditSession = (session: APISession) => {
     setSelectedSession(session)
+    // Initialize edit form with session data
+    setEditForm({
+      title: session.title,
+      price: session.price || 0,
+      description: session.description,
+      difficulty_level: session.difficulty_level
+    })
     setShowEditModal(true)
   }
 
@@ -360,9 +340,20 @@ const Sessions = () => {
             {liveSessions.map(session => {
               const isDisabled = !session.is_enabled
               const sessionDate = new Date(session.session_date)
+              
+              // Extract time without timezone conversion
               const sessionTimeStr = typeof session.session_time === 'string' 
                 ? session.session_time 
-                : new Date(session.session_time).toLocaleTimeString()
+                : (() => {
+                    const timeDate = new Date(session.session_time);
+                    const hours = timeDate.getUTCHours().toString().padStart(2, '0');
+                    const minutes = timeDate.getUTCMinutes().toString().padStart(2, '0');
+                    return `${hours}:${minutes}`;
+                  })()
+              
+              // Format price to 2 decimal places
+              const formattedPrice = session.price ? parseFloat(session.price.toString()).toFixed(2) : '0.00'
+              
               return (
               <div key={session.id} className={`influencer-session-card live-session ${isDisabled ? 'registration-disabled' : ''}`}>
                 <div className="session-header">
@@ -375,10 +366,11 @@ const Sessions = () => {
                   </div>
                 </div>
                 <div className="session-details">
-                  <p><span className="icon">📅</span> {sessionDate.toLocaleDateString()} at {sessionTimeStr}</p>
+                  <p><span className="icon">📅</span> {sessionDate.toLocaleDateString()}</p>
+                  <p><span className="icon">🕐</span> {sessionTimeStr}</p>
                   <p><span className="icon">⏱️</span> {session.duration} minutes</p>
                   <p><span className="icon">👥</span> Max {session.max_participants || 'Unlimited'} participants</p>
-                  <p><span className="icon">💰</span> LKR {session.price || 0}</p>
+                  <p><span className="icon">💰</span> LKR {formattedPrice}</p>
                   <p className="session-payment-type">
                     <span className={`payment-label ${session.payment_type}`}>
                       {session.payment_type === 'free' ? 'Free' : 'Paid'}
@@ -400,21 +392,6 @@ const Sessions = () => {
                     />
                   </div>
                 </div>
-                <div className="registration-control-section">
-                  <div className="control-header">
-                    <h4>Registration Settings</h4>
-                  </div>
-                  <div className="registration-toggle">
-                    <button
-                      type="button"
-                      className={`simple-toggle-btn${session.is_enabled ? ' enabled' : ''}`}
-                      onClick={() => handleRegistrationChange(session.id, !session.is_enabled)}
-                      disabled={loading}
-                    >
-                      {session.is_enabled ? 'Registration Enabled' : 'Registration Disabled'}
-                    </button>
-                  </div>
-                </div>
                 <div className="session-actions">
                   <Button onClick={() => handleStartSession(session)} variant="primary">Start Session</Button>
                   <Button onClick={() => handleEditSession(session)}>Edit Session</Button>
@@ -433,6 +410,10 @@ const Sessions = () => {
           <div className="sessions-list">
             {recordedSessions.map(session => {
               const isDisabled = !session.is_enabled
+              
+              // Format price to 2 decimal places
+              const formattedPrice = session.price ? parseFloat(session.price.toString()).toFixed(2) : '0.00'
+              
               return (
               <div key={session.id} className={`influencer-session-card recorded-session ${isDisabled ? 'registration-disabled' : ''}`}>
                 <div className="session-header">
@@ -445,7 +426,7 @@ const Sessions = () => {
                   </div>
                 </div>
                 <div className="session-details">
-                  <p><span className="icon">💰</span> LKR {session.price || 0}</p>
+                  <p><span className="icon">💰</span> LKR {formattedPrice}</p>
                   <p className="session-payment-type">
                     <span className={`payment-label ${session.payment_type}`}>
                       {session.payment_type === 'free' ? 'Free' : 'Paid'}
@@ -466,22 +447,6 @@ const Sessions = () => {
                       readOnly
                       className="session-link-input"
                     />
-                  </div>
-                </div>
-                <div className="registration-control-section">
-                  <div className="control-header">
-                    <h4>Availability Settings</h4>
-                    <p className="control-description">Control whether users can purchase this session</p>
-                  </div>
-                  <div className="registration-toggle">
-                    <button
-                      type="button"
-                      className={`simple-toggle-btn${session.is_enabled ? ' enabled' : ''}`}
-                      onClick={() => handleRegistrationChange(session.id, !session.is_enabled)}
-                      disabled={loading}
-                    >
-                      {session.is_enabled ? 'Available for Purchase' : 'Unavailable for Purchase'}
-                    </button>
                   </div>
                 </div>
                 <div className="session-actions">
@@ -1039,6 +1004,21 @@ const Sessions = () => {
     )
   }
 
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!selectedSession) return
+    
+    const updates: UpdateSessionRequest = {
+      title: editForm.title,
+      price: editForm.price,
+      description: editForm.description,
+      difficulty_level: editForm.difficulty_level as 'beginner' | 'intermediate' | 'advanced'
+    }
+    
+    await handleUpdateSession(selectedSession.id, updates)
+  }
+
   const renderEditModal = () => {
     if (!showEditModal || !selectedSession) return null
 
@@ -1051,23 +1031,42 @@ const Sessions = () => {
           </div>
           
           <div className="modal-body">
-            <form className="edit-session-form">
+            <form className="edit-session-form" onSubmit={handleEditSubmit}>
               <div className="form-grid">
                 <div className="form-group">
                   <label>Session Title</label>
-                  <input type="text" defaultValue={selectedSession.title} />
+                  <input 
+                    type="text" 
+                    value={editForm.title}
+                    onChange={(e) => setEditForm({...editForm, title: e.target.value})}
+                    required
+                  />
                 </div>
                 <div className="form-group">
                   <label>Price (LKR)</label>
-                  <input type="number" defaultValue={selectedSession.price || 0} />
+                  <input 
+                    type="number" 
+                    value={editForm.price}
+                    onChange={(e) => setEditForm({...editForm, price: parseFloat(e.target.value)})}
+                    required
+                  />
                 </div>
-                <div className="form-group">
+                <div className="form-group full-width">
                   <label>Description</label>
-                  <textarea rows={3} defaultValue={selectedSession.description} placeholder="Session description..."></textarea>
+                  <textarea 
+                    rows={3} 
+                    value={editForm.description}
+                    onChange={(e) => setEditForm({...editForm, description: e.target.value})}
+                    placeholder="Session description..."
+                    required
+                  />
                 </div>
                 <div className="form-group">
                   <label>Difficulty Level</label>
-                  <select defaultValue={selectedSession.difficulty_level}>
+                  <select 
+                    value={editForm.difficulty_level}
+                    onChange={(e) => setEditForm({...editForm, difficulty_level: e.target.value as 'beginner' | 'intermediate' | 'advanced'})}
+                  >
                     <option value="beginner">Beginner</option>
                     <option value="intermediate">Intermediate</option>
                     <option value="advanced">Advanced</option>
@@ -1075,61 +1074,15 @@ const Sessions = () => {
                 </div>
               </div>
 
-              <div className="pricing-options">
-                <h4>Pricing Options</h4>
-                <div className="pricing-grid">
-                  <div className="pricing-item">
-                    <label>
-                      <input type="checkbox" />
-                      Enable Early Bird Discount (20% off)
-                    </label>
-                  </div>
-                  <div className="pricing-item">
-                    <label>
-                      <input type="checkbox" />
-                      Bulk Purchase Discount (3+ sessions)
-                    </label>
-                  </div>
-                  <div className="pricing-item">
-                    <label>
-                      <input type="checkbox" />
-                      Student Discount (15% off)
-                    </label>
-                  </div>
-                </div>
-              </div>
-
-              <div className="visibility-settings">
-                <h4>Visibility Settings</h4>
-                <div className="settings-grid">
-                  <div className="setting-item">
-                    <label>
-                      <input type="checkbox" defaultChecked />
-                      Visible to public
-                    </label>
-                  </div>
-                  <div className="setting-item">
-                    <label>
-                      <input type="checkbox" />
-                      Featured session
-                    </label>
-                  </div>
-                  <div className="setting-item">
-                    <label>
-                      <input type="checkbox" defaultChecked />
-                      Allow reviews
-                    </label>
-                  </div>
-                </div>
+              <div className="modal-footer">
+                <Button variant="secondary" type="button" onClick={() => setShowEditModal(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={loading}>
+                  {loading ? 'Saving...' : 'Save Changes'}
+                </Button>
               </div>
             </form>
-          </div>
-
-          <div className="modal-footer">
-            <Button variant="secondary" onClick={() => setShowEditModal(false)}>
-              Cancel
-            </Button>
-            <Button>Save Changes</Button>
           </div>
         </div>
       </div>
@@ -1296,6 +1249,21 @@ const Sessions = () => {
       {renderDetailsModal()}
       {renderEditModal()}
       {renderAnalyticsModal()}
+
+      {/* Notification Toast */}
+      {notification.show && (
+        <div className={`notification-toast ${notification.type}`}>
+          <div className="notification-content">
+            <span className="notification-message">{notification.message}</span>
+            <button 
+              className="notification-close"
+              onClick={() => setNotification({ ...notification, show: false })}
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

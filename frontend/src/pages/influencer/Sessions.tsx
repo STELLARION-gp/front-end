@@ -1,6 +1,16 @@
-import { useState } from 'react'
+
+import { useState, useEffect } from 'react'
+import type React from 'react'
 import '../../styles/pages/influencer/Sessions.scss';
 import Button from '../../components/Button';
+import { sessionsService } from '../../services/sessionsService'
+import { auth } from '../../firebase'
+import type { 
+  Session as APISession, 
+  CreateSessionRequest,
+  UpdateSessionRequest,
+  SessionFilters 
+} from '../../services/sessionsService';
 
 const Sessions = () => {
   const [activeTab, setActiveTab] = useState('my-sessions')
@@ -8,7 +18,15 @@ const Sessions = () => {
   const [showDetailsModal, setShowDetailsModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const [showAnalyticsModal, setShowAnalyticsModal] = useState(false)
-  const [selectedSession, setSelectedSession] = useState<Session | null>(null)
+  const [selectedSession, setSelectedSession] = useState<APISession | null>(null)
+  
+  // API state
+  const [mySessions, setMySessions] = useState<APISession[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [currentPage] = useState(1)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [userEmail, setUserEmail] = useState<string | null>(null)
   type Material = {
     id: number
     name: string
@@ -49,48 +67,250 @@ const Sessions = () => {
     notes: ''
   })
 
-  // Mock data
-  const liveSessions = [
-    { id: 1, title: 'Deep Space Photography', date: '2024-01-15', time: '20:00', participants: 12, maxParticipants: 20, price: 13500, status: 'upcoming', registrationEnabled: true },
-    { id: 2, title: 'Planetary Observation', date: '2024-01-18', time: '21:30', participants: 8, maxParticipants: 15, price: 10500, status: 'upcoming', registrationEnabled: false }
-  ]
+  // Check authentication status
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        setIsAuthenticated(true)
+        setUserEmail(user.email)
+        console.log('✅ User authenticated:', user.email)
+      } else {
+        setIsAuthenticated(false)
+        setUserEmail(null)
+        console.warn('⚠️ User not authenticated')
+      }
+    })
 
-  const recordedSessions = [
-    { id: 1, title: 'Beginner Stargazing', price: 1500, purchases: 156, rating: 4.8, earnings: 234000, registrationEnabled: true },
-    { id: 2, title: 'Telescope Setup Guide', price: 2000, purchases: 89, rating: 4.9, earnings: 178000, registrationEnabled: false }
-  ]
+    return () => unsubscribe()
+  }, [])
 
-  type Session = {
-    id: number
-    title: string
-    date?: string
-    time?: string
-    participants?: number
-    maxParticipants?: number
-    price: number
-    status?: string
-    registrationEnabled?: boolean
-    purchases?: number
-    rating?: number
-    earnings?: number
-    // Add other fields as needed
+  // Load sessions on component mount and when activeTab changes
+  useEffect(() => {
+    if (activeTab === 'my-sessions' && isAuthenticated) {
+      loadMySessions()
+    }
+  }, [activeTab, isAuthenticated])
+
+  // Load user's sessions from API
+  const loadMySessions = async (filters?: SessionFilters) => {
+    if (!isAuthenticated) {
+      setError('Please log in to view your sessions')
+      return
+    }
+
+    setLoading(true)
+    setError(null)
+    try {
+      console.log('📋 Loading sessions for user:', userEmail)
+      const response = await sessionsService.getMySessions({
+        page: currentPage,
+        limit: 10,
+        sort_by: 'session_date',
+        sort_order: 'desc',
+        ...filters
+      })
+      setMySessions(response.data || [])
+      console.log('✅ Loaded', response.data?.length || 0, 'sessions')
+    } catch (err) {
+      console.error('❌ Error loading sessions:', err)
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load sessions'
+      setError(errorMessage)
+      
+      // If authentication error, provide helpful message
+      if (errorMessage.includes('Authentication') || errorMessage.includes('log in')) {
+        setError('Authentication required. Please log in to continue.')
+      }
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const handleEditSession = (session: Session) => {
+  // Create a new session
+  const handleCreateSession = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!isAuthenticated) {
+      alert('Please log in to create a session.')
+      return
+    }
+
+    setLoading(true)
+    setError(null)
+    
+    try {
+      console.log('📝 Creating session for user:', userEmail)
+      const sessionData: CreateSessionRequest = {
+        title: newSession.title,
+        description: newSession.description,
+        session_type: newSession.type as 'live' | 'recorded',
+        payment_type: newSession.paymentType as 'paid' | 'free',
+        price: newSession.paymentType === 'free' ? 0 : parseFloat(newSession.price) || 0,
+        duration: parseInt(newSession.duration) || 60,
+        session_date: newSession.date, // YYYY-MM-DD format
+        session_time: newSession.time, // HH:MM format
+        max_participants: parseInt(newSession.maxParticipants) || undefined,
+        difficulty_level: newSession.difficulty as 'beginner' | 'intermediate' | 'advanced',
+        session_link: newSession.link || undefined,
+        materials: newSession.materials.map(m => m.name),
+        session_notes: newSession.notes || undefined
+      }
+
+      const result = await sessionsService.createSession(sessionData)
+      console.log('Session created successfully:', result)
+      
+      // Reset form and switch to my sessions tab
+      setNewSession({
+        title: '',
+        description: '',
+        type: 'live',
+        price: '',
+        duration: '',
+        date: '',
+        time: '',
+        maxParticipants: '',
+        difficulty: 'beginner',
+        link: '',
+        category: 'observation',
+        paymentType: 'paid',
+        materials: [],
+        notes: ''
+      })
+      
+      setActiveTab('my-sessions')
+      loadMySessions()
+      
+      alert('Session created successfully!')
+    } catch (err) {
+      console.error('Error creating session:', err)
+      setError(err instanceof Error ? err.message : 'Failed to create session')
+      alert('Failed to create session: ' + (err instanceof Error ? err.message : 'Unknown error'))
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Update an existing session
+  // TODO: Connect this to the Edit modal form submission
+  const handleUpdateSession = async (sessionId: number, updates: UpdateSessionRequest) => {
+    setLoading(true)
+    setError(null)
+    
+    try {
+      const result = await sessionsService.updateSession(sessionId, updates)
+      console.log('Session updated successfully:', result)
+      
+      // Reload sessions
+      loadMySessions()
+      setShowEditModal(false)
+      
+      alert('Session updated successfully!')
+    } catch (err) {
+      console.error('Error updating session:', err)
+      setError(err instanceof Error ? err.message : 'Failed to update session')
+      alert('Failed to update session: ' + (err instanceof Error ? err.message : 'Unknown error'))
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Disable a session
+  const handleDisableSession = async (sessionId: number) => {
+    if (!confirm('Are you sure you want to disable this session?')) return
+    
+    setLoading(true)
+    setError(null)
+    
+    try {
+      await sessionsService.disableSession(sessionId)
+      console.log('Session disabled successfully')
+      
+      // Reload sessions
+      loadMySessions()
+      
+      alert('Session disabled successfully!')
+    } catch (err) {
+      console.error('Error disabling session:', err)
+      setError(err instanceof Error ? err.message : 'Failed to disable session')
+      alert('Failed to disable session: ' + (err instanceof Error ? err.message : 'Unknown error'))
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Enable a session
+  const handleEnableSession = async (sessionId: number) => {
+    setLoading(true)
+    setError(null)
+    
+    try {
+      await sessionsService.enableSession(sessionId)
+      console.log('Session enabled successfully')
+      
+      // Reload sessions
+      loadMySessions()
+      
+      alert('Session enabled successfully!')
+    } catch (err) {
+      console.error('Error enabling session:', err)
+      setError(err instanceof Error ? err.message : 'Failed to enable session')
+      alert('Failed to enable session: ' + (err instanceof Error ? err.message : 'Unknown error'))
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Delete a session
+  const handleDeleteSession = async (sessionId: number) => {
+    if (!confirm('Are you sure you want to permanently delete this session? This action cannot be undone.')) return
+    
+    setLoading(true)
+    setError(null)
+    
+    try {
+      await sessionsService.deleteSession(sessionId)
+      console.log('Session deleted successfully')
+      
+      // Reload sessions
+      loadMySessions()
+      
+      alert('Session deleted successfully!')
+    } catch (err) {
+      console.error('Error deleting session:', err)
+      setError(err instanceof Error ? err.message : 'Failed to delete session')
+      alert('Failed to delete session: ' + (err instanceof Error ? err.message : 'Unknown error'))
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleRegistrationChange = (sessionId: number, isEnabled: boolean) => {
+    // Handle registration status change by enabling/disabling the session
+    if (isEnabled) {
+      handleEnableSession(sessionId)
+    } else {
+      handleDisableSession(sessionId)
+    }
+  }
+
+  const handleEditSession = (session: APISession) => {
     setSelectedSession(session)
     setShowEditModal(true)
   }
 
-  const handleViewAnalytics = (session:Session) => {
+  const handleViewAnalytics = (session: APISession) => {
     setSelectedSession(session)
     setShowAnalyticsModal(true)
   }
 
-  const handleStartSession = (session:Session) => {
+  const handleStartSession = (session: APISession) => {
     // Handle starting the live session
     console.log('Starting session:', session.title)
-    // You can add navigation to the session room or open a new window
-    // window.open(`https://stellarion.com/session/${session.id}/room`, '_blank')
+    const sessionLink = 'session_link' in session ? session.session_link : undefined
+    if (sessionLink) {
+      window.open(sessionLink, '_blank')
+    } else {
+      alert('No meeting link configured for this session')
+    }
   }
 
   const handleAddMaterial = () => {
@@ -140,44 +360,90 @@ const Sessions = () => {
     })
   }
 
+  const renderMyServices = () => {
+    // Check authentication first
+    if (!isAuthenticated) {
+      return (
+        <div className="auth-required-state">
+          <h3>🔒 Authentication Required</h3>
+          <p>Please log in to view and manage your sessions.</p>
+          <p>Current user: {userEmail || 'Not logged in'}</p>
+          <Button onClick={() => window.location.href = '/login'}>Go to Login</Button>
+        </div>
+      )
+    }
 
-  const handleRegistrationChange = (sessionId: number, isEnabled: boolean) => {
-    // Handle registration status change
-    console.log(`Setting registration for session ${sessionId} to ${isEnabled}`)
-    // Here you would update the session status in your state/database
-  }
+    // Separate sessions into live and recorded
+    const liveSessions = mySessions.filter(s => s.session_type === 'live')
+    const recordedSessions = mySessions.filter(s => s.session_type === 'recorded')
 
-  const renderMyServices = () => (
+    if (loading) {
+      return <div className="loading-state">Loading sessions...</div>
+    }
+
+    if (error) {
+      return (
+        <div className="error-state">
+          <h3>⚠️ Error</h3>
+          <p>{error}</p>
+          {error.includes('Authentication') && (
+            <Button onClick={() => window.location.reload()}>Refresh Page</Button>
+          )}
+        </div>
+      )
+    }
+
+    if (mySessions.length === 0) {
+      return (
+        <div className="empty-state">
+          <h3>No sessions yet</h3>
+          <p>Create your first session to get started!</p>
+          <p>Logged in as: {userEmail}</p>
+          <Button onClick={() => setActiveTab('new-session')}>Create Session</Button>
+        </div>
+      )
+    }
+
+    return (
     <div className="my-sessions-section">
       <div className="section-header">
         <h2>My Sessions</h2>
       </div>
 
       <div className="sessions-grid">
+        {liveSessions.length > 0 && (
         <div className="sessions-section">
           <h3>Live Sessions</h3>
           <div className="sessions-list">
-            {liveSessions.map(session => (
-              <div key={session.id} className={`influencer-session-card live-session ${!session.registrationEnabled ? 'registration-disabled' : ''}`}>
+            {liveSessions.map(session => {
+              const isDisabled = !session.is_enabled
+              const sessionDate = new Date(session.session_date)
+              const sessionTimeStr = typeof session.session_time === 'string' 
+                ? session.session_time 
+                : new Date(session.session_time).toLocaleTimeString()
+              return (
+              <div key={session.id} className={`influencer-session-card live-session ${isDisabled ? 'registration-disabled' : ''}`}>
                 <div className="session-header">
                   <div className="session-title-info">
                     <h3>{session.title}</h3>
-                    <p className="session-instructor">by You</p>
+                    <p className="session-instructor">by {session.creator?.display_name || 'You'}</p>
                   </div>
                   <div className="session-status-container">
                     <span className="session-status live">LIVE</span>
                   </div>
                 </div>
                 <div className="session-details">
-                  <p><span className="icon">📅</span> {session.date} at {session.time}</p>
-                  <p><span className="icon">👥</span> {session.participants}/{session.maxParticipants} participants</p>
-                  <p><span className="icon">💰</span> LKR {session.price}</p>
+                  <p><span className="icon">📅</span> {sessionDate.toLocaleDateString()} at {sessionTimeStr}</p>
+                  <p><span className="icon">⏱️</span> {session.duration} minutes</p>
+                  <p><span className="icon">👥</span> Max {session.max_participants || 'Unlimited'} participants</p>
+                  <p><span className="icon">💰</span> LKR {session.price || 0}</p>
                   <p className="session-payment-type">
-                    <span className={`payment-label ${session.price === 0 ? 'free' : 'paid'}`}>
-                      {session.price === 0 ? 'Free' : 'Paid'}
+                    <span className={`payment-label ${session.payment_type}`}>
+                      {session.payment_type === 'free' ? 'Free' : 'Paid'}
                     </span>
                   </p>
-                  {!session.registrationEnabled && (
+                  <p><span className="icon">📊</span> {session.difficulty_level}</p>
+                  {isDisabled && (
                     <p className="registration-note">⚠️ New registrations are currently disabled</p>
                   )}
                 </div>
@@ -186,7 +452,7 @@ const Sessions = () => {
                   <div className="link-container">
                     <input 
                       type="text" 
-                      value={`https://stellarion.com/session/${session.id}`}
+                      value={session.session_link || `https://stellarion.com/session/${session.id}`}
                       readOnly
                       className="session-link-input"
                     />
@@ -199,10 +465,11 @@ const Sessions = () => {
                   <div className="registration-toggle">
                     <button
                       type="button"
-                      className={`simple-toggle-btn${session.registrationEnabled ? ' enabled' : ''}`}
-                      onClick={() => handleRegistrationChange(session.id, !session.registrationEnabled)}
+                      className={`simple-toggle-btn${session.is_enabled ? ' enabled' : ''}`}
+                      onClick={() => handleRegistrationChange(session.id, !session.is_enabled)}
+                      disabled={loading}
                     >
-                      {session.registrationEnabled ? 'Registration Enabled' : 'Registration Disabled'}
+                      {session.is_enabled ? 'Registration Enabled' : 'Registration Disabled'}
                     </button>
                   </div>
                 </div>
@@ -210,37 +477,41 @@ const Sessions = () => {
                   <Button onClick={() => handleStartSession(session)} variant="primary">Start Session</Button>
                   <Button onClick={() => handleEditSession(session)}>Edit Session</Button>
                   <Button onClick={() => handleViewAnalytics(session)}>View Analytics</Button>
+                  <Button onClick={() => handleDeleteSession(session.id)} variant="secondary">Delete</Button>
                 </div>
               </div>
-            ))}
+            )})}
           </div>
         </div>
+        )}
 
+        {recordedSessions.length > 0 && (
         <div className="sessions-section">
           <h3>Recorded Sessions</h3>
           <div className="sessions-list">
-            {recordedSessions.map(session => (
-              <div key={session.id} className={`influencer-session-card recorded-session ${!session.registrationEnabled ? 'registration-disabled' : ''}`}>
+            {recordedSessions.map(session => {
+              const isDisabled = !session.is_enabled
+              return (
+              <div key={session.id} className={`influencer-session-card recorded-session ${isDisabled ? 'registration-disabled' : ''}`}>
                 <div className="session-header">
                   <div className="session-title-info">
                     <h3>{session.title}</h3>
-                    <p className="session-instructor">by You</p>
+                    <p className="session-instructor">by {session.creator?.display_name || 'You'}</p>
                   </div>
                   <div className="session-status-container">
                     <span className="session-status recorded">RECORDED</span>
                   </div>
                 </div>
                 <div className="session-details">
-                  <p><span className="icon">💰</span> LKR {session.price}</p>
+                  <p><span className="icon">💰</span> LKR {session.price || 0}</p>
                   <p className="session-payment-type">
-                    <span className={`payment-label ${session.price === 0 ? 'free' : 'paid'}`}>
-                      {session.price === 0 ? 'Free' : 'Paid'}
+                    <span className={`payment-label ${session.payment_type}`}>
+                      {session.payment_type === 'free' ? 'Free' : 'Paid'}
                     </span>
                   </p>
-                  <p><span className="icon">📊</span> {session.purchases} purchases</p>
-                  <p><span className="icon">⭐</span> {session.rating}/5.0</p>
-                  <p><span className="icon">💵</span> LKR {session.earnings} earned</p>
-                  {!session.registrationEnabled && (
+                  <p><span className="icon">⏱️</span> {session.duration} minutes</p>
+                  <p><span className="icon">�</span> {session.difficulty_level}</p>
+                  {isDisabled && (
                     <p className="registration-note">⚠️ This session is currently unavailable for purchase</p>
                   )}
                 </div>
@@ -249,7 +520,7 @@ const Sessions = () => {
                   <div className="link-container">
                     <input 
                       type="text" 
-                      value={`https://stellarion.com/session/${session.id}`}
+                      value={session.session_link || `https://stellarion.com/session/${session.id}`}
                       readOnly
                       className="session-link-input"
                     />
@@ -263,24 +534,28 @@ const Sessions = () => {
                   <div className="registration-toggle">
                     <button
                       type="button"
-                      className={`simple-toggle-btn${session.registrationEnabled ? ' enabled' : ''}`}
-                      onClick={() => handleRegistrationChange(session.id, !session.registrationEnabled)}
+                      className={`simple-toggle-btn${session.is_enabled ? ' enabled' : ''}`}
+                      onClick={() => handleRegistrationChange(session.id, !session.is_enabled)}
+                      disabled={loading}
                     >
-                      {session.registrationEnabled ? 'Available for Purchase' : 'Unavailable for Purchase'}
+                      {session.is_enabled ? 'Available for Purchase' : 'Unavailable for Purchase'}
                     </button>
                   </div>
                 </div>
                 <div className="session-actions">
                   <Button onClick={() => handleEditSession(session)}>Edit Session</Button>
                   <Button onClick={() => handleViewAnalytics(session)}>View Analytics</Button>
+                  <Button onClick={() => handleDeleteSession(session.id)} variant="secondary">Delete</Button>
                 </div>
               </div>
-            ))}
+            )})}
           </div>
         </div>
+        )}
       </div>
     </div>
   )
+  }
 
   const renderNewSession = () => (
     <div className="new-session-form">
@@ -288,7 +563,8 @@ const Sessions = () => {
         
       </div>
       <h2>Create New Session</h2>
-      <form className="session-form">
+      {error && <div className="error-message">{error}</div>}
+      <form className="session-form" onSubmit={handleCreateSession}>
         <div className="form-grid">
           <div className="form-group">
             <label>Session Title</label>
@@ -297,6 +573,7 @@ const Sessions = () => {
               value={newSession.title}
               onChange={(e) => setNewSession({...newSession, title: e.target.value})}
               placeholder="Enter session title"
+              required
             />
           </div>
           
@@ -330,6 +607,7 @@ const Sessions = () => {
               onChange={e => setNewSession({ ...newSession, price: e.target.value })}
               placeholder={newSession.paymentType === 'free' ? '0' : '2500'}
               disabled={newSession.paymentType === 'free'}
+              required={newSession.paymentType === 'paid'}
             />
           </div>
 
@@ -340,6 +618,7 @@ const Sessions = () => {
               value={newSession.duration}
               onChange={(e) => setNewSession({...newSession, duration: e.target.value})}
               placeholder="60"
+              required
             />
           </div>
 
@@ -349,6 +628,7 @@ const Sessions = () => {
               type="date" 
               value={newSession.date}
               onChange={(e) => setNewSession({...newSession, date: e.target.value})}
+              required
             />
           </div>
 
@@ -358,6 +638,7 @@ const Sessions = () => {
               type="time" 
               value={newSession.time}
               onChange={(e) => setNewSession({...newSession, time: e.target.value})}
+              required
             />
           </div>
 
@@ -368,6 +649,7 @@ const Sessions = () => {
               value={newSession.maxParticipants}
               onChange={(e) => setNewSession({...newSession, maxParticipants: e.target.value})}
               placeholder="20"
+              required
             />
           </div>
 
@@ -401,6 +683,7 @@ const Sessions = () => {
             onChange={(e) => setNewSession({...newSession, description: e.target.value})}
             placeholder="Describe your session..."
             rows={4}
+            required
           />
         </div>
 
@@ -501,7 +784,9 @@ const Sessions = () => {
 
         <div className="form-actions">
           <Button type="button">Save as Draft</Button>
-          <Button type="submit">Create Session</Button>
+          <Button type="submit" disabled={loading}>
+            {loading ? 'Creating...' : 'Create Session'}
+          </Button>
         </div>
       </form>
     </div>
@@ -747,6 +1032,11 @@ const Sessions = () => {
   const renderManageSessionModal = () => {
     if (!showManageModal || !selectedSession) return null
 
+    const sessionDate = new Date(selectedSession.session_date)
+    const sessionTime = typeof selectedSession.session_time === 'string' 
+      ? selectedSession.session_time 
+      : new Date(selectedSession.session_time).toLocaleTimeString()
+
     return (
       <div className="modal-overlay" onClick={() => setShowManageModal(false)}>
         <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -761,15 +1051,15 @@ const Sessions = () => {
               <div className="info-grid">
                 <div className="info-item">
                   <label>Date & Time:</label>
-                  <span>{selectedSession.date} at {selectedSession.time}</span>
+                  <span>{sessionDate.toLocaleDateString()} at {sessionTime}</span>
                 </div>
                 <div className="info-item">
-                  <label>Participants:</label>
-                  <span>{selectedSession.participants}/{selectedSession.maxParticipants}</span>
+                  <label>Max Participants:</label>
+                  <span>{selectedSession.max_participants || 'Unlimited'}</span>
                 </div>
                 <div className="info-item">
                   <label>Price:</label>
-                  <span>LKR {selectedSession.price}</span>
+                  <span>LKR {selectedSession.price || 0}</span>
                 </div>
               </div>
             </div>
@@ -844,15 +1134,15 @@ const Sessions = () => {
               <div className="overview-stats">
                 <div className="stat-item">
                   <span className="stat-label">Status:</span>
-                  <span className="stat-value">{selectedSession.date ? 'Scheduled' : 'Recorded'}</span>
+                  <span className="stat-value">{selectedSession.session_type === 'live' ? 'Live Session' : 'Recorded Session'}</span>
                 </div>
                 <div className="stat-item">
-                  <span className="stat-label">Current Participants:</span>
-                  <span className="stat-value">{selectedSession.participants || selectedSession.purchases || 0}</span>
+                  <span className="stat-label">Payment Type:</span>
+                  <span className="stat-value">{selectedSession.payment_type}</span>
                 </div>
                 <div className="stat-item">
-                  <span className="stat-label">Revenue:</span>
-                  <span className="stat-value">LKR {selectedSession.earnings || ((selectedSession.participants ?? 0) * selectedSession.price) || 0}</span>
+                  <span className="stat-label">Price:</span>
+                  <span className="stat-value">LKR {selectedSession.price || 0}</span>
                 </div>
               </div>
             </div>
@@ -926,18 +1216,18 @@ const Sessions = () => {
                 </div>
                 <div className="form-group">
                   <label>Price (LKR)</label>
-                  <input type="number" defaultValue={selectedSession.price} />
+                  <input type="number" defaultValue={selectedSession.price || 0} />
                 </div>
                 <div className="form-group">
                   <label>Description</label>
-                  <textarea rows={3} placeholder="Session description..."></textarea>
+                  <textarea rows={3} defaultValue={selectedSession.description} placeholder="Session description..."></textarea>
                 </div>
                 <div className="form-group">
-                  <label>Category</label>
-                  <select>
-                    <option value="observation">Observation</option>
-                    <option value="photography">Astrophotography</option>
-                    <option value="theory">Theory & Concepts</option>
+                  <label>Difficulty Level</label>
+                  <select defaultValue={selectedSession.difficulty_level}>
+                    <option value="beginner">Beginner</option>
+                    <option value="intermediate">Intermediate</option>
+                    <option value="advanced">Advanced</option>
                   </select>
                 </div>
               </div>
@@ -1006,7 +1296,8 @@ const Sessions = () => {
   const renderAnalyticsModal = () => {
     if (!showAnalyticsModal || !selectedSession) return null
 
-    const isLiveSession = selectedSession.date && selectedSession.time
+    const isLiveSession = selectedSession.session_type === 'live'
+    const sessionPrice = selectedSession.price || 0
     
     return (
       <div className="modal-overlay" onClick={() => setShowAnalyticsModal(false)}>
@@ -1021,19 +1312,19 @@ const Sessions = () => {
               <h4>Performance Overview</h4>
               <div className="metrics-row">
                 <div className="metric-card">
-                  <span className="metric-value">{selectedSession.purchases || selectedSession.participants}</span>
+                  <span className="metric-value">0</span>
                   <span className="metric-label">{isLiveSession ? 'Registered Participants' : 'Total Purchases'}</span>
                 </div>
                 <div className="metric-card">
-                  <span className="metric-value">LKR {selectedSession.earnings || ((selectedSession.participants ?? 0) * selectedSession.price)}</span>
+                  <span className="metric-value">LKR 0</span>
                   <span className="metric-label">Revenue Generated</span>
                 </div>
                 <div className="metric-card">
-                  <span className="metric-value">{selectedSession.rating || 'N/A'}/5.0</span>
+                  <span className="metric-value">N/A/5.0</span>
                   <span className="metric-label">Average Rating</span>
                 </div>
                 <div className="metric-card">
-                  <span className="metric-value">{isLiveSession ? `${(selectedSession.maxParticipants ?? 0) - (selectedSession.participants ?? 0)} spots` : '92%'}</span>
+                  <span className="metric-value">{isLiveSession ? `${selectedSession.max_participants || 'Unlimited'} spots` : 'N/A'}</span>
                   <span className="metric-label">{isLiveSession ? 'Available Spots' : 'Completion Rate'}</span>
                 </div>
               </div>
@@ -1044,20 +1335,18 @@ const Sessions = () => {
                 <h4>Session Status</h4>
                 <div className="registration-stats">
                   <div className="registration-item">
-                    <span className="registration-label">Registration Rate:</span>
-                    <span className="registration-value">{Math.round(((selectedSession.participants ?? 0) / (selectedSession.maxParticipants ?? 1)) * 100)}%</span>
+                    <span className="registration-label">Max Participants:</span>
+                    <span className="registration-value">{selectedSession.max_participants || 'Unlimited'}</span>
                   </div>
                   <div className="registration-item">
                     <span className="registration-label">Days Until Session:</span>
                     <span className="registration-value">
-                      {selectedSession.date
-                        ? Math.ceil((new Date(selectedSession.date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
-                        : 'N/A'} days
+                      {Math.ceil((new Date(selectedSession.session_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} days
                     </span>
                   </div>
                   <div className="registration-item">
-                    <span className="registration-label">Current Registrations:</span>
-                    <span className="registration-value">{selectedSession.participants}/{selectedSession.maxParticipants}</span>
+                    <span className="registration-label">Duration:</span>
+                    <span className="registration-value">{selectedSession.duration} minutes</span>
                   </div>
                 </div>
               </div>
@@ -1068,16 +1357,16 @@ const Sessions = () => {
                 <h4>Engagement Metrics</h4>
                 <div className="engagement-stats">
                   <div className="engagement-item">
-                    <span className="engagement-label">Average Watch Time:</span>
-                    <span className="engagement-value">45 minutes</span>
+                    <span className="engagement-label">Duration:</span>
+                    <span className="engagement-value">{selectedSession.duration} minutes</span>
                   </div>
                   <div className="engagement-item">
-                    <span className="engagement-label">Questions Asked:</span>
-                    <span className="engagement-value">23</span>
+                    <span className="engagement-label">Status:</span>
+                    <span className="engagement-value">{selectedSession.is_enabled ? 'Available' : 'Disabled'}</span>
                   </div>
                   <div className="engagement-item">
-                    <span className="engagement-label">Interaction Rate:</span>
-                    <span className="engagement-value">78%</span>
+                    <span className="engagement-label">Difficulty:</span>
+                    <span className="engagement-value">{selectedSession.difficulty_level}</span>
                   </div>
                 </div>
               </div>
@@ -1087,32 +1376,30 @@ const Sessions = () => {
               <h4>Revenue Breakdown</h4>
               <div className="revenue-stats">
                 <div className="revenue-item">
-                  <span className="revenue-label">Base Price Revenue:</span>
-                  <span className="revenue-value">LKR {(selectedSession.price * (selectedSession.purchases || selectedSession.participants || 0))}</span>
+                  <span className="revenue-label">Base Price:</span>
+                  <span className="revenue-value">LKR {sessionPrice}</span>
                 </div>
                 <div className="revenue-item">
                   <span className="revenue-label">Platform Fee (10%):</span>
-                  <span className="revenue-value">-LKR {Math.round((selectedSession.price * (selectedSession.purchases || selectedSession.participants || 0)) * 0.1)}</span>
+                  <span className="revenue-value">-LKR {Math.round(sessionPrice * 0.1)}</span>
                 </div>
                 <div className="revenue-item">
-                  <span className="revenue-label">Net Earnings:</span>
-                  <span className="revenue-value">LKR {selectedSession.earnings || Math.round((selectedSession.price * (selectedSession.purchases || selectedSession.participants || 0)) * 0.9)}</span>
+                  <span className="revenue-label">Net Earnings (per sale):</span>
+                  <span className="revenue-value">LKR {Math.round(sessionPrice * 0.9)}</span>
                 </div>
               </div>
             </div>
 
             <div className="feedback-section">
-              <h4>Recent Feedback</h4>
+              <h4>Session Information</h4>
               <div className="feedback-list">
                 <div className="feedback-item">
-                  <div className="feedback-rating">⭐⭐⭐⭐⭐</div>
-                  <p>"Excellent session with clear explanations!"</p>
-                  <span className="feedback-author">- Sarah K.</span>
-                </div>
-                <div className="feedback-item">
-                  <div className="feedback-rating">⭐⭐⭐⭐</div>
-                  <p>"Very informative, would recommend to others."</p>
-                  <span className="feedback-author">- Mike D.</span>
+                  <p><strong>Payment Type:</strong> {selectedSession.payment_type}</p>
+                  <p><strong>Difficulty:</strong> {selectedSession.difficulty_level}</p>
+                  <p><strong>Type:</strong> {selectedSession.session_type}</p>
+                  {selectedSession.session_notes && (
+                    <p><strong>Notes:</strong> {selectedSession.session_notes}</p>
+                  )}
                 </div>
               </div>
             </div>

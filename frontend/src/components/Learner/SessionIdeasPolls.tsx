@@ -14,9 +14,9 @@ const ProgressBar: React.FC<{ percent: number }> = ({ percent }) => (
 // Helper function to get choice label with emoji for common choices
 const getChoiceLabel = (choice: string): string => {
   const lowerChoice = choice.toLowerCase();
-  if (lowerChoice === 'yes') return '✅ Yes';
-  if (lowerChoice === 'maybe') return '🤔 Maybe';
-  if (lowerChoice === 'no') return '❌ No';
+  if (lowerChoice === 'yes') return ' Yes';
+  if (lowerChoice === 'maybe') return ' Maybe';
+  if (lowerChoice === 'no') return ' No';
   return choice; // Return as-is for custom options
 };
 
@@ -131,28 +131,6 @@ const SessionIdeasPolls: React.FC = () => {
     }
   };
 
-  // Dummy comments for now (can be integrated with real comments later)
-  const sampleComments = [
-    {
-      id: "c1",
-      author: "Alice Johnson",
-      text: "Great idea! Would love to join this session.",
-      date: new Date().toISOString(),
-    },
-    {
-      id: "c2",
-      author: "Bob Lee",
-      text: "Can we also discuss exoplanet detection methods?",
-      date: new Date(Date.now() - 86400000).toISOString(),
-    },
-    {
-      id: "c3",
-      author: "Priya Sen",
-      text: "Looking forward to this. Please share the slides after!",
-      date: new Date(Date.now() - 2 * 86400000).toISOString(),
-    },
-  ];
-
   if (loading) {
     return (
       <div className="session-ideas-polls">
@@ -204,6 +182,7 @@ const SessionIdeasPolls: React.FC = () => {
         <PollDetailsPopup
           open={popupOpen}
           onClose={() => setPopupOpen(false)}
+          pollId={selectedPoll.id}
           title={selectedPoll.title}
           description={selectedPoll.description || ''}
           options={selectedPoll.choices.map(choice => ({
@@ -216,7 +195,6 @@ const SessionIdeasPolls: React.FC = () => {
           createdAt={new Date(selectedPoll.created_at).toISOString()}
           conductor={selectedPoll.creator.display_name || 'Conductor'}
           conductorPic={`https://ui-avatars.com/api/?name=${encodeURIComponent(selectedPoll.creator.display_name || 'User')}&background=fbbf24&color=232b3b&size=64`}
-          comments={sampleComments}
         />
       )}
     </div>

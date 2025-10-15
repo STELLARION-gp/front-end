@@ -108,6 +108,10 @@ const Sessions = () => {
     show: false,
     pollId: null
   })
+  const [pollComments, setPollComments] = useState<any[]>([])
+  const [loadingComments, setLoadingComments] = useState(false)
+  const [newComment, setNewComment] = useState('')
+  const [postingComment, setPostingComment] = useState(false)
 
   // Show notification helper
   const showNotification = (type: 'success' | 'error' | 'info', message: string) => {
@@ -772,9 +776,50 @@ const Sessions = () => {
     try {
       const stats = await pollService.getPollStats(poll.id)
       setPollStats(stats)
+      // Fetch comments when viewing poll details
+      fetchPollComments(poll.id)
     } catch (err) {
       console.error('Error loading poll stats:', err)
       showNotification('error', 'Failed to load poll statistics')
+    }
+  }
+
+  const fetchPollComments = async (pollId: number) => {
+    try {
+      setLoadingComments(true)
+      const response = await pollService.getPollComments(pollId, {
+        page: 1,
+        limit: 50,
+        sort_order: 'desc'
+      })
+      setPollComments(response.data)
+    } catch (err) {
+      console.error('Error loading comments:', err)
+    } finally {
+      setLoadingComments(false)
+    }
+  }
+
+  const handlePostComment = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!selectedPoll || !newComment.trim()) {
+      return
+    }
+
+    try {
+      setPostingComment(true)
+      await pollService.addComment(selectedPoll.id, newComment.trim())
+      setNewComment('')
+      showNotification('success', ' Comment posted successfully!')
+      
+      // Refresh comments
+      fetchPollComments(selectedPoll.id)
+    } catch (err: any) {
+      console.error('Error posting comment:', err)
+      showNotification('error', err.message || 'Failed to post comment')
+    } finally {
+      setPostingComment(false)
     }
   }
 
@@ -1253,7 +1298,7 @@ const Sessions = () => {
                       size="small"
                       onClick={() => handleViewPollDetails(poll)}
                     >
-                      📊 View Results
+                      View Results
                     </Button>
                     
                     {poll.is_active ? (
@@ -1262,7 +1307,7 @@ const Sessions = () => {
                         size="small"
                         onClick={() => handleClosePoll(poll.id)}
                       >
-                        ⏸️ Close Poll
+                         Close Poll
                       </Button>
                     ) : (
                       <Button 
@@ -1270,7 +1315,7 @@ const Sessions = () => {
                         size="small"
                         onClick={() => handleReopenPoll(poll.id)}
                       >
-                        ▶️ Reopen
+                         Reopen
                       </Button>
                     )}
                     
@@ -1279,7 +1324,7 @@ const Sessions = () => {
                       size="small"
                       onClick={() => handleDeletePoll(poll.id)}
                     >
-                      🗑️ Delete
+                       Delete
                     </Button>
                   </div>
                 </div>
@@ -1354,6 +1399,51 @@ const Sessions = () => {
                     <div className="poll-info">
                       <p>💬 {selectedPoll.comment_count || 0} comments</p>
                       <p>📅 Created: {new Date(selectedPoll.created_at).toLocaleString()}</p>
+                    </div>
+
+                    {/* Comments Section */}
+                    <div className="poll-comments-section">
+                      <h4>💬 Comments</h4>
+                      
+                      {loadingComments ? (
+                        <div className="loading-comments">Loading comments...</div>
+                      ) : pollComments.length > 0 ? (
+                        <div className="comments-list">
+                          {pollComments.map((comment) => (
+                            <div key={comment.id} className="comment-item">
+                              <div className="comment-header">
+                                <span className="commenter-name">
+                                  {comment.commenter?.display_name || comment.commenter?.full_name || 'Anonymous'}
+                                </span>
+                                <span className="comment-date">
+                                  {new Date(comment.created_at).toLocaleDateString()}
+                                </span>
+                              </div>
+                              <p className="comment-text">{comment.comment}</p>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="no-comments">No comments yet. Be the first to comment!</p>
+                      )}
+
+                      {/* Add Comment Form */}
+                      <form onSubmit={handlePostComment} className="add-comment-form">
+                        <textarea
+                          value={newComment}
+                          onChange={(e) => setNewComment(e.target.value)}
+                          placeholder="Add a comment..."
+                          rows={3}
+                          disabled={postingComment}
+                        />
+                        <Button
+                          type="submit"
+                          disabled={!newComment.trim() || postingComment}
+                          variant="primary"
+                        >
+                          {postingComment ? 'Posting...' : 'Post Comment'}
+                        </Button>
+                      </form>
                     </div>
                   </div>
                 )}

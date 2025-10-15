@@ -29,7 +29,7 @@ const Sessions = () => {
     title: '',
     price: 0,
     description: '',
-    difficulty_level: 'beginner'
+    difficulty_level: 'Beginner'
   })
   
   // API state
@@ -72,7 +72,7 @@ const Sessions = () => {
     date: '',
     time: '',
     maxParticipants: '',
-    difficulty: 'beginner',
+    difficulty: 'Beginner',
     link: '',
     category: 'observation',
     paymentType: 'paid', // default to paid
@@ -169,7 +169,7 @@ const Sessions = () => {
         session_date: newSession.date, // YYYY-MM-DD format
         session_time: newSession.time, // HH:MM format
         max_participants: parseInt(newSession.maxParticipants) || undefined,
-        difficulty_level: newSession.difficulty as 'beginner' | 'intermediate' | 'advanced',
+        difficulty_level: newSession.difficulty as 'Beginner' | 'Intermediate' | 'Advanced',
         session_link: newSession.link || undefined,
         session_notes: newSession.notes || undefined
       }
@@ -187,7 +187,7 @@ const Sessions = () => {
         date: '',
         time: '',
         maxParticipants: '',
-        difficulty: 'beginner',
+        difficulty: 'Beginner',
         link: '',
         category: 'observation',
         paymentType: 'paid',
@@ -569,9 +569,9 @@ const Sessions = () => {
               value={newSession.difficulty}
               onChange={(e) => setNewSession({...newSession, difficulty: e.target.value})}
             >
-              <option value="beginner">Beginner</option>
-              <option value="intermediate">Intermediate</option>
-              <option value="advanced">Advanced</option>
+              <option value="Beginner">Beginner</option>
+              <option value="Intermediate">Intermediate</option>
+              <option value="Advanced">Advanced</option>
             </select>
           </div>
 
@@ -1013,7 +1013,7 @@ const Sessions = () => {
       title: editForm.title,
       price: editForm.price,
       description: editForm.description,
-      difficulty_level: editForm.difficulty_level as 'beginner' | 'intermediate' | 'advanced'
+      difficulty_level: editForm.difficulty_level as 'Beginner' | 'Intermediate' | 'Advanced'
     }
     
     await handleUpdateSession(selectedSession.id, updates)
@@ -1065,11 +1065,11 @@ const Sessions = () => {
                   <label>Difficulty Level</label>
                   <select 
                     value={editForm.difficulty_level}
-                    onChange={(e) => setEditForm({...editForm, difficulty_level: e.target.value as 'beginner' | 'intermediate' | 'advanced'})}
+                    onChange={(e) => setEditForm({...editForm, difficulty_level: e.target.value as 'Beginner' | 'Intermediate' | 'Advanced'})}
                   >
-                    <option value="beginner">Beginner</option>
-                    <option value="intermediate">Intermediate</option>
-                    <option value="advanced">Advanced</option>
+                    <option value="Beginner">Beginner</option>
+                    <option value="Intermediate">Intermediate</option>
+                    <option value="Advanced">Advanced</option>
                   </select>
                 </div>
               </div>

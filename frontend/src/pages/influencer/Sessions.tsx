@@ -411,17 +411,6 @@ const Sessions = () => {
                     <p className="registration-note">⚠️ New registrations are currently disabled</p>
                   )}
                 </div>
-                <div className="session-link">
-                  <p className="link-label">Session Link:</p>
-                  <div className="link-container">
-                    <input 
-                      type="text" 
-                      value={session.session_link || `https://stellarion.com/session/${session.id}`}
-                      readOnly
-                      className="session-link-input"
-                    />
-                  </div>
-                </div>
                 <div className="session-actions">
                   <Button onClick={() => handleStartSession(session)} variant="primary">Start Session</Button>
                   <Button onClick={() => handleEditSession(session)}>Edit Session</Button>

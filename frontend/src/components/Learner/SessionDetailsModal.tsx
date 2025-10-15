@@ -49,7 +49,7 @@ const SessionDetailsModal: React.FC<SessionDetailsModalProps> = ({
               {session.session_type === 'live' ? '🔴 Live' : '📼 Recorded'}
             </span>
             <span className={`badge badge-${session.payment_type}`}>
-              {session.payment_type === 'paid' ? `💰 $${session.price}` : '🆓 Free'}
+              {session.payment_type === 'paid' ? `💰 Paid Rs ${session.price}` : '🆓 Free'}
             </span>
             <span className={`badge badge-${session.difficulty_level}`}>
               {session.difficulty_level.charAt(0).toUpperCase() + session.difficulty_level.slice(1)}
@@ -113,7 +113,7 @@ const SessionDetailsModal: React.FC<SessionDetailsModalProps> = ({
             </div>
           )}
 
-          {session.session_link && session.session_type === 'live' && (
+          {session.session_link && session.payment_type === 'free' && (
             <div className="session-link-section">
               <h3>🔗 Session Link</h3>
               <a 
@@ -122,7 +122,7 @@ const SessionDetailsModal: React.FC<SessionDetailsModalProps> = ({
                 rel="noopener noreferrer"
                 className="session-link"
               >
-                Join Live Session
+                {session.session_type === 'live' ? 'Join Live Session' : 'Watch Recording'}
               </a>
             </div>
           )}
@@ -132,21 +132,35 @@ const SessionDetailsModal: React.FC<SessionDetailsModalProps> = ({
           <Button variant="secondary" onClick={onClose}>
             Close
           </Button>
-          {session.session_type === 'live' && (
+          {session.payment_type === 'paid' ? (
             <Button 
               variant="primary" 
-              onClick={() => onRegister && onRegister(session.id)}
+              onClick={() => {
+                console.log('Proceeding to payment for session:', session.id);
+                // TODO: Implement payment flow
+              }}
             >
-              Register for Session
+              💳 Pay Rs {session.price}
             </Button>
-          )}
-          {session.session_type === 'recorded' && session.session_link && (
-            <Button 
-              variant="primary"
-              onClick={() => session.session_link && window.open(session.session_link, '_blank')}
-            >
-              Watch Recording
-            </Button>
+          ) : (
+            <>
+              {session.session_type === 'live' && (
+                <Button 
+                  variant="primary" 
+                  onClick={() => onRegister && onRegister(session.id)}
+                >
+                  Register for Session
+                </Button>
+              )}
+              {session.session_type === 'recorded' && session.session_link && (
+                <Button 
+                  variant="primary"
+                  onClick={() => session.session_link && window.open(session.session_link, '_blank')}
+                >
+                  Watch Recording
+                </Button>
+              )}
+            </>
           )}
         </div>
       </div>

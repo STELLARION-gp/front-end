@@ -33,7 +33,7 @@ const RecordedSessionCard: React.FC<RecordedSessionCardProps> = ({
 }) => {
   const navigate = useNavigate();
   
-  const displayPrice = typeof price === 'number' ? `$${price}` : 
+  const displayPrice = typeof price === 'number' ? `Rs ${price}` : 
                       price === null || price === undefined ? 'Free' : 
                       price;
   

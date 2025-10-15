@@ -46,7 +46,7 @@ const SessionCard: React.FC<SessionCardProps> = ({
         {isInfluencer && <span className="influencer-badge">🌟</span>}
       </span>
       <span className="session-category">
-        {category === 'paid' ? `💰 Paid${price ? ` $${price}` : ''}` : '🆓 Free'}
+        {category === 'paid' ? `💰 Paid${price ? ` Rs ${price}` : ''}` : '🆓 Free'}
       </span>
       <span className="session-difficulty">
         {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
@@ -69,7 +69,6 @@ const SessionCard: React.FC<SessionCardProps> = ({
     )}
     <div className="session-card-actions">
       <Button onClick={onViewDetails || (() => {})}>View Details</Button>
-      <Button>🔔 Reminder</Button>
     </div>
   </div>
 );

@@ -69,8 +69,10 @@ export const NotificationDropdown = ({
   console.log("📌 Read count:", readNotifications.length);
   console.log("📌 Sample notification:", notifications[0]);
 
+  const isEmpty = notifications.length === 0;
+
   return (
-    <div className="notification-dropdown">
+    <div className={`notification-dropdown ${isEmpty ? "empty" : ""}`}>
       <div className="notification-dropdown-header">
         <h3>Notifications</h3>
         <button
@@ -85,7 +87,18 @@ export const NotificationDropdown = ({
       <div className="notification-list">
         {notifications.length === 0 ? (
           <div className="no-notifications">
-            <p>No notifications</p>
+            <div className="empty-space-animation">
+              <div className="planet"></div>
+              <div className="stars">
+                <span className="star star-1">✦</span>
+                <span className="star star-2">✧</span>
+                <span className="star star-3">✦</span>
+                <span className="star star-4">✧</span>
+                <span className="star star-5">✦</span>
+              </div>
+            </div>
+            <p className="empty-title">All Clear!</p>
+            <p className="empty-subtitle">No notifications at the moment</p>
           </div>
         ) : (
           <>

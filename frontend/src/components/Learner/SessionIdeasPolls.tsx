@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import "../../styles/components/learner/SessionIdeasPolls.scss";
 import PollDetailsPopup from "./PollDetailsPopup";
 import Button from "../Button";
-import pollService, { type Poll, type PollChoiceType } from '../../services/pollService';
+import pollService, { type Poll } from '../../services/pollService';
 
 // Progress bar component
 const ProgressBar: React.FC<{ percent: number }> = ({ percent }) => (
@@ -11,17 +11,16 @@ const ProgressBar: React.FC<{ percent: number }> = ({ percent }) => (
   </div>
 );
 
-// Helper function to get choice label with emoji
-const getChoiceLabel = (choice: PollChoiceType): string => {
-  switch (choice) {
-    case 'yes': return '✅ Yes';
-    case 'maybe': return '🤔 Maybe';
-    case 'no': return '❌ No';
-    default: return choice;
-  }
+// Helper function to get choice label with emoji for common choices
+const getChoiceLabel = (choice: string): string => {
+  const lowerChoice = choice.toLowerCase();
+  if (lowerChoice === 'yes') return '✅ Yes';
+  if (lowerChoice === 'maybe') return '🤔 Maybe';
+  if (lowerChoice === 'no') return '❌ No';
+  return choice; // Return as-is for custom options
 };
 
-const PollItem: React.FC<{ poll: Poll; onSeeMore: () => void; onVote: (pollId: number, choice: PollChoiceType) => void; voting: boolean }> = ({
+const PollItem: React.FC<{ poll: Poll; onSeeMore: () => void; onVote: (pollId: number, choice: string) => void; voting: boolean }> = ({
   poll,
   onSeeMore,
   onVote,
@@ -115,7 +114,7 @@ const SessionIdeasPolls: React.FC = () => {
     }
   };
 
-  const handleVote = async (pollId: number, choice: PollChoiceType) => {
+  const handleVote = async (pollId: number, choice: string) => {
     try {
       setVotingPollId(pollId);
       await pollService.voteOnPoll(pollId, choice);

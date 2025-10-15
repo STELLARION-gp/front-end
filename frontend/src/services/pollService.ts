@@ -4,10 +4,10 @@ import { auth } from '../firebase';
 const API_BASE_URL = 'http://localhost:5000/api';
 
 // Poll types
-export type PollChoiceType = 'yes' | 'maybe' | 'no';
+export type PollChoiceType = string; // Changed to string to support custom options
 
 export interface PollChoice {
-    choice: PollChoiceType;
+    choice: string; // Changed to string to support custom options
     vote_count: number;
     percentage: number;
 }
@@ -30,7 +30,7 @@ export interface Poll {
     choices: PollChoice[];
     total_votes: number;
     comment_count: number;
-    user_vote?: PollChoiceType | null;
+    user_vote?: string | null; // Changed to string to support custom options
 }
 
 export interface PollComment {
@@ -51,6 +51,7 @@ export interface PollComment {
 export interface CreatePollRequest {
     title: string;
     description?: string;
+    options?: string[]; // Custom poll options
 }
 
 export interface UpdatePollRequest {
@@ -60,7 +61,7 @@ export interface UpdatePollRequest {
 }
 
 export interface VoteRequest {
-    choice: PollChoiceType;
+    choice: string; // Changed from PollChoiceType to string for custom options
 }
 
 export interface AddCommentRequest {
@@ -115,7 +116,7 @@ export interface PollResultsResponse {
         };
         results: PollChoice[];
         total_votes: number;
-        user_vote?: PollChoiceType | null;
+        user_vote?: string | null; // Changed to string to support custom options
     };
     message: string;
 }
@@ -129,7 +130,7 @@ export interface VoteResponse {
         user_id: number;
         voted_at: Date | string;
         choice: {
-            choice: PollChoiceType;
+            choice: string; // Changed to string to support custom options
             vote_count: number;
         };
         voter: {
@@ -288,7 +289,7 @@ export const pollService = {
     /**
      * Vote on a poll
      */
-    async voteOnPoll(pollId: number, choice: PollChoiceType): Promise<VoteResponse> {
+    async voteOnPoll(pollId: number, choice: string): Promise<VoteResponse> { // Changed to string
         console.log(`🗳️ Voting ${choice} on poll ${pollId}`);
         return makeRequest(`/polls/${pollId}/vote`, {
             method: 'POST',
@@ -375,7 +376,7 @@ export const pollService = {
      * Check if current user has voted on a poll
      * Returns the user's choice if voted, null otherwise
      */
-    async checkUserVote(pollId: number): Promise<PollChoiceType | null> {
+    async checkUserVote(pollId: number): Promise<string | null> { // Changed to string
         try {
             const response = await this.getPollResults(pollId);
             return response.data.user_vote || null;
@@ -386,27 +387,27 @@ export const pollService = {
     },
 
     /**
-     * Get poll statistics
+     * Get poll statistics with dynamic choices
      */
     async getPollStats(pollId: number): Promise<{
         totalVotes: number;
-        yesPercentage: number;
-        maybePercentage: number;
-        noPercentage: number;
+        choices: Array<{
+            choice: string;
+            count: number;
+            percentage: number;
+        }>;
         commentCount: number;
     }> {
         const response = await this.getPollResults(pollId);
         const { results, total_votes, poll } = response.data;
         
-        const yesChoice = results.find(r => r.choice === 'yes');
-        const maybeChoice = results.find(r => r.choice === 'maybe');
-        const noChoice = results.find(r => r.choice === 'no');
-        
         return {
             totalVotes: total_votes,
-            yesPercentage: yesChoice?.percentage || 0,
-            maybePercentage: maybeChoice?.percentage || 0,
-            noPercentage: noChoice?.percentage || 0,
+            choices: results.map(r => ({
+                choice: r.choice,
+                count: r.vote_count,
+                percentage: r.percentage
+            })),
             commentCount: poll.comment_count
         };
     },

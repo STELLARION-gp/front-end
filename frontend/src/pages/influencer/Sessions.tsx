@@ -90,14 +90,18 @@ const Sessions = () => {
   const [pollsError, setPollsError] = useState<string | null>(null)
   const [newPoll, setNewPoll] = useState({
     title: '',
-    description: ''
+    description: '',
+    useCustomOptions: false,
+    customOptions: ['', ''] // Start with 2 empty options
   })
   const [selectedPoll, setSelectedPoll] = useState<Poll | null>(null)
   const [pollStats, setPollStats] = useState<{
     totalVotes: number
-    yesPercentage: number
-    maybePercentage: number
-    noPercentage: number
+    choices: Array<{
+      choice: string
+      count: number
+      percentage: number
+    }>
     commentCount: number
   } | null>(null)
 
@@ -707,18 +711,52 @@ const Sessions = () => {
       return
     }
 
+    // Validate custom options if enabled
+    if (newPoll.useCustomOptions) {
+      const validOptions = newPoll.customOptions
+        .map(opt => opt.trim())
+        .filter(opt => opt.length > 0);
+      
+      if (validOptions.length < 2) {
+        showNotification('error', 'Please provide at least 2 valid options')
+        return
+      }
+      
+      // Check for duplicates
+      const uniqueOptions = [...new Set(validOptions)];
+      if (uniqueOptions.length !== validOptions.length) {
+        showNotification('error', 'Duplicate options are not allowed')
+        return
+      }
+    }
+
     setPollsLoading(true)
     try {
-      await pollService.createPoll({
+      const pollData: any = {
         title: newPoll.title,
         description: newPoll.description || undefined
-      })
+      };
       
-      showNotification('success', ' Poll created successfully!')
-      setNewPoll({ title: '', description: '' })
+      // Add custom options if enabled
+      if (newPoll.useCustomOptions) {
+        const validOptions = newPoll.customOptions
+          .map(opt => opt.trim())
+          .filter(opt => opt.length > 0);
+        pollData.options = validOptions;
+      }
+      
+      await pollService.createPoll(pollData)
+      
+      showNotification('success', '✅ Poll created successfully!')
+      setNewPoll({ 
+        title: '', 
+        description: '',
+        useCustomOptions: false,
+        customOptions: ['', '']
+      })
       loadPolls() // Reload polls
     } catch (err) {
-      console.error(' Error creating poll:', err)
+      console.error('❌ Error creating poll:', err)
       showNotification('error', 'Failed to create poll: ' + (err instanceof Error ? err.message : 'Unknown error'))
     } finally {
       setPollsLoading(false)
@@ -1056,6 +1094,76 @@ const Sessions = () => {
               />
             </div>
 
+            {/* Poll Options Type Selector */}
+            <div className="form-group">
+              <label className="checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={newPoll.useCustomOptions}
+                  onChange={(e) => setNewPoll({ 
+                    ...newPoll, 
+                    useCustomOptions: e.target.checked,
+                    customOptions: e.target.checked ? ['', ''] : newPoll.customOptions
+                  })}
+                />
+                <span>Use custom poll options (default: Yes/Maybe/No)</span>
+              </label>
+            </div>
+
+            {/* Custom Options Input */}
+            {newPoll.useCustomOptions && (
+              <div className="form-group custom-options-group">
+                <label>
+                  Poll Options <span className="required">*</span>
+                  <small> (Minimum 2, Maximum 10)</small>
+                </label>
+                
+                {newPoll.customOptions.map((option, index) => (
+                  <div key={index} className="option-input-row">
+                    <input
+                      type="text"
+                      placeholder={`Option ${index + 1}`}
+                      value={option}
+                      onChange={(e) => {
+                        const updated = [...newPoll.customOptions];
+                        updated[index] = e.target.value;
+                        setNewPoll({ ...newPoll, customOptions: updated });
+                      }}
+                      className="option-input"
+                    />
+                    {newPoll.customOptions.length > 2 && (
+                      <button
+                        type="button"
+                        className="remove-option-btn"
+                        onClick={() => {
+                          const updated = newPoll.customOptions.filter((_, i) => i !== index);
+                          setNewPoll({ ...newPoll, customOptions: updated });
+                        }}
+                        title="Remove option"
+                      >
+                        ×
+                      </button>
+                    )}
+                  </div>
+                ))}
+                
+                {newPoll.customOptions.length < 10 && (
+                  <button
+                    type="button"
+                    className="add-option-btn"
+                    onClick={() => {
+                      setNewPoll({
+                        ...newPoll,
+                        customOptions: [...newPoll.customOptions, '']
+                      });
+                    }}
+                  >
+                    + Add Option
+                  </button>
+                )}
+              </div>
+            )}
+
             <div className="form-actions">
               <Button type="submit" disabled={pollsLoading}>
                 {pollsLoading ? 'Creating...' : '📊 Create Poll'}
@@ -1161,76 +1269,62 @@ const Sessions = () => {
                   <p className="poll-description">{selectedPoll.description}</p>
                 )}
 
-                {pollStats && (
+                {selectedPoll.choices && selectedPoll.choices.length > 0 && (
                   <div className="poll-results">
                     <div className="total-votes">
-                      <strong>Total Votes: {pollStats.totalVotes}</strong>
+                      <strong>Total Votes: {selectedPoll.total_votes || 0}</strong>
                     </div>
 
                     <div className="vote-breakdown">
-                      <div className="vote-option yes">
-                        <div className="vote-label">
-                          <span>👍 Yes</span>
-                          <span className="vote-count">
-                            {Math.round(pollStats.totalVotes * pollStats.yesPercentage / 100)} votes
-                          </span>
-                        </div>
-                        <div className="vote-bar">
-                          <div 
-                            className="vote-fill yes-fill"
-                            style={{ width: `${pollStats.yesPercentage}%` }}
-                          />
-                        </div>
-                        <span className="vote-percentage">
-                          {pollStats.yesPercentage.toFixed(1)}%
-                        </span>
-                      </div>
-
-                      <div className="vote-option maybe">
-                        <div className="vote-label">
-                          <span>🤔 Maybe</span>
-                          <span className="vote-count">
-                            {Math.round(pollStats.totalVotes * pollStats.maybePercentage / 100)} votes
-                          </span>
-                        </div>
-                        <div className="vote-bar">
-                          <div 
-                            className="vote-fill maybe-fill"
-                            style={{ width: `${pollStats.maybePercentage}%` }}
-                          />
-                        </div>
-                        <span className="vote-percentage">
-                          {pollStats.maybePercentage.toFixed(1)}%
-                        </span>
-                      </div>
-
-                      <div className="vote-option no">
-                        <div className="vote-label">
-                          <span>👎 No</span>
-                          <span className="vote-count">
-                            {Math.round(pollStats.totalVotes * pollStats.noPercentage / 100)} votes
-                          </span>
-                        </div>
-                        <div className="vote-bar">
-                          <div 
-                            className="vote-fill no-fill"
-                            style={{ width: `${pollStats.noPercentage}%` }}
-                          />
-                        </div>
-                        <span className="vote-percentage">
-                          {pollStats.noPercentage.toFixed(1)}%
-                        </span>
-                      </div>
+                      {selectedPoll.choices.map((choice, index) => {
+                        const percentage = selectedPoll.total_votes > 0 
+                          ? (choice.vote_count / selectedPoll.total_votes * 100) 
+                          : 0;
+                        
+                        // Assign different colors for each option
+                        const colorClass = [
+                          'yes-fill',
+                          'maybe-fill',
+                          'no-fill',
+                          'custom-fill-1',
+                          'custom-fill-2',
+                          'custom-fill-3',
+                          'custom-fill-4',
+                          'custom-fill-5',
+                          'custom-fill-6',
+                          'custom-fill-7'
+                        ][index] || 'custom-fill-default';
+                        
+                        return (
+                          <div key={choice.choice} className={`vote-option option-${index}`}>
+                            <div className="vote-label">
+                              <span className="option-text">{choice.choice}</span>
+                              <span className="vote-count">
+                                {choice.vote_count} {choice.vote_count === 1 ? 'vote' : 'votes'}
+                              </span>
+                            </div>
+                            <div className="vote-bar">
+                              <div 
+                                className={`vote-fill ${colorClass}`}
+                                style={{ width: `${percentage}%` }}
+                              />
+                            </div>
+                            <span className="vote-percentage">
+                              {percentage.toFixed(1)}%
+                            </span>
+                          </div>
+                        );
+                      })}
                     </div>
 
                     <div className="poll-info">
-                      <p>💬 {pollStats.commentCount} comments</p>
+                      <p>💬 {selectedPoll.comment_count || 0} comments</p>
                       <p>📅 Created: {new Date(selectedPoll.created_at).toLocaleString()}</p>
                     </div>
                   </div>
                 )}
 
-                {!pollStats && pollsLoading && (
+                {!selectedPoll.choices && pollsLoading && (
                   <div className="loading-state">Loading statistics...</div>
                 )}
               </div>

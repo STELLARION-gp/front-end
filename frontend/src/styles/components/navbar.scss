@@ -608,35 +608,157 @@ nav,
 //     }
 // }
 
+// Language Dropdown Container
+.language-dropdown-container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+// Language Button - Consistent with Notification Bell
 .language-btn {
   position: relative;
-  width: 36px !important;
-  height: 36px !important;
-  font-size: 12px !important;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  width: 36px;
+  height: 36px;
   background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease;
   padding: 0;
   margin: 0;
 
   &:hover {
     background: rgba(255, 255, 255, 0.12);
     border-color: rgba(255, 255, 255, 0.2);
-    transform: translateY(-1px);
+  }
+
+  &.active {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.25);
   }
 
   .language-letter {
-    width: auto !important;
-    color: rgba(255, 255, 255, 0.8) !important;
+    color: rgba(255, 255, 255, 0.8);
     line-height: 1;
     font-weight: 600;
     font-size: 12px;
+    transition: color 0.2s ease;
+  }
+
+  &:hover .language-letter,
+  &.active .language-letter {
+    color: rgba(255, 255, 255, 0.95);
+  }
+}
+
+// Language Dropdown - Styled like Notification Dropdown
+.language-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 240px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  z-index: 1000;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.language-dropdown-header {
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(0, 0, 0, 0.02);
+
+  h3 {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: #111827;
+    letter-spacing: 0.02em;
+  }
+}
+
+.language-list {
+  padding: 8px;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.language-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 12px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: left;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.04);
+    border-color: rgba(0, 0, 0, 0.06);
+  }
+
+  &.active {
+    background: rgba(99, 102, 241, 0.08);
+    border-color: rgba(99, 102, 241, 0.2);
+
+    .language-name {
+      color: #4f46e5;
+      font-weight: 600;
+    }
+  }
+
+  .language-icon {
+    font-size: 24px;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+
+  .language-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .language-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: #1f2937;
+    line-height: 1.3;
+  }
+
+  .language-code {
+    font-size: 11px;
+    color: #9ca3af;
+    font-weight: 500;
+    text-transform: uppercase;
+  }
+
+  .check-icon {
+    flex-shrink: 0;
+    color: #10b981;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.2s ease;
+  }
+
+  &.active .check-icon {
+    opacity: 1;
+    transform: scale(1);
   }
 }
 
@@ -687,13 +809,64 @@ nav,
       right: 1px;
     }
   }
+}
 
-  .language-btn .language-letter {
-    font-size: 16px;
+// Mobile responsive for language dropdown
+@media (max-width: 768px) {
+  .language-dropdown {
+    width: 100vw;
+    max-width: 320px;
+    right: -16px;
+    border-radius: 12px 12px 0 0;
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.15);
   }
 
-  .theme-btn .theme-text {
-    font-size: 16px;
+  .language-btn {
+    width: 34px;
+    height: 34px;
+
+    .language-letter {
+      font-size: 11px;
+    }
+  }
+
+  .language-dropdown-header {
+    padding: 16px 18px;
+
+    h3 {
+      font-size: 14px;
+    }
+  }
+
+  .language-list {
+    padding: 8px;
+  }
+
+  .language-item {
+    padding: 12px 14px;
+
+    .language-icon {
+      font-size: 26px;
+    }
+
+    .language-name {
+      font-size: 14px;
+    }
+
+    .language-code {
+      font-size: 11px;
+    }
+
+    .check-icon {
+      width: 18px;
+      height: 18px;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .language-dropdown {
+    right: -8px;
   }
 }
 

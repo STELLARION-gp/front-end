@@ -241,6 +241,69 @@ export const sessionsService = {
     },
 
     /**
+     * Get detailed session information by enrollment ID
+     */
+    async getMySessionDetailsByEnrollment(enrollmentId: number): Promise<{
+        success: boolean;
+        data: {
+            session: Session;
+            instructor: {
+                id: number;
+                name: string;
+                email: string;
+                profile: any;
+            };
+            enrollment: {
+                id: number;
+                enrollment_date: string;
+                payment_status: string;
+                payment_amount: number | null;
+                payment_method: string | null;
+                transaction_id: string | null;
+                access_granted: boolean;
+                completed: boolean;
+                progress: number;
+                last_accessed_at: string | null;
+                notes: string | null;
+            };
+            student: {
+                id: number;
+                name: string;
+                email: string;
+            };
+        };
+        message: string;
+    }> {
+        console.log(`📖 Fetching session details for enrollment ${enrollmentId}`);
+        return makeRequest(`/sessions/enrolled/${enrollmentId}`, {}, true); // Requires authentication
+    },
+
+    /**
+     * Check enrollment status for a specific session
+     */
+    async getMyEnrollmentForSession(sessionId: number): Promise<{
+        success: boolean;
+        data: {
+            session: Session;
+            is_enrolled: boolean;
+            enrollment: {
+                id: number;
+                enrollment_date: string;
+                payment_status: string;
+                payment_amount: number | null;
+                access_granted: boolean;
+                completed: boolean;
+                progress: number;
+                last_accessed_at: string | null;
+            } | null;
+        };
+        message: string;
+    }> {
+        console.log(`🔍 Checking enrollment status for session ${sessionId}`);
+        return makeRequest(`/sessions/${sessionId}/my-enrollment`, {}, true); // Requires authentication
+    },
+
+    /**
      * Update an existing session (mentor only)
      */
     async updateSession(id: number, sessionData: UpdateSessionRequest): Promise<SessionResponse> {

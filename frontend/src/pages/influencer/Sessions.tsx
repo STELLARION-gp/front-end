@@ -267,14 +267,24 @@ const Sessions = () => {
       : new Date(session.session_date).toISOString().split('T')[0]
     
     // Extract time without timezone conversion
-    const sessionTimeStr = typeof session.session_time === 'string' 
-      ? session.session_time.substring(0, 5)
-      : (() => {
-          const timeDate = new Date(session.session_time);
-          const hours = timeDate.getUTCHours().toString().padStart(2, '0');
-          const minutes = timeDate.getUTCMinutes().toString().padStart(2, '0');
-          return `${hours}:${minutes}`;
-        })()
+    let sessionTimeStr = '00:00'
+    if (typeof session.session_time === 'string') {
+      // If it's already a string, just extract HH:MM
+      sessionTimeStr = session.session_time.substring(0, 5)
+    } else if (session.session_time) {
+      // If it's a Date/timestamp, try to extract time
+      try {
+        const timeDate = new Date(session.session_time)
+        // Check if it's a valid date
+        if (!isNaN(timeDate.getTime())) {
+          const hours = timeDate.getUTCHours().toString().padStart(2, '0')
+          const minutes = timeDate.getUTCMinutes().toString().padStart(2, '0')
+          sessionTimeStr = `${hours}:${minutes}`
+        }
+      } catch (e) {
+        console.error('Error parsing time:', e)
+      }
+    }
     
     // Initialize edit form with session data
     setEditForm({
@@ -372,14 +382,24 @@ const Sessions = () => {
               const formattedDate = `${day}/${month}/${year}`
               
               // Keep time as string (HH:MM) to avoid timezone conversion
-              const sessionTimeStr = typeof session.session_time === 'string' 
-                ? session.session_time.substring(0, 5) // Extract HH:MM if HH:MM:SS
-                : (() => {
-                    const timeDate = new Date(session.session_time);
-                    const hours = timeDate.getUTCHours().toString().padStart(2, '0');
-                    const minutes = timeDate.getUTCMinutes().toString().padStart(2, '0');
-                    return `${hours}:${minutes}`;
-                  })()
+              let sessionTimeStr = '00:00'
+              if (typeof session.session_time === 'string') {
+                // If it's already a string, just extract HH:MM
+                sessionTimeStr = session.session_time.substring(0, 5)
+              } else if (session.session_time) {
+                // If it's a Date/timestamp, try to extract time
+                try {
+                  const timeDate = new Date(session.session_time)
+                  // Check if it's a valid date
+                  if (!isNaN(timeDate.getTime())) {
+                    const hours = timeDate.getUTCHours().toString().padStart(2, '0')
+                    const minutes = timeDate.getUTCMinutes().toString().padStart(2, '0')
+                    sessionTimeStr = `${hours}:${minutes}`
+                  }
+                } catch (e) {
+                  console.error('Error parsing time:', e)
+                }
+              }
               
               // Format price to 2 decimal places
               const formattedPrice = session.price ? parseFloat(session.price.toString()).toFixed(2) : '0.00'

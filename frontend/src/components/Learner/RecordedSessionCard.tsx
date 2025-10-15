@@ -3,17 +3,18 @@ import Button from "../Button";
 import { useNavigate } from "react-router-dom";
 
 export interface RecordedSessionCardProps {
-  id: string;
+  id: number | string;
   title: string;
-  date: string;
+  date?: string;
   instructor: string;
   category: string;
   difficulty: string;
   description: string;
-  rating: number;
+  rating?: number;
   image?: string;
-  price: string;
-  duration: string;
+  price: number | string | null | undefined;
+  duration: number | string;
+  onViewDetails?: () => void;
 }
 
 const RecordedSessionCard: React.FC<RecordedSessionCardProps> = ({
@@ -24,12 +25,20 @@ const RecordedSessionCard: React.FC<RecordedSessionCardProps> = ({
   category,
   difficulty,
   description,
-  rating,
+  rating = 0,
   image,
   price,
   duration,
+  onViewDetails,
 }) => {
   const navigate = useNavigate();
+  
+  const displayPrice = typeof price === 'number' ? `Rs ${price}` : 
+                      price === null || price === undefined ? 'Free' : 
+                      price;
+  
+  const displayDuration = typeof duration === 'number' ? `${duration} min` : duration;
+  
   return (
     <div className="recorded-session-card">
       {image && (
@@ -39,32 +48,40 @@ const RecordedSessionCard: React.FC<RecordedSessionCardProps> = ({
     )}
     <div className="recorded-session-title">{title}</div>
     <div className="recorded-session-meta">
-      <span className="recorded-session-date">{date}</span>
+      {date && <span className="recorded-session-date">{date}</span>}
       <span className="recorded-session-instructor">
         by {instructor}
       </span>
-      <span className="recorded-session-category">{category}</span>
-      <span className="recorded-session-difficulty">{difficulty}</span>
-      <span className="recorded-session-duration">Duration: {duration}</span>
+      <span className="recorded-session-category">
+        {category === 'paid' ? '💰 Paid' : '🆓 Free'}
+      </span>
+      <span className="recorded-session-difficulty">
+        {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
+      </span>
+      <span className="recorded-session-duration">⏱️ {displayDuration}</span>
     </div>
     <div className="recorded-session-desc">{description}</div>
-    <div className="recorded-session-rating-row">
-      <span className="recorded-session-rating-label">Rating:</span>
-      <span className="recorded-session-rating-value">{rating.toFixed(1)} / 5</span>
-      <span className="recorded-session-rating-stars">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <span
-            key={i}
-            className={i < Math.round(rating) ? 'star-filled' : 'star-empty'}
-          >
-            ★
-          </span>
-        ))}
-      </span>
-    </div>
+    {rating > 0 && (
+      <div className="recorded-session-rating-row">
+        <span className="recorded-session-rating-label">Rating:</span>
+        <span className="recorded-session-rating-value">{rating.toFixed(1)} / 5</span>
+        <span className="recorded-session-rating-stars">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <span
+              key={i}
+              className={i < Math.round(rating) ? 'star-filled' : 'star-empty'}
+            >
+              ★
+            </span>
+          ))}
+        </span>
+      </div>
+    )}
     <div className="recorded-session-purchase-row">
-      <span className="recorded-session-price">{price}</span>
-      <Button onClick={() => navigate(`/dashboard/sessions/recorded-sessions/${id}`)}>Buy Session</Button>
+      <span className="recorded-session-price">Rs {displayPrice}</span>
+      <Button onClick={onViewDetails || (() => navigate(`/dashboard/sessions/recorded-sessions/${id}`))}>
+        View Details
+      </Button>
     </div>
   </div>
 );

@@ -1,6 +1,18 @@
-import { useState } from 'react'
+
+import { useState, useEffect } from 'react'
+import type React from 'react'
 import '../../styles/pages/influencer/Sessions.scss';
+import '../../styles/pages/influencer/SessionsNotification.scss';
 import Button from '../../components/Button';
+import { sessionsService } from '../../services/sessionsService'
+import pollService, { type Poll } from '../../services/pollService'
+import { auth } from '../../firebase'
+import type { 
+  Session as APISession, 
+  CreateSessionRequest,
+  UpdateSessionRequest,
+  SessionFilters 
+} from '../../services/sessionsService';
 
 const Sessions = () => {
   const [activeTab, setActiveTab] = useState('my-sessions')
@@ -8,14 +20,39 @@ const Sessions = () => {
   const [showDetailsModal, setShowDetailsModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const [showAnalyticsModal, setShowAnalyticsModal] = useState(false)
-  const [selectedSession, setSelectedSession] = useState<Session | null>(null)
-  type Material = {
-    id: number
-    name: string
-    type: string
-    file: File | null
-    url: string
-  }
+  const [selectedSession, setSelectedSession] = useState<APISession | null>(null)
+  const [editForm, setEditForm] = useState<{
+    title: string
+    price: number
+    description: string
+    difficulty_level: string
+    session_date: string
+    session_time: string
+  }>({
+    title: '',
+    price: 0,
+    description: '',
+    difficulty_level: 'Beginner',
+    session_date: '',
+    session_time: ''
+  })
+  
+  // API state
+  const [mySessions, setMySessions] = useState<APISession[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [currentPage] = useState(1)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [userEmail, setUserEmail] = useState<string | null>(null)
+  const [notification, setNotification] = useState<{
+    show: boolean
+    type: 'success' | 'error' | 'info'
+    message: string
+  }>({
+    show: false,
+    type: 'success',
+    message: ''
+  })
 
   const [newSession, setNewSession] = useState<{
     title: string
@@ -30,7 +67,6 @@ const Sessions = () => {
     link: string
     category: string
     paymentType: string // 'free' | 'paid'
-    materials: Material[]
     notes: string
   }>({
     title: '',
@@ -41,206 +77,443 @@ const Sessions = () => {
     date: '',
     time: '',
     maxParticipants: '',
-    difficulty: 'beginner',
+    difficulty: 'Beginner',
     link: '',
     category: 'observation',
     paymentType: 'paid', // default to paid
-    materials: [],
     notes: ''
   })
 
-  // Mock data
-  const liveSessions = [
-    { id: 1, title: 'Deep Space Photography', date: '2024-01-15', time: '20:00', participants: 12, maxParticipants: 20, price: 13500, status: 'upcoming', registrationEnabled: true },
-    { id: 2, title: 'Planetary Observation', date: '2024-01-18', time: '21:30', participants: 8, maxParticipants: 15, price: 10500, status: 'upcoming', registrationEnabled: false }
-  ]
+  // Poll state
+  const [polls, setPolls] = useState<Poll[]>([])
+  const [pollsLoading, setPollsLoading] = useState(false)
+  const [pollsError, setPollsError] = useState<string | null>(null)
+  const [newPoll, setNewPoll] = useState({
+    title: '',
+    description: '',
+    useCustomOptions: false,
+    customOptions: ['', ''] // Start with 2 empty options
+  })
+  const [selectedPoll, setSelectedPoll] = useState<Poll | null>(null)
+  const [pollStats, setPollStats] = useState<{
+    totalVotes: number
+    choices: Array<{
+      choice: string
+      count: number
+      percentage: number
+    }>
+    commentCount: number
+  } | null>(null)
+  const [confirmDelete, setConfirmDelete] = useState<{ show: boolean; pollId: number | null }>({
+    show: false,
+    pollId: null
+  })
+  const [pollComments, setPollComments] = useState<any[]>([])
+  const [loadingComments, setLoadingComments] = useState(false)
+  const [newComment, setNewComment] = useState('')
+  const [postingComment, setPostingComment] = useState(false)
 
-  const recordedSessions = [
-    { id: 1, title: 'Beginner Stargazing', price: 1500, purchases: 156, rating: 4.8, earnings: 234000, registrationEnabled: true },
-    { id: 2, title: 'Telescope Setup Guide', price: 2000, purchases: 89, rating: 4.9, earnings: 178000, registrationEnabled: false }
-  ]
-
-  type Session = {
-    id: number
-    title: string
-    date?: string
-    time?: string
-    participants?: number
-    maxParticipants?: number
-    price: number
-    status?: string
-    registrationEnabled?: boolean
-    purchases?: number
-    rating?: number
-    earnings?: number
-    // Add other fields as needed
+  // Show notification helper
+  const showNotification = (type: 'success' | 'error' | 'info', message: string) => {
+    setNotification({ show: true, type, message })
+    setTimeout(() => {
+      setNotification({ show: false, type, message: '' })
+    }, 5000) // Auto-hide after 5 seconds
   }
 
-  const handleEditSession = (session: Session) => {
+  // Check authentication status
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        setIsAuthenticated(true)
+        setUserEmail(user.email)
+        console.log('User authenticated:', user.email)
+      } else {
+        setIsAuthenticated(false)
+        setUserEmail(null)
+        console.warn(' User not authenticated')
+      }
+    })
+
+    return () => unsubscribe()
+  }, [])
+
+  // Load sessions on component mount and when activeTab changes
+  useEffect(() => {
+    if (activeTab === 'my-sessions' && isAuthenticated) {
+      loadMySessions()
+    }
+  }, [activeTab, isAuthenticated])
+
+  // Load polls when polls tab is active
+  useEffect(() => {
+    if (activeTab === 'polls' && isAuthenticated) {
+      console.log('Polls tab activated, loading polls...')
+      loadPolls()
+    } else if (activeTab === 'polls' && !isAuthenticated) {
+      console.warn('Cannot load polls: user not authenticated')
+    }
+  }, [activeTab, isAuthenticated])
+
+  // Load user's sessions from API
+  const loadMySessions = async (filters?: SessionFilters) => {
+    if (!isAuthenticated) {
+      setError('Please log in to view your sessions')
+      return
+    }
+
+    setLoading(true)
+    setError(null)
+    try {
+      console.log(' Loading sessions for user:', userEmail)
+      const response = await sessionsService.getMySessions({
+        page: currentPage,
+        limit: 10,
+        sort_by: 'session_date',
+        sort_order: 'desc',
+        ...filters
+      })
+      setMySessions(response.data || [])
+      console.log('Loaded', response.data?.length || 0, 'sessions')
+    } catch (err) {
+      console.error(' Error loading sessions:', err)
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load sessions'
+      setError(errorMessage)
+      
+      // If authentication error, provide helpful message
+      if (errorMessage.includes('Authentication') || errorMessage.includes('log in')) {
+        setError('Authentication required. Please log in to continue.')
+      }
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Create a new session
+  const handleCreateSession = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!isAuthenticated) {
+      showNotification('error', ' Please log in to create a session.')
+      return
+    }
+
+    setLoading(true)
+    setError(null)
+    
+    try {
+      console.log(' Creating session for user:', userEmail)
+      const sessionData: CreateSessionRequest = {
+        title: newSession.title,
+        description: newSession.description,
+        session_type: newSession.type as 'live' | 'recorded',
+        payment_type: newSession.paymentType as 'paid' | 'free',
+        price: newSession.paymentType === 'free' ? 0 : parseFloat(newSession.price) || 0,
+        duration: parseInt(newSession.duration) ,
+        session_date: newSession.date, // YYYY-MM-DD format
+        session_time: newSession.time, // HH:MM format
+        max_participants: parseInt(newSession.maxParticipants) || undefined,
+        difficulty_level: newSession.difficulty.toLowerCase() as 'beginner' | 'intermediate' | 'advanced',
+        session_link: newSession.link || undefined,
+        session_notes: newSession.notes || undefined
+      }
+
+      const result = await sessionsService.createSession(sessionData)
+      console.log('Session created successfully:', result)
+      
+      // Reset form and switch to my sessions tab
+      setNewSession({
+        title: '',
+        description: '',
+        type: 'live',
+        price: '',
+        duration: '',
+        date: '',
+        time: '',
+        maxParticipants: '',
+        difficulty: 'Beginner',
+        link: '',
+        category: 'observation',
+        paymentType: 'paid',
+        notes: ''
+      })
+      
+      setActiveTab('my-sessions')
+      loadMySessions()
+      
+      showNotification('success', '✨ Session created successfully!')
+    } catch (err) {
+      console.error('Error creating session:', err)
+      setError(err instanceof Error ? err.message : 'Failed to create session')
+      showNotification('error', 'Failed to create session: ' + (err instanceof Error ? err.message : 'Unknown error'))
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Update an existing session
+  const handleUpdateSession = async (sessionId: number, updates: UpdateSessionRequest) => {
+    setLoading(true)
+    setError(null)
+    
+    try {
+      const result = await sessionsService.updateSession(sessionId, updates)
+      console.log('Session updated successfully:', result)
+      
+      // Reload sessions
+      loadMySessions()
+      setShowEditModal(false)
+      
+      showNotification('success', '✅ Session updated successfully!')
+    } catch (err) {
+      console.error('Error updating session:', err)
+      setError(err instanceof Error ? err.message : 'Failed to update session')
+      showNotification('error', 'Failed to update session: ' + (err instanceof Error ? err.message : 'Unknown error'))
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Delete a session
+  const handleDeleteSession = async (sessionId: number) => {
+    if (!confirm('Are you sure you want to permanently delete this session? This action cannot be undone.')) return
+    
+    setLoading(true)
+    setError(null)
+    
+    try {
+      await sessionsService.deleteSession(sessionId)
+      console.log('Session deleted successfully')
+      
+      // Reload sessions
+      loadMySessions()
+      
+      showNotification('success', '🗑️ Session deleted successfully!')
+    } catch (err) {
+      console.error('Error deleting session:', err)
+      setError(err instanceof Error ? err.message : 'Failed to delete session')
+      showNotification('error', 'Failed to delete session: ' + (err instanceof Error ? err.message : 'Unknown error'))
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleEditSession = (session: APISession) => {
     setSelectedSession(session)
+    
+    // Extract date without timezone conversion
+    const sessionDateStr = typeof session.session_date === 'string'
+      ? session.session_date.split('T')[0]
+      : new Date(session.session_date).toISOString().split('T')[0]
+    
+    // Extract time without timezone conversion
+    let sessionTimeStr = '00:00'
+    if (typeof session.session_time === 'string') {
+      // If it's already a string, just extract HH:MM
+      sessionTimeStr = session.session_time.substring(0, 5)
+    } else if (session.session_time) {
+      // If it's a Date/timestamp, try to extract time
+      try {
+        const timeDate = new Date(session.session_time)
+        // Check if it's a valid date
+        if (!isNaN(timeDate.getTime())) {
+          const hours = timeDate.getUTCHours().toString().padStart(2, '0')
+          const minutes = timeDate.getUTCMinutes().toString().padStart(2, '0')
+          sessionTimeStr = `${hours}:${minutes}`
+        }
+      } catch (e) {
+        console.error('Error parsing time:', e)
+      }
+    }
+    
+    // Initialize edit form with session data
+    setEditForm({
+      title: session.title,
+      price: session.price || 0,
+      description: session.description,
+      difficulty_level: session.difficulty_level,
+      session_date: sessionDateStr,
+      session_time: sessionTimeStr
+    })
     setShowEditModal(true)
   }
 
-  const handleViewAnalytics = (session:Session) => {
+  const handleViewAnalytics = (session: APISession) => {
     setSelectedSession(session)
     setShowAnalyticsModal(true)
   }
 
-  const handleStartSession = (session:Session) => {
+  const handleStartSession = (session: APISession) => {
     // Handle starting the live session
     console.log('Starting session:', session.title)
-    // You can add navigation to the session room or open a new window
-    // window.open(`https://stellarion.com/session/${session.id}/room`, '_blank')
-  }
-
-  const handleAddMaterial = () => {
-    const newMaterial = {
-      id: Date.now(),
-      name: '',
-      type: 'pdf',
-      file: null,
-      url: ''
+    const sessionLink = 'session_link' in session ? session.session_link : undefined
+    if (sessionLink) {
+      window.open(sessionLink, '_blank')
+    } else {
+      alert('No meeting link configured for this session')
     }
-    setNewSession({
-      ...newSession,
-      materials: [...newSession.materials, newMaterial]
-    })
   }
 
-  const handleRemoveMaterial = (materialId: number) => {
-    setNewSession({
-      ...newSession,
-      materials: newSession.materials.filter(material => material.id !== materialId)
-    })
-  }
-
-  const handleMaterialChange = (
-    materialId: number,
-    field: keyof Material,
-    value: string | File | null
-  ) => {
-    setNewSession({
-      ...newSession,
-      materials: newSession.materials.map(material =>
-        material.id === materialId
-          ? { ...material, [field]: value }
-          : material
+  const renderMyServices = () => {
+    // Check authentication first
+    if (!isAuthenticated) {
+      return (
+        <div className="auth-required-state">
+          <h3>🔒 Authentication Required</h3>
+          <p>Please log in to view and manage your sessions.</p>
+          <p>Current user: {userEmail || 'Not logged in'}</p>
+          <Button onClick={() => window.location.href = '/login'}>Go to Login</Button>
+        </div>
       )
-    })
-  }
+    }
 
-  const handleFileUpload = (materialId: number, file: File) => {
-    setNewSession({
-      ...newSession,
-      materials: newSession.materials.map(material =>
-        material.id === materialId
-          ? { ...material, file: file, name: file.name }
-          : material
+    // Separate sessions into live and recorded
+    const liveSessions = mySessions.filter(s => s.session_type === 'live')
+    const recordedSessions = mySessions.filter(s => s.session_type === 'recorded')
+
+    if (loading) {
+      return <div className="loading-state">Loading sessions...</div>
+    }
+
+    if (error) {
+      return (
+        <div className="error-state">
+          <h3>⚠️ Error</h3>
+          <p>{error}</p>
+          {error.includes('Authentication') && (
+            <Button onClick={() => window.location.reload()}>Refresh Page</Button>
+          )}
+        </div>
       )
-    })
-  }
+    }
 
+    if (mySessions.length === 0) {
+      return (
+        <div className="empty-state">
+          <h3>No sessions yet</h3>
+          <p>Create your first session to get started!</p>
+          <p>Logged in as: {userEmail}</p>
+          <Button onClick={() => setActiveTab('new-session')}>Create Session</Button>
+        </div>
+      )
+    }
 
-  const handleRegistrationChange = (sessionId: number, isEnabled: boolean) => {
-    // Handle registration status change
-    console.log(`Setting registration for session ${sessionId} to ${isEnabled}`)
-    // Here you would update the session status in your state/database
-  }
-
-  const renderMyServices = () => (
+    return (
     <div className="my-sessions-section">
       <div className="section-header">
         <h2>My Sessions</h2>
       </div>
 
       <div className="sessions-grid">
+        {liveSessions.length > 0 && (
         <div className="sessions-section">
           <h3>Live Sessions</h3>
           <div className="sessions-list">
-            {liveSessions.map(session => (
-              <div key={session.id} className={`influencer-session-card live-session ${!session.registrationEnabled ? 'registration-disabled' : ''}`}>
+            {liveSessions.map(session => {
+              const isDisabled = !session.is_enabled
+              
+              // Keep date as string (YYYY-MM-DD) to avoid timezone conversion
+              const sessionDateStr = typeof session.session_date === 'string'
+                ? session.session_date.split('T')[0] // Extract date part if datetime
+                : new Date(session.session_date).toISOString().split('T')[0]
+              
+              // Format date for display (DD/MM/YYYY or MM/DD/YYYY based on locale)
+              const [year, month, day] = sessionDateStr.split('-')
+              const formattedDate = `${day}/${month}/${year}`
+              
+              // Keep time as string (HH:MM) to avoid timezone conversion
+              let sessionTimeStr = '00:00'
+              if (typeof session.session_time === 'string') {
+                // If it's already a string, just extract HH:MM
+                sessionTimeStr = session.session_time.substring(0, 5)
+              } else if (session.session_time) {
+                // If it's a Date/timestamp, try to extract time
+                try {
+                  const timeDate = new Date(session.session_time)
+                  // Check if it's a valid date
+                  if (!isNaN(timeDate.getTime())) {
+                    const hours = timeDate.getUTCHours().toString().padStart(2, '0')
+                    const minutes = timeDate.getUTCMinutes().toString().padStart(2, '0')
+                    sessionTimeStr = `${hours}:${minutes}`
+                  }
+                } catch (e) {
+                  console.error('Error parsing time:', e)
+                }
+              }
+              
+              // Format price to 2 decimal places
+              const formattedPrice = session.price ? parseFloat(session.price.toString()).toFixed(2) : '0.00'
+              
+              return (
+              <div key={session.id} className={`influencer-session-card live-session ${isDisabled ? 'registration-disabled' : ''}`}>
                 <div className="session-header">
                   <div className="session-title-info">
                     <h3>{session.title}</h3>
-                    <p className="session-instructor">by You</p>
+                    <p className="session-instructor">by {session.creator?.display_name || 'You'}</p>
                   </div>
                   <div className="session-status-container">
                     <span className="session-status live">LIVE</span>
                   </div>
                 </div>
                 <div className="session-details">
-                  <p><span className="icon">📅</span> {session.date} at {session.time}</p>
-                  <p><span className="icon">👥</span> {session.participants}/{session.maxParticipants} participants</p>
-                  <p><span className="icon">💰</span> LKR {session.price}</p>
+                  <p><span className="icon">📅</span> {formattedDate}</p>
+                  <p><span className="icon">🕐</span> {sessionTimeStr}</p>
+                  <p><span className="icon">⏱️</span> {session.duration} minutes</p>
+                  <p><span className="icon">👥</span> Max {session.max_participants || 'Unlimited'} participants</p>
+                  <p><span className="icon">💰</span> LKR {formattedPrice}</p>
                   <p className="session-payment-type">
-                    <span className={`payment-label ${session.price === 0 ? 'free' : 'paid'}`}>
-                      {session.price === 0 ? 'Free' : 'Paid'}
+                    <span className={`payment-label ${session.payment_type}`}>
+                      {session.payment_type === 'free' ? 'Free' : 'Paid'}
                     </span>
                   </p>
-                  {!session.registrationEnabled && (
+                  <p><span className="icon">📊</span> {session.difficulty_level}</p>
+                  {isDisabled && (
                     <p className="registration-note">⚠️ New registrations are currently disabled</p>
                   )}
-                </div>
-                <div className="session-link">
-                  <p className="link-label">Session Link:</p>
-                  <div className="link-container">
-                    <input 
-                      type="text" 
-                      value={`https://stellarion.com/session/${session.id}`}
-                      readOnly
-                      className="session-link-input"
-                    />
-                  </div>
-                </div>
-                <div className="registration-control-section">
-                  <div className="control-header">
-                    <h4>Registration Settings</h4>
-                  </div>
-                  <div className="registration-toggle">
-                    <button
-                      type="button"
-                      className={`simple-toggle-btn${session.registrationEnabled ? ' enabled' : ''}`}
-                      onClick={() => handleRegistrationChange(session.id, !session.registrationEnabled)}
-                    >
-                      {session.registrationEnabled ? 'Registration Enabled' : 'Registration Disabled'}
-                    </button>
-                  </div>
                 </div>
                 <div className="session-actions">
                   <Button onClick={() => handleStartSession(session)} variant="primary">Start Session</Button>
                   <Button onClick={() => handleEditSession(session)}>Edit Session</Button>
                   <Button onClick={() => handleViewAnalytics(session)}>View Analytics</Button>
+                  <Button onClick={() => handleDeleteSession(session.id)} variant="secondary">Delete</Button>
                 </div>
               </div>
-            ))}
+            )})}
           </div>
         </div>
+        )}
 
+        {recordedSessions.length > 0 && (
         <div className="sessions-section">
           <h3>Recorded Sessions</h3>
           <div className="sessions-list">
-            {recordedSessions.map(session => (
-              <div key={session.id} className={`influencer-session-card recorded-session ${!session.registrationEnabled ? 'registration-disabled' : ''}`}>
+            {recordedSessions.map(session => {
+              const isDisabled = !session.is_enabled
+              
+              // Format price to 2 decimal places
+              const formattedPrice = session.price ? parseFloat(session.price.toString()).toFixed(2) : '0.00'
+              
+              return (
+              <div key={session.id} className={`influencer-session-card recorded-session ${isDisabled ? 'registration-disabled' : ''}`}>
                 <div className="session-header">
                   <div className="session-title-info">
                     <h3>{session.title}</h3>
-                    <p className="session-instructor">by You</p>
+                    <p className="session-instructor">by {session.creator?.display_name || 'You'}</p>
                   </div>
                   <div className="session-status-container">
                     <span className="session-status recorded">RECORDED</span>
                   </div>
                 </div>
                 <div className="session-details">
-                  <p><span className="icon">💰</span> LKR {session.price}</p>
+                  <p><span className="icon">💰</span> LKR {formattedPrice}</p>
                   <p className="session-payment-type">
-                    <span className={`payment-label ${session.price === 0 ? 'free' : 'paid'}`}>
-                      {session.price === 0 ? 'Free' : 'Paid'}
+                    <span className={`payment-label ${session.payment_type}`}>
+                      {session.payment_type === 'free' ? 'Free' : 'Paid'}
                     </span>
                   </p>
-                  <p><span className="icon">📊</span> {session.purchases} purchases</p>
-                  <p><span className="icon">⭐</span> {session.rating}/5.0</p>
-                  <p><span className="icon">💵</span> LKR {session.earnings} earned</p>
-                  {!session.registrationEnabled && (
+                  <p><span className="icon">⏱️</span> {session.duration} minutes</p>
+                  <p><span className="icon">�</span> {session.difficulty_level}</p>
+                  {isDisabled && (
                     <p className="registration-note">⚠️ This session is currently unavailable for purchase</p>
                   )}
                 </div>
@@ -249,38 +522,26 @@ const Sessions = () => {
                   <div className="link-container">
                     <input 
                       type="text" 
-                      value={`https://stellarion.com/session/${session.id}`}
+                      value={session.session_link || `https://stellarion.com/session/${session.id}`}
                       readOnly
                       className="session-link-input"
                     />
                   </div>
                 </div>
-                <div className="registration-control-section">
-                  <div className="control-header">
-                    <h4>Availability Settings</h4>
-                    <p className="control-description">Control whether users can purchase this session</p>
-                  </div>
-                  <div className="registration-toggle">
-                    <button
-                      type="button"
-                      className={`simple-toggle-btn${session.registrationEnabled ? ' enabled' : ''}`}
-                      onClick={() => handleRegistrationChange(session.id, !session.registrationEnabled)}
-                    >
-                      {session.registrationEnabled ? 'Available for Purchase' : 'Unavailable for Purchase'}
-                    </button>
-                  </div>
-                </div>
                 <div className="session-actions">
                   <Button onClick={() => handleEditSession(session)}>Edit Session</Button>
                   <Button onClick={() => handleViewAnalytics(session)}>View Analytics</Button>
+                  <Button onClick={() => handleDeleteSession(session.id)} variant="secondary">Delete</Button>
                 </div>
               </div>
-            ))}
+            )})}
           </div>
         </div>
+        )}
       </div>
     </div>
   )
+  }
 
   const renderNewSession = () => (
     <div className="new-session-form">
@@ -288,7 +549,8 @@ const Sessions = () => {
         
       </div>
       <h2>Create New Session</h2>
-      <form className="session-form">
+      {error && <div className="error-message">{error}</div>}
+      <form className="session-form" onSubmit={handleCreateSession}>
         <div className="form-grid">
           <div className="form-group">
             <label>Session Title</label>
@@ -297,6 +559,7 @@ const Sessions = () => {
               value={newSession.title}
               onChange={(e) => setNewSession({...newSession, title: e.target.value})}
               placeholder="Enter session title"
+              required
             />
           </div>
           
@@ -328,8 +591,10 @@ const Sessions = () => {
               type="number"
               value={newSession.price}
               onChange={e => setNewSession({ ...newSession, price: e.target.value })}
-              placeholder={newSession.paymentType === 'free' ? '0' : '2500'}
+              placeholder={newSession.paymentType === 'free' ? '0' : 'Enter price'}
               disabled={newSession.paymentType === 'free'}
+              required={newSession.paymentType === 'paid'}
+              onWheel={(e) => e.currentTarget.blur()}
             />
           </div>
 
@@ -339,7 +604,9 @@ const Sessions = () => {
               type="number" 
               value={newSession.duration}
               onChange={(e) => setNewSession({...newSession, duration: e.target.value})}
-              placeholder="60"
+              placeholder='Enter duration'
+              required
+              onWheel={(e) => e.currentTarget.blur()}
             />
           </div>
 
@@ -349,6 +616,7 @@ const Sessions = () => {
               type="date" 
               value={newSession.date}
               onChange={(e) => setNewSession({...newSession, date: e.target.value})}
+              required
             />
           </div>
 
@@ -358,6 +626,7 @@ const Sessions = () => {
               type="time" 
               value={newSession.time}
               onChange={(e) => setNewSession({...newSession, time: e.target.value})}
+              required
             />
           </div>
 
@@ -367,7 +636,9 @@ const Sessions = () => {
               type="number" 
               value={newSession.maxParticipants}
               onChange={(e) => setNewSession({...newSession, maxParticipants: e.target.value})}
-              placeholder="20"
+              placeholder="Enter max participants"
+              required
+              onWheel={(e) => e.currentTarget.blur()}
             />
           </div>
 
@@ -377,9 +648,9 @@ const Sessions = () => {
               value={newSession.difficulty}
               onChange={(e) => setNewSession({...newSession, difficulty: e.target.value})}
             >
-              <option value="beginner">Beginner</option>
-              <option value="intermediate">Intermediate</option>
-              <option value="advanced">Advanced</option>
+              <option value="Beginner">Beginner</option>
+              <option value="Intermediate">Intermediate</option>
+              <option value="Advanced">Advanced</option>
             </select>
           </div>
 
@@ -401,92 +672,8 @@ const Sessions = () => {
             onChange={(e) => setNewSession({...newSession, description: e.target.value})}
             placeholder="Describe your session..."
             rows={4}
+            required
           />
-        </div>
-
-        <div className="materials-section">
-          <h3>Session Materials</h3>
-          <p className="materials-description">Add materials that participants will receive with this session</p>
-          
-          {newSession.materials.map((material) => (
-            <div key={material.id} className="material-item-form">
-              <div className="material-form-grid">
-                <div className="form-group">
-                  <label>Material Name</label>
-                  <input
-                    type="text"
-                    value={material.name}
-                    onChange={(e) => handleMaterialChange(material.id, 'name', e.target.value)}
-                    placeholder="Enter material name"
-                  />
-                </div>
-                
-                <div className="form-group">
-                  <label>Material Type</label>
-                  <select
-                    value={material.type}
-                    onChange={(e) => handleMaterialChange(material.id, 'type', e.target.value)}
-                  >
-                    <option value="pdf">PDF Document</option>
-                    <option value="video">Video</option>
-                    <option value="image">Image</option>
-                    <option value="audio">Audio</option>
-                    <option value="link">External Link</option>
-                  </select>
-                </div>
-
-                {material.type === 'link' ? (
-                  <div className="form-group">
-                    <label>URL</label>
-                    <input
-                      type="url"
-                      value={material.url}
-                      onChange={(e) => handleMaterialChange(material.id, 'url', e.target.value)}
-                      placeholder="https://example.com"
-                    />
-                  </div>
-                ) : (
-                  <div className="form-group">
-                    <label>Upload File</label>
-                    <input
-                      type="file"
-                      onChange={(e) => {
-                        if (e.target.files && e.target.files[0]) {
-                          handleFileUpload(material.id, e.target.files[0]);
-                        }
-                      }}
-                      accept={
-                        material.type === 'pdf' ? '.pdf' :
-                        material.type === 'video' ? '.mp4,.mov,.avi' :
-                        material.type === 'image' ? '.jpg,.jpeg,.png,.gif' :
-                        material.type === 'audio' ? '.mp3,.wav,.ogg' : '*'
-                      }
-                    />
-                  </div>
-                )}
-
-                <div className="material-actions">
-                  <Button 
-                    type="button"
-                    variant="secondary"
-                    onClick={() => handleRemoveMaterial(material.id)}
-                  >
-                    Remove
-                  </Button>
-                </div>
-              </div>
-            </div>
-          ))}
-
-          <div className="add-material-section">
-            <Button 
-              type="button"
-              variant="secondary"
-              onClick={handleAddMaterial}
-            >
-              + Add Material
-            </Button>
-          </div>
         </div>
 
         <div className="form-group full-width">
@@ -500,12 +687,225 @@ const Sessions = () => {
         </div>
 
         <div className="form-actions">
-          <Button type="button">Save as Draft</Button>
-          <Button type="submit">Create Session</Button>
+          <Button type="submit" disabled={loading}>
+            {loading ? 'Creating...' : 'Create Session'}
+          </Button>
         </div>
       </form>
     </div>
   )
+
+  // Poll Functions
+  const loadPolls = async () => {
+    setPollsLoading(true)
+    setPollsError(null)
+    try {
+      const response = await pollService.getPolls()
+      setPolls(response.data || [])
+      console.log('Loaded', response.data?.length || 0, 'polls')
+    } catch (err) {
+      console.error('Error loading polls:', err)
+      setPollsError(err instanceof Error ? err.message : 'Failed to load polls')
+    } finally {
+      setPollsLoading(false)
+    }
+  }
+
+  const handleCreatePoll = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!newPoll.title.trim()) {
+      showNotification('error', 'Please enter a poll title')
+      return
+    }
+
+    // Validate custom options if enabled
+    if (newPoll.useCustomOptions) {
+      const validOptions = newPoll.customOptions
+        .map(opt => opt.trim())
+        .filter(opt => opt.length > 0);
+      
+      if (validOptions.length < 2) {
+        showNotification('error', 'Please provide at least 2 valid options')
+        return
+      }
+      
+      // Check for duplicates
+      const uniqueOptions = [...new Set(validOptions)];
+      if (uniqueOptions.length !== validOptions.length) {
+        showNotification('error', 'Duplicate options are not allowed')
+        return
+      }
+    }
+
+    setPollsLoading(true)
+    try {
+      const pollData: any = {
+        title: newPoll.title,
+        description: newPoll.description || undefined
+      };
+      
+      // Add custom options if enabled
+      if (newPoll.useCustomOptions) {
+        const validOptions = newPoll.customOptions
+          .map(opt => opt.trim())
+          .filter(opt => opt.length > 0);
+        pollData.options = validOptions;
+      }
+      
+      await pollService.createPoll(pollData)
+      
+      showNotification('success', '✅ Poll created successfully!')
+      setNewPoll({ 
+        title: '', 
+        description: '',
+        useCustomOptions: false,
+        customOptions: ['', '']
+      })
+      loadPolls() // Reload polls
+    } catch (err) {
+      console.error('❌ Error creating poll:', err)
+      showNotification('error', 'Failed to create poll: ' + (err instanceof Error ? err.message : 'Unknown error'))
+    } finally {
+      setPollsLoading(false)
+    }
+  }
+
+  const handleViewPollDetails = async (poll: Poll) => {
+    setSelectedPoll(poll)
+    try {
+      const stats = await pollService.getPollStats(poll.id)
+      setPollStats(stats)
+      // Fetch comments when viewing poll details
+      fetchPollComments(poll.id)
+    } catch (err) {
+      console.error('Error loading poll stats:', err)
+      showNotification('error', 'Failed to load poll statistics')
+    }
+  }
+
+  const fetchPollComments = async (pollId: number) => {
+    try {
+      setLoadingComments(true)
+      const response = await pollService.getPollComments(pollId, {
+        page: 1,
+        limit: 50,
+        sort_order: 'desc'
+      })
+      setPollComments(response.data)
+    } catch (err) {
+      console.error('Error loading comments:', err)
+    } finally {
+      setLoadingComments(false)
+    }
+  }
+
+  const handlePostComment = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!selectedPoll || !newComment.trim()) {
+      return
+    }
+
+    try {
+      setPostingComment(true)
+      await pollService.addComment(selectedPoll.id, newComment.trim())
+      setNewComment('')
+      showNotification('success', ' Comment posted successfully!')
+      
+      // Refresh comments
+      fetchPollComments(selectedPoll.id)
+    } catch (err: any) {
+      console.error('Error posting comment:', err)
+      showNotification('error', err.message || 'Failed to post comment')
+    } finally {
+      setPostingComment(false)
+    }
+  }
+
+  const handleClosePoll = async (pollId: number) => {
+    try {
+      await pollService.closePoll(pollId)
+      showNotification('success', ' Poll closed successfully!')
+      loadPolls()
+      if (selectedPoll?.id === pollId) {
+        setSelectedPoll(prev => prev ? { ...prev, is_active: false } : null)
+      }
+    } catch (err) {
+      console.error('Error closing poll:', err)
+      showNotification('error', 'Failed to close poll')
+    }
+  }
+
+  const handleReopenPoll = async (pollId: number) => {
+    try {
+      await pollService.reopenPoll(pollId)
+      showNotification('success', ' Poll reopened successfully!')
+      loadPolls()
+      if (selectedPoll?.id === pollId) {
+        setSelectedPoll(prev => prev ? { ...prev, is_active: true } : null)
+      }
+    } catch (err) {
+      console.error('Error reopening poll:', err)
+      showNotification('error', 'Failed to reopen poll')
+    }
+  }
+
+  const handleDeletePoll = async (pollId: number) => {
+    setConfirmDelete({ show: true, pollId })
+  }
+
+  const confirmDeletePoll = async () => {
+    if (!confirmDelete.pollId) return
+    
+    try {
+      await pollService.deletePoll(confirmDelete.pollId)
+      showNotification('success', '🗑️ Poll deleted successfully!')
+      loadPolls()
+      if (selectedPoll?.id === confirmDelete.pollId) {
+        setSelectedPoll(null)
+        setPollStats(null)
+      }
+      setConfirmDelete({ show: false, pollId: null })
+    } catch (err) {
+      console.error('Error deleting poll:', err)
+      showNotification('error', 'Failed to delete poll')
+      setConfirmDelete({ show: false, pollId: null })
+    }
+  }
+
+  // Helper functions for custom poll options
+  const addPollOption = () => {
+    if (newPoll.customOptions.length < 10) {
+      setNewPoll({
+        ...newPoll,
+        customOptions: [...newPoll.customOptions, '']
+      })
+    } else {
+      showNotification('error', 'Maximum 10 options allowed')
+    }
+  }
+
+  const removePollOption = (index: number) => {
+    if (newPoll.customOptions.length > 2) {
+      const updatedOptions = newPoll.customOptions.filter((_, i) => i !== index)
+      setNewPoll({
+        ...newPoll,
+        customOptions: updatedOptions
+      })
+    } else {
+      showNotification('error', 'At least 2 options are required')
+    }
+  }
+
+  const updatePollOption = (index: number, value: string) => {
+    const updatedOptions = [...newPoll.customOptions]
+    updatedOptions[index] = value
+    setNewPoll({
+      ...newPoll,
+      customOptions: updatedOptions
+    })
+  }
 
   const renderAnalytics = () => (
     <div className="analytics-dashboard">
@@ -744,8 +1144,366 @@ const Sessions = () => {
     </div>
   )
 
+  const renderPolls = () => {
+    console.log('📊 Rendering polls tab, polls count:', polls.length, 'loading:', pollsLoading, 'error:', pollsError)
+    
+    return (
+      <div className="polls-section">
+        {/* Create Poll Form */}
+        <div className="create-poll-card">
+          <h3>Create New Poll</h3>
+          <p className="section-description">Create a poll to gather feedback from your audience about session ideas</p>
+          
+          <form onSubmit={handleCreatePoll}>
+            <div className="form-group">
+              <label htmlFor="poll-title">
+                Poll Question <span className="required">*</span>
+              </label>
+              <input
+                type="text"
+                id="poll-title"
+                placeholder="e.g., What session topic would you like next?"
+                value={newPoll.title}
+                onChange={(e) => setNewPoll({ ...newPoll, title: e.target.value })}
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="poll-description">
+                Additional Details (Optional)
+              </label>
+              <textarea
+                id="poll-description"
+                placeholder="Add more context or details about this poll..."
+                value={newPoll.description}
+                onChange={(e) => setNewPoll({ ...newPoll, description: e.target.value })}
+                rows={3}
+              />
+            </div>
+
+            {/* Poll Options Type Selector */}
+            <div className="form-group">
+              <label className="checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={newPoll.useCustomOptions}
+                  onChange={(e) => setNewPoll({ 
+                    ...newPoll, 
+                    useCustomOptions: e.target.checked,
+                    customOptions: e.target.checked ? ['', ''] : newPoll.customOptions
+                  })}
+                />
+                <span>Use custom poll options (default: Yes/Maybe/No)</span>
+              </label>
+            </div>
+
+            {/* Custom Options Input */}
+            {newPoll.useCustomOptions && (
+              <div className="form-group custom-options-group">
+                <label>
+                  Poll Options <span className="required">*</span>
+                  <small> (Minimum 2, Maximum 10)</small>
+                </label>
+                
+                <div className="options-list">
+                  {newPoll.customOptions.map((option, index) => (
+                    <div key={index} className="option-input-row">
+                      
+                      <input
+                        type="text"
+                        placeholder={`Enter option ${index + 1}`}
+                        value={option}
+                        onChange={(e) => updatePollOption(index, e.target.value)}
+                        className="option-input"
+                      />
+                      {newPoll.customOptions.length > 2 && (
+                        <button
+                          type="button"
+                          className="remove-option-btn"
+                          onClick={() => removePollOption(index)}
+                          title="Remove this option"
+                        >
+                          <span>🗑️</span>
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                
+                {newPoll.customOptions.length < 10 && (
+                  <button
+                    type="button"
+                    className="add-option-btn"
+                    onClick={addPollOption}
+                  >
+                    <span>➕</span> Add Another Option
+                  </button>
+                )}
+              </div>
+            )}
+
+            <div className="form-actions">
+              <Button type="submit" disabled={pollsLoading}>
+                {pollsLoading ? 'Creating...' : ' Create Poll'}
+              </Button>
+            </div>
+          </form>
+        </div>
+
+        {/* Polls List */}
+        <div className="polls-list-section">
+          <h3>Your Polls ({polls.length})</h3>
+          
+          {pollsLoading && !polls.length && (
+            <div className="loading-state">Loading polls...</div>
+          )}
+
+          {pollsError && (
+            <div className="error-state">
+              <p>⚠️ {pollsError}</p>
+              <Button onClick={loadPolls}>Retry</Button>
+            </div>
+          )}
+
+          {!pollsLoading && !pollsError && polls.length === 0 && (
+            <div className="empty-state">
+              <p>No polls created yet. Create your first poll above!</p>
+            </div>
+          )}
+
+          {polls.length > 0 && (
+            <div className="polls-grid">
+              {polls.map((poll) => (
+                <div key={poll.id} className={`poll-card ${!poll.is_active ? 'closed' : ''}`}>
+                  <div className="poll-header">
+                    <h4>{poll.title}</h4>
+                    <span className={`poll-status ${poll.is_active ? 'active' : 'closed'}`}>
+                      {poll.is_active ? '🟢 Active' : '🔴 Closed'}
+                    </span>
+                  </div>
+
+                  {poll.description && (
+                    <p className="poll-description">{poll.description}</p>
+                  )}
+
+                  <div className="poll-meta">
+                    <span>📅 {new Date(poll.created_at).toLocaleDateString()}</span>
+                    <span>💬 {poll.comment_count || 0} comments</span>
+                  </div>
+
+                  <div className="poll-actions">
+                    <Button 
+                      variant="secondary" 
+                      size="small"
+                      onClick={() => handleViewPollDetails(poll)}
+                    >
+                      View Results
+                    </Button>
+                    
+                    {poll.is_active ? (
+                      <Button 
+                        variant="secondary" 
+                        size="small"
+                        onClick={() => handleClosePoll(poll.id)}
+                      >
+                         Close Poll
+                      </Button>
+                    ) : (
+                      <Button 
+                        variant="secondary" 
+                        size="small"
+                        onClick={() => handleReopenPoll(poll.id)}
+                      >
+                         Reopen
+                      </Button>
+                    )}
+                    
+                    <Button 
+                      variant="danger" 
+                      size="small"
+                      onClick={() => handleDeletePoll(poll.id)}
+                    >
+                       Delete
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Poll Details Modal */}
+        {selectedPoll && (
+          <div className="modal-overlay" onClick={() => setSelectedPoll(null)}>
+            <div className="modal-content poll-details-modal" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <h3>Poll Results</h3>
+                <button className="close-btn" onClick={() => setSelectedPoll(null)}>×</button>
+              </div>
+
+              <div className="modal-body">
+                <h4>{selectedPoll.title}</h4>
+                {selectedPoll.description && (
+                  <p className="poll-description">{selectedPoll.description}</p>
+                )}
+
+                {selectedPoll.choices && selectedPoll.choices.length > 0 && (
+                  <div className="poll-results">
+                    <div className="total-votes">
+                      <strong>Total Votes: {selectedPoll.total_votes || 0}</strong>
+                    </div>
+
+                    <div className="vote-breakdown">
+                      {selectedPoll.choices.map((choice, index) => {
+                        const percentage = selectedPoll.total_votes > 0 
+                          ? (choice.vote_count / selectedPoll.total_votes * 100) 
+                          : 0;
+                        
+                        // Assign different colors for each option
+                        const colorClass = [
+                          'yes-fill',
+                          'maybe-fill',
+                          'no-fill',
+                          'custom-fill-1',
+                          'custom-fill-2',
+                          'custom-fill-3',
+                          'custom-fill-4',
+                          'custom-fill-5',
+                          'custom-fill-6',
+                          'custom-fill-7'
+                        ][index] || 'custom-fill-default';
+                        
+                        return (
+                          <div key={choice.choice} className={`vote-option option-${index}`}>
+                            <div className="vote-label">
+                              <span className="option-text">{choice.choice}</span>
+                              <span className="vote-count">
+                                {choice.vote_count} {choice.vote_count === 1 ? 'vote' : 'votes'}
+                              </span>
+                            </div>
+                            <div className="vote-bar">
+                              <div 
+                                className={`vote-fill ${colorClass}`}
+                                style={{ width: `${percentage}%` }}
+                              />
+                            </div>
+                            <span className="vote-percentage">
+                              {percentage.toFixed(1)}%
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    <div className="poll-info">
+                      <p>💬 {selectedPoll.comment_count || 0} comments</p>
+                      <p>📅 Created: {new Date(selectedPoll.created_at).toLocaleString()}</p>
+                    </div>
+
+                    {/* Comments Section */}
+                    <div className="poll-comments-section">
+                      <h4>💬 Comments</h4>
+                      
+                      {loadingComments ? (
+                        <div className="loading-comments">Loading comments...</div>
+                      ) : pollComments.length > 0 ? (
+                        <div className="comments-list">
+                          {pollComments.map((comment) => (
+                            <div key={comment.id} className="comment-item">
+                              <div className="comment-header">
+                                <span className="commenter-name">
+                                  {comment.commenter?.display_name || comment.commenter?.full_name || 'Anonymous'}
+                                </span>
+                                <span className="comment-date">
+                                  {new Date(comment.created_at).toLocaleDateString()}
+                                </span>
+                              </div>
+                              <p className="comment-text">{comment.comment}</p>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="no-comments">No comments yet. Be the first to comment!</p>
+                      )}
+
+                      {/* Add Comment Form */}
+                      <form onSubmit={handlePostComment} className="add-comment-form">
+                        <textarea
+                          value={newComment}
+                          onChange={(e) => setNewComment(e.target.value)}
+                          placeholder="Add a comment..."
+                          rows={3}
+                          disabled={postingComment}
+                        />
+                        <Button
+                          type="submit"
+                          disabled={!newComment.trim() || postingComment}
+                          variant="primary"
+                        >
+                          {postingComment ? 'Posting...' : 'Post Comment'}
+                        </Button>
+                      </form>
+                    </div>
+                  </div>
+                )}
+
+                {!selectedPoll.choices && pollsLoading && (
+                  <div className="loading-state">Loading statistics...</div>
+                )}
+              </div>
+
+              <div className="modal-footer">
+                <Button variant="secondary" onClick={() => setSelectedPoll(null)}>
+                  Close
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Delete Confirmation Modal */}
+        {confirmDelete.show && (
+          <div className="modal-overlay" onClick={() => setConfirmDelete({ show: false, pollId: null })}>
+            <div className="modal-content confirm-delete-modal" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <h3>⚠️ Confirm Delete</h3>
+                <button className="close-btn" onClick={() => setConfirmDelete({ show: false, pollId: null })}>×</button>
+              </div>
+
+              <div className="modal-body">
+                <p>Are you sure you want to delete this poll?</p>
+                <p className="warning-text">This action cannot be undone. All votes and comments will be permanently lost.</p>
+              </div>
+
+              <div className="modal-footer">
+                <Button 
+                  variant="secondary" 
+                  onClick={() => setConfirmDelete({ show: false, pollId: null })}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  variant="danger" 
+                  onClick={confirmDeletePoll}
+                >
+                  🗑️ Delete Poll
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    )
+  }
+
   const renderManageSessionModal = () => {
     if (!showManageModal || !selectedSession) return null
+
+    const sessionDate = new Date(selectedSession.session_date)
+    const sessionTime = typeof selectedSession.session_time === 'string' 
+      ? selectedSession.session_time 
+      : new Date(selectedSession.session_time).toLocaleTimeString()
 
     return (
       <div className="modal-overlay" onClick={() => setShowManageModal(false)}>
@@ -761,15 +1519,15 @@ const Sessions = () => {
               <div className="info-grid">
                 <div className="info-item">
                   <label>Date & Time:</label>
-                  <span>{selectedSession.date} at {selectedSession.time}</span>
+                  <span>{sessionDate.toLocaleDateString()} at {sessionTime}</span>
                 </div>
                 <div className="info-item">
-                  <label>Participants:</label>
-                  <span>{selectedSession.participants}/{selectedSession.maxParticipants}</span>
+                  <label>Max Participants:</label>
+                  <span>{selectedSession.max_participants || 'Unlimited'}</span>
                 </div>
                 <div className="info-item">
                   <label>Price:</label>
-                  <span>LKR {selectedSession.price}</span>
+                  <span>LKR {selectedSession.price || 0}</span>
                 </div>
               </div>
             </div>
@@ -844,15 +1602,15 @@ const Sessions = () => {
               <div className="overview-stats">
                 <div className="stat-item">
                   <span className="stat-label">Status:</span>
-                  <span className="stat-value">{selectedSession.date ? 'Scheduled' : 'Recorded'}</span>
+                  <span className="stat-value">{selectedSession.session_type === 'live' ? 'Live Session' : 'Recorded Session'}</span>
                 </div>
                 <div className="stat-item">
-                  <span className="stat-label">Current Participants:</span>
-                  <span className="stat-value">{selectedSession.participants || selectedSession.purchases || 0}</span>
+                  <span className="stat-label">Payment Type:</span>
+                  <span className="stat-value">{selectedSession.payment_type}</span>
                 </div>
                 <div className="stat-item">
-                  <span className="stat-label">Revenue:</span>
-                  <span className="stat-value">LKR {selectedSession.earnings || ((selectedSession.participants ?? 0) * selectedSession.price) || 0}</span>
+                  <span className="stat-label">Price:</span>
+                  <span className="stat-value">LKR {selectedSession.price || 0}</span>
                 </div>
               </div>
             </div>
@@ -877,22 +1635,6 @@ const Sessions = () => {
                 </div>
               </div>
             </div>
-
-            <div className="session-materials">
-              <h4>Session Materials</h4>
-              <div className="materials-list">
-                <div className="material-item">
-                  <span className="material-icon">📄</span>
-                  <span className="material-name">Introduction to Deep Space.pdf</span>
-                  <Button variant="secondary" size="small">Download</Button>
-                </div>
-                <div className="material-item">
-                  <span className="material-icon">🎥</span>
-                  <span className="material-name">Setup Tutorial.mp4</span>
-                  <Button variant="secondary" size="small">View</Button>
-                </div>
-              </div>
-            </div>
           </div>
 
           <div className="modal-footer">
@@ -904,6 +1646,23 @@ const Sessions = () => {
         </div>
       </div>
     )
+  }
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!selectedSession) return
+    
+    const updates: UpdateSessionRequest = {
+      title: editForm.title,
+      price: editForm.price,
+      description: editForm.description,
+      difficulty_level: editForm.difficulty_level.toLowerCase() as 'beginner' | 'intermediate' | 'advanced',
+      session_date: editForm.session_date,
+      session_time: editForm.session_time
+    }
+    
+    await handleUpdateSession(selectedSession.id, updates)
   }
 
   const renderEditModal = () => {
@@ -918,85 +1677,76 @@ const Sessions = () => {
           </div>
           
           <div className="modal-body">
-            <form className="edit-session-form">
+            <form className="edit-session-form" onSubmit={handleEditSubmit}>
               <div className="form-grid">
                 <div className="form-group">
                   <label>Session Title</label>
-                  <input type="text" defaultValue={selectedSession.title} />
+                  <input 
+                    type="text" 
+                    value={editForm.title}
+                    onChange={(e) => setEditForm({...editForm, title: e.target.value})}
+                    required
+                  />
                 </div>
                 <div className="form-group">
                   <label>Price (LKR)</label>
-                  <input type="number" defaultValue={selectedSession.price} />
+                  <input 
+                    type="number" 
+                    value={editForm.price}
+                    onChange={(e) => setEditForm({...editForm, price: parseFloat(e.target.value)})}
+                    required
+                  />
                 </div>
                 <div className="form-group">
+                  <label>Date</label>
+                  <input 
+                    type="date" 
+                    value={editForm.session_date}
+                    onChange={(e) => setEditForm({...editForm, session_date: e.target.value})}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Time</label>
+                  <input 
+                    type="time" 
+                    value={editForm.session_time}
+                    onChange={(e) => setEditForm({...editForm, session_time: e.target.value})}
+                    required
+                  />
+                </div>
+                <div className="form-group full-width">
                   <label>Description</label>
-                  <textarea rows={3} placeholder="Session description..."></textarea>
+                  <textarea 
+                    rows={3} 
+                    value={editForm.description}
+                    onChange={(e) => setEditForm({...editForm, description: e.target.value})}
+                    placeholder="Session description..."
+                    required
+                  />
                 </div>
                 <div className="form-group">
-                  <label>Category</label>
-                  <select>
-                    <option value="observation">Observation</option>
-                    <option value="photography">Astrophotography</option>
-                    <option value="theory">Theory & Concepts</option>
+                  <label>Difficulty Level</label>
+                  <select 
+                    value={editForm.difficulty_level}
+                    onChange={(e) => setEditForm({...editForm, difficulty_level: e.target.value as 'Beginner' | 'Intermediate' | 'Advanced'})}
+                  >
+                    <option value="Beginner">Beginner</option>
+                    <option value="Intermediate">Intermediate</option>
+                    <option value="Advanced">Advanced</option>
                   </select>
                 </div>
               </div>
 
-              <div className="pricing-options">
-                <h4>Pricing Options</h4>
-                <div className="pricing-grid">
-                  <div className="pricing-item">
-                    <label>
-                      <input type="checkbox" />
-                      Enable Early Bird Discount (20% off)
-                    </label>
-                  </div>
-                  <div className="pricing-item">
-                    <label>
-                      <input type="checkbox" />
-                      Bulk Purchase Discount (3+ sessions)
-                    </label>
-                  </div>
-                  <div className="pricing-item">
-                    <label>
-                      <input type="checkbox" />
-                      Student Discount (15% off)
-                    </label>
-                  </div>
-                </div>
-              </div>
-
-              <div className="visibility-settings">
-                <h4>Visibility Settings</h4>
-                <div className="settings-grid">
-                  <div className="setting-item">
-                    <label>
-                      <input type="checkbox" defaultChecked />
-                      Visible to public
-                    </label>
-                  </div>
-                  <div className="setting-item">
-                    <label>
-                      <input type="checkbox" />
-                      Featured session
-                    </label>
-                  </div>
-                  <div className="setting-item">
-                    <label>
-                      <input type="checkbox" defaultChecked />
-                      Allow reviews
-                    </label>
-                  </div>
-                </div>
+              <div className="modal-footer">
+                <Button variant="secondary" type="button" onClick={() => setShowEditModal(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={loading}>
+                  {loading ? 'Saving...' : 'Save Changes'}
+                </Button>
               </div>
             </form>
-          </div>
-
-          <div className="modal-footer">
-            <Button variant="secondary" onClick={() => setShowEditModal(false)}>
-              Cancel
-            </Button>
-            <Button>Save Changes</Button>
           </div>
         </div>
       </div>
@@ -1006,7 +1756,8 @@ const Sessions = () => {
   const renderAnalyticsModal = () => {
     if (!showAnalyticsModal || !selectedSession) return null
 
-    const isLiveSession = selectedSession.date && selectedSession.time
+    const isLiveSession = selectedSession.session_type === 'live'
+    const sessionPrice = selectedSession.price || 0
     
     return (
       <div className="modal-overlay" onClick={() => setShowAnalyticsModal(false)}>
@@ -1021,19 +1772,19 @@ const Sessions = () => {
               <h4>Performance Overview</h4>
               <div className="metrics-row">
                 <div className="metric-card">
-                  <span className="metric-value">{selectedSession.purchases || selectedSession.participants}</span>
+                  <span className="metric-value">0</span>
                   <span className="metric-label">{isLiveSession ? 'Registered Participants' : 'Total Purchases'}</span>
                 </div>
                 <div className="metric-card">
-                  <span className="metric-value">LKR {selectedSession.earnings || ((selectedSession.participants ?? 0) * selectedSession.price)}</span>
+                  <span className="metric-value">LKR 0</span>
                   <span className="metric-label">Revenue Generated</span>
                 </div>
                 <div className="metric-card">
-                  <span className="metric-value">{selectedSession.rating || 'N/A'}/5.0</span>
+                  <span className="metric-value">N/A/5.0</span>
                   <span className="metric-label">Average Rating</span>
                 </div>
                 <div className="metric-card">
-                  <span className="metric-value">{isLiveSession ? `${(selectedSession.maxParticipants ?? 0) - (selectedSession.participants ?? 0)} spots` : '92%'}</span>
+                  <span className="metric-value">{isLiveSession ? `${selectedSession.max_participants || 'Unlimited'} spots` : 'N/A'}</span>
                   <span className="metric-label">{isLiveSession ? 'Available Spots' : 'Completion Rate'}</span>
                 </div>
               </div>
@@ -1044,20 +1795,18 @@ const Sessions = () => {
                 <h4>Session Status</h4>
                 <div className="registration-stats">
                   <div className="registration-item">
-                    <span className="registration-label">Registration Rate:</span>
-                    <span className="registration-value">{Math.round(((selectedSession.participants ?? 0) / (selectedSession.maxParticipants ?? 1)) * 100)}%</span>
+                    <span className="registration-label">Max Participants:</span>
+                    <span className="registration-value">{selectedSession.max_participants || 'Unlimited'}</span>
                   </div>
                   <div className="registration-item">
                     <span className="registration-label">Days Until Session:</span>
                     <span className="registration-value">
-                      {selectedSession.date
-                        ? Math.ceil((new Date(selectedSession.date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
-                        : 'N/A'} days
+                      {Math.ceil((new Date(selectedSession.session_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} days
                     </span>
                   </div>
                   <div className="registration-item">
-                    <span className="registration-label">Current Registrations:</span>
-                    <span className="registration-value">{selectedSession.participants}/{selectedSession.maxParticipants}</span>
+                    <span className="registration-label">Duration:</span>
+                    <span className="registration-value">{selectedSession.duration} minutes</span>
                   </div>
                 </div>
               </div>
@@ -1068,16 +1817,16 @@ const Sessions = () => {
                 <h4>Engagement Metrics</h4>
                 <div className="engagement-stats">
                   <div className="engagement-item">
-                    <span className="engagement-label">Average Watch Time:</span>
-                    <span className="engagement-value">45 minutes</span>
+                    <span className="engagement-label">Duration:</span>
+                    <span className="engagement-value">{selectedSession.duration} minutes</span>
                   </div>
                   <div className="engagement-item">
-                    <span className="engagement-label">Questions Asked:</span>
-                    <span className="engagement-value">23</span>
+                    <span className="engagement-label">Status:</span>
+                    <span className="engagement-value">{selectedSession.is_enabled ? 'Available' : 'Disabled'}</span>
                   </div>
                   <div className="engagement-item">
-                    <span className="engagement-label">Interaction Rate:</span>
-                    <span className="engagement-value">78%</span>
+                    <span className="engagement-label">Difficulty:</span>
+                    <span className="engagement-value">{selectedSession.difficulty_level}</span>
                   </div>
                 </div>
               </div>
@@ -1087,32 +1836,30 @@ const Sessions = () => {
               <h4>Revenue Breakdown</h4>
               <div className="revenue-stats">
                 <div className="revenue-item">
-                  <span className="revenue-label">Base Price Revenue:</span>
-                  <span className="revenue-value">LKR {(selectedSession.price * (selectedSession.purchases || selectedSession.participants || 0))}</span>
+                  <span className="revenue-label">Base Price:</span>
+                  <span className="revenue-value">LKR {sessionPrice}</span>
                 </div>
                 <div className="revenue-item">
                   <span className="revenue-label">Platform Fee (10%):</span>
-                  <span className="revenue-value">-LKR {Math.round((selectedSession.price * (selectedSession.purchases || selectedSession.participants || 0)) * 0.1)}</span>
+                  <span className="revenue-value">-LKR {Math.round(sessionPrice * 0.1)}</span>
                 </div>
                 <div className="revenue-item">
-                  <span className="revenue-label">Net Earnings:</span>
-                  <span className="revenue-value">LKR {selectedSession.earnings || Math.round((selectedSession.price * (selectedSession.purchases || selectedSession.participants || 0)) * 0.9)}</span>
+                  <span className="revenue-label">Net Earnings (per sale):</span>
+                  <span className="revenue-value">LKR {Math.round(sessionPrice * 0.9)}</span>
                 </div>
               </div>
             </div>
 
             <div className="feedback-section">
-              <h4>Recent Feedback</h4>
+              <h4>Session Information</h4>
               <div className="feedback-list">
                 <div className="feedback-item">
-                  <div className="feedback-rating">⭐⭐⭐⭐⭐</div>
-                  <p>"Excellent session with clear explanations!"</p>
-                  <span className="feedback-author">- Sarah K.</span>
-                </div>
-                <div className="feedback-item">
-                  <div className="feedback-rating">⭐⭐⭐⭐</div>
-                  <p>"Very informative, would recommend to others."</p>
-                  <span className="feedback-author">- Mike D.</span>
+                  <p><strong>Payment Type:</strong> {selectedSession.payment_type}</p>
+                  <p><strong>Difficulty:</strong> {selectedSession.difficulty_level}</p>
+                  <p><strong>Type:</strong> {selectedSession.session_type}</p>
+                  {selectedSession.session_notes && (
+                    <p><strong>Notes:</strong> {selectedSession.session_notes}</p>
+                  )}
                 </div>
               </div>
             </div>
@@ -1149,6 +1896,12 @@ const Sessions = () => {
           Create Session
         </Button>
         <Button 
+          variant={activeTab === 'polls' ? 'primary' : 'secondary'}
+          onClick={() => setActiveTab('polls')}
+        >
+          Polls
+        </Button>
+        <Button 
           variant={activeTab === 'analytics' ? 'primary' : 'secondary'}
           onClick={() => setActiveTab('analytics')}
         >
@@ -1159,6 +1912,7 @@ const Sessions = () => {
       <div className="sessions-content">
         {activeTab === 'my-sessions' && renderMyServices()}
         {activeTab === 'new-session' && renderNewSession()}
+        {activeTab === 'polls' && renderPolls()}
         {activeTab === 'analytics' && renderAnalytics()}
       </div>
 
@@ -1166,6 +1920,21 @@ const Sessions = () => {
       {renderDetailsModal()}
       {renderEditModal()}
       {renderAnalyticsModal()}
+
+      {/* Notification Toast */}
+      {notification.show && (
+        <div className={`notification-toast ${notification.type}`}>
+          <div className="notification-content">
+            <span className="notification-message">{notification.message}</span>
+            <button 
+              className="notification-close"
+              onClick={() => setNotification({ ...notification, show: false })}
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

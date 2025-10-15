@@ -1,0 +1,149 @@
+// My Sessions Component Styles
+.my-sessions {
+  background: rgba(30, 41, 59, 0.85);
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(37, 99, 235, 0.08);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+
+  h3 {
+    color: #60a5fa;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
+  }
+
+  .my-sessions-subtitle {
+    color: #94a3b8;
+    font-size: 0.95rem;
+    margin: 0 0 1.5rem 0;
+  }
+
+  .my-sessions-filters {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      width: 100%;
+    }
+  }
+
+  .search-input,
+  .filter-select {
+    padding: 0.5rem 0.9rem;
+    border-radius: 8px;
+    border: 1.5px solid #334155;
+    background: #232b3b;
+    color: #e5e7eb;
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.3s ease;
+
+    &:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    @media (max-width: 768px) {
+      width: 100%;
+    }
+  }
+
+  .search-input {
+    flex: 1;
+    min-width: 200px;
+
+    &::placeholder {
+      color: #64748b;
+    }
+  }
+
+  .filter-select {
+    min-width: 150px;
+    cursor: pointer;
+
+    option {
+      background: #1e293b;
+      color: #e5e7eb;
+    }
+  }
+
+  .sessions-count {
+    color: #94a3b8;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    font-weight: 500;
+  }
+
+  .my-sessions-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .no-sessions {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    color: #94a3b8;
+
+    .clear-filters-btn {
+      margin-top: 1rem;
+      padding: 0.5rem 1.25rem;
+      background: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: #2563eb;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+      }
+
+      &:active {
+        transform: translateY(0);
+      }
+    }
+  }
+
+  .empty-state {
+    .empty-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      opacity: 0.6;
+    }
+
+    h4 {
+      color: #e5e7eb;
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin: 0 0 0.5rem 0;
+    }
+
+    p {
+      color: #94a3b8;
+      font-size: 1rem;
+      margin: 0.5rem 0;
+      line-height: 1.5;
+
+      &:last-child {
+        margin-top: 1rem;
+        font-weight: 500;
+        color: #60a5fa;
+      }
+    }
+  }
+}

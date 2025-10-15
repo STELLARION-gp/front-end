@@ -213,6 +213,34 @@ export const sessionsService = {
     },
 
     /**
+     * Get all enrolled sessions for the authenticated user
+     */
+    async getEnrolledSessions(filters: { 
+        page?: number;
+        limit?: number;
+        session_type?: SessionType;
+        payment_status?: 'pending' | 'completed' | 'failed' | 'refunded' | 'free_access';
+        sort_by?: 'enrollment_date' | 'session_date';
+        sort_order?: 'asc' | 'desc';
+    } = {}): Promise<SessionsListResponse> {
+        const queryParams = new URLSearchParams();
+        
+        Object.entries(filters).forEach(([key, value]) => {
+            if (value !== undefined && value !== null) {
+                if (Array.isArray(value)) {
+                    queryParams.append(key, value.join(','));
+                } else {
+                    queryParams.append(key, value.toString());
+                }
+            }
+        });
+        
+        const url = `/sessions/user/enrolled${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+        console.log('📚 Fetching enrolled sessions from:', url);
+        return makeRequest(url, {}, true); // Requires authentication
+    },
+
+    /**
      * Update an existing session (mentor only)
      */
     async updateSession(id: number, sessionData: UpdateSessionRequest): Promise<SessionResponse> {

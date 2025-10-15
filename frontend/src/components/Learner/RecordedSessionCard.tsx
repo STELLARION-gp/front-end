@@ -78,7 +78,7 @@ const RecordedSessionCard: React.FC<RecordedSessionCardProps> = ({
       </div>
     )}
     <div className="recorded-session-purchase-row">
-      <span className="recorded-session-price">{displayPrice}</span>
+      <span className="recorded-session-price">Rs {displayPrice}</span>
       <Button onClick={onViewDetails || (() => navigate(`/dashboard/sessions/recorded-sessions/${id}`))}>
         View Details
       </Button>

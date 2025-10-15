@@ -1,6 +1,6 @@
-import { auth } from '../firebase';
+import { auth } from "../firebase";
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = "http://localhost:5000/api";
 
 /**
  * API service for backend communication
@@ -14,7 +14,7 @@ class ApiService {
       // Always try to refresh the token if requested
       return await user.getIdToken(forceRefresh);
     } catch (error) {
-      console.error('Error getting auth token:', error);
+      console.error("Error getting auth token:", error);
       return null;
     }
   }
@@ -26,14 +26,30 @@ class ApiService {
   ): Promise<T> {
     console.log(`📡 API Request: ${endpoint}`);
     let token = await this.getAuthToken();
-    console.log(`🔑 Auth token: ${token ? 'Present' : 'Missing'}`);
+    console.log(`🔑 Auth token: ${token ? "Present" : "Missing"}`);
+
+    // For endpoints that don't require authentication
+    const noAuthEndpoints = [
+      "/auth/login",
+      "/auth/register",
+      "/subscriptions/plans",
+    ];
+
+    const requiresAuth = !noAuthEndpoints.some((path) =>
+      endpoint.startsWith(path)
+    );
+
     // Always create a fresh headers object for each request
     const buildHeaders = (tokenValue: string | null) => ({
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       ...((options.headers as Record<string, string>) || {}),
-      ...(tokenValue ? { 'Authorization': `Bearer ${tokenValue}` } : {})
+      ...(tokenValue && requiresAuth
+        ? { Authorization: `Bearer ${tokenValue}` }
+        : {}),
     });
+
     let headers = buildHeaders(token);
+
     try {
       console.log(`🚀 Making request to: ${API_BASE_URL}${endpoint}`);
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -41,9 +57,10 @@ class ApiService {
         headers,
       });
       console.log(`📨 Response status: ${response.status}`);
-      if (response.status === 401 && retry) {
+
+      if (response.status === 401 && retry && requiresAuth) {
         // Token might be expired, try to refresh and retry once
-        console.warn('🔄 Token expired or invalid, refreshing and retrying...');
+        console.warn("🔄 Token expired or invalid, refreshing and retrying...");
         token = await this.getAuthToken(true);
         if (token) {
           headers = buildHeaders(token);
@@ -69,7 +86,7 @@ class ApiService {
       if (error instanceof Error) {
         throw error;
       } else {
-        throw new Error('Unknown error occurred in API request');
+        throw new Error("Unknown error occurred in API request");
       }
     }
   }
@@ -85,7 +102,7 @@ class ApiService {
     // Get current Firebase user for the backend
     const currentUser = auth.currentUser;
     if (!currentUser) {
-      throw new Error('No authenticated user found');
+      throw new Error("No authenticated user found");
     }
 
     // Transform to match backend's expected format
@@ -93,102 +110,116 @@ class ApiService {
       firebaseUser: {
         uid: currentUser.uid,
         email: currentUser.email,
-        name: userData.displayName
+        name: userData.displayName,
       },
-      role: userData.role || 'learner',
+      role: userData.role || "learner",
       first_name: userData.firstName,
-      last_name: userData.lastName
+      last_name: userData.lastName,
     };
 
-    return this.makeRequest('/users/register', {
-      method: 'POST',
+    return this.makeRequest("/users/register", {
+      method: "POST",
       body: JSON.stringify(backendData),
     });
   }
 
   async getUserProfile() {
-    return this.makeRequest('/user/profile');
+    return this.makeRequest("/user/profile");
   }
 
   async updateUserRole(userId: string, role: string) {
     return this.makeRequest(`/users/${userId}/role`, {
-      method: 'PUT',
+      method: "PUT",
       body: JSON.stringify({ role }),
     });
   }
 
-  async getAllUsers(page = 1, limit = 10, filters?: { role?: string; isActive?: boolean }) {
+  async getAllUsers(
+    page = 1,
+    limit = 10,
+    filters?: { role?: string; isActive?: boolean }
+  ) {
     const queryParams = new URLSearchParams();
-    queryParams.set('page', page.toString());
-    queryParams.set('limit', limit.toString());
+    queryParams.set("page", page.toString());
+    queryParams.set("limit", limit.toString());
 
-    if (filters?.role) queryParams.set('role', filters.role);
-    if (filters?.isActive !== undefined) queryParams.set('isActive', filters.isActive.toString());
+    if (filters?.role) queryParams.set("role", filters.role);
+    if (filters?.isActive !== undefined)
+      queryParams.set("isActive", filters.isActive.toString());
 
     return this.makeRequest(`/users?${queryParams}`);
   }
 
   async activateUser(userId: string) {
     return this.makeRequest(`/users/${userId}/activate`, {
-      method: 'PUT',
+      method: "PUT",
     });
   }
 
   async deactivateUser(userId: string) {
     return this.makeRequest(`/users/${userId}/deactivate`, {
-      method: 'PUT',
+      method: "PUT",
     });
   }
 
   // Health check
   async healthCheck() {
-    return fetch(`${API_BASE_URL.replace('/api', '')}/health`).then(res => res.json());
+    return fetch(`${API_BASE_URL.replace("/api", "")}/health`).then((res) =>
+      res.json()
+    );
   }
 
   // Chatbot API
-  async sendChatMessage(message: string, context: string = 'space_exploration_assistant', conversationId?: string) {
-    console.log('🤖 ApiService: Sending chat message:', message.substring(0, 50) + '...');
-    console.log('🤖 ApiService: Context:', context);
-    
-    const result = await this.makeRequest('/chatbot', {
-      method: 'POST',
+  async sendChatMessage(
+    message: string,
+    context: string = "space_exploration_assistant",
+    conversationId?: string
+  ) {
+    console.log(
+      "🤖 ApiService: Sending chat message:",
+      message.substring(0, 50) + "..."
+    );
+    console.log("🤖 ApiService: Context:", context);
+
+    const result = await this.makeRequest("/chatbot", {
+      method: "POST",
       body: JSON.stringify({
         message,
         context,
-        conversationId
+        conversationId,
       }),
     });
-    
-    console.log('🤖 ApiService: Chat response received:', result);
+
+    console.log("🤖 ApiService: Chat response received:", result);
     return result;
   }
 
   // Chatbot health check
   async getChatbotHealth() {
-    return this.makeRequest('/chatbot/health');
+    return this.makeRequest("/chatbot/health");
   }
 
   /* ================= Media Upload ================= */
   /** List current user's media uploads */
   async listMedia() {
-    return this.makeRequest('/media'); // expects { files: [...] }
+    return this.makeRequest("/media"); // expects { files: [...] }
   }
 
   /** Upload a single media file using multipart/form-data (field name: file) */
   async uploadMedia(file: File) {
     const token = await this.getAuthToken();
-    if (!token) throw new Error('Not authenticated');
+    if (!token) throw new Error("Not authenticated");
     const form = new FormData();
-    form.append('file', file);
+    form.append("file", file);
 
     const doUpload = async (forceRefresh = false) => {
       const authToken = forceRefresh ? await this.getAuthToken(true) : token;
       const response = await fetch(`${API_BASE_URL}/media`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          Authorization: `Bearer ${authToken}`
+          Authorization: `Bearer ${authToken}`,
         },
-        body: form
+        body: form,
       });
       if (response.status === 401 && !forceRefresh) {
         // retry once with refreshed token

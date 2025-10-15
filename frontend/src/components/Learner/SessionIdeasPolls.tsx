@@ -37,19 +37,20 @@ const PollItem: React.FC<{ poll: Poll; onSeeMore: () => void; onVote: (pollId: n
       <div className="poll-options">
         {poll.choices.map((choice) => {
           const percent = choice.percentage;
+          const isUserVote = poll.user_vote === choice.choice;
           return (
             <div className="poll-option-row" key={choice.choice}>
               <button 
-                className={`poll-option-btn ${poll.user_vote === choice.choice ? 'voted' : ''}`}
+                className={`poll-option-btn ${isUserVote ? 'voted' : ''}`}
                 onClick={(e) => {
                   e.stopPropagation();
-                  if (!poll.user_vote) {
-                    onVote(poll.id, choice.choice);
-                  }
+                  onVote(poll.id, choice.choice);
                 }}
-                disabled={voting || !!poll.user_vote}
+                disabled={voting}
+                title={isUserVote ? 'Your current vote (click to change)' : poll.user_vote ? 'Click to change your vote' : 'Click to vote'}
               >
                 {getChoiceLabel(choice.choice)}
+                {isUserVote && ' ✓'}
               </button>
               <span className="poll-option-votes">{choice.vote_count} votes</span>
               <ProgressBar percent={percent} />
@@ -74,6 +75,7 @@ const PollItem: React.FC<{ poll: Poll; onSeeMore: () => void; onVote: (pollId: n
       {poll.user_vote && (
         <div className="poll-voted-indicator">
           ✓ You voted: {getChoiceLabel(poll.user_vote)}
+          <span className="change-vote-hint"> (Click any option to change)</span>
         </div>
       )}
       
@@ -89,11 +91,30 @@ const SessionIdeasPolls: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [votingPollId, setVotingPollId] = useState<number | null>(null);
+  const [notification, setNotification] = useState<{
+    show: boolean;
+    message: string;
+    type: 'success' | 'error' | 'info';
+  }>({ show: false, message: '', type: 'success' });
 
   // Fetch polls on component mount
   useEffect(() => {
     fetchPolls();
   }, []);
+
+  // Auto-hide notification after 4 seconds
+  useEffect(() => {
+    if (notification.show) {
+      const timer = setTimeout(() => {
+        setNotification({ show: false, message: '', type: 'success' });
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [notification.show]);
+
+  const showNotification = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
+    setNotification({ show: true, message, type });
+  };
 
   const fetchPolls = async () => {
     try {
@@ -117,15 +138,26 @@ const SessionIdeasPolls: React.FC = () => {
   const handleVote = async (pollId: number, choice: string) => {
     try {
       setVotingPollId(pollId);
+      
+      // Find the poll to check if user already voted
+      const poll = polls.find(p => p.id === pollId);
+      const isChangingVote = poll?.user_vote && poll.user_vote !== choice;
+      
       await pollService.voteOnPoll(pollId, choice);
       
       // Refresh polls to show updated results
       await fetchPolls();
       
-      alert(`Vote recorded successfully! You voted: ${getChoiceLabel(choice)}`);
+      if (isChangingVote) {
+        showNotification(`Vote changed successfully! Your new vote: ${getChoiceLabel(choice)}`, 'success');
+      } else if (poll?.user_vote === choice) {
+        showNotification(`You have already voted for this option: ${getChoiceLabel(choice)}`, 'info');
+      } else {
+        showNotification(`Vote recorded successfully! You voted: ${getChoiceLabel(choice)}`, 'success');
+      }
     } catch (err: any) {
       console.error('Error voting:', err);
-      alert(err.message || 'Failed to vote. You may have already voted on this poll.');
+      showNotification(err.message || 'Failed to vote. Please try again.', 'error');
     } finally {
       setVotingPollId(null);
     }
@@ -196,6 +228,26 @@ const SessionIdeasPolls: React.FC = () => {
           conductor={selectedPoll.creator.display_name || 'Conductor'}
           conductorPic={`https://ui-avatars.com/api/?name=${encodeURIComponent(selectedPoll.creator.display_name || 'User')}&background=fbbf24&color=232b3b&size=64`}
         />
+      )}
+
+      {/* Notification Popup */}
+      {notification.show && (
+        <div className={`notification-popup ${notification.type}`}>
+          <div className="notification-content">
+            <span className="notification-icon">
+              {notification.type === 'success' && '✓'}
+              {notification.type === 'error' && '✕'}
+              {notification.type === 'info' && 'ℹ'}
+            </span>
+            <span className="notification-message">{notification.message}</span>
+            <button 
+              className="notification-close"
+              onClick={() => setNotification({ show: false, message: '', type: 'success' })}
+            >
+              ×
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );

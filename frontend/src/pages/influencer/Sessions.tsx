@@ -25,11 +25,15 @@ const Sessions = () => {
     price: number
     description: string
     difficulty_level: string
+    session_date: string
+    session_time: string
   }>({
     title: '',
     price: 0,
     description: '',
-    difficulty_level: 'Beginner'
+    difficulty_level: 'Beginner',
+    session_date: '',
+    session_time: ''
   })
   
   // API state
@@ -169,7 +173,7 @@ const Sessions = () => {
         session_date: newSession.date, // YYYY-MM-DD format
         session_time: newSession.time, // HH:MM format
         max_participants: parseInt(newSession.maxParticipants) || undefined,
-        difficulty_level: newSession.difficulty as 'Beginner' | 'Intermediate' | 'Advanced',
+        difficulty_level: newSession.difficulty.toLowerCase() as 'beginner' | 'intermediate' | 'advanced',
         session_link: newSession.link || undefined,
         session_notes: newSession.notes || undefined
       }
@@ -256,12 +260,30 @@ const Sessions = () => {
 
   const handleEditSession = (session: APISession) => {
     setSelectedSession(session)
+    
+    // Extract date without timezone conversion
+    const sessionDateStr = typeof session.session_date === 'string'
+      ? session.session_date.split('T')[0]
+      : new Date(session.session_date).toISOString().split('T')[0]
+    
+    // Extract time without timezone conversion
+    const sessionTimeStr = typeof session.session_time === 'string' 
+      ? session.session_time.substring(0, 5)
+      : (() => {
+          const timeDate = new Date(session.session_time);
+          const hours = timeDate.getUTCHours().toString().padStart(2, '0');
+          const minutes = timeDate.getUTCMinutes().toString().padStart(2, '0');
+          return `${hours}:${minutes}`;
+        })()
+    
     // Initialize edit form with session data
     setEditForm({
       title: session.title,
       price: session.price || 0,
       description: session.description,
-      difficulty_level: session.difficulty_level
+      difficulty_level: session.difficulty_level,
+      session_date: sessionDateStr,
+      session_time: sessionTimeStr
     })
     setShowEditModal(true)
   }
@@ -339,11 +361,19 @@ const Sessions = () => {
           <div className="sessions-list">
             {liveSessions.map(session => {
               const isDisabled = !session.is_enabled
-              const sessionDate = new Date(session.session_date)
               
-              // Extract time without timezone conversion
+              // Keep date as string (YYYY-MM-DD) to avoid timezone conversion
+              const sessionDateStr = typeof session.session_date === 'string'
+                ? session.session_date.split('T')[0] // Extract date part if datetime
+                : new Date(session.session_date).toISOString().split('T')[0]
+              
+              // Format date for display (DD/MM/YYYY or MM/DD/YYYY based on locale)
+              const [year, month, day] = sessionDateStr.split('-')
+              const formattedDate = `${day}/${month}/${year}`
+              
+              // Keep time as string (HH:MM) to avoid timezone conversion
               const sessionTimeStr = typeof session.session_time === 'string' 
-                ? session.session_time 
+                ? session.session_time.substring(0, 5) // Extract HH:MM if HH:MM:SS
                 : (() => {
                     const timeDate = new Date(session.session_time);
                     const hours = timeDate.getUTCHours().toString().padStart(2, '0');
@@ -366,7 +396,7 @@ const Sessions = () => {
                   </div>
                 </div>
                 <div className="session-details">
-                  <p><span className="icon">📅</span> {sessionDate.toLocaleDateString()}</p>
+                  <p><span className="icon">📅</span> {formattedDate}</p>
                   <p><span className="icon">🕐</span> {sessionTimeStr}</p>
                   <p><span className="icon">⏱️</span> {session.duration} minutes</p>
                   <p><span className="icon">👥</span> Max {session.max_participants || 'Unlimited'} participants</p>
@@ -1013,7 +1043,9 @@ const Sessions = () => {
       title: editForm.title,
       price: editForm.price,
       description: editForm.description,
-      difficulty_level: editForm.difficulty_level as 'Beginner' | 'Intermediate' | 'Advanced'
+      difficulty_level: editForm.difficulty_level.toLowerCase() as 'beginner' | 'intermediate' | 'advanced',
+      session_date: editForm.session_date,
+      session_time: editForm.session_time
     }
     
     await handleUpdateSession(selectedSession.id, updates)
@@ -1048,6 +1080,24 @@ const Sessions = () => {
                     type="number" 
                     value={editForm.price}
                     onChange={(e) => setEditForm({...editForm, price: parseFloat(e.target.value)})}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Date</label>
+                  <input 
+                    type="date" 
+                    value={editForm.session_date}
+                    onChange={(e) => setEditForm({...editForm, session_date: e.target.value})}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Time</label>
+                  <input 
+                    type="time" 
+                    value={editForm.session_time}
+                    onChange={(e) => setEditForm({...editForm, session_time: e.target.value})}
                     required
                   />
                 </div>

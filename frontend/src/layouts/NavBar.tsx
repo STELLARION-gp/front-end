@@ -5,6 +5,7 @@ import logo from '../assets/logo-dark.webp';
 import Button from '../components/Button';
 import { useAuth } from '../hooks/useAuth';
 import { supportedLanguages } from '../i18n';
+import { NotificationBell } from '../components/NotificationBell';
 
 import './../styles/components/navbarMobile.scss';
 
@@ -265,6 +266,9 @@ const MobileNavBar = () => {
 
                     {/* Language Toggle - Right */}
                     <div className="mobile-language-toggle">
+                        {/* Notification Bell for mobile */}
+                        {user && <NotificationBell />}
+                        
                         <button
                             className="mobile-language-btn"
                             onClick={handleLanguageToggle}

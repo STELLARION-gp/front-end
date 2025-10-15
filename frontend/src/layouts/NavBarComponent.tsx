@@ -6,6 +6,7 @@ import Button from '../components/Button';
 import { useAuth } from '../hooks/useAuth';
 //import { RoleGuard } from '../components/RoleGuard';
 import { supportedLanguages } from '../i18n';
+import { NotificationBell } from '../components/NotificationBell';
 
 import './../styles/components/navbar.scss';
 
@@ -195,6 +196,9 @@ const NavBarComponent = () => {
   const renderUtilityButtons = (forCompactMode = false) => {
     return (
       <div className={`utility-buttons ${forCompactMode ? 'compact' : ''}`}>
+        {/* Notification Bell */}
+        {user && <NotificationBell />}
+        
         {/* Language Toggle Button */}
         <button
           className="language-btn"

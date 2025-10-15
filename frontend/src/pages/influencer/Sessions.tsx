@@ -104,6 +104,10 @@ const Sessions = () => {
     }>
     commentCount: number
   } | null>(null)
+  const [confirmDelete, setConfirmDelete] = useState<{ show: boolean; pollId: number | null }>({
+    show: false,
+    pollId: null
+  })
 
   // Show notification helper
   const showNotification = (type: 'success' | 'error' | 'info', message: string) => {
@@ -803,20 +807,59 @@ const Sessions = () => {
   }
 
   const handleDeletePoll = async (pollId: number) => {
-    if (!confirm('Are you sure you want to delete this poll? This action cannot be undone.')) return
+    setConfirmDelete({ show: true, pollId })
+  }
+
+  const confirmDeletePoll = async () => {
+    if (!confirmDelete.pollId) return
     
     try {
-      await pollService.deletePoll(pollId)
+      await pollService.deletePoll(confirmDelete.pollId)
       showNotification('success', '🗑️ Poll deleted successfully!')
       loadPolls()
-      if (selectedPoll?.id === pollId) {
+      if (selectedPoll?.id === confirmDelete.pollId) {
         setSelectedPoll(null)
         setPollStats(null)
       }
+      setConfirmDelete({ show: false, pollId: null })
     } catch (err) {
       console.error('Error deleting poll:', err)
       showNotification('error', 'Failed to delete poll')
+      setConfirmDelete({ show: false, pollId: null })
     }
+  }
+
+  // Helper functions for custom poll options
+  const addPollOption = () => {
+    if (newPoll.customOptions.length < 10) {
+      setNewPoll({
+        ...newPoll,
+        customOptions: [...newPoll.customOptions, '']
+      })
+    } else {
+      showNotification('error', 'Maximum 10 options allowed')
+    }
+  }
+
+  const removePollOption = (index: number) => {
+    if (newPoll.customOptions.length > 2) {
+      const updatedOptions = newPoll.customOptions.filter((_, i) => i !== index)
+      setNewPoll({
+        ...newPoll,
+        customOptions: updatedOptions
+      })
+    } else {
+      showNotification('error', 'At least 2 options are required')
+    }
+  }
+
+  const updatePollOption = (index: number, value: string) => {
+    const updatedOptions = [...newPoll.customOptions]
+    updatedOptions[index] = value
+    setNewPoll({
+      ...newPoll,
+      customOptions: updatedOptions
+    })
   }
 
   const renderAnalytics = () => (
@@ -1118,47 +1161,38 @@ const Sessions = () => {
                   <small> (Minimum 2, Maximum 10)</small>
                 </label>
                 
-                {newPoll.customOptions.map((option, index) => (
-                  <div key={index} className="option-input-row">
-                    <input
-                      type="text"
-                      placeholder={`Option ${index + 1}`}
-                      value={option}
-                      onChange={(e) => {
-                        const updated = [...newPoll.customOptions];
-                        updated[index] = e.target.value;
-                        setNewPoll({ ...newPoll, customOptions: updated });
-                      }}
-                      className="option-input"
-                    />
-                    {newPoll.customOptions.length > 2 && (
-                      <button
-                        type="button"
-                        className="remove-option-btn"
-                        onClick={() => {
-                          const updated = newPoll.customOptions.filter((_, i) => i !== index);
-                          setNewPoll({ ...newPoll, customOptions: updated });
-                        }}
-                        title="Remove option"
-                      >
-                        ×
-                      </button>
-                    )}
-                  </div>
-                ))}
+                <div className="options-list">
+                  {newPoll.customOptions.map((option, index) => (
+                    <div key={index} className="option-input-row">
+                      
+                      <input
+                        type="text"
+                        placeholder={`Enter option ${index + 1}`}
+                        value={option}
+                        onChange={(e) => updatePollOption(index, e.target.value)}
+                        className="option-input"
+                      />
+                      {newPoll.customOptions.length > 2 && (
+                        <button
+                          type="button"
+                          className="remove-option-btn"
+                          onClick={() => removePollOption(index)}
+                          title="Remove this option"
+                        >
+                          <span>🗑️</span>
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
                 
                 {newPoll.customOptions.length < 10 && (
                   <button
                     type="button"
                     className="add-option-btn"
-                    onClick={() => {
-                      setNewPoll({
-                        ...newPoll,
-                        customOptions: [...newPoll.customOptions, '']
-                      });
-                    }}
+                    onClick={addPollOption}
                   >
-                    + Add Option
+                    <span>➕</span> Add Another Option
                   </button>
                 )}
               </div>
@@ -1166,7 +1200,7 @@ const Sessions = () => {
 
             <div className="form-actions">
               <Button type="submit" disabled={pollsLoading}>
-                {pollsLoading ? 'Creating...' : '📊 Create Poll'}
+                {pollsLoading ? 'Creating...' : ' Create Poll'}
               </Button>
             </div>
           </form>
@@ -1332,6 +1366,38 @@ const Sessions = () => {
               <div className="modal-footer">
                 <Button variant="secondary" onClick={() => setSelectedPoll(null)}>
                   Close
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Delete Confirmation Modal */}
+        {confirmDelete.show && (
+          <div className="modal-overlay" onClick={() => setConfirmDelete({ show: false, pollId: null })}>
+            <div className="modal-content confirm-delete-modal" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <h3>⚠️ Confirm Delete</h3>
+                <button className="close-btn" onClick={() => setConfirmDelete({ show: false, pollId: null })}>×</button>
+              </div>
+
+              <div className="modal-body">
+                <p>Are you sure you want to delete this poll?</p>
+                <p className="warning-text">This action cannot be undone. All votes and comments will be permanently lost.</p>
+              </div>
+
+              <div className="modal-footer">
+                <Button 
+                  variant="secondary" 
+                  onClick={() => setConfirmDelete({ show: false, pollId: null })}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  variant="danger" 
+                  onClick={confirmDeletePoll}
+                >
+                  🗑️ Delete Poll
                 </Button>
               </div>
             </div>

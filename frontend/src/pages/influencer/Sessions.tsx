@@ -136,7 +136,7 @@ const Sessions = () => {
         session_type: newSession.type as 'live' | 'recorded',
         payment_type: newSession.paymentType as 'paid' | 'free',
         price: newSession.paymentType === 'free' ? 0 : parseFloat(newSession.price) || 0,
-        duration: parseInt(newSession.duration) || 60,
+        duration: parseInt(newSession.duration) ,
         session_date: newSession.date, // YYYY-MM-DD format
         session_time: newSession.time, // HH:MM format
         max_participants: parseInt(newSession.maxParticipants) || undefined,
@@ -547,9 +547,10 @@ const Sessions = () => {
               type="number"
               value={newSession.price}
               onChange={e => setNewSession({ ...newSession, price: e.target.value })}
-              placeholder={newSession.paymentType === 'free' ? '0' : '2500'}
+              placeholder={newSession.paymentType === 'free' ? '0' : 'Enter price'}
               disabled={newSession.paymentType === 'free'}
               required={newSession.paymentType === 'paid'}
+              onWheel={(e) => e.currentTarget.blur()}
             />
           </div>
 
@@ -559,8 +560,9 @@ const Sessions = () => {
               type="number" 
               value={newSession.duration}
               onChange={(e) => setNewSession({...newSession, duration: e.target.value})}
-              placeholder="60"
+              placeholder='Enter duration'
               required
+              onWheel={(e) => e.currentTarget.blur()}
             />
           </div>
 
@@ -590,8 +592,9 @@ const Sessions = () => {
               type="number" 
               value={newSession.maxParticipants}
               onChange={(e) => setNewSession({...newSession, maxParticipants: e.target.value})}
-              placeholder="20"
+              placeholder="Enter max participants"
               required
+              onWheel={(e) => e.currentTarget.blur()}
             />
           </div>
 
@@ -640,7 +643,6 @@ const Sessions = () => {
         </div>
 
         <div className="form-actions">
-          <Button type="button">Save as Draft</Button>
           <Button type="submit" disabled={loading}>
             {loading ? 'Creating...' : 'Create Session'}
           </Button>

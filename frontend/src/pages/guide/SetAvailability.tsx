@@ -218,6 +218,12 @@ const SetAvailability: React.FC = () => {
     return `${year}-${month}-${day}`;
   };
 
+  // Convert time string (HH:MM) to ISO DateTime string for the given date
+  const timeToDateTime = (date: string, time: string): string => {
+    // Combine date and time into ISO format
+    return `${date}T${time}:00.000Z`;
+  };
+
   // Generate half-hourly time options for select inputs
   const generateTimeOptions = (): string[] => {
     const times: string[] = [];
@@ -316,8 +322,8 @@ const SetAvailability: React.FC = () => {
         // Handle editing existing slot
         const updated = await updateAvailability(parseInt(editingSlot.id), {
           date: formData.date,
-          start_time: formData.startTime,
-          end_time: formData.endTime,
+          start_time: timeToDateTime(formData.date, formData.startTime),
+          end_time: timeToDateTime(formData.date, formData.endTime),
           slots_available: formData.capacity
         });
         
@@ -335,8 +341,8 @@ const SetAvailability: React.FC = () => {
           const requestsData: CreateAvailabilityRequest[] = slotsToCreate.map(slot => ({
             service_id: parseInt(selectedService.id),
             date: slot.date,
-            start_time: slot.startTime,
-            end_time: slot.endTime,
+            start_time: timeToDateTime(slot.date, slot.startTime),
+            end_time: timeToDateTime(slot.date, slot.endTime),
             slots_available: slot.capacity
           }));
           
@@ -350,8 +356,8 @@ const SetAvailability: React.FC = () => {
           const created = await createAvailability({
             service_id: parseInt(selectedService.id),
             date: formData.date,
-            start_time: formData.startTime,
-            end_time: formData.endTime,
+            start_time: timeToDateTime(formData.date, formData.startTime),
+            end_time: timeToDateTime(formData.date, formData.endTime),
             slots_available: formData.capacity
           });
           

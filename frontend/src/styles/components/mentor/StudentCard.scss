@@ -1,0 +1,332 @@
+.student-card {
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  max-width: 350px;
+  min-height: 420px;
+  border: 1px solid #f0f0f0;
+  position: relative;
+
+  &:hover {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    transform: translateY(-4px);
+  }
+
+  &--modern {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+
+    .student-card__content {
+      background: white;
+      color: #333;
+      margin: 0;
+      border-radius: 0 0 16px 16px;
+      flex: 1;
+    }
+  }
+
+  &--inactive {
+    opacity: 0.7;
+    
+    .student-card__content {
+      background: #f8f9fa;
+    }
+
+    .student-card__name {
+      color: #6b7280;
+    }
+
+    .student-card__btn--primary {
+      background: #9ca3af;
+      cursor: not-allowed;
+
+      &:hover {
+        background: #9ca3af;
+        transform: none;
+      }
+    }
+  }
+
+  &__status-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    z-index: 10;
+
+    &--active {
+      background: linear-gradient(90deg, #10b981, #059669);
+      color: white;
+    }
+
+    &--inactive {
+      background: #ef4444;
+      color: white;
+    }
+  }
+
+  &__avatar-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    min-height: 140px;
+    justify-content: center;
+  }
+
+  &__image {
+    width: 76px;
+    height: 76px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid rgba(255, 255, 255, 0.9);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    margin-bottom: 8px;
+  }
+
+  &__level-badge {
+    background: rgba(255, 255, 255, 0.9);
+    color: #4c1d95;
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  &__content {
+    padding: 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  &__name {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin: 0;
+    color: #2d3748;
+    line-height: 1.3;
+    text-align: center;
+  }
+
+  &__interests {
+    color: #4a5568;
+    font-size: 0.9rem;
+    line-height: 1.4;
+
+    strong {
+      color: #2d3748;
+      font-weight: 600;
+    }
+  }
+
+  &__description {
+    color: #718096;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin: 0;
+    flex: 1;
+      display: -webkit-box;
+      line-clamp: 3;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  &__meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 8px;
+    border-top: 1px solid #e2e8f0;
+    margin-top: auto;
+  }
+
+  &__join-date {
+    color: #a0aec0;
+    font-size: 0.8rem;
+    font-style: italic;
+  }
+
+  &__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  &__btn {
+    width: 100%;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+
+    &--primary {
+      background: #6366f1;
+      color: white;
+
+      &:hover:not(:disabled) {
+        background: #5856eb;
+        transform: translateY(-1px);
+      }
+
+      &:disabled {
+        cursor: not-allowed;
+        opacity: 0.6;
+      }
+    }
+
+    &--secondary {
+      background: #e2e8f0;
+      color: #4a5568;
+
+      &:hover {
+        background: #cbd5e0;
+      }
+    }
+
+    &--outline {
+      background: transparent;
+      color: #6366f1;
+      border: 2px solid #6366f1;
+
+      &:hover {
+        background: #6366f1;
+        color: white;
+      }
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .student-card {
+    max-width: 100%;
+    min-height: 380px;
+
+    &__content {
+      padding: 16px;
+      gap: 10px;
+    }
+
+    &__name {
+      font-size: 1.2rem;
+    }
+
+    &__actions {
+      flex-direction: row;
+      gap: 8px;
+
+      .student-card__btn {
+        flex: 1;
+        padding: 8px 12px;
+        font-size: 0.85rem;
+      }
+
+      .student-card__btn--outline {
+        display: none; // Hide on mobile to save space
+      }
+    }
+
+    &__meta {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .student-card {
+    &__actions {
+      flex-direction: column;
+      gap: 6px;
+
+      .student-card__btn--outline {
+        display: block; // Show again in stacked layout
+      }
+    }
+
+    &__avatar-section {
+      padding: 20px;
+      min-height: 120px;
+    }
+
+    &__image {
+      width: 70px;
+      height: 70px;
+    }
+  }
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  .student-card {
+    background: #2d3748;
+    border-color: #4a5568;
+
+    &--modern .student-card__content {
+      background: #2d3748;
+      color: #e2e8f0;
+    }
+
+    &__name {
+      color: #f7fafc;
+    }
+
+    &__interests {
+      color: #cbd5e0;
+
+      strong {
+        color: #f7fafc;
+      }
+    }
+
+    &__description {
+      color: #a0aec0;
+    }
+
+    &__join-date {
+      color: #718096;
+    }
+
+    &__meta {
+      border-color: #4a5568;
+    }
+
+    &__btn--secondary {
+      background: #4a5568;
+      color: #e2e8f0;
+
+      &:hover {
+        background: #2d3748;
+      }
+    }
+
+    &__btn--outline {
+      border-color: #90cdf4;
+      color: #90cdf4;
+
+      &:hover {
+        background: #90cdf4;
+        color: #1a202c;
+      }
+    }
+  }
+}

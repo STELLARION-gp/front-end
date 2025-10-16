@@ -84,7 +84,17 @@ const AstronomyServiceDetails: React.FC = () => {
   }
 
   return (
-    <div className="service-details-container">
+    <div className="service-details">
+      <div className="service-details__header">
+        <Button 
+          onClick={() => navigate('/dashboard/astronomy-services')}
+          className="back-button"
+        >
+          ← Back to Services
+        </Button>
+      </div>
+
+      <div className="service-details-container">
       <div className="service-details-main">
         <div className="service-details-card">
           <img
@@ -256,6 +266,7 @@ const AstronomyServiceDetails: React.FC = () => {
         onClose={() => setBookingModalOpen(false)}
         onSuccess={handleBookingSuccess}
       />
+      </div>
     </div>
   );
 };

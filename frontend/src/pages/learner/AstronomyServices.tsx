@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import ServiceCard from "../../components/Learner/ServiceCard";
+import { getServices } from "../../services/servicesService";
+import type { Service } from "../../services/servicesService";
 import "../../styles/pages/learner/AstronomyServices.scss";
 
 // Custom SVG icons (from ServiceListing)
@@ -176,11 +178,71 @@ const priceOrderOptions = [
 
 type FilterKey = "title" | "guideName" | "location";
 
+// Transform API service to match ServiceCard props
+interface ServiceCardData {
+  id: number;
+  title: string;
+  price: number;
+  description: string;
+  image: string;
+  guideName: string;
+  guideImage: string;
+  rating: number;
+  location: string;
+  duration: string;
+  tags: string[];
+  icon: React.ReactElement;
+}
+
+const transformService = (service: Service): ServiceCardData => {
+  const guideName = service.creator?.display_name || 
+                   `${service.creator?.first_name || ''} ${service.creator?.last_name || ''}`.trim() ||
+                   'Guide';
+  
+  return {
+    id: service.id,
+    title: service.title,
+    price: service.price,
+    description: service.description,
+    image: service.image_url,
+    guideName,
+    guideImage: "https://randomuser.me/api/portraits/men/32.jpg", // Default avatar
+    rating: service.rating || 0,
+    location: service.location,
+    duration: service.duration,
+    tags: service.tags,
+    icon: <CalendarIcon />
+  };
+};
+
 const AstronomyServices: React.FC = () => {
   const [search, setSearch] = useState("");
   const [filterBy, setFilterBy] = useState<FilterKey>("title");
   const [priceOrder, setPriceOrder] = useState<"asc" | "desc">("asc");
+  const [services, setServices] = useState<ServiceCardData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+
+  // Fetch services from API
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await getServices({ status: 'active' });
+        const transformedServices = response.services.map(transformService);
+        setServices(transformedServices);
+      } catch (err) {
+        console.error('Error fetching services:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load services');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchServices();
+  }, []);
 
   const filteredServices = services
     .filter((service) => {
@@ -203,42 +265,54 @@ const AstronomyServices: React.FC = () => {
 		<div className="astronomy-services-container">
 			<h2>Astronomy Services</h2>
 			<p>Explore various astronomy-related services.</p>
-      <div className="services-filter-bar">
-        <input
-          type="text"
-          placeholder={`Search by ${filterOptions.find(f => f.value === filterBy)?.label}`}
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          className="services-search-input"
-        />
-        <select
-          value={filterBy}
-          onChange={e => setFilterBy(e.target.value as FilterKey)}
-          className="services-filter-select"
-        >
-          {filterOptions.map(opt => (
-            <option key={opt.value} value={opt.value}>{opt.label}</option>
-          ))}
-        </select>
-        <select
-          value={priceOrder}
-          onChange={e => setPriceOrder(e.target.value as "asc" | "desc")}
-          className="services-filter-select"
-        >
-          {priceOrderOptions.map(opt => (
-            <option key={opt.value} value={opt.value}>{opt.label}</option>
-          ))}
-        </select>
-      </div>
-			<div className="astronomy-services-sections">
-        {filteredServices.length > 0 ? (
-          filteredServices.map((service, idx) => (
-            <ServiceCard key={idx} {...service} onCardClick={() => handleCardClick(service.id)} />
-          ))
-        ) : (
-          <div className="no-services-found">No services found.</div>
-        )}
-      </div>
+      
+      {loading ? (
+        <div className="services-loading">Loading services...</div>
+      ) : error ? (
+        <div className="services-error">
+          <p>{error}</p>
+          <button onClick={() => window.location.reload()}>Retry</button>
+        </div>
+      ) : (
+        <>
+          <div className="services-filter-bar">
+            <input
+              type="text"
+              placeholder={`Search by ${filterOptions.find(f => f.value === filterBy)?.label}`}
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="services-search-input"
+            />
+            <select
+              value={filterBy}
+              onChange={e => setFilterBy(e.target.value as FilterKey)}
+              className="services-filter-select"
+            >
+              {filterOptions.map(opt => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+            <select
+              value={priceOrder}
+              onChange={e => setPriceOrder(e.target.value as "asc" | "desc")}
+              className="services-filter-select"
+            >
+              {priceOrderOptions.map(opt => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+          </div>
+          <div className="astronomy-services-sections">
+            {filteredServices.length > 0 ? (
+              filteredServices.map((service, idx) => (
+                <ServiceCard key={idx} {...service} onCardClick={() => handleCardClick(service.id)} />
+              ))
+            ) : (
+              <div className="no-services-found">No services found.</div>
+            )}
+          </div>
+        </>
+      )}
 		</div>
 	);
 };

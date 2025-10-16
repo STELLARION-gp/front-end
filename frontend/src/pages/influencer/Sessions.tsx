@@ -470,13 +470,15 @@ const Sessions = () => {
                   {isDisabled && (
                     <p className="registration-note">⚠️ New registrations are currently disabled</p>
                   )}
-                </div>
+               
+                
                 <div className="session-actions">
                   <Button onClick={() => handleStartSession(session)} variant="primary">Start Session</Button>
                   <Button onClick={() => handleEditSession(session)}>Edit Session</Button>
-                  <Button onClick={() => handleViewAnalytics(session)}>View Analytics</Button>
+                  <Button onClick={() => handleViewAnalytics(session)}>Analytics</Button>
                   <Button onClick={() => handleDeleteSession(session.id)} variant="secondary">Delete</Button>
                 </div>
+              </div>
               </div>
             )})}
           </div>
@@ -530,7 +532,7 @@ const Sessions = () => {
                 </div>
                 <div className="session-actions">
                   <Button onClick={() => handleEditSession(session)}>Edit Session</Button>
-                  <Button onClick={() => handleViewAnalytics(session)}>View Analytics</Button>
+                  <Button onClick={() => handleViewAnalytics(session)}>Analytics</Button>
                   <Button onClick={() => handleDeleteSession(session.id)} variant="secondary">Delete</Button>
                 </div>
               </div>
@@ -907,242 +909,238 @@ const Sessions = () => {
     })
   }
 
-  const renderAnalytics = () => (
-    <div className="analytics-dashboard">
-      <div className="analytics-header">
-        <h2>My Sessions Analytics</h2>
-        <div className="analytics-filters">
-          <select className="date-range-filter">
-            <option value="week">Last Week</option>
-            <option value="month">Last Month</option>
-            <option value="quarter">Last Quarter</option>
-            <option value="year">Last Year</option>
-          </select>
+  const renderAnalytics = () => {
+    // Calculate analytics from mySessions data
+    const liveSessions = mySessions.filter(s => s.session_type === 'live');
+    const recordedSessions = mySessions.filter(s => s.session_type === 'recorded');
+    
+    // Calculate total revenue
+    const totalRevenue = mySessions.reduce((sum, session) => {
+      return sum + (session.price ? parseFloat(session.price.toString()) : 0);
+    }, 0);
+    
+    // Calculate average duration for live sessions
+    const avgLiveDuration = liveSessions.length > 0 
+      ? Math.round(liveSessions.reduce((sum, s) => sum + (s.duration || 0), 0) / liveSessions.length)
+      : 0;
+    
+    // Calculate average duration for recorded sessions
+    const avgRecordedDuration = recordedSessions.length > 0
+      ? Math.round(recordedSessions.reduce((sum, s) => sum + (s.duration || 0), 0) / recordedSessions.length)
+      : 0;
+    
+    // Calculate total students (using max_participants as proxy since we don't have enrollment data here)
+    const totalStudents = mySessions.reduce((sum, session) => {
+      return sum + (session.max_participants || 0);
+    }, 0);
+    
+    // Export function
+    const handleExportReport = (type: 'all' | 'live' | 'recorded') => {
+      let dataToExport: APISession[] = [];
+      let filename = '';
+      
+      switch(type) {
+        case 'live':
+          dataToExport = liveSessions;
+          filename = 'live-sessions-report.csv';
+          break;
+        case 'recorded':
+          dataToExport = recordedSessions;
+          filename = 'recorded-sessions-report.csv';
+          break;
+        default:
+          dataToExport = mySessions;
+          filename = 'all-sessions-report.csv';
+      }
+      
+      // Create CSV content
+      const headers = ['ID', 'Title', 'Type', 'Payment Type', 'Price (LKR)', 'Duration (mins)', 'Date', 'Difficulty', 'Max Participants', 'Status'];
+      const csvContent = [
+        headers.join(','),
+        ...dataToExport.map(session => [
+          session.id,
+          `"${session.title.replace(/"/g, '""')}"`,
+          session.session_type,
+          session.payment_type,
+          session.price || 0,
+          session.duration,
+          typeof session.session_date === 'string' ? session.session_date.split('T')[0] : new Date(session.session_date).toISOString().split('T')[0],
+          session.difficulty_level,
+          session.max_participants || 'Unlimited',
+          session.is_enabled ? 'Enabled' : 'Disabled'
+        ].join(','))
+      ].join('\n');
+      
+      // Download CSV
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', filename);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      showNotification('success', `📊 ${type.charAt(0).toUpperCase() + type.slice(1)} sessions report exported successfully!`);
+    };
+    
+    return (
+      <div className="analytics-dashboard">
+        <div className="analytics-header">
+          <h2>My Sessions Analytics</h2>
+          <div className="analytics-actions">
+            <Button onClick={() => handleExportReport('all')} variant="secondary">
+              📊 Export All Reports
+            </Button>
+          </div>
         </div>
-      </div>
 
-      <div className="analytics-summary">
-        <div className="summary-card total-revenue">
-          <div className="card-icon">💰</div>
-          <div className="card-content">
-            <h4>Total Revenue</h4>
-            <p className="amount">LKR 412,400</p>
-            <span className="trend positive">+12.5% vs last period</span>
-          </div>
-        </div>
-        <div className="summary-card total-sessions">
-          <div className="card-icon">📅</div>
-          <div className="card-content">
-            <h4>Total Sessions</h4>
-            <p className="amount">24</p>
-            <span className="trend positive">+8.3% vs last period</span>
-          </div>
-        </div>
-        <div className="summary-card average-rating">
-          <div className="card-icon">⭐</div>
-          <div className="card-content">
-            <h4>Average Rating</h4>
-            <p className="amount">4.8</p>
-            <span className="trend positive">+0.2 vs last period</span>
-          </div>
-        </div>
-        <div className="summary-card total-students">
-          <div className="card-icon">👥</div>
-          <div className="card-content">
-            <h4>Total Students</h4>
-            <p className="amount">245</p>
-            <span className="trend positive">+15.8% vs last period</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="analytics-sections">
-        <div className="live-sessions-analytics">
-          <div className="section-header">
-            <h3>Live Sessions Performance</h3>
-            <div className="section-actions">
-              <button className="action-btn">Export Report</button>
+        <div className="analytics-summary">
+          <div className="summary-card total-revenue">
+            <div className="card-icon">�</div>
+            <div className="card-content">
+              <h4>Total Revenue</h4>
+              <p className="amount">LKR {totalRevenue.toLocaleString()}</p>
+              <span className="trend">From {mySessions.length} sessions</span>
             </div>
           </div>
-          <div className="analytics-grid">
-            <div className="chart-container">
-              <h4>
-                Attendance Trend
-                <div className="chart-legend">
-                  <span className="legend-item">Weekly attendance</span>
-                </div>
-              </h4>
-              <div className="interactive-chart">
-                <div className="chart-bars">
-                  {[65, 80, 75, 90, 85, 95].map((height, index) => (
-                    <div 
-                      key={index} 
-                      className="bar-wrapper"
-                      
-                    >
-                      <div 
-                        className="bar" 
-                        style={{height: `${height}%`}}
-                      >
-                        <span className="bar-tooltip">{height}%</span>
-                      </div>
+          <div className="summary-card total-sessions">
+            <div className="card-icon">📅</div>
+            <div className="card-content">
+              <h4>Total Sessions</h4>
+              <p className="amount">{mySessions.length}</p>
+              <span className="trend">Live: {liveSessions.length} | Recorded: {recordedSessions.length}</span>
+            </div>
+          </div>
+          <div className="summary-card total-students">
+            <div className="card-icon">👥</div>
+            <div className="card-content">
+              <h4>Max Participants</h4>
+              <p className="amount">{totalStudents}</p>
+              <span className="trend">Across all sessions</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="analytics-sections">
+          <div className="live-sessions-analytics">
+            <div className="section-header">
+              <h3>Live Sessions Performance ({liveSessions.length})</h3>
+              <div className="section-actions">
+                <button className="action-btn" onClick={() => handleExportReport('live')}>
+                  📥 Export Live Sessions Report
+                </button>
+              </div>
+            </div>
+            
+            {liveSessions.length > 0 ? (
+              <div className="analytics-grid">
+                <div className="chart-container">
+                  <h4>Sessions by Difficulty</h4>
+                  <div className="interactive-chart">
+                    <div className="chart-bars">
+                      {['beginner', 'intermediate', 'advanced'].map((level, index) => {
+                        const count = liveSessions.filter(s => s.difficulty_level === level).length;
+                        const height = liveSessions.length > 0 ? (count / liveSessions.length) * 100 : 0;
+                        return (
+                          <div key={index} className="bar-wrapper">
+                            <div className="bar" style={{height: `${Math.max(height, 5)}%`}}>
+                              <span className="bar-tooltip">{count} sessions</span>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
-                  ))}
-                </div>
-                <div className="chart-labels">
-                  <span>Mon</span>
-                  <span>Tue</span>
-                  <span>Wed</span>
-                  <span>Thu</span>
-                  <span>Fri</span>
-                  <span>Sat</span>
-                </div>
-              </div>
-            </div>
-            <div className="metrics-container">
-              <div className="metric-card">
-                <h5>Completion Rate</h5>
-                <div className="circular-progress">
-                  <svg viewBox="0 0 36 36">
-                    <circle cx="18" cy="18" r="15.9155" className="progress-bg" />
-                    <circle 
-                      cx="18" 
-                      cy="18" 
-                      r="15.9155" 
-                      className="progress" 
-                      style={{ strokeDashoffset: `${100 - 92}` }}
-                    />
-                  </svg>
-                  <span className="progress-value">92%</span>
-                </div>
-              </div>
-              <div className="metric-card">
-                <h5>Average Duration</h5>
-                <p className="metric-value">75 mins</p>
-                <span className="metric-label">per session</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="recorded-sessions-analytics">
-          <div className="section-header">
-            <h3>Recorded Sessions Performance</h3>
-            <div className="section-actions">
-              <button className="action-btn">Export Report</button>
-            </div>
-          </div>
-          <div className="analytics-grid">
-            <div className="chart-container">
-              <h4>
-                Purchase Trend
-                <div className="chart-legend">
-                  <span className="legend-item secondary">Weekly purchases</span>
-                </div>
-              </h4>
-              <div className="interactive-chart">
-                <div className="chart-bars">
-                  {[45, 60, 75, 85, 70, 90].map((height, index) => (
-                    <div 
-                      key={index} 
-                      className="bar-wrapper"
-                      
-                    >
-                      <div 
-                        className="bar secondary" 
-                        style={{height: `${height}%`}}
-                      >
-                        <span className="bar-tooltip">{height}%</span>
-                      </div>
+                    <div className="chart-labels">
+                      <span>Beginner</span>
+                      <span>Intermediate</span>
+                      <span>Advanced</span>
                     </div>
-                  ))}
-                </div>
-                <div className="chart-labels">
-                  <span>Mon</span>
-                  <span>Tue</span>
-                  <span>Wed</span>
-                  <span>Thu</span>
-                  <span>Fri</span>
-                  <span>Sat</span>
-                </div>
-              </div>
-            </div>
-            <div className="metrics-container">
-              <div className="metric-card">
-                <h5>Watch Rate</h5>
-                <div className="circular-progress">
-                  <svg viewBox="0 0 36 36">
-                    <circle cx="18" cy="18" r="15.9155" className="progress-bg" />
-                    <circle 
-                      cx="18" 
-                      cy="18" 
-                      r="15.9155" 
-                      className="progress" 
-                      style={{ strokeDashoffset: `${100 - 85}` }}
-                    />
-                  </svg>
-                  <span className="progress-value">85%</span>
-                </div>
-              </div>
-              <div className="metric-card">
-                <h5>Total Watch Time</h5>
-                <p className="metric-value">1,245 hrs</p>
-                <span className="metric-label">all time</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="engagement-section">
-        <h3>Student Engagement</h3>
-        <div className="engagement-metrics">
-          <div className="engagement-card">
-            <h4>Recent Reviews</h4>
-            <div className="reviews-list">
-              {/*
-                Mock reviews data
-              */}
-              { [
-                { rating: 5, comment: "Excellent teaching style!", author: "Sarah K." },
-                { rating: 4, comment: "Very informative session", author: "Mike D." },
-                { rating: 5, comment: "Great practical examples", author: "Lisa M." }
-              ].map((review, index) => (
-                <div key={index} className="review-item">
-                  <div className="review-rating">
-                    {"⭐".repeat(review.rating)}
-                  </div>
-                  <p className="review-comment">{review.comment}</p>
-                  <span className="review-author">- {review.author}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="engagement-card">
-            <h4>Top Performing Sessions</h4>
-            <div className="top-sessions-list">
-              {/*
-                Mock top sessions data
-              */}
-              { [
-                { title: "Deep Space Photography", rating: 4.9, students: 45 },
-                { title: "Planetary Observation", rating: 4.8, students: 38 },
-                { title: "Telescope Setup Guide", rating: 4.7, students: 42 }
-              ].map((session, index) => (
-                <div key={index} className="top-session-item">
-                  <h5>{session.title}</h5>
-                  <div className="session-stats">
-                    <span className="rating">{"⭐".repeat(Math.round(session.rating))}</span>
-                    <span className="students">{session.students} students</span>
                   </div>
                 </div>
-              ))}
+                <div className="metrics-container">
+                  <div className="metric-card">
+                    <h5>Average Duration</h5>
+                    <p className="metric-value">{avgLiveDuration} mins</p>
+                    <span className="metric-label">per session</span>
+                  </div>
+                  <div className="metric-card">
+                    <h5>Total Revenue</h5>
+                    <p className="metric-value">
+                      LKR {liveSessions.reduce((sum, s) => sum + (s.price ? parseFloat(s.price.toString()) : 0), 0).toLocaleString()}
+                    </p>
+                    <span className="metric-label">from live sessions</span>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="empty-state">
+                <p>No live sessions created yet</p>
+              </div>
+            )}
+          </div>
+
+          <div className="recorded-sessions-analytics">
+            <div className="section-header">
+              <h3>Recorded Sessions Performance ({recordedSessions.length})</h3>
+              <div className="section-actions">
+                <button className="action-btn" onClick={() => handleExportReport('recorded')}>
+                  📥 Export Recorded Sessions Report
+                </button>
+              </div>
             </div>
+            
+            {recordedSessions.length > 0 ? (
+              <div className="analytics-grid">
+                <div className="chart-container">
+                  <h4>Sessions by Difficulty</h4>
+                  <div className="interactive-chart">
+                    <div className="chart-bars">
+                      {['beginner', 'intermediate', 'advanced'].map((level, index) => {
+                        const count = recordedSessions.filter(s => s.difficulty_level === level).length;
+                        const height = recordedSessions.length > 0 ? (count / recordedSessions.length) * 100 : 0;
+                        return (
+                          <div key={index} className="bar-wrapper">
+                            <div className="bar secondary" style={{height: `${Math.max(height, 5)}%`}}>
+                              <span className="bar-tooltip">{count} sessions</span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <div className="chart-labels">
+                      <span>Beginner</span>
+                      <span>Intermediate</span>
+                      <span>Advanced</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="metrics-container">
+                  <div className="metric-card">
+                    <h5>Average Duration</h5>
+                    <p className="metric-value">{avgRecordedDuration} mins</p>
+                    <span className="metric-label">per session</span>
+                  </div>
+                  <div className="metric-card">
+                    <h5>Total Revenue</h5>
+                    <p className="metric-value">
+                      LKR {recordedSessions.reduce((sum, s) => sum + (s.price ? parseFloat(s.price.toString()) : 0), 0).toLocaleString()}
+                    </p>
+                    <span className="metric-label">from recorded sessions</span>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="empty-state">
+                <p>No recorded sessions created yet</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
-    </div>
-  )
+    );
+  };
 
   const renderPolls = () => {
     console.log('📊 Rendering polls tab, polls count:', polls.length, 'loading:', pollsLoading, 'error:', pollsError)

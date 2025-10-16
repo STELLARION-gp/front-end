@@ -53,6 +53,49 @@ const Sessions = () => {
     type: 'success',
     message: ''
   })
+  const [analyticsData, setAnalyticsData] = useState<{
+    overview: {
+      totalRevenue: number
+      totalSessions: number
+      totalStudents: number
+      completionRate: number
+      liveSessions: number
+      recordedSessions: number
+    }
+    liveSessionsAnalytics: {
+      count: number
+      totalStudents: number
+      totalRevenue: number
+      averageDuration: number
+      difficultyDistribution: {
+        beginner: number
+        intermediate: number
+        advanced: number
+      }
+    }
+    recordedSessionsAnalytics: {
+      count: number
+      totalStudents: number
+      totalRevenue: number
+      averageDuration: number
+      difficultyDistribution: {
+        beginner: number
+        intermediate: number
+        advanced: number
+      }
+    }
+    sessions: Array<{
+      id: number
+      title: string
+      session_type: string
+      payment_type: string
+      price: number
+      duration: number
+      difficulty_level: string
+      is_enabled: boolean
+      studentCount: number
+    }>
+  } | null>(null)
 
   const [newSession, setNewSession] = useState<{
     title: string
@@ -155,6 +198,14 @@ const Sessions = () => {
     }
   }, [activeTab, isAuthenticated])
 
+  // Load analytics when analytics tab is active
+  useEffect(() => {
+    if (activeTab === 'analytics' && isAuthenticated) {
+      console.log('Analytics tab activated, loading analytics...')
+      loadAnalytics()
+    }
+  }, [activeTab, isAuthenticated])
+
   // Load user's sessions from API
   const loadMySessions = async (filters?: SessionFilters) => {
     if (!isAuthenticated) {
@@ -181,6 +232,33 @@ const Sessions = () => {
       setError(errorMessage)
       
       // If authentication error, provide helpful message
+      if (errorMessage.includes('Authentication') || errorMessage.includes('log in')) {
+        setError('Authentication required. Please log in to continue.')
+      }
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Load analytics data
+  const loadAnalytics = async () => {
+    if (!isAuthenticated) {
+      setError('Please log in to view analytics')
+      return
+    }
+
+    setLoading(true)
+    setError(null)
+    try {
+      console.log('📊 Loading analytics for user:', userEmail)
+      const response = await sessionsService.getMySessionsAnalytics()
+      setAnalyticsData(response.data || null)
+      console.log('✅ Analytics loaded successfully')
+    } catch (err) {
+      console.error('❌ Error loading analytics:', err)
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load analytics'
+      setError(errorMessage)
+      
       if (errorMessage.includes('Authentication') || errorMessage.includes('log in')) {
         setError('Authentication required. Please log in to continue.')
       }
@@ -910,51 +988,63 @@ const Sessions = () => {
   }
 
   const renderAnalytics = () => {
-    // Calculate analytics from mySessions data
-    const liveSessions = mySessions.filter(s => s.session_type === 'live');
-    const recordedSessions = mySessions.filter(s => s.session_type === 'recorded');
-    
-    // Calculate total revenue
-    const totalRevenue = mySessions.reduce((sum, session) => {
-      return sum + (session.price ? parseFloat(session.price.toString()) : 0);
-    }, 0);
-    
-    // Calculate average duration for live sessions
-    const avgLiveDuration = liveSessions.length > 0 
-      ? Math.round(liveSessions.reduce((sum, s) => sum + (s.duration || 0), 0) / liveSessions.length)
-      : 0;
-    
-    // Calculate average duration for recorded sessions
-    const avgRecordedDuration = recordedSessions.length > 0
-      ? Math.round(recordedSessions.reduce((sum, s) => sum + (s.duration || 0), 0) / recordedSessions.length)
-      : 0;
-    
-    // Calculate total students (using max_participants as proxy since we don't have enrollment data here)
-    const totalStudents = mySessions.reduce((sum, session) => {
-      return sum + (session.max_participants || 0);
-    }, 0);
+    // Show loading state
+    if (loading && !analyticsData) {
+      return (
+        <div className="analytics-dashboard">
+          <div className="loading-state">Loading analytics...</div>
+        </div>
+      );
+    }
+
+    // Show error state
+    if (error && !analyticsData) {
+      return (
+        <div className="analytics-dashboard">
+          <div className="error-state">
+            <h3>⚠️ Error</h3>
+            <p>{error}</p>
+            <Button onClick={() => loadAnalytics()}>Retry</Button>
+          </div>
+        </div>
+      );
+    }
+
+    // Show empty state
+    if (!analyticsData) {
+      return (
+        <div className="analytics-dashboard">
+          <div className="empty-state">
+            <h3>No analytics data available</h3>
+            <p>Create some sessions to see analytics</p>
+          </div>
+        </div>
+      );
+    }
+
+    const { overview, liveSessionsAnalytics, recordedSessionsAnalytics, sessions } = analyticsData;
     
     // Export function
     const handleExportReport = (type: 'all' | 'live' | 'recorded') => {
-      let dataToExport: APISession[] = [];
+      let dataToExport: any[] = [];
       let filename = '';
       
       switch(type) {
         case 'live':
-          dataToExport = liveSessions;
+          dataToExport = sessions.filter(s => s.session_type === 'live');
           filename = 'live-sessions-report.csv';
           break;
         case 'recorded':
-          dataToExport = recordedSessions;
+          dataToExport = sessions.filter(s => s.session_type === 'recorded');
           filename = 'recorded-sessions-report.csv';
           break;
         default:
-          dataToExport = mySessions;
+          dataToExport = sessions;
           filename = 'all-sessions-report.csv';
       }
       
       // Create CSV content
-      const headers = ['ID', 'Title', 'Type', 'Payment Type', 'Price (LKR)', 'Duration (mins)', 'Date', 'Difficulty', 'Max Participants', 'Status'];
+      const headers = ['ID', 'Title', 'Type', 'Payment Type', 'Price (LKR)', 'Duration (mins)', 'Difficulty', 'Students Enrolled', 'Status'];
       const csvContent = [
         headers.join(','),
         ...dataToExport.map(session => [
@@ -964,9 +1054,8 @@ const Sessions = () => {
           session.payment_type,
           session.price || 0,
           session.duration,
-          typeof session.session_date === 'string' ? session.session_date.split('T')[0] : new Date(session.session_date).toISOString().split('T')[0],
           session.difficulty_level,
-          session.max_participants || 'Unlimited',
+          session.studentCount || 0,
           session.is_enabled ? 'Enabled' : 'Disabled'
         ].join(','))
       ].join('\n');
@@ -1001,24 +1090,32 @@ const Sessions = () => {
             <div className="card-icon">�</div>
             <div className="card-content">
               <h4>Total Revenue</h4>
-              <p className="amount">LKR {totalRevenue.toLocaleString()}</p>
-              <span className="trend">From {mySessions.length} sessions</span>
+              <p className="amount">LKR {overview.totalRevenue.toLocaleString()}</p>
+              <span className="trend">From enrolled students</span>
             </div>
           </div>
           <div className="summary-card total-sessions">
             <div className="card-icon">📅</div>
             <div className="card-content">
               <h4>Total Sessions</h4>
-              <p className="amount">{mySessions.length}</p>
-              <span className="trend">Live: {liveSessions.length} | Recorded: {recordedSessions.length}</span>
+              <p className="amount">{overview.totalSessions}</p>
+              <span className="trend">Live: {overview.liveSessions} | Recorded: {overview.recordedSessions}</span>
             </div>
           </div>
           <div className="summary-card total-students">
             <div className="card-icon">👥</div>
             <div className="card-content">
-              <h4>Max Participants</h4>
-              <p className="amount">{totalStudents}</p>
-              <span className="trend">Across all sessions</span>
+              <h4>Total Students</h4>
+              <p className="amount">{overview.totalStudents}</p>
+              <span className="trend">Enrolled & paid students</span>
+            </div>
+          </div>
+          <div className="summary-card completion-rate">
+            <div className="card-icon">✅</div>
+            <div className="card-content">
+              <h4>Completion Rate</h4>
+              <p className="amount">{overview.completionRate}%</p>
+              <span className="trend">Of enrolled students</span>
             </div>
           </div>
         </div>
@@ -1026,7 +1123,7 @@ const Sessions = () => {
         <div className="analytics-sections">
           <div className="live-sessions-analytics">
             <div className="section-header">
-              <h3>Live Sessions Performance ({liveSessions.length})</h3>
+              <h3>Live Sessions Performance ({liveSessionsAnalytics.count})</h3>
               <div className="section-actions">
                 <button className="action-btn" onClick={() => handleExportReport('live')}>
                   📥 Export Live Sessions Report
@@ -1034,19 +1131,25 @@ const Sessions = () => {
               </div>
             </div>
             
-            {liveSessions.length > 0 ? (
+            {liveSessionsAnalytics.count > 0 ? (
               <div className="analytics-grid">
                 <div className="chart-container">
-                  <h4>Sessions by Difficulty</h4>
+                  <h4>Students by Difficulty</h4>
                   <div className="interactive-chart">
                     <div className="chart-bars">
                       {['beginner', 'intermediate', 'advanced'].map((level, index) => {
-                        const count = liveSessions.filter(s => s.difficulty_level === level).length;
-                        const height = liveSessions.length > 0 ? (count / liveSessions.length) * 100 : 0;
+                        const count = liveSessionsAnalytics.difficultyDistribution[level as 'beginner' | 'intermediate' | 'advanced'] || 0;
+                        const maxCount = Math.max(
+                          liveSessionsAnalytics.difficultyDistribution.beginner,
+                          liveSessionsAnalytics.difficultyDistribution.intermediate,
+                          liveSessionsAnalytics.difficultyDistribution.advanced,
+                          1
+                        );
+                        const height = (count / maxCount) * 100;
                         return (
                           <div key={index} className="bar-wrapper">
                             <div className="bar" style={{height: `${Math.max(height, 5)}%`}}>
-                              <span className="bar-tooltip">{count} sessions</span>
+                              <span className="bar-tooltip">{count} students</span>
                             </div>
                           </div>
                         );
@@ -1061,14 +1164,19 @@ const Sessions = () => {
                 </div>
                 <div className="metrics-container">
                   <div className="metric-card">
+                    <h5>Total Students</h5>
+                    <p className="metric-value">{liveSessionsAnalytics.totalStudents}</p>
+                    <span className="metric-label">enrolled students</span>
+                  </div>
+                  <div className="metric-card">
                     <h5>Average Duration</h5>
-                    <p className="metric-value">{avgLiveDuration} mins</p>
+                    <p className="metric-value">{liveSessionsAnalytics.averageDuration} mins</p>
                     <span className="metric-label">per session</span>
                   </div>
                   <div className="metric-card">
                     <h5>Total Revenue</h5>
                     <p className="metric-value">
-                      LKR {liveSessions.reduce((sum, s) => sum + (s.price ? parseFloat(s.price.toString()) : 0), 0).toLocaleString()}
+                      LKR {liveSessionsAnalytics.totalRevenue.toLocaleString()}
                     </p>
                     <span className="metric-label">from live sessions</span>
                   </div>
@@ -1083,7 +1191,7 @@ const Sessions = () => {
 
           <div className="recorded-sessions-analytics">
             <div className="section-header">
-              <h3>Recorded Sessions Performance ({recordedSessions.length})</h3>
+              <h3>Recorded Sessions Performance ({recordedSessionsAnalytics.count})</h3>
               <div className="section-actions">
                 <button className="action-btn" onClick={() => handleExportReport('recorded')}>
                   📥 Export Recorded Sessions Report
@@ -1091,19 +1199,25 @@ const Sessions = () => {
               </div>
             </div>
             
-            {recordedSessions.length > 0 ? (
+            {recordedSessionsAnalytics.count > 0 ? (
               <div className="analytics-grid">
                 <div className="chart-container">
-                  <h4>Sessions by Difficulty</h4>
+                  <h4>Students by Difficulty</h4>
                   <div className="interactive-chart">
                     <div className="chart-bars">
                       {['beginner', 'intermediate', 'advanced'].map((level, index) => {
-                        const count = recordedSessions.filter(s => s.difficulty_level === level).length;
-                        const height = recordedSessions.length > 0 ? (count / recordedSessions.length) * 100 : 0;
+                        const count = recordedSessionsAnalytics.difficultyDistribution[level as 'beginner' | 'intermediate' | 'advanced'] || 0;
+                        const maxCount = Math.max(
+                          recordedSessionsAnalytics.difficultyDistribution.beginner,
+                          recordedSessionsAnalytics.difficultyDistribution.intermediate,
+                          recordedSessionsAnalytics.difficultyDistribution.advanced,
+                          1
+                        );
+                        const height = (count / maxCount) * 100;
                         return (
                           <div key={index} className="bar-wrapper">
                             <div className="bar secondary" style={{height: `${Math.max(height, 5)}%`}}>
-                              <span className="bar-tooltip">{count} sessions</span>
+                              <span className="bar-tooltip">{count} students</span>
                             </div>
                           </div>
                         );
@@ -1118,14 +1232,19 @@ const Sessions = () => {
                 </div>
                 <div className="metrics-container">
                   <div className="metric-card">
+                    <h5>Total Students</h5>
+                    <p className="metric-value">{recordedSessionsAnalytics.totalStudents}</p>
+                    <span className="metric-label">enrolled students</span>
+                  </div>
+                  <div className="metric-card">
                     <h5>Average Duration</h5>
-                    <p className="metric-value">{avgRecordedDuration} mins</p>
+                    <p className="metric-value">{recordedSessionsAnalytics.averageDuration} mins</p>
                     <span className="metric-label">per session</span>
                   </div>
                   <div className="metric-card">
                     <h5>Total Revenue</h5>
                     <p className="metric-value">
-                      LKR {recordedSessions.reduce((sum, s) => sum + (s.price ? parseFloat(s.price.toString()) : 0), 0).toLocaleString()}
+                      LKR {recordedSessionsAnalytics.totalRevenue.toLocaleString()}
                     </p>
                     <span className="metric-label">from recorded sessions</span>
                   </div>

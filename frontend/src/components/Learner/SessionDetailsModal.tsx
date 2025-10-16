@@ -37,10 +37,36 @@ const SessionDetailsModal: React.FC<SessionDetailsModalProps> = ({
     day: 'numeric'
   });
 
-  const formattedTime = new Date(session.session_time).toLocaleTimeString('en-US', {
-    hour: '2-digit',
-    minute: '2-digit'
-  });
+  // Handle session_time - backend now sends as "HH:MM:SS" string format
+  let formattedTime = '';
+  if (typeof session.session_time === 'string') {
+    // Extract HH:MM from string format like "14:30:00"
+    const timeParts = session.session_time.split(':');
+    if (timeParts.length >= 2) {
+      const hours = parseInt(timeParts[0]);
+      const minutes = timeParts[1];
+      const period = hours >= 12 ? 'PM' : 'AM';
+      const displayHours = hours > 12 ? hours - 12 : (hours === 0 ? 12 : hours);
+      formattedTime = `${displayHours}:${minutes} ${period}`;
+    } else {
+      formattedTime = session.session_time;
+    }
+  } else if (session.session_time) {
+    // Fallback: If it's a Date object (shouldn't happen with updated backend)
+    const timeDate = new Date(session.session_time);
+    if (!isNaN(timeDate.getTime())) {
+      const hours = timeDate.getHours();
+      const minutes = timeDate.getMinutes();
+      const period = hours >= 12 ? 'PM' : 'AM';
+      const displayHours = hours > 12 ? hours - 12 : (hours === 0 ? 12 : hours);
+      const minutesStr = minutes.toString().padStart(2, '0');
+      formattedTime = `${displayHours}:${minutesStr} ${period}`;
+    } else {
+      formattedTime = 'Time not available';
+    }
+  } else {
+    formattedTime = 'Time not available';
+  }
 
   return (
     <div className="session-details-modal-backdrop" onClick={onClose}>

@@ -244,7 +244,7 @@ export const getServiceReviews = async (
   }
   
   const queryString = queryParams.toString();
-  return apiCall(`/services/${serviceId}/reviews${queryString ? `?${queryString}` : ''}`);
+  return apiCall(`/bookings/services/${serviceId}/reviews${queryString ? `?${queryString}` : ''}`);
 };
 
 export default {

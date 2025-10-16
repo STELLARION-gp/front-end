@@ -431,43 +431,239 @@ export const sessionsService = {
       }
     });
 
-    const url = `/sessions${
-      queryParams.toString() ? `?${queryParams.toString()}` : ""
-    }`;
-    return makeRequest(url, {}, false); // Public endpoint, no auth required
-  },
+export const sessionsService = {
+    /**
+     * Create a new session (mentor only)
+     */
+    async createSession(sessionData: CreateSessionRequest): Promise<SessionResponse> {
+        console.log('📝 Creating new session:', sessionData);
+        return makeRequest('/sessions', {
+            method: 'POST',
+            body: JSON.stringify(sessionData)
+        }, true); // Requires authentication
+    },
 
-  /**
-   * Get single session by ID
-   */
-  async getSessionById(id: number): Promise<SessionResponse> {
-    return makeRequest(`/sessions/${id}`, {}, false); // Public endpoint, no auth required
-  },
+    /**
+     * Get all sessions created by the current mentor
+     */
+    async getMySessions(filters: Omit<SessionFilters, 'mentor_id'> = {}): Promise<SessionsListResponse> {
+        const queryParams = new URLSearchParams();
+        
+        Object.entries(filters).forEach(([key, value]) => {
+            if (value !== undefined && value !== null) {
+                if (Array.isArray(value)) {
+                    queryParams.append(key, value.join(','));
+                } else {
+                    queryParams.append(key, value.toString());
+                }
+            }
+        });
+        
+        const url = `/sessions/user/my-sessions${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+        console.log('📋 Fetching my sessions from:', url);
+        return makeRequest(url, {}, true); // Requires authentication
+    },
 
-  /**
-   * Get upcoming sessions
-   */
-  async getUpcomingSessions(
-    filters?: Omit<SessionFilters, "is_enabled" | "sort_by" | "sort_order">
-  ): Promise<SessionsListResponse> {
-    return this.getSessions({
-      ...filters,
-      is_enabled: true,
-      sort_by: "session_date",
-      sort_order: "asc",
-    });
-  },
+    /**
+     * Get all enrolled sessions for the authenticated user
+     */
+    async getEnrolledSessions(filters: { 
+        page?: number;
+        limit?: number;
+        session_type?: SessionType;
+        payment_status?: 'pending' | 'completed' | 'failed' | 'refunded' | 'free_access';
+        sort_by?: 'enrollment_date' | 'session_date';
+        sort_order?: 'asc' | 'desc';
+    } = {}): Promise<SessionsListResponse> {
+        const queryParams = new URLSearchParams();
+        
+        Object.entries(filters).forEach(([key, value]) => {
+            if (value !== undefined && value !== null) {
+                if (Array.isArray(value)) {
+                    queryParams.append(key, value.join(','));
+                } else {
+                    queryParams.append(key, value.toString());
+                }
+            }
+        });
+        
+        const url = `/sessions/user/enrolled${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+        console.log('📚 Fetching enrolled sessions from:', url);
+        return makeRequest(url, {}, true); // Requires authentication
+    },
 
-  /**
-   * Search sessions by keyword
-   */
-  async searchSessions(
-    keyword: string,
-    filters?: Omit<SessionFilters, "search">
-  ): Promise<SessionsListResponse> {
-    return this.getSessions({
-      ...filters,
-      search: keyword,
-    });
-  },
+    /**
+     * Get detailed session information by enrollment ID
+     */
+    async getMySessionDetailsByEnrollment(enrollmentId: number): Promise<{
+        success: boolean;
+        data: {
+            session: Session;
+            instructor: {
+                id: number;
+                name: string;
+                email: string;
+                profile: any;
+            };
+            enrollment: {
+                id: number;
+                enrollment_date: string;
+                payment_status: string;
+                payment_amount: number | null;
+                payment_method: string | null;
+                transaction_id: string | null;
+                access_granted: boolean;
+                completed: boolean;
+                progress: number;
+                last_accessed_at: string | null;
+                notes: string | null;
+            };
+            student: {
+                id: number;
+                name: string;
+                email: string;
+            };
+        };
+        message: string;
+    }> {
+        console.log(`📖 Fetching session details for enrollment ${enrollmentId}`);
+        return makeRequest(`/sessions/enrolled/${enrollmentId}`, {}, true); // Requires authentication
+    },
+
+    /**
+     * Check enrollment status for a specific session
+     */
+    async getMyEnrollmentForSession(sessionId: number): Promise<{
+        success: boolean;
+        data: {
+            session: Session;
+            is_enrolled: boolean;
+            enrollment: {
+                id: number;
+                enrollment_date: string;
+                payment_status: string;
+                payment_amount: number | null;
+                access_granted: boolean;
+                completed: boolean;
+                progress: number;
+                last_accessed_at: string | null;
+            } | null;
+        };
+        message: string;
+    }> {
+        console.log(`🔍 Checking enrollment status for session ${sessionId}`);
+        return makeRequest(`/sessions/${sessionId}/my-enrollment`, {}, true); // Requires authentication
+    },
+
+    /**
+     * Update an existing session (mentor only)
+     */
+    async updateSession(id: number, sessionData: UpdateSessionRequest): Promise<SessionResponse> {
+        console.log(`📝 Updating session ${id}:`, sessionData);
+        return makeRequest(`/sessions/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(sessionData)
+        }, true); // Requires authentication
+    },
+
+    /**
+     * Edit session (alias for updateSession)
+     */
+    async editSession(id: number, sessionData: UpdateSessionRequest): Promise<SessionResponse> {
+        return this.updateSession(id, sessionData);
+    },
+
+    /**
+     * Toggle session status (enable/disable)
+     */
+    async toggleSessionStatus(id: number, is_enabled: boolean): Promise<SessionResponse> {
+        console.log(`🔄 Toggling session ${id} status to: ${is_enabled}`);
+        return makeRequest(`/sessions/${id}/toggle`, {
+            method: 'PATCH',
+            body: JSON.stringify({ is_enabled })
+        }, true); // Requires authentication
+    },
+
+    /**
+     * Disable a session
+     */
+    async disableSession(id: number): Promise<SessionResponse> {
+        console.log(`❌ Disabling session ${id}`);
+        return this.toggleSessionStatus(id, false);
+    },
+
+    /**
+     * Enable a disabled session
+     */
+    async enableSession(id: number): Promise<SessionResponse> {
+        console.log(`✅ Enabling session ${id}`);
+        return this.toggleSessionStatus(id, true);
+    },
+
+    /**
+     * Delete a session permanently
+     */
+    async deleteSession(id: number): Promise<{ success: boolean; message: string }> {
+        console.log(`🗑️ Deleting session ${id}`);
+        return makeRequest(`/sessions/${id}`, {
+            method: 'DELETE'
+        }, true); // Requires authentication
+    },
+
+    /**
+     * Get all sessions with filtering (public endpoint)
+     */
+    async getSessions(filters: SessionFilters = {}): Promise<SessionsListResponse> {
+        const queryParams = new URLSearchParams();
+        
+        Object.entries(filters).forEach(([key, value]) => {
+            if (value !== undefined && value !== null) {
+                if (Array.isArray(value)) {
+                    queryParams.append(key, value.join(','));
+                } else {
+                    queryParams.append(key, value.toString());
+                }
+            }
+        });
+        
+        const url = `/sessions${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+        return makeRequest(url, {}, false); // Public endpoint, no auth required
+    },
+
+    /**
+     * Get single session by ID
+     */
+    async getSessionById(id: number): Promise<SessionResponse> {
+        return makeRequest(`/sessions/${id}`, {}, false); // Public endpoint, no auth required
+    },
+
+    /**
+     * Get upcoming sessions
+     */
+    async getUpcomingSessions(filters?: Omit<SessionFilters, 'is_enabled' | 'sort_by' | 'sort_order'>): Promise<SessionsListResponse> {
+        return this.getSessions({
+            ...filters,
+            is_enabled: true,
+            sort_by: 'session_date',
+            sort_order: 'asc'
+        });
+    },
+
+    /**
+     * Get analytics for user's sessions
+     */
+    async getMySessionsAnalytics(): Promise<any> {
+        console.log('📊 Fetching sessions analytics');
+        return makeRequest('/sessions/user/analytics', {}, true); // Requires authentication
+    },
+
+    /**
+     * Search sessions by keyword
+     */
+    async searchSessions(keyword: string, filters?: Omit<SessionFilters, 'search'>): Promise<SessionsListResponse> {
+        return this.getSessions({
+            ...filters,
+            search: keyword
+        });
+    }
 };

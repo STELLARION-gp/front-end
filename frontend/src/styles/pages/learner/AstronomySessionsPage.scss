@@ -135,18 +135,44 @@
 color: #e5e7eb;
   font-weight: 600;
 }
+
+.influencer-badge-icon {
+  color: #fbbf24;
+  vertical-align: middle;
+  display: inline-block;
+}
+
 .influencer-badge {
   margin-left: 0.2rem;
   font-size: 1.1rem;
   vertical-align: middle;
 }
+
 .session-category {
   background: #334155;
   color: #93c5fd;
   border-radius: 6px;
   padding: 0.1rem 0.6rem;
   font-size: 0.93rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  
+  svg {
+    flex-shrink: 0;
+  }
 }
+
+.session-duration {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  
+  svg {
+    flex-shrink: 0;
+  }
+}
+
 .session-difficulty {
   background: #334155;
   color: #fca5a5;

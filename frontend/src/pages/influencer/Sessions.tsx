@@ -1,13 +1,21 @@
-import { useState, useEffect } from "react";
-import type React from "react";
-import "../../styles/pages/influencer/Sessions.scss";
-import "../../styles/pages/influencer/SessionsNotification.scss";
-import Button from "../../components/Button";
-import { sessionsService } from "../../services/sessionsService";
-import pollService, { type Poll } from "../../services/pollService";
-import { auth } from "../../firebase";
-import type {
-  Session as APISession,
+
+import { useState, useEffect } from 'react'
+import type React from 'react'
+import '../../styles/pages/influencer/Sessions.scss';
+import '../../styles/pages/influencer/SessionsNotification.scss';
+import Button from '../../components/Button';
+import { sessionsService } from '../../services/sessionsService'
+import pollService, { type Poll } from '../../services/pollService'
+import { auth } from '../../firebase'
+import ParticipantsIcon from '../../assets/svg/ParticipantsIcon'
+import PriceIcon from '../../assets/svg/PriceIcon'
+import DurationIcon from '../../assets/svg/DurationIcon'
+import DifficultyIcon from '../../assets/svg/DifficultyIcon'
+import DateIcon from '../../assets/svg/DateIcon'
+import TimeIcon from '../../assets/svg/TimeIcon'
+import StarIcon from '../../assets/svg/StarIcon'
+import type { 
+  Session as APISession, 
   CreateSessionRequest,
   UpdateSessionRequest,
   SessionFilters,
@@ -51,9 +59,52 @@ const Sessions = () => {
     message: string;
   }>({
     show: false,
-    type: "success",
-    message: "",
-  });
+    type: 'success',
+    message: ''
+  })
+  const [analyticsData, setAnalyticsData] = useState<{
+    overview: {
+      totalRevenue: number
+      totalSessions: number
+      totalStudents: number
+      completionRate: number
+      liveSessions: number
+      recordedSessions: number
+    }
+    liveSessionsAnalytics: {
+      count: number
+      totalStudents: number
+      totalRevenue: number
+      averageDuration: number
+      difficultyDistribution: {
+        beginner: number
+        intermediate: number
+        advanced: number
+      }
+    }
+    recordedSessionsAnalytics: {
+      count: number
+      totalStudents: number
+      totalRevenue: number
+      averageDuration: number
+      difficultyDistribution: {
+        beginner: number
+        intermediate: number
+        advanced: number
+      }
+    }
+    sessions: Array<{
+      id: number
+      title: string
+      session_type: string
+      payment_type: string
+      price: number
+      duration: number
+      difficulty_level: string
+      is_enabled: boolean
+      studentCount: number
+    }>
+  } | null>(null)
 
   const [newSession, setNewSession] = useState<{
     title: string;
@@ -164,6 +215,14 @@ const Sessions = () => {
     }
   }, [activeTab, isAuthenticated]);
 
+  // Load analytics when analytics tab is active
+  useEffect(() => {
+    if (activeTab === 'analytics' && isAuthenticated) {
+      console.log('Analytics tab activated, loading analytics...')
+      loadAnalytics()
+    }
+  }, [activeTab, isAuthenticated])
+
   // Load user's sessions from API
   const loadMySessions = async (filters?: SessionFilters) => {
     if (!isAuthenticated) {
@@ -201,6 +260,33 @@ const Sessions = () => {
       setLoading(false);
     }
   };
+
+  // Load analytics data
+  const loadAnalytics = async () => {
+    if (!isAuthenticated) {
+      setError('Please log in to view analytics')
+      return
+    }
+
+    setLoading(true)
+    setError(null)
+    try {
+      console.log('📊 Loading analytics for user:', userEmail)
+      const response = await sessionsService.getMySessionsAnalytics()
+      setAnalyticsData(response.data || null)
+      console.log('✅ Analytics loaded successfully')
+    } catch (err) {
+      console.error('❌ Error loading analytics:', err)
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load analytics'
+      setError(errorMessage)
+      
+      if (errorMessage.includes('Authentication') || errorMessage.includes('log in')) {
+        setError('Authentication required. Please log in to continue.')
+      }
+    } finally {
+      setLoading(false)
+    }
+  }
 
   // Create a new session
   const handleCreateSession = async (e: React.FormEvent) => {
@@ -498,181 +584,150 @@ const Sessions = () => {
                       console.error("Error parsing time:", e);
                     }
                   }
-
-                  // Format price to 2 decimal places
-                  const formattedPrice = session.price
-                    ? parseFloat(session.price.toString()).toFixed(2)
-                    : "0.00";
-
-                  return (
-                    <div
-                      key={session.id}
-                      className={`influencer-session-card live-session ${
-                        isDisabled ? "registration-disabled" : ""
-                      }`}
-                    >
-                      <div className="session-header">
-                        <div className="session-title-info">
-                          <h3>{session.title}</h3>
-                          <p className="session-instructor">
-                            by {session.creator?.display_name || "You"}
-                          </p>
-                        </div>
-                        <div className="session-status-container">
-                          <span className="session-status live">LIVE</span>
-                        </div>
-                      </div>
-                      <div className="session-details">
-                        <p>
-                          <span className="icon">📅</span> {formattedDate}
-                        </p>
-                        <p>
-                          <span className="icon">🕐</span> {sessionTimeStr}
-                        </p>
-                        <p>
-                          <span className="icon">⏱️</span> {session.duration}{" "}
-                          minutes
-                        </p>
-                        <p>
-                          <span className="icon">👥</span> Max{" "}
-                          {session.max_participants || "Unlimited"} participants
-                        </p>
-                        <p>
-                          <span className="icon">💰</span> LKR {formattedPrice}
-                        </p>
-                        <p className="session-payment-type">
-                          <span
-                            className={`payment-label ${session.payment_type}`}
-                          >
-                            {session.payment_type === "free" ? "Free" : "Paid"}
-                          </span>
-                        </p>
-                        <p>
-                          <span className="icon">📊</span>{" "}
-                          {session.difficulty_level}
-                        </p>
-                        {isDisabled && (
-                          <p className="registration-note">
-                            ⚠️ New registrations are currently disabled
-                          </p>
-                        )}
-                      </div>
-                      <div className="session-actions">
-                        <Button
-                          onClick={() => handleStartSession(session)}
-                          variant="primary"
-                        >
-                          Start Session
-                        </Button>
-                        <Button onClick={() => handleEditSession(session)}>
-                          Edit Session
-                        </Button>
-                        <Button onClick={() => handleViewAnalytics(session)}>
-                          View Analytics
-                        </Button>
-                        <Button
-                          onClick={() => handleDeleteSession(session.id)}
-                          variant="secondary"
-                        >
-                          Delete
-                        </Button>
-                      </div>
-                    </div>
-                  );
-                })}
+                } catch (e) {
+                  console.error('Error parsing time:', e)
+                }
+              }
+              
+              // Format price to 2 decimal places
+              const formattedPrice = session.price ? parseFloat(session.price.toString()).toFixed(2) : '0.00'
+              
+              return (
+              <div key={session.id} className={`influencer-session-card live-session ${isDisabled ? 'registration-disabled' : ''}`}>
+                <div className="session-header">
+                  <div className="session-title-info">
+                    <h3>{session.title}</h3>
+                    <p className="session-instructor">by {session.creator?.display_name || 'You'}</p>
+                  </div>
+                  <div className="session-status-container">
+                    <span className="session-status live">LIVE</span>
+                  </div>
+                </div>
+                <div className="session-details">
+                  <p>
+                    <span className="icon">
+                      <DateIcon size={16} />
+                    </span>
+                    {formattedDate}
+                  </p>
+                  <p>
+                    <span className="icon">
+                      <TimeIcon size={16} />
+                    </span>
+                    {sessionTimeStr}
+                  </p>
+                  <p>
+                    <span className="icon">
+                      <DurationIcon size={16} />
+                    </span>
+                    {session.duration} minutes
+                  </p>
+                  <p>
+                    <span className="icon">
+                      <ParticipantsIcon size={16} />
+                    </span>
+                    Max {session.max_participants || 'Unlimited'} participants
+                  </p>
+                  <p>
+                    <span className="icon">
+                      <PriceIcon size={16} />
+                    </span>
+                    LKR {formattedPrice}
+                  </p>
+                  <p className="session-payment-type">
+                    <span className={`payment-label ${session.payment_type}`}>
+                      {session.payment_type === 'free' ? 'Free' : 'Paid'}
+                    </span>
+                  </p>
+                  <p>
+                    <span className="icon">
+                      <DifficultyIcon size={16} />
+                    </span>
+                    {session.difficulty_level}
+                  </p>
+                  {isDisabled && (
+                    <p className="registration-note">⚠️ New registrations are currently disabled</p>
+                  )}
+               
+                
+                <div className="session-actions">
+                  <Button onClick={() => handleStartSession(session)} variant="primary">Start Session</Button>
+                  <Button onClick={() => handleEditSession(session)}>Edit Session</Button>
+                  <Button onClick={() => handleViewAnalytics(session)}>Analytics</Button>
+                  <Button onClick={() => handleDeleteSession(session.id)} variant="secondary">Delete</Button>
+                </div>
               </div>
-            </div>
-          )}
+              </div>
+            )})}
+          </div>
+        </div>
+        )}
 
-          {recordedSessions.length > 0 && (
-            <div className="sessions-section">
-              <h3>Recorded Sessions</h3>
-              <div className="sessions-list">
-                {recordedSessions.map((session) => {
-                  const isDisabled = !session.is_enabled;
-
-                  // Format price to 2 decimal places
-                  const formattedPrice = session.price
-                    ? parseFloat(session.price.toString()).toFixed(2)
-                    : "0.00";
-
-                  return (
-                    <div
-                      key={session.id}
-                      className={`influencer-session-card recorded-session ${
-                        isDisabled ? "registration-disabled" : ""
-                      }`}
-                    >
-                      <div className="session-header">
-                        <div className="session-title-info">
-                          <h3>{session.title}</h3>
-                          <p className="session-instructor">
-                            by {session.creator?.display_name || "You"}
-                          </p>
-                        </div>
-                        <div className="session-status-container">
-                          <span className="session-status recorded">
-                            RECORDED
-                          </span>
-                        </div>
-                      </div>
-                      <div className="session-details">
-                        <p>
-                          <span className="icon">💰</span> LKR {formattedPrice}
-                        </p>
-                        <p className="session-payment-type">
-                          <span
-                            className={`payment-label ${session.payment_type}`}
-                          >
-                            {session.payment_type === "free" ? "Free" : "Paid"}
-                          </span>
-                        </p>
-                        <p>
-                          <span className="icon">⏱️</span> {session.duration}{" "}
-                          minutes
-                        </p>
-                        <p>
-                          <span className="icon">�</span>{" "}
-                          {session.difficulty_level}
-                        </p>
-                        {isDisabled && (
-                          <p className="registration-note">
-                            ⚠️ This session is currently unavailable for
-                            purchase
-                          </p>
-                        )}
-                      </div>
-                      <div className="session-link">
-                        <p className="link-label">Session Link:</p>
-                        <div className="link-container">
-                          <input
-                            type="text"
-                            value={
-                              session.session_link ||
-                              `https://stellarion.com/session/${session.id}`
-                            }
-                            readOnly
-                            className="session-link-input"
-                          />
-                        </div>
-                      </div>
-                      <div className="session-actions">
-                        <Button onClick={() => handleEditSession(session)}>
-                          Edit Session
-                        </Button>
-                        <Button onClick={() => handleViewAnalytics(session)}>
-                          View Analytics
-                        </Button>
-                        <Button
-                          onClick={() => handleDeleteSession(session.id)}
-                          variant="secondary"
-                        >
-                          Delete
-                        </Button>
-                      </div>
-                    </div>
-                  );
-                })}
+        {recordedSessions.length > 0 && (
+        <div className="sessions-section">
+          <h3>Recorded Sessions</h3>
+          <div className="sessions-list">
+            {recordedSessions.map(session => {
+              const isDisabled = !session.is_enabled
+              
+              // Format price to 2 decimal places
+              const formattedPrice = session.price ? parseFloat(session.price.toString()).toFixed(2) : '0.00'
+              
+              return (
+              <div key={session.id} className={`influencer-session-card recorded-session ${isDisabled ? 'registration-disabled' : ''}`}>
+                <div className="session-header">
+                  <div className="session-title-info">
+                    <h3>{session.title}</h3>
+                    <p className="session-instructor">by {session.creator?.display_name || 'You'}</p>
+                  </div>
+                  <div className="session-status-container">
+                    <span className="session-status recorded">RECORDED</span>
+                  </div>
+                </div>
+                <div className="session-details">
+                  <p>
+                    <span className="icon">
+                      <PriceIcon size={16} />
+                    </span>
+                    LKR {formattedPrice}
+                  </p>
+                  <p className="session-payment-type">
+                    <span className={`payment-label ${session.payment_type}`}>
+                      {session.payment_type === 'free' ? 'Free' : 'Paid'}
+                    </span>
+                  </p>
+                  <p>
+                    <span className="icon">
+                      <DurationIcon size={16} />
+                    </span>
+                    {session.duration} minutes
+                  </p>
+                  <p>
+                    <span className="icon">
+                      <DifficultyIcon size={16} />
+                    </span>
+                    {session.difficulty_level}
+                  </p>
+                  {isDisabled && (
+                    <p className="registration-note">⚠️ This session is currently unavailable for purchase</p>
+                  )}
+                </div>
+                <div className="session-link">
+                  <p className="link-label">Session Link:</p>
+                  <div className="link-container">
+                    <input 
+                      type="text" 
+                      value={session.session_link || `https://stellarion.com/session/${session.id}`}
+                      readOnly
+                      className="session-link-input"
+                    />
+                  </div>
+                </div>
+                <div className="session-actions">
+                  <Button onClick={() => handleEditSession(session)}>Edit Session</Button>
+                  <Button onClick={() => handleViewAnalytics(session)}>Analytics</Button>
+                  <Button onClick={() => handleDeleteSession(session.id)} variant="secondary">Delete</Button>
+                </div>
               </div>
             </div>
           )}
@@ -1082,259 +1137,421 @@ const Sessions = () => {
     });
   };
 
-  const renderAnalytics = () => (
-    <div className="analytics-dashboard">
-      <div className="analytics-header">
-        <h2>My Sessions Analytics</h2>
-        <div className="analytics-filters">
-          <select className="date-range-filter">
-            <option value="week">Last Week</option>
-            <option value="month">Last Month</option>
-            <option value="quarter">Last Quarter</option>
-            <option value="year">Last Year</option>
-          </select>
+  const renderAnalytics = () => {
+    // Show loading state
+    if (loading && !analyticsData) {
+      return (
+        <div className="analytics-dashboard">
+          <div className="loading-state">Loading analytics...</div>
         </div>
-      </div>
+      );
+    }
 
-      <div className="analytics-summary">
-        <div className="summary-card total-revenue">
-          <div className="card-icon">💰</div>
-          <div className="card-content">
-            <h4>Total Revenue</h4>
-            <p className="amount">LKR 412,400</p>
-            <span className="trend positive">+12.5% vs last period</span>
+    // Show error state
+    if (error && !analyticsData) {
+      return (
+        <div className="analytics-dashboard">
+          <div className="error-state">
+            <h3>⚠️ Error</h3>
+            <p>{error}</p>
+            <Button onClick={() => loadAnalytics()}>Retry</Button>
           </div>
         </div>
-        <div className="summary-card total-sessions">
-          <div className="card-icon">📅</div>
-          <div className="card-content">
-            <h4>Total Sessions</h4>
-            <p className="amount">24</p>
-            <span className="trend positive">+8.3% vs last period</span>
-          </div>
-        </div>
-        <div className="summary-card average-rating">
-          <div className="card-icon">⭐</div>
-          <div className="card-content">
-            <h4>Average Rating</h4>
-            <p className="amount">4.8</p>
-            <span className="trend positive">+0.2 vs last period</span>
-          </div>
-        </div>
-        <div className="summary-card total-students">
-          <div className="card-icon">👥</div>
-          <div className="card-content">
-            <h4>Total Students</h4>
-            <p className="amount">245</p>
-            <span className="trend positive">+15.8% vs last period</span>
-          </div>
-        </div>
-      </div>
+      );
+    }
 
-      <div className="analytics-sections">
-        <div className="live-sessions-analytics">
-          <div className="section-header">
-            <h3>Live Sessions Performance</h3>
-            <div className="section-actions">
-              <button className="action-btn">Export Report</button>
+    // Show empty state
+    if (!analyticsData) {
+      return (
+        <div className="analytics-dashboard">
+          <div className="empty-state">
+            <h3>No analytics data available</h3>
+            <p>Create some sessions to see analytics</p>
+          </div>
+        </div>
+      );
+    }
+
+    const { overview, liveSessionsAnalytics, recordedSessionsAnalytics, sessions } = analyticsData;
+    
+    // Export function
+    const handleExportReport = (type: 'all' | 'live' | 'recorded') => {
+      let dataToExport: any[] = [];
+      let filename = '';
+      
+      switch(type) {
+        case 'live':
+          dataToExport = sessions.filter(s => s.session_type === 'live');
+          filename = 'live-sessions-report.csv';
+          break;
+        case 'recorded':
+          dataToExport = sessions.filter(s => s.session_type === 'recorded');
+          filename = 'recorded-sessions-report.csv';
+          break;
+        default:
+          dataToExport = sessions;
+          filename = 'all-sessions-report.csv';
+      }
+      
+      // Create CSV content
+      const headers = ['ID', 'Title', 'Type', 'Payment Type', 'Price (LKR)', 'Duration (mins)', 'Difficulty', 'Students Enrolled', 'Status'];
+      const csvContent = [
+        headers.join(','),
+        ...dataToExport.map(session => [
+          session.id,
+          `"${session.title.replace(/"/g, '""')}"`,
+          session.session_type,
+          session.payment_type,
+          session.price || 0,
+          session.duration,
+          session.difficulty_level,
+          session.studentCount || 0,
+          session.is_enabled ? 'Enabled' : 'Disabled'
+        ].join(','))
+      ].join('\n');
+      
+      // Download CSV
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', filename);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      showNotification('success', ` ${type.charAt(0).toUpperCase() + type.slice(1)} sessions report exported successfully!`);
+    };
+    
+    return (
+      <div className="analytics-dashboard">
+        <div className="analytics-header">
+          <h2>My Sessions Analytics</h2>
+          <div className="analytics-actions">
+            <Button onClick={() => handleExportReport('all')} variant="secondary">
+              Export All Reports
+            </Button>
+          </div>
+        </div>
+
+        <div className="analytics-summary">
+          <div className="summary-card total-revenue">
+            <div className="card-icon">
+              <svg 
+                width="32" 
+                height="32" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2"
+              >
+                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+              </svg>
+            </div>
+            <div className="card-content">
+              <h4>Total Revenue</h4>
+              <p className="amount">LKR {overview.totalRevenue.toLocaleString()}</p>
+              <span className="trend">From enrolled students</span>
             </div>
           </div>
-          <div className="analytics-grid">
-            <div className="chart-container">
-              <h4>
-                Attendance Trend
-                <div className="chart-legend">
-                  <span className="legend-item">Weekly attendance</span>
-                </div>
-              </h4>
-              <div className="interactive-chart">
-                <div className="chart-bars">
-                  {[65, 80, 75, 90, 85, 95].map((height, index) => (
-                    <div key={index} className="bar-wrapper">
-                      <div className="bar" style={{ height: `${height}%` }}>
-                        <span className="bar-tooltip">{height}%</span>
-                      </div>
+          <div className="summary-card total-sessions">
+            <div className="card-icon">
+              <svg 
+                width="32" 
+                height="32" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2"
+              >
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+            </div>
+            <div className="card-content">
+              <h4>Total Sessions</h4>
+              <p className="amount">{overview.totalSessions}</p>
+              <span className="trend">Live: {overview.liveSessions} | Recorded: {overview.recordedSessions}</span>
+            </div>
+          </div>
+          <div className="summary-card total-students">
+            <div className="card-icon">
+              <ParticipantsIcon size={32} />
+            </div>
+            <div className="card-content">
+              <h4>Total Students</h4>
+              <p className="amount">{overview.totalStudents}</p>
+              <span className="trend">Enrolled & paid students</span>
+            </div>
+          </div>
+          <div className="summary-card completion-rate">
+            <div className="card-icon">
+              <svg 
+                width="32" 
+                height="32" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2"
+              >
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+            <div className="card-content">
+              <h4>Completion Rate</h4>
+              <p className="amount">{overview.completionRate}%</p>
+              <span className="trend">Of enrolled students</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="analytics-sections">
+          <div className="live-sessions-analytics">
+            <div className="section-header">
+              <h3>Live Sessions Performance ({liveSessionsAnalytics.count})</h3>
+              <div className="section-actions">
+                <button className="action-btn" onClick={() => handleExportReport('live')}>
+                  Export Live Sessions Report
+                </button>
+              </div>
+            </div>
+            
+            {liveSessionsAnalytics.count > 0 ? (
+              <div className="analytics-grid">
+                <div className="chart-container">
+                  <h4>Top Live Sessions by Student Engagement</h4>
+                  <div className="pie-chart-container">
+                    <svg viewBox="0 0 200 200" className="pie-chart">
+                      {(() => {
+                        const topSessions = sessions
+                          .filter(s => s.session_type === 'live')
+                          .sort((a, b) => b.studentCount - a.studentCount)
+                          .slice(0, 5);
+                        
+                        const total = topSessions.reduce((sum, s) => sum + s.studentCount, 0);
+                        let currentAngle = 0;
+                        const colors = ['#3b82f6', '#8b5cf6', '#06b6d4', '#10b981', '#f59e0b'];
+                        
+                        return topSessions.map((session, index) => {
+                          const percentage = (session.studentCount / total) * 100;
+                          const angle = (percentage / 100) * 360;
+                          const startAngle = currentAngle;
+                          const endAngle = currentAngle + angle;
+                          
+                          // Calculate path for pie slice
+                          const startRad = (startAngle - 90) * (Math.PI / 180);
+                          const endRad = (endAngle - 90) * (Math.PI / 180);
+                          const x1 = 100 + 80 * Math.cos(startRad);
+                          const y1 = 100 + 80 * Math.sin(startRad);
+                          const x2 = 100 + 80 * Math.cos(endRad);
+                          const y2 = 100 + 80 * Math.sin(endRad);
+                          const largeArc = angle > 180 ? 1 : 0;
+                          
+                          currentAngle = endAngle;
+                          
+                          return (
+                            <g key={session.id}>
+                              <path
+                                d={`M 100 100 L ${x1} ${y1} A 80 80 0 ${largeArc} 1 ${x2} ${y2} Z`}
+                                fill={colors[index % colors.length]}
+                                stroke="rgba(0,0,0,0.1)"
+                                strokeWidth="1"
+                                className="pie-slice"
+                              >
+                                <title>{session.title}: {session.studentCount} students ({percentage.toFixed(1)}%)</title>
+                              </path>
+                            </g>
+                          );
+                        });
+                      })()}
+                    </svg>
+                    <div className="pie-chart-legend">
+                      {sessions
+                        .filter(s => s.session_type === 'live')
+                        .sort((a, b) => b.studentCount - a.studentCount)
+                        .slice(0, 5)
+                        .map((session, index) => {
+                          const topSessions = sessions
+                            .filter(s => s.session_type === 'live')
+                            .sort((a, b) => b.studentCount - a.studentCount)
+                            .slice(0, 5);
+                          const total = topSessions.reduce((sum, s) => sum + s.studentCount, 0);
+                          const percentage = ((session.studentCount / total) * 100).toFixed(1);
+                          const colors = ['#3b82f6', '#8b5cf6', '#06b6d4', '#10b981', '#f59e0b'];
+                          
+                          return (
+                            <div key={session.id} className="legend-item">
+                              <span 
+                                className="legend-color" 
+                                style={{ backgroundColor: colors[index % colors.length] }}
+                              ></span>
+                              <span className="legend-text" title={session.title}>
+                                {session.title.length > 25 
+                                  ? session.title.substring(0, 22) + '...' 
+                                  : session.title}
+                              </span>
+                              <span className="legend-value">
+                                {session.studentCount} ({percentage}%)
+                              </span>
+                            </div>
+                          );
+                        })}
                     </div>
-                  ))}
+                  </div>
                 </div>
-                <div className="chart-labels">
-                  <span>Mon</span>
-                  <span>Tue</span>
-                  <span>Wed</span>
-                  <span>Thu</span>
-                  <span>Fri</span>
-                  <span>Sat</span>
-                </div>
-              </div>
-            </div>
-            <div className="metrics-container">
-              <div className="metric-card">
-                <h5>Completion Rate</h5>
-                <div className="circular-progress">
-                  <svg viewBox="0 0 36 36">
-                    <circle
-                      cx="18"
-                      cy="18"
-                      r="15.9155"
-                      className="progress-bg"
-                    />
-                    <circle
-                      cx="18"
-                      cy="18"
-                      r="15.9155"
-                      className="progress"
-                      style={{ strokeDashoffset: `${100 - 92}` }}
-                    />
-                  </svg>
-                  <span className="progress-value">92%</span>
+                <div className="metrics-container">
+                  <div className="metric-card">
+                    <h5>Total Students</h5>
+                    <p className="metric-value">{liveSessionsAnalytics.totalStudents}</p>
+                    <span className="metric-label">enrolled students</span>
+                  </div>
+                  <div className="metric-card">
+                    <h5>Average Duration</h5>
+                    <p className="metric-value">{liveSessionsAnalytics.averageDuration} mins</p>
+                    <span className="metric-label">per session</span>
+                  </div>
+                  <div className="metric-card">
+                    <h5>Total Revenue</h5>
+                    <p className="metric-value">
+                      LKR {liveSessionsAnalytics.totalRevenue.toLocaleString()}
+                    </p>
+                    <span className="metric-label">from live sessions</span>
+                  </div>
                 </div>
               </div>
-              <div className="metric-card">
-                <h5>Average Duration</h5>
-                <p className="metric-value">75 mins</p>
-                <span className="metric-label">per session</span>
+            ) : (
+              <div className="empty-state">
+                <p>No live sessions created yet</p>
               </div>
-            </div>
+            )}
           </div>
-        </div>
 
-        <div className="recorded-sessions-analytics">
-          <div className="section-header">
-            <h3>Recorded Sessions Performance</h3>
-            <div className="section-actions">
-              <button className="action-btn">Export Report</button>
+          <div className="recorded-sessions-analytics">
+            <div className="section-header">
+              <h3>Recorded Sessions Performance ({recordedSessionsAnalytics.count})</h3>
+              <div className="section-actions">
+                <button className="action-btn" onClick={() => handleExportReport('recorded')}>
+                  📥 Export Recorded Sessions Report
+                </button>
+              </div>
             </div>
-          </div>
-          <div className="analytics-grid">
-            <div className="chart-container">
-              <h4>
-                Purchase Trend
-                <div className="chart-legend">
-                  <span className="legend-item secondary">
-                    Weekly purchases
-                  </span>
-                </div>
-              </h4>
-              <div className="interactive-chart">
-                <div className="chart-bars">
-                  {[45, 60, 75, 85, 70, 90].map((height, index) => (
-                    <div key={index} className="bar-wrapper">
-                      <div
-                        className="bar secondary"
-                        style={{ height: `${height}%` }}
-                      >
-                        <span className="bar-tooltip">{height}%</span>
-                      </div>
+            
+            {recordedSessionsAnalytics.count > 0 ? (
+              <div className="analytics-grid">
+                <div className="chart-container">
+                  <h4>Top Recorded Sessions by Student Engagement</h4>
+                  <div className="pie-chart-container">
+                    <svg viewBox="0 0 200 200" className="pie-chart">
+                      {(() => {
+                        const topSessions = sessions
+                          .filter(s => s.session_type === 'recorded')
+                          .sort((a, b) => b.studentCount - a.studentCount)
+                          .slice(0, 5);
+                        
+                        const total = topSessions.reduce((sum, s) => sum + s.studentCount, 0);
+                        let currentAngle = 0;
+                        const colors = ['#ec4899', '#f97316', '#eab308', '#84cc16', '#14b8a6'];
+                        
+                        return topSessions.map((session, index) => {
+                          const percentage = (session.studentCount / total) * 100;
+                          const angle = (percentage / 100) * 360;
+                          const startAngle = currentAngle;
+                          const endAngle = currentAngle + angle;
+                          
+                          // Calculate path for pie slice
+                          const startRad = (startAngle - 90) * (Math.PI / 180);
+                          const endRad = (endAngle - 90) * (Math.PI / 180);
+                          const x1 = 100 + 80 * Math.cos(startRad);
+                          const y1 = 100 + 80 * Math.sin(startRad);
+                          const x2 = 100 + 80 * Math.cos(endRad);
+                          const y2 = 100 + 80 * Math.sin(endRad);
+                          const largeArc = angle > 180 ? 1 : 0;
+                          
+                          currentAngle = endAngle;
+                          
+                          return (
+                            <g key={session.id}>
+                              <path
+                                d={`M 100 100 L ${x1} ${y1} A 80 80 0 ${largeArc} 1 ${x2} ${y2} Z`}
+                                fill={colors[index % colors.length]}
+                                stroke="rgba(0,0,0,0.1)"
+                                strokeWidth="1"
+                                className="pie-slice"
+                              >
+                                <title>{session.title}: {session.studentCount} students ({percentage.toFixed(1)}%)</title>
+                              </path>
+                            </g>
+                          );
+                        });
+                      })()}
+                    </svg>
+                    <div className="pie-chart-legend">
+                      {sessions
+                        .filter(s => s.session_type === 'recorded')
+                        .sort((a, b) => b.studentCount - a.studentCount)
+                        .slice(0, 5)
+                        .map((session, index) => {
+                          const topSessions = sessions
+                            .filter(s => s.session_type === 'recorded')
+                            .sort((a, b) => b.studentCount - a.studentCount)
+                            .slice(0, 5);
+                          const total = topSessions.reduce((sum, s) => sum + s.studentCount, 0);
+                          const percentage = ((session.studentCount / total) * 100).toFixed(1);
+                          const colors = ['#ec4899', '#f97316', '#eab308', '#84cc16', '#14b8a6'];
+                          
+                          return (
+                            <div key={session.id} className="legend-item">
+                              <span 
+                                className="legend-color" 
+                                style={{ backgroundColor: colors[index % colors.length] }}
+                              ></span>
+                              <span className="legend-text" title={session.title}>
+                                {session.title.length > 25 
+                                  ? session.title.substring(0, 22) + '...' 
+                                  : session.title}
+                              </span>
+                              <span className="legend-value">
+                                {session.studentCount} ({percentage}%)
+                              </span>
+                            </div>
+                          );
+                        })}
                     </div>
-                  ))}
+                  </div>
                 </div>
-                <div className="chart-labels">
-                  <span>Mon</span>
-                  <span>Tue</span>
-                  <span>Wed</span>
-                  <span>Thu</span>
-                  <span>Fri</span>
-                  <span>Sat</span>
-                </div>
-              </div>
-            </div>
-            <div className="metrics-container">
-              <div className="metric-card">
-                <h5>Watch Rate</h5>
-                <div className="circular-progress">
-                  <svg viewBox="0 0 36 36">
-                    <circle
-                      cx="18"
-                      cy="18"
-                      r="15.9155"
-                      className="progress-bg"
-                    />
-                    <circle
-                      cx="18"
-                      cy="18"
-                      r="15.9155"
-                      className="progress"
-                      style={{ strokeDashoffset: `${100 - 85}` }}
-                    />
-                  </svg>
-                  <span className="progress-value">85%</span>
+                <div className="metrics-container">
+                  <div className="metric-card">
+                    <h5>Total Students</h5>
+                    <p className="metric-value">{recordedSessionsAnalytics.totalStudents}</p>
+                    <span className="metric-label">enrolled students</span>
+                  </div>
+                  <div className="metric-card">
+                    <h5>Average Duration</h5>
+                    <p className="metric-value">{recordedSessionsAnalytics.averageDuration} mins</p>
+                    <span className="metric-label">per session</span>
+                  </div>
+                  <div className="metric-card">
+                    <h5>Total Revenue</h5>
+                    <p className="metric-value">
+                      LKR {recordedSessionsAnalytics.totalRevenue.toLocaleString()}
+                    </p>
+                    <span className="metric-label">from recorded sessions</span>
+                  </div>
                 </div>
               </div>
-              <div className="metric-card">
-                <h5>Total Watch Time</h5>
-                <p className="metric-value">1,245 hrs</p>
-                <span className="metric-label">all time</span>
+            ) : (
+              <div className="empty-state">
+                <p>No recorded sessions created yet</p>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>
-
-      <div className="engagement-section">
-        <h3>Student Engagement</h3>
-        <div className="engagement-metrics">
-          <div className="engagement-card">
-            <h4>Recent Reviews</h4>
-            <div className="reviews-list">
-              {/*
-                Mock reviews data
-              */}
-              {[
-                {
-                  rating: 5,
-                  comment: "Excellent teaching style!",
-                  author: "Sarah K.",
-                },
-                {
-                  rating: 4,
-                  comment: "Very informative session",
-                  author: "Mike D.",
-                },
-                {
-                  rating: 5,
-                  comment: "Great practical examples",
-                  author: "Lisa M.",
-                },
-              ].map((review, index) => (
-                <div key={index} className="review-item">
-                  <div className="review-rating">
-                    {"⭐".repeat(review.rating)}
-                  </div>
-                  <p className="review-comment">{review.comment}</p>
-                  <span className="review-author">- {review.author}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="engagement-card">
-            <h4>Top Performing Sessions</h4>
-            <div className="top-sessions-list">
-              {/*
-                Mock top sessions data
-              */}
-              {[
-                { title: "Deep Space Photography", rating: 4.9, students: 45 },
-                { title: "Planetary Observation", rating: 4.8, students: 38 },
-                { title: "Telescope Setup Guide", rating: 4.7, students: 42 },
-              ].map((session, index) => (
-                <div key={index} className="top-session-item">
-                  <h5>{session.title}</h5>
-                  <div className="session-stats">
-                    <span className="rating">
-                      {"⭐".repeat(Math.round(session.rating))}
-                    </span>
-                    <span className="students">
-                      {session.students} students
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+    );
+  };
 
   const renderPolls = () => {
     console.log(
@@ -2090,6 +2307,11 @@ const Sessions = () => {
     const isLiveSession = selectedSession.session_type === "live";
     const sessionPrice = selectedSession.price || 0;
 
+    const isLiveSession = selectedSession.session_type === 'live'
+    const sessionPrice = selectedSession.price || 0
+    const sessionDate = new Date(selectedSession.session_date)
+    const daysUntilSession = Math.ceil((sessionDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
+    
     return (
       <div
         className="modal-overlay"
@@ -2100,158 +2322,242 @@ const Sessions = () => {
           onClick={(e) => e.stopPropagation()}
         >
           <div className="modal-header">
-            <h3>Analytics: {selectedSession.title}</h3>
-            <button
-              className="close-btn"
-              onClick={() => setShowAnalyticsModal(false)}
-            >
-              ×
-            </button>
+            <h3>
+              <StarIcon size={24} />
+              <span style={{ marginLeft: '8px' }}>Session Info: {selectedSession.title}</span>
+            </h3>
+            <button className="close-btn" onClick={() => setShowAnalyticsModal(false)}>×</button>
           </div>
 
           <div className="modal-body">
+            {/* Basic Session Details */}
             <div className="analytics-overview">
-              <h4>Performance Overview</h4>
-              <div className="metrics-row">
-                <div className="metric-card">
-                  <span className="metric-value">0</span>
-                  <span className="metric-label">
-                    {isLiveSession
-                      ? "Registered Participants"
-                      : "Total Purchases"}
+              <div className="section-title-bar">
+                <h4>📋 Basic Information</h4>
+              </div>
+              <div className="session-details-grid">
+                <div className="detail-item">
+                  <span className="detail-icon">
+                    {isLiveSession ? (
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <circle cx="12" cy="12" r="8" fill="#ef4444"/>
+                      </svg>
+                    ) : (
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/>
+                        <line x1="7" y1="2" x2="7" y2="22"/>
+                        <line x1="17" y1="2" x2="17" y2="22"/>
+                        <line x1="2" y1="12" x2="22" y2="12"/>
+                      </svg>
+                    )}
                   </span>
+                  <div className="detail-content">
+                    <span className="detail-label">Session Type</span>
+                    <span className="detail-value">{isLiveSession ? 'Live Session' : 'Recorded Session'}</span>
+                  </div>
                 </div>
-                <div className="metric-card">
-                  <span className="metric-value">LKR 0</span>
-                  <span className="metric-label">Revenue Generated</span>
-                </div>
-                <div className="metric-card">
-                  <span className="metric-value">N/A/5.0</span>
-                  <span className="metric-label">Average Rating</span>
-                </div>
-                <div className="metric-card">
-                  <span className="metric-value">
-                    {isLiveSession
-                      ? `${
-                          selectedSession.max_participants || "Unlimited"
-                        } spots`
-                      : "N/A"}
+                
+                <div className="detail-item">
+                  <span className="detail-icon">
+                    <PriceIcon size={20} />
                   </span>
-                  <span className="metric-label">
-                    {isLiveSession ? "Available Spots" : "Completion Rate"}
+                  <div className="detail-content">
+                    <span className="detail-label">Payment Type</span>
+                    <span className="detail-value">
+                      {selectedSession.payment_type === 'paid' ? `Paid - LKR ${sessionPrice}` : 'Free'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="detail-item">
+                  <span className="detail-icon">
+                    <DurationIcon size={20} />
                   </span>
+                  <div className="detail-content">
+                    <span className="detail-label">Duration</span>
+                    <span className="detail-value">{selectedSession.duration} minutes</span>
+                  </div>
+                </div>
+
+                <div className="detail-item">
+                  <span className="detail-icon">
+                    <DifficultyIcon size={20} />
+                  </span>
+                  <div className="detail-content">
+                    <span className="detail-label">Difficulty Level</span>
+                    <span className="detail-value">
+                      {selectedSession.difficulty_level.charAt(0).toUpperCase() + selectedSession.difficulty_level.slice(1)}
+                    </span>
+                  </div>
+                </div>
+
+                {isLiveSession && (
+                  <div className="detail-item">
+                    <span className="detail-icon">
+                      <ParticipantsIcon size={20} />
+                    </span>
+                    <div className="detail-content">
+                      <span className="detail-label">Max Participants</span>
+                      <span className="detail-value">{selectedSession.max_participants || 'Unlimited'}</span>
+                    </div>
+                  </div>
+                )}
+
+                <div className="detail-item">
+                  <span className="detail-icon">
+                    <DateIcon size={20} />
+                  </span>
+                  <div className="detail-content">
+                    <span className="detail-label">Session Date</span>
+                    <span className="detail-value">
+                      {sessionDate.toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: 'short', 
+                        day: 'numeric' 
+                      })}
+                    </span>
+                  </div>
+                </div>
+
+                {isLiveSession && daysUntilSession >= 0 && (
+                  <div className="detail-item">
+                    <span className="detail-icon">
+                      <TimeIcon size={20} />
+                    </span>
+                    <div className="detail-content">
+                      <span className="detail-label">Days Until Session</span>
+                      <span className="detail-value">{daysUntilSession} days</span>
+                    </div>
+                  </div>
+                )}
+
+                <div className="detail-item">
+                  <span className="detail-icon">
+                    {selectedSession.is_enabled ? (
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                        <polyline points="22 4 12 14.01 9 11.01"/>
+                      </svg>
+                    ) : (
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="15" y1="9" x2="9" y2="15"/>
+                        <line x1="9" y1="9" x2="15" y2="15"/>
+                      </svg>
+                    )}
+                  </span>
+                  <div className="detail-content">
+                    <span className="detail-label">Status</span>
+                    <span className="detail-value">{selectedSession.is_enabled ? 'Active' : 'Disabled'}</span>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {isLiveSession && (
-              <div className="current-registrations">
-                <h4>Session Status</h4>
-                <div className="registration-stats">
-                  <div className="registration-item">
-                    <span className="registration-label">
-                      Max Participants:
-                    </span>
-                    <span className="registration-value">
-                      {selectedSession.max_participants || "Unlimited"}
-                    </span>
-                  </div>
-                  <div className="registration-item">
-                    <span className="registration-label">
-                      Days Until Session:
-                    </span>
-                    <span className="registration-value">
-                      {Math.ceil(
-                        (new Date(selectedSession.session_date).getTime() -
-                          new Date().getTime()) /
-                          (1000 * 60 * 60 * 24)
-                      )}{" "}
-                      days
-                    </span>
-                  </div>
-                  <div className="registration-item">
-                    <span className="registration-label">Duration:</span>
-                    <span className="registration-value">
-                      {selectedSession.duration} minutes
-                    </span>
-                  </div>
+            {/* Session Link */}
+            {selectedSession.session_link && (
+              <div className="session-link-section">
+                <div className="section-title-bar">
+                  <h4>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ verticalAlign: 'middle', marginRight: '8px' }}>
+                      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                    </svg>
+                    Session Link
+                  </h4>
+                </div>
+                <div className="link-container">
+                  <a 
+                    href={selectedSession.session_link} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="session-link-button"
+                  >
+                    Open Session Link
+                  </a>
                 </div>
               </div>
             )}
 
-            {!isLiveSession && (
-              <div className="engagement-analytics">
-                <h4>Engagement Metrics</h4>
-                <div className="engagement-stats">
-                  <div className="engagement-item">
-                    <span className="engagement-label">Duration:</span>
-                    <span className="engagement-value">
-                      {selectedSession.duration} minutes
+            {/* Description */}
+            <div className="session-description-section">
+              <div className="section-title-bar">
+                <h4>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ verticalAlign: 'middle', marginRight: '8px' }}>
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                    <polyline points="10 9 9 9 8 9"/>
+                  </svg>
+                  Session Description
+                </h4>
+              </div>
+              <p className="description-text">{selectedSession.description}</p>
+            </div>
+
+            {/* Materials */}
+            {selectedSession.materials && selectedSession.materials.length > 0 && (
+              <div className="session-materials-section">
+                <div className="section-title-bar">
+                  <h4>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ verticalAlign: 'middle', marginRight: '8px' }}>
+                      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                    </svg>
+                    Session Materials
+                  </h4>
+                </div>
+                <ul className="materials-list">
+                  {selectedSession.materials.map((material, index) => (
+                    <li key={index}>{material}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Session Notes */}
+            {selectedSession.session_notes && (
+              <div className="session-notes-section">
+                <div className="section-title-bar">
+                  <h4>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ verticalAlign: 'middle', marginRight: '8px' }}>
+                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                    </svg>
+                    Additional Notes
+                  </h4>
+                </div>
+                <p className="notes-text">{selectedSession.session_notes}</p>
+              </div>
+            )}
+
+            {/* Revenue Information */}
+            {selectedSession.payment_type === 'paid' && (
+              <div className="revenue-info-section">
+                <div className="section-title-bar">
+                  <h4>
+                    <span style={{ verticalAlign: 'middle', marginRight: '8px', display: 'inline-block' }}>
+                      <PriceIcon size={18} />
                     </span>
+                    💰 Revenue & Earnings
+                  </h4>
+                </div>
+                <div className="revenue-info-grid">
+                  <div className="revenue-info-item">
+                    <span className="revenue-label">Price per Enrollment</span>
+                    <span className="revenue-value">LKR {sessionPrice.toLocaleString()}</span>
                   </div>
-                  <div className="engagement-item">
-                    <span className="engagement-label">Status:</span>
-                    <span className="engagement-value">
-                      {selectedSession.is_enabled ? "Available" : "Disabled"}
-                    </span>
+                  <div className="revenue-info-item">
+                    <span className="revenue-label">Platform Fee (10%)</span>
+                    <span className="revenue-value">- LKR {Math.round(sessionPrice * 0.1).toLocaleString()}</span>
                   </div>
-                  <div className="engagement-item">
-                    <span className="engagement-label">Difficulty:</span>
-                    <span className="engagement-value">
-                      {selectedSession.difficulty_level}
-                    </span>
+                  <div className="revenue-info-item highlight">
+                    <span className="revenue-label">Your Earnings per Sale</span>
+                    <span className="revenue-value">LKR {Math.round(sessionPrice * 0.9).toLocaleString()}</span>
                   </div>
                 </div>
               </div>
             )}
-
-            <div className="revenue-breakdown">
-              <h4>Revenue Breakdown</h4>
-              <div className="revenue-stats">
-                <div className="revenue-item">
-                  <span className="revenue-label">Base Price:</span>
-                  <span className="revenue-value">LKR {sessionPrice}</span>
-                </div>
-                <div className="revenue-item">
-                  <span className="revenue-label">Platform Fee (10%):</span>
-                  <span className="revenue-value">
-                    -LKR {Math.round(sessionPrice * 0.1)}
-                  </span>
-                </div>
-                <div className="revenue-item">
-                  <span className="revenue-label">
-                    Net Earnings (per sale):
-                  </span>
-                  <span className="revenue-value">
-                    LKR {Math.round(sessionPrice * 0.9)}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="feedback-section">
-              <h4>Session Information</h4>
-              <div className="feedback-list">
-                <div className="feedback-item">
-                  <p>
-                    <strong>Payment Type:</strong>{" "}
-                    {selectedSession.payment_type}
-                  </p>
-                  <p>
-                    <strong>Difficulty:</strong>{" "}
-                    {selectedSession.difficulty_level}
-                  </p>
-                  <p>
-                    <strong>Type:</strong> {selectedSession.session_type}
-                  </p>
-                  {selectedSession.session_notes && (
-                    <p>
-                      <strong>Notes:</strong> {selectedSession.session_notes}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </div>
           </div>
 
           <div className="modal-footer">
@@ -2261,7 +2567,6 @@ const Sessions = () => {
             >
               Close
             </Button>
-            <Button>Export Report</Button>
           </div>
         </div>
       </div>

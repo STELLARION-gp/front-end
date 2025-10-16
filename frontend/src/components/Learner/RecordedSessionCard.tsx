@@ -1,6 +1,9 @@
 import React from "react";
 import Button from "../Button";
 import { useNavigate } from "react-router-dom";
+import PriceIcon from "../../assets/svg/PriceIcon";
+import DurationIcon from "../../assets/svg/DurationIcon";
+import FreeIcon from "../../assets/svg/FreeIcon";
 
 export interface RecordedSessionCardProps {
   id: number | string;
@@ -53,13 +56,26 @@ const RecordedSessionCard: React.FC<RecordedSessionCardProps> = ({
           by {instructor}
         </span>
         <span className="session-category">
-          {category === 'paid' ? `💰 Paid${displayPrice ? ` Rs ${displayPrice}` : ''}` : '🆓 Free'}
+          {category === 'paid' ? (
+            <>
+              <PriceIcon size={14} />
+              <span>Paid{displayPrice ? ` Rs ${displayPrice}` : ''}</span>
+            </>
+          ) : (
+            <>
+              <FreeIcon size={14} />
+              <span>Free</span>
+            </>
+          )}
         </span>
         <span className="session-difficulty">
           {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
         </span>
         {displayDuration && (
-          <span className="session-duration">⏱️ {displayDuration} min</span>
+          <span className="session-duration">
+            <DurationIcon size={14} />
+            <span>{displayDuration} min</span>
+          </span>
         )}
       </div>
       <div className="session-desc">{description}</div>

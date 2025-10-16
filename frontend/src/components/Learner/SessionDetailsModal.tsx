@@ -2,6 +2,13 @@ import React from "react";
 import Button from "../Button";
 import type { Session } from "../../services/sessionsService";
 import "../../styles/components/learner/SessionDetailsModal.scss";
+import DateIcon from "../../assets/svg/DateIcon";
+import TimeIcon from "../../assets/svg/TimeIcon";
+import DurationIcon from "../../assets/svg/DurationIcon";
+import ParticipantsIcon from "../../assets/svg/ParticipantsIcon";
+import PriceIcon from "../../assets/svg/PriceIcon";
+import FreeIcon from "../../assets/svg/FreeIcon";
+import DifficultyIcon from "../../assets/svg/DifficultyIcon";
 
 interface SessionDetailsModalProps {
   session: Session | null;
@@ -49,7 +56,17 @@ const SessionDetailsModal: React.FC<SessionDetailsModalProps> = ({
               {session.session_type === 'live' ? '🔴 Live' : '📼 Recorded'}
             </span>
             <span className={`badge badge-${session.payment_type}`}>
-              {session.payment_type === 'paid' ? `💰 Paid Rs ${session.price}` : '🆓 Free'}
+              {session.payment_type === 'paid' ? (
+                <>
+                  <PriceIcon size={14} />
+                  <span>Paid Rs {session.price}</span>
+                </>
+              ) : (
+                <>
+                  <FreeIcon size={14} />
+                  <span>Free</span>
+                </>
+              )}
             </span>
             <span className={`badge badge-${session.difficulty_level}`}>
               {session.difficulty_level.charAt(0).toUpperCase() + session.difficulty_level.slice(1)}
@@ -62,19 +79,27 @@ const SessionDetailsModal: React.FC<SessionDetailsModalProps> = ({
             <h3>📋 Session Information</h3>
             <div className="info-grid">
               <div className="info-item">
-                <span className="info-label">📅 Date:</span>
+                <span className="info-label">
+                  <DateIcon size={16} /> Date:
+                </span>
                 <span className="info-value">{formattedDate}</span>
               </div>
               <div className="info-item">
-                <span className="info-label">⏰ Time:</span>
+                <span className="info-label">
+                  <TimeIcon size={16} /> Time:
+                </span>
                 <span className="info-value">{formattedTime}</span>
               </div>
               <div className="info-item">
-                <span className="info-label">⏱️ Duration:</span>
+                <span className="info-label">
+                  <DurationIcon size={16} /> Duration:
+                </span>
                 <span className="info-value">{session.duration} minutes</span>
               </div>
               <div className="info-item">
-                <span className="info-label">👥 Max Participants:</span>
+                <span className="info-label">
+                  <ParticipantsIcon size={16} /> Max Participants:
+                </span>
                 <span className="info-value">
                   {session.max_participants || 'Unlimited'}
                 </span>
@@ -84,7 +109,9 @@ const SessionDetailsModal: React.FC<SessionDetailsModalProps> = ({
                 <span className="info-value">{creatorName}</span>
               </div>
               <div className="info-item">
-                <span className="info-label">📊 Level:</span>
+                <span className="info-label">
+                  <DifficultyIcon size={16} /> Level:
+                </span>
                 <span className="info-value">{session.difficulty_level}</span>
               </div>
             </div>

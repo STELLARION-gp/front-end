@@ -1,29 +1,27 @@
-// Service Listing Page Styles
-// ===========================
+// Service Listing Page Styles - Night Camps Style
+// ================================================
 
 @use '../../abstracts/variables' as *;
 
 .service-listing {
-  padding: 2rem 2rem 4rem 2rem;
+  padding: 0;
   width: 100%;
-  // background: linear-gradient(135deg, $theme1 0%, $theme2 100%);
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
   min-height: 100vh;
+  color: white;
   
-  // Ensure background covers full page even with scrolling
-  background-attachment: fixed;
-  background-size: cover;
-  
-  // Inner container for content width control
   .service-listing-container {
     max-width: 1400px;
     margin: 0 auto;
     width: 100%;
-    padding-bottom: 10px;
+    padding: 2rem;
   }
   
   // Header Section
   &__header {
     margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     
     .header-content {
       display: flex;
@@ -34,19 +32,20 @@
       
       .title-section {
         .page-title {
-          font-family: $font-orbitron;
-          font-size: 2.5rem;
+          font-size: 2rem;
           font-weight: 700;
-          color: $theme5;
-          margin: 0;
-          text-shadow: 0 0 20px rgba(232, 249, 255, 0.3);
+          margin: 0 0 0.5rem 0;
+          background: linear-gradient(45deg, #4f46e5, #7c3aed);
+          -webkit-background-clip: text;
+          background-clip: text;
+          -webkit-text-fill-color: transparent;
         }
         
         .page-subtitle {
-          font-size: 1.1rem;
-          color: $theme4;
-          margin: 0.5rem 0 0 0;
-          font-weight: 300;
+          font-size: 1rem;
+          color: rgba(255, 255, 255, 0.7);
+          margin: 0;
+          font-weight: 400;
         }
       }
       
@@ -67,18 +66,16 @@
       gap: 1.5rem;
       
       .stat-card {
-        background: rgba(255, 255, 255, 0.08);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 12px;
-        -webkit-backdrop-filter: blur(10px);
-        backdrop-filter: blur(10px);
         transition: all 0.3s ease;
         overflow: hidden;
         
         &:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 25px rgba(16, 140, 255, 0.2);
-          border-color: rgba(16, 140, 255, 0.4);
+          transform: translateY(-4px);
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+          border-color: rgba(79, 70, 229, 0.5);
         }
         
         .stat-content {
@@ -92,25 +89,21 @@
           .stat-icon {
             width: 40px;
             height: 40px;
-            color: $theme3;
+            color: #4f46e5;
             margin-bottom: 0.5rem;
-            opacity: 0.8;
-            filter: drop-shadow(0 0 8px rgba(16, 140, 255, 0.3));
           }
           
           .stat-number {
-            font-family: $font-orbitron;
-            font-size: 2.5rem;
+            font-size: 2rem;
             font-weight: 700;
-            color: $theme3;
+            color: white;
             margin: 0;
-            text-shadow: 0 0 15px rgba(16, 140, 255, 0.4);
             line-height: 1;
           }
           
           .stat-label {
-            font-size: 0.9rem;
-            color: $theme4;
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.7);
             margin: 0;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -157,7 +150,7 @@
             .rating-text {
               margin-left: 0.5rem;
               font-size: 0.85rem;
-              color: $theme4;
+              color: rgba(255, 255, 255, 0.7);
               font-weight: 500;
             }
           }
@@ -172,17 +165,15 @@
     
     .filters-container {
       background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 4px;
-      -webkit-backdrop-filter: blur(10px);
-      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
       
       .filters-content {
         display: flex;
         flex-wrap: wrap;
         gap: 1.5rem;
         align-items: center;
-        padding: 1.2rem 2rem;
+        padding: 1.5rem;
         
         .search-section {
           flex: 1;
@@ -196,7 +187,7 @@
               left: 1rem;
               top: 50%;
               transform: translateY(-50%);
-              color: $theme4;
+              color: rgba(255, 255, 255, 0.5);
               width: 20px;
               height: 20px;
             }
@@ -204,22 +195,22 @@
             .search-input {
               width: 100%;
               padding: 0.75rem 1rem 0.75rem 3rem;
-              background: rgba(255, 255, 255, 0.1);
-              border: 1px solid rgba(255, 255, 255, 0.2);
+              background: rgba(255, 255, 255, 0.05);
+              border: 1px solid rgba(255, 255, 255, 0.1);
               border-radius: 8px;
-              color: $theme5;
+              color: white;
               font-size: 1rem;
               transition: all 0.3s ease;
               
               &::placeholder {
-                color: $theme4;
+                color: rgba(255, 255, 255, 0.4);
               }
               
               &:focus {
                 outline: none;
-                border-color: $theme3;
-                box-shadow: 0 0 0 3px rgba(16, 140, 255, 0.2);
-                background: rgba(255, 255, 255, 0.15);
+                border-color: rgba(79, 70, 229, 0.6);
+                box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+                background: rgba(255, 255, 255, 0.08);
               }
             }
           }
@@ -231,8 +222,8 @@
           gap: 0.5rem;
           
           .filter-label {
-            font-size: 0.9rem;
-            color: $theme4;
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.7);
             font-weight: 500;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -240,23 +231,23 @@
           
           .filter-select {
             padding: 0.5rem 1rem;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 6px;
-            color: $theme5;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: white;
             font-size: 0.9rem;
             min-width: 140px;
             transition: all 0.3s ease;
             
             &:focus {
               outline: none;
-              border-color: $theme3;
-              box-shadow: 0 0 0 2px rgba(16, 140, 255, 0.2);
+              border-color: rgba(79, 70, 229, 0.6);
+              box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
             }
             
             option {
-              background: $theme2;
-              color: $theme5;
+              background: #16213e;
+              color: white;
             }
           }
           
@@ -269,11 +260,11 @@
             input[type="checkbox"] {
               width: 18px;
               height: 18px;
-              accent-color: $theme3;
+              accent-color: #4f46e5;
             }
             
             .toggle-text {
-              color: $theme4;
+              color: rgba(255, 255, 255, 0.7);
               font-size: 0.9rem;
             }
           }
@@ -285,26 +276,24 @@
   // Services Grid
   .services-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 1.5rem;
     margin-bottom: 2rem;
     
     .service-card1 {
-      background: rgba(30, 41, 59, 0.8);
-      border: 1px solid rgba(148, 163, 184, 0.25);
-      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
       overflow: hidden;
-      -webkit-backdrop-filter: blur(12px);
-      backdrop-filter: blur(12px);
       transition: all 0.3s ease;
       display: flex;
       flex-direction: column;
-      height: 100%; // Ensure consistent card height
+      height: 100%;
       
       &:hover {
-        border-color: rgba(147, 51, 234, 0.4);
-        box-shadow: 0 12px 40px rgba(147, 51, 234, 0.2);
         transform: translateY(-4px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        border-color: rgba(79, 70, 229, 0.5);
       }
       
       .service-image {

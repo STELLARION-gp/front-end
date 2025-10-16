@@ -398,6 +398,14 @@ export const sessionsService = {
     },
 
     /**
+     * Get analytics for user's sessions
+     */
+    async getMySessionsAnalytics(): Promise<any> {
+        console.log('📊 Fetching sessions analytics');
+        return makeRequest('/sessions/user/analytics', {}, true); // Requires authentication
+    },
+
+    /**
      * Search sessions by keyword
      */
     async searchSessions(keyword: string, filters?: Omit<SessionFilters, 'search'>): Promise<SessionsListResponse> {

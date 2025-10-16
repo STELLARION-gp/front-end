@@ -1,5 +1,9 @@
 import React from "react";
 import Button from "../Button";
+import PriceIcon from "../../assets/svg/PriceIcon";
+import DurationIcon from "../../assets/svg/DurationIcon";
+import FreeIcon from "../../assets/svg/FreeIcon";
+import StarIcon from "../../assets/svg/StarIcon";
 
 
 export interface SessionCardProps {
@@ -43,16 +47,34 @@ const SessionCard: React.FC<SessionCardProps> = ({
       <span className="session-date">{date}</span>
       <span className="session-organizer">
         by {organizer}{" "}
-        {isInfluencer && <span className="influencer-badge">🌟</span>}
+        {isInfluencer && (
+          <StarIcon 
+            className="influencer-badge-icon" 
+            size={16}
+          />
+        )}
       </span>
       <span className="session-category">
-        {category === 'paid' ? `💰 Paid${price ? ` Rs ${price}` : ''}` : '🆓 Free'}
+        {category === 'paid' ? (
+          <>
+            <PriceIcon size={14} />
+            <span>Paid{price ? ` Rs ${price}` : ''}</span>
+          </>
+        ) : (
+          <>
+            <FreeIcon size={14} />
+            <span>Free</span>
+          </>
+        )}
       </span>
       <span className="session-difficulty">
         {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
       </span>
       {duration && (
-        <span className="session-duration">⏱️ {duration} min</span>
+        <span className="session-duration">
+          <DurationIcon size={14} />
+          <span>{duration} min</span>
+        </span>
       )}
     </div>
     <div className="session-desc">{description}</div>

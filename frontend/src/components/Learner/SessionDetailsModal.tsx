@@ -2,6 +2,13 @@ import React from "react";
 import Button from "../Button";
 import type { Session } from "../../services/sessionsService";
 import "../../styles/components/learner/SessionDetailsModal.scss";
+import DateIcon from "../../assets/svg/DateIcon";
+import TimeIcon from "../../assets/svg/TimeIcon";
+import DurationIcon from "../../assets/svg/DurationIcon";
+import ParticipantsIcon from "../../assets/svg/ParticipantsIcon";
+import PriceIcon from "../../assets/svg/PriceIcon";
+import FreeIcon from "../../assets/svg/FreeIcon";
+import DifficultyIcon from "../../assets/svg/DifficultyIcon";
 
 interface SessionDetailsModalProps {
   session: Session | null;
@@ -30,10 +37,36 @@ const SessionDetailsModal: React.FC<SessionDetailsModalProps> = ({
     day: 'numeric'
   });
 
-  const formattedTime = new Date(session.session_time).toLocaleTimeString('en-US', {
-    hour: '2-digit',
-    minute: '2-digit'
-  });
+  // Handle session_time - backend now sends as "HH:MM:SS" string format
+  let formattedTime = '';
+  if (typeof session.session_time === 'string') {
+    // Extract HH:MM from string format like "14:30:00"
+    const timeParts = session.session_time.split(':');
+    if (timeParts.length >= 2) {
+      const hours = parseInt(timeParts[0]);
+      const minutes = timeParts[1];
+      const period = hours >= 12 ? 'PM' : 'AM';
+      const displayHours = hours > 12 ? hours - 12 : (hours === 0 ? 12 : hours);
+      formattedTime = `${displayHours}:${minutes} ${period}`;
+    } else {
+      formattedTime = session.session_time;
+    }
+  } else if (session.session_time) {
+    // Fallback: If it's a Date object (shouldn't happen with updated backend)
+    const timeDate = new Date(session.session_time);
+    if (!isNaN(timeDate.getTime())) {
+      const hours = timeDate.getHours();
+      const minutes = timeDate.getMinutes();
+      const period = hours >= 12 ? 'PM' : 'AM';
+      const displayHours = hours > 12 ? hours - 12 : (hours === 0 ? 12 : hours);
+      const minutesStr = minutes.toString().padStart(2, '0');
+      formattedTime = `${displayHours}:${minutesStr} ${period}`;
+    } else {
+      formattedTime = 'Time not available';
+    }
+  } else {
+    formattedTime = 'Time not available';
+  }
 
   return (
     <div className="session-details-modal-backdrop" onClick={onClose}>
@@ -49,7 +82,17 @@ const SessionDetailsModal: React.FC<SessionDetailsModalProps> = ({
               {session.session_type === 'live' ? '🔴 Live' : '📼 Recorded'}
             </span>
             <span className={`badge badge-${session.payment_type}`}>
-              {session.payment_type === 'paid' ? `💰 Paid Rs ${session.price}` : '🆓 Free'}
+              {session.payment_type === 'paid' ? (
+                <>
+                  <PriceIcon size={14} />
+                  <span>Paid Rs {session.price}</span>
+                </>
+              ) : (
+                <>
+                  <FreeIcon size={14} />
+                  <span>Free</span>
+                </>
+              )}
             </span>
             <span className={`badge badge-${session.difficulty_level}`}>
               {session.difficulty_level.charAt(0).toUpperCase() + session.difficulty_level.slice(1)}
@@ -62,19 +105,27 @@ const SessionDetailsModal: React.FC<SessionDetailsModalProps> = ({
             <h3>📋 Session Information</h3>
             <div className="info-grid">
               <div className="info-item">
-                <span className="info-label">📅 Date:</span>
+                <span className="info-label">
+                  <DateIcon size={16} /> Date:
+                </span>
                 <span className="info-value">{formattedDate}</span>
               </div>
               <div className="info-item">
-                <span className="info-label">⏰ Time:</span>
+                <span className="info-label">
+                  <TimeIcon size={16} /> Time:
+                </span>
                 <span className="info-value">{formattedTime}</span>
               </div>
               <div className="info-item">
-                <span className="info-label">⏱️ Duration:</span>
+                <span className="info-label">
+                  <DurationIcon size={16} /> Duration:
+                </span>
                 <span className="info-value">{session.duration} minutes</span>
               </div>
               <div className="info-item">
-                <span className="info-label">👥 Max Participants:</span>
+                <span className="info-label">
+                  <ParticipantsIcon size={16} /> Max Participants:
+                </span>
                 <span className="info-value">
                   {session.max_participants || 'Unlimited'}
                 </span>
@@ -84,7 +135,9 @@ const SessionDetailsModal: React.FC<SessionDetailsModalProps> = ({
                 <span className="info-value">{creatorName}</span>
               </div>
               <div className="info-item">
-                <span className="info-label">📊 Level:</span>
+                <span className="info-label">
+                  <DifficultyIcon size={16} /> Level:
+                </span>
                 <span className="info-value">{session.difficulty_level}</span>
               </div>
             </div>

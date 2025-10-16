@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import ServiceCard from "../../components/Learner/ServiceCard";
+import BookingModal from "../../components/Learner/BookingModal";
 import { getServices } from "../../services/servicesService";
 import type { Service } from "../../services/servicesService";
 import "../../styles/pages/learner/AstronomyServices.scss";
@@ -222,6 +223,8 @@ const AstronomyServices: React.FC = () => {
   const [services, setServices] = useState<ServiceCardData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [bookingModalOpen, setBookingModalOpen] = useState(false);
+  const [selectedServiceId, setSelectedServiceId] = useState<number | null>(null);
   const navigate = useNavigate();
 
   // Fetch services from API
@@ -259,6 +262,16 @@ const AstronomyServices: React.FC = () => {
 
   const handleCardClick = (id: number) => {
     navigate(`/dashboard/astronomy-services/${id}`);
+  };
+
+  const handleBookClick = (id: number) => {
+    setSelectedServiceId(id);
+    setBookingModalOpen(true);
+  };
+
+  const handleBookingSuccess = () => {
+    setBookingModalOpen(false);
+    navigate('/dashboard/my-bookings');
   };
 
 	return (
@@ -305,13 +318,28 @@ const AstronomyServices: React.FC = () => {
           <div className="astronomy-services-sections">
             {filteredServices.length > 0 ? (
               filteredServices.map((service, idx) => (
-                <ServiceCard key={idx} {...service} onCardClick={() => handleCardClick(service.id)} />
+                <ServiceCard 
+                  key={idx} 
+                  {...service} 
+                  onCardClick={() => handleCardClick(service.id)}
+                  onBookClick={() => handleBookClick(service.id)}
+                />
               ))
             ) : (
               <div className="no-services-found">No services found.</div>
             )}
           </div>
         </>
+      )}
+
+      {/* Booking Modal */}
+      {selectedServiceId && (
+        <BookingModal
+          serviceId={selectedServiceId}
+          isOpen={bookingModalOpen}
+          onClose={() => setBookingModalOpen(false)}
+          onSuccess={handleBookingSuccess}
+        />
       )}
 		</div>
 	);

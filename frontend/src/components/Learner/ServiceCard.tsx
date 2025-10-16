@@ -15,6 +15,7 @@ interface ServiceCardProps {
   tags: string[];
   price: number;
   onCardClick?: () => void;
+  onBookClick?: (e: React.MouseEvent) => void;
 }
 
 const ServiceCard: React.FC<ServiceCardProps> = ({
@@ -28,7 +29,8 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   duration,
   tags,
   price,
-  onCardClick
+  onCardClick,
+  onBookClick
 }) => {
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, i) => (
@@ -61,6 +63,15 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
           <img src={guideImage} alt={guideName} className="service-card__guide-img" />
           <span className="service-card__guide-name">{guideName}</span>
         </div>
+        <button 
+          className="service-card__book-btn"
+          onClick={(e) => {
+            e.stopPropagation();
+            onBookClick?.(e);
+          }}
+        >
+          Book Now
+        </button>
       </div>
     </div>
   );

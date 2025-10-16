@@ -502,7 +502,7 @@ const CreateService: React.FC = () => {
 
                     {/* Pricing & Logistics */}
                     <div className="section-divider">
-                      <h3 className="section-title">💰 Pricing & Logistics</h3>
+                      <h3 className="section-title"> Pricing & Logistics</h3>
                       <div className="form-grid">
                         <div className="form-group">
                           <label htmlFor="price">Price (USD) *</label>
@@ -576,7 +576,7 @@ const CreateService: React.FC = () => {
 
                     {/* Requirements & Expectations */}
                     <div className="section-divider">
-                      <h3 className="section-title">📋 Requirements & Expectations</h3>
+                      <h3 className="section-title"> Requirements & Expectations</h3>
                       <div className="form-grid">
                         <div className="form-group full-width">
                           <label htmlFor="whatToExpect">What Participants Can Expect</label>
@@ -636,7 +636,7 @@ const CreateService: React.FC = () => {
 
                     {/* Media Upload */}
                     <div className="section-divider">
-                      <h3 className="section-title">🖼️ Media Upload</h3>
+                      <h3 className="section-title"> Media Upload</h3>
                       <div className="form-grid">
                         <div className="form-group full-width">
                           <label>Service Images *</label>
@@ -663,14 +663,14 @@ const CreateService: React.FC = () => {
                               type="button" 
                               className="upload-button"
                               onClick={() => {
-                                console.log('🖱️ Upload button clicked');
+                                console.log(' Upload button clicked');
                                 const fileInput = document.getElementById('file-input') as HTMLInputElement;
-                                console.log('📁 File input element:', fileInput);
+                                console.log(' File input element:', fileInput);
                                 if (fileInput) {
                                   fileInput.click();
-                                  console.log('📁 File input clicked');
+                                  console.log('File input clicked');
                                 } else {
-                                  console.error('❌ File input not found!');
+                                  console.error(' File input not found!');
                                 }
                               }}
                             >
@@ -768,7 +768,7 @@ const CreateService: React.FC = () => {
 
                     {/* Booking Settings */}
                     <div className="section-divider">
-                      <h3 className="section-title">⚙️ Booking Settings</h3>
+                      <h3 className="section-title"> Booking Settings</h3>
                       <div className="form-grid">
                         <div className="form-group full-width">
                           <label htmlFor="bookingDeadline">Booking Deadline (hours)</label>
@@ -844,7 +844,7 @@ const CreateService: React.FC = () => {
 
                     {/* Guide Information */}
                     <div className="section-divider">
-                      <h3 className="section-title">👨‍🚀 Guide Information</h3>
+                      <h3 className="section-title"> Guide Information</h3>
                       <div className="form-grid">
                         <div className="form-group full-width">
                           <label htmlFor="experience">Your Experience</label>

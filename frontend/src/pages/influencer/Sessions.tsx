@@ -2018,118 +2018,171 @@ const Sessions = () => {
 
     const isLiveSession = selectedSession.session_type === 'live'
     const sessionPrice = selectedSession.price || 0
+    const sessionDate = new Date(selectedSession.session_date)
+    const daysUntilSession = Math.ceil((sessionDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
     
     return (
       <div className="modal-overlay" onClick={() => setShowAnalyticsModal(false)}>
         <div className="modal-content large" onClick={(e) => e.stopPropagation()}>
           <div className="modal-header">
-            <h3>Analytics: {selectedSession.title}</h3>
+            <h3>📊 Session Info: {selectedSession.title}</h3>
             <button className="close-btn" onClick={() => setShowAnalyticsModal(false)}>×</button>
           </div>
           
           <div className="modal-body">
+            {/* Basic Session Details */}
             <div className="analytics-overview">
-              <h4>Performance Overview</h4>
-              <div className="metrics-row">
-                <div className="metric-card">
-                  <span className="metric-value">0</span>
-                  <span className="metric-label">{isLiveSession ? 'Registered Participants' : 'Total Purchases'}</span>
-                </div>
-                <div className="metric-card">
-                  <span className="metric-value">LKR 0</span>
-                  <span className="metric-label">Revenue Generated</span>
-                </div>
-                <div className="metric-card">
-                  <span className="metric-value">N/A/5.0</span>
-                  <span className="metric-label">Average Rating</span>
-                </div>
-                <div className="metric-card">
-                  <span className="metric-value">{isLiveSession ? `${selectedSession.max_participants || 'Unlimited'} spots` : 'N/A'}</span>
-                  <span className="metric-label">{isLiveSession ? 'Available Spots' : 'Completion Rate'}</span>
-                </div>
-              </div>
-            </div>
-
-            {isLiveSession && (
-              <div className="current-registrations">
-                <h4>Session Status</h4>
-                <div className="registration-stats">
-                  <div className="registration-item">
-                    <span className="registration-label">Max Participants:</span>
-                    <span className="registration-value">{selectedSession.max_participants || 'Unlimited'}</span>
+              <h4>📋 Session Details</h4>
+              <div className="session-details-grid">
+                <div className="detail-item">
+                  <span className="detail-icon">{isLiveSession ? '🔴' : '📼'}</span>
+                  <div className="detail-content">
+                    <span className="detail-label">Session Type</span>
+                    <span className="detail-value">{isLiveSession ? 'Live Session' : 'Recorded Session'}</span>
                   </div>
-                  <div className="registration-item">
-                    <span className="registration-label">Days Until Session:</span>
-                    <span className="registration-value">
-                      {Math.ceil((new Date(selectedSession.session_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} days
+                </div>
+                
+                <div className="detail-item">
+                  <span className="detail-icon">💰</span>
+                  <div className="detail-content">
+                    <span className="detail-label">Payment Type</span>
+                    <span className="detail-value">
+                      {selectedSession.payment_type === 'paid' ? `Paid - LKR ${sessionPrice}` : 'Free'}
                     </span>
                   </div>
-                  <div className="registration-item">
-                    <span className="registration-label">Duration:</span>
-                    <span className="registration-value">{selectedSession.duration} minutes</span>
-                  </div>
                 </div>
-              </div>
-            )}
 
-            {!isLiveSession && (
-              <div className="engagement-analytics">
-                <h4>Engagement Metrics</h4>
-                <div className="engagement-stats">
-                  <div className="engagement-item">
-                    <span className="engagement-label">Duration:</span>
-                    <span className="engagement-value">{selectedSession.duration} minutes</span>
-                  </div>
-                  <div className="engagement-item">
-                    <span className="engagement-label">Status:</span>
-                    <span className="engagement-value">{selectedSession.is_enabled ? 'Available' : 'Disabled'}</span>
-                  </div>
-                  <div className="engagement-item">
-                    <span className="engagement-label">Difficulty:</span>
-                    <span className="engagement-value">{selectedSession.difficulty_level}</span>
+                <div className="detail-item">
+                  <span className="detail-icon">⏱️</span>
+                  <div className="detail-content">
+                    <span className="detail-label">Duration</span>
+                    <span className="detail-value">{selectedSession.duration} minutes</span>
                   </div>
                 </div>
-              </div>
-            )}
 
-            <div className="revenue-breakdown">
-              <h4>Revenue Breakdown</h4>
-              <div className="revenue-stats">
-                <div className="revenue-item">
-                  <span className="revenue-label">Base Price:</span>
-                  <span className="revenue-value">LKR {sessionPrice}</span>
+                <div className="detail-item">
+                  <span className="detail-icon">📊</span>
+                  <div className="detail-content">
+                    <span className="detail-label">Difficulty Level</span>
+                    <span className="detail-value">
+                      {selectedSession.difficulty_level.charAt(0).toUpperCase() + selectedSession.difficulty_level.slice(1)}
+                    </span>
+                  </div>
                 </div>
-                <div className="revenue-item">
-                  <span className="revenue-label">Platform Fee (10%):</span>
-                  <span className="revenue-value">-LKR {Math.round(sessionPrice * 0.1)}</span>
+
+                {isLiveSession && (
+                  <div className="detail-item">
+                    <span className="detail-icon">👥</span>
+                    <div className="detail-content">
+                      <span className="detail-label">Max Participants</span>
+                      <span className="detail-value">{selectedSession.max_participants || 'Unlimited'}</span>
+                    </div>
+                  </div>
+                )}
+
+                <div className="detail-item">
+                  <span className="detail-icon">📅</span>
+                  <div className="detail-content">
+                    <span className="detail-label">Session Date</span>
+                    <span className="detail-value">
+                      {sessionDate.toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: 'short', 
+                        day: 'numeric' 
+                      })}
+                    </span>
+                  </div>
                 </div>
-                <div className="revenue-item">
-                  <span className="revenue-label">Net Earnings (per sale):</span>
-                  <span className="revenue-value">LKR {Math.round(sessionPrice * 0.9)}</span>
+
+                {isLiveSession && daysUntilSession >= 0 && (
+                  <div className="detail-item">
+                    <span className="detail-icon">⏳</span>
+                    <div className="detail-content">
+                      <span className="detail-label">Days Until Session</span>
+                      <span className="detail-value">{daysUntilSession} days</span>
+                    </div>
+                  </div>
+                )}
+
+                <div className="detail-item">
+                  <span className="detail-icon">{selectedSession.is_enabled ? '✅' : '❌'}</span>
+                  <div className="detail-content">
+                    <span className="detail-label">Status</span>
+                    <span className="detail-value">{selectedSession.is_enabled ? 'Active' : 'Disabled'}</span>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="feedback-section">
-              <h4>Session Information</h4>
-              <div className="feedback-list">
-                <div className="feedback-item">
-                  <p><strong>Payment Type:</strong> {selectedSession.payment_type}</p>
-                  <p><strong>Difficulty:</strong> {selectedSession.difficulty_level}</p>
-                  <p><strong>Type:</strong> {selectedSession.session_type}</p>
-                  {selectedSession.session_notes && (
-                    <p><strong>Notes:</strong> {selectedSession.session_notes}</p>
-                  )}
+            {/* Session Link */}
+            {selectedSession.session_link && (
+              <div className="session-link-section">
+                <h4>🔗 Session Link</h4>
+                <div className="link-container">
+                  <a 
+                    href={selectedSession.session_link} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="session-link-button"
+                  >
+                    Open Session Link
+                  </a>
                 </div>
               </div>
+            )}
+
+            {/* Description */}
+            <div className="session-description-section">
+              <h4>📝 Description</h4>
+              <p className="description-text">{selectedSession.description}</p>
             </div>
+
+            {/* Materials */}
+            {selectedSession.materials && selectedSession.materials.length > 0 && (
+              <div className="session-materials-section">
+                <h4>📚 Materials</h4>
+                <ul className="materials-list">
+                  {selectedSession.materials.map((material, index) => (
+                    <li key={index}>{material}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Session Notes */}
+            {selectedSession.session_notes && (
+              <div className="session-notes-section">
+                <h4>📌 Additional Notes</h4>
+                <p className="notes-text">{selectedSession.session_notes}</p>
+              </div>
+            )}
+
+            {/* Revenue Information */}
+            {selectedSession.payment_type === 'paid' && (
+              <div className="revenue-info-section">
+                <h4>💵 Revenue Information</h4>
+                <div className="revenue-info-grid">
+                  <div className="revenue-info-item">
+                    <span className="revenue-label">Price per Enrollment</span>
+                    <span className="revenue-value">LKR {sessionPrice.toLocaleString()}</span>
+                  </div>
+                  <div className="revenue-info-item">
+                    <span className="revenue-label">Platform Fee (10%)</span>
+                    <span className="revenue-value">- LKR {Math.round(sessionPrice * 0.1).toLocaleString()}</span>
+                  </div>
+                  <div className="revenue-info-item highlight">
+                    <span className="revenue-label">Your Earnings per Sale</span>
+                    <span className="revenue-value">LKR {Math.round(sessionPrice * 0.9).toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="modal-footer">
             <Button variant="secondary" onClick={() => setShowAnalyticsModal(false)}>
               Close
             </Button>
-            <Button>Export Report</Button>
           </div>
         </div>
       </div>

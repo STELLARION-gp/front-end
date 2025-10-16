@@ -3,6 +3,19 @@ import { useNavigate, useParams } from 'react-router-dom';
 import Button from '../../components/Button';
 import Card from '../../components/Card';
 import '../../styles/pages/guide/_setAvailability.scss';
+import type {
+  Service as ApiService,
+  ServiceAvailability as ApiAvailability,
+  CreateAvailabilityRequest
+} from '../../services/servicesService';
+import {
+  getMyServices,
+  getServiceAvailability,
+  createAvailability,
+  createBulkAvailability,
+  updateAvailability,
+  deleteAvailability
+} from '../../services/servicesService';
 
 // Icons
 const ArrowLeftIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
@@ -68,14 +81,9 @@ const SaveIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
   </svg>
 );
 
-// Interfaces
-interface Service {
-  id: string;
-  title: string;
-  category: string;
-  maxParticipants: number;
-  duration: string;
-  price: number;
+// Interfaces - extending API types
+interface Service extends Omit<ApiService, 'id' | 'media' | 'availability'> {
+  id: string; // Convert to string for UI compatibility
 }
 
 interface AvailabilitySlot {
@@ -92,48 +100,50 @@ interface AvailabilitySlot {
   recurringEndDate?: string;
   status: 'active' | 'inactive' | 'full';
   notes?: string;
+  created_at?: string | Date;
+  updated_at?: string | Date;
+  slots_booked?: number;
 }
 
-// Dummy data for services (in real app, this would come from API)
-const dummyServices: Service[] = [
-  {
-    id: '1',
-    title: 'Deep Space Observation Experience',
-    category: 'stargazing',
-    maxParticipants: 8,
-    duration: '3 hours',
-    price: 75
-  },
-  {
-    id: '2',
-    title: 'Astrophotography Masterclass',
-    category: 'astrophotography',
-    maxParticipants: 6,
-    duration: '6 hours',
-    price: 150
-  },
-  {
-    id: '3',
-    title: 'Telescope Building Workshop',
-    category: 'workshop',
-    maxParticipants: 4,
-    duration: '8 hours',
-    price: 200
-  }
-];
+// Transform API service to local format
+const transformApiService = (apiService: ApiService): Service => {
+  return {
+    ...apiService,
+    id: apiService.id.toString()
+  };
+};
+
+// Transform API availability to local format
+const transformApiAvailability = (apiAvail: ApiAvailability): AvailabilitySlot => {
+  return {
+    id: apiAvail.id.toString(),
+    serviceId: apiAvail.service_id.toString(),
+    date: typeof apiAvail.available_date === 'string' ? apiAvail.available_date.split('T')[0] : new Date(apiAvail.available_date).toISOString().split('T')[0],
+    startTime: apiAvail.start_time,
+    endTime: apiAvail.end_time,
+    capacity: apiAvail.slots_available,
+    bookedCount: apiAvail.slots_booked || 0,
+    status: apiAvail.status === 'available' ? 'active' : (apiAvail.slots_booked >= apiAvail.slots_available ? 'full' : 'inactive'),
+    created_at: apiAvail.created_at,
+    updated_at: apiAvail.updated_at,
+    slots_booked: apiAvail.slots_booked
+  };
+};
 
 const SetAvailability: React.FC = () => {
   const navigate = useNavigate();
   const { serviceId } = useParams<{ serviceId?: string }>();
   
   // State
-  const [services] = useState<Service[]>(dummyServices);
+  const [services, setServices] = useState<Service[]>([]);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [availabilitySlots, setAvailabilitySlots] = useState<AvailabilitySlot[]>([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingSlot, setEditingSlot] = useState<AvailabilitySlot | null>(null);
   const [selectedDate, setSelectedDate] = useState('');
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
   // Form data
   const [formData, setFormData] = useState({
@@ -153,57 +163,43 @@ const SetAvailability: React.FC = () => {
     seriesDays: [] as string[] // ['monday', 'tuesday', etc.]
   });
 
-  // Initialize with serviceId if provided and add some dummy availability data
+  // Fetch services and availability on mount
   useEffect(() => {
-    if (serviceId) {
-      const service = services.find(s => s.id === serviceId);
-      if (service) {
-        setSelectedService(service);
-        setFormData(prev => ({ ...prev, capacity: service.maxParticipants, price: service.price }));
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        // Fetch services
+        const servicesResponse = await getMyServices({});
+        const transformedServices = servicesResponse.services.map(transformApiService);
+        setServices(transformedServices);
+        
+        // If serviceId is provided, select and fetch availability for that service
+        if (serviceId) {
+          const service = transformedServices.find(s => s.id === serviceId);
+          if (service) {
+            setSelectedService(service);
+            setFormData(prev => ({ ...prev, capacity: service.max_participants, price: service.price }));
+            
+            // Fetch availability for the service
+            const availResponse = await getServiceAvailability(parseInt(serviceId), {
+              start_date: new Date().toISOString().split('T')[0]
+            });
+            const transformedAvailability = availResponse.map(transformApiAvailability);
+            setAvailabilitySlots(transformedAvailability);
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching data:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load data');
+      } finally {
+        setLoading(false);
       }
-    }
-    
-    // Add some dummy availability data for demonstration
-    const dummyAvailability: AvailabilitySlot[] = [
-      {
-        id: '1',
-        serviceId: '1',
-        date: '2025-07-05',
-        startTime: '19:00',
-        endTime: '22:00',
-        capacity: 8,
-        bookedCount: 3,
-        price: 75,
-        status: 'active',
-        notes: 'Perfect viewing conditions expected'
-      },
-      {
-        id: '2',
-        serviceId: '1',
-        date: '2025-07-12',
-        startTime: '20:00',
-        endTime: '23:00',
-        capacity: 8,
-        bookedCount: 8,
-        price: 75,
-        status: 'full'
-      },
-      {
-        id: '3',
-        serviceId: '2',
-        date: '2025-07-08',
-        startTime: '18:00',
-        endTime: '00:00',
-        capacity: 6,
-        bookedCount: 2,
-        price: 150,
-        status: 'active',
-        notes: 'Bring warm clothing'
-      }
-    ];
-    
-    setAvailabilitySlots(dummyAvailability);
-  }, [serviceId, services]);
+    };
+
+    fetchData();
+  }, [serviceId]);
 
   // Calendar functions
   const getDaysInMonth = (date: Date) => {
@@ -247,18 +243,35 @@ const SetAvailability: React.FC = () => {
   };
 
   // Form handlers
+  // Handle service selection
   const handleServiceSelect = (service: Service) => {
     // Select a new service and reset form state
     setSelectedService(service);
     setFormData(prev => ({ 
       ...prev, 
-      capacity: service.maxParticipants, 
+      capacity: service.max_participants, 
       price: service.price 
     }));
     // Close any open form when changing service
     setIsFormOpen(false);
     setEditingSlot(null);
     setSelectedDate('');
+    
+    // Fetch availability for the new service
+    fetchServiceAvailability(service.id);
+  };
+
+  // Fetch availability for a specific service
+  const fetchServiceAvailability = async (svcId: string) => {
+    try {
+      const availResponse = await getServiceAvailability(parseInt(svcId), {
+        start_date: new Date().toISOString().split('T')[0]
+      });
+      const transformedAvailability = availResponse.map(transformApiAvailability);
+      setAvailabilitySlots(transformedAvailability);
+    } catch (err) {
+      console.error('Error fetching availability:', err);
+    }
   };
 
   const handleDateSelect = (date: string) => {
@@ -267,7 +280,7 @@ const SetAvailability: React.FC = () => {
     setIsFormOpen(true);
   };
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedService) return;
 
@@ -296,56 +309,69 @@ const SetAvailability: React.FC = () => {
       return;
     }
 
-    if (editingSlot) {
-      // Handle editing existing slot
-      const updatedSlot: AvailabilitySlot = {
-        ...editingSlot,
-        date: formData.date,
-        startTime: formData.startTime,
-        endTime: formData.endTime,
-        capacity: formData.capacity,
-        price: formData.price || selectedService.price,
-        isRecurring: formData.isRecurring,
-        recurringPattern: formData.recurringPattern,
-        recurringEndDate: formData.recurringEndDate,
-        notes: formData.notes
-      };
+    try {
+      setLoading(true);
 
-      setAvailabilitySlots(prev => prev.map(slot => 
-        slot.id === editingSlot.id ? updatedSlot : slot
-      ));
-    } else {
-      // Handle creating new slot(s)
-      if (formData.isDateSeries) {
-        // Generate multiple slots for date series
-        const newSlots = generateDateSeriesSlots();
-        setAvailabilitySlots(prev => [...prev, ...newSlots]);
-      } else {
-        // Single slot creation
-        const newSlot: AvailabilitySlot = {
-          id: Date.now().toString(),
-          serviceId: selectedService.id,
+      if (editingSlot) {
+        // Handle editing existing slot
+        const updated = await updateAvailability(parseInt(editingSlot.id), {
           date: formData.date,
-          startTime: formData.startTime,
-          endTime: formData.endTime,
-          capacity: formData.capacity,
-          bookedCount: 0,
-          price: formData.price || selectedService.price,
-          isRecurring: formData.isRecurring,
-          recurringPattern: formData.recurringPattern,
-          recurringEndDate: formData.recurringEndDate,
-          status: 'active',
-          notes: formData.notes
-        };
-
-        setAvailabilitySlots(prev => [...prev, newSlot]);
+          start_time: formData.startTime,
+          end_time: formData.endTime,
+          slots_available: formData.capacity
+        });
+        
+        const transformedUpdated = transformApiAvailability(updated);
+        setAvailabilitySlots(prev => prev.map(slot => 
+          slot.id === editingSlot.id ? transformedUpdated : slot
+        ));
+        
+        alert('Availability updated successfully!');
+      } else {
+        // Handle creating new slot(s)
+        if (formData.isDateSeries) {
+          // Generate multiple slots for date series
+          const slotsToCreate = generateDateSeriesSlots();
+          const requestsData: CreateAvailabilityRequest[] = slotsToCreate.map(slot => ({
+            service_id: parseInt(selectedService.id),
+            date: slot.date,
+            start_time: slot.startTime,
+            end_time: slot.endTime,
+            slots_available: slot.capacity
+          }));
+          
+          const createdSlots = await createBulkAvailability(requestsData);
+          const transformedCreated = createdSlots.map(transformApiAvailability);
+          setAvailabilitySlots(prev => [...prev, ...transformedCreated]);
+          
+          alert(`Created ${createdSlots.length} availability slots successfully!`);
+        } else {
+          // Single slot creation
+          const created = await createAvailability({
+            service_id: parseInt(selectedService.id),
+            date: formData.date,
+            start_time: formData.startTime,
+            end_time: formData.endTime,
+            slots_available: formData.capacity
+          });
+          
+          const transformedCreated = transformApiAvailability(created);
+          setAvailabilitySlots(prev => [...prev, transformedCreated]);
+          
+          alert('Availability created successfully!');
+        }
       }
-    }
 
-    handleFormReset();
+      handleFormReset();
+    } catch (err) {
+      console.error('Error saving availability:', err);
+      alert(`Failed to save availability: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Generate slots for date series
+  // Generate slots for date series (returns local format, not saved to API yet)
   const generateDateSeriesSlots = (): AvailabilitySlot[] => {
     if (!selectedService || !formData.seriesStartDate || !formData.seriesEndDate) return [];
 
@@ -375,7 +401,10 @@ const SetAvailability: React.FC = () => {
           bookedCount: 0,
           price: formData.price || selectedService.price,
           status: 'active',
-          notes: formData.notes
+          notes: formData.notes,
+          created_at: new Date(),
+          updated_at: new Date(),
+          slots_booked: 0
         };
         slots.push(slot);
       }
@@ -394,7 +423,7 @@ const SetAvailability: React.FC = () => {
       date: '',
       startTime: '',
       endTime: '',
-      capacity: selectedService?.maxParticipants || 1,
+      capacity: selectedService?.max_participants || 1,
       price: selectedService?.price || 0,
       isRecurring: false,
       recurringPattern: 'weekly',
@@ -427,8 +456,22 @@ const SetAvailability: React.FC = () => {
     setIsFormOpen(true);
   };
 
-  const handleDeleteSlot = (slotId: string) => {
-    setAvailabilitySlots(prev => prev.filter(slot => slot.id !== slotId));
+  const handleDeleteSlot = async (slotId: string) => {
+    if (!confirm('Are you sure you want to delete this availability slot?')) {
+      return;
+    }
+    
+    try {
+      setLoading(true);
+      await deleteAvailability(parseInt(slotId));
+      setAvailabilitySlots(prev => prev.filter(slot => slot.id !== slotId));
+      alert('Availability deleted successfully!');
+    } catch (err) {
+      console.error('Error deleting availability:', err);
+      alert(`Failed to delete availability: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Handle day selection for date series
@@ -510,7 +553,27 @@ const SetAvailability: React.FC = () => {
           </div>
         </div>
 
+        {/* Loading State */}
+        {loading && (
+          <div className="loading-state">
+            <div className="spinner"></div>
+            <p>Loading services and availability...</p>
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && !loading && (
+          <div className="error-state">
+            <h3>Error Loading Data</h3>
+            <p>{error}</p>
+            <Button variant="primary" onClick={() => window.location.reload()}>
+              Retry
+            </Button>
+          </div>
+        )}
+
         {/* Service Selection */}
+        {!loading && !error && (
         <Card className="service-selection" variant="elevated">
           <div className="section-header">
             <h2>Select Service</h2>
@@ -536,7 +599,7 @@ const SetAvailability: React.FC = () => {
                   </div>
                   <div className="service-capacity">
                     <UsersIcon className="capacity-icon" />
-                    <span>Up to {service.maxParticipants} participants</span>
+                    <span>Up to {service.max_participants} participants</span>
                   </div>
                 </div>
                 {selectedService?.id === service.id && (
@@ -546,8 +609,9 @@ const SetAvailability: React.FC = () => {
             ))}
           </div>
         </Card>
+        )}
 
-        {selectedService && (
+        {!loading && !error && selectedService && (
           <>
             {/* Availability List */}
             <Card className="availability-list-card" variant="elevated">
@@ -763,7 +827,7 @@ const SetAvailability: React.FC = () => {
                             onChange={(e) => setFormData(prev => ({ ...prev, capacity: parseInt(e.target.value) }))}
                             className="form-input"
                             min="1"
-                            max={selectedService.maxParticipants}
+                            max={selectedService.max_participants}
                             required
                           />
                         </div>

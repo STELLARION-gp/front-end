@@ -1,29 +1,30 @@
-import { getAuth } from 'firebase/auth';
+import { getAuth } from "firebase/auth";
+import { API_CONFIG } from "../config/api.config";
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = API_CONFIG.API_BASE_URL;
 
 // Helper function to get auth headers (similar to space news service)
 const getAuthHeaders = async () => {
   const auth = getAuth();
   const user = auth.currentUser;
   if (!user) {
-    throw new Error('Authentication required');
+    throw new Error("Authentication required");
   }
-  
+
   const token = await user.getIdToken();
   return {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
   };
 };
 
-// Helper function for making API requests 
+// Helper function for making API requests
 const makeRequest = async (endpoint: string, options: RequestInit = {}) => {
   try {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       ...options,
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         ...options.headers,
       },
     });
@@ -36,7 +37,7 @@ const makeRequest = async (endpoint: string, options: RequestInit = {}) => {
 
     return data;
   } catch (error) {
-    console.error('Astronomy Events API Error:', error);
+    console.error("Astronomy Events API Error:", error);
     throw error;
   }
 };
@@ -112,18 +113,15 @@ export interface UpdateEventRequest {
 
 export interface SetReminderRequest {
   reminder_time: string;
-  notification_type?: 'email' | 'push' | 'both';
+  notification_type?: "email" | "push" | "both";
 }
 
 class AstronomyEventsService {
   // Get all astronomy events
-  async getEvents(params?: {
-    page?: number;
-    limit?: number;
-  }) {
+  async getEvents(params?: { page?: number; limit?: number }) {
     const searchParams = new URLSearchParams();
-    if (params?.page) searchParams.append('page', params.page.toString());
-    if (params?.limit) searchParams.append('limit', params.limit.toString());
+    if (params?.page) searchParams.append("page", params.page.toString());
+    if (params?.limit) searchParams.append("limit", params.limit.toString());
 
     const response = await makeRequest(`/astronomy-events?${searchParams}`);
     return response.data;
@@ -138,10 +136,10 @@ class AstronomyEventsService {
   // Create new astronomy event (moderator/admin only)
   async createEvent(eventData: CreateEventRequest) {
     const headers = await getAuthHeaders();
-    const response = await makeRequest('/astronomy-events', {
-      method: 'POST',
+    const response = await makeRequest("/astronomy-events", {
+      method: "POST",
       headers,
-      body: JSON.stringify(eventData)
+      body: JSON.stringify(eventData),
     });
     return response.data;
   }
@@ -150,9 +148,9 @@ class AstronomyEventsService {
   async updateEvent(eventId: number, eventData: UpdateEventRequest) {
     const headers = await getAuthHeaders();
     const response = await makeRequest(`/astronomy-events/${eventId}`, {
-      method: 'PUT',
+      method: "PUT",
       headers,
-      body: JSON.stringify(eventData)
+      body: JSON.stringify(eventData),
     });
     return response.data;
   }
@@ -161,16 +159,16 @@ class AstronomyEventsService {
   async deleteEvent(eventId: number) {
     const headers = await getAuthHeaders();
     await makeRequest(`/astronomy-events/${eventId}`, {
-      method: 'DELETE',
-      headers
+      method: "DELETE",
+      headers,
     });
   }
 
   // Get user's reminders
   async getUserReminders() {
     const headers = await getAuthHeaders();
-    const response = await makeRequest('/astronomy-events/user/reminders', {
-      headers
+    const response = await makeRequest("/astronomy-events/user/reminders", {
+      headers,
     });
     return response.data;
   }
@@ -178,11 +176,14 @@ class AstronomyEventsService {
   // Set reminder for astronomy event
   async setEventReminder(eventId: number, reminderData: SetReminderRequest) {
     const headers = await getAuthHeaders();
-    const response = await makeRequest(`/astronomy-events/${eventId}/reminder`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(reminderData)
-    });
+    const response = await makeRequest(
+      `/astronomy-events/${eventId}/reminder`,
+      {
+        method: "POST",
+        headers,
+        body: JSON.stringify(reminderData),
+      }
+    );
     return response.data;
   }
 
@@ -190,14 +191,14 @@ class AstronomyEventsService {
   async removeEventReminder(eventId: number) {
     const headers = await getAuthHeaders();
     await makeRequest(`/astronomy-events/${eventId}/reminder`, {
-      method: 'DELETE',
-      headers
+      method: "DELETE",
+      headers,
     });
   }
 
   // Get event types
   async getEventTypes() {
-    const response = await makeRequest('/astronomy-events/types');
+    const response = await makeRequest("/astronomy-events/types");
     return response.data;
   }
 }

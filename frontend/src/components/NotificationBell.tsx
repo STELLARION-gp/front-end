@@ -66,6 +66,24 @@ export const NotificationBell = () => {
     };
   }, [isOpen]);
 
+  // Close dropdown when scrolling (especially on home page)
+  useEffect(() => {
+    const handleScroll = () => {
+      if (isOpen) {
+        // Close dropdown when user scrolls
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      window.addEventListener("scroll", handleScroll, { passive: true });
+    }
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [isOpen]);
+
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };

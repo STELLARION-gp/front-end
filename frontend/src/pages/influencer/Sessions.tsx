@@ -18,43 +18,45 @@ import type {
   Session as APISession, 
   CreateSessionRequest,
   UpdateSessionRequest,
-  SessionFilters 
-} from '../../services/sessionsService';
+  SessionFilters,
+} from "../../services/sessionsService";
 
 const Sessions = () => {
-  const [activeTab, setActiveTab] = useState('my-sessions')
-  const [showManageModal, setShowManageModal] = useState(false)
-  const [showDetailsModal, setShowDetailsModal] = useState(false)
-  const [showEditModal, setShowEditModal] = useState(false)
-  const [showAnalyticsModal, setShowAnalyticsModal] = useState(false)
-  const [selectedSession, setSelectedSession] = useState<APISession | null>(null)
+  const [activeTab, setActiveTab] = useState("my-sessions");
+  const [showManageModal, setShowManageModal] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showAnalyticsModal, setShowAnalyticsModal] = useState(false);
+  const [selectedSession, setSelectedSession] = useState<APISession | null>(
+    null
+  );
   const [editForm, setEditForm] = useState<{
-    title: string
-    price: number
-    description: string
-    difficulty_level: string
-    session_date: string
-    session_time: string
+    title: string;
+    price: number;
+    description: string;
+    difficulty_level: string;
+    session_date: string;
+    session_time: string;
   }>({
-    title: '',
+    title: "",
     price: 0,
-    description: '',
-    difficulty_level: 'Beginner',
-    session_date: '',
-    session_time: ''
-  })
-  
+    description: "",
+    difficulty_level: "Beginner",
+    session_date: "",
+    session_time: "",
+  });
+
   // API state
-  const [mySessions, setMySessions] = useState<APISession[]>([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [currentPage] = useState(1)
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [userEmail, setUserEmail] = useState<string | null>(null)
+  const [mySessions, setMySessions] = useState<APISession[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [currentPage] = useState(1);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
   const [notification, setNotification] = useState<{
-    show: boolean
-    type: 'success' | 'error' | 'info'
-    message: string
+    show: boolean;
+    type: "success" | "error" | "info";
+    message: string;
   }>({
     show: false,
     type: 'success',
@@ -105,105 +107,113 @@ const Sessions = () => {
   } | null>(null)
 
   const [newSession, setNewSession] = useState<{
-    title: string
-    description: string
-    type: string
-    price: string
-    duration: string
-    date: string
-    time: string
-    maxParticipants: string
-    difficulty: string
-    link: string
-    category: string
-    paymentType: string // 'free' | 'paid'
-    notes: string
+    title: string;
+    description: string;
+    type: string;
+    price: string;
+    duration: string;
+    date: string;
+    time: string;
+    maxParticipants: string;
+    difficulty: string;
+    link: string;
+    category: string;
+    paymentType: string; // 'free' | 'paid'
+    notes: string;
   }>({
-    title: '',
-    description: '',
-    type: 'live',
-    price: '',
-    duration: '',
-    date: '',
-    time: '',
-    maxParticipants: '',
-    difficulty: 'Beginner',
-    link: '',
-    category: 'observation',
-    paymentType: 'paid', // default to paid
-    notes: ''
-  })
+    title: "",
+    description: "",
+    type: "live",
+    price: "",
+    duration: "",
+    date: "",
+    time: "",
+    maxParticipants: "",
+    difficulty: "Beginner",
+    link: "",
+    category: "observation",
+    paymentType: "paid", // default to paid
+    notes: "",
+  });
 
   // Poll state
-  const [polls, setPolls] = useState<Poll[]>([])
-  const [pollsLoading, setPollsLoading] = useState(false)
-  const [pollsError, setPollsError] = useState<string | null>(null)
+  const [polls, setPolls] = useState<Poll[]>([]);
+  const [pollsLoading, setPollsLoading] = useState(false);
+  const [pollsError, setPollsError] = useState<string | null>(null);
   const [newPoll, setNewPoll] = useState({
-    title: '',
-    description: '',
+    title: "",
+    description: "",
     useCustomOptions: false,
-    customOptions: ['', ''] // Start with 2 empty options
-  })
-  const [selectedPoll, setSelectedPoll] = useState<Poll | null>(null)
+    customOptions: ["", ""], // Start with 2 empty options
+  });
+  const [selectedPoll, setSelectedPoll] = useState<Poll | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // @ts-expect-error - pollStats is set but never read (potential future feature)
   const [pollStats, setPollStats] = useState<{
-    totalVotes: number
+    totalVotes: number;
     choices: Array<{
-      choice: string
-      count: number
-      percentage: number
-    }>
-    commentCount: number
-  } | null>(null)
-  const [confirmDelete, setConfirmDelete] = useState<{ show: boolean; pollId: number | null }>({
+      choice: string;
+      count: number;
+      percentage: number;
+    }>;
+    commentCount: number;
+  } | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<{
+    show: boolean;
+    pollId: number | null;
+  }>({
     show: false,
-    pollId: null
-  })
-  const [pollComments, setPollComments] = useState<any[]>([])
-  const [loadingComments, setLoadingComments] = useState(false)
-  const [newComment, setNewComment] = useState('')
-  const [postingComment, setPostingComment] = useState(false)
+    pollId: null,
+  });
+  const [pollComments, setPollComments] = useState<any[]>([]);
+  const [loadingComments, setLoadingComments] = useState(false);
+  const [newComment, setNewComment] = useState("");
+  const [postingComment, setPostingComment] = useState(false);
 
   // Show notification helper
-  const showNotification = (type: 'success' | 'error' | 'info', message: string) => {
-    setNotification({ show: true, type, message })
+  const showNotification = (
+    type: "success" | "error" | "info",
+    message: string
+  ) => {
+    setNotification({ show: true, type, message });
     setTimeout(() => {
-      setNotification({ show: false, type, message: '' })
-    }, 5000) // Auto-hide after 5 seconds
-  }
+      setNotification({ show: false, type, message: "" });
+    }, 5000); // Auto-hide after 5 seconds
+  };
 
   // Check authentication status
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
-        setIsAuthenticated(true)
-        setUserEmail(user.email)
-        console.log('User authenticated:', user.email)
+        setIsAuthenticated(true);
+        setUserEmail(user.email);
+        console.log("User authenticated:", user.email);
       } else {
-        setIsAuthenticated(false)
-        setUserEmail(null)
-        console.warn(' User not authenticated')
+        setIsAuthenticated(false);
+        setUserEmail(null);
+        console.warn(" User not authenticated");
       }
-    })
+    });
 
-    return () => unsubscribe()
-  }, [])
+    return () => unsubscribe();
+  }, []);
 
   // Load sessions on component mount and when activeTab changes
   useEffect(() => {
-    if (activeTab === 'my-sessions' && isAuthenticated) {
-      loadMySessions()
+    if (activeTab === "my-sessions" && isAuthenticated) {
+      loadMySessions();
     }
-  }, [activeTab, isAuthenticated])
+  }, [activeTab, isAuthenticated]);
 
   // Load polls when polls tab is active
   useEffect(() => {
-    if (activeTab === 'polls' && isAuthenticated) {
-      console.log('Polls tab activated, loading polls...')
-      loadPolls()
-    } else if (activeTab === 'polls' && !isAuthenticated) {
-      console.warn('Cannot load polls: user not authenticated')
+    if (activeTab === "polls" && isAuthenticated) {
+      console.log("Polls tab activated, loading polls...");
+      loadPolls();
+    } else if (activeTab === "polls" && !isAuthenticated) {
+      console.warn("Cannot load polls: user not authenticated");
     }
-  }, [activeTab, isAuthenticated])
+  }, [activeTab, isAuthenticated]);
 
   // Load analytics when analytics tab is active
   useEffect(() => {
@@ -216,36 +226,40 @@ const Sessions = () => {
   // Load user's sessions from API
   const loadMySessions = async (filters?: SessionFilters) => {
     if (!isAuthenticated) {
-      setError('Please log in to view your sessions')
-      return
+      setError("Please log in to view your sessions");
+      return;
     }
 
-    setLoading(true)
-    setError(null)
+    setLoading(true);
+    setError(null);
     try {
-      console.log(' Loading sessions for user:', userEmail)
+      console.log(" Loading sessions for user:", userEmail);
       const response = await sessionsService.getMySessions({
         page: currentPage,
         limit: 10,
-        sort_by: 'session_date',
-        sort_order: 'desc',
-        ...filters
-      })
-      setMySessions(response.data || [])
-      console.log('Loaded', response.data?.length || 0, 'sessions')
+        sort_by: "session_date",
+        sort_order: "desc",
+        ...filters,
+      });
+      setMySessions(response.data || []);
+      console.log("Loaded", response.data?.length || 0, "sessions");
     } catch (err) {
-      console.error(' Error loading sessions:', err)
-      const errorMessage = err instanceof Error ? err.message : 'Failed to load sessions'
-      setError(errorMessage)
-      
+      console.error(" Error loading sessions:", err);
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to load sessions";
+      setError(errorMessage);
+
       // If authentication error, provide helpful message
-      if (errorMessage.includes('Authentication') || errorMessage.includes('log in')) {
-        setError('Authentication required. Please log in to continue.')
+      if (
+        errorMessage.includes("Authentication") ||
+        errorMessage.includes("log in")
+      ) {
+        setError("Authentication required. Please log in to continue.");
       }
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   // Load analytics data
   const loadAnalytics = async () => {
@@ -276,141 +290,168 @@ const Sessions = () => {
 
   // Create a new session
   const handleCreateSession = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
+    e.preventDefault();
+
     if (!isAuthenticated) {
-      showNotification('error', ' Please log in to create a session.')
-      return
+      showNotification("error", " Please log in to create a session.");
+      return;
     }
 
-    setLoading(true)
-    setError(null)
-    
+    setLoading(true);
+    setError(null);
+
     try {
-      console.log(' Creating session for user:', userEmail)
+      console.log(" Creating session for user:", userEmail);
       const sessionData: CreateSessionRequest = {
         title: newSession.title,
         description: newSession.description,
-        session_type: newSession.type as 'live' | 'recorded',
-        payment_type: newSession.paymentType as 'paid' | 'free',
-        price: newSession.paymentType === 'free' ? 0 : parseFloat(newSession.price) || 0,
-        duration: parseInt(newSession.duration) ,
+        session_type: newSession.type as "live" | "recorded",
+        payment_type: newSession.paymentType as "paid" | "free",
+        price:
+          newSession.paymentType === "free"
+            ? 0
+            : parseFloat(newSession.price) || 0,
+        duration: parseInt(newSession.duration),
         session_date: newSession.date, // YYYY-MM-DD format
         session_time: newSession.time, // HH:MM format
         max_participants: parseInt(newSession.maxParticipants) || undefined,
-        difficulty_level: newSession.difficulty.toLowerCase() as 'beginner' | 'intermediate' | 'advanced',
+        difficulty_level: newSession.difficulty.toLowerCase() as
+          | "beginner"
+          | "intermediate"
+          | "advanced",
         session_link: newSession.link || undefined,
-        session_notes: newSession.notes || undefined
-      }
+        session_notes: newSession.notes || undefined,
+      };
 
-      const result = await sessionsService.createSession(sessionData)
-      console.log('Session created successfully:', result)
-      
+      const result = await sessionsService.createSession(sessionData);
+      console.log("Session created successfully:", result);
+
       // Reset form and switch to my sessions tab
       setNewSession({
-        title: '',
-        description: '',
-        type: 'live',
-        price: '',
-        duration: '',
-        date: '',
-        time: '',
-        maxParticipants: '',
-        difficulty: 'Beginner',
-        link: '',
-        category: 'observation',
-        paymentType: 'paid',
-        notes: ''
-      })
-      
-      setActiveTab('my-sessions')
-      loadMySessions()
-      
-      showNotification('success', '✨ Session created successfully!')
+        title: "",
+        description: "",
+        type: "live",
+        price: "",
+        duration: "",
+        date: "",
+        time: "",
+        maxParticipants: "",
+        difficulty: "Beginner",
+        link: "",
+        category: "observation",
+        paymentType: "paid",
+        notes: "",
+      });
+
+      setActiveTab("my-sessions");
+      loadMySessions();
+
+      showNotification("success", "✨ Session created successfully!");
     } catch (err) {
-      console.error('Error creating session:', err)
-      setError(err instanceof Error ? err.message : 'Failed to create session')
-      showNotification('error', 'Failed to create session: ' + (err instanceof Error ? err.message : 'Unknown error'))
+      console.error("Error creating session:", err);
+      setError(err instanceof Error ? err.message : "Failed to create session");
+      showNotification(
+        "error",
+        "Failed to create session: " +
+          (err instanceof Error ? err.message : "Unknown error")
+      );
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   // Update an existing session
-  const handleUpdateSession = async (sessionId: number, updates: UpdateSessionRequest) => {
-    setLoading(true)
-    setError(null)
-    
+  const handleUpdateSession = async (
+    sessionId: number,
+    updates: UpdateSessionRequest
+  ) => {
+    setLoading(true);
+    setError(null);
+
     try {
-      const result = await sessionsService.updateSession(sessionId, updates)
-      console.log('Session updated successfully:', result)
-      
+      const result = await sessionsService.updateSession(sessionId, updates);
+      console.log("Session updated successfully:", result);
+
       // Reload sessions
-      loadMySessions()
-      setShowEditModal(false)
-      
-      showNotification('success', '✅ Session updated successfully!')
+      loadMySessions();
+      setShowEditModal(false);
+
+      showNotification("success", "✅ Session updated successfully!");
     } catch (err) {
-      console.error('Error updating session:', err)
-      setError(err instanceof Error ? err.message : 'Failed to update session')
-      showNotification('error', 'Failed to update session: ' + (err instanceof Error ? err.message : 'Unknown error'))
+      console.error("Error updating session:", err);
+      setError(err instanceof Error ? err.message : "Failed to update session");
+      showNotification(
+        "error",
+        "Failed to update session: " +
+          (err instanceof Error ? err.message : "Unknown error")
+      );
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   // Delete a session
   const handleDeleteSession = async (sessionId: number) => {
-    if (!confirm('Are you sure you want to permanently delete this session? This action cannot be undone.')) return
-    
-    setLoading(true)
-    setError(null)
-    
+    if (
+      !confirm(
+        "Are you sure you want to permanently delete this session? This action cannot be undone."
+      )
+    )
+      return;
+
+    setLoading(true);
+    setError(null);
+
     try {
-      await sessionsService.deleteSession(sessionId)
-      console.log('Session deleted successfully')
-      
+      await sessionsService.deleteSession(sessionId);
+      console.log("Session deleted successfully");
+
       // Reload sessions
-      loadMySessions()
-      
-      showNotification('success', '🗑️ Session deleted successfully!')
+      loadMySessions();
+
+      showNotification("success", "🗑️ Session deleted successfully!");
     } catch (err) {
-      console.error('Error deleting session:', err)
-      setError(err instanceof Error ? err.message : 'Failed to delete session')
-      showNotification('error', 'Failed to delete session: ' + (err instanceof Error ? err.message : 'Unknown error'))
+      console.error("Error deleting session:", err);
+      setError(err instanceof Error ? err.message : "Failed to delete session");
+      showNotification(
+        "error",
+        "Failed to delete session: " +
+          (err instanceof Error ? err.message : "Unknown error")
+      );
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleEditSession = (session: APISession) => {
-    setSelectedSession(session)
-    
+    setSelectedSession(session);
+
     // Extract date without timezone conversion
-    const sessionDateStr = typeof session.session_date === 'string'
-      ? session.session_date.split('T')[0]
-      : new Date(session.session_date).toISOString().split('T')[0]
-    
+    const sessionDateStr =
+      typeof session.session_date === "string"
+        ? session.session_date.split("T")[0]
+        : new Date(session.session_date).toISOString().split("T")[0];
+
     // Extract time without timezone conversion
-    let sessionTimeStr = '00:00'
-    if (typeof session.session_time === 'string') {
+    let sessionTimeStr = "00:00";
+    if (typeof session.session_time === "string") {
       // If it's already a string, just extract HH:MM
-      sessionTimeStr = session.session_time.substring(0, 5)
+      sessionTimeStr = session.session_time.substring(0, 5);
     } else if (session.session_time) {
       // If it's a Date/timestamp, try to extract time
       try {
-        const timeDate = new Date(session.session_time)
+        const timeDate = new Date(session.session_time);
         // Check if it's a valid date
         if (!isNaN(timeDate.getTime())) {
-          const hours = timeDate.getUTCHours().toString().padStart(2, '0')
-          const minutes = timeDate.getUTCMinutes().toString().padStart(2, '0')
-          sessionTimeStr = `${hours}:${minutes}`
+          const hours = timeDate.getUTCHours().toString().padStart(2, "0");
+          const minutes = timeDate.getUTCMinutes().toString().padStart(2, "0");
+          sessionTimeStr = `${hours}:${minutes}`;
         }
       } catch (e) {
-        console.error('Error parsing time:', e)
+        console.error("Error parsing time:", e);
       }
     }
-    
+
     // Initialize edit form with session data
     setEditForm({
       title: session.title,
@@ -418,26 +459,27 @@ const Sessions = () => {
       description: session.description,
       difficulty_level: session.difficulty_level,
       session_date: sessionDateStr,
-      session_time: sessionTimeStr
-    })
-    setShowEditModal(true)
-  }
+      session_time: sessionTimeStr,
+    });
+    setShowEditModal(true);
+  };
 
   const handleViewAnalytics = (session: APISession) => {
-    setSelectedSession(session)
-    setShowAnalyticsModal(true)
-  }
+    setSelectedSession(session);
+    setShowAnalyticsModal(true);
+  };
 
   const handleStartSession = (session: APISession) => {
     // Handle starting the live session
-    console.log('Starting session:', session.title)
-    const sessionLink = 'session_link' in session ? session.session_link : undefined
+    console.log("Starting session:", session.title);
+    const sessionLink =
+      "session_link" in session ? session.session_link : undefined;
     if (sessionLink) {
-      window.open(sessionLink, '_blank')
+      window.open(sessionLink, "_blank");
     } else {
-      alert('No meeting link configured for this session')
+      alert("No meeting link configured for this session");
     }
-  }
+  };
 
   const renderMyServices = () => {
     // Check authentication first
@@ -446,18 +488,22 @@ const Sessions = () => {
         <div className="auth-required-state">
           <h3>🔒 Authentication Required</h3>
           <p>Please log in to view and manage your sessions.</p>
-          <p>Current user: {userEmail || 'Not logged in'}</p>
-          <Button onClick={() => window.location.href = '/login'}>Go to Login</Button>
+          <p>Current user: {userEmail || "Not logged in"}</p>
+          <Button onClick={() => (window.location.href = "/login")}>
+            Go to Login
+          </Button>
         </div>
-      )
+      );
     }
 
     // Separate sessions into live and recorded
-    const liveSessions = mySessions.filter(s => s.session_type === 'live')
-    const recordedSessions = mySessions.filter(s => s.session_type === 'recorded')
+    const liveSessions = mySessions.filter((s) => s.session_type === "live");
+    const recordedSessions = mySessions.filter(
+      (s) => s.session_type === "recorded"
+    );
 
     if (loading) {
-      return <div className="loading-state">Loading sessions...</div>
+      return <div className="loading-state">Loading sessions...</div>;
     }
 
     if (error) {
@@ -465,11 +511,13 @@ const Sessions = () => {
         <div className="error-state">
           <h3>⚠️ Error</h3>
           <p>{error}</p>
-          {error.includes('Authentication') && (
-            <Button onClick={() => window.location.reload()}>Refresh Page</Button>
+          {error.includes("Authentication") && (
+            <Button onClick={() => window.location.reload()}>
+              Refresh Page
+            </Button>
           )}
         </div>
-      )
+      );
     }
 
     if (mySessions.length === 0) {
@@ -478,48 +526,63 @@ const Sessions = () => {
           <h3>No sessions yet</h3>
           <p>Create your first session to get started!</p>
           <p>Logged in as: {userEmail}</p>
-          <Button onClick={() => setActiveTab('new-session')}>Create Session</Button>
+          <Button onClick={() => setActiveTab("new-session")}>
+            Create Session
+          </Button>
         </div>
-      )
+      );
     }
 
     return (
-    <div className="my-sessions-section">
-      <div className="section-header">
-        <h2>My Sessions</h2>
-      </div>
+      <div className="my-sessions-section">
+        <div className="section-header">
+          <h2>My Sessions</h2>
+        </div>
 
-      <div className="sessions-grid">
-        {liveSessions.length > 0 && (
-        <div className="sessions-section">
-          <h3>Live Sessions</h3>
-          <div className="sessions-list">
-            {liveSessions.map(session => {
-              const isDisabled = !session.is_enabled
-              
-              // Keep date as string (YYYY-MM-DD) to avoid timezone conversion
-              const sessionDateStr = typeof session.session_date === 'string'
-                ? session.session_date.split('T')[0] // Extract date part if datetime
-                : new Date(session.session_date).toISOString().split('T')[0]
-              
-              // Format date for display (DD/MM/YYYY or MM/DD/YYYY based on locale)
-              const [year, month, day] = sessionDateStr.split('-')
-              const formattedDate = `${day}/${month}/${year}`
-              
-              // Keep time as string (HH:MM) to avoid timezone conversion
-              let sessionTimeStr = '00:00'
-              if (typeof session.session_time === 'string') {
-                // If it's already a string, just extract HH:MM
-                sessionTimeStr = session.session_time.substring(0, 5)
-              } else if (session.session_time) {
-                // If it's a Date/timestamp, try to extract time
-                try {
-                  const timeDate = new Date(session.session_time)
-                  // Check if it's a valid date
-                  if (!isNaN(timeDate.getTime())) {
-                    const hours = timeDate.getUTCHours().toString().padStart(2, '0')
-                    const minutes = timeDate.getUTCMinutes().toString().padStart(2, '0')
-                    sessionTimeStr = `${hours}:${minutes}`
+        <div className="sessions-grid">
+          {liveSessions.length > 0 && (
+            <div className="sessions-section">
+              <h3>Live Sessions</h3>
+              <div className="sessions-list">
+                {liveSessions.map((session) => {
+                  const isDisabled = !session.is_enabled;
+
+                  // Keep date as string (YYYY-MM-DD) to avoid timezone conversion
+                  const sessionDateStr =
+                    typeof session.session_date === "string"
+                      ? session.session_date.split("T")[0] // Extract date part if datetime
+                      : new Date(session.session_date)
+                          .toISOString()
+                          .split("T")[0];
+
+                  // Format date for display (DD/MM/YYYY or MM/DD/YYYY based on locale)
+                  const [year, month, day] = sessionDateStr.split("-");
+                  const formattedDate = `${day}/${month}/${year}`;
+
+                  // Keep time as string (HH:MM) to avoid timezone conversion
+                  let sessionTimeStr = "00:00";
+                  if (typeof session.session_time === "string") {
+                    // If it's already a string, just extract HH:MM
+                    sessionTimeStr = session.session_time.substring(0, 5);
+                  } else if (session.session_time) {
+                    // If it's a Date/timestamp, try to extract time
+                    try {
+                      const timeDate = new Date(session.session_time);
+                      // Check if it's a valid date
+                      if (!isNaN(timeDate.getTime())) {
+                        const hours = timeDate
+                          .getUTCHours()
+                          .toString()
+                          .padStart(2, "0");
+                        const minutes = timeDate
+                          .getUTCMinutes()
+                          .toString()
+                          .padStart(2, "0");
+                        sessionTimeStr = `${hours}:${minutes}`;
+                      }
+                    } catch (e) {
+                      console.error("Error parsing time:", e);
+                    }
                   }
                 } catch (e) {
                   console.error('Error parsing time:', e)
@@ -666,40 +729,40 @@ const Sessions = () => {
                   <Button onClick={() => handleDeleteSession(session.id)} variant="secondary">Delete</Button>
                 </div>
               </div>
-            )})}
-          </div>
+            </div>
+          )}
         </div>
-        )}
       </div>
-    </div>
-  )
-  }
+    );
+  };
 
   const renderNewSession = () => (
     <div className="new-session-form">
-      <div className="form-header">
-        
-      </div>
+      <div className="form-header"></div>
       <h2>Create New Session</h2>
       {error && <div className="error-message">{error}</div>}
       <form className="session-form" onSubmit={handleCreateSession}>
         <div className="form-grid">
           <div className="form-group">
             <label>Session Title</label>
-            <input 
-              type="text" 
+            <input
+              type="text"
               value={newSession.title}
-              onChange={(e) => setNewSession({...newSession, title: e.target.value})}
+              onChange={(e) =>
+                setNewSession({ ...newSession, title: e.target.value })
+              }
               placeholder="Enter session title"
               required
             />
           </div>
-          
+
           <div className="form-group">
             <label>Session Type</label>
-            <select 
+            <select
               value={newSession.type}
-              onChange={(e) => setNewSession({...newSession, type: e.target.value})}
+              onChange={(e) =>
+                setNewSession({ ...newSession, type: e.target.value })
+              }
             >
               <option value="live">Live Session</option>
               <option value="recorded">Recorded Session</option>
@@ -710,7 +773,9 @@ const Sessions = () => {
             <label>Session Payment Type</label>
             <select
               value={newSession.paymentType}
-              onChange={e => setNewSession({ ...newSession, paymentType: e.target.value })}
+              onChange={(e) =>
+                setNewSession({ ...newSession, paymentType: e.target.value })
+              }
             >
               <option value="paid">Paid</option>
               <option value="free">Free</option>
@@ -722,21 +787,27 @@ const Sessions = () => {
             <input
               type="number"
               value={newSession.price}
-              onChange={e => setNewSession({ ...newSession, price: e.target.value })}
-              placeholder={newSession.paymentType === 'free' ? '0' : 'Enter price'}
-              disabled={newSession.paymentType === 'free'}
-              required={newSession.paymentType === 'paid'}
+              onChange={(e) =>
+                setNewSession({ ...newSession, price: e.target.value })
+              }
+              placeholder={
+                newSession.paymentType === "free" ? "0" : "Enter price"
+              }
+              disabled={newSession.paymentType === "free"}
+              required={newSession.paymentType === "paid"}
               onWheel={(e) => e.currentTarget.blur()}
             />
           </div>
 
           <div className="form-group">
             <label>Duration (minutes)</label>
-            <input 
-              type="number" 
+            <input
+              type="number"
               value={newSession.duration}
-              onChange={(e) => setNewSession({...newSession, duration: e.target.value})}
-              placeholder='Enter duration'
+              onChange={(e) =>
+                setNewSession({ ...newSession, duration: e.target.value })
+              }
+              placeholder="Enter duration"
               required
               onWheel={(e) => e.currentTarget.blur()}
             />
@@ -744,30 +815,39 @@ const Sessions = () => {
 
           <div className="form-group">
             <label>Date</label>
-            <input 
-              type="date" 
+            <input
+              type="date"
               value={newSession.date}
-              onChange={(e) => setNewSession({...newSession, date: e.target.value})}
+              onChange={(e) =>
+                setNewSession({ ...newSession, date: e.target.value })
+              }
               required
             />
           </div>
 
           <div className="form-group">
             <label>Time</label>
-            <input 
-              type="time" 
+            <input
+              type="time"
               value={newSession.time}
-              onChange={(e) => setNewSession({...newSession, time: e.target.value})}
+              onChange={(e) =>
+                setNewSession({ ...newSession, time: e.target.value })
+              }
               required
             />
           </div>
 
           <div className="form-group">
             <label>Max Participants</label>
-            <input 
-              type="number" 
+            <input
+              type="number"
               value={newSession.maxParticipants}
-              onChange={(e) => setNewSession({...newSession, maxParticipants: e.target.value})}
+              onChange={(e) =>
+                setNewSession({
+                  ...newSession,
+                  maxParticipants: e.target.value,
+                })
+              }
               placeholder="Enter max participants"
               required
               onWheel={(e) => e.currentTarget.blur()}
@@ -776,9 +856,11 @@ const Sessions = () => {
 
           <div className="form-group">
             <label>Difficulty Level</label>
-            <select 
+            <select
               value={newSession.difficulty}
-              onChange={(e) => setNewSession({...newSession, difficulty: e.target.value})}
+              onChange={(e) =>
+                setNewSession({ ...newSession, difficulty: e.target.value })
+              }
             >
               <option value="Beginner">Beginner</option>
               <option value="Intermediate">Intermediate</option>
@@ -786,12 +868,14 @@ const Sessions = () => {
             </select>
           </div>
 
-           <div className="form-group">
+          <div className="form-group">
             <label>Session Link</label>
-            <input 
-              type="text" 
+            <input
+              type="text"
               value={newSession.link}
-              onChange={(e) => setNewSession({...newSession, link: e.target.value})}
+              onChange={(e) =>
+                setNewSession({ ...newSession, link: e.target.value })
+              }
               placeholder="link to your session"
             />
           </div>
@@ -799,9 +883,11 @@ const Sessions = () => {
 
         <div className="form-group full-width">
           <label>Description</label>
-          <textarea 
+          <textarea
             value={newSession.description}
-            onChange={(e) => setNewSession({...newSession, description: e.target.value})}
+            onChange={(e) =>
+              setNewSession({ ...newSession, description: e.target.value })
+            }
             placeholder="Describe your session..."
             rows={4}
             required
@@ -810,9 +896,11 @@ const Sessions = () => {
 
         <div className="form-group full-width">
           <label>Session Notes</label>
-          <textarea 
+          <textarea
             value={newSession.notes}
-            onChange={(e) => setNewSession({...newSession, notes: e.target.value})}
+            onChange={(e) =>
+              setNewSession({ ...newSession, notes: e.target.value })
+            }
             placeholder="Additional notes for participants..."
             rows={3}
           />
@@ -820,224 +908,234 @@ const Sessions = () => {
 
         <div className="form-actions">
           <Button type="submit" disabled={loading}>
-            {loading ? 'Creating...' : 'Create Session'}
+            {loading ? "Creating..." : "Create Session"}
           </Button>
         </div>
       </form>
     </div>
-  )
+  );
 
   // Poll Functions
   const loadPolls = async () => {
-    setPollsLoading(true)
-    setPollsError(null)
+    setPollsLoading(true);
+    setPollsError(null);
     try {
-      const response = await pollService.getPolls()
-      setPolls(response.data || [])
-      console.log('Loaded', response.data?.length || 0, 'polls')
+      const response = await pollService.getPolls();
+      setPolls(response.data || []);
+      console.log("Loaded", response.data?.length || 0, "polls");
     } catch (err) {
-      console.error('Error loading polls:', err)
-      setPollsError(err instanceof Error ? err.message : 'Failed to load polls')
+      console.error("Error loading polls:", err);
+      setPollsError(
+        err instanceof Error ? err.message : "Failed to load polls"
+      );
     } finally {
-      setPollsLoading(false)
+      setPollsLoading(false);
     }
-  }
+  };
 
   const handleCreatePoll = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
+    e.preventDefault();
+
     if (!newPoll.title.trim()) {
-      showNotification('error', 'Please enter a poll title')
-      return
+      showNotification("error", "Please enter a poll title");
+      return;
     }
 
     // Validate custom options if enabled
     if (newPoll.useCustomOptions) {
       const validOptions = newPoll.customOptions
-        .map(opt => opt.trim())
-        .filter(opt => opt.length > 0);
-      
+        .map((opt) => opt.trim())
+        .filter((opt) => opt.length > 0);
+
       if (validOptions.length < 2) {
-        showNotification('error', 'Please provide at least 2 valid options')
-        return
+        showNotification("error", "Please provide at least 2 valid options");
+        return;
       }
-      
+
       // Check for duplicates
       const uniqueOptions = [...new Set(validOptions)];
       if (uniqueOptions.length !== validOptions.length) {
-        showNotification('error', 'Duplicate options are not allowed')
-        return
+        showNotification("error", "Duplicate options are not allowed");
+        return;
       }
     }
 
-    setPollsLoading(true)
+    setPollsLoading(true);
     try {
       const pollData: any = {
         title: newPoll.title,
-        description: newPoll.description || undefined
+        description: newPoll.description || undefined,
       };
-      
+
       // Add custom options if enabled
       if (newPoll.useCustomOptions) {
         const validOptions = newPoll.customOptions
-          .map(opt => opt.trim())
-          .filter(opt => opt.length > 0);
+          .map((opt) => opt.trim())
+          .filter((opt) => opt.length > 0);
         pollData.options = validOptions;
       }
-      
-      await pollService.createPoll(pollData)
-      
-      showNotification('success', '✅ Poll created successfully!')
-      setNewPoll({ 
-        title: '', 
-        description: '',
+
+      await pollService.createPoll(pollData);
+
+      showNotification("success", "✅ Poll created successfully!");
+      setNewPoll({
+        title: "",
+        description: "",
         useCustomOptions: false,
-        customOptions: ['', '']
-      })
-      loadPolls() // Reload polls
+        customOptions: ["", ""],
+      });
+      loadPolls(); // Reload polls
     } catch (err) {
-      console.error('❌ Error creating poll:', err)
-      showNotification('error', 'Failed to create poll: ' + (err instanceof Error ? err.message : 'Unknown error'))
+      console.error("❌ Error creating poll:", err);
+      showNotification(
+        "error",
+        "Failed to create poll: " +
+          (err instanceof Error ? err.message : "Unknown error")
+      );
     } finally {
-      setPollsLoading(false)
+      setPollsLoading(false);
     }
-  }
+  };
 
   const handleViewPollDetails = async (poll: Poll) => {
-    setSelectedPoll(poll)
+    setSelectedPoll(poll);
     try {
-      const stats = await pollService.getPollStats(poll.id)
-      setPollStats(stats)
+      const stats = await pollService.getPollStats(poll.id);
+      setPollStats(stats);
       // Fetch comments when viewing poll details
-      fetchPollComments(poll.id)
+      fetchPollComments(poll.id);
     } catch (err) {
-      console.error('Error loading poll stats:', err)
-      showNotification('error', 'Failed to load poll statistics')
+      console.error("Error loading poll stats:", err);
+      showNotification("error", "Failed to load poll statistics");
     }
-  }
+  };
 
   const fetchPollComments = async (pollId: number) => {
     try {
-      setLoadingComments(true)
+      setLoadingComments(true);
       const response = await pollService.getPollComments(pollId, {
         page: 1,
         limit: 50,
-        sort_order: 'desc'
-      })
-      setPollComments(response.data)
+        sort_order: "desc",
+      });
+      setPollComments(response.data);
     } catch (err) {
-      console.error('Error loading comments:', err)
+      console.error("Error loading comments:", err);
     } finally {
-      setLoadingComments(false)
+      setLoadingComments(false);
     }
-  }
+  };
 
   const handlePostComment = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
+    e.preventDefault();
+
     if (!selectedPoll || !newComment.trim()) {
-      return
+      return;
     }
 
     try {
-      setPostingComment(true)
-      await pollService.addComment(selectedPoll.id, newComment.trim())
-      setNewComment('')
-      showNotification('success', ' Comment posted successfully!')
-      
+      setPostingComment(true);
+      await pollService.addComment(selectedPoll.id, newComment.trim());
+      setNewComment("");
+      showNotification("success", " Comment posted successfully!");
+
       // Refresh comments
-      fetchPollComments(selectedPoll.id)
+      fetchPollComments(selectedPoll.id);
     } catch (err: any) {
-      console.error('Error posting comment:', err)
-      showNotification('error', err.message || 'Failed to post comment')
+      console.error("Error posting comment:", err);
+      showNotification("error", err.message || "Failed to post comment");
     } finally {
-      setPostingComment(false)
+      setPostingComment(false);
     }
-  }
+  };
 
   const handleClosePoll = async (pollId: number) => {
     try {
-      await pollService.closePoll(pollId)
-      showNotification('success', ' Poll closed successfully!')
-      loadPolls()
+      await pollService.closePoll(pollId);
+      showNotification("success", " Poll closed successfully!");
+      loadPolls();
       if (selectedPoll?.id === pollId) {
-        setSelectedPoll(prev => prev ? { ...prev, is_active: false } : null)
+        setSelectedPoll((prev) =>
+          prev ? { ...prev, is_active: false } : null
+        );
       }
     } catch (err) {
-      console.error('Error closing poll:', err)
-      showNotification('error', 'Failed to close poll')
+      console.error("Error closing poll:", err);
+      showNotification("error", "Failed to close poll");
     }
-  }
+  };
 
   const handleReopenPoll = async (pollId: number) => {
     try {
-      await pollService.reopenPoll(pollId)
-      showNotification('success', ' Poll reopened successfully!')
-      loadPolls()
+      await pollService.reopenPoll(pollId);
+      showNotification("success", " Poll reopened successfully!");
+      loadPolls();
       if (selectedPoll?.id === pollId) {
-        setSelectedPoll(prev => prev ? { ...prev, is_active: true } : null)
+        setSelectedPoll((prev) => (prev ? { ...prev, is_active: true } : null));
       }
     } catch (err) {
-      console.error('Error reopening poll:', err)
-      showNotification('error', 'Failed to reopen poll')
+      console.error("Error reopening poll:", err);
+      showNotification("error", "Failed to reopen poll");
     }
-  }
+  };
 
   const handleDeletePoll = async (pollId: number) => {
-    setConfirmDelete({ show: true, pollId })
-  }
+    setConfirmDelete({ show: true, pollId });
+  };
 
   const confirmDeletePoll = async () => {
-    if (!confirmDelete.pollId) return
-    
+    if (!confirmDelete.pollId) return;
+
     try {
-      await pollService.deletePoll(confirmDelete.pollId)
-      showNotification('success', '🗑️ Poll deleted successfully!')
-      loadPolls()
+      await pollService.deletePoll(confirmDelete.pollId);
+      showNotification("success", "🗑️ Poll deleted successfully!");
+      loadPolls();
       if (selectedPoll?.id === confirmDelete.pollId) {
-        setSelectedPoll(null)
-        setPollStats(null)
+        setSelectedPoll(null);
+        setPollStats(null);
       }
-      setConfirmDelete({ show: false, pollId: null })
+      setConfirmDelete({ show: false, pollId: null });
     } catch (err) {
-      console.error('Error deleting poll:', err)
-      showNotification('error', 'Failed to delete poll')
-      setConfirmDelete({ show: false, pollId: null })
+      console.error("Error deleting poll:", err);
+      showNotification("error", "Failed to delete poll");
+      setConfirmDelete({ show: false, pollId: null });
     }
-  }
+  };
 
   // Helper functions for custom poll options
   const addPollOption = () => {
     if (newPoll.customOptions.length < 10) {
       setNewPoll({
         ...newPoll,
-        customOptions: [...newPoll.customOptions, '']
-      })
+        customOptions: [...newPoll.customOptions, ""],
+      });
     } else {
-      showNotification('error', 'Maximum 10 options allowed')
+      showNotification("error", "Maximum 10 options allowed");
     }
-  }
+  };
 
   const removePollOption = (index: number) => {
     if (newPoll.customOptions.length > 2) {
-      const updatedOptions = newPoll.customOptions.filter((_, i) => i !== index)
+      const updatedOptions = newPoll.customOptions.filter(
+        (_, i) => i !== index
+      );
       setNewPoll({
         ...newPoll,
-        customOptions: updatedOptions
-      })
+        customOptions: updatedOptions,
+      });
     } else {
-      showNotification('error', 'At least 2 options are required')
+      showNotification("error", "At least 2 options are required");
     }
-  }
+  };
 
   const updatePollOption = (index: number, value: string) => {
-    const updatedOptions = [...newPoll.customOptions]
-    updatedOptions[index] = value
+    const updatedOptions = [...newPoll.customOptions];
+    updatedOptions[index] = value;
     setNewPoll({
       ...newPoll,
-      customOptions: updatedOptions
-    })
-  }
+      customOptions: updatedOptions,
+    });
+  };
 
   const renderAnalytics = () => {
     // Show loading state
@@ -1456,15 +1554,25 @@ const Sessions = () => {
   };
 
   const renderPolls = () => {
-    console.log('📊 Rendering polls tab, polls count:', polls.length, 'loading:', pollsLoading, 'error:', pollsError)
-    
+    console.log(
+      "📊 Rendering polls tab, polls count:",
+      polls.length,
+      "loading:",
+      pollsLoading,
+      "error:",
+      pollsError
+    );
+
     return (
       <div className="polls-section">
         {/* Create Poll Form */}
         <div className="create-poll-card">
           <h3>Create New Poll</h3>
-          <p className="section-description">Create a poll to gather feedback from your audience about session ideas</p>
-          
+          <p className="section-description">
+            Create a poll to gather feedback from your audience about session
+            ideas
+          </p>
+
           <form onSubmit={handleCreatePoll}>
             <div className="form-group">
               <label htmlFor="poll-title">
@@ -1475,7 +1583,9 @@ const Sessions = () => {
                 id="poll-title"
                 placeholder="e.g., What session topic would you like next?"
                 value={newPoll.title}
-                onChange={(e) => setNewPoll({ ...newPoll, title: e.target.value })}
+                onChange={(e) =>
+                  setNewPoll({ ...newPoll, title: e.target.value })
+                }
                 required
               />
             </div>
@@ -1488,7 +1598,9 @@ const Sessions = () => {
                 id="poll-description"
                 placeholder="Add more context or details about this poll..."
                 value={newPoll.description}
-                onChange={(e) => setNewPoll({ ...newPoll, description: e.target.value })}
+                onChange={(e) =>
+                  setNewPoll({ ...newPoll, description: e.target.value })
+                }
                 rows={3}
               />
             </div>
@@ -1499,11 +1611,15 @@ const Sessions = () => {
                 <input
                   type="checkbox"
                   checked={newPoll.useCustomOptions}
-                  onChange={(e) => setNewPoll({ 
-                    ...newPoll, 
-                    useCustomOptions: e.target.checked,
-                    customOptions: e.target.checked ? ['', ''] : newPoll.customOptions
-                  })}
+                  onChange={(e) =>
+                    setNewPoll({
+                      ...newPoll,
+                      useCustomOptions: e.target.checked,
+                      customOptions: e.target.checked
+                        ? ["", ""]
+                        : newPoll.customOptions,
+                    })
+                  }
                 />
                 <span>Use custom poll options (default: Yes/Maybe/No)</span>
               </label>
@@ -1516,16 +1632,17 @@ const Sessions = () => {
                   Poll Options <span className="required">*</span>
                   <small> (Minimum 2, Maximum 10)</small>
                 </label>
-                
+
                 <div className="options-list">
                   {newPoll.customOptions.map((option, index) => (
                     <div key={index} className="option-input-row">
-                      
                       <input
                         type="text"
                         placeholder={`Enter option ${index + 1}`}
                         value={option}
-                        onChange={(e) => updatePollOption(index, e.target.value)}
+                        onChange={(e) =>
+                          updatePollOption(index, e.target.value)
+                        }
                         className="option-input"
                       />
                       {newPoll.customOptions.length > 2 && (
@@ -1541,7 +1658,7 @@ const Sessions = () => {
                     </div>
                   ))}
                 </div>
-                
+
                 {newPoll.customOptions.length < 10 && (
                   <button
                     type="button"
@@ -1556,7 +1673,7 @@ const Sessions = () => {
 
             <div className="form-actions">
               <Button type="submit" disabled={pollsLoading}>
-                {pollsLoading ? 'Creating...' : ' Create Poll'}
+                {pollsLoading ? "Creating..." : " Create Poll"}
               </Button>
             </div>
           </form>
@@ -1565,7 +1682,7 @@ const Sessions = () => {
         {/* Polls List */}
         <div className="polls-list-section">
           <h3>Your Polls ({polls.length})</h3>
-          
+
           {pollsLoading && !polls.length && (
             <div className="loading-state">Loading polls...</div>
           )}
@@ -1586,11 +1703,18 @@ const Sessions = () => {
           {polls.length > 0 && (
             <div className="polls-grid">
               {polls.map((poll) => (
-                <div key={poll.id} className={`poll-card ${!poll.is_active ? 'closed' : ''}`}>
+                <div
+                  key={poll.id}
+                  className={`poll-card ${!poll.is_active ? "closed" : ""}`}
+                >
                   <div className="poll-header">
                     <h4>{poll.title}</h4>
-                    <span className={`poll-status ${poll.is_active ? 'active' : 'closed'}`}>
-                      {poll.is_active ? '🟢 Active' : '🔴 Closed'}
+                    <span
+                      className={`poll-status ${
+                        poll.is_active ? "active" : "closed"
+                      }`}
+                    >
+                      {poll.is_active ? "🟢 Active" : "🔴 Closed"}
                     </span>
                   </div>
 
@@ -1599,43 +1723,45 @@ const Sessions = () => {
                   )}
 
                   <div className="poll-meta">
-                    <span>📅 {new Date(poll.created_at).toLocaleDateString()}</span>
+                    <span>
+                      📅 {new Date(poll.created_at).toLocaleDateString()}
+                    </span>
                     <span>💬 {poll.comment_count || 0} comments</span>
                   </div>
 
                   <div className="poll-actions">
-                    <Button 
-                      variant="secondary" 
+                    <Button
+                      variant="secondary"
                       size="small"
                       onClick={() => handleViewPollDetails(poll)}
                     >
                       View Results
                     </Button>
-                    
+
                     {poll.is_active ? (
-                      <Button 
-                        variant="secondary" 
+                      <Button
+                        variant="secondary"
                         size="small"
                         onClick={() => handleClosePoll(poll.id)}
                       >
-                         Close Poll
+                        Close Poll
                       </Button>
                     ) : (
-                      <Button 
-                        variant="secondary" 
+                      <Button
+                        variant="secondary"
                         size="small"
                         onClick={() => handleReopenPoll(poll.id)}
                       >
-                         Reopen
+                        Reopen
                       </Button>
                     )}
-                    
-                    <Button 
-                      variant="danger" 
+
+                    <Button
+                      variant="danger"
                       size="small"
                       onClick={() => handleDeletePoll(poll.id)}
                     >
-                       Delete
+                      Delete
                     </Button>
                   </div>
                 </div>
@@ -1647,10 +1773,18 @@ const Sessions = () => {
         {/* Poll Details Modal */}
         {selectedPoll && (
           <div className="modal-overlay" onClick={() => setSelectedPoll(null)}>
-            <div className="modal-content poll-details-modal" onClick={(e) => e.stopPropagation()}>
+            <div
+              className="modal-content poll-details-modal"
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="modal-header">
                 <h3>Poll Results</h3>
-                <button className="close-btn" onClick={() => setSelectedPoll(null)}>×</button>
+                <button
+                  className="close-btn"
+                  onClick={() => setSelectedPoll(null)}
+                >
+                  ×
+                </button>
               </div>
 
               <div className="modal-body">
@@ -1662,39 +1796,50 @@ const Sessions = () => {
                 {selectedPoll.choices && selectedPoll.choices.length > 0 && (
                   <div className="poll-results">
                     <div className="total-votes">
-                      <strong>Total Votes: {selectedPoll.total_votes || 0}</strong>
+                      <strong>
+                        Total Votes: {selectedPoll.total_votes || 0}
+                      </strong>
                     </div>
 
                     <div className="vote-breakdown">
                       {selectedPoll.choices.map((choice, index) => {
-                        const percentage = selectedPoll.total_votes > 0 
-                          ? (choice.vote_count / selectedPoll.total_votes * 100) 
-                          : 0;
-                        
+                        const percentage =
+                          selectedPoll.total_votes > 0
+                            ? (choice.vote_count / selectedPoll.total_votes) *
+                              100
+                            : 0;
+
                         // Assign different colors for each option
-                        const colorClass = [
-                          'yes-fill',
-                          'maybe-fill',
-                          'no-fill',
-                          'custom-fill-1',
-                          'custom-fill-2',
-                          'custom-fill-3',
-                          'custom-fill-4',
-                          'custom-fill-5',
-                          'custom-fill-6',
-                          'custom-fill-7'
-                        ][index] || 'custom-fill-default';
-                        
+                        const colorClass =
+                          [
+                            "yes-fill",
+                            "maybe-fill",
+                            "no-fill",
+                            "custom-fill-1",
+                            "custom-fill-2",
+                            "custom-fill-3",
+                            "custom-fill-4",
+                            "custom-fill-5",
+                            "custom-fill-6",
+                            "custom-fill-7",
+                          ][index] || "custom-fill-default";
+
                         return (
-                          <div key={choice.choice} className={`vote-option option-${index}`}>
+                          <div
+                            key={choice.choice}
+                            className={`vote-option option-${index}`}
+                          >
                             <div className="vote-label">
-                              <span className="option-text">{choice.choice}</span>
+                              <span className="option-text">
+                                {choice.choice}
+                              </span>
                               <span className="vote-count">
-                                {choice.vote_count} {choice.vote_count === 1 ? 'vote' : 'votes'}
+                                {choice.vote_count}{" "}
+                                {choice.vote_count === 1 ? "vote" : "votes"}
                               </span>
                             </div>
                             <div className="vote-bar">
-                              <div 
+                              <div
                                 className={`vote-fill ${colorClass}`}
                                 style={{ width: `${percentage}%` }}
                               />
@@ -1709,25 +1854,34 @@ const Sessions = () => {
 
                     <div className="poll-info">
                       <p>💬 {selectedPoll.comment_count || 0} comments</p>
-                      <p>📅 Created: {new Date(selectedPoll.created_at).toLocaleString()}</p>
+                      <p>
+                        📅 Created:{" "}
+                        {new Date(selectedPoll.created_at).toLocaleString()}
+                      </p>
                     </div>
 
                     {/* Comments Section */}
                     <div className="poll-comments-section">
                       <h4>💬 Comments</h4>
-                      
+
                       {loadingComments ? (
-                        <div className="loading-comments">Loading comments...</div>
+                        <div className="loading-comments">
+                          Loading comments...
+                        </div>
                       ) : pollComments.length > 0 ? (
                         <div className="comments-list">
                           {pollComments.map((comment) => (
                             <div key={comment.id} className="comment-item">
                               <div className="comment-header">
                                 <span className="commenter-name">
-                                  {comment.commenter?.display_name || comment.commenter?.full_name || 'Anonymous'}
+                                  {comment.commenter?.display_name ||
+                                    comment.commenter?.full_name ||
+                                    "Anonymous"}
                                 </span>
                                 <span className="comment-date">
-                                  {new Date(comment.created_at).toLocaleDateString()}
+                                  {new Date(
+                                    comment.created_at
+                                  ).toLocaleDateString()}
                                 </span>
                               </div>
                               <p className="comment-text">{comment.comment}</p>
@@ -1735,11 +1889,16 @@ const Sessions = () => {
                           ))}
                         </div>
                       ) : (
-                        <p className="no-comments">No comments yet. Be the first to comment!</p>
+                        <p className="no-comments">
+                          No comments yet. Be the first to comment!
+                        </p>
                       )}
 
                       {/* Add Comment Form */}
-                      <form onSubmit={handlePostComment} className="add-comment-form">
+                      <form
+                        onSubmit={handlePostComment}
+                        className="add-comment-form"
+                      >
                         <textarea
                           value={newComment}
                           onChange={(e) => setNewComment(e.target.value)}
@@ -1752,7 +1911,7 @@ const Sessions = () => {
                           disabled={!newComment.trim() || postingComment}
                           variant="primary"
                         >
-                          {postingComment ? 'Posting...' : 'Post Comment'}
+                          {postingComment ? "Posting..." : "Post Comment"}
                         </Button>
                       </form>
                     </div>
@@ -1765,7 +1924,10 @@ const Sessions = () => {
               </div>
 
               <div className="modal-footer">
-                <Button variant="secondary" onClick={() => setSelectedPoll(null)}>
+                <Button
+                  variant="secondary"
+                  onClick={() => setSelectedPoll(null)}
+                >
                   Close
                 </Button>
               </div>
@@ -1775,29 +1937,44 @@ const Sessions = () => {
 
         {/* Delete Confirmation Modal */}
         {confirmDelete.show && (
-          <div className="modal-overlay" onClick={() => setConfirmDelete({ show: false, pollId: null })}>
-            <div className="modal-content confirm-delete-modal" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="modal-overlay"
+            onClick={() => setConfirmDelete({ show: false, pollId: null })}
+          >
+            <div
+              className="modal-content confirm-delete-modal"
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="modal-header">
                 <h3>⚠️ Confirm Delete</h3>
-                <button className="close-btn" onClick={() => setConfirmDelete({ show: false, pollId: null })}>×</button>
+                <button
+                  className="close-btn"
+                  onClick={() =>
+                    setConfirmDelete({ show: false, pollId: null })
+                  }
+                >
+                  ×
+                </button>
               </div>
 
               <div className="modal-body">
                 <p>Are you sure you want to delete this poll?</p>
-                <p className="warning-text">This action cannot be undone. All votes and comments will be permanently lost.</p>
+                <p className="warning-text">
+                  This action cannot be undone. All votes and comments will be
+                  permanently lost.
+                </p>
               </div>
 
               <div className="modal-footer">
-                <Button 
-                  variant="secondary" 
-                  onClick={() => setConfirmDelete({ show: false, pollId: null })}
+                <Button
+                  variant="secondary"
+                  onClick={() =>
+                    setConfirmDelete({ show: false, pollId: null })
+                  }
                 >
                   Cancel
                 </Button>
-                <Button 
-                  variant="danger" 
-                  onClick={confirmDeletePoll}
-                >
+                <Button variant="danger" onClick={confirmDeletePoll}>
                   🗑️ Delete Poll
                 </Button>
               </div>
@@ -1805,36 +1982,44 @@ const Sessions = () => {
           </div>
         )}
       </div>
-    )
-  }
+    );
+  };
 
   const renderManageSessionModal = () => {
-    if (!showManageModal || !selectedSession) return null
+    if (!showManageModal || !selectedSession) return null;
 
-    const sessionDate = new Date(selectedSession.session_date)
-    const sessionTime = typeof selectedSession.session_time === 'string' 
-      ? selectedSession.session_time 
-      : new Date(selectedSession.session_time).toLocaleTimeString()
+    const sessionDate = new Date(selectedSession.session_date);
+    const sessionTime =
+      typeof selectedSession.session_time === "string"
+        ? selectedSession.session_time
+        : new Date(selectedSession.session_time).toLocaleTimeString();
 
     return (
       <div className="modal-overlay" onClick={() => setShowManageModal(false)}>
         <div className="modal-content" onClick={(e) => e.stopPropagation()}>
           <div className="modal-header">
             <h3>Manage Session: {selectedSession.title}</h3>
-            <button className="close-btn" onClick={() => setShowManageModal(false)}>×</button>
+            <button
+              className="close-btn"
+              onClick={() => setShowManageModal(false)}
+            >
+              ×
+            </button>
           </div>
-          
+
           <div className="modal-body">
             <div className="session-info">
               <h4>Session Details</h4>
               <div className="info-grid">
                 <div className="info-item">
                   <label>Date & Time:</label>
-                  <span>{sessionDate.toLocaleDateString()} at {sessionTime}</span>
+                  <span>
+                    {sessionDate.toLocaleDateString()} at {sessionTime}
+                  </span>
                 </div>
                 <div className="info-item">
                   <label>Max Participants:</label>
-                  <span>{selectedSession.max_participants || 'Unlimited'}</span>
+                  <span>{selectedSession.max_participants || "Unlimited"}</span>
                 </div>
                 <div className="info-item">
                   <label>Price:</label>
@@ -1886,42 +2071,58 @@ const Sessions = () => {
           </div>
 
           <div className="modal-footer">
-            <Button variant="secondary" onClick={() => setShowManageModal(false)}>
+            <Button
+              variant="secondary"
+              onClick={() => setShowManageModal(false)}
+            >
               Close
             </Button>
             <Button>Save Changes</Button>
           </div>
         </div>
       </div>
-    )
-  }
+    );
+  };
 
   const renderDetailsModal = () => {
-    if (!showDetailsModal || !selectedSession) return null
+    if (!showDetailsModal || !selectedSession) return null;
 
     return (
       <div className="modal-overlay" onClick={() => setShowDetailsModal(false)}>
         <div className="modal-content" onClick={(e) => e.stopPropagation()}>
           <div className="modal-header">
             <h3>Session Details: {selectedSession.title}</h3>
-            <button className="close-btn" onClick={() => setShowDetailsModal(false)}>×</button>
+            <button
+              className="close-btn"
+              onClick={() => setShowDetailsModal(false)}
+            >
+              ×
+            </button>
           </div>
-          
+
           <div className="modal-body">
             <div className="session-overview">
               <h4>Overview</h4>
               <div className="overview-stats">
                 <div className="stat-item">
                   <span className="stat-label">Status:</span>
-                  <span className="stat-value">{selectedSession.session_type === 'live' ? 'Live Session' : 'Recorded Session'}</span>
+                  <span className="stat-value">
+                    {selectedSession.session_type === "live"
+                      ? "Live Session"
+                      : "Recorded Session"}
+                  </span>
                 </div>
                 <div className="stat-item">
                   <span className="stat-label">Payment Type:</span>
-                  <span className="stat-value">{selectedSession.payment_type}</span>
+                  <span className="stat-value">
+                    {selectedSession.payment_type}
+                  </span>
                 </div>
                 <div className="stat-item">
                   <span className="stat-label">Price:</span>
-                  <span className="stat-value">LKR {selectedSession.price || 0}</span>
+                  <span className="stat-value">
+                    LKR {selectedSession.price || 0}
+                  </span>
                 </div>
               </div>
             </div>
@@ -1949,98 +2150,130 @@ const Sessions = () => {
           </div>
 
           <div className="modal-footer">
-            <Button variant="secondary" onClick={() => setShowDetailsModal(false)}>
+            <Button
+              variant="secondary"
+              onClick={() => setShowDetailsModal(false)}
+            >
               Close
             </Button>
             <Button>Export Details</Button>
           </div>
         </div>
       </div>
-    )
-  }
+    );
+  };
 
   const handleEditSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    if (!selectedSession) return
-    
+    e.preventDefault();
+
+    if (!selectedSession) return;
+
     const updates: UpdateSessionRequest = {
       title: editForm.title,
       price: editForm.price,
       description: editForm.description,
-      difficulty_level: editForm.difficulty_level.toLowerCase() as 'beginner' | 'intermediate' | 'advanced',
+      difficulty_level: editForm.difficulty_level.toLowerCase() as
+        | "beginner"
+        | "intermediate"
+        | "advanced",
       session_date: editForm.session_date,
-      session_time: editForm.session_time
-    }
-    
-    await handleUpdateSession(selectedSession.id, updates)
-  }
+      session_time: editForm.session_time,
+    };
+
+    await handleUpdateSession(selectedSession.id, updates);
+  };
 
   const renderEditModal = () => {
-    if (!showEditModal || !selectedSession) return null
+    if (!showEditModal || !selectedSession) return null;
 
     return (
       <div className="modal-overlay" onClick={() => setShowEditModal(false)}>
         <div className="modal-content" onClick={(e) => e.stopPropagation()}>
           <div className="modal-header">
             <h3>Edit Session: {selectedSession.title}</h3>
-            <button className="close-btn" onClick={() => setShowEditModal(false)}>×</button>
+            <button
+              className="close-btn"
+              onClick={() => setShowEditModal(false)}
+            >
+              ×
+            </button>
           </div>
-          
+
           <div className="modal-body">
             <form className="edit-session-form" onSubmit={handleEditSubmit}>
               <div className="form-grid">
                 <div className="form-group">
                   <label>Session Title</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     value={editForm.title}
-                    onChange={(e) => setEditForm({...editForm, title: e.target.value})}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, title: e.target.value })
+                    }
                     required
                   />
                 </div>
                 <div className="form-group">
                   <label>Price (LKR)</label>
-                  <input 
-                    type="number" 
+                  <input
+                    type="number"
                     value={editForm.price}
-                    onChange={(e) => setEditForm({...editForm, price: parseFloat(e.target.value)})}
+                    onChange={(e) =>
+                      setEditForm({
+                        ...editForm,
+                        price: parseFloat(e.target.value),
+                      })
+                    }
                     required
                   />
                 </div>
                 <div className="form-group">
                   <label>Date</label>
-                  <input 
-                    type="date" 
+                  <input
+                    type="date"
                     value={editForm.session_date}
-                    onChange={(e) => setEditForm({...editForm, session_date: e.target.value})}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, session_date: e.target.value })
+                    }
                     required
                   />
                 </div>
                 <div className="form-group">
                   <label>Time</label>
-                  <input 
-                    type="time" 
+                  <input
+                    type="time"
                     value={editForm.session_time}
-                    onChange={(e) => setEditForm({...editForm, session_time: e.target.value})}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, session_time: e.target.value })
+                    }
                     required
                   />
                 </div>
                 <div className="form-group full-width">
                   <label>Description</label>
-                  <textarea 
-                    rows={3} 
+                  <textarea
+                    rows={3}
                     value={editForm.description}
-                    onChange={(e) => setEditForm({...editForm, description: e.target.value})}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, description: e.target.value })
+                    }
                     placeholder="Session description..."
                     required
                   />
                 </div>
                 <div className="form-group">
                   <label>Difficulty Level</label>
-                  <select 
+                  <select
                     value={editForm.difficulty_level}
-                    onChange={(e) => setEditForm({...editForm, difficulty_level: e.target.value as 'Beginner' | 'Intermediate' | 'Advanced'})}
+                    onChange={(e) =>
+                      setEditForm({
+                        ...editForm,
+                        difficulty_level: e.target.value as
+                          | "Beginner"
+                          | "Intermediate"
+                          | "Advanced",
+                      })
+                    }
                   >
                     <option value="Beginner">Beginner</option>
                     <option value="Intermediate">Intermediate</option>
@@ -2050,22 +2283,29 @@ const Sessions = () => {
               </div>
 
               <div className="modal-footer">
-                <Button variant="secondary" type="button" onClick={() => setShowEditModal(false)}>
+                <Button
+                  variant="secondary"
+                  type="button"
+                  onClick={() => setShowEditModal(false)}
+                >
                   Cancel
                 </Button>
                 <Button type="submit" disabled={loading}>
-                  {loading ? 'Saving...' : 'Save Changes'}
+                  {loading ? "Saving..." : "Save Changes"}
                 </Button>
               </div>
             </form>
           </div>
         </div>
       </div>
-    )
-  }
+    );
+  };
 
   const renderAnalyticsModal = () => {
-    if (!showAnalyticsModal || !selectedSession) return null
+    if (!showAnalyticsModal || !selectedSession) return null;
+
+    const isLiveSession = selectedSession.session_type === "live";
+    const sessionPrice = selectedSession.price || 0;
 
     const isLiveSession = selectedSession.session_type === 'live'
     const sessionPrice = selectedSession.price || 0
@@ -2073,8 +2313,14 @@ const Sessions = () => {
     const daysUntilSession = Math.ceil((sessionDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
     
     return (
-      <div className="modal-overlay" onClick={() => setShowAnalyticsModal(false)}>
-        <div className="modal-content large" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="modal-overlay"
+        onClick={() => setShowAnalyticsModal(false)}
+      >
+        <div
+          className="modal-content large"
+          onClick={(e) => e.stopPropagation()}
+        >
           <div className="modal-header">
             <h3>
               <StarIcon size={24} />
@@ -2082,7 +2328,7 @@ const Sessions = () => {
             </h3>
             <button className="close-btn" onClick={() => setShowAnalyticsModal(false)}>×</button>
           </div>
-          
+
           <div className="modal-body">
             {/* Basic Session Details */}
             <div className="analytics-overview">
@@ -2315,14 +2561,17 @@ const Sessions = () => {
           </div>
 
           <div className="modal-footer">
-            <Button variant="secondary" onClick={() => setShowAnalyticsModal(false)}>
+            <Button
+              variant="secondary"
+              onClick={() => setShowAnalyticsModal(false)}
+            >
               Close
             </Button>
           </div>
         </div>
       </div>
-    )
-  }
+    );
+  };
 
   return (
     <div className="sessions-page">
@@ -2331,37 +2580,37 @@ const Sessions = () => {
       </div>
 
       <div className="sessions-tabs">
-        <Button 
-          variant={activeTab === 'my-sessions' ? 'primary' : 'secondary'}
-          onClick={() => setActiveTab('my-sessions')}
+        <Button
+          variant={activeTab === "my-sessions" ? "primary" : "secondary"}
+          onClick={() => setActiveTab("my-sessions")}
         >
           My Sessions
         </Button>
-        <Button 
-          variant={activeTab === 'new-session' ? 'primary' : 'secondary'}
-          onClick={() => setActiveTab('new-session')}
+        <Button
+          variant={activeTab === "new-session" ? "primary" : "secondary"}
+          onClick={() => setActiveTab("new-session")}
         >
           Create Session
         </Button>
-        <Button 
-          variant={activeTab === 'polls' ? 'primary' : 'secondary'}
-          onClick={() => setActiveTab('polls')}
+        <Button
+          variant={activeTab === "polls" ? "primary" : "secondary"}
+          onClick={() => setActiveTab("polls")}
         >
           Polls
         </Button>
-        <Button 
-          variant={activeTab === 'analytics' ? 'primary' : 'secondary'}
-          onClick={() => setActiveTab('analytics')}
+        <Button
+          variant={activeTab === "analytics" ? "primary" : "secondary"}
+          onClick={() => setActiveTab("analytics")}
         >
           My Analytics
         </Button>
       </div>
 
       <div className="sessions-content">
-        {activeTab === 'my-sessions' && renderMyServices()}
-        {activeTab === 'new-session' && renderNewSession()}
-        {activeTab === 'polls' && renderPolls()}
-        {activeTab === 'analytics' && renderAnalytics()}
+        {activeTab === "my-sessions" && renderMyServices()}
+        {activeTab === "new-session" && renderNewSession()}
+        {activeTab === "polls" && renderPolls()}
+        {activeTab === "analytics" && renderAnalytics()}
       </div>
 
       {renderManageSessionModal()}
@@ -2374,7 +2623,7 @@ const Sessions = () => {
         <div className={`notification-toast ${notification.type}`}>
           <div className="notification-content">
             <span className="notification-message">{notification.message}</span>
-            <button 
+            <button
               className="notification-close"
               onClick={() => setNotification({ ...notification, show: false })}
             >
@@ -2384,10 +2633,7 @@ const Sessions = () => {
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-
-
-export default Sessions
-
+export default Sessions;

@@ -13,6 +13,7 @@ import {
   SparklesIcon,
 } from "@heroicons/react/24/outline";
 import { useNavigate } from "react-router-dom";
+import { API_CONFIG } from "../config/api.config";
 import type { SubscriptionPlan, UserSubscription } from "../types/subscription";
 import { getPlanLevel } from "../types/subscription";
 
@@ -44,7 +45,7 @@ const SubscriptionPlans: React.FC = () => {
     try {
       console.log("🔄 Fetching subscription plans...");
       const response = await fetch(
-        "http://localhost:5000/api/subscriptions/plans"
+        `${API_CONFIG.API_BASE_URL}/subscriptions/plans`
       );
       const data = await response.json();
       console.log("✅ Plans fetched:", data);
@@ -66,7 +67,7 @@ const SubscriptionPlans: React.FC = () => {
     try {
       const token = await user?.getIdToken();
       const response = await fetch(
-        `http://localhost:5000/api/subscriptions/user/${user?.uid}`,
+        `${API_CONFIG.API_BASE_URL}/subscriptions/user/${user?.uid}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -110,7 +111,7 @@ const SubscriptionPlans: React.FC = () => {
     try {
       const token = await user?.getIdToken();
       const response = await fetch(
-        `http://localhost:5000/api/subscriptions/user/${user?.uid}`,
+        `${API_CONFIG.API_BASE_URL}/subscriptions/user/${user?.uid}`,
         {
           method: "PUT",
           headers: {

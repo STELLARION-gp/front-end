@@ -182,17 +182,35 @@ class ApiService {
     );
     console.log("🤖 ApiService: Context:", context);
 
-    const result = await this.makeRequest("/chatbot", {
-      method: "POST",
-      body: JSON.stringify({
-        message,
-        context,
-        conversationId,
-      }),
-    });
+    try {
+      const result = await this.makeRequest("/chatbot/chat", {
+        method: "POST",
+        body: JSON.stringify({
+          message,
+          context,
+          conversationId,
+        }),
+      });
 
-    console.log("🤖 ApiService: Chat response received:", result);
-    return result;
+      console.log("🤖 ApiService: Chat response received:", result);
+      return result;
+    } catch (error) {
+      console.error("🤖 ApiService: Chat request failed:", error);
+      // Re-throw with more context
+      if (error instanceof Error) {
+        // Check for limit reached error
+        if (
+          error.message.includes("403") ||
+          error.message.includes("Daily chatbot question limit reached")
+        ) {
+          throw new Error(
+            "Daily chatbot question limit reached. Upgrade your plan for unlimited access!"
+          );
+        }
+        throw error;
+      }
+      throw new Error("Failed to send chat message");
+    }
   }
 
   // Chatbot health check

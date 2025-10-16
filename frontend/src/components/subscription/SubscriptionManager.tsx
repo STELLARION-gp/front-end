@@ -4,7 +4,14 @@ import { useAuth } from "../../hooks/useAuth";
 import LoadingSpinner from "../LoadingSpinner";
 import subscriptionService from "../../services/subscriptionService";
 import type { UserSubscription } from "../../types/subscription";
-import { CreditCard, Info, AlertCircle, Check, X } from "lucide-react";
+import {
+  CreditCard,
+  Info,
+  AlertCircle,
+  Check,
+  X,
+  RefreshCw,
+} from "lucide-react";
 
 const SubscriptionManager: React.FC = () => {
   const { user, userProfile } = useAuth();
@@ -16,6 +23,7 @@ const SubscriptionManager: React.FC = () => {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const [cancelSuccess, setCancelSuccess] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   // Only show subscription management for learners
   const isLearner = userProfile?.role === "learner";
@@ -27,9 +35,25 @@ const SubscriptionManager: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
+  // Add listener for chatbot usage updates
+  useEffect(() => {
+    const handleChatbotUsage = () => {
+      // Refetch subscription data when chatbot is used
+      fetchUserSubscription();
+    };
+
+    // Listen for custom event when chatbot sends a message
+    window.addEventListener("chatbot-message-sent", handleChatbotUsage);
+
+    return () => {
+      window.removeEventListener("chatbot-message-sent", handleChatbotUsage);
+    };
+  }, [user]);
+
   const fetchUserSubscription = async () => {
     try {
       setLoading(true);
+      setRefreshing(true);
       const data = await subscriptionService.getUserSubscription(
         user?.uid || ""
       );
@@ -40,7 +64,12 @@ const SubscriptionManager: React.FC = () => {
       setError("Unable to load your subscription information");
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
+  };
+
+  const handleRefresh = async () => {
+    await fetchUserSubscription();
   };
 
   const handleCancelSubscription = async () => {
@@ -193,12 +222,22 @@ const SubscriptionManager: React.FC = () => {
           <CreditCard className="mr-2 text-blue-400" size={20} />
           <h3 className="text-xl font-semibold text-white">Subscription</h3>
         </div>
-        <button
-          onClick={() => navigate("/subscription/plans")}
-          className="text-sm text-blue-400 hover:text-blue-300 transition-colors"
-        >
-          View All Plans
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleRefresh}
+            disabled={refreshing}
+            className="p-2 text-gray-400 hover:text-white transition-colors disabled:opacity-50"
+            title="Refresh subscription data"
+          >
+            <RefreshCw size={18} className={refreshing ? "animate-spin" : ""} />
+          </button>
+          <button
+            onClick={() => navigate("/subscription/plans")}
+            className="text-sm text-blue-400 hover:text-blue-300 transition-colors"
+          >
+            View All Plans
+          </button>
+        </div>
       </div>
 
       {error && (

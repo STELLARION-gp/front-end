@@ -54,6 +54,13 @@ const BookingModalContent: React.FC<Omit<BookingModalProps, 'isOpen'>> = ({
       setService(serviceData);
       setAvailability(availabilityData);
       setReviews(reviewsData.reviews);
+      
+      // Debug: Check time format from API
+      if (availabilityData.length > 0) {
+        console.log('Availability data:', availabilityData[0]);
+        console.log('Start time:', availabilityData[0].start_time, 'Type:', typeof availabilityData[0].start_time);
+        console.log('End time:', availabilityData[0].end_time, 'Type:', typeof availabilityData[0].end_time);
+      }
     } catch (err) {
       console.error('Error fetching service data:', err);
       setError(err instanceof Error ? err.message : 'Failed to load service details');
@@ -152,10 +159,39 @@ const BookingModalContent: React.FC<Omit<BookingModalProps, 'isOpen'>> = ({
   };
 
   const formatTime = (time: string) => {
-    return new Date(`2000-01-01T${time}`).toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    if (!time) return '';
+    
+    console.log('Formatting time:', time); // Debug log
+    
+    // Handle different time formats
+    let timeStr = String(time).trim();
+    
+    // If it's a full datetime string, extract the time part
+    if (timeStr.includes('T')) {
+      timeStr = timeStr.split('T')[1].split('.')[0]; // Get HH:MM:SS part
+    }
+    
+    // Handle time in HH:MM:SS or HH:MM format
+    const timeParts = timeStr.split(':');
+    if (timeParts.length < 2) {
+      console.warn('Invalid time format:', time);
+      return time; // Return as-is if invalid format
+    }
+    
+    const hours = parseInt(timeParts[0], 10);
+    const minutes = timeParts[1].padStart(2, '0'); // Ensure 2-digit minutes
+    
+    // Validate hours
+    if (isNaN(hours) || hours < 0 || hours > 23) {
+      console.warn('Invalid hours:', hours);
+      return time;
+    }
+    
+    // Convert to 12-hour format with AM/PM
+    const period = hours >= 12 ? 'PM' : 'AM';
+    const displayHours = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+    
+    return `${displayHours}:${minutes} ${period}`;
   };
 
   if (loading) {

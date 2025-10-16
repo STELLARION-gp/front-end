@@ -96,10 +96,36 @@ const MyBookings: React.FC = () => {
 
   const formatTime = (time?: string) => {
     if (!time) return 'N/A';
-    return new Date(`2000-01-01T${time}`).toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    
+    // Handle different time formats
+    let timeStr = String(time).trim();
+    
+    // If it's a full datetime string, extract the time part
+    if (timeStr.includes('T')) {
+      timeStr = timeStr.split('T')[1].split('.')[0]; // Get HH:MM:SS part
+    }
+    
+    // Handle time in HH:MM:SS or HH:MM format
+    const timeParts = timeStr.split(':');
+    if (timeParts.length < 2) {
+      console.warn('Invalid time format:', time);
+      return time; // Return as-is if invalid format
+    }
+    
+    const hours = parseInt(timeParts[0], 10);
+    const minutes = timeParts[1].padStart(2, '0'); // Ensure 2-digit minutes
+    
+    // Validate hours
+    if (isNaN(hours) || hours < 0 || hours > 23) {
+      console.warn('Invalid hours:', hours);
+      return time;
+    }
+    
+    // Convert to 12-hour format with AM/PM
+    const period = hours >= 12 ? 'PM' : 'AM';
+    const displayHours = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+    
+    return `${displayHours}:${minutes} ${period}`;
   };
 
   const getStatusClass = (status: string) => {

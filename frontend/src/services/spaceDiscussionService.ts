@@ -1,6 +1,7 @@
-import { auth } from '../firebase';
+import { auth } from "../firebase";
+import { API_CONFIG } from "../config/api.config";
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = API_CONFIG.API_BASE_URL;
 
 export interface Discussion {
   id: number;
@@ -78,8 +79,8 @@ export interface GetDiscussionsParams {
   limit?: number;
   search?: string;
   category?: string;
-  sortBy?: 'created_at' | 'last_activity' | 'replies_count' | 'views_count';
-  order?: 'asc' | 'desc';
+  sortBy?: "created_at" | "last_activity" | "replies_count" | "views_count";
+  order?: "asc" | "desc";
 }
 
 export interface DiscussionResponse {
@@ -99,77 +100,92 @@ export interface LikeResponse {
 }
 
 class SpaceDiscussionService {
-  private baseUrl = '/space-discussions';
+  private baseUrl = "/space-discussions";
 
   private async getAuthHeaders() {
     try {
       const user = auth.currentUser;
       if (!user) {
-        throw new Error('User not authenticated');
+        throw new Error("User not authenticated");
       }
-      
+
       const token = await user.getIdToken();
       return {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
       };
     } catch (error) {
-      console.error('Error getting auth headers:', error);
-      throw new Error('Authentication failed');
+      console.error("Error getting auth headers:", error);
+      throw new Error("Authentication failed");
     }
   }
 
   private async handleResponse(response: Response) {
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+      throw new Error(
+        errorData.message || `HTTP error! status: ${response.status}`
+      );
     }
     return response.json();
   }
 
   // Get all discussions with filtering and pagination
-  async getDiscussions(params: GetDiscussionsParams = {}): Promise<DiscussionResponse> {
+  async getDiscussions(
+    params: GetDiscussionsParams = {}
+  ): Promise<DiscussionResponse> {
     try {
       const headers = await this.getAuthHeaders();
       const searchParams = new URLSearchParams();
-      
-      if (params.page) searchParams.append('page', params.page.toString());
-      if (params.limit) searchParams.append('limit', params.limit.toString());
-      if (params.search) searchParams.append('search', params.search);
-      if (params.category && params.category !== 'all') searchParams.append('category', params.category);
-      if (params.sortBy) searchParams.append('sortBy', params.sortBy);
-      if (params.order) searchParams.append('order', params.order);
 
-      const response = await fetch(`${API_BASE_URL}${this.baseUrl}?${searchParams.toString()}`, {
-        headers
-      });
-      
+      if (params.page) searchParams.append("page", params.page.toString());
+      if (params.limit) searchParams.append("limit", params.limit.toString());
+      if (params.search) searchParams.append("search", params.search);
+      if (params.category && params.category !== "all")
+        searchParams.append("category", params.category);
+      if (params.sortBy) searchParams.append("sortBy", params.sortBy);
+      if (params.order) searchParams.append("order", params.order);
+
+      const response = await fetch(
+        `${API_BASE_URL}${this.baseUrl}?${searchParams.toString()}`,
+        {
+          headers,
+        }
+      );
+
       const result = await this.handleResponse(response);
       return result.data;
     } catch (error) {
-      console.error('Failed to get discussions:', error);
+      console.error("Failed to get discussions:", error);
       throw error;
     }
   }
 
   // Get current user's discussions
-  async getMyDiscussions(params: { page?: number; limit?: number; search?: string } = {}): Promise<DiscussionResponse> {
+  async getMyDiscussions(
+    params: { page?: number; limit?: number; search?: string } = {}
+  ): Promise<DiscussionResponse> {
     try {
       const headers = await this.getAuthHeaders();
       const searchParams = new URLSearchParams();
-      
-      if (params.page) searchParams.append('page', params.page.toString());
-      if (params.limit) searchParams.append('limit', params.limit.toString());
-      if (params.search) searchParams.append('search', params.search);
 
-      const response = await fetch(`${API_BASE_URL}${this.baseUrl}/my-discussions?${searchParams.toString()}`, {
-        headers
-      });
-      
+      if (params.page) searchParams.append("page", params.page.toString());
+      if (params.limit) searchParams.append("limit", params.limit.toString());
+      if (params.search) searchParams.append("search", params.search);
+
+      const response = await fetch(
+        `${API_BASE_URL}${
+          this.baseUrl
+        }/my-discussions?${searchParams.toString()}`,
+        {
+          headers,
+        }
+      );
+
       const result = await this.handleResponse(response);
       return result.data;
     } catch (error) {
-      console.error('Failed to get my discussions:', error);
+      console.error("Failed to get my discussions:", error);
       throw error;
     }
   }
@@ -178,10 +194,13 @@ class SpaceDiscussionService {
   async getDiscussionById(discussionId: number): Promise<Discussion> {
     try {
       const headers = await this.getAuthHeaders();
-      const response = await fetch(`${API_BASE_URL}${this.baseUrl}/${discussionId}`, {
-        headers
-      });
-      
+      const response = await fetch(
+        `${API_BASE_URL}${this.baseUrl}/${discussionId}`,
+        {
+          headers,
+        }
+      );
+
       const result = await this.handleResponse(response);
       return result.data;
     } catch (error) {
@@ -195,29 +214,35 @@ class SpaceDiscussionService {
     try {
       const headers = await this.getAuthHeaders();
       const response = await fetch(`${API_BASE_URL}${this.baseUrl}`, {
-        method: 'POST',
+        method: "POST",
         headers,
-        body: JSON.stringify(data)
+        body: JSON.stringify(data),
       });
-      
+
       const result = await this.handleResponse(response);
       return result.data;
     } catch (error) {
-      console.error('Failed to create discussion:', error);
+      console.error("Failed to create discussion:", error);
       throw error;
     }
   }
 
   // Update a discussion
-  async updateDiscussion(discussionId: number, data: UpdateDiscussionRequest): Promise<Discussion> {
+  async updateDiscussion(
+    discussionId: number,
+    data: UpdateDiscussionRequest
+  ): Promise<Discussion> {
     try {
       const headers = await this.getAuthHeaders();
-      const response = await fetch(`${API_BASE_URL}${this.baseUrl}/${discussionId}`, {
-        method: 'PUT',
-        headers,
-        body: JSON.stringify(data)
-      });
-      
+      const response = await fetch(
+        `${API_BASE_URL}${this.baseUrl}/${discussionId}`,
+        {
+          method: "PUT",
+          headers,
+          body: JSON.stringify(data),
+        }
+      );
+
       const result = await this.handleResponse(response);
       return result.data;
     } catch (error) {
@@ -230,11 +255,14 @@ class SpaceDiscussionService {
   async deleteDiscussion(discussionId: number): Promise<void> {
     try {
       const headers = await this.getAuthHeaders();
-      const response = await fetch(`${API_BASE_URL}${this.baseUrl}/${discussionId}`, {
-        method: 'DELETE',
-        headers
-      });
-      
+      const response = await fetch(
+        `${API_BASE_URL}${this.baseUrl}/${discussionId}`,
+        {
+          method: "DELETE",
+          headers,
+        }
+      );
+
       await this.handleResponse(response);
     } catch (error) {
       console.error(`Failed to delete discussion ${discussionId}:`, error);
@@ -246,47 +274,68 @@ class SpaceDiscussionService {
   async toggleDiscussionLike(discussionId: number): Promise<LikeResponse> {
     try {
       const headers = await this.getAuthHeaders();
-      const response = await fetch(`${API_BASE_URL}${this.baseUrl}/${discussionId}/like`, {
-        method: 'POST',
-        headers
-      });
-      
+      const response = await fetch(
+        `${API_BASE_URL}${this.baseUrl}/${discussionId}/like`,
+        {
+          method: "POST",
+          headers,
+        }
+      );
+
       const result = await this.handleResponse(response);
       return result.data;
     } catch (error) {
-      console.error(`Failed to toggle like on discussion ${discussionId}:`, error);
+      console.error(
+        `Failed to toggle like on discussion ${discussionId}:`,
+        error
+      );
       throw error;
     }
   }
 
   // Add a comment to a discussion
-  async addComment(discussionId: number, data: AddCommentRequest): Promise<DiscussionComment> {
+  async addComment(
+    discussionId: number,
+    data: AddCommentRequest
+  ): Promise<DiscussionComment> {
     try {
       const headers = await this.getAuthHeaders();
-      const response = await fetch(`${API_BASE_URL}${this.baseUrl}/${discussionId}/comments`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(data)
-      });
-      
+      const response = await fetch(
+        `${API_BASE_URL}${this.baseUrl}/${discussionId}/comments`,
+        {
+          method: "POST",
+          headers,
+          body: JSON.stringify(data),
+        }
+      );
+
       const result = await this.handleResponse(response);
       return result.data;
     } catch (error) {
-      console.error(`Failed to add comment to discussion ${discussionId}:`, error);
+      console.error(
+        `Failed to add comment to discussion ${discussionId}:`,
+        error
+      );
       throw error;
     }
   }
 
   // Update a comment
-  async updateComment(commentId: number, data: UpdateCommentRequest): Promise<DiscussionComment> {
+  async updateComment(
+    commentId: number,
+    data: UpdateCommentRequest
+  ): Promise<DiscussionComment> {
     try {
       const headers = await this.getAuthHeaders();
-      const response = await fetch(`${API_BASE_URL}${this.baseUrl}/comments/${commentId}`, {
-        method: 'PUT',
-        headers,
-        body: JSON.stringify(data)
-      });
-      
+      const response = await fetch(
+        `${API_BASE_URL}${this.baseUrl}/comments/${commentId}`,
+        {
+          method: "PUT",
+          headers,
+          body: JSON.stringify(data),
+        }
+      );
+
       const result = await this.handleResponse(response);
       return result.data;
     } catch (error) {
@@ -299,11 +348,14 @@ class SpaceDiscussionService {
   async deleteComment(commentId: number): Promise<void> {
     try {
       const headers = await this.getAuthHeaders();
-      const response = await fetch(`${API_BASE_URL}${this.baseUrl}/comments/${commentId}`, {
-        method: 'DELETE',
-        headers
-      });
-      
+      const response = await fetch(
+        `${API_BASE_URL}${this.baseUrl}/comments/${commentId}`,
+        {
+          method: "DELETE",
+          headers,
+        }
+      );
+
       await this.handleResponse(response);
     } catch (error) {
       console.error(`Failed to delete comment ${commentId}:`, error);
@@ -315,11 +367,14 @@ class SpaceDiscussionService {
   async toggleCommentLike(commentId: number): Promise<LikeResponse> {
     try {
       const headers = await this.getAuthHeaders();
-      const response = await fetch(`${API_BASE_URL}${this.baseUrl}/comments/${commentId}/like`, {
-        method: 'POST',
-        headers
-      });
-      
+      const response = await fetch(
+        `${API_BASE_URL}${this.baseUrl}/comments/${commentId}/like`,
+        {
+          method: "POST",
+          headers,
+        }
+      );
+
       const result = await this.handleResponse(response);
       return result.data;
     } catch (error) {
@@ -332,15 +387,21 @@ class SpaceDiscussionService {
   async toggleDiscussionPin(discussionId: number): Promise<Discussion> {
     try {
       const headers = await this.getAuthHeaders();
-      const response = await fetch(`${API_BASE_URL}${this.baseUrl}/${discussionId}/pin`, {
-        method: 'POST',
-        headers
-      });
-      
+      const response = await fetch(
+        `${API_BASE_URL}${this.baseUrl}/${discussionId}/pin`,
+        {
+          method: "POST",
+          headers,
+        }
+      );
+
       const result = await this.handleResponse(response);
       return result.data;
     } catch (error) {
-      console.error(`Failed to toggle pin on discussion ${discussionId}:`, error);
+      console.error(
+        `Failed to toggle pin on discussion ${discussionId}:`,
+        error
+      );
       throw error;
     }
   }
@@ -349,15 +410,21 @@ class SpaceDiscussionService {
   async toggleDiscussionClose(discussionId: number): Promise<Discussion> {
     try {
       const headers = await this.getAuthHeaders();
-      const response = await fetch(`${API_BASE_URL}${this.baseUrl}/${discussionId}/close`, {
-        method: 'POST',
-        headers
-      });
-      
+      const response = await fetch(
+        `${API_BASE_URL}${this.baseUrl}/${discussionId}/close`,
+        {
+          method: "POST",
+          headers,
+        }
+      );
+
       const result = await this.handleResponse(response);
       return result.data;
     } catch (error) {
-      console.error(`Failed to toggle close on discussion ${discussionId}:`, error);
+      console.error(
+        `Failed to toggle close on discussion ${discussionId}:`,
+        error
+      );
       throw error;
     }
   }
@@ -369,7 +436,7 @@ class SpaceDiscussionService {
       const result = await this.handleResponse(response);
       return result.data.categories;
     } catch (error) {
-      console.error('Failed to get discussion categories:', error);
+      console.error("Failed to get discussion categories:", error);
       throw error;
     }
   }

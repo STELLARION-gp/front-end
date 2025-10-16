@@ -2,6 +2,8 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../../components/Button';
 import Card from '../../components/Card';
+import ConfirmDialog from '../../components/ConfirmDialog';
+import SuccessMessage from '../../components/SuccessMessage';
 import '../../styles/pages/guide/_serviceListing.scss';
 import type { 
   Service as ApiService, 
@@ -159,6 +161,14 @@ const ServiceListing: React.FC = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [editForm, setEditForm] = useState<Service | null>(null);
+  
+  // Message states
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [serviceToDelete, setServiceToDelete] = useState<Service | null>(null);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [successMessageText, setSuccessMessageText] = useState('');
+  const [showErrorMessage, setShowErrorMessage] = useState(false);
+  const [errorMessageText, setErrorMessageText] = useState('');
 
   // Fetch services on mount
   useEffect(() => {
@@ -263,33 +273,44 @@ const ServiceListing: React.FC = () => {
         )
       );
       
-      alert('Service updated successfully!');
       handleCloseModals();
+      setSuccessMessageText('Service updated successfully!');
+      setShowSuccessMessage(true);
     } catch (err) {
       console.error('Error updating service:', err);
-      alert(`Failed to update service: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      setErrorMessageText(`Failed to update service: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      setShowErrorMessage(true);
     } finally {
       setLoading(false);
     }
   };
 
   const handleDeleteService = async (service: Service) => {
-    if (!confirm(`Are you sure you want to delete "${service.title}"? This action cannot be undone.`)) {
-      return;
-    }
+    setServiceToDelete(service);
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!serviceToDelete) return;
     
     try {
       setLoading(true);
-      await deleteService(parseInt(service.id));
+      await deleteService(parseInt(serviceToDelete.id));
       
       // Remove from local state
-      setServices(prevServices => prevServices.filter(s => s.id !== service.id));
+      setServices(prevServices => prevServices.filter(s => s.id !== serviceToDelete.id));
       
-      alert('Service deleted successfully!');
       handleCloseModals();
+      setShowDeleteConfirm(false);
+      setServiceToDelete(null);
+      setSuccessMessageText('Service deleted successfully!');
+      setShowSuccessMessage(true);
     } catch (err) {
       console.error('Error deleting service:', err);
-      alert(`Failed to delete service: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      setShowDeleteConfirm(false);
+      setServiceToDelete(null);
+      setErrorMessageText(`Failed to delete service: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      setShowErrorMessage(true);
     } finally {
       setLoading(false);
     }
@@ -960,6 +981,39 @@ const ServiceListing: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        title="Delete Service"
+        message={`Are you sure you want to delete "${serviceToDelete?.title}"? This action cannot be undone and will remove all associated availability slots and bookings.`}
+        confirmText="Delete Service"
+        cancelText="Cancel"
+        variant="danger"
+        onConfirm={confirmDelete}
+        onCancel={() => {
+          setShowDeleteConfirm(false);
+          setServiceToDelete(null);
+        }}
+      />
+
+      {/* Success Message */}
+      <SuccessMessage
+        isOpen={showSuccessMessage}
+        title="Success!"
+        message={successMessageText}
+        type="success"
+        onClose={() => setShowSuccessMessage(false)}
+      />
+
+      {/* Error Message */}
+      <SuccessMessage
+        isOpen={showErrorMessage}
+        title="Error"
+        message={errorMessageText}
+        type="error"
+        onClose={() => setShowErrorMessage(false)}
+      />
       </div>
     </div>
   );

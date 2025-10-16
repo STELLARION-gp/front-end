@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../../components/Button';
+import SuccessMessage from '../../components/SuccessMessage';
 import '../../styles/pages/guide/_createService.scss';
 import { createService } from '../../services/servicesService';
 import type { CreateServiceRequest, ServiceCategory, DifficultyLevel, ServiceStatus, WeatherPolicyType } from '../../services/servicesService';
@@ -93,6 +94,9 @@ interface UploadedFile {
 const CreateService: React.FC = () => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [showErrorMessage, setShowErrorMessage] = useState(false);
+  const [errorText, setErrorText] = useState('');
   
   const [formData, setFormData] = useState<ServiceFormData>({
     title: '',
@@ -258,7 +262,8 @@ const CreateService: React.FC = () => {
     if (!isValid) {
       console.log('❌ Form validation failed');
       console.log('❌ Validation errors:', errors);
-      alert('Please fill in all required fields. Check the form for error messages.');
+      setErrorText('Please fill in all required fields. Check the form for error messages.');
+      setShowErrorMessage(true);
       return;
     }
 
@@ -356,17 +361,15 @@ const CreateService: React.FC = () => {
       
       console.log('✅ Service created successfully:', createdService);
       
-      // Show success message (you can add a toast notification here)
-      alert('Service created successfully!');
-      
-      // Navigate back to services list
-      navigate('/dashboard/services');
+      // Show success message
+      setShowSuccessMessage(true);
     } catch (error) {
       console.error('❌ Error creating service:', error);
       
       // Show error message
       const errorMessage = error instanceof Error ? error.message : 'Failed to create service';
-      alert(`Error: ${errorMessage}`);
+      setErrorText(errorMessage);
+      setShowErrorMessage(true);
     } finally {
       setIsSubmitting(false);
     }
@@ -916,6 +919,27 @@ const CreateService: React.FC = () => {
           </div>
         </form>
       </div>
+
+      {/* Success Message Modal */}
+      <SuccessMessage
+        isOpen={showSuccessMessage}
+        title="Service Created Successfully!"
+        message="Your astronomy service has been created and is now available for booking."
+        type="success"
+        onClose={() => {
+          setShowSuccessMessage(false);
+          navigate('/dashboard/services');
+        }}
+      />
+
+      {/* Error Message Modal */}
+      <SuccessMessage
+        isOpen={showErrorMessage}
+        title="Error Creating Service"
+        message={errorText}
+        type="error"
+        onClose={() => setShowErrorMessage(false)}
+      />
     </div>
   );
 };

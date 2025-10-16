@@ -2,6 +2,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Button from '../../components/Button';
 import Card from '../../components/Card';
+import ConfirmDialog from '../../components/ConfirmDialog';
+import SuccessMessage from '../../components/SuccessMessage';
 import '../../styles/pages/guide/_setAvailability.scss';
 import type {
   Service as ApiService,
@@ -159,6 +161,14 @@ const SetAvailability: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
+  // Message states
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteSlotId, setDeleteSlotId] = useState<string | null>(null);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [successMessageText, setSuccessMessageText] = useState('');
+  const [showErrorMessage, setShowErrorMessage] = useState(false);
+  const [errorMessageText, setErrorMessageText] = useState('');
+  
   // Form data
   const [formData, setFormData] = useState({
     date: '',
@@ -311,25 +321,30 @@ const SetAvailability: React.FC = () => {
     // Validation for date series
     if (formData.isDateSeries) {
       if (!formData.seriesStartDate || !formData.seriesEndDate) {
-        alert('Please select both start and end dates for the date series.');
+        setErrorMessageText('Please select both start and end dates for the date series.');
+        setShowErrorMessage(true);
         return;
       }
       if (new Date(formData.seriesStartDate) > new Date(formData.seriesEndDate)) {
-        alert('End date must be after or equal to start date.');
+        setErrorMessageText('End date must be after or equal to start date.');
+        setShowErrorMessage(true);
         return;
       }
     } else if (!formData.date) {
-      alert('Please select a date.');
+      setErrorMessageText('Please select a date.');
+      setShowErrorMessage(true);
       return;
     }
 
     // Validation for time
     if (!formData.startTime || !formData.endTime) {
-      alert('Please select both start and end times.');
+      setErrorMessageText('Please select both start and end times.');
+      setShowErrorMessage(true);
       return;
     }
     if (formData.startTime >= formData.endTime) {
-      alert('End time must be after start time.');
+      setErrorMessageText('End time must be after start time.');
+      setShowErrorMessage(true);
       return;
     }
 
@@ -350,7 +365,8 @@ const SetAvailability: React.FC = () => {
           slot.id === editingSlot.id ? transformedUpdated : slot
         ));
         
-        alert('Availability updated successfully!');
+        setSuccessMessageText('Availability updated successfully!');
+        setShowSuccessMessage(true);
       } else {
         // Handle creating new slot(s)
         if (formData.isDateSeries) {
@@ -368,7 +384,8 @@ const SetAvailability: React.FC = () => {
           const transformedCreated = createdSlots.map(transformApiAvailability);
           setAvailabilitySlots(prev => [...prev, ...transformedCreated]);
           
-          alert(`Created ${createdSlots.length} availability slots successfully!`);
+          setSuccessMessageText(`Successfully created ${createdSlots.length} availability slot${createdSlots.length > 1 ? 's' : ''}!`);
+          setShowSuccessMessage(true);
         } else {
           // Single slot creation
           const created = await createAvailability({
@@ -382,14 +399,16 @@ const SetAvailability: React.FC = () => {
           const transformedCreated = transformApiAvailability(created);
           setAvailabilitySlots(prev => [...prev, transformedCreated]);
           
-          alert('Availability created successfully!');
+          setSuccessMessageText('Availability created successfully!');
+          setShowSuccessMessage(true);
         }
       }
 
       handleFormReset();
     } catch (err) {
       console.error('Error saving availability:', err);
-      alert(`Failed to save availability: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      setErrorMessageText(`Failed to save availability: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      setShowErrorMessage(true);
     } finally {
       setLoading(false);
     }
@@ -481,18 +500,27 @@ const SetAvailability: React.FC = () => {
   };
 
   const handleDeleteSlot = async (slotId: string) => {
-    if (!confirm('Are you sure you want to delete this availability slot?')) {
-      return;
-    }
+    setDeleteSlotId(slotId);
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteSlotId) return;
     
     try {
       setLoading(true);
-      await deleteAvailability(parseInt(slotId));
-      setAvailabilitySlots(prev => prev.filter(slot => slot.id !== slotId));
-      alert('Availability deleted successfully!');
+      await deleteAvailability(parseInt(deleteSlotId));
+      setAvailabilitySlots(prev => prev.filter(slot => slot.id !== deleteSlotId));
+      setShowDeleteConfirm(false);
+      setDeleteSlotId(null);
+      setSuccessMessageText('Availability deleted successfully!');
+      setShowSuccessMessage(true);
     } catch (err) {
       console.error('Error deleting availability:', err);
-      alert(`Failed to delete availability: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      setShowDeleteConfirm(false);
+      setDeleteSlotId(null);
+      setErrorMessageText(`Failed to delete availability: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      setShowErrorMessage(true);
     } finally {
       setLoading(false);
     }
@@ -1019,6 +1047,39 @@ const SetAvailability: React.FC = () => {
           </>
         )}
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        title="Delete Availability Slot"
+        message="Are you sure you want to delete this availability slot? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+        onConfirm={confirmDelete}
+        onCancel={() => {
+          setShowDeleteConfirm(false);
+          setDeleteSlotId(null);
+        }}
+      />
+
+      {/* Success Message */}
+      <SuccessMessage
+        isOpen={showSuccessMessage}
+        title="Success!"
+        message={successMessageText}
+        type="success"
+        onClose={() => setShowSuccessMessage(false)}
+      />
+
+      {/* Error Message */}
+      <SuccessMessage
+        isOpen={showErrorMessage}
+        title="Error"
+        message={errorMessageText}
+        type="error"
+        onClose={() => setShowErrorMessage(false)}
+      />
     </div>
   );
 };

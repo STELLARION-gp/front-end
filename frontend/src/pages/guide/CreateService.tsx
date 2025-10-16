@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../../components/Button';
 import '../../styles/pages/guide/_createService.scss';
+import { createService } from '../../services/servicesService';
+import type { CreateServiceRequest, ServiceCategory, DifficultyLevel, ServiceStatus, WeatherPolicyType } from '../../services/servicesService';
+import { auth } from '../../firebase';
 
 // Icons
 const ArrowLeftIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
@@ -53,12 +56,12 @@ const StarIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
 interface ServiceFormData {
   title: string;
   description: string;
-  category: 'stargazing' | 'astrophotography' | 'telescope' | 'planetarium' | 'workshop' | 'expedition';
+  category: ServiceCategory;
   price: number;
   duration: string;
   maxParticipants: number;
   location: string;
-  difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
+  difficulty: DifficultyLevel;
   equipment: string[];
   nextAvailable: string;
   image: string;
@@ -69,7 +72,7 @@ interface ServiceFormData {
   cancellationPolicy: string;
   meetingPoint: string;
   whatToExpect: string;
-  weatherPolicy: string;
+  weatherPolicy: WeatherPolicyType | '';
   bookingDeadline: number;
   languages: string[];
   certification: string;
@@ -157,19 +160,36 @@ const CreateService: React.FC = () => {
 
   // File upload handlers
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('📁 File input changed');
     const files = Array.from(event.target.files || []);
+    console.log('📁 Selected files:', files.length, files.map(f => f.name));
     handleFiles(files);
   };
 
   const handleFiles = (files: File[]) => {
+    console.log('📁 handleFiles called with', files.length, 'files');
+    
+    if (files.length === 0) {
+      console.log('⚠️ No files to process');
+      return;
+    }
+    
     const newFiles: UploadedFile[] = files.map(file => ({
       id: Math.random().toString(36).substring(2),
       file,
       preview: file.type.startsWith('image/') ? URL.createObjectURL(file) : undefined
     }));
 
-    setUploadedFiles(prev => [...prev, ...newFiles]);
+    console.log('📁 Created file objects:', newFiles.length);
+    
+    setUploadedFiles(prev => {
+      const updated = [...prev, ...newFiles];
+      console.log('📁 Updated uploadedFiles state:', updated.length);
+      return updated;
+    });
+    
     handleInputChange('uploadedFiles', [...formData.uploadedFiles, ...files]);
+    console.log('📁 Updated formData.uploadedFiles:', [...formData.uploadedFiles, ...files].length);
   };
 
   const removeFile = (fileId: string) => {
@@ -196,6 +216,18 @@ const CreateService: React.FC = () => {
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
+    console.log('🔍 Validating form...');
+    console.log('Form data:', {
+      title: formData.title,
+      description: formData.description,
+      price: formData.price,
+      duration: formData.duration,
+      maxParticipants: formData.maxParticipants,
+      location: formData.location,
+      nextAvailable: formData.nextAvailable,
+      uploadedFiles: formData.uploadedFiles,
+    });
+
     if (!formData.title.trim()) newErrors.title = 'Title is required';
     if (!formData.description.trim()) newErrors.description = 'Description is required';
     if (formData.price <= 0) newErrors.price = 'Price must be greater than 0';
@@ -203,8 +235,13 @@ const CreateService: React.FC = () => {
     if (formData.maxParticipants <= 0) newErrors.maxParticipants = 'Max participants must be greater than 0';
     if (!formData.location.trim()) newErrors.location = 'Location is required';
     if (!formData.nextAvailable) newErrors.nextAvailable = 'Next available date is required';
-    if (!formData.image.trim()) newErrors.image = 'Image URL is required';
+    
+    // Check for uploaded files instead of image URL
+    if (!formData.uploadedFiles || formData.uploadedFiles.length === 0) {
+      newErrors.image = 'Please upload at least one image';
+    }
 
+    console.log('Validation errors:', newErrors);
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -212,22 +249,124 @@ const CreateService: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!validateForm()) {
+    // Test alert to confirm function is called
+    console.log('🚀 handleSubmit called');
+    console.log('📝 Form data:', formData);
+    
+    const isValid = validateForm();
+    
+    if (!isValid) {
+      console.log('❌ Form validation failed');
+      console.log('❌ Validation errors:', errors);
+      alert('Please fill in all required fields. Check the form for error messages.');
       return;
     }
 
+    console.log('✅ Form validation passed');
     setIsSubmitting(true);
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      let imageUrl = '';
       
-      console.log('Service created:', formData);
+      // Upload the main image first
+      if (formData.uploadedFiles && formData.uploadedFiles.length > 0) {
+        console.log('📤 Processing main image...');
+        
+        const mainImageFile = formData.uploadedFiles[0];
+        
+        // Try to upload to backend
+        try {
+          const uploadFormData = new FormData();
+          uploadFormData.append('file', mainImageFile);
+          
+          const token = await auth.currentUser?.getIdToken();
+          
+          console.log('📤 Sending upload request to backend...');
+          const uploadResponse = await fetch('http://localhost:5000/api/upload', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
+            body: uploadFormData,
+          });
+          
+          console.log('📤 Upload response status:', uploadResponse.status);
+          
+          if (!uploadResponse.ok) {
+            const errorData = await uploadResponse.json().catch(() => ({ message: 'Upload failed' }));
+            console.error('❌ Upload error response:', errorData);
+            
+            // If Cloudinary is not configured, use a placeholder
+            if (errorData.message?.includes('cloudinary') || errorData.error?.includes('cloudinary')) {
+              console.warn('⚠️ Cloudinary not configured, using placeholder image');
+              imageUrl = `https://via.placeholder.com/800x600?text=${encodeURIComponent(formData.title)}`;
+            } else {
+              throw new Error(errorData.message || `Upload failed with status ${uploadResponse.status}`);
+            }
+          } else {
+            const uploadResult = await uploadResponse.json();
+            console.log('✅ Upload result:', uploadResult);
+            imageUrl = uploadResult.url;
+            console.log('✅ Image uploaded:', imageUrl);
+          }
+        } catch (uploadError) {
+          console.error('❌ Upload error:', uploadError);
+          // Use placeholder if upload fails
+          console.warn('⚠️ Using placeholder image due to upload failure');
+          imageUrl = `https://via.placeholder.com/800x600?text=${encodeURIComponent(formData.title)}`;
+        }
+      }
+      
+      console.log('📤 Creating service with image URL:', imageUrl);
+      
+      // Prepare the request data matching the backend API
+      const serviceData: CreateServiceRequest = {
+        title: formData.title,
+        description: formData.description,
+        category: formData.category,
+        price: formData.price,
+        duration: formData.duration,
+        max_participants: formData.maxParticipants,
+        location: formData.location,
+        difficulty: formData.difficulty,
+        equipment: formData.equipment,
+        next_available: formData.nextAvailable,
+        image: imageUrl, // Use uploaded image URL
+        featured: formData.featured,
+        tags: formData.tags,
+        requirements: formData.requirements || undefined,
+        cancellation_policy: formData.cancellationPolicy || undefined,
+        meeting_point: formData.meetingPoint || undefined,
+        what_to_expect: formData.whatToExpect || undefined,
+        weather_policy: formData.weatherPolicy || undefined,
+        booking_deadline: formData.bookingDeadline,
+        languages: formData.languages,
+        certification: formData.certification || undefined,
+        experience: formData.experience || undefined,
+        group_discount: formData.groupDiscount,
+        private_booking: formData.privateBooking,
+        instant_booking: formData.instantBooking,
+        status: 'active' as ServiceStatus, // Set as active by default
+      };
+
+      console.log('📤 Creating service with data:', serviceData);
+      
+      // Call the API
+      const createdService = await createService(serviceData);
+      
+      console.log('✅ Service created successfully:', createdService);
+      
+      // Show success message (you can add a toast notification here)
+      alert('Service created successfully!');
       
       // Navigate back to services list
       navigate('/dashboard/services');
     } catch (error) {
-      console.error('Error creating service:', error);
+      console.error('❌ Error creating service:', error);
+      
+      // Show error message
+      const errorMessage = error instanceof Error ? error.message : 'Failed to create service';
+      alert(`Error: ${errorMessage}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -497,8 +636,9 @@ const CreateService: React.FC = () => {
                       <h3 className="section-title">🖼️ Media Upload</h3>
                       <div className="form-grid">
                         <div className="form-group full-width">
+                          <label>Service Images *</label>
                           <div 
-                            className={`media-upload-dock ${isDragging ? 'drag-over' : ''} ${uploadedFiles.length > 0 ? 'has-files' : ''}`}
+                            className={`media-upload-dock ${isDragging ? 'drag-over' : ''} ${uploadedFiles.length > 0 ? 'has-files' : ''} ${errors.image ? 'error' : ''}`}
                             onDrop={(e) => {
                               e.preventDefault();
                               setIsDragging(false);
@@ -519,7 +659,17 @@ const CreateService: React.FC = () => {
                             <button 
                               type="button" 
                               className="upload-button"
-                              onClick={() => document.getElementById('file-input')?.click()}
+                              onClick={() => {
+                                console.log('🖱️ Upload button clicked');
+                                const fileInput = document.getElementById('file-input') as HTMLInputElement;
+                                console.log('📁 File input element:', fileInput);
+                                if (fileInput) {
+                                  fileInput.click();
+                                  console.log('📁 File input clicked');
+                                } else {
+                                  console.error('❌ File input not found!');
+                                }
+                              }}
                             >
                               Choose Files
                             </button>
@@ -529,7 +679,7 @@ const CreateService: React.FC = () => {
                               multiple
                               accept="image/*"
                               onChange={handleFileSelect}
-                              className="file-input"
+                              style={{ display: 'none' }}
                               title="Upload service images"
                               aria-label="Upload service images"
                             />
@@ -567,6 +717,7 @@ const CreateService: React.FC = () => {
                               </div>
                             )}
                           </div>
+                          {errors.image && <span className="error-message">{errors.image}</span>}
                         </div>
 
                         <div className="form-group full-width">
@@ -639,11 +790,11 @@ const CreateService: React.FC = () => {
                             onChange={(e) => handleInputChange('weatherPolicy', e.target.value)}
                             className="form-select"
                           >
-                            <option value="">Select policy</option>
-                            <option value="reschedule">Reschedule if cloudy</option>
-                            <option value="partial-refund">50% refund if cancelled</option>
-                            <option value="full-refund">Full refund if cancelled</option>
-                            <option value="no-refund">No weather cancellations</option>
+                            <option value="">Select policy (optional)</option>
+                            <option value="reschedule">Reschedule if bad weather</option>
+                            <option value="partial_refund">Partial refund if cancelled</option>
+                            <option value="full_refund">Full refund if cancelled</option>
+                            <option value="no_refund">No weather cancellations</option>
                           </select>
                         </div>
 

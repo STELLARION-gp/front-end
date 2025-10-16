@@ -7,10 +7,11 @@ const API_BASE_URL = 'http://localhost:5000/api';
 export type ServiceCategory = 'stargazing' | 'astrophotography' | 'telescope' | 'planetarium' | 'workshop' | 'expedition';
 export type DifficultyLevel = 'Beginner' | 'Intermediate' | 'Advanced';
 export type ServiceStatus = 'draft' | 'active' | 'paused' | 'archived';
+export type WeatherPolicyType = 'reschedule' | 'partial_refund' | 'full_refund' | 'no_refund';
 
 export interface Service {
   id: number;
-  guide_id: number;
+  created_by: number;
   title: string;
   description: string;
   category: ServiceCategory;
@@ -21,14 +22,14 @@ export interface Service {
   difficulty: DifficultyLevel;
   equipment: string[];
   next_available: string | Date;
-  image: string;
+  image_url: string;
   featured: boolean;
   tags: string[];
   requirements?: string | null;
   cancellation_policy?: string | null;
   meeting_point?: string | null;
   what_to_expect?: string | null;
-  weather_policy?: string | null;
+  weather_policy?: WeatherPolicyType | null;
   booking_deadline?: number | null;
   languages: string[];
   certification?: string | null;
@@ -38,16 +39,16 @@ export interface Service {
   instant_booking: boolean;
   status: ServiceStatus;
   rating?: number | null;
-  total_bookings: number;
+  bookings_count: number;
   created_at: string | Date;
   updated_at: string | Date;
   // Related data
-  guide?: {
+  creator?: {
     id: number;
     first_name?: string;
     last_name?: string;
     email: string;
-    profile_image?: string;
+    display_name?: string;
   };
   media?: ServiceMedia[];
   availability?: ServiceAvailability[];
@@ -65,12 +66,12 @@ export interface ServiceMedia {
 export interface ServiceAvailability {
   id: number;
   service_id: number;
-  date: string | Date;
+  available_date: string | Date;
   start_time: string;
   end_time: string;
   slots_available: number;
   slots_booked: number;
-  is_available: boolean;
+  status: string; // 'available', 'unavailable', 'booked'
   created_at: string | Date;
   updated_at: string | Date;
 }
@@ -86,14 +87,14 @@ export interface CreateServiceRequest {
   difficulty: DifficultyLevel;
   equipment: string[];
   next_available: string;
-  image: string;
+  image: string; // Will be mapped to image_url in backend
   featured?: boolean;
   tags?: string[];
   requirements?: string;
   cancellation_policy?: string;
   meeting_point?: string;
   what_to_expect?: string;
-  weather_policy?: string;
+  weather_policy?: WeatherPolicyType;
   booking_deadline?: number;
   languages?: string[];
   certification?: string;
@@ -110,7 +111,7 @@ export interface UpdateServiceRequest extends Partial<CreateServiceRequest> {
 
 export interface CreateAvailabilityRequest {
   service_id: number;
-  date: string; // ISO format: YYYY-MM-DD
+  date: string; // ISO format: YYYY-MM-DD (will be mapped to available_date)
   start_time: string; // Format: HH:MM
   end_time: string; // Format: HH:MM
   slots_available: number;
@@ -122,7 +123,7 @@ export interface UpdateAvailabilityRequest {
   start_time?: string;
   end_time?: string;
   slots_available?: number;
-  is_available?: boolean;
+  is_available?: boolean; // Will be converted to status in backend
 }
 
 export interface ServiceFilters {

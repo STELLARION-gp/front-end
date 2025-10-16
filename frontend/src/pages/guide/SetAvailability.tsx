@@ -115,12 +115,26 @@ const transformApiService = (apiService: ApiService): Service => {
 
 // Transform API availability to local format
 const transformApiAvailability = (apiAvail: ApiAvailability): AvailabilitySlot => {
+  // Extract time from DateTime string (e.g., "2025-07-05T19:00:00.000Z" -> "19:00")
+  const extractTime = (dateTimeStr: string): string => {
+    if (!dateTimeStr) return '';
+    try {
+      const date = new Date(dateTimeStr);
+      const hours = String(date.getUTCHours()).padStart(2, '0');
+      const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+      return `${hours}:${minutes}`;
+    } catch (err) {
+      console.error('Error extracting time:', err);
+      return dateTimeStr; // Return original if parsing fails
+    }
+  };
+
   return {
     id: apiAvail.id.toString(),
     serviceId: apiAvail.service_id.toString(),
     date: typeof apiAvail.available_date === 'string' ? apiAvail.available_date.split('T')[0] : new Date(apiAvail.available_date).toISOString().split('T')[0],
-    startTime: apiAvail.start_time,
-    endTime: apiAvail.end_time,
+    startTime: extractTime(apiAvail.start_time),
+    endTime: extractTime(apiAvail.end_time),
     capacity: apiAvail.slots_available,
     bookedCount: apiAvail.slots_booked || 0,
     status: apiAvail.status === 'available' ? 'active' : (apiAvail.slots_booked >= apiAvail.slots_available ? 'full' : 'inactive'),
@@ -183,9 +197,8 @@ const SetAvailability: React.FC = () => {
             setFormData(prev => ({ ...prev, capacity: service.max_participants, price: service.price }));
             
             // Fetch availability for the service
-            const availResponse = await getServiceAvailability(parseInt(serviceId), {
-              start_date: new Date().toISOString().split('T')[0]
-            });
+            const availResponse = await getServiceAvailability(parseInt(serviceId), {});
+            console.log('Initial availability fetch:', availResponse); // Debug log
             const transformedAvailability = availResponse.map(transformApiAvailability);
             setAvailabilitySlots(transformedAvailability);
           }
@@ -270,13 +283,18 @@ const SetAvailability: React.FC = () => {
   // Fetch availability for a specific service
   const fetchServiceAvailability = async (svcId: string) => {
     try {
-      const availResponse = await getServiceAvailability(parseInt(svcId), {
-        start_date: new Date().toISOString().split('T')[0]
-      });
+      setLoading(true);
+      // Fetch all availability slots for the service (no date filter to see all)
+      const availResponse = await getServiceAvailability(parseInt(svcId), {});
+      console.log('Fetched availability:', availResponse); // Debug log
       const transformedAvailability = availResponse.map(transformApiAvailability);
+      console.log('Transformed availability:', transformedAvailability); // Debug log
       setAvailabilitySlots(transformedAvailability);
     } catch (err) {
       console.error('Error fetching availability:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load availability');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -526,10 +544,19 @@ const SetAvailability: React.FC = () => {
 
   // Get slots for selected service
   const serviceSlots = useMemo(() => {
-    return selectedService
+    const slots = selectedService
       ? availabilitySlots.filter(slot => slot.serviceId === selectedService.id)
         .sort((a, b) => new Date(a.date + ' ' + a.startTime).getTime() - new Date(b.date + ' ' + b.startTime).getTime())
       : [];
+    
+    console.log('Service slots for display:', {
+      selectedServiceId: selectedService?.id,
+      totalAvailabilitySlots: availabilitySlots.length,
+      filteredSlots: slots.length,
+      slots
+    });
+    
+    return slots;
   }, [availabilitySlots, selectedService]);
 
   return (

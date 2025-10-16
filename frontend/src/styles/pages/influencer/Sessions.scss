@@ -1126,6 +1126,80 @@ input:checked + .toggle-slider:before {
         grid-template-columns: 1fr;
       }
 
+      .pie-chart-container {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2rem;
+
+        .pie-chart {
+          width: 100%;
+          max-width: 300px;
+          height: auto;
+          filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.2));
+
+          .pie-slice {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            
+            &:hover {
+              opacity: 0.8;
+              transform: scale(1.05);
+              transform-origin: center;
+              filter: brightness(1.2);
+            }
+          }
+        }
+
+        .pie-chart-legend {
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          gap: 0.75rem;
+
+          .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            transition: all 0.2s ease;
+
+            &:hover {
+              background: rgba(255, 255, 255, 0.08);
+              transform: translateX(4px);
+            }
+
+            .legend-color {
+              width: 16px;
+              height: 16px;
+              border-radius: 4px;
+              flex-shrink: 0;
+            }
+
+            .legend-text {
+              flex: 1;
+              font-size: 0.9rem;
+              color: var(--text-primary);
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+            }
+
+            .legend-value {
+              font-size: 0.85rem;
+              font-weight: 600;
+              color: var(--text-secondary);
+              flex-shrink: 0;
+            }
+          }
+        }
+      }
+
       .interactive-chart {
         height: 300px;
         background: rgba(255, 255, 255, 0.05);
@@ -1242,6 +1316,7 @@ input:checked + .toggle-slider:before {
             font-weight: 600;
             color: var(--text-primary);
             margin: 0.5rem 0;
+            text-align: center;
           }
 
           .metric-label {
@@ -2187,11 +2262,14 @@ input:checked + .toggle-slider:before {
         margin-top: 1rem;
         padding: 0 10px;
         color: var(--text-secondary);
-        font-size: 0.85rem;
+        font-size: 0.75rem;
 
         span {
           flex: 1;
           text-align: center;
+          word-break: break-word;
+          line-height: 1.2;
+          max-width: 80px;
         }
       }
     }

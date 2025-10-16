@@ -1173,31 +1173,83 @@ const Sessions = () => {
             {liveSessionsAnalytics.count > 0 ? (
               <div className="analytics-grid">
                 <div className="chart-container">
-                  <h4>Students by Difficulty</h4>
-                  <div className="interactive-chart">
-                    <div className="chart-bars">
-                      {['beginner', 'intermediate', 'advanced'].map((level, index) => {
-                        const count = liveSessionsAnalytics.difficultyDistribution[level as 'beginner' | 'intermediate' | 'advanced'] || 0;
-                        const maxCount = Math.max(
-                          liveSessionsAnalytics.difficultyDistribution.beginner,
-                          liveSessionsAnalytics.difficultyDistribution.intermediate,
-                          liveSessionsAnalytics.difficultyDistribution.advanced,
-                          1
-                        );
-                        const height = (count / maxCount) * 100;
-                        return (
-                          <div key={index} className="bar-wrapper">
-                            <div className="bar" style={{height: `${Math.max(height, 5)}%`}}>
-                              <span className="bar-tooltip">{count} students</span>
+                  <h4>Top Live Sessions by Student Engagement</h4>
+                  <div className="pie-chart-container">
+                    <svg viewBox="0 0 200 200" className="pie-chart">
+                      {(() => {
+                        const topSessions = sessions
+                          .filter(s => s.session_type === 'live')
+                          .sort((a, b) => b.studentCount - a.studentCount)
+                          .slice(0, 5);
+                        
+                        const total = topSessions.reduce((sum, s) => sum + s.studentCount, 0);
+                        let currentAngle = 0;
+                        const colors = ['#3b82f6', '#8b5cf6', '#06b6d4', '#10b981', '#f59e0b'];
+                        
+                        return topSessions.map((session, index) => {
+                          const percentage = (session.studentCount / total) * 100;
+                          const angle = (percentage / 100) * 360;
+                          const startAngle = currentAngle;
+                          const endAngle = currentAngle + angle;
+                          
+                          // Calculate path for pie slice
+                          const startRad = (startAngle - 90) * (Math.PI / 180);
+                          const endRad = (endAngle - 90) * (Math.PI / 180);
+                          const x1 = 100 + 80 * Math.cos(startRad);
+                          const y1 = 100 + 80 * Math.sin(startRad);
+                          const x2 = 100 + 80 * Math.cos(endRad);
+                          const y2 = 100 + 80 * Math.sin(endRad);
+                          const largeArc = angle > 180 ? 1 : 0;
+                          
+                          currentAngle = endAngle;
+                          
+                          return (
+                            <g key={session.id}>
+                              <path
+                                d={`M 100 100 L ${x1} ${y1} A 80 80 0 ${largeArc} 1 ${x2} ${y2} Z`}
+                                fill={colors[index % colors.length]}
+                                stroke="rgba(0,0,0,0.1)"
+                                strokeWidth="1"
+                                className="pie-slice"
+                              >
+                                <title>{session.title}: {session.studentCount} students ({percentage.toFixed(1)}%)</title>
+                              </path>
+                            </g>
+                          );
+                        });
+                      })()}
+                    </svg>
+                    <div className="pie-chart-legend">
+                      {sessions
+                        .filter(s => s.session_type === 'live')
+                        .sort((a, b) => b.studentCount - a.studentCount)
+                        .slice(0, 5)
+                        .map((session, index) => {
+                          const topSessions = sessions
+                            .filter(s => s.session_type === 'live')
+                            .sort((a, b) => b.studentCount - a.studentCount)
+                            .slice(0, 5);
+                          const total = topSessions.reduce((sum, s) => sum + s.studentCount, 0);
+                          const percentage = ((session.studentCount / total) * 100).toFixed(1);
+                          const colors = ['#3b82f6', '#8b5cf6', '#06b6d4', '#10b981', '#f59e0b'];
+                          
+                          return (
+                            <div key={session.id} className="legend-item">
+                              <span 
+                                className="legend-color" 
+                                style={{ backgroundColor: colors[index % colors.length] }}
+                              ></span>
+                              <span className="legend-text" title={session.title}>
+                                {session.title.length > 25 
+                                  ? session.title.substring(0, 22) + '...' 
+                                  : session.title}
+                              </span>
+                              <span className="legend-value">
+                                {session.studentCount} ({percentage}%)
+                              </span>
                             </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                    <div className="chart-labels">
-                      <span>Beginner</span>
-                      <span>Intermediate</span>
-                      <span>Advanced</span>
+                          );
+                        })}
                     </div>
                   </div>
                 </div>
@@ -1241,31 +1293,83 @@ const Sessions = () => {
             {recordedSessionsAnalytics.count > 0 ? (
               <div className="analytics-grid">
                 <div className="chart-container">
-                  <h4>Students by Difficulty</h4>
-                  <div className="interactive-chart">
-                    <div className="chart-bars">
-                      {['beginner', 'intermediate', 'advanced'].map((level, index) => {
-                        const count = recordedSessionsAnalytics.difficultyDistribution[level as 'beginner' | 'intermediate' | 'advanced'] || 0;
-                        const maxCount = Math.max(
-                          recordedSessionsAnalytics.difficultyDistribution.beginner,
-                          recordedSessionsAnalytics.difficultyDistribution.intermediate,
-                          recordedSessionsAnalytics.difficultyDistribution.advanced,
-                          1
-                        );
-                        const height = (count / maxCount) * 100;
-                        return (
-                          <div key={index} className="bar-wrapper">
-                            <div className="bar secondary" style={{height: `${Math.max(height, 5)}%`}}>
-                              <span className="bar-tooltip">{count} students</span>
+                  <h4>Top Recorded Sessions by Student Engagement</h4>
+                  <div className="pie-chart-container">
+                    <svg viewBox="0 0 200 200" className="pie-chart">
+                      {(() => {
+                        const topSessions = sessions
+                          .filter(s => s.session_type === 'recorded')
+                          .sort((a, b) => b.studentCount - a.studentCount)
+                          .slice(0, 5);
+                        
+                        const total = topSessions.reduce((sum, s) => sum + s.studentCount, 0);
+                        let currentAngle = 0;
+                        const colors = ['#ec4899', '#f97316', '#eab308', '#84cc16', '#14b8a6'];
+                        
+                        return topSessions.map((session, index) => {
+                          const percentage = (session.studentCount / total) * 100;
+                          const angle = (percentage / 100) * 360;
+                          const startAngle = currentAngle;
+                          const endAngle = currentAngle + angle;
+                          
+                          // Calculate path for pie slice
+                          const startRad = (startAngle - 90) * (Math.PI / 180);
+                          const endRad = (endAngle - 90) * (Math.PI / 180);
+                          const x1 = 100 + 80 * Math.cos(startRad);
+                          const y1 = 100 + 80 * Math.sin(startRad);
+                          const x2 = 100 + 80 * Math.cos(endRad);
+                          const y2 = 100 + 80 * Math.sin(endRad);
+                          const largeArc = angle > 180 ? 1 : 0;
+                          
+                          currentAngle = endAngle;
+                          
+                          return (
+                            <g key={session.id}>
+                              <path
+                                d={`M 100 100 L ${x1} ${y1} A 80 80 0 ${largeArc} 1 ${x2} ${y2} Z`}
+                                fill={colors[index % colors.length]}
+                                stroke="rgba(0,0,0,0.1)"
+                                strokeWidth="1"
+                                className="pie-slice"
+                              >
+                                <title>{session.title}: {session.studentCount} students ({percentage.toFixed(1)}%)</title>
+                              </path>
+                            </g>
+                          );
+                        });
+                      })()}
+                    </svg>
+                    <div className="pie-chart-legend">
+                      {sessions
+                        .filter(s => s.session_type === 'recorded')
+                        .sort((a, b) => b.studentCount - a.studentCount)
+                        .slice(0, 5)
+                        .map((session, index) => {
+                          const topSessions = sessions
+                            .filter(s => s.session_type === 'recorded')
+                            .sort((a, b) => b.studentCount - a.studentCount)
+                            .slice(0, 5);
+                          const total = topSessions.reduce((sum, s) => sum + s.studentCount, 0);
+                          const percentage = ((session.studentCount / total) * 100).toFixed(1);
+                          const colors = ['#ec4899', '#f97316', '#eab308', '#84cc16', '#14b8a6'];
+                          
+                          return (
+                            <div key={session.id} className="legend-item">
+                              <span 
+                                className="legend-color" 
+                                style={{ backgroundColor: colors[index % colors.length] }}
+                              ></span>
+                              <span className="legend-text" title={session.title}>
+                                {session.title.length > 25 
+                                  ? session.title.substring(0, 22) + '...' 
+                                  : session.title}
+                              </span>
+                              <span className="legend-value">
+                                {session.studentCount} ({percentage}%)
+                              </span>
                             </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                    <div className="chart-labels">
-                      <span>Beginner</span>
-                      <span>Intermediate</span>
-                      <span>Advanced</span>
+                          );
+                        })}
                     </div>
                   </div>
                 </div>

@@ -4,8 +4,8 @@ import { Dialog, Tab } from '@headlessui/react';
 interface AddContentModalProps {
   open: boolean;
   onClose: () => void;
-  onAddVideo: (url: string) => void;
-  onAddDocument: (file: File) => void;
+  onAddVideo: (data: { url: string; title: string; description?: string }) => void;
+  onAddDocument: (data: { file: File; title: string; description?: string }) => void;
 }
 
 function classNames(...classes: string[]) {
@@ -13,19 +13,28 @@ function classNames(...classes: string[]) {
 }
 
 const AddContentModal: React.FC<AddContentModalProps> = ({ open, onClose, onAddVideo, onAddDocument }) => {
+  const [videoTitle, setVideoTitle] = useState('');
   const [videoUrl, setVideoUrl] = useState('');
+  const [videoDesc, setVideoDesc] = useState('');
+
+  const [docTitle, setDocTitle] = useState('');
   const [docFile, setDocFile] = useState<File | null>(null);
+  const [docDesc, setDocDesc] = useState('');
 
   const [tabIdx, setTabIdx] = useState(0);
 
   const handleSave = () => {
-    if (tabIdx === 0 && videoUrl) {
-      onAddVideo(videoUrl);
+    if (tabIdx === 0 && videoUrl && videoTitle) {
+      onAddVideo({ url: videoUrl, title: videoTitle, description: videoDesc || undefined });
+      setVideoTitle('');
       setVideoUrl('');
+      setVideoDesc('');
       onClose();
-    } else if (tabIdx === 1 && docFile) {
-      onAddDocument(docFile);
+    } else if (tabIdx === 1 && docFile && docTitle) {
+      onAddDocument({ file: docFile, title: docTitle, description: docDesc || undefined });
+      setDocTitle('');
       setDocFile(null);
+      setDocDesc('');
       onClose();
     }
   };
@@ -64,10 +73,19 @@ const AddContentModal: React.FC<AddContentModalProps> = ({ open, onClose, onAddV
             </Tab.List>
             <Tab.Panels>
               <Tab.Panel>
+                <label className="block mb-2 font-medium text-black">Title</label>
+                <input
+                  type="text"
+                  className="w-full border border-gray-300 rounded px-3 py-2 mb-4 text-white"
+                  style={{ background: '#23272f', borderColor: '#23272f' }}
+                  placeholder="Enter a title"
+                  value={videoTitle}
+                  onChange={e => setVideoTitle(e.target.value)}
+                />
                 <label className="block mb-2 font-medium text-black">YouTube Video URL</label>
                 <input
                   type="url"
-                  className="w-full border border-gray-300 rounded px-3 py-2 mb-4 text-white"
+                  className="w-full border border-gray-300 rounded px-3 py-2 mb-2 text-white"
                   style={{ background: '#23272f', borderColor: '#23272f' }}
                   placeholder="https://youtube.com/..."
                   value={videoUrl}
@@ -75,21 +93,48 @@ const AddContentModal: React.FC<AddContentModalProps> = ({ open, onClose, onAddV
                   // Custom placeholder color
                   onFocus={e => e.target.style.setProperty('color-scheme', 'dark')}
                 />
+                <label className="block mb-2 font-medium text-black">Description (optional)</label>
+                <textarea
+                  className="w-full border border-gray-300 rounded px-3 py-2 mb-4 text-white"
+                  style={{ background: '#23272f', borderColor: '#23272f' }}
+                  placeholder="Add a short description"
+                  rows={3}
+                  value={videoDesc}
+                  onChange={e => setVideoDesc(e.target.value)}
+                />
                 <style>{`
-                  input[type="url"]::placeholder {
+                  input[type="url"]::placeholder, input[type="text"]::placeholder, textarea::placeholder {
                     color: #fff !important;
                     opacity: 1;
                   }
                 `}</style>
               </Tab.Panel>
               <Tab.Panel>
-                <label className="block mb-2 font-medium text-black">Upload Document (PDF/DOC)</label>
+                <label className="block mb-2 font-medium text-black">Title</label>
+                <input
+                  type="text"
+                  className="w-full border border-gray-300 rounded px-3 py-2 mb-4 text-black"
+                  placeholder="Enter a title for the PDF"
+                  value={docTitle}
+                  onChange={e => setDocTitle(e.target.value)}
+                  style={{ background: '#fff', border: '1.5px solid #000' }}
+                />
+                <label className="block mb-2 font-medium text-black">Upload Document (PDF only)</label>
                 <input
                   type="file"
-                  accept=".pdf,.doc,.docx"
+                  accept=".pdf"
                   className="w-full mb-4 file-black-outline"
                   onChange={e => setDocFile(e.target.files?.[0] || null)}
                   style={{ color: 'black', background: '#fff', border: '1.5px solid #000' }}
+                />
+                <label className="block mb-2 font-medium text-black">Description (optional)</label>
+                <textarea
+                  className="w-full border border-gray-300 rounded px-3 py-2 mb-2 text-black"
+                  placeholder="Add a short description"
+                  rows={3}
+                  value={docDesc}
+                  onChange={e => setDocDesc(e.target.value)}
+                  style={{ background: '#fff', border: '1.5px solid #000' }}
                 />
                 {docFile && <div className="text-sm text-gray-600">Selected: {docFile.name}</div>}
               </Tab.Panel>
@@ -106,15 +151,15 @@ const AddContentModal: React.FC<AddContentModalProps> = ({ open, onClose, onAddV
               className={classNames(
                 'px-4 py-2 rounded text-white',
                 tabIdx === 0
-                  ? videoUrl
+                  ? videoUrl && videoTitle
                     ? 'bg-blue-600 hover:bg-blue-700'
                     : 'bg-blue-300 cursor-not-allowed'
-                  : docFile
+                  : docFile && docTitle
                   ? 'bg-indigo-600 hover:bg-indigo-700'
                   : 'bg-indigo-300 cursor-not-allowed'
               )}
               onClick={handleSave}
-              disabled={tabIdx === 0 ? !videoUrl : !docFile}
+              disabled={tabIdx === 0 ? !(videoUrl && videoTitle) : !(docFile && docTitle)}
             >
               Save
             </button>

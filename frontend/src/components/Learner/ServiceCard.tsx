@@ -14,7 +14,6 @@ interface ServiceCardProps {
   duration: string;
   tags: string[];
   price: number;
-  onCardClick?: () => void;
   onBookClick?: (e: React.MouseEvent) => void;
 }
 
@@ -29,7 +28,6 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   duration,
   tags,
   price,
-  onCardClick,
   onBookClick
 }) => {
   const renderStars = (rating: number) => {
@@ -38,7 +36,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
     ));
   };
   return (
-    <div className="service-card" tabIndex={0} role="button" onClick={onCardClick} style={{ cursor: onCardClick ? 'pointer' : 'default' }}>
+    <div className="service-card">
       {image && (
         <div className="service-card__image">
           <img src={image} alt={title} />

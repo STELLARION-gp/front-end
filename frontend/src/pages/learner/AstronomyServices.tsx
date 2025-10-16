@@ -260,10 +260,6 @@ const AstronomyServices: React.FC = () => {
       else return b.price - a.price;
     });
 
-  const handleCardClick = (id: number) => {
-    navigate(`/dashboard/astronomy-services/${id}`);
-  };
-
   const handleBookClick = (id: number) => {
     setSelectedServiceId(id);
     setBookingModalOpen(true);
@@ -321,7 +317,6 @@ const AstronomyServices: React.FC = () => {
                 <ServiceCard 
                   key={idx} 
                   {...service} 
-                  onCardClick={() => handleCardClick(service.id)}
                   onBookClick={() => handleBookClick(service.id)}
                 />
               ))

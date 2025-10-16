@@ -17,6 +17,11 @@ const Chatbot: React.FC = () => {
   // Use the custom hook for chatbot functionality
   const { messages, isLoading, sendMessage, clearMessages } = useChatbot();
 
+  // Debug: Log isLoading state changes
+  useEffect(() => {
+    console.log("🎨 [CHATBOT] isLoading changed to:", isLoading);
+  }, [isLoading]);
+
   // Check backend connection status
   useEffect(() => {
     const checkBackendConnection = async () => {
@@ -144,6 +149,7 @@ const Chatbot: React.FC = () => {
                             <span></span>
                             <span></span>
                           </div>
+                          <span className="typing-text">{message.text}</span>
                         </div>
                       ) : (
                         <div className="message-text">{message.text}</div>
@@ -159,6 +165,24 @@ const Chatbot: React.FC = () => {
 
               <div className="chatbot-input-area">
                 <div className="input-container">
+                  {/* Debug indicator - remove in production */}
+                  {isLoading && (
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: "-25px",
+                        left: "0",
+                        background: "#f44336",
+                        color: "white",
+                        padding: "2px 8px",
+                        borderRadius: "4px",
+                        fontSize: "12px",
+                        zIndex: 1000,
+                      }}
+                    >
+                      ⚠️ isLoading: {isLoading.toString()}
+                    </div>
+                  )}
                   <input
                     ref={inputRef}
                     type="text"
@@ -173,13 +197,14 @@ const Chatbot: React.FC = () => {
                     className={`send-btn ${inputValue.trim() ? "active" : ""}`}
                     onClick={handleSendMessage}
                     disabled={!inputValue.trim() || isLoading}
-                    title="Send message"
+                    title={isLoading ? "Sending..." : "Send message"}
                   >
                     <Rocket size={24} />
                   </button>
                 </div>
                 <div className="input-hint">
                   Press Enter to send, or click the send button
+                  {isLoading && " • Loading..."}
                 </div>
               </div>
             </>

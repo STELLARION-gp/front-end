@@ -7,6 +7,7 @@ import Button from '../../components/Button';
 import { sessionsService } from '../../services/sessionsService'
 import pollService, { type Poll } from '../../services/pollService'
 import { auth } from '../../firebase'
+import ParticipantsIcon from '../../assets/svg/ParticipantsIcon'
 import type { 
   Session as APISession, 
   CreateSessionRequest,
@@ -1071,7 +1072,7 @@ const Sessions = () => {
       link.click();
       document.body.removeChild(link);
       
-      showNotification('success', `📊 ${type.charAt(0).toUpperCase() + type.slice(1)} sessions report exported successfully!`);
+      showNotification('success', ` ${type.charAt(0).toUpperCase() + type.slice(1)} sessions report exported successfully!`);
     };
     
     return (
@@ -1080,14 +1081,25 @@ const Sessions = () => {
           <h2>My Sessions Analytics</h2>
           <div className="analytics-actions">
             <Button onClick={() => handleExportReport('all')} variant="secondary">
-              📊 Export All Reports
+              Export All Reports
             </Button>
           </div>
         </div>
 
         <div className="analytics-summary">
           <div className="summary-card total-revenue">
-            <div className="card-icon">�</div>
+            <div className="card-icon">
+              <svg 
+                width="32" 
+                height="32" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2"
+              >
+                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+              </svg>
+            </div>
             <div className="card-content">
               <h4>Total Revenue</h4>
               <p className="amount">LKR {overview.totalRevenue.toLocaleString()}</p>
@@ -1095,7 +1107,21 @@ const Sessions = () => {
             </div>
           </div>
           <div className="summary-card total-sessions">
-            <div className="card-icon">📅</div>
+            <div className="card-icon">
+              <svg 
+                width="32" 
+                height="32" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2"
+              >
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+            </div>
             <div className="card-content">
               <h4>Total Sessions</h4>
               <p className="amount">{overview.totalSessions}</p>
@@ -1103,7 +1129,9 @@ const Sessions = () => {
             </div>
           </div>
           <div className="summary-card total-students">
-            <div className="card-icon">👥</div>
+            <div className="card-icon">
+              <ParticipantsIcon size={32} />
+            </div>
             <div className="card-content">
               <h4>Total Students</h4>
               <p className="amount">{overview.totalStudents}</p>
@@ -1111,7 +1139,18 @@ const Sessions = () => {
             </div>
           </div>
           <div className="summary-card completion-rate">
-            <div className="card-icon">✅</div>
+            <div className="card-icon">
+              <svg 
+                width="32" 
+                height="32" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2"
+              >
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
             <div className="card-content">
               <h4>Completion Rate</h4>
               <p className="amount">{overview.completionRate}%</p>
@@ -1126,7 +1165,7 @@ const Sessions = () => {
               <h3>Live Sessions Performance ({liveSessionsAnalytics.count})</h3>
               <div className="section-actions">
                 <button className="action-btn" onClick={() => handleExportReport('live')}>
-                  📥 Export Live Sessions Report
+                  Export Live Sessions Report
                 </button>
               </div>
             </div>

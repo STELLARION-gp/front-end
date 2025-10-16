@@ -12,7 +12,8 @@ import type {
 import { 
   getMyServices, 
   updateService, 
-  deleteService 
+  deleteService,
+  getGuideServiceStats 
 } from '../../services/servicesService';
 
 // Icons
@@ -156,6 +157,15 @@ const ServiceListing: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
+  // Stats state
+  const [stats, setStats] = useState({
+    total_services: 0,
+    active_services: 0,
+    total_bookings: 0,
+    total_revenue: 0,
+    average_rating: 0
+  });
+  
   // Modal states
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -170,25 +180,41 @@ const ServiceListing: React.FC = () => {
   const [showErrorMessage, setShowErrorMessage] = useState(false);
   const [errorMessageText, setErrorMessageText] = useState('');
 
-  // Fetch services on mount
+  // Helper function to refresh stats
+  const refreshStats = async () => {
+    try {
+      const statsResponse = await getGuideServiceStats();
+      setStats(statsResponse);
+    } catch (err) {
+      console.error('Error refreshing stats:', err);
+    }
+  };
+
+  // Fetch services and stats on mount
   useEffect(() => {
-    const fetchServices = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
         setError(null);
-        const response = await getMyServices({});
         
-        const transformedServices = response.services.map(transformApiService);
+        // Fetch services and stats in parallel
+        const [servicesResponse, statsResponse] = await Promise.all([
+          getMyServices({}),
+          getGuideServiceStats()
+        ]);
+        
+        const transformedServices = servicesResponse.services.map(transformApiService);
         setServices(transformedServices);
+        setStats(statsResponse);
       } catch (err) {
-        console.error('Error fetching services:', err);
-        setError(err instanceof Error ? err.message : 'Failed to load services');
+        console.error('Error fetching data:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load data');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchServices();
+    fetchData();
   }, []);
 
   // Filter and sort services
@@ -273,6 +299,9 @@ const ServiceListing: React.FC = () => {
         )
       );
       
+      // Refresh stats to reflect changes
+      await refreshStats();
+      
       handleCloseModals();
       setSuccessMessageText('Service updated successfully!');
       setShowSuccessMessage(true);
@@ -299,6 +328,9 @@ const ServiceListing: React.FC = () => {
       
       // Remove from local state
       setServices(prevServices => prevServices.filter(s => s.id !== serviceToDelete.id));
+      
+      // Refresh stats to reflect deletion
+      await refreshStats();
       
       handleCloseModals();
       setShowDeleteConfirm(false);
@@ -396,9 +428,9 @@ const ServiceListing: React.FC = () => {
                 <ServiceIcon className="icon" />
               </div> */}
               <div className="stat-info">
-                <h3 className="stat-number">24</h3>
-                <p className="stat-label">Active Services</p>
-                <span className="stat-change positive">+3 this month</span>
+                <h3 className="stat-number">{stats.total_services}</h3>
+                <p className="stat-label">Total Services</p>
+                <span className="stat-change positive">{stats.active_services} active</span>
               </div>
             </div>
           </Card>
@@ -408,11 +440,13 @@ const ServiceListing: React.FC = () => {
                 <StarIcon className="icon star-icon" filled />
               </div> */}
               <div className="stat-info">
-                <h3 className="stat-number">4.8</h3>
+                <h3 className="stat-number">{stats.average_rating > 0 ? stats.average_rating.toFixed(1) : 'N/A'}</h3>
                 <p className="stat-label">Average Rating</p>
-                <div className="stat-stars">
-                  {renderStars(4.8)}
-                </div>
+                {stats.average_rating > 0 && (
+                  <div className="stat-stars">
+                    {renderStars(stats.average_rating)}
+                  </div>
+                )}
               </div>
             </div>
           </Card>
@@ -422,9 +456,9 @@ const ServiceListing: React.FC = () => {
                 <BookingIcon className="icon" />
               </div> */}
               <div className="stat-info">
-                <h3 className="stat-number">156</h3>
+                <h3 className="stat-number">{stats.total_bookings}</h3>
                 <p className="stat-label">Total Bookings</p>
-                <span className="stat-change positive">+12 this week</span>
+                <span className="stat-change positive">All time</span>
               </div>
             </div>
           </Card>
@@ -434,9 +468,9 @@ const ServiceListing: React.FC = () => {
                 <RevenueIcon className="icon" />
               </div> */}
               <div className="stat-info">
-                <h3 className="stat-number">$3,240</h3>
-                <p className="stat-label">Monthly Revenue</p>
-                <span className="stat-change positive">+18%</span>
+                <h3 className="stat-number">${stats.total_revenue.toLocaleString()}</h3>
+                <p className="stat-label">Total Revenue</p>
+                <span className="stat-change positive">All time</span>
               </div>
             </div>
           </Card>

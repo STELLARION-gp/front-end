@@ -182,20 +182,21 @@ const BookingModalContent: React.FC<Omit<BookingModalProps, 'isOpen'>> = ({
 
   return (
     <div className="booking-modal-content">
-      <button className="modal-close-btn" onClick={onClose} aria-label="Close">×</button>
-
-      {/* Service Header */}
+      {/* Header with close button */}
       <div className="booking-modal-header">
+        <h2>{service.title}</h2>
+        <button className="modal-close-btn" onClick={onClose} aria-label="Close">×</button>
+      </div>
+
+      {/* Service Preview */}
+      <div className="service-preview">
         <img src={service.image_url} alt={service.title} className="service-image" />
-        <div className="service-info">
-          <h2>{service.title}</h2>
-          <div className="service-meta">
-            <span className="rating">{renderStars(service.rating || 0)} {(service.rating || 0).toFixed(1)}</span>
-            <span className="location">📍 {service.location}</span>
-            <span className="duration">⏱️ {service.duration}</span>
-          </div>
-          <p className="service-description">{service.description}</p>
+        <div className="service-meta">
+          <span className="rating">{renderStars(service.rating || 0)} {(service.rating || 0).toFixed(1)}</span>
+          <span className="location">📍 {service.location}</span>
+          <span className="duration">⏱️ {service.duration}</span>
         </div>
+        <p className="service-description">{service.description}</p>
       </div>
 
       {bookingStep === 'details' && (
@@ -301,49 +302,40 @@ const BookingModalContent: React.FC<Omit<BookingModalProps, 'isOpen'>> = ({
           </div>
 
           {/* Service Details */}
-          <div className="booking-section">
-            <h3>What's Included</h3>
-            <div className="service-details-grid">
-              {service.equipment && service.equipment.length > 0 && (
-                <div className="detail-item">
-                  <h4>Equipment Provided</h4>
-                  <ul>
-                    {service.equipment.map((item, idx) => (
-                      <li key={idx}>{item}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              
-              {service.what_to_expect && (
-                <div className="detail-item">
-                  <h4>What to Expect</h4>
-                  <p>{service.what_to_expect}</p>
-                </div>
-              )}
-
-              {service.requirements && (
-                <div className="detail-item">
-                  <h4>Requirements</h4>
-                  <p>{service.requirements}</p>
-                </div>
-              )}
-
-              {service.cancellation_policy && (
-                <div className="detail-item">
-                  <h4>Cancellation Policy</h4>
-                  <p>{service.cancellation_policy}</p>
-                </div>
-              )}
+          {(service.equipment && service.equipment.length > 0) || 
+           service.what_to_expect || 
+           service.requirements || 
+           service.cancellation_policy ? (
+            <div className="booking-section">
+              <h3>What's Included</h3>
+              <div className="service-details-grid">
+                {service.equipment && service.equipment.length > 0 && (
+                  <div className="detail-item">
+                    <h4>Equipment Provided</h4>
+                    <ul>
+                      {service.equipment.slice(0, 3).map((item, idx) => (
+                        <li key={idx}>{item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                
+                {service.cancellation_policy && (
+                  <div className="detail-item">
+                    <h4>Cancellation Policy</h4>
+                    <p>{service.cancellation_policy}</p>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
+          ) : null}
 
           {/* Reviews Section */}
           {reviews.length > 0 && (
             <div className="booking-section">
               <h3>Recent Reviews ({service.rating ? service.rating.toFixed(1) : 'N/A'} ⭐)</h3>
               <div className="reviews-list">
-                {reviews.map((review) => (
+                {reviews.slice(0, 3).map((review) => (
                   <div key={review.id} className="review-item">
                     <div className="review-header">
                       <span className="reviewer-name">
@@ -354,9 +346,6 @@ const BookingModalContent: React.FC<Omit<BookingModalProps, 'isOpen'>> = ({
                       <span className="review-rating">{renderStars(review.rating)}</span>
                     </div>
                     <p className="review-text">{review.review}</p>
-                    <span className="review-date">
-                      {new Date(review.created_at).toLocaleDateString()}
-                    </span>
                   </div>
                 ))}
               </div>

@@ -133,6 +133,7 @@ The production Dockerfile uses multi-stage builds:
 2. **Runtime Stage**: Serves static files with nginx
 
 **Benefits:**
+
 - ✅ Smaller final image (nginx:alpine vs node:18-alpine)
 - ✅ Better security (no build tools in production)
 - ✅ Faster deployment and startup
@@ -143,10 +144,12 @@ The production Dockerfile uses multi-stage builds:
 ## Fixing the Build Error
 
 The error you encountered (`sh: tsc: not found`) was caused by:
+
 1. Dependencies not being installed in the build context
 2. Incorrect COPY sequence in the Dockerfile
 
 **The new Dockerfile fixes this by:**
+
 1. Copying `package*.json` first
 2. Running `npm ci` to install dependencies (including TypeScript)
 3. Then copying the rest of the application
@@ -175,21 +178,27 @@ docker rmi stellarion-frontend:test
 ## Troubleshooting
 
 ### Issue: `tsc: not found`
+
 **Solution:** Fixed in the new Dockerfile by properly installing dependencies before building.
 
 ### Issue: React Router 404 errors
+
 **Solution:** The `nginx.conf` handles this with `try_files` directive.
 
 ### Issue: Environment variables not working
-**Solution:** 
+
+**Solution:**
+
 - Vite bakes environment variables at build time
 - Pass them during `docker build` using `--build-arg`
 - Or build different images for different environments
 
 ### Issue: Large image size
+
 **Solution:** The multi-stage build creates small images (~50MB for nginx + static files)
 
 ### Issue: Assets not loading
+
 **Solution:** Check the `base` path in `vite.config.ts` - for Docker, you might want `base: '/'`
 
 ---
@@ -210,12 +219,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Build Docker image
         run: |
           cd front-end
           docker build -t stellarion-frontend:${{ github.sha }} .
-      
+
       - name: Push to registry
         run: |
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
@@ -232,13 +241,13 @@ metadata:
 spec:
   entrypoint: build
   templates:
-  - name: build
-    container:
-      image: gcr.io/kaniko-project/executor:latest
-      args:
-        - --dockerfile=Dockerfile
-        - --context=dir:///workspace/front-end
-        - --destination=stellarion-frontend:latest
+    - name: build
+      container:
+        image: gcr.io/kaniko-project/executor:latest
+        args:
+          - --dockerfile=Dockerfile
+          - --context=dir:///workspace/front-end
+          - --destination=stellarion-frontend:latest
 ```
 
 ---
@@ -253,6 +262,7 @@ curl http://localhost:8080/health
 ```
 
 Use this for:
+
 - Docker health checks
 - Kubernetes readiness/liveness probes
 - Load balancer health checks
@@ -262,6 +272,7 @@ Use this for:
 ## Performance Optimization
 
 The nginx configuration includes:
+
 - ✅ Gzip compression
 - ✅ Static asset caching (1 year)
 - ✅ Security headers

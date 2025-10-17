@@ -260,6 +260,14 @@ export const blogService = {
         });
     },
 
+    // Submit a rating for a blog (1-5)
+    async rateBlog(id: number, rating: number) {
+        return makeRequest(`/blogs/${id}/rate`, {
+            method: 'POST',
+            body: JSON.stringify({ rating })
+        });
+    },
+
     // Get blog comments
     async getBlogComments(id: number, page = 1, limit = 20) {
         return makeRequest(`/blogs/${id}/comments?page=${page}&limit=${limit}`);

@@ -30,6 +30,8 @@ const BlogDetailedPage: React.FC<BlogDetailedPageProps> = ({ blog, comments: ini
   const [submitted, setSubmitted] = useState(false);
   const [comments, setComments] = useState<BlogComment[]>(initialComments);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [avgRating, setAvgRating] = useState<number | null>(null);
+  const [userRating, setUserRating] = useState<number>(0);
 
   const contentRef = useRef<HTMLDivElement | null>(null);
 
@@ -169,6 +171,21 @@ const BlogDetailedPage: React.FC<BlogDetailedPageProps> = ({ blog, comments: ini
     }
   };
 
+  // Submit a rating to the backend and update local state
+  const handleRate = async (value: number) => {
+    if (!blog?.id) return;
+    try {
+      const resp: any = await blogService.rateBlog(blog.id, value);
+      const data = resp?.data || resp;
+      if (data) {
+        setAvgRating(data.average ?? data.avg ?? data.average_rating ?? null);
+      }
+      setUserRating(value);
+    } catch (err) {
+      console.error('Failed to submit rating', err);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!blog?.id) return;
@@ -181,6 +198,20 @@ const BlogDetailedPage: React.FC<BlogDetailedPageProps> = ({ blog, comments: ini
       setComments(prev => [...prev, created]);
       setSubmitted(true);
       setTimeout(() => setSubmitted(false), 2000);
+      // If user provided a rating in the comment form, submit it as well.
+      if (rating > 0) {
+        try {
+          const rateResp: any = await blogService.rateBlog(blog.id, rating);
+          const rdata = rateResp?.data || rateResp;
+          if (rdata) {
+            setAvgRating(rdata.average ?? rdata.avg ?? rdata.average_rating ?? null);
+          }
+          setUserRating(rating);
+        } catch (rateErr) {
+          console.error('Failed to submit rating during comment submit', rateErr);
+        }
+      }
+
       setComment("");
       setRating(0);
       setHovered(0);
@@ -250,11 +281,41 @@ const BlogDetailedPage: React.FC<BlogDetailedPageProps> = ({ blog, comments: ini
               className={`blog-header-icon${
                 isFavorite ? " favourite" : ""
               }`}
-              onClick={() => setIsFavorite((fav) => !fav)}
+              onClick={async () => {
+                if (!blog?.id) return;
+                try {
+                  const resp: any = await blogService.toggleBlogLike(blog.id as number);
+                  const d = resp?.data || resp;
+                  // Update local like state if available
+                  if (d && typeof d.user_liked !== 'undefined') {
+                    setIsFavorite(Boolean(d.user_liked));
+                  } else {
+                    setIsFavorite((f) => !f);
+                  }
+                } catch (err) {
+                  console.error('Failed to toggle like', err);
+                  setIsFavorite((f) => !f);
+                }
+              }}
               title="Add to favourites"
             >
               <HeartIcon className="icon-svg" />
             </button>
+            {/* Inline rating stars in header
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginLeft: 8 }}>
+              {[1,2,3,4,5].map((s) => (
+                <span
+                  key={s}
+                  onClick={() => handleRate(s)}
+                  onMouseEnter={() => setHovered(s)}
+                  onMouseLeave={() => setHovered(0)}
+                  style={{ cursor: 'pointer', color: (hovered || userRating) >= s ? '#fbbf24' : '#a1a1aa' }}
+                >
+                  &#9733;
+                </span>
+              ))}
+              <span style={{ marginLeft: 6, color: '#9fb3ff', fontWeight: 600 }}>{avgRating ? avgRating.toFixed(1) : ((blog as any)?.metadata?.rating ? Number((blog as any).metadata.rating).toFixed(1) : '')}</span>
+            </div> */}
           </div>
         </div>
       </header>

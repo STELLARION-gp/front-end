@@ -1,7 +1,7 @@
 import React from 'react';
 import { useRecommendedEvents } from '../../contexts/mentor/RecommendedEventsContext';
 import type { Event } from '../../contexts/mentor/RecommendedEventsContext';
-import '../../styles/pages/mentor/RecommendedEvents.scss';
+import '../../styles/pages/mentor/recommendedContents.scss';
 
 const allEvents: Event[] = [
   {

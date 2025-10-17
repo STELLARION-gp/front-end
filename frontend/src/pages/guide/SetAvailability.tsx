@@ -656,7 +656,7 @@ const SetAvailability: React.FC = () => {
                   <div className="service-details">
                     <span className="service-category">{service.category}</span>
                     <span className="service-duration">{service.duration}</span>
-                    <span className="service-price">${service.price}</span>
+                    <span className="service-price">Rs. {service.price.toLocaleString()}</span>
                   </div>
                   <div className="service-capacity">
                     <UsersIcon className="capacity-icon" />
@@ -736,7 +736,7 @@ const SetAvailability: React.FC = () => {
                         </div>
                         
                         <div className="table-cell price">
-                          ${slot.price || selectedService.price}
+                          Rs. {(slot.price || selectedService.price).toLocaleString()}
                         </div>
                         
                         <div className="table-cell status">
@@ -776,59 +776,14 @@ const SetAvailability: React.FC = () => {
             {/* Calendar and Form */}
             <div className="availability-management">
               {isFormOpen && (
-                <>
-                  <Card className="calendar-card" variant="elevated">
-                    {/* Calendar Section */}
-                    <div className="calendar-section">
-                      <div className="calendar-header">
-                        <h3>Availability Calendar</h3>
-                        <div className="calendar-navigation">
-                          <Button
-                            variant="secondary"
-                            size="small"
-                            icon={<ArrowLeftIcon />}
-                            onClick={() => setCurrentMonth(prev => new Date(prev.getFullYear(), prev.getMonth() - 1))}
-                          >
-                            ‹
-                          </Button>
-                          <span className="current-month">
-                            {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-                          </span>
-                          <Button
-                            variant="secondary"
-                            size="small"
-                            icon={<ArrowRightIcon />}
-                            onClick={() => setCurrentMonth(prev => new Date(prev.getFullYear(), prev.getMonth() + 1))}
-                          >
-                            ›
-                          </Button>
-                        </div>
-                      </div>
-                      
-                      {/* Calendar Grid */}
-                      <div className="calendar">
-                        <div className="calendar-weekdays">
-                          {['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(day => <div key={day} className="weekday">{day}</div>)}
-                        </div>
-                        <div className="calendar-days">
-                          {renderCalendar()}
-                        </div>
-                      </div>
-
-                      <div className="calendar-legend">
-                        <div className="legend-item">
-                          <div className="legend-indicator available"></div>
-                          <span>Available dates</span>
-                        </div>
-                        <div className="legend-item">
-                          <div className="legend-indicator disabled"></div>
-                          <span>Past dates</span>
-                        </div>
-                      </div>
-                    </div>
-                  </Card>
-
+                <div className="form-calendar-layout">
+                  {/* Left Side: Availability Form */}
                   <Card className="availability-form-card" variant="elevated">
+                    <div className="form-header">
+                      <h3>
+                        {editingSlot ? 'Edit Availability' : 'Add Availability'}
+                      </h3>
+                    </div>
                     {/* Availability Form */}
                     <form onSubmit={handleFormSubmit} className="availability-form">
                       {/* Availability Form Fields */}
@@ -894,7 +849,7 @@ const SetAvailability: React.FC = () => {
                         </div>
 
                         <div className="form-group">
-                          <label htmlFor="price">Price Override</label>
+                          <label htmlFor="price">Price Override (LKR)</label>
                           <input
                             id="price"
                             type="number"
@@ -902,8 +857,8 @@ const SetAvailability: React.FC = () => {
                             onChange={(e) => setFormData(prev => ({ ...prev, price: parseFloat(e.target.value) }))}
                             className="form-input"
                             min="0"
-                            step="0.01"
-                            placeholder={`Default: $${selectedService.price}`}
+                            step="100"
+                            placeholder={`Default: Rs. ${selectedService.price.toLocaleString()}`}
                           />
                         </div>
 
@@ -1028,7 +983,14 @@ const SetAvailability: React.FC = () => {
                       </div>
 
                       <div className="form-actions">
-                       <Button
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          onClick={handleFormReset}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
                           type="submit"
                           variant="primary"
                           icon={<SaveIcon />}
@@ -1041,7 +1003,59 @@ const SetAvailability: React.FC = () => {
                       </div>
                     </form>
                   </Card>
-                </>
+
+                  {/* Right Side: Calendar */}
+                  <Card className="calendar-card-compact" variant="elevated">
+                    <div className="calendar-section-compact">
+                      <div className="calendar-header-compact">
+                        <h3>
+                          <CalendarIcon className="calendar-header-icon" />
+                          Select Date
+                        </h3>
+                        <div className="calendar-navigation">
+                          <Button
+                            variant="secondary"
+                            size="small"
+                            onClick={() => setCurrentMonth(prev => new Date(prev.getFullYear(), prev.getMonth() - 1))}
+                          >
+                            ‹
+                          </Button>
+                          <span className="current-month">
+                            {currentMonth.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                          </span>
+                          <Button
+                            variant="secondary"
+                            size="small"
+                            onClick={() => setCurrentMonth(prev => new Date(prev.getFullYear(), prev.getMonth() + 1))}
+                          >
+                            ›
+                          </Button>
+                        </div>
+                      </div>
+                      
+                      {/* Calendar Grid */}
+                      <div className="calendar">
+                        <div className="calendar-weekdays">
+                          {['S','M','T','W','T','F','S'].map((day, idx) => <div key={`${day}-${idx}`} className="weekday">{day}</div>)}
+                        </div>
+                        <div className="calendar-days">
+                          {renderCalendar()}
+                        </div>
+                      </div>
+
+                      <div className="calendar-legend">
+                        <div className="legend-item">
+                          <div className="legend-indicator available"></div>
+                          <span>Has slots</span>
+                        </div>
+                        <div className="legend-item">
+                          <div className="legend-indicator disabled"></div>
+                          <span>Past</span>
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                </div>
               )}
             </div>
           </>

@@ -41,83 +41,142 @@
     margin-bottom: 1.5rem;
 
     .stat-card {
-      background: rgba(30, 41, 59, 0.8);
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.9) 100%);
       border: 1px solid rgba(148, 163, 184, 0.25);
-      border-radius: 12px;
-      padding: 1rem;
+      border-radius: 16px;
+      padding: 1.5rem 1rem;
       -webkit-backdrop-filter: blur(12px);
       backdrop-filter: blur(12px);
-      transition: all 0.3s ease;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+
+      // Top accent line
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, transparent, currentColor, transparent);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
 
       &:hover {
-        border-color: rgba(147, 51, 234, 0.3);
-        box-shadow: 0 8px 25px rgba(147, 51, 234, 0.1);
-        transform: translateY(-2px);
+        transform: translateY(-4px);
+        border-color: rgba(147, 51, 234, 0.4);
+        box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.3);
+
+        &::before {
+          opacity: 1;
+        }
       }
 
       .stat-content {
         display: flex;
+        flex-direction: column;
         align-items: center;
+        justify-content: center;
         gap: 0.75rem;
+        text-align: center;
 
         .stat-icon {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 40px;
-          height: 40px;
-          border-radius: 10px;
-          border: 1px solid transparent;
-          transition: all 0.3s ease;
-
-          svg {
-            width: 20px;
-            height: 20px;
-          }
+          display: none;
         }
 
         .stat-info {
           display: flex;
           flex-direction: column;
-          gap: 0.125rem;
+          align-items: center;
+          gap: 0.5rem;
 
           .stat-label {
             font-size: 0.75rem;
             color: #94a3b8;
-            font-weight: 500;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            order: 1;
           }
 
           .stat-value {
-            font-size: 1.5rem;
+            font-size: 2rem;
             font-weight: 700;
             color: #e2e8f0;
             line-height: 1;
+            order: 2;
           }
         }
       }
 
-      &.total .stat-icon {
-        background: rgba(59, 130, 246, 0.15);
-        border-color: rgba(59, 130, 246, 0.3);
-        color: #3b82f6;
+      &.total {
+        &::before {
+          color: #3b82f6;
+        }
+
+        .stat-icon {
+          background: rgba(59, 130, 246, 0.12);
+          border-color: rgba(59, 130, 246, 0.25);
+          color: #3b82f6;
+        }
+
+        &:hover {
+          border-color: rgba(59, 130, 246, 0.4);
+          box-shadow: 0 12px 24px -8px rgba(59, 130, 246, 0.2);
+        }
       }
 
-      &.upcoming .stat-icon {
-        background: rgba(59, 130, 246, 0.15);
-        border-color: rgba(59, 130, 246, 0.3);
-        color: #3b82f6;
+      &.upcoming {
+        &::before {
+          color: #3b82f6;
+        }
+
+        .stat-icon {
+          background: rgba(59, 130, 246, 0.12);
+          border-color: rgba(59, 130, 246, 0.25);
+          color: #3b82f6;
+        }
+
+        &:hover {
+          border-color: rgba(59, 130, 246, 0.4);
+          box-shadow: 0 12px 24px -8px rgba(59, 130, 246, 0.2);
+        }
       }
 
-      &.in-progress .stat-icon {
-        background: rgba(234, 179, 8, 0.15);
-        border-color: rgba(234, 179, 8, 0.3);
-        color: #eab308;
+      &.in-progress {
+        &::before {
+          color: #eab308;
+        }
+
+        .stat-icon {
+          background: rgba(234, 179, 8, 0.12);
+          border-color: rgba(234, 179, 8, 0.25);
+          color: #eab308;
+        }
+
+        &:hover {
+          border-color: rgba(234, 179, 8, 0.4);
+          box-shadow: 0 12px 24px -8px rgba(234, 179, 8, 0.2);
+        }
       }
 
-      &.completed .stat-icon {
-        background: rgba(34, 197, 94, 0.15);
-        border-color: rgba(34, 197, 94, 0.3);
-        color: #22c55e;
+      &.completed {
+        &::before {
+          color: #22c55e;
+        }
+
+        .stat-icon {
+          background: rgba(34, 197, 94, 0.12);
+          border-color: rgba(34, 197, 94, 0.25);
+          color: #22c55e;
+        }
+
+        &:hover {
+          border-color: rgba(34, 197, 94, 0.4);
+          box-shadow: 0 12px 24px -8px rgba(34, 197, 94, 0.2);
+        }
       }
     }
   }

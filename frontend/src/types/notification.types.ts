@@ -20,6 +20,7 @@ export const NotificationType = {
   PAYMENT: "payment",
   EVENT: "event",
   MESSAGE: "message",
+  BOOKING: "booking",
 } as const;
 
 export type NotificationType =
@@ -87,6 +88,7 @@ export function getNotificationColor(
     [NotificationType.PAYMENT]: "#10B981",
     [NotificationType.EVENT]: "#06B6D4",
     [NotificationType.MESSAGE]: "#6366F1",
+    [NotificationType.BOOKING]: "#F59E0B",
   };
 
   return typeColors[type] || priorityColors[priority];
@@ -104,6 +106,7 @@ export function getNotificationIcon(type: NotificationType): string {
     [NotificationType.PAYMENT]: "💳",
     [NotificationType.EVENT]: "📅",
     [NotificationType.MESSAGE]: "💬",
+    [NotificationType.BOOKING]: "🎫",
   };
 
   return icons[type] || "📢";

@@ -37,9 +37,9 @@ const Mentors: React.FC = () => {
           name: mentor.name,
           expertise: formatSpecialties(mentor.specialties),
           description: truncateText(mentor.bio || 'Experienced astronomy mentor', 180), // Approx 4 lines at ~45 chars/line
-          availableSlots: mentor.maxMentees && mentor.menteeCount 
+          availableSlots: mentor.maxMentees && mentor.menteeCount !== undefined
             ? mentor.maxMentees - mentor.menteeCount 
-            : 0,
+            : mentor.maxMentees || 0,
           image: mentor.avatarUrl || `https://randomuser.me/api/portraits/${mentor.id % 2 === 0 ? 'women' : 'men'}/${mentor.id % 50}.jpg`
         }));
         

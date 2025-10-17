@@ -18,6 +18,7 @@ import Button from '../../components/Button';
 import Card from '../../components/Card';
 import { Calendar, Clock, Users, Star, TrendingUp, Activity, ArrowLeft, MessageCircle } from 'lucide-react';
 import '../../styles/pages/guide/_confirmedBookings.scss';
+import { getGuideBookings, type Booking } from '../../services/bookingService';
 
 // Register Chart.js components
 ChartJS.register(
@@ -44,12 +45,15 @@ interface ConfirmedBooking {
   rating?: number;
   notes?: string;
   participantCount: number;
+  totalAmount: number;
 }
 
 const ConfirmedBookings: React.FC = () => {
   console.log('ConfirmedBookings component mounting...');
   const navigate = useNavigate();
   const [bookings, setBookings] = useState<ConfirmedBooking[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [selectedTimeframe, setSelectedTimeframe] = useState<'week' | 'month' | 'year'>('month');
   const [animatedCounters, setAnimatedCounters] = useState({
     total: 0,
@@ -59,80 +63,93 @@ const ConfirmedBookings: React.FC = () => {
   });
 
   useEffect(() => {
-    // Simulate fetching confirmed bookings
-    const dummyBookings: ConfirmedBooking[] = [
-      {
-        id: '1',
-        userName: 'Emily Chen',
-        serviceName: 'Deep Space Observation',
-        date: '2025-07-05',
-        startTime: '20:00',
-        endTime: '23:00',
-        duration: 3,
-        status: 'upcoming',
-        participantCount: 4,
-        notes: 'Requested focus on Saturn and Jupiter'
-      },
-      {
-        id: '2',
-        userName: 'Marcus Rodriguez',
-        serviceName: 'Astrophotography Masterclass',
-        date: '2025-07-06',
-        startTime: '18:00',
-        endTime: '22:00',
-        duration: 4,
-        status: 'upcoming',
-        participantCount: 8,
-      },
-      {
-        id: '3',
-        userName: 'Sarah Thompson',
-        serviceName: 'Telescope Building Workshop',
-        date: '2025-07-04',
-        startTime: '09:00',
-        endTime: '17:00',
-        duration: 8,
-        status: 'in-progress',
-        participantCount: 12,
-      },
-      {
-        id: '4',
-        userName: 'Alex Kim',
-        serviceName: 'Planetary Observation Session',
-        date: '2025-07-03',
-        startTime: '21:00',
-        endTime: '23:00',
-        duration: 2,
-        status: 'completed',
-        rating: 5,
-        participantCount: 6,
-      },
-      {
-        id: '5',
-        userName: 'Lisa Wong',
-        serviceName: 'Nebula Photography Tour',
-        date: '2025-07-02',
-        startTime: '22:00',
-        endTime: '02:00',
-        duration: 4,
-        status: 'completed',
-        rating: 4,
-        participantCount: 5,
-      },
-      {
-        id: '6',
-        userName: 'David Johnson',
-        serviceName: 'Meteor Shower Viewing',
-        date: '2025-07-07',
-        startTime: '23:00',
-        endTime: '03:00',
-        duration: 4,
-        status: 'upcoming',
-        participantCount: 15,
-      },
-    ];
-    setBookings(dummyBookings);
+    const fetchConfirmedBookings = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        // Fetch confirmed bookings from API
+        const response = await getGuideBookings({ status: 'confirmed', limit: 100 });
+        
+        // Transform API bookings to component format
+        const transformedBookings: ConfirmedBooking[] = response.bookings.map(transformBooking);
+        
+        setBookings(transformedBookings);
+      } catch (err) {
+        console.error('Error fetching confirmed bookings:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load bookings');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchConfirmedBookings();
   }, []);
+
+  const transformBooking = (booking: Booking): ConfirmedBooking => {
+    const userName = booking.user
+      ? `${booking.user.first_name || ''} ${booking.user.last_name || ''}`.trim() || booking.user.email
+      : 'Unknown User';
+    
+    const serviceName = booking.service?.title || 'Unknown Service';
+    const date = typeof booking.booking_date === 'string'
+      ? booking.booking_date.split('T')[0]
+      : new Date(booking.booking_date).toISOString().split('T')[0];
+    
+    const startTime = booking.booking_time
+      ? typeof booking.booking_time === 'string'
+        ? booking.booking_time.substring(11, 16)
+        : new Date(booking.booking_time).toTimeString().substring(0, 5)
+      : '00:00';
+    
+    const duration = booking.service?.duration
+      ? parseDuration(booking.service.duration)
+      : 0;
+    
+    const endTime = calculateEndTime(startTime, duration);
+    
+    // Determine status based on date
+    const bookingDate = new Date(date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    bookingDate.setHours(0, 0, 0, 0);
+    
+    let status: 'upcoming' | 'in-progress' | 'completed' = 'upcoming';
+    if (bookingDate < today) {
+      status = booking.booking_status === 'completed' ? 'completed' : 'completed';
+    } else if (bookingDate.getTime() === today.getTime()) {
+      status = 'in-progress';
+    }
+    
+    return {
+      id: booking.id.toString(),
+      userName,
+      serviceName,
+      date,
+      startTime,
+      endTime,
+      duration,
+      status,
+      participantCount: booking.participants_count,
+      totalAmount: booking.total_amount,
+      notes: booking.special_requests,
+    };
+  };
+
+  const parseDuration = (duration: string): number => {
+    const match = duration.match(/(\d+)\s*(hour|day)/i);
+    if (!match) return 0;
+    
+    const [, amount, unit] = match;
+    return unit.toLowerCase() === 'day' ? parseInt(amount) * 24 : parseInt(amount);
+  };
+
+  const calculateEndTime = (startTime: string, durationHours: number): string => {
+    const [startHour, startMin] = startTime.split(':').map(Number);
+    const endHour = (startHour + durationHours) % 24;
+    
+    return `${String(endHour).padStart(2, '0')}:${String(startMin).padStart(2, '0')}`;
+  };
 
   // Animate counters
   useEffect(() => {
@@ -310,6 +327,36 @@ const ConfirmedBookings: React.FC = () => {
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays <= 3 && booking.status === 'upcoming';
   };
+
+  if (loading) {
+    return (
+      <div className="confirmed-bookings-page">
+        <div className="page-header">
+          <h2>Confirmed Bookings</h2>
+        </div>
+        <div className="loading-state">
+          <div className="spinner"></div>
+          <p>Loading confirmed bookings...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="confirmed-bookings-page">
+        <div className="page-header">
+          <h2>Confirmed Bookings</h2>
+        </div>
+        <div className="error-state">
+          <p>{error}</p>
+          <Button variant="primary" onClick={() => window.location.reload()}>
+            Retry
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="confirmed-bookings-page">
@@ -505,7 +552,7 @@ const ConfirmedBookings: React.FC = () => {
                   <th>Date & Time</th>
                   <th>Duration</th>
                   <th>Participants</th>
-                  <th>Rating</th>
+                  <th>Amount</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -550,7 +597,10 @@ const ConfirmedBookings: React.FC = () => {
                           {booking.participantCount}
                         </div>
                       </td>
-                      <td className="rating-cell">
+                      <td className="amount-cell">
+                        <strong>Rs. {booking.totalAmount.toLocaleString()}</strong>
+                      </td>
+                      <td className="actions-cell">
                         {booking.rating ? (
                           <div className="rating">
                             {Array.from({ length: 5 }, (_, i) => (

@@ -188,9 +188,101 @@ class PaymentService {
         console.log(`Payment status: ${paymentStatus.payment_status}`);
       }
     } catch (error) {
-      console.error('Error checking payment status:', error);
+      console.error('Error checking payment completion:', error);
     }
   }
 }
 
 export default new PaymentService();
+
+// ============================================================================
+// BOOKING PAYMENT STATISTICS FOR GUIDES
+// ============================================================================
+
+export interface PaymentStats {
+  totalRevenue: number;
+  totalTransactions: number;
+  successRate: number;
+  pendingAmount: number;
+  refundedAmount: number;
+  monthlyGrowth: number;
+}
+
+export interface Transaction {
+  id: string;
+  date: string;
+  amount: number;
+  currency: string;
+  status: 'completed' | 'pending' | 'failed' | 'refunded';
+  type: 'payment' | 'refund' | 'subscription' | 'booking';
+  description: string;
+  gateway: string;
+  reference: string;
+  customerEmail: string;
+  customerName: string;
+  bookingId?: number;
+  serviceId?: number;
+}
+
+/**
+ * Get booking payment statistics for guide
+ */
+export const getBookingPaymentStats = async (days: number = 30): Promise<PaymentStats> => {
+  const token = await auth.currentUser?.getIdToken();
+  
+  const response = await fetch(`${API_BASE_URL}/payments/booking-stats?days=${days}`, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch payment stats');
+  }
+
+  return await response.json();
+};
+
+/**
+ * Get booking payment transactions
+ */
+export const getBookingPaymentTransactions = async (params?: {
+  status?: string;
+  dateRange?: number;
+  page?: number;
+  limit?: number;
+  sortBy?: string;
+  sortOrder?: string;
+}): Promise<{
+  transactions: Transaction[];
+  total: number;
+  page: number;
+  totalPages: number;
+}> => {
+  const token = await auth.currentUser?.getIdToken();
+  const queryParams = new URLSearchParams();
+  
+  if (params) {
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        queryParams.append(key, value.toString());
+      }
+    });
+  }
+  
+  const queryString = queryParams.toString();
+  const response = await fetch(
+    `${API_BASE_URL}/payments/booking-transactions${queryString ? `?${queryString}` : ''}`,
+    {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch payment transactions');
+  }
+
+  return await response.json();
+};

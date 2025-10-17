@@ -223,6 +223,7 @@ const Quizzes = () => {
       })
       
       alert('Quiz created successfully!')
+      alert('Your quiz has been submitted for approval. It will appear in the quiz list once approved by an admin.')
       setActiveTab('my')
     } catch (err: any) {
       alert(err.response?.data?.message || 'Failed to create quiz')
@@ -702,9 +703,16 @@ const Quizzes = () => {
     <div key={quiz.id} className="quiz-card">
       <div className="quiz-header">
         <h3 className="quiz-title">{quiz.name}</h3>
-        <span className={`difficulty-badge difficulty-${quiz.level.toLowerCase()}`}>
-          {quiz.level}
-        </span>
+        <div className="quiz-badges">
+          <span className={`difficulty-badge difficulty-${quiz.level.toLowerCase()}`}>
+            {quiz.level}
+          </span>
+          {isMyQuiz && (
+            <span className={`status-badge status-${quiz.status.toLowerCase()}`}>
+              {quiz.status}
+            </span>
+          )}
+        </div>
       </div>
 
       <p className="quiz-description">{quiz.description}</p>
@@ -728,9 +736,16 @@ const Quizzes = () => {
         <span className="quiz-category">{quiz.category}</span>
         {isMyQuiz ? (
           <div className="quiz-actions">
+            {quiz.status === 'pending' && (
+              <span className="text-yellow-400 text-sm mr-2">Awaiting Approval</span>
+            )}
+            {quiz.status === 'rejected' && (
+              <span className="text-red-400 text-sm mr-2">Rejected</span>
+            )}
             <Button
               onClick={() => handleEditQuiz(quiz)}
               className="btn-edit-small"
+              disabled={quiz.status === 'approved'}
             >
               Edit
             </Button>

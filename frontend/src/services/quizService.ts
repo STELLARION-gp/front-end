@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { auth } from '../firebase';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
@@ -22,7 +23,7 @@ export interface UpdateQuizData {
   description?: string;
   level?: 'Beginner' | 'Intermediate' | 'Hard';
   time_limit?: number;
-  status?: 'open' | 'closed';
+  status?: 'pending' | 'approved' | 'rejected' | 'closed';
   questions?: {
     question: string;
     answers: string[];
@@ -43,7 +44,7 @@ export interface Quiz {
   user_id: number;
   created_at: string;
   modified_at: string;
-  status: 'open' | 'closed';
+  status: 'pending' | 'approved' | 'rejected' | 'closed';
   level: 'Beginner' | 'Intermediate' | 'Hard';
   creator: {
     id: number;
@@ -115,20 +116,30 @@ export interface LeaderboardData {
   };
 }
 
-const getAuthHeaders = () => {
-  const token = localStorage.getItem('token');
-  return {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
-  };
+const getAuthHeaders = async () => {
+  try {
+    const user = auth.currentUser;
+    if (!user) {
+      throw new Error('No authenticated user found');
+    }
+    const token = await user.getIdToken();
+    return {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    };
+  } catch (error) {
+    console.error('Error getting auth token:', error);
+    throw error;
+  }
 };
 
 // Get all available quizzes (not created by user)
 export const getAllQuizzes = async (): Promise<Quiz[]> => {
   try {
-    const response = await axios.get(`${API_URL}/api/quizzes`, getAuthHeaders());
+    const headers = await getAuthHeaders();
+    const response = await axios.get(`${API_URL}/api/quizzes`, headers);
     return response.data.data.quizzes;
   } catch (error) {
     console.error('Error fetching quizzes:', error);
@@ -139,7 +150,8 @@ export const getAllQuizzes = async (): Promise<Quiz[]> => {
 // Get quizzes created by the user
 export const getMyQuizzes = async (): Promise<Quiz[]> => {
   try {
-    const response = await axios.get(`${API_URL}/api/quizzes/my`, getAuthHeaders());
+    const headers = await getAuthHeaders();
+    const response = await axios.get(`${API_URL}/api/quizzes/my`, headers);
     return response.data.data.quizzes;
   } catch (error) {
     console.error('Error fetching my quizzes:', error);
@@ -150,7 +162,8 @@ export const getMyQuizzes = async (): Promise<Quiz[]> => {
 // Get quiz by ID
 export const getQuizById = async (quizId: number): Promise<Quiz> => {
   try {
-    const response = await axios.get(`${API_URL}/api/quizzes/${quizId}`, getAuthHeaders());
+    const headers = await getAuthHeaders();
+    const response = await axios.get(`${API_URL}/api/quizzes/${quizId}`, headers);
     return response.data.data;
   } catch (error) {
     console.error('Error fetching quiz:', error);
@@ -161,7 +174,8 @@ export const getQuizById = async (quizId: number): Promise<Quiz> => {
 // Create a new quiz
 export const createQuiz = async (quizData: CreateQuizData): Promise<Quiz> => {
   try {
-    const response = await axios.post(`${API_URL}/api/quizzes`, quizData, getAuthHeaders());
+    const headers = await getAuthHeaders();
+    const response = await axios.post(`${API_URL}/api/quizzes`, quizData, headers);
     return response.data.data;
   } catch (error) {
     console.error('Error creating quiz:', error);
@@ -172,7 +186,8 @@ export const createQuiz = async (quizData: CreateQuizData): Promise<Quiz> => {
 // Update a quiz
 export const updateQuiz = async (quizId: number, quizData: UpdateQuizData): Promise<Quiz> => {
   try {
-    const response = await axios.put(`${API_URL}/api/quizzes/${quizId}`, quizData, getAuthHeaders());
+    const headers = await getAuthHeaders();
+    const response = await axios.put(`${API_URL}/api/quizzes/${quizId}`, quizData, headers);
     return response.data.data;
   } catch (error) {
     console.error('Error updating quiz:', error);
@@ -183,7 +198,8 @@ export const updateQuiz = async (quizId: number, quizData: UpdateQuizData): Prom
 // Delete a quiz
 export const deleteQuiz = async (quizId: number): Promise<void> => {
   try {
-    await axios.delete(`${API_URL}/api/quizzes/${quizId}`, getAuthHeaders());
+    const headers = await getAuthHeaders();
+    await axios.delete(`${API_URL}/api/quizzes/${quizId}`, headers);
   } catch (error) {
     console.error('Error deleting quiz:', error);
     throw error;
@@ -193,7 +209,8 @@ export const deleteQuiz = async (quizId: number): Promise<void> => {
 // Start a quiz
 export const startQuiz = async (quizId: number): Promise<Quiz> => {
   try {
-    const response = await axios.post(`${API_URL}/api/quizzes/${quizId}/start`, {}, getAuthHeaders());
+    const headers = await getAuthHeaders();
+    const response = await axios.post(`${API_URL}/api/quizzes/${quizId}/start`, {}, headers);
     return response.data.data.quiz;
   } catch (error) {
     console.error('Error starting quiz:', error);
@@ -204,7 +221,8 @@ export const startQuiz = async (quizId: number): Promise<Quiz> => {
 // Submit quiz answers
 export const submitQuizAnswers = async (quizId: number, answers: SubmitAnswersData): Promise<QuizResult> => {
   try {
-    const response = await axios.post(`${API_URL}/api/quizzes/${quizId}/submit`, answers, getAuthHeaders());
+    const headers = await getAuthHeaders();
+    const response = await axios.post(`${API_URL}/api/quizzes/${quizId}/submit`, answers, headers);
     return response.data.data;
   } catch (error) {
     console.error('Error submitting quiz:', error);
@@ -215,7 +233,8 @@ export const submitQuizAnswers = async (quizId: number, answers: SubmitAnswersDa
 // Get quiz leaderboard
 export const getQuizLeaderboard = async (): Promise<LeaderboardData> => {
   try {
-    const response = await axios.get(`${API_URL}/api/quizzes/leaderboard`, getAuthHeaders());
+    const headers = await getAuthHeaders();
+    const response = await axios.get(`${API_URL}/api/quizzes/leaderboard`, headers);
     return response.data.data;
   } catch (error) {
     console.error('Error fetching leaderboard:', error);
@@ -226,7 +245,8 @@ export const getQuizLeaderboard = async (): Promise<LeaderboardData> => {
 // Get results for a quiz (for quiz creator)
 export const getQuizResults = async (quizId: number): Promise<any[]> => {
   try {
-    const response = await axios.get(`${API_URL}/api/quizzes/${quizId}/results`, getAuthHeaders());
+    const headers = await getAuthHeaders();
+    const response = await axios.get(`${API_URL}/api/quizzes/${quizId}/results`, headers);
     return response.data.data.results;
   } catch (error) {
     console.error('Error fetching quiz results:', error);
@@ -237,10 +257,35 @@ export const getQuizResults = async (quizId: number): Promise<any[]> => {
 // Get user's result for a specific quiz
 export const getMyQuizResult = async (quizId: number): Promise<QuizResult> => {
   try {
-    const response = await axios.get(`${API_URL}/api/quizzes/${quizId}/my-result`, getAuthHeaders());
+    const headers = await getAuthHeaders();
+    const response = await axios.get(`${API_URL}/api/quizzes/${quizId}/my-result`, headers);
     return response.data.data;
   } catch (error) {
     console.error('Error fetching quiz result:', error);
+    throw error;
+  }
+};
+
+// Admin: Get all pending quizzes
+export const getPendingQuizzes = async (): Promise<Quiz[]> => {
+  try {
+    const headers = await getAuthHeaders();
+    const response = await axios.get(`${API_URL}/api/quizzes/pending`, headers);
+    return response.data.data.quizzes;
+  } catch (error) {
+    console.error('Error fetching pending quizzes:', error);
+    throw error;
+  }
+};
+
+// Admin: Approve or reject a quiz
+export const updateQuizStatus = async (quizId: number, status: 'approved' | 'rejected', reviewNotes?: string): Promise<Quiz> => {
+  try {
+    const headers = await getAuthHeaders();
+    const response = await axios.patch(`${API_URL}/api/quizzes/${quizId}/status`, { status, reviewNotes }, headers);
+    return response.data.data;
+  } catch (error) {
+    console.error('Error updating quiz status:', error);
     throw error;
   }
 };

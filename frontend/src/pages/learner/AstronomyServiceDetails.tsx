@@ -117,7 +117,7 @@ const AstronomyServiceDetails: React.FC = () => {
                 <strong>Duration:</strong> {service.duration}
               </div>
               <div className="meta-item">
-                <strong>Price:</strong> <span className="price">${service.price}</span>
+                <strong>Price:</strong> <span className="price">Rs. {service.price.toLocaleString()}</span>
               </div>
               <div className="meta-item">
                 <strong>Max Participants:</strong> {service.max_participants}

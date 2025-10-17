@@ -515,19 +515,19 @@ const CreateService: React.FC = () => {
 
                     {/* Pricing & Logistics */}
                     <div className="section-divider">
-                      <h3 className="section-title"> Pricing & Logistics</h3>
+                      <h3 className="section-title">💰 Pricing & Logistics</h3>
                       <div className="form-grid">
                         <div className="form-group">
-                          <label htmlFor="price">Price (USD) *</label>
+                          <label htmlFor="price">Price (LKR) *</label>
                           <input
                             id="price"
                             type="number"
                             value={formData.price || ''}
                             onChange={(e) => handleInputChange('price', parseFloat(e.target.value) || 0)}
                             className={`form-input ${errors.price ? 'error' : ''}`}
-                            placeholder="0"
+                            placeholder="e.g., 5000"
                             min="0"
-                            step="0.01"
+                            step="100"
                           />
                           {errors.price && <span className="error-message">{errors.price}</span>}
                         </div>

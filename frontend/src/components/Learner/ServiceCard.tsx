@@ -44,7 +44,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
       )}
       <div className="service-card__content">
         <h3 className="service-card__title">{title}</h3>
-        <div className="service-card__price">${price}</div>
+        <div className="service-card__price">Rs. {price.toLocaleString()}</div>
         <div className="service-card__rating">{renderStars(rating)} <span className="rating-value">{rating.toFixed(1)}</span></div>
         <p className="service-card__desc">{description}</p>
         <div className="service-card__details">

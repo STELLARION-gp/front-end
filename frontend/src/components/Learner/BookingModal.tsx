@@ -319,12 +319,12 @@ const BookingModalContent: React.FC<Omit<BookingModalProps, 'isOpen'>> = ({
             {/* Price Summary */}
             <div className="price-summary">
               <div className="price-row">
-                <span>${service.price} × {participants} participant{participants > 1 ? 's' : ''}</span>
-                <span>${(parseFloat(service.price.toString()) * participants).toFixed(2)}</span>
+                <span>Rs. {service.price.toLocaleString()} × {participants} participant{participants > 1 ? 's' : ''}</span>
+                <span>Rs. {(parseFloat(service.price.toString()) * participants).toLocaleString()}</span>
               </div>
               <div className="price-row total">
                 <span>Total</span>
-                <span>${totalPrice.toFixed(2)}</span>
+                <span>Rs. {Math.round(totalPrice).toLocaleString()}</span>
               </div>
             </div>
 
@@ -400,7 +400,7 @@ const BookingModalContent: React.FC<Omit<BookingModalProps, 'isOpen'>> = ({
             <p><strong>Date:</strong> {selectedDate && formatDate(selectedDate.available_date)}</p>
             <p><strong>Time:</strong> {selectedDate && `${formatTime(selectedDate.start_time)} - ${formatTime(selectedDate.end_time)}`}</p>
             <p><strong>Participants:</strong> {participants}</p>
-            <p className="total-price"><strong>Total:</strong> ${totalPrice.toFixed(2)}</p>
+            <p className="total-price"><strong>Total:</strong> Rs. {Math.round(totalPrice).toLocaleString()}</p>
           </div>
 
           {error && <div className="error-message">{error}</div>}
@@ -442,7 +442,7 @@ const BookingModalContent: React.FC<Omit<BookingModalProps, 'isOpen'>> = ({
                 className="btn-primary"
                 disabled={!stripe || paymentProcessing}
               >
-                {paymentProcessing ? 'Processing...' : `Pay $${totalPrice.toFixed(2)}`}
+                {paymentProcessing ? 'Processing...' : `Pay Rs. ${Math.round(totalPrice).toLocaleString()}`}
               </button>
             </div>
           </form>

@@ -136,11 +136,14 @@ interface Service extends Omit<ApiService, 'id' | 'media'> {
 
 // Transform API service to local Service interface
 const transformApiService = (apiService: ApiService): Service => {
+  // Priority: 1. image_url (direct field), 2. media array, 3. default fallback
   const firstMedia = apiService.media?.[0];
+  const imageUrl = apiService.image_url || firstMedia?.media_url || 'https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?w=400&h=300&fit=crop';
+  
   return {
     ...apiService,
     id: apiService.id.toString(),
-    image: firstMedia?.media_url || 'https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?w=400&h=300&fit=crop',
+    image: imageUrl,
     currentBookings: apiService.bookings_count || 0,
     totalReviews: 0, // TODO: Add reviews count to API
     rating: apiService.rating || 0
@@ -468,7 +471,7 @@ const ServiceListing: React.FC = () => {
                 <RevenueIcon className="icon" />
               </div> */}
               <div className="stat-info">
-                <h3 className="stat-number">${stats.total_revenue.toLocaleString()}</h3>
+                <h3 className="stat-number">Rs. {stats.total_revenue.toLocaleString()}</h3>
                 <p className="stat-label">Total Revenue</p>
                 <span className="stat-change positive">All time</span>
               </div>
@@ -627,7 +630,7 @@ const ServiceListing: React.FC = () => {
               {/* Service Footer */}
               <div className="service-footer">
                 <div className="price-section">
-                  <span className="price">${service.price}</span>
+                  <span className="price">Rs. {service.price.toLocaleString()}</span>
                   <span className="difficulty-badge" data-difficulty={service.difficulty.toLowerCase()}>
                     {service.difficulty}
                   </span>

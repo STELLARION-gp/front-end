@@ -112,6 +112,7 @@ import RecommendedContents from "../pages/mentor/RecommendedContents";
 import PrivateChat from "../pages/mentor/PrivateChat";
 import GroupChatPage from "../pages/mentor/GroupChatPage";
 import { RecommendedEventsProvider } from "../contexts/mentor/RecommendedEventsContext";
+import SelfContent from "../pages/mentor/SelfContent";
 
 // Create placeholder components for different pages - all memoized
 // const BlogsPage = memo(() => (
@@ -744,6 +745,14 @@ const DashboardRoutes = () => {
         element={
           <RoleGuard allowedRoles={["mentor", "moderator", "admin"]}>
             <MenteeRequest />
+          </RoleGuard>
+        }
+      />
+      <Route
+        path="mentor-selfcontent"
+        element={
+          <RoleGuard allowedRoles={["mentor"]}>
+            <SelfContent />
           </RoleGuard>
         }
       />

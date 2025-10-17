@@ -273,6 +273,11 @@ const CreateService: React.FC = () => {
     try {
       let imageUrl = '';
       
+      // Validate that we have uploaded files
+      if (!formData.uploadedFiles || formData.uploadedFiles.length === 0) {
+        throw new Error('Please upload at least one image before submitting');
+      }
+      
       // Upload the main image first
       if (formData.uploadedFiles && formData.uploadedFiles.length > 0) {
         console.log('📤 Processing main image...');
@@ -283,9 +288,11 @@ const CreateService: React.FC = () => {
         try {
           const uploadFormData = new FormData();
           uploadFormData.append('file', mainImageFile);
+          uploadFormData.append('folder', 'services'); // Organize in services folder
           
           const token = await auth.currentUser?.getIdToken();
           
+          console.log('📤 Uploading file:', mainImageFile.name, 'Size:', mainImageFile.size);
           console.log('📤 Sending upload request to backend...');
           const uploadResponse = await fetch('http://localhost:5000/api/upload', {
             method: 'POST',
@@ -301,28 +308,34 @@ const CreateService: React.FC = () => {
             const errorData = await uploadResponse.json().catch(() => ({ message: 'Upload failed' }));
             console.error('❌ Upload error response:', errorData);
             
-            // If Cloudinary is not configured, use a placeholder
-            if (errorData.message?.includes('cloudinary') || errorData.error?.includes('cloudinary')) {
-              console.warn('⚠️ Cloudinary not configured, using placeholder image');
-              imageUrl = `https://via.placeholder.com/800x600?text=${encodeURIComponent(formData.title)}`;
-            } else {
-              throw new Error(errorData.message || `Upload failed with status ${uploadResponse.status}`);
-            }
-          } else {
-            const uploadResult = await uploadResponse.json();
-            console.log('✅ Upload result:', uploadResult);
-            imageUrl = uploadResult.url;
-            console.log('✅ Image uploaded:', imageUrl);
+            // Show detailed error and throw
+            const errorMsg = errorData.message || `Upload failed with status ${uploadResponse.status}`;
+            throw new Error(`Image upload failed: ${errorMsg}`);
           }
+          
+          const uploadResult = await uploadResponse.json();
+          console.log('✅ Upload result:', uploadResult);
+          
+          if (!uploadResult.url) {
+            throw new Error('Upload response missing URL');
+          }
+          
+          imageUrl = uploadResult.url;
+          console.log('✅ Image uploaded successfully:', imageUrl);
+          
         } catch (uploadError) {
           console.error('❌ Upload error:', uploadError);
-          // Use placeholder if upload fails
-          console.warn('⚠️ Using placeholder image due to upload failure');
-          imageUrl = `https://via.placeholder.com/800x600?text=${encodeURIComponent(formData.title)}`;
+          // Re-throw the error instead of using placeholder
+          throw new Error(uploadError instanceof Error ? uploadError.message : 'Failed to upload image');
         }
       }
       
       console.log('📤 Creating service with image URL:', imageUrl);
+      
+      // Ensure we have a valid image URL before proceeding
+      if (!imageUrl) {
+        throw new Error('Image upload failed - no image URL received');
+      }
       
       // Prepare the request data matching the backend API
       const serviceData: CreateServiceRequest = {

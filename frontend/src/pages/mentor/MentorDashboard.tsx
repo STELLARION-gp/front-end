@@ -1,12 +1,16 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../styles/pages/mentor/mentorDashboardSimplified.scss';
 import { Button } from '@headlessui/react';
+import { getMentorProfile } from '../../services/mentorApi';
+import type { MentorProfile } from '../../services/mentorApi';
+import { auth } from '../../firebase';
 
 // Mock data — replace with real context/API
-const MOCK_MENTOR = {
+const MOCK_MENTOR: MentorProfile = {
+  id: 0,
   name: 'Dr. Stella Orion',
-  avatar: 'https://randomuser.me/api/portraits/women/44.jpg',
+  avatarUrl: 'https://randomuser.me/api/portraits/women/44.jpg',
   email: 'stella.orion@astrohub.com',
   specialties: ['Exoplanets', 'Data Analysis', 'Astrophotography'],
   bio: 'Passionate astronomer with 10+ years of experience mentoring young scientists. I help early-career astronomers build research skills and portfolios.',
@@ -33,14 +37,90 @@ const MOCK_STATS = {
 }
 
 const MentorDashboard: React.FC = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const [mentorProfile, setMentorProfile] = useState<MentorProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchMentorProfile = async () => {
+      try {
+        setLoading(true);
+        const user = auth.currentUser;
+        if (!user) {
+          setError('Please log in to view your dashboard');
+          return;
+        }
+
+        const token = await user.getIdToken();
+        console.log('🔑 Fetching mentor profile with token...');
+        
+        const profile = await getMentorProfile(token);
+        console.log('✅ Received mentor profile:', profile);
+        console.log('📊 Profile details:', {
+          name: profile.name,
+          email: profile.email,
+          bio: profile.bio,
+          specialties: profile.specialties,
+          qualifications: profile.qualifications,
+          isAvailable: profile.isAvailable,
+          maxMentees: profile.maxMentees,
+          menteeCount: profile.menteeCount
+        });
+        
+        setMentorProfile(profile);
+        setError(null);
+      } catch (err: any) {
+        console.error('❌ Error fetching mentor profile:', err);
+        console.error('Error details:', err.response?.data);
+        
+        // For new mentors or errors, use basic user info
+        const currentUser = auth.currentUser;
+        if (currentUser) {
+          setMentorProfile({
+            id: 0,
+            name: currentUser.displayName || 'New Mentor',
+            email: currentUser.email || '',
+            avatarUrl: currentUser.photoURL || MOCK_MENTOR.avatarUrl,
+            bio: 'Welcome! Please complete your mentor profile to get started.',
+            specialties: [],
+            qualifications: [],
+            isAvailable: true,
+            menteeCount: 0,
+            maxMentees: 15,
+          });
+        } else {
+          setError(err.response?.data?.error || 'Failed to load mentor profile');
+          // Fall back to mock data
+          setMentorProfile(MOCK_MENTOR);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMentorProfile();
+  }, []);
+
+  // Use fetched data or fallback to mock
+  const mentor = mentorProfile || MOCK_MENTOR;
+
+  if (loading) {
+    return (
+      <div className="mentor-dashboard-main">
+        <div className="loading-container">
+          <p>Loading your dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mentor-dashboard-main">
       {/* Header Section */}
       <div className="dashboard-header-section">
         <div className="greeting-section">
-          <h1 className="dashboard-title">Welcome back, {MOCK_MENTOR.name.split(' ')[1]} 👋</h1>
+          <h1 className="dashboard-title">Welcome back, {mentor.name.split(' ')[mentor.name.split(' ').length - 1]} 👋</h1>
           <p className="dashboard-subtitle">Here's what's happening with your mentorship program today.</p>
         </div>
         <div className="header-actions">
@@ -50,6 +130,26 @@ const MentorDashboard: React.FC = () => {
         </div>
       </div>
 
+      {error && (
+        <div className="error-banner">
+          <span>⚠️ {error}</span>
+        </div>
+      )}
+
+      {/* Welcome message for new mentors */}
+      {mentor && !mentor.bio && (
+        <div className="info-banner" style={{
+          background: 'rgba(59, 130, 246, 0.1)',
+          border: '1px solid rgba(59, 130, 246, 0.5)',
+          padding: '1rem',
+          borderRadius: '8px',
+          marginBottom: '1rem',
+          color: '#3b82f6'
+        }}>
+          <span>💡 Welcome to your Mentor Dashboard! Click "Add and Change Profile" to complete your mentor profile.</span>
+        </div>
+      )}
+
       
       {/* Stats Grid */}
       <div className="stats-grid">
@@ -57,7 +157,7 @@ const MentorDashboard: React.FC = () => {
           <div className="stat-icon">👥</div>
           <div className="stat-content">
             <h3>Active Mentees</h3>
-            <div className="stat-value">{MOCK_STATS.activeMentees}/{MOCK_MENTOR.maxMentees}</div>
+            <div className="stat-value">{mentor.menteeCount || MOCK_STATS.activeMentees}/{mentor.maxMentees || MOCK_MENTOR.maxMentees}</div>
             <div className="stat-change positive">+3 this month</div>
           </div>
         </div>
@@ -93,13 +193,13 @@ const MentorDashboard: React.FC = () => {
       {/* Mentor Profile Details */}
       <div className="mentor-profile-details">
         <div className="profile-header">
-          <img src={MOCK_MENTOR.avatar} alt={MOCK_MENTOR.name} className="profile-avatar" />
+          <img src={mentor.avatarUrl || MOCK_MENTOR.avatarUrl} alt={mentor.name} className="profile-avatar" />
           <div className="profile-info">
-            <h2 className="profile-name">{MOCK_MENTOR.name}</h2>
-            <p className="profile-email">{MOCK_MENTOR.email}</p>
+            <h2 className="profile-name">{mentor.name}</h2>
+            <p className="profile-email">{mentor.email}</p>
             <div className="availability-badge">
-              <span className={`status-dot ${MOCK_MENTOR.isAvailable ? 'available' : 'unavailable'}`}></span>
-              {MOCK_MENTOR.isAvailable ? 'Available for mentoring' : 'Not available'}
+              <span className={`status-dot ${mentor.isAvailable ? 'available' : 'unavailable'}`}></span>
+              {mentor.isAvailable ? 'Available for mentoring' : 'Not available'}
             </div>
           </div>
         </div>
@@ -110,7 +210,7 @@ const MentorDashboard: React.FC = () => {
             <div className="section-icon">📝</div>
             <div className="section-content">
               <h3>About Me</h3>
-              <p>{MOCK_MENTOR.bio}</p>
+              <p>{mentor.bio || 'No bio available'}</p>
             </div>
           </div>
 
@@ -121,12 +221,16 @@ const MentorDashboard: React.FC = () => {
               <div className="section-content">
                 <h3>Specialties</h3>
                 <div className="specialties-chips">
-                  {MOCK_MENTOR.specialties.map((specialty, index) => (
-                    <span key={index} className="specialty-chip">
-                      <span className="chip-icon">✨</span>
-                      {specialty}
-                    </span>
-                  ))}
+                  {(mentor.specialties && mentor.specialties.length > 0) ? (
+                    mentor.specialties.map((specialty, index) => (
+                      <span key={index} className="specialty-chip">
+                        <span className="chip-icon">✨</span>
+                        {specialty}
+                      </span>
+                    ))
+                  ) : (
+                    <p className="empty-message">No specialties added yet</p>
+                  )}
                 </div>
               </div>
             </div>
@@ -136,12 +240,16 @@ const MentorDashboard: React.FC = () => {
               <div className="section-content">
                 <h3>Qualifications</h3>
                 <ul className="qualifications-list">
-                  {MOCK_MENTOR.qualifications.map((qualification, index) => (
-                    <li key={index}>
-                      <span className="check-icon">✓</span>
-                      {qualification}
-                    </li>
-                  ))}
+                  {(mentor.qualifications && mentor.qualifications.length > 0) ? (
+                    mentor.qualifications.map((qualification, index) => (
+                      <li key={index}>
+                        <span className="check-icon">✓</span>
+                        {qualification}
+                      </li>
+                    ))
+                  ) : (
+                    <li className="empty-message">No qualifications added yet</li>
+                  )}
                 </ul>
               </div>
             </div>

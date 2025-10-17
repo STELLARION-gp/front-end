@@ -1,37 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Line, Doughnut, Bar } from 'react-chartjs-2';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement,
-  BarElement,
-} from 'chart.js';
 import Button from '../../components/Button';
 import Card from '../../components/Card';
 import { Calendar, Clock, Users, Star, TrendingUp, Activity, ArrowLeft, MessageCircle } from 'lucide-react';
 import '../../styles/pages/guide/_confirmedBookings.scss';
 import { getGuideBookings, type Booking } from '../../services/bookingService';
-
-// Register Chart.js components
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement,
-  BarElement
-);
 
 interface ConfirmedBooking {
   id: string;
@@ -178,121 +152,6 @@ const ConfirmedBookings: React.FC = () => {
     animateCounter(inProgress, (value) => setAnimatedCounters(prev => ({ ...prev, inProgress: value })));
     animateCounter(completed, (value) => setAnimatedCounters(prev => ({ ...prev, completed: value })));
   }, [bookings]);
-
-  // Chart data
-  const bookingTrendsData = {
-    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-    datasets: [
-      {
-        label: 'Bookings This Week',
-        data: [12, 8, 15, 10, 18, 25, 20],
-        borderColor: 'rgb(147, 51, 234)',
-        backgroundColor: 'rgba(147, 51, 234, 0.1)',
-        tension: 0.4,
-        pointBackgroundColor: 'rgb(147, 51, 234)',
-        pointBorderColor: '#fff',
-        pointBorderWidth: 2,
-        pointRadius: 6,
-      },
-    ],
-  };
-
-  const statusDistributionData = {
-    labels: ['Upcoming', 'In Progress', 'Completed'],
-    datasets: [
-      {
-        data: [
-          bookings.filter(b => b.status === 'upcoming').length,
-          bookings.filter(b => b.status === 'in-progress').length,
-          bookings.filter(b => b.status === 'completed').length,
-        ],
-        backgroundColor: [
-          'rgba(59, 130, 246, 0.8)',
-          'rgba(234, 179, 8, 0.8)',
-          'rgba(34, 197, 94, 0.8)',
-        ],
-        borderColor: [
-          'rgb(59, 130, 246)',
-          'rgb(234, 179, 8)',
-          'rgb(34, 197, 94)',
-        ],
-        borderWidth: 2,
-      },
-    ],
-  };
-
-  const servicePopularityData = {
-    labels: ['Deep Space', 'Astrophotography', 'Telescope Building', 'Planetary Obs.', 'Nebula Tours'],
-    datasets: [
-      {
-        label: 'Participant Count',
-        data: [15, 22, 18, 12, 8],
-        backgroundColor: 'rgba(147, 51, 234, 0.6)',
-        borderColor: 'rgb(147, 51, 234)',
-        borderWidth: 2,
-      },
-    ],
-  };
-
-  const chartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: 'top' as const,
-        labels: {
-          color: '#e2e8f0',
-          font: {
-            size: 12,
-          },
-        },
-      },
-      tooltip: {
-        backgroundColor: 'rgba(15, 23, 42, 0.9)',
-        titleColor: '#e2e8f0',
-        bodyColor: '#e2e8f0',
-        borderColor: 'rgb(147, 51, 234)',
-        borderWidth: 1,
-      },
-    },
-    scales: {
-      y: {
-        grid: {
-          color: 'rgba(226, 232, 240, 0.1)',
-        },
-        ticks: {
-          color: '#94a3b8',
-        },
-      },
-      x: {
-        grid: {
-          color: 'rgba(226, 232, 240, 0.1)',
-        },
-        ticks: {
-          color: '#94a3b8',
-        },
-      },
-    },
-  };
-
-  const doughnutOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: 'bottom' as const,
-        labels: {
-          color: '#e2e8f0',
-          padding: 20,
-        },
-      },
-      tooltip: {
-        backgroundColor: 'rgba(15, 23, 42, 0.9)',
-        titleColor: '#e2e8f0',
-        bodyColor: '#e2e8f0',
-      },
-    },
-  };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -461,35 +320,6 @@ const ConfirmedBookings: React.FC = () => {
                 {animatedCounters.completed}
               </motion.strong>
             </div>
-          </div>
-        </Card>
-      </motion.div>
-
-      {/* Charts Section */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-        className="charts-grid"
-      >
-        <Card className="chart-card" variant="outlined">
-          <h3>Booking Trends</h3>
-          <div className="chart-container">
-            <Line data={bookingTrendsData} options={chartOptions} />
-          </div>
-        </Card>
-
-        <Card className="chart-card" variant="outlined">
-          <h3>Status Distribution</h3>
-          <div className="chart-container">
-            <Doughnut data={statusDistributionData} options={doughnutOptions} />
-          </div>
-        </Card>
-
-        <Card className="chart-card" variant="outlined">
-          <h3>Service Popularity</h3>
-          <div className="chart-container">
-            <Bar data={servicePopularityData} options={chartOptions} />
           </div>
         </Card>
       </motion.div>

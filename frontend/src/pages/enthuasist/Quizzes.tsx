@@ -6,10 +6,13 @@ import TimeIcon from '../../assets/svg/TimeIcon'
 import QuestionIcon from '../../assets/svg/QuestionIcon'
 import ParticipantsIcon from '../../assets/svg/ParticipantsIcon'
 import * as quizService from '../../services/quizService'
+import { useToast } from '../../contexts/ToastContext'
+import { getErrorMessage } from '../../utils/errorHandler'
 
 type TabType = 'my' | 'create' | 'leaderboard'
 
 const Quizzes = () => {
+  const { showSuccess, showError, showWarning, showInfo } = useToast()
   const [activeTab, setActiveTab] = useState<TabType>('my')
   const [myQuizzes, setMyQuizzes] = useState<quizService.Quiz[]>([])
   const [leaderboard, setLeaderboard] = useState<quizService.LeaderboardData | null>(null)
@@ -65,7 +68,9 @@ const Quizzes = () => {
         setLeaderboard(data)
       }
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to fetch data')
+      const errorMessage = getErrorMessage(err, 'Unable to load data. Please try again.')
+      setError(errorMessage)
+      showError(errorMessage)
       console.error('Error fetching data:', err)
     } finally {
       setLoading(false)
@@ -88,7 +93,7 @@ const Quizzes = () => {
     try {
       // Check if already participated
       if (quiz.hasParticipated) {
-        alert('You have already taken this quiz!')
+        showWarning('You have already completed this quiz!')
         return
       }
       
@@ -96,7 +101,7 @@ const Quizzes = () => {
       setSelectedQuiz(quizData)
       setShowQuizModal(true)
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Failed to start quiz')
+      showError(getErrorMessage(err, 'Unable to start quiz. Please try again.'))
     }
   }
 
@@ -154,9 +159,9 @@ const Quizzes = () => {
         setMyQuizzes(quizzes)
       }
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Failed to submit quiz')
+      showError(getErrorMessage(err, 'Unable to submit quiz answers. Please try again.'))
     }
-  }, [selectedQuiz, selectedAnswers, activeTab])
+  }, [selectedQuiz, selectedAnswers, activeTab, showError])
 
   const handleShowReview = () => {
     setShowReview(true)
@@ -194,7 +199,7 @@ const Quizzes = () => {
   // Quiz CRUD operations
   const handleCreateQuiz = async () => {
     if (createQuizForm.questions.length === 0) {
-      alert('Please add at least one question')
+      showWarning('Please add at least one question to create a quiz')
       return
     }
 
@@ -218,11 +223,11 @@ const Quizzes = () => {
         question_explanation: ''
       })
       
-      alert('Quiz created successfully!')
-      alert('Your quiz has been submitted for approval. It will appear in the quiz list once approved by an admin.')
+      showSuccess('Quiz created successfully!')
+      showInfo('Your quiz has been submitted for approval and will appear once reviewed by an admin.')
       setActiveTab('my')
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Failed to create quiz')
+      showError(getErrorMessage(err, 'Unable to create quiz. Please check your inputs and try again.'))
     } finally {
       setLoading(false)
     }
@@ -251,7 +256,7 @@ const Quizzes = () => {
     if (!editingQuizId) return
 
     if (createQuizForm.questions.length === 0) {
-      alert('Please add at least one question')
+      showWarning('Please add at least one question to update the quiz')
       return
     }
 
@@ -277,30 +282,30 @@ const Quizzes = () => {
       setIsEditing(false)
       setEditingQuizId(null)
       
-      alert('Quiz updated successfully!')
+      showSuccess('Quiz updated successfully!')
       setActiveTab('my')
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Failed to update quiz')
+      showError(getErrorMessage(err, 'Unable to update quiz. Please check your inputs and try again.'))
     } finally {
       setLoading(false)
     }
   }
 
   const handleDeleteQuiz = async (quizId: number) => {
-    if (!confirm('Are you sure you want to delete this quiz?')) {
+    if (!confirm('Are you sure you want to delete this quiz? This action cannot be undone.')) {
       return
     }
 
     try {
       setLoading(true)
       await quizService.deleteQuiz(quizId)
-      alert('Quiz deleted successfully!')
+      showSuccess('Quiz deleted successfully!')
       
       // Refresh my quizzes
       const quizzes = await quizService.getMyQuizzes()
       setMyQuizzes(quizzes)
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Failed to delete quiz')
+      showError(getErrorMessage(err, 'Unable to delete quiz. Please try again.'))
     } finally {
       setLoading(false)
     }
@@ -328,17 +333,17 @@ const Quizzes = () => {
 
   const handleAddQuestion = () => {
     if (!currentQuestion.question.trim() || !currentQuestion.answers.every(opt => opt.trim())) {
-      alert('Please fill in all question fields')
+      showWarning('Please fill in all question fields')
       return
     }
 
     if (!currentQuestion.correct_answer.trim()) {
-      alert('Please select a correct answer')
+      showWarning('Please select a correct answer')
       return
     }
 
     if (!currentQuestion.answers.includes(currentQuestion.correct_answer)) {
-      alert('Correct answer must be one of the answer options')
+      showWarning('Correct answer must be one of the answer options')
       return
     }
 
@@ -351,12 +356,14 @@ const Quizzes = () => {
         questions: updatedQuestions
       }))
       setEditingQuestionIndex(null)
+      showSuccess('Question updated successfully!')
     } else {
       // Add new question
       setCreateQuizForm(prev => ({
         ...prev,
         questions: [...prev.questions, currentQuestion]
       }))
+      showSuccess('Question added successfully!')
     }
 
     // Reset current question

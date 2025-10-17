@@ -14,6 +14,19 @@ dist
 dist-ssr
 *.local
 
+# Build files
+build
+out
+.next
+.nuxt
+.cache
+.parcel-cache
+.output
+.vercel
+.netlify
+*.tsbuildinfo
+.turbo
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -24,3 +37,4 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+*dist

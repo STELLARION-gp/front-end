@@ -7,15 +7,15 @@ FROM node:18-alpine AS build
 WORKDIR /app
 
 # 2️⃣ Copy package files and install dependencies
-#    We explicitly set NODE_ENV=development so devDependencies are installed
-ENV NODE_ENV=development
 COPY package*.json ./
-RUN npm install
 
-# 3️⃣ Copy the rest of the source files
+# 3️⃣ Install dependencies (including devDependencies for build)
+RUN npm ci
+
+# 4️⃣ Copy the rest of the source files
 COPY . .
 
-# 4️⃣ Build the project (TypeScript + Vite)
+# 5️⃣ Build the project (TypeScript + Vite)
 RUN npm run build
 
 
@@ -24,11 +24,11 @@ RUN npm run build
 # ------------------------
 FROM nginx:stable-alpine
 
-# 5️⃣ Copy built files from builder stage to Nginx html folder
+# 6️⃣ Copy built files from builder stage to Nginx html folder
 COPY --from=build /app/dist /usr/share/nginx/html
 
-# 6️⃣ Expose port 80
+# 7️⃣ Expose port 80
 EXPOSE 80
 
-# 7️⃣ Start Nginx
+# 8️⃣ Start Nginx
 CMD ["nginx", "-g", "daemon off;"]

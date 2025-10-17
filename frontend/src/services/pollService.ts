@@ -239,9 +239,11 @@ const makeRequest = async (
     );
   }
 
-  const data = await response.json();
-  console.log("✅ Request successful:", data.message || "OK");
-  return data;
+  const result = await response.json();
+  console.log("✅ Request successful:", result.message || "OK");
+  
+  // Extract data from backend response wrapper { success, message, data }
+  return result.data || result;
 };
 
 export const pollService = {

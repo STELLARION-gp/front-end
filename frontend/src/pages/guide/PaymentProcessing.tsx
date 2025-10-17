@@ -4,6 +4,7 @@ import Button from '../../components/Button';
 import InputField from '../../components/InputField';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import PaymentDetailsModal from '../../components/PaymentDetailsModal';
+import RefundDialog from '../../components/RefundDialog';
 import '../../styles/pages/guide/PaymentProcessing.scss';
 import { 
   getBookingPaymentStats, 
@@ -45,6 +46,7 @@ const PaymentProcessing: React.FC = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedPaymentDetails, setSelectedPaymentDetails] = useState<BookingPaymentDetails | null>(null);
+  const [showRefundDialog, setShowRefundDialog] = useState(false);
 
   const itemsPerPage = 10;
 
@@ -124,28 +126,6 @@ const PaymentProcessing: React.FC = () => {
     }).format(amount);
   };
 
-  const handleRefund = async (bookingId: number) => {
-    if (!window.confirm('Are you sure you want to process a refund for this booking?')) {
-      return;
-    }
-
-    const reason = prompt('Please provide a reason for the refund:');
-    if (!reason) return;
-
-    try {
-      await processBookingRefund(bookingId, {
-        reason,
-        refundType: 'full'
-      });
-      alert('Refund processed successfully!');
-      // Refresh transactions
-      window.location.reload();
-    } catch (err) {
-      console.error('Error processing refund:', err);
-      alert(err instanceof Error ? err.message : 'Failed to process refund');
-    }
-  };
-
   const handleViewDetails = async (bookingId: number) => {
     try {
       const details = await getBookingPaymentDetails(bookingId);
@@ -164,14 +144,37 @@ const PaymentProcessing: React.FC = () => {
 
   const handleRefundFromModal = () => {
     if (selectedPaymentDetails) {
-      handleCloseModal();
-      // Extract booking ID from order ID or use a different approach
-      // For now, we'll need to get the booking ID from the transaction
-      const transaction = transactions.find(t => t.reference === selectedPaymentDetails.orderId);
-      if (transaction?.bookingId) {
-        handleRefund(transaction.bookingId);
-      }
+      // Close payment details modal and open refund dialog
+      setShowDetailsModal(false);
+      setShowRefundDialog(true);
     }
+  };
+
+  const handleRefundConfirm = async (reason: string) => {
+    if (!selectedPaymentDetails) return;
+
+    try {
+      await processBookingRefund(selectedPaymentDetails.bookingId, {
+        reason,
+        refundType: 'full'
+      });
+      
+      alert('Refund processed successfully! The learner has been notified.');
+      setShowRefundDialog(false);
+      setSelectedPaymentDetails(null);
+      
+      // Refresh the page to show updated data
+      window.location.reload();
+    } catch (err) {
+      console.error('Error processing refund:', err);
+      alert(err instanceof Error ? err.message : 'Failed to process refund');
+    }
+  };
+
+  const handleRefundCancel = () => {
+    setShowRefundDialog(false);
+    // Reopen payment details modal
+    setShowDetailsModal(true);
   };
 
   if (loading) {
@@ -432,7 +435,7 @@ const PaymentProcessing: React.FC = () => {
               return (
                 <Button
                   key={pageNum}
-                  variant={currentPage === pageNum ? "primary" : "ghost"}
+                  
                   size="small"
                   onClick={() => setCurrentPage(pageNum)}
                 >
@@ -442,7 +445,7 @@ const PaymentProcessing: React.FC = () => {
             })}
             
             <Button
-              variant="ghost"
+             
               size="small"
               disabled={currentPage === totalPages}
               onClick={() => setCurrentPage(currentPage + 1)}
@@ -453,24 +456,7 @@ const PaymentProcessing: React.FC = () => {
         </div>
       </div>
 
-      {/* Quick Actions */}
-      <div className="payment-quick-actions-section">
-        <h3>Quick Actions</h3>
-        <div className="payment-action-buttons-grid">
-          <Button variant="primary" icon={<span>📊</span>}>
-            Export Report
-          </Button>
-          <Button variant="secondary" icon={<span>⚙️</span>}>
-            Gateway Settings
-          </Button>
-          <Button variant="success" icon={<span>💳</span>}>
-            Process Refund
-          </Button>
-          <Button variant="warning" icon={<span>🔍</span>}>
-            Investigate Transaction
-          </Button>
-        </div>
-      </div>
+      
 
       {/* Payment Details Modal */}
       <PaymentDetailsModal
@@ -479,6 +465,19 @@ const PaymentProcessing: React.FC = () => {
         onClose={handleCloseModal}
         onRefund={handleRefundFromModal}
         showRefundButton={true}
+      />
+
+      {/* Refund Dialog */}
+      <RefundDialog
+        isOpen={showRefundDialog}
+        bookingDetails={selectedPaymentDetails ? {
+          orderId: selectedPaymentDetails.orderId,
+          customerName: selectedPaymentDetails.customer.name,
+          amount: selectedPaymentDetails.amount,
+          serviceTitle: selectedPaymentDetails.service.title,
+        } : null}
+        onConfirm={handleRefundConfirm}
+        onCancel={handleRefundCancel}
       />
     </div>
   );

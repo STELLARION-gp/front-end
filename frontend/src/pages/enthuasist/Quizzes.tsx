@@ -541,14 +541,14 @@ const Quizzes = () => {
             <div className="button-group">
               <Button
                 onClick={handleAddQuestion}
-                className="btn-primary"
+                
               >
                 {editingQuestionIndex !== null ? 'Update Question' : 'Add Question'}
               </Button>
               {editingQuestionIndex !== null && (
                 <Button
                   onClick={handleCancelQuestionEdit}
-                  className="btn-secondary"
+                  
                 >
                   Cancel Edit
                 </Button>
@@ -580,18 +580,18 @@ const Quizzes = () => {
                     ))}
                   </div>
                   <div className="question-actions">
-                    <button
+                    <Button
                       onClick={() => handleEditQuestion(index)}
-                      className="btn-edit"
+                      
                     >
                       Edit
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       onClick={() => handleRemoveQuestion(index)}
-                      className="btn-delete"
+                      
                     >
                       Remove
-                    </button>
+                    </Button>
                   </div>
                 </div>
               ))}
@@ -603,14 +603,14 @@ const Quizzes = () => {
         <div className="form-actions">
           <Button
             onClick={isEditing ? handleUpdateQuiz : handleCreateQuiz}
-            className="btn-primary"
+            
             disabled={loading}
           >
             {loading ? 'Saving...' : (isEditing ? 'Update Quiz' : 'Create Quiz')}
           </Button>
           <Button
             onClick={handleCancelEdit}
-            className="btn-secondary"
+           
           >
             Cancel
           </Button>

@@ -17,7 +17,7 @@ interface CreateEventForm {
   neededVolunteers: string; // string for input
   organizedBy: string;
   images: File[];
-  imageUrls: string[];
+  imagePreviews: string[]; // Changed from imageUrls for clarity
   maxParticipants: string;
   eventStatus: 'draft' | 'organized' | 'finalized';
   created_at: string;
@@ -38,7 +38,7 @@ const CreateEvent: React.FC = () => {
     neededVolunteers: '',
     organizedBy: '',
     images: [],
-    imageUrls: [],
+    imagePreviews: [],
     maxParticipants: '',
     eventStatus: 'draft',
     created_at: new Date().toISOString().split('T')[0]
@@ -54,20 +54,45 @@ const CreateEvent: React.FC = () => {
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const fileArr = Array.from(e.target.files);
-      const previewUrls = fileArr.map(file => URL.createObjectURL(file));
+      
+      // Limit to 10 images
+      if (fileArr.length + formData.images.length > 10) {
+        alert('Maximum 10 images allowed');
+        return;
+      }
+      
+      // Validate file types and size
+      const validFiles = fileArr.filter(file => {
+        if (!file.type.startsWith('image/')) {
+          alert(`${file.name} is not an image file`);
+          return false;
+        }
+        if (file.size > 10 * 1024 * 1024) { // 10MB limit
+          alert(`${file.name} is too large (max 10MB)`);
+          return false;
+        }
+        return true;
+      });
+      
+      if (validFiles.length === 0) return;
+      
+      const previewUrls = validFiles.map(file => URL.createObjectURL(file));
       setFormData(prev => ({
         ...prev,
-  images: [...prev.images, ...fileArr],
-  imageUrls: [...prev.imageUrls, ...previewUrls]
+        images: [...prev.images, ...validFiles],
+        imagePreviews: [...prev.imagePreviews, ...previewUrls]
       }));
     }
   };
 
   const removeImage = (index: number) => {
+    // Revoke the object URL to prevent memory leaks
+    URL.revokeObjectURL(formData.imagePreviews[index]);
+    
     setFormData(prev => ({
       ...prev,
-  images: prev.images.filter((_, i) => i !== index),
-  imageUrls: prev.imageUrls.filter((_, i) => i !== index)
+      images: prev.images.filter((_, i) => i !== index),
+      imagePreviews: prev.imagePreviews.filter((_, i) => i !== index)
     }));
   };
 
@@ -94,13 +119,17 @@ const CreateEvent: React.FC = () => {
         organizedBy: formData.organizedBy.trim(),
         maxParticipants: formData.maxParticipants ? Number(formData.maxParticipants) : undefined,
         eventStatus: formData.eventStatus,
-        images: formData.images.length ? formData.images : undefined,
-        imageUrls: undefined
+        images: formData.images.length > 0 ? formData.images : undefined
       };
+      
       await createEvent(payload);
-      setApiSuccess('Event created successfully');
+      setApiSuccess('Event created successfully with images uploaded to cloud storage!');
+      
+      // Revoke all object URLs to prevent memory leaks
+      formData.imagePreviews.forEach(url => URL.revokeObjectURL(url));
+      
       // Optional: small delay then navigate
-      setTimeout(()=> navigate('/dashboard/moderation/events'), 800);
+      setTimeout(() => navigate('/dashboard/moderation/events'), 1000);
     } catch (error) {
       console.error('Error creating event:', error);
       setApiError(error instanceof Error ? error.message : 'Failed to create event');
@@ -269,6 +298,7 @@ const CreateEvent: React.FC = () => {
               
               <div className="form-group">
                 <label htmlFor="imageUrls">Event Images</label>
+                <p className="help-text">Upload up to 10 images for your event (JPEG, PNG, GIF, WebP - max 10MB each)</p>
                 <input
                   type="file"
                   id="imageUrls"
@@ -276,8 +306,13 @@ const CreateEvent: React.FC = () => {
                   multiple
                   accept="image/*"
                 />
+                {formData.images.length > 0 && (
+                  <p className="image-count">
+                    {formData.images.length} image{formData.images.length !== 1 ? 's' : ''} selected
+                  </p>
+                )}
                 <div className="image-preview">
-                  {formData.imageUrls.map((url, index) => (
+                  {formData.imagePreviews.map((url: string, index: number) => (
                     <div key={index} className="image-preview-item">
                       <img src={url} alt={`Event preview ${index}`} />
                       <button type="button" onClick={() => removeImage(index)}>×</button>

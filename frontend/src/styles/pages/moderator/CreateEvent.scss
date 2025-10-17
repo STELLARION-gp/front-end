@@ -181,6 +181,21 @@
             color: #ffffff;
           }
         }
+
+        // Help text for instructions
+        .help-text {
+          color: rgba(255, 255, 255, 0.6);
+          font-size: 0.85rem;
+          margin: -0.25rem 0 0.5rem 0;
+        }
+
+        // Image count display
+        .image-count {
+          color: rgba(102, 126, 234, 0.9);
+          font-size: 0.85rem;
+          margin-top: 0.5rem;
+          font-weight: 500;
+        }
       }
 
       .visibility-info {
@@ -230,6 +245,66 @@
             color: rgba(255, 255, 255, 0.8);
             font-size: 0.85rem;
             line-height: 1.4;
+          }
+        }
+      }
+
+      // Image Preview Grid
+      .image-preview {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+
+        .image-preview-item {
+          position: relative;
+          aspect-ratio: 16/9;
+          border-radius: 8px;
+          overflow: hidden;
+          background: rgba(10, 10, 10, 0.5);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          transition: all 0.3s ease;
+
+          &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            border-color: rgba(102, 126, 234, 0.5);
+
+            button {
+              opacity: 1;
+            }
+          }
+
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+
+          button {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: rgba(220, 53, 69, 0.9);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: all 0.3s ease;
+            line-height: 1;
+            padding: 0;
+
+            &:hover {
+              background: rgba(220, 53, 69, 1);
+              transform: scale(1.1);
+            }
           }
         }
       }

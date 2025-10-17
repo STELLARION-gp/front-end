@@ -1,72 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Button from '../../components/Button';
-import { FaMapMarkerAlt, FaStar, FaEye, FaClock, FaCalendarAlt, FaCamera } from 'react-icons/fa';
+import ErrorBoundary from '../../components/ErrorBoundary';
+import { FaMapMarkerAlt, FaStar, FaEye, FaClock, FaCalendarAlt, FaCamera, FaCheckCircle, FaTimesCircle, FaExclamationCircle } from 'react-icons/fa';
 import '../../styles/pages/moderator/SpotsDetails.scss';
+import { stargazingSpotService } from '../../services/stargazingSpotService';
+import type { StargazingSpot } from '../../services/stargazingSpotService';
+import { factCheckService } from '../../services/factCheckService';
+import type { FactCheckReport } from '../../services/factCheckService';
 
-interface SpotDetails {
-  id: string;
-  name: string;
-  description: string;
-  submittedBy: {
-    id: string;
-    username: string;
-    email: string;
-    avatar: string;
-    verified: boolean;
-  };
-  location: {
-    address: string;
-    coordinates: {
-      lat: number;
-      lng: number;
-    };
-    elevation: number;
-  };
-  accessibility: 'easy' | 'moderate' | 'difficult';
-  lightPollution: 'class1' | 'class2' | 'class3' | 'class4' | 'class5';
-  amenities: string[];
-  bestViewingTimes: string[];
-  status: 'pending' | 'approved' | 'rejected' | 'needs_verification';
-  priority: 'low' | 'medium' | 'high';
-  submittedAt: string;
-  lastUpdated: string;
-  verification: {
-    hasPhotos: boolean;
-    photoCount: number;
-    hasCoordinates: boolean;
-    hasDescription: boolean;
-    completenessScore: number;
-  };
-  reports?: {
-    count: number;
-    reasons: string[];
-    details: string;
-    reportedBy: Array<{
-      id: string;
-      username: string;
-      timestamp: string;
-    }>;
-  };
-  moderatorNotes?: string;
-  rating: number;
-  reviewCount: number;
-  tags: string[];
-  photos: Array<{
-    id: string;
-    url: string;
-    caption: string;
-    uploadedBy: string;
-    timestamp: string;
-  }>;
-  moderationHistory: Array<{
-    id: string;
-    action: string;
-    moderator: string;
-    timestamp: string;
-    reason: string;
-  }>;
-}
+type SpotDetails = StargazingSpot;
 
 const SpotsDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -74,104 +17,40 @@ const SpotsDetails: React.FC = () => {
   const [spot, setSpot] = useState<SpotDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [factCheckReport, setFactCheckReport] = useState<FactCheckReport | null>(null);
+  const [checkingFacts, setCheckingFacts] = useState(false);
 
-  // Mock data - replace with actual API call
+  // Fetch spot details from API
   useEffect(() => {
     const fetchSpotDetails = async () => {
       setLoading(true);
       try {
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        if (!id) {
+          console.error('❌ No spot ID provided');
+          setLoading(false);
+          return;
+        }
         
-        const mockSpot: SpotDetails = {
-          id: id || '1',
-          name: 'Mount Wilson Observatory',
-          description: 'Historic observatory with excellent dark skies and minimal light pollution. Perfect for deep sky observations and astrophotography. The site offers unparalleled views of the cosmos with state-of-the-art facilities and guided tours available for astronomy enthusiasts.',
-          submittedBy: {
-            id: 'user123',
-            username: 'SkyExplorer',
-            email: 'skyexplorer@example.com',
-            avatar: '/default-avatar.png',
-            verified: true
-          },
-          location: {
-            address: 'Mount Wilson, CA 91023, USA',
-            coordinates: { lat: 34.2257, lng: -118.0576 },
-            elevation: 1742
-          },
-          accessibility: 'moderate',
-          lightPollution: 'class2',
-          amenities: ['Parking', 'Restrooms', 'Observatory tours', 'Gift shop', 'Cafeteria', 'Telescope rental'],
-          bestViewingTimes: ['10 PM - 4 AM', 'New moon phases', 'Clear winter nights', 'Spring and Fall seasons'],
-          status: 'pending',
-          priority: 'high',
-          submittedAt: '2024-01-10T14:30:00Z',
-          lastUpdated: '2024-01-15T09:22:00Z',
-          verification: {
-            hasPhotos: true,
-            photoCount: 12,
-            hasCoordinates: true,
-            hasDescription: true,
-            completenessScore: 95
-          },
-          reports: {
-            count: 2,
-            reasons: ['Outdated information', 'Accessibility concerns'],
-            details: 'Some users reported that the accessibility information might be outdated and road conditions have changed.',
-            reportedBy: [
-              {
-                id: 'user456',
-                username: 'AstronomyFan',
-                timestamp: '2024-01-14T16:30:00Z'
-              },
-              {
-                id: 'user789',
-                username: 'StarGazer2024',
-                timestamp: '2024-01-15T08:45:00Z'
-              }
-            ]
-          },
-          moderatorNotes: 'Initial review shows high quality submission with detailed information.',
-          rating: 4.8,
-          reviewCount: 127,
-          tags: ['Observatory', 'Dark Sky', 'Historic', 'Mountain', 'Astrophotography'],
-          photos: [
-            {
-              id: 'photo1',
-              url: '/images/mount-wilson-1.jpg',
-              caption: 'Main observatory building at sunset',
-              uploadedBy: 'SkyExplorer',
-              timestamp: '2024-01-10T14:30:00Z'
-            },
-            {
-              id: 'photo2',
-              url: '/images/mount-wilson-2.jpg',
-              caption: 'Night sky view from the observatory deck',
-              uploadedBy: 'SkyExplorer',
-              timestamp: '2024-01-10T14:35:00Z'
-            }
-          ],
-          moderationHistory: [
-            {
-              id: 'mod1',
-              action: 'Submitted for Review',
-              moderator: 'System',
-              timestamp: '2024-01-10T14:30:00Z',
-              reason: 'New spot submission received'
-            },
-            {
-              id: 'mod2',
-              action: 'Initial Review',
-              moderator: 'ModeratorBeta',
-              timestamp: '2024-01-12T10:15:00Z',
-              reason: 'Preliminary verification of submission details'
-            }
-          ]
-        };
-
-        setSpot(mockSpot);
+        console.log('🔍 Fetching spot details for ID:', id);
+        const response = await stargazingSpotService.getStargazingSpotById(parseInt(id));
+        
+        if (response.success && response.data) {
+          console.log('✅ Spot details loaded:', response.data);
+          
+          // Ensure image_urls is always an array
+          const spotData = {
+            ...response.data,
+            image_urls: response.data.image_urls || []
+          };
+          
+          setSpot(spotData);
+        } else {
+          console.error('❌ Failed to load spot:', response.message);
+          setSpot(null);
+        }
       } catch (error) {
-        console.error('Error fetching spot details:', error);
+        console.error('❌ Error fetching spot details:', error);
+        setSpot(null);
       } finally {
         setLoading(false);
       }
@@ -179,58 +58,66 @@ const SpotsDetails: React.FC = () => {
 
     if (id) {
       fetchSpotDetails();
+    } else {
+      setLoading(false);
     }
   }, [id]);
 
-  const handleAction = async (action: string) => {
+  // Moderate spot (approve or reject)
+  const handleAction = async (action: 'approve' | 'reject') => {
     if (!spot) return;
     
     setActionLoading(action);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      console.log(`🔄 ${action}ing spot:`, spot.id);
       
-      console.log(`${action} spot:`, spot.id);
+      const response = await stargazingSpotService.moderateStargazingSpot(spot.id, action);
       
-      // Update spot status based on action
-      if (action === 'approve') {
-        setSpot(prev => prev ? { ...prev, status: 'approved' } : null);
-      } else if (action === 'reject') {
-        setSpot(prev => prev ? { ...prev, status: 'rejected' } : null);
+      if (response.success && response.data) {
+        console.log(`✅ Spot ${action}ed successfully`);
+        setSpot(response.data);
+        alert(`Spot ${action}ed successfully!`);
+      } else {
+        throw new Error(response.message || `Failed to ${action} spot`);
       }
-      
-      // Show success message
-      alert(`Spot ${action}ed successfully!`);
-      
     } catch (error) {
-      console.error(`Error ${action}ing spot:`, error);
+      console.error(`❌ Error ${action}ing spot:`, error);
       alert(`Error ${action}ing spot. Please try again.`);
     } finally {
       setActionLoading(null);
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString();
-  };
-
-  const getLightPollutionLabel = (classification: string) => {
-    switch (classification) {
-      case 'class1': return 'Class I - Excellent';
-      case 'class2': return 'Class II - Good';
-      case 'class3': return 'Class III - Moderate';
-      case 'class4': return 'Class IV - Poor';
-      case 'class5': return 'Class V - Very Poor';
-      default: return 'Unknown';
+  // Run fact check on spot description
+  const handleFactCheck = async () => {
+    if (!spot || checkingFacts) return;
+    
+    setCheckingFacts(true);
+    try {
+      console.log('🔍 Starting fact check for spot:', spot.name);
+      const report = await factCheckService.checkBlogContent(spot.description, spot.name);
+      console.log('✅ Fact check complete:', report);
+      setFactCheckReport(report);
+    } catch (error) {
+      console.error('❌ Error during fact check:', error);
+      alert('Error running fact check. Please try again.');
+    } finally {
+      setCheckingFacts(false);
     }
   };
 
-  const getAccessibilityIcon = (level: string) => {
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleString();
+  };
+
+  const getCredibilityBadge = (level: string) => {
     switch (level) {
-      case 'easy': return '🟢';
-      case 'moderate': return '🟡';
-      case 'difficult': return '🔴';
-      default: return '⚪';
+      case 'high': return { icon: <FaCheckCircle />, class: 'credibility-high' };
+      case 'medium': return { icon: <FaExclamationCircle />, class: 'credibility-medium' };
+      case 'low': return { icon: <FaTimesCircle />, class: 'credibility-low' };
+      case 'very-low': return { icon: <FaTimesCircle />, class: 'credibility-very-low' };
+      default: return { icon: <FaExclamationCircle />, class: 'credibility-medium' };
     }
   };
 
@@ -307,10 +194,12 @@ const SpotsDetails: React.FC = () => {
           </div>
           <div className="header-actions">
             <Button
-              variant="ghost"
+              variant="primary"
               size="medium"
+              onClick={handleFactCheck}
+              loading={checkingFacts}
             >
-              👁 {spot.reviewCount} Reviews
+              🔍 Run Fact Check
             </Button>
           </div>
         </div>
@@ -322,8 +211,8 @@ const SpotsDetails: React.FC = () => {
           <div className="detail-card spot-info">
             <div className="card-header">
               <h2>Spot Information</h2>
-              <div className={`spot-status ${spot.status.replace('_', '-')}`}>
-                {spot.status.replace('_', ' ').charAt(0).toUpperCase() + spot.status.replace('_', ' ').slice(1)}
+              <div className={`spot-status status-${spot.status}`}>
+                {spot.status.charAt(0).toUpperCase() + spot.status.slice(1)}
               </div>
             </div>
             <div className="card-content">
@@ -337,105 +226,48 @@ const SpotsDetails: React.FC = () => {
               <div className="spot-meta">
                 <div className="meta-item">
                   <FaMapMarkerAlt />
-                  <span>{spot.location.address}</span>
+                  <span>{spot.location}</span>
                 </div>
+                {spot.best_time && (
+                  <div className="meta-item">
+                    <FaClock />
+                    <span>Best Time: {spot.best_time}</span>
+                  </div>
+                )}
                 <div className="meta-item">
                   <FaCalendarAlt />
-                  <span>Submitted: {formatDate(spot.submittedAt)}</span>
-                </div>
-                <div className="meta-item">
-                  <FaClock />
-                  <span>Updated: {formatDate(spot.lastUpdated)}</span>
+                  <span>Created: {formatDate(spot.created_at)}</span>
                 </div>
                 <div className="meta-item">
                   <FaStar />
-                  <span>Rating: {spot.rating}/5 ({spot.reviewCount} reviews)</span>
+                  <span>Rating: {spot.rating}/5 ({spot.review_count || 0} reviews)</span>
                 </div>
               </div>
 
-              <div className="spot-tags">
-                {spot.tags.map(tag => (
-                  <span key={tag} className="tag">#{tag}</span>
-                ))}
-              </div>
+              {spot.facilities && Array.isArray(spot.facilities) && spot.facilities.length > 0 && (
+                <div className="spot-facilities">
+                  <h4>Facilities</h4>
+                  <div className="facilities-list">
+                    {spot.facilities.map((facility, index) => (
+                      <span key={index} className="facility-tag">{facility}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Location Details */}
-          <div className="detail-card location-details">
-            <div className="card-header">
-              <h2>Location Details</h2>
-            </div>
-            <div className="card-content">
-              <div className="location-grid">
-                <div className="location-item">
-                  <span className="label">Coordinates:</span>
-                  <span className="value">{spot.location.coordinates.lat}, {spot.location.coordinates.lng}</span>
-                </div>
-                <div className="location-item">
-                  <span className="label">Elevation:</span>
-                  <span className="value">{spot.location.elevation}m</span>
-                </div>
-                <div className="location-item">
-                  <span className="label">Accessibility:</span>
-                  <span className="value">
-                    {getAccessibilityIcon(spot.accessibility)} {spot.accessibility}
-                  </span>
-                </div>
-                <div className="location-item">
-                  <span className="label">Light Pollution:</span>
-                  <span className="value">{getLightPollutionLabel(spot.lightPollution)}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Amenities & Viewing Times */}
-          <div className="detail-card amenities-viewing">
-            <div className="card-header">
-              <h2>Amenities & Best Viewing Times</h2>
-            </div>
-            <div className="card-content">
-              <div className="section">
-                <h4>Available Amenities</h4>
-                <div className="amenities-list">
-                  {spot.amenities.map((amenity, index) => (
-                    <span key={index} className="amenity-tag">{amenity}</span>
-                  ))}
-                </div>
-              </div>
-              
-              <div className="section">
-                <h4>Best Viewing Times</h4>
-                <div className="viewing-times">
-                  {spot.bestViewingTimes.map((time, index) => (
-                    <div key={index} className="viewing-time">{time}</div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Photos */}
-          {spot.photos.length > 0 && (
+          {/* Image Gallery */}
+          {spot.image_urls && Array.isArray(spot.image_urls) && spot.image_urls.length > 0 && (
             <div className="detail-card photos-section">
               <div className="card-header">
-                <h2>Photos ({spot.photos.length})</h2>
+                <h2><FaCamera /> Photos ({spot.image_urls.length})</h2>
               </div>
               <div className="card-content">
                 <div className="photos-grid">
-                  {spot.photos.map(photo => (
-                    <div key={photo.id} className="photo-item">
-                      <div className="photo-placeholder">
-                        <FaCamera />
-                        <span>Photo</span>
-                      </div>
-                      <div className="photo-info">
-                        <div className="photo-caption">{photo.caption}</div>
-                        <div className="photo-meta">
-                          by {photo.uploadedBy} • {formatDate(photo.timestamp)}
-                        </div>
-                      </div>
+                  {spot.image_urls.map((url, index) => (
+                    <div key={index} className="photo-item">
+                      <img src={url} alt={`${spot.name} - Image ${index + 1}`} />
                     </div>
                   ))}
                 </div>
@@ -443,55 +275,114 @@ const SpotsDetails: React.FC = () => {
             </div>
           )}
 
-          {/* Submitter Information */}
-          <div className="detail-card submitter-info">
-            <div className="card-header">
-              <h2>Submitter Information</h2>
-            </div>
-            <div className="card-content">
-              <div className="submitter-profile">
-                {/* <img src={spot.submittedBy.avatar} alt={spot.submittedBy.username} className="submitter-avatar" /> */}
-                <img src="https://d3i6fh83elv35t.cloudfront.net/static/2017/10/PADILLA02-1024x681.jpg" alt="{spot.submittedBy.username}" className="submitter-avatar"/>
-                <div className="submitter-details">
-                  <div className="submitter-username">
-                    {spot.submittedBy.username}
-                    {spot.submittedBy.verified && <span className="verified-badge">✓</span>}
+          {/* Fact Check Results */}
+          {factCheckReport && (
+            <div className="detail-card fact-check-section">
+              <div className="card-header">
+                <h2>Fact Check Report</h2>
+                <div className={`credibility-badge credibility-${factCheckReport.credibilityLevel}`}>
+                  {getCredibilityBadge(factCheckReport.credibilityLevel).icon}
+                  <span>{factCheckReport.credibilityLevel.toUpperCase()}</span>
+                </div>
+              </div>
+              <div className="card-content">
+                <div className="fact-check-overview">
+                  <div className="score-circle">
+                    <div className="score-value">{factCheckReport.overallScore}</div>
+                    <div className="score-label">Overall Score</div>
                   </div>
-                  <div className="submitter-email">{spot.submittedBy.email}</div>
-                  <div className="submitter-id">ID: {spot.submittedBy.id}</div>
+                  <div className="claims-summary">
+                    <div className="claim-stat verified">
+                      <FaCheckCircle />
+                      <span>{factCheckReport.verifiedClaims} Verified</span>
+                    </div>
+                    <div className="claim-stat false">
+                      <FaTimesCircle />
+                      <span>{factCheckReport.falseClaiims} False</span>
+                    </div>
+                    <div className="claim-stat unverified">
+                      <FaExclamationCircle />
+                      <span>{factCheckReport.unverifiedClaims} Unverified</span>
+                    </div>
+                  </div>
+                </div>
+
+                {factCheckReport.warnings && factCheckReport.warnings.length > 0 && (
+                  <div className="fact-check-warnings">
+                    <h4>⚠️ Warnings</h4>
+                    <ul>
+                      {factCheckReport.warnings.map((warning, index) => (
+                        <li key={index}>{warning}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {factCheckReport.recommendations && factCheckReport.recommendations.length > 0 && (
+                  <div className="fact-check-recommendations">
+                    <h4>💡 Recommendations</h4>
+                    <ul>
+                      {factCheckReport.recommendations.map((rec, index) => (
+                        <li key={index}>{rec}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {factCheckReport.claims && factCheckReport.claims.length > 0 && (
+                  <div className="fact-check-claims">
+                    <h4>📋 Detected Claims ({factCheckReport.claims.length})</h4>
+                    {factCheckReport.claims.map((claim, index) => (
+                      <div key={index} className={`claim-item rating-${claim.rating}`}>
+                        <div className="claim-header">
+                          <span className={`claim-rating ${claim.rating}`}>
+                            {claim.rating.toUpperCase()}
+                          </span>
+                          <span className="claim-confidence">{claim.confidence}% confidence</span>
+                        </div>
+                        <div className="claim-text">{claim.claim}</div>
+                        {claim.sources.length > 0 && (
+                          <div className="claim-sources">
+                            <strong>Sources:</strong>
+                            {claim.sources.map((source, idx) => (
+                              <a key={idx} href={source.url} target="_blank" rel="noopener noreferrer">
+                                {source.name}
+                              </a>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Submitter Information */}
+          {spot.creator && (
+            <div className="detail-card submitter-info">
+              <div className="card-header">
+                <h2>Submitter Information</h2>
+              </div>
+              <div className="card-content">
+                <div className="submitter-profile">
+                  <div className="submitter-avatar">
+                    {(spot.creator.display_name || spot.creator.first_name || 'U')[0].toUpperCase()}
+                  </div>
+                  <div className="submitter-details">
+                    <div className="submitter-username">
+                      {spot.creator.display_name || `${spot.creator.first_name} ${spot.creator.last_name}`}
+                    </div>
+                    <div className="submitter-id">User ID: {spot.creator.id}</div>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
 
         <div className="sidebar-content">
-          {/* Verification Status */}
-          <div className="detail-card verification-status">
-            <div className="card-header">
-              <h2>Verification Status</h2>
-              <div className="completeness-score">
-                {spot.verification.completenessScore}%
-              </div>
-            </div>
-            <div className="card-content">
-              <div className="verification-items">
-                <div className={`verification-item ${spot.verification.hasPhotos ? 'verified' : 'missing'}`}>
-                  <FaCamera />
-                  <span>Photos: {spot.verification.hasPhotos ? `✓ (${spot.verification.photoCount})` : '✗'}</span>
-                </div>
-                <div className={`verification-item ${spot.verification.hasCoordinates ? 'verified' : 'missing'}`}>
-                  <FaMapMarkerAlt />
-                  <span>Coordinates: {spot.verification.hasCoordinates ? '✓' : '✗'}</span>
-                </div>
-                <div className={`verification-item ${spot.verification.hasDescription ? 'verified' : 'missing'}`}>
-                  <FaEye />
-                  <span>Description: {spot.verification.hasDescription ? '✓' : '✗'}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
           {/* Quick Actions */}
           <div className="detail-card quick-actions">
             <div className="card-header">
@@ -517,83 +408,66 @@ const SpotsDetails: React.FC = () => {
                 >
                   ✗ {spot.status === 'rejected' ? 'Rejected' : 'Reject Spot'}
                 </Button>
-                <Button
-                  variant="warning"
-                  size="small"
-                  onClick={() => handleAction('verify')}
-                  loading={actionLoading === 'verify'}
-                >
-                  📋 Request Verification
-                </Button>
               </div>
             </div>
           </div>
 
-          {/* Reports */}
-          {spot.reports && spot.reports.count > 0 && (
-            <div className="detail-card reports-section">
+          {/* Moderation Info */}
+          {spot.moderated_by && spot.moderator && (
+            <div className="detail-card moderation-info">
               <div className="card-header">
-                <h2>Reports ({spot.reports.count})</h2>
+                <h2>Moderation Info</h2>
               </div>
               <div className="card-content">
-                <div className="reports-list">
-                  <div className="report-reasons">
-                    {spot.reports.reasons.map((reason, index) => (
-                      <span key={index} className="reason-tag">{reason}</span>
-                    ))}
+                <div className="moderation-details">
+                  <div className="mod-item">
+                    <span className="label">Moderated By:</span>
+                    <span className="value">
+                      {spot.moderator.display_name || `${spot.moderator.first_name} ${spot.moderator.last_name}`}
+                    </span>
                   </div>
-                  <div className="report-details">{spot.reports.details}</div>
-                  <div className="reporters">
-                    <strong>Reported by:</strong>
-                    {spot.reports.reportedBy.map(reporter => (
-                      <div key={reporter.id} className="reporter">
-                        @{reporter.username} • {formatDate(reporter.timestamp)}
-                      </div>
-                    ))}
+                  <div className="mod-item">
+                    <span className="label">Moderated At:</span>
+                    <span className="value">{formatDate(spot.moderated_at)}</span>
                   </div>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Moderation History */}
-          {spot.moderationHistory.length > 0 && (
-            <div className="detail-card moderation-history">
-              <div className="card-header">
-                <h2>Moderation History</h2>
-              </div>
-              <div className="card-content">
-                <div className="history-list">
-                  {spot.moderationHistory.map(entry => (
-                    <div key={entry.id} className="history-item">
-                      <div className="history-action">{entry.action}</div>
-                      <div className="history-moderator">by {entry.moderator}</div>
-                      <div className="history-time">{formatDate(entry.timestamp)}</div>
-                      <div className="history-reason">{entry.reason}</div>
-                    </div>
-                  ))}
+          {/* Verification Status */}
+          <div className="detail-card verification-status">
+            <div className="card-header">
+              <h2>Verification Status</h2>
+            </div>
+            <div className="card-content">
+              <div className="verification-items">
+                <div className={`verification-item ${spot.image_urls && spot.image_urls.length > 0 ? 'verified' : 'missing'}`}>
+                  <FaCamera />
+                  <span>Photos: {spot.image_urls && spot.image_urls.length > 0 ? `✓ (${spot.image_urls.length})` : '✗'}</span>
+                </div>
+                <div className={`verification-item ${spot.location ? 'verified' : 'missing'}`}>
+                  <FaMapMarkerAlt />
+                  <span>Location: {spot.location ? '✓' : '✗'}</span>
+                </div>
+                <div className={`verification-item ${spot.description ? 'verified' : 'missing'}`}>
+                  <FaEye />
+                  <span>Description: {spot.description ? '✓' : '✗'}</span>
                 </div>
               </div>
             </div>
-          )}
-
-          {/* Moderator Notes */}
-          {spot.moderatorNotes && (
-            <div className="detail-card moderator-notes">
-              <div className="card-header">
-                <h2>Moderator Notes</h2>
-              </div>
-              <div className="card-content">
-                <div className="notes-text">
-                  {spot.moderatorNotes}
-                </div>
-              </div>
-            </div>
-          )}
+          </div>
         </div>
       </div>
     </div>
   );
 };
 
-export default SpotsDetails;
+// Wrap with Error Boundary for better error handling
+const SpotsDetailsWithErrorBoundary: React.FC = () => (
+  <ErrorBoundary>
+    <SpotsDetails />
+  </ErrorBoundary>
+);
+
+export default SpotsDetailsWithErrorBoundary;

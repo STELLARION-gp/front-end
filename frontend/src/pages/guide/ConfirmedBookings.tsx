@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import Button from '../../components/Button';
 import Card from '../../components/Card';
-import { Calendar, Clock, Users, Star, TrendingUp, Activity, ArrowLeft, MessageCircle } from 'lucide-react';
+import { Calendar, Clock, Users, Star, TrendingUp, Activity, ArrowLeft } from 'lucide-react';
 import '../../styles/pages/guide/_confirmedBookings.scss';
 import { getGuideBookings, type Booking } from '../../services/bookingService';
 
@@ -383,7 +383,7 @@ const ConfirmedBookings: React.FC = () => {
                   <th>Duration</th>
                   <th>Participants</th>
                   <th>Amount</th>
-                  <th>Actions</th>
+          
                 </tr>
               </thead>
               <tbody>
@@ -430,31 +430,7 @@ const ConfirmedBookings: React.FC = () => {
                       <td className="amount-cell">
                         <strong>Rs. {booking.totalAmount.toLocaleString()}</strong>
                       </td>
-                      <td className="actions-cell">
-                        {booking.rating ? (
-                          <div className="rating">
-                            {Array.from({ length: 5 }, (_, i) => (
-                              <Star
-                                key={i}
-                                className={`w-4 h-4 ${i < booking.rating! ? 'text-yellow-400 fill-current' : 'text-gray-600'}`}
-                              />
-                            ))}
-                          </div>
-                        ) : (
-                          <span className="no-rating">-</span>
-                        )}
-                      </td>
-                      <td className="actions-cell">
-                        <Button
-                          variant="ghost"
-                          size="small"
-                          icon={<MessageCircle className="w-4 h-4" />}
-                          onClick={() => navigate(`/dashboard/tour-chat?tourId=${booking.id}`)}
-                          className="chat-button"
-                        >
-                          Chat
-                        </Button>
-                      </td>
+                      
                     </motion.tr>
                   ))}
                 </AnimatePresence>

@@ -60,7 +60,12 @@ const BlogExplore: React.FC = () => {
   
   // Calculate stats from loaded blogs
   const totalBlogs = blogs.length;
-  const avgLikes = blogs.length > 0 ? (blogs.reduce((sum, b) => sum + b.like_count, 0) / blogs.length).toFixed(1) : '0';
+  const avgLikes = blogs.length > 0 ? (
+    (blogs.reduce((sum, b) => {
+      const likes = (b as any).like_count ?? (b as any).likes_count ?? ((b as any).metadata?.like_count ?? (b as any).metadata?.likes) ?? 0;
+      return sum + (typeof likes === 'number' ? likes : Number(likes) || 0);
+    }, 0) / blogs.length)
+  ).toFixed(1) : '0';
   const latestDate = blogs.length > 0 && blogs[0].published_at 
     ? new Date(blogs[0].published_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
     : 'N/A';
@@ -149,18 +154,21 @@ const BlogExplore: React.FC = () => {
         </div>
       ) : (
         <div className="astronomy-card-container">
-          {filteredBlogs.map(blog => (
-            <AstronomyBlogCard
-              key={blog.id}
-              image={blog.featured_image || blog.image_url || ''}
-              title={blog.title}
-              author={blog.author_display_name || blog.author_name || 'Unknown'}
-              createdAt={blog.published_at || blog.created_at}
-              rating={0}
-              content={blog.excerpt || (typeof blog.content === 'string' ? blog.content : '')}
-              onClick={() => navigate(`/dashboard/blogs/${blog.id}`)}
-            />
-          ))}
+          {filteredBlogs.map(blog => {
+            const avg = (blog.metadata && typeof (blog.metadata as any).rating !== 'undefined') ? Number((blog.metadata as any).rating) : 0;
+            return (
+              <AstronomyBlogCard
+                key={blog.id}
+                image={blog.featured_image || blog.image_url || ''}
+                title={blog.title}
+                author={blog.author_display_name || blog.author_name || 'Unknown'}
+                createdAt={blog.published_at || blog.created_at}
+                rating={isNaN(avg) ? 0 : avg}
+                content={blog.excerpt || (typeof blog.content === 'string' ? blog.content : '')}
+                onClick={() => navigate(`/dashboard/blogs/${blog.id}`)}
+              />
+            );
+          })}
         </div>
       )}
     </div>

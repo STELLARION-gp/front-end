@@ -10,13 +10,13 @@ import * as quizService from '../../services/quizService'
 import { useToast } from '../../contexts/ToastContext'
 import { getErrorMessage } from '../../utils/errorHandler'
 
-type TabType = 'my' | 'create' | 'leaderboard'
+type TabType = 'my' | 'create' | 'analytics'
 
 const Quizzes = () => {
   const { showSuccess, showError, showWarning, showInfo } = useToast()
   const [activeTab, setActiveTab] = useState<TabType>('my')
   const [myQuizzes, setMyQuizzes] = useState<quizService.Quiz[]>([])
-  const [leaderboard, setLeaderboard] = useState<quizService.LeaderboardData | null>(null)
+  const [analytics, setAnalytics] = useState<any>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -68,9 +68,37 @@ const Quizzes = () => {
       if (activeTab === 'my') {
         const quizzes = await quizService.getMyQuizzes()
         setMyQuizzes(quizzes)
-      } else if (activeTab === 'leaderboard') {
-        const data = await quizService.getQuizLeaderboard()
-        setLeaderboard(data)
+      } else if (activeTab === 'analytics') {
+        const quizzes = await quizService.getMyQuizzes()
+        // Calculate analytics from quizzes
+        const totalQuizzes = quizzes.length
+        const approvedQuizzes = quizzes.filter(q => q.status === 'approved').length
+        const pendingQuizzes = quizzes.filter(q => q.status === 'pending').length
+        const rejectedQuizzes = quizzes.filter(q => q.status === 'rejected').length
+        const totalParticipants = quizzes.reduce((sum, q) => sum + (q.participants_count || 0), 0)
+        const totalQuestions = quizzes.reduce((sum, q) => sum + (q.question_count || 0), 0)
+        const avgQuestionsPerQuiz = totalQuizzes > 0 ? (totalQuestions / totalQuizzes).toFixed(1) : 0
+        const avgParticipantsPerQuiz = totalQuizzes > 0 ? (totalParticipants / totalQuizzes).toFixed(1) : 0
+        
+        setAnalytics({
+          totalQuizzes,
+          approvedQuizzes,
+          pendingQuizzes,
+          rejectedQuizzes,
+          totalParticipants,
+          totalQuestions,
+          avgQuestionsPerQuiz,
+          avgParticipantsPerQuiz,
+          quizzes: quizzes.map(q => ({
+            id: q.id,
+            name: q.name,
+            status: q.status,
+            participants_count: q.participants_count || 0,
+            question_count: q.question_count || 0,
+            level: q.level,
+            created_at: q.created_at
+          }))
+        })
       }
     } catch (err: any) {
       const errorMessage = getErrorMessage(err, 'Unable to load data. Please try again.')
@@ -643,78 +671,138 @@ const Quizzes = () => {
     </div>
   )
 
-  const renderLeaderboardContent = () => {
-    if (!leaderboard) return null
+  const renderAnalyticsContent = () => {
+    if (!analytics) return null
 
     return (
-      <div className="leaderboard-section">
-        <h2 className="text-2xl font-bold text-white mb-6">Global Leaderboard</h2>
+      <div className="analytics-section">
+        <h2 className="text-2xl font-bold text-white mb-6">Quiz Analytics</h2>
 
-        {/* Stats */}
+        {/* Overview Stats */}
         <div className="stats-grid mb-8">
           <div className="stat-card">
-            <div className="stat-value">{leaderboard.stats.totalParticipants}</div>
+            <div className="stat-icon-wrapper total">
+              <svg className="stat-icon" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+                <path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="stat-value">{analytics.totalQuizzes}</div>
+            <div className="stat-label">Total Quizzes</div>
+          </div>
+
+          <div className="stat-card">
+            <div className="stat-icon-wrapper approved">
+              <svg className="stat-icon" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="stat-value">{analytics.approvedQuizzes}</div>
+            <div className="stat-label">Approved</div>
+          </div>
+
+          <div className="stat-card">
+            <div className="stat-icon-wrapper pending">
+              <svg className="stat-icon" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="stat-value">{analytics.pendingQuizzes}</div>
+            <div className="stat-label">Pending Approval</div>
+          </div>
+
+          <div className="stat-card">
+            <div className="stat-icon-wrapper rejected">
+              <svg className="stat-icon" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="stat-value">{analytics.rejectedQuizzes}</div>
+            <div className="stat-label">Rejected</div>
+          </div>
+
+          <div className="stat-card">
+            <div className="stat-icon-wrapper participants">
+              <svg className="stat-icon" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+              </svg>
+            </div>
+            <div className="stat-value">{analytics.totalParticipants}</div>
             <div className="stat-label">Total Participants</div>
           </div>
+
           <div className="stat-card">
-            <div className="stat-value">{leaderboard.stats.totalQuizAttempts}</div>
-            <div className="stat-label">Total Quiz Attempts</div>
+            <div className="stat-icon-wrapper questions">
+              <svg className="stat-icon" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="stat-value">{analytics.totalQuestions}</div>
+            <div className="stat-label">Total Questions</div>
           </div>
+
           <div className="stat-card">
-            <div className="stat-value">{leaderboard.stats.averageScore}%</div>
-            <div className="stat-label">Average Score</div>
+            <div className="stat-icon-wrapper average">
+              <svg className="stat-icon" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
+              </svg>
+            </div>
+            <div className="stat-value">{analytics.avgQuestionsPerQuiz}</div>
+            <div className="stat-label">Avg Questions/Quiz</div>
           </div>
+
           <div className="stat-card">
-            <div className="stat-value">{leaderboard.stats.highestScore}%</div>
-            <div className="stat-label">Highest Score</div>
+            <div className="stat-icon-wrapper average">
+              <svg className="stat-icon" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z" />
+                <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z" />
+              </svg>
+            </div>
+            <div className="stat-value">{analytics.avgParticipantsPerQuiz}</div>
+            <div className="stat-label">Avg Participants/Quiz</div>
           </div>
         </div>
 
-        {/* Leaderboard Table */}
-        <div className="leaderboard-table">
-          <div className="table-header">
-            <div className="col-rank">Rank</div>
-            <div className="col-user">User</div>
-            <div className="col-score">Total Score</div>
-            <div className="col-completed">Quizzes</div>
-            <div className="col-average">Avg Score</div>
-          </div>
-          {leaderboard.leaderboard.map((entry) => (
-            <div
-              key={entry.user_id}
-              className={`table-row ${leaderboard.userRank?.entry.user_id === entry.user_id ? 'highlighted' : ''}`}
-            >
-              <div className="col-rank">
-                <span className={`rank-badge rank-${entry.rank <= 3 ? entry.rank : 'other'}`}>
-                  #{entry.rank}
-                </span>
-              </div>
-              <div className="col-user">
-                <div className="user-info">
-                  <div className="user-name">
-                    {entry.display_name || entry.username}
-                    {leaderboard.userRank?.entry.user_id === entry.user_id && (
-                      <span className="ml-2 text-yellow-400">(You)</span>
-                    )}
+        {/* Quiz Performance Table */}
+        <div className="analytics-table-section">
+          <h3 className="text-xl font-semibold text-white mb-4">Quiz Performance</h3>
+          <div className="analytics-table">
+            <div className="table-header">
+              <div className="col-name">Quiz Name</div>
+              <div className="col-status">Status</div>
+              <div className="col-level">Level</div>
+              <div className="col-participants">Participants</div>
+              <div className="col-questions">Questions</div>
+              <div className="col-date">Created</div>
+            </div>
+            {analytics.quizzes.length > 0 ? (
+              analytics.quizzes.map((quiz: any) => (
+                <div key={quiz.id} className="table-row">
+                  <div className="col-name">{quiz.name}</div>
+                  <div className="col-status">
+                    <span className={`status-badge status-${quiz.status}`}>
+                      {quiz.status}
+                    </span>
+                  </div>
+                  <div className="col-level">
+                    <span className={`level-badge ${quiz.level.toLowerCase()}`}>
+                      {quiz.level}
+                    </span>
+                  </div>
+                  <div className="col-participants">{quiz.participants_count}</div>
+                  <div className="col-questions">{quiz.question_count}</div>
+                  <div className="col-date">
+                    {new Date(quiz.created_at).toLocaleDateString()}
                   </div>
                 </div>
+              ))
+            ) : (
+              <div className="table-empty">
+                <p>No quizzes found. Create your first quiz to see analytics!</p>
               </div>
-              <div className="col-score">{entry.total_score}</div>
-              <div className="col-completed">{entry.quizzes_completed}</div>
-              <div className="col-average">{entry.average_score}%</div>
-            </div>
-          ))}
-        </div>
-
-        {leaderboard.userRank && (
-          <div className="your-rank-card mt-6">
-            <h3 className="text-lg font-semibold text-white mb-2">Your Rank</h3>
-            <p className="text-gray-300">
-              You are ranked #{leaderboard.userRank.rank} with {leaderboard.userRank.entry.total_score} points
-              across {leaderboard.userRank.entry.quizzes_completed} quizzes.
-            </p>
+            )}
           </div>
-        )}
+        </div>
       </div>
     )
   }
@@ -837,21 +925,43 @@ const Quizzes = () => {
           My Quizzes
         </Button>
         <Button
-          onClick={() => setActiveTab('create')}
+          onClick={() => {
+            // Reset editing state when switching to create tab
+            if (isEditing) {
+              setIsEditing(false)
+              setEditingQuizId(null)
+              setCreateQuizForm({
+                title: '',
+                description: '',
+                level: 'Beginner',
+                time_limit: 15,
+                category: '',
+                questions: []
+              })
+              setCurrentQuestion({
+                question: '',
+                answers: ['', '', '', ''],
+                correct_answer: '',
+                question_explanation: ''
+              })
+              setEditingQuestionIndex(null)
+            }
+            setActiveTab('create')
+          }}
           variant={activeTab === 'create' ? 'primary' : 'secondary'}
         >
           Create Quiz
         </Button>
         <Button
-          onClick={() => setActiveTab('leaderboard')}
-          variant={activeTab === 'leaderboard' ? 'primary' : 'secondary'}
+          onClick={() => setActiveTab('analytics')}
+          variant={activeTab === 'analytics' ? 'primary' : 'secondary'}
         >
-          Leaderboard
+          Analytics
         </Button>
       </div>
 
       {/* Tab Content */}
-      {activeTab !== 'create' && activeTab !== 'leaderboard' && (
+      {activeTab !== 'create' && activeTab !== 'analytics' && (
         <>
           {/* Section Title */}
           <div className="section-header">
@@ -901,13 +1011,13 @@ const Quizzes = () => {
 
       {activeTab === 'create' && renderCreateQuizContent()}
 
-      {activeTab === 'leaderboard' && (
+      {activeTab === 'analytics' && (
         <>
           {/* Section Title */}
           <div className="section-header">
-            <h2 className="section-title">Quiz Champions</h2>
+            <h2 className="section-title">Quiz Analytics Dashboard</h2>
           </div>
-          {!loading && renderLeaderboardContent()}
+          {!loading && renderAnalyticsContent()}
           {loading && (
             <div className="loading-message">
               Loading...

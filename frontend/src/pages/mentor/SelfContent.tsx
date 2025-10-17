@@ -5,6 +5,7 @@ import '../../styles/pages/mentor/SelfContent.scss'
 import { getMentorProfile, updateMentorProfile } from '../../services/mentorApi'
 import type { MentorProfile } from '../../services/mentorApi'
 import { auth } from '../../firebase'
+import { API_CONFIG } from '../../config/api.config'
 
 export type Mentor = {
   name?: string
@@ -31,6 +32,7 @@ const SelfContent: React.FC<Props> = ({ mentor = {} }) => {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
+  const [uploading, setUploading] = useState(false)
   
   // Form state
   const [formData, setFormData] = useState({
@@ -46,6 +48,8 @@ const SelfContent: React.FC<Props> = ({ mentor = {} }) => {
 
   const [newSpecialty, setNewSpecialty] = useState('')
   const [newQualification, setNewQualification] = useState('')
+  const [selectedImage, setSelectedImage] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState<string>('')
 
   // Fetch mentor profile on component mount
   useEffect(() => {
@@ -103,6 +107,12 @@ const SelfContent: React.FC<Props> = ({ mentor = {} }) => {
         
         setFormData(newFormData)
         console.log('✅ Form data set successfully')
+        
+        // Set image preview if avatarUrl exists
+        if (profile.avatarUrl) {
+          setImagePreview(profile.avatarUrl)
+        }
+        
         setError(null)
       } catch (err: any) {
         console.error('❌ Error fetching mentor profile:', err)
@@ -124,6 +134,10 @@ const SelfContent: React.FC<Props> = ({ mentor = {} }) => {
               specialties: [],
               qualifications: [],
             })
+            // Set preview for Firebase photo
+            if (user.photoURL) {
+              setImagePreview(user.photoURL)
+            }
           }
           setError(null)
         } else {
@@ -141,6 +155,78 @@ const SelfContent: React.FC<Props> = ({ mentor = {} }) => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
+  }
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      // Validate file type
+      const validTypes = ['image/jpeg', 'image/png', 'image/jpg']
+      if (!validTypes.includes(file.type)) {
+        setError('Please select a valid image file (JPEG, PNG)')
+        return
+      }
+
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setError('Image size must be less than 5MB')
+        return
+      }
+
+      setSelectedImage(file)
+      
+      // Create preview
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string)
+      }
+      reader.readAsDataURL(file)
+      setError(null)
+    }
+  }
+
+  const handleRemoveImage = () => {
+    setSelectedImage(null)
+    setImagePreview('')
+    setFormData(prev => ({ ...prev, avatarUrl: '' }))
+  }
+
+  const uploadImage = async (): Promise<string | null> => {
+    if (!selectedImage) return formData.avatarUrl || null
+
+    try {
+      setUploading(true)
+      const user = auth.currentUser
+      if (!user) {
+        throw new Error('User not authenticated')
+      }
+
+      const token = await user.getIdToken()
+      const formDataObj = new FormData()
+      formDataObj.append('file', selectedImage)
+
+      const response = await fetch(`${API_CONFIG.FULL_API_URL}/media`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formDataObj,
+      })
+
+      const data = await response.json()
+      
+      if (!response.ok) {
+        console.error('Upload failed:', data)
+        throw new Error(data.message || 'Failed to upload image')
+      }
+
+      return data.cloudinary?.url || data.file?.file_path || null
+    } catch (err) {
+      console.error('Error uploading image:', err)
+      throw err
+    } finally {
+      setUploading(false)
+    }
   }
 
   const handleAddSpecialty = () => {
@@ -191,12 +277,26 @@ const SelfContent: React.FC<Props> = ({ mentor = {} }) => {
         return
       }
 
+      // Upload image first if a new one is selected
+      let avatarUrl = formData.avatarUrl
+      if (selectedImage) {
+        try {
+          const uploadedUrl = await uploadImage()
+          if (uploadedUrl) {
+            avatarUrl = uploadedUrl
+          }
+        } catch (uploadErr) {
+          setError('Failed to upload profile picture. Please try again.')
+          return
+        }
+      }
+
       const token = await user.getIdToken()
       
       await updateMentorProfile(token, {
         name: formData.name,
         email: formData.email,
-        avatarUrl: formData.avatarUrl,
+        avatarUrl: avatarUrl,
         bio: formData.bio,
         maxMentees: formData.maxMentees,
         isAvailable: formData.isAvailable,
@@ -305,17 +405,93 @@ const SelfContent: React.FC<Props> = ({ mentor = {} }) => {
               />
             </div>
 
-            {/* <div className="selfcontent-form-group full-width">
-              <label htmlFor="avatarUrl">Profile Picture URL</label>
-              <input
-                type="url"
-                id="avatarUrl"
-                name="avatarUrl"
-                value={formData.avatarUrl}
-                onChange={handleInputChange}
-                placeholder="https://example.com/avatar.jpg"
-              />
-            </div> */}
+            <div className="selfcontent-form-group full-width">
+              <label htmlFor="avatarUpload">Profile Picture</label>
+              
+              {/* Image Preview */}
+              {imagePreview && (
+                <div className="image-preview-container" style={{
+                  marginBottom: '1rem',
+                  position: 'relative',
+                  width: 'fit-content'
+                }}>
+                  <img 
+                    src={imagePreview} 
+                    alt="Profile preview" 
+                    style={{
+                      width: '150px',
+                      height: '150px',
+                      objectFit: 'cover',
+                      borderRadius: '50%',
+                      border: '3px solid #6366f1'
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleRemoveImage}
+                    style={{
+                      position: 'absolute',
+                      top: '0',
+                      right: '0',
+                      background: '#ef4444',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '50%',
+                      width: '30px',
+                      height: '30px',
+                      cursor: 'pointer',
+                      fontSize: '18px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    ×
+                  </button>
+                </div>
+              )}
+              
+              {/* File Input */}
+              <div className="file-input-wrapper" style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '1rem'
+              }}>
+                <input
+                  type="file"
+                  id="avatarUpload"
+                  accept="image/jpeg,image/png,image/jpg"
+                  onChange={handleImageChange}
+                  style={{ display: 'none' }}
+                />
+                <label 
+                  htmlFor="avatarUpload"
+                  style={{
+                    padding: '0.5rem 1rem',
+                    background: '#6366f1',
+                    color: 'white',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    display: 'inline-block'
+                  }}
+                >
+                  {imagePreview ? '📷 Change Photo' : '📷 Upload Photo'}
+                </label>
+                {selectedImage && (
+                  <span style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+                    {selectedImage.name}
+                  </span>
+                )}
+                {uploading && (
+                  <span style={{ fontSize: '0.875rem', color: '#6366f1' }}>
+                    Uploading...
+                  </span>
+                )}
+              </div>
+              <span className="form-hint" style={{ display: 'block', marginTop: '0.5rem', fontSize: '0.875rem', color: '#6b7280' }}>
+                Upload a profile photo (JPEG, PNG, max 5MB)
+              </span>
+            </div>
 
             <div className="selfcontent-form-group full-width">
               <label htmlFor="bio">About / Bio *</label>

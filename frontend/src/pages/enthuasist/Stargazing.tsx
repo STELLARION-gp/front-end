@@ -25,11 +25,13 @@ interface StargazingSpot {
   name: string;
   location: string;
   image: string; // Keep as 'image' for frontend compatibility
+  image_urls: string[]; // NEW: Array of Cloudinary URLs
   rating: number;
   bestTime: string; // Keep as 'bestTime' for frontend compatibility  
   description: string;
   facilities: string[];
   reviews: Review[];
+  status: 'pending' | 'approved' | 'rejected'; // NEW
   // Additional API fields
   image_url?: string;
   best_time?: string;
@@ -43,6 +45,14 @@ interface StargazingSpot {
     first_name?: string;
     last_name?: string;
   };
+  moderator?: {
+    id: number;
+    display_name?: string;
+    first_name?: string;
+    last_name?: string;
+  };
+  moderated_by?: number;
+  moderated_at?: string;
   review_count?: number;
   average_rating?: number;
 }
@@ -53,11 +63,13 @@ const transformApiSpotToFrontend = (apiSpot: ApiStargazingSpot): StargazingSpot 
     id: apiSpot.id,
     name: apiSpot.name,
     location: apiSpot.location,
-    image: apiSpot.image_url || 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=250&fit=crop',
+    image: apiSpot.image_urls?.[0] || apiSpot.image_url || 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=250&fit=crop',
+    image_urls: apiSpot.image_urls || [],
     rating: apiSpot.rating,
     bestTime: apiSpot.best_time || '',
     description: apiSpot.description,
     facilities: apiSpot.facilities,
+    status: apiSpot.status || 'pending',
     reviews: apiSpot.reviews?.map((review: ApiStargazingSpotReview) => ({
       id: review.id,
       userName: review.user?.display_name || review.user?.first_name || 'Anonymous',
@@ -73,6 +85,9 @@ const transformApiSpotToFrontend = (apiSpot: ApiStargazingSpot): StargazingSpot 
     created_at: apiSpot.created_at,
     updated_at: apiSpot.updated_at,
     creator: apiSpot.creator,
+    moderator: apiSpot.moderator,
+    moderated_by: apiSpot.moderated_by,
+    moderated_at: apiSpot.moderated_at,
     review_count: apiSpot.review_count,
     average_rating: apiSpot.average_rating
   };
@@ -114,9 +129,14 @@ const Stargazing: React.FC = () => {
     rating: 0
   });
 
+  // NEW: Image upload state
+  const [selectedImages, setSelectedImages] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+
   // Loading states for operations
   const [submittingReview, setSubmittingReview] = useState(false);
   const [submittingSpot, setSubmittingSpot] = useState(false);
+  const [uploadingSpot, setUploadingSpot] = useState(false);
 
   // Success alert state
   const [successAlert, setSuccessAlert] = useState<{ show: boolean; message: string }>({ 
@@ -288,6 +308,46 @@ const Stargazing: React.FC = () => {
     }));
   };
 
+  // NEW: Image selection handler
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    
+    // Limit to 10 images
+    if (files.length + selectedImages.length > 10) {
+      showSuccessAlert('Maximum 10 images allowed');
+      return;
+    }
+    
+    // Validate file types
+    const validFiles = files.filter(file => file.type.startsWith('image/'));
+    if (validFiles.length !== files.length) {
+      showSuccessAlert('Only image files are allowed');
+    }
+    
+    // Create previews
+    const newPreviews: string[] = [];
+    validFiles.forEach(file => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        newPreviews.push(reader.result as string);
+        if (newPreviews.length === validFiles.length) {
+          setImagePreviews([...imagePreviews, ...newPreviews]);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+    
+    setSelectedImages([...selectedImages, ...validFiles]);
+  };
+
+  // NEW: Remove image handler
+  const handleRemoveImage = (index: number) => {
+    const newImages = selectedImages.filter((_, i) => i !== index);
+    const newPreviews = imagePreviews.filter((_, i) => i !== index);
+    setSelectedImages(newImages);
+    setImagePreviews(newPreviews);
+  };
+
   const handleSubmitAddSpot = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -300,6 +360,7 @@ const Stargazing: React.FC = () => {
     if (addSpotForm.name.trim() && addSpotForm.location.trim() && addSpotForm.description.trim()) {
       try {
         setSubmittingSpot(true);
+        setUploadingSpot(true);
         
         const spotData: CreateStargazingSpotRequest = {
           name: addSpotForm.name.trim(),
@@ -308,7 +369,8 @@ const Stargazing: React.FC = () => {
           best_time: addSpotForm.bestTime.trim() || undefined,
           image_url: addSpotForm.image.trim() || undefined,
           facilities: addSpotForm.facilities.filter(f => f.trim()),
-          rating: addSpotForm.rating > 0 ? addSpotForm.rating : undefined
+          rating: addSpotForm.rating > 0 ? addSpotForm.rating : undefined,
+          images: selectedImages  // Add selected images
         };
 
         const response = await stargazingSpotService.createStargazingSpot(spotData);
@@ -324,12 +386,14 @@ const Stargazing: React.FC = () => {
             facilities: [''],
             rating: 0
           });
+          setSelectedImages([]);
+          setImagePreviews([]);
           setShowAddSpotModal(false);
           
           // Refresh the spots list to include the new spot
           await fetchStargazingSpots();
           
-          showSuccessAlert('Stargazing spot added successfully!');
+          showSuccessAlert('Stargazing spot created successfully and submitted for moderation!');
         } else {
           showSuccessAlert(response.message || 'Failed to create stargazing spot. Please try again.');
         }
@@ -338,6 +402,7 @@ const Stargazing: React.FC = () => {
         showSuccessAlert('Failed to create stargazing spot. Please try again.');
       } finally {
         setSubmittingSpot(false);
+        setUploadingSpot(false);
       }
     }
   };
@@ -353,6 +418,8 @@ const Stargazing: React.FC = () => {
       facilities: [''],
       rating: 0
     });
+    setSelectedImages([]);
+    setImagePreviews([]);
   };
 
   // const clearFilters = () => {
@@ -693,7 +760,7 @@ const Stargazing: React.FC = () => {
                   />
                 </div>
                 <div className="add-spot-form__group">
-                  <label htmlFor="spotImage">Image URL</label>
+                  <label htmlFor="spotImage">Image URL (Optional)</label>
                   <input
                     type="url"
                     id="spotImage"
@@ -702,6 +769,47 @@ const Stargazing: React.FC = () => {
                     placeholder="https://example.com/image.jpg"
                   />
                 </div>
+              </div>
+
+              {/* NEW: Image Upload Section */}
+              <div className="add-spot-form__group add-spot-form__group--full">
+                <label htmlFor="spotImages">Spot Images (Optional)</label>
+                <p className="help-text">Upload up to 10 images (JPEG, PNG, GIF, WebP)</p>
+                
+                <div className="image-upload-area">
+                  <input
+                    type="file"
+                    id="spotImages"
+                    accept="image/*"
+                    multiple
+                    onChange={handleImageSelect}
+                    style={{ display: 'none' }}
+                  />
+                  <label htmlFor="spotImages" className="upload-button">
+                    📷 Choose Images
+                  </label>
+                  <span className="image-count">
+                    {selectedImages.length} / 10 images selected
+                  </span>
+                </div>
+                
+                {imagePreviews.length > 0 && (
+                  <div className="image-preview-grid">
+                    {imagePreviews.map((preview, index) => (
+                      <div key={index} className="image-preview-item">
+                        <img src={preview} alt={`Preview ${index + 1}`} />
+                        <button
+                          type="button"
+                          className="remove-image-btn"
+                          onClick={() => handleRemoveImage(index)}
+                          title="Remove image"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div className="add-spot-form__group add-spot-form__group--full">
@@ -777,16 +885,16 @@ const Stargazing: React.FC = () => {
                   type="button"
                   className="add-spot-form__cancel"
                   onClick={handleCancelAddSpot}
-                  disabled={submittingSpot}
+                  disabled={submittingSpot || uploadingSpot}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   className="add-spot-form__submit"
-                  disabled={submittingSpot}
+                  disabled={submittingSpot || uploadingSpot}
                 >
-                  {submittingSpot ? 'Adding...' : 'Add Stargazing Spot'}
+                  {uploadingSpot ? '📤 Uploading...' : submittingSpot ? 'Adding...' : 'Add Stargazing Spot'}
                 </button>
               </div>
             </form>

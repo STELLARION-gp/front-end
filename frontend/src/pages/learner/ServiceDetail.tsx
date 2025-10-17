@@ -172,7 +172,7 @@ const ServiceDetail: React.FC = () => {
               )}
             </div>
             <div className="price-section">
-              <span className="price">${service.price}</span>
+              <span className="price">Rs. {service.price.toLocaleString()}</span>
               <span className="price-label">per session</span>
             </div>
           </div>
@@ -443,7 +443,7 @@ const BookingModal: React.FC<BookingModalProps> = ({ service, slot, onClose, onS
           <div className="price-breakdown">
             <div className="price-row">
               <span>Price per person:</span>
-              <span>${service.price.toFixed(2)}</span>
+              <span>Rs. {service.price.toLocaleString()}</span>
             </div>
             <div className="price-row">
               <span>Participants:</span>
@@ -451,7 +451,7 @@ const BookingModal: React.FC<BookingModalProps> = ({ service, slot, onClose, onS
             </div>
             <div className="price-row total">
               <span>Total:</span>
-              <span>${totalPrice.toFixed(2)}</span>
+              <span>Rs. {Math.round(totalPrice).toLocaleString()}</span>
             </div>
           </div>
 
@@ -463,7 +463,7 @@ const BookingModal: React.FC<BookingModalProps> = ({ service, slot, onClose, onS
             Cancel
           </Button>
           <Button variant="primary" onClick={handleBooking} disabled={loading}>
-            {loading ? 'Processing...' : `Pay $${totalPrice.toFixed(2)} & Book`}
+            {loading ? 'Processing...' : `Pay Rs. ${Math.round(totalPrice).toLocaleString()} & Book`}
           </Button>
         </div>
       </div>

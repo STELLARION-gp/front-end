@@ -549,7 +549,7 @@ const AstronomyServices: React.FC = () => {
                     </div>
                     <div className="detail-row">
                       <span className="label">💰 Total Amount:</span>
-                      <span className="price">${booking.total_amount.toFixed(2)}</span>
+                      <span className="price">Rs. {booking.total_amount.toLocaleString()}</span>
                     </div>
                     <div className="detail-row">
                       <span className="label">💳 Payment Status:</span>

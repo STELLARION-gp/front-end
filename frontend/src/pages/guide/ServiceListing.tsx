@@ -866,7 +866,7 @@ const ServiceListing: React.FC = () => {
                   </div>
 
                   <div className="form-group">
-                    <label htmlFor="price">Price ($)</label>
+                    <label htmlFor="price">Price (LKR)</label>
                     <input
                       id="price"
                       type="number"
@@ -874,7 +874,7 @@ const ServiceListing: React.FC = () => {
                       onChange={(e) => handleEditFormChange('price', parseFloat(e.target.value))}
                       className="form-input"
                       min="0"
-                      step="0.01"
+                      step="100"
                       required
                     />
                   </div>

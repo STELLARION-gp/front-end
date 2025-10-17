@@ -170,7 +170,7 @@ const ServiceDetails: React.FC = () => {
 
           <div className="price-section">
             <div className="price">
-              <span className="amount">${service.price}</span>
+              <span className="amount">Rs. {service.price.toLocaleString()}</span>
               <span className="per-person">per person</span>
             </div>
             <button 
@@ -364,12 +364,12 @@ const ServiceDetails: React.FC = () => {
 
               <div className="price-breakdown">
                 <div className="breakdown-row">
-                  <span>${service.price} × {participants} participant{participants !== 1 ? 's' : ''}</span>
-                  <span>${totalPrice.toFixed(2)}</span>
+                  <span>Rs. {service.price.toLocaleString()} × {participants} participant{participants !== 1 ? 's' : ''}</span>
+                  <span>Rs. {Math.round(totalPrice).toLocaleString()}</span>
                 </div>
                 <div className="breakdown-total">
                   <strong>Total</strong>
-                  <strong>${totalPrice.toFixed(2)}</strong>
+                  <strong>Rs. {Math.round(totalPrice).toLocaleString()}</strong>
                 </div>
               </div>
 

@@ -252,7 +252,7 @@ const MyBookings: React.FC = () => {
                     </div>
                     <div className="info-row">
                       <span className="label">💰 Total:</span>
-                      <span className="price">${booking.total_amount}</span>
+                      <span className="price">Rs. {booking.total_amount.toLocaleString()}</span>
                     </div>
                     {booking.special_requests && (
                       <div className="info-row">

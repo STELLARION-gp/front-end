@@ -515,7 +515,7 @@ const CreateService: React.FC = () => {
 
                     {/* Pricing & Logistics */}
                     <div className="section-divider">
-                      <h3 className="section-title">💰 Pricing & Logistics</h3>
+                      <h3 className="section-title">Pricing & Logistics</h3>
                       <div className="form-grid">
                         <div className="form-group">
                           <label htmlFor="price">Price (LKR) *</label>
@@ -570,6 +570,7 @@ const CreateService: React.FC = () => {
                             min={new Date().toISOString().split('T')[0]}
                           />
                           {errors.nextAvailable && <span className="error-message">{errors.nextAvailable}</span>}
+                          <span className="input-help">You can set specific time slots in the availability section after creating the service</span>
                         </div>
 
                         <div className="form-group full-width">
@@ -672,7 +673,7 @@ const CreateService: React.FC = () => {
                             <div className="upload-hint">
                               Supports: JPG, PNG, GIF up to 10MB each
                             </div>
-                            <button 
+                            <Button 
                               type="button" 
                               className="upload-button"
                               onClick={() => {
@@ -688,7 +689,7 @@ const CreateService: React.FC = () => {
                               }}
                             >
                               Choose Files
-                            </button>
+                            </Button>
                             <input
                               id="file-input"
                               type="file"

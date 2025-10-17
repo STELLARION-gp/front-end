@@ -36,52 +36,136 @@ const BlogDetailedPage: React.FC<BlogDetailedPageProps> = ({ blog, comments: ini
   const handleDownload = async () => {
     if (!contentRef.current) return;
     try {
-      // render the content to a canvas
-      const canvas = await html2canvas(contentRef.current, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: '#0f1724'
-      });
+  // Build a clean, off-screen container with a predictable layout: Title -> Author -> Image -> Content
+  const temp = document.createElement('div');
+  // A4 at 72pt (points) maps to ~595x842pt; we use pixels width that gives good quality for html2canvas.
+  // 595pt * 96/72 = ~793px. Use 794px which usually maps well for A4 rendering.
+  temp.style.width = '794px';
+  temp.style.padding = '20px';
+  temp.style.boxSizing = 'border-box';
+  temp.style.background = '#ffffff';
+  temp.style.color = '#000000';
+  temp.style.position = 'fixed';
+  temp.style.left = '-10000px';
+  temp.style.top = '0';
+  temp.style.zIndex = '9999';
 
-      const imgData = canvas.toDataURL('image/jpeg', 0.92);
-      const pdf = new jsPDF({ unit: 'pt', format: 'a4', orientation: 'portrait' });
+  // Compose HTML with clear structure and simple inline styles so rendering is stable.
+  const safeTitle = blog.title ? String(blog.title) : '';
+  const safeAuthor = blog.author ? String(blog.author) : 'Unknown';
 
-      // A4 size in points
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
+  // larger image area for PDF: use a tall container and constrain image to fit while keeping aspect ratio
+  const imageHtml = blog.image ? `<div style="text-align:center;margin:18px 0;height:480px;display:flex;align-items:center;justify-content:center;overflow:hidden;"><img src="${String(blog.image)}" class="pdf-image" style="width:100%;height:auto;max-height:480px;object-fit:contain;display:block;margin:0 auto;" /></div>` : '';
 
-      // calculate image dimensions while preserving aspect ratio
-      const imgProps = (pdf as any).getImageProperties(imgData);
-      const imgWidth = pageWidth - 40; // margins
-      const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+  // Keep blog.content as HTML if present. If it's plain text, escape it to preserve formatting.
+  const contentHtml = blog.content || '';
 
-      let position = 20;
-      if (imgHeight < pageHeight) {
-        pdf.addImage(imgData, 'JPEG', 20, position, imgWidth, imgHeight);
-      } else {
-        // multi-page handling
-        let remainingHeight = imgHeight;
-        let srcHeight = imgProps.height;
-        let sliceHeight = Math.floor((srcHeight * (pageWidth - 40)) / imgProps.width);
-        let offsetY = 0;
-        while (remainingHeight > 0) {
-          const canvasPage = document.createElement('canvas');
-          canvasPage.width = canvas.width;
-          canvasPage.height = Math.min(canvas.height - offsetY, Math.floor((sliceHeight * canvas.width) / imgProps.width));
-          const ctx = canvasPage.getContext('2d');
-          if (ctx) ctx.drawImage(canvas, 0, offsetY, canvasPage.width, canvasPage.height, 0, 0, canvasPage.width, canvasPage.height);
-          const pageData = canvasPage.toDataURL('image/jpeg', 0.92);
-          pdf.addImage(pageData, 'JPEG', 20, position, imgWidth, (canvasPage.height * imgWidth) / canvasPage.width);
-          remainingHeight -= sliceHeight;
-          offsetY += canvasPage.height;
-          if (remainingHeight > 0) pdf.addPage();
-        }
+      temp.innerHTML = `
+        <div style="font-family: Arial, Helvetica, sans-serif; color:#000;">
+          <style>
+            .pdf-blog-content { font-size:18px; line-height:1.6; color:#111; }
+            .pdf-blog-content a { color: #0b5cff; text-decoration: underline; }
+            .pdf-image { width:100%; height:auto; max-height:480px; object-fit:contain; }
+          </style>
+          <h1 style="font-size:34px;margin:0 0 8px 0;line-height:1.05;color:#0b3d91">${safeTitle}</h1>
+          <div style="font-size:14px;color:#444;margin-bottom:12px">By <strong>${safeAuthor}</strong> ${blog.createdAt ? `• ${new Date(String(blog.createdAt)).toLocaleDateString()}` : ''}</div>
+          ${imageHtml}
+          <div class="pdf-blog-content">${contentHtml}</div>
+        </div>
+      `;
+
+  document.body.appendChild(temp);
+
+  // Render the off-screen container to canvas at higher scale for crisp output.
+  const canvas = await html2canvas(temp, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+  const pdf = new jsPDF({ unit: 'pt', format: 'a4', orientation: 'portrait' });
+
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
+
+  // compute image width in PDF points (leave 40pt margin)
+  const pdfImgWidth = pageWidth - 40;
+
+  // Convert the full canvas into one or more PDF pages by slicing vertically.
+      const pxFullWidth = canvas.width;
+  const pxFullHeight = canvas.height;
+
+  // pixels per PDF point ratio (px / pt)
+  const pxPerPt = pxFullWidth / pdfImgWidth;
+
+  let srcY = 0;
+  const filename = `${(safeTitle || 'blog').replace(/[^a-z0-9]/gi, '_').toLowerCase()}.pdf`;
+
+  // get bounding rect of temp so we can map anchor positions to the canvas
+  const tempRect = temp.getBoundingClientRect();
+
+      let pageIndex = 0;
+      while (srcY < pxFullHeight) {
+    const pageHeightPx = Math.min(pxFullHeight - srcY, Math.floor(pageHeight * pxPerPt));
+    const canvasPage = document.createElement('canvas');
+    canvasPage.width = pxFullWidth;
+    canvasPage.height = pageHeightPx;
+
+    const ctx = canvasPage.getContext('2d');
+    if (ctx) ctx.drawImage(canvas, 0, srcY, canvasPage.width, canvasPage.height, 0, 0, canvasPage.width, canvasPage.height);
+
+  const pageData = canvasPage.toDataURL('image/jpeg', 0.92);
+  const imgHeightInPt = (canvasPage.height / pxPerPt);
+  const x = 20; // left margin in points
+  const y = 40; // top margin in points (leave space for optional header)
+  pdf.addImage(pageData, 'JPEG', x, y, pdfImgWidth, imgHeightInPt);
+
+  // Footer: page number centered at bottom
+  const footerText = `Page ${pageIndex + 1}`;
+  pdf.setFontSize(10);
+  pdf.setTextColor(120);
+  const footerWidth = (pdf.getStringUnitWidth(footerText) * pdf.getFontSize()) / pdf.internal.scaleFactor;
+  const footerX = (pageWidth - footerWidth) / 2;
+  const footerY = pageHeight - 20;
+  pdf.text(footerText, footerX, footerY);
+
+  // Convert anchors into PDF link annotations for anything visible on this page
+    const anchors = Array.from(temp.querySelectorAll('a')) as HTMLAnchorElement[];
+    anchors.forEach((a) => {
+      try {
+    const r = a.getBoundingClientRect();
+    // compute position relative to temp
+    const relTop = r.top - tempRect.top; // px
+    const relLeft = r.left - tempRect.left; // px
+
+    // check if this anchor is inside the current page slice (srcY .. srcY + canvasPage.height)
+    if (relTop + r.height < srcY || relTop > srcY + canvasPage.height) return; // not on this slice
+
+    // compute overlap rectangle clipped to this slice
+    const clipTop = Math.max(relTop, srcY);
+    const clipBottom = Math.min(relTop + r.height, srcY + canvasPage.height);
+    const clipHeight = clipBottom - clipTop;
+
+    const xInPt = x + (relLeft / pxPerPt);
+    const yInPt = y + ((clipTop - srcY) / pxPerPt);
+    const wInPt = (r.width / pxPerPt);
+    const hInPt = (clipHeight / pxPerPt);
+
+            if (wInPt > 0 && hInPt > 0) {
+      // add clickable link annotation
+      // jsPDF.link(x, y, w, h, { url })
+              (pdf as any).link(xInPt, yInPt, wInPt, hInPt, { url: a.href });
+    }
+      } catch (err) {
+    // continue on errors for any single anchor
       }
+    });
 
-      const filename = `${(blog.title || 'blog').replace(/[^a-z0-9]/gi, '_').toLowerCase()}.pdf`;
-      pdf.save(filename);
+    srcY += canvasPage.height;
+    if (srcY < pxFullHeight) pdf.addPage();
+  }
+
+  pdf.save(filename);
+
+  // cleanup temp container
+  document.body.removeChild(temp);
     } catch (err) {
-      console.error('Failed to generate PDF', err);
+  console.error('Failed to generate PDF', err);
     }
   };
 

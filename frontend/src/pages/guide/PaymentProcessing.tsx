@@ -3,13 +3,14 @@ import Card from '../../components/Card';
 import Button from '../../components/Button';
 import InputField from '../../components/InputField';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import PaymentDetailsModal from '../../components/PaymentDetailsModal';
 import '../../styles/pages/guide/PaymentProcessing.scss';
 import { 
   getBookingPaymentStats, 
   getBookingPaymentTransactions,
   getBookingPaymentDetails,
   processBookingRefund,
-  type PaymentStats as ImportedPaymentStats,
+  type BookingPaymentDetails,
   type Transaction as ImportedTransaction
 } from '../../services/paymentService';
 
@@ -42,6 +43,8 @@ const PaymentProcessing: React.FC = () => {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [totalTransactions, setTotalTransactions] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [selectedPaymentDetails, setSelectedPaymentDetails] = useState<BookingPaymentDetails | null>(null);
 
   const itemsPerPage = 10;
 
@@ -146,21 +149,28 @@ const PaymentProcessing: React.FC = () => {
   const handleViewDetails = async (bookingId: number) => {
     try {
       const details = await getBookingPaymentDetails(bookingId);
-      // For now, show an alert with details. You can create a modal later.
-      alert(`
-Booking Details:
-Order ID: ${details.orderId}
-Amount: Rs. ${details.amount.toLocaleString()}
-Status: ${details.paymentStatus}
-Customer: ${details.customer.name}
-Email: ${details.customer.email}
-Service: ${details.service.title}
-Date: ${new Date(details.bookingDetails.date).toLocaleDateString()}
-Participants: ${details.bookingDetails.participants}
-      `.trim());
+      setSelectedPaymentDetails(details);
+      setShowDetailsModal(true);
     } catch (err) {
       console.error('Error fetching payment details:', err);
       alert('Failed to load payment details');
+    }
+  };
+
+  const handleCloseModal = () => {
+    setShowDetailsModal(false);
+    setSelectedPaymentDetails(null);
+  };
+
+  const handleRefundFromModal = () => {
+    if (selectedPaymentDetails) {
+      handleCloseModal();
+      // Extract booking ID from order ID or use a different approach
+      // For now, we'll need to get the booking ID from the transaction
+      const transaction = transactions.find(t => t.reference === selectedPaymentDetails.orderId);
+      if (transaction?.bookingId) {
+        handleRefund(transaction.bookingId);
+      }
     }
   };
 
@@ -184,6 +194,19 @@ Participants: ${details.bookingDetails.participants}
         <h1>Payment Processing</h1>
         <p>Manage and monitor all payment transactions</p>
       </div>
+
+      {error && (
+        <div className="error-message" style={{ 
+          background: 'rgba(239, 68, 68, 0.1)', 
+          border: '1px solid rgba(239, 68, 68, 0.3)',
+          padding: '1rem',
+          borderRadius: '8px',
+          marginBottom: '1.5rem',
+          color: '#f87171'
+        }}>
+          {error}
+        </div>
+      )}
 
       {/* Payment Statistics */}
       <div className="payment-stats-section">
@@ -316,7 +339,7 @@ Participants: ${details.bookingDetails.participants}
                 <option value="status">Status</option>
               </select>
               <Button
-                variant="ghost"
+                
                 size="small"
                 onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
               >
@@ -367,21 +390,13 @@ Participants: ${details.bookingDetails.participants}
                         {transaction.bookingId && (
                           <>
                             <Button 
-                              variant="ghost" 
+                              
                               size="small"
                               onClick={() => handleViewDetails(transaction.bookingId!)}
                             >
                               View
                             </Button>
-                            {transaction.status === 'completed' && (
-                              <Button 
-                                variant="ghost" 
-                                size="small"
-                                onClick={() => handleRefund(transaction.bookingId!)}
-                              >
-                                Refund
-                              </Button>
-                            )}
+                           
                           </>
                         )}
                       </div>
@@ -456,6 +471,15 @@ Participants: ${details.bookingDetails.participants}
           </Button>
         </div>
       </div>
+
+      {/* Payment Details Modal */}
+      <PaymentDetailsModal
+        isOpen={showDetailsModal}
+        details={selectedPaymentDetails}
+        onClose={handleCloseModal}
+        onRefund={handleRefundFromModal}
+        showRefundButton={true}
+      />
     </div>
   );
 };

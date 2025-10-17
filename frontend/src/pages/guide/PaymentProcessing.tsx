@@ -185,92 +185,32 @@ Participants: ${details.bookingDetails.participants}
         <p>Manage and monitor all payment transactions</p>
       </div>
 
-      {/* Payment Statistics Charts */}
+      {/* Payment Statistics */}
       <div className="payment-stats-section">
         <div className="payment-stats-grid">
           <Card className="payment-stat-card payment-revenue">
-            <div className="payment-stat-icon">💰</div>
             <div className="payment-stat-content">
-              <h3>Total Revenue</h3>
+              <div className="payment-stat-label">Total Revenue</div>
               <div className="payment-stat-value">{formatCurrency(paymentStats?.totalRevenue || 0)}</div>
               <div className="payment-stat-change positive">+{paymentStats?.monthlyGrowth}% this month</div>
             </div>
           </Card>
 
           <Card className="payment-stat-card payment-transactions">
-            <div className="payment-stat-icon">📊</div>
             <div className="payment-stat-content">
-              <h3>Total Transactions</h3>
+              <div className="payment-stat-label">Total Transactions</div>
               <div className="payment-stat-value">{paymentStats?.totalTransactions.toLocaleString()}</div>
-              <div className="payment-stat-change neutral">Last 90 days</div>
-            </div>
-          </Card>
-
-          <Card className="payment-stat-card payment-success-rate">
-            <div className="payment-stat-icon">✅</div>
-            <div className="payment-stat-content">
-              <h3>Success Rate</h3>
-              <div className="payment-stat-value">{paymentStats?.successRate}%</div>
-              <div className="payment-stat-change positive">Above average</div>
+              <div className="payment-stat-change neutral">Last {dateRange} days</div>
             </div>
           </Card>
 
           <Card className="payment-stat-card payment-pending">
-            <div className="payment-stat-icon">⏳</div>
             <div className="payment-stat-content">
-              <h3>Pending Amount</h3>
+              <div className="payment-stat-label">Pending Amount</div>
               <div className="payment-stat-value">{formatCurrency(paymentStats?.pendingAmount || 0)}</div>
               <div className="payment-stat-change neutral">Awaiting processing</div>
             </div>
           </Card>
-        </div>
-
-        {/* Charts Section */}
-        <div className="payment-charts-section">
-          <div className="payment-chart-card">
-            <h3>Revenue Trend (Last 30 Days)</h3>
-            <div className="payment-chart-placeholder">
-              <div className="payment-chart-bars">
-                {Array.from({ length: 30 }, (_, i) => (
-                  <div 
-                    key={i} 
-                    className={`payment-chart-bar payment-chart-bar-${Math.floor(Math.random() * 5) + 1}`}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div className="payment-chart-card">
-            <h3>Payment Gateway Distribution</h3>
-            <div className="payment-pie-chart-placeholder">
-              <div className="payment-gateway-stats">
-                {(() => {
-                  // Calculate gateway distribution from transactions
-                  const gatewayCounts: Record<string, number> = {};
-                  transactions.forEach(t => {
-                    gatewayCounts[t.gateway] = (gatewayCounts[t.gateway] || 0) + 1;
-                  });
-                  
-                  const total = transactions.length || 1;
-                  return Object.entries(gatewayCounts).map(([gateway, count]) => {
-                    const percentage = ((count / total) * 100).toFixed(1);
-                    return (
-                      <div key={gateway} className="payment-gateway-item">
-                        <span className={`payment-gateway-color ${gateway}`}></span>
-                        <span>{gateway.charAt(0).toUpperCase() + gateway.slice(1)} ({percentage}%)</span>
-                      </div>
-                    );
-                  });
-                })()}
-                {transactions.length === 0 && (
-                  <div className="payment-gateway-item">
-                    <span>No transactions yet</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -394,16 +334,14 @@ Participants: ${details.bookingDetails.participants}
                 <th>Date</th>
                 <th>Customer</th>
                 <th>Amount</th>
-                <th>Gateway</th>
                 <th>Status</th>
-                <th>Type</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredTransactions.length === 0 ? (
                 <tr>
-                  <td colSpan={8} style={{ textAlign: 'center', padding: '2rem' }}>
+                  <td colSpan={6} style={{ textAlign: 'center', padding: '2rem' }}>
                     No transactions found
                   </td>
                 </tr>
@@ -420,16 +358,10 @@ Participants: ${details.bookingDetails.participants}
                     </td>
                     <td className="payment-amount">{formatCurrency(transaction.amount)}</td>
                     <td>
-                      <span className={`payment-gateway-badge ${transaction.gateway}`}>
-                        {transaction.gateway}
-                      </span>
-                    </td>
-                    <td>
                       <span className={`payment-status-badge ${getStatusBadgeClass(transaction.status)}`}>
                         {transaction.status}
                       </span>
                     </td>
-                    <td className="payment-transaction-type">{transaction.type}</td>
                     <td>
                       <div className="payment-action-buttons">
                         {transaction.bookingId && (

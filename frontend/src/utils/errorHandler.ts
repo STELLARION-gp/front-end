@@ -18,10 +18,24 @@ export const getErrorMessage = (error: any, fallbackMessage: string = 'An unexpe
     message = error.message;
   }
 
-  // Clean up localhost references
-  message = message.replace(/http:\/\/localhost:\d+/g, 'the server');
-  message = message.replace(/localhost:\d+/g, 'the server');
-  message = message.replace(/127\.0\.0\.1:\d+/g, 'the server');
+  // Clean up localhost references and URLs
+  message = message.replace(/http:\/\/localhost:\d+(\/[^\s]*)?/gi, 'the server');
+  message = message.replace(/https:\/\/localhost:\d+(\/[^\s]*)?/gi, 'the server');
+  message = message.replace(/localhost:\d+(\/[^\s]*)?/gi, 'the server');
+  message = message.replace(/127\.0\.0\.1:\d+(\/[^\s]*)?/gi, 'the server');
+  message = message.replace(/\[::1\]:\d+(\/[^\s]*)?/gi, 'the server');
+  
+  // Clean up any remaining localhost mentions
+  message = message.replace(/\blocalhost\b/gi, 'the server');
+  
+  // Clean up technical API paths
+  message = message.replace(/\/api\/[^\s]*/gi, '');
+  message = message.replace(/\bAPI\b/g, 'service');
+  
+  // Clean up redundant phrases
+  message = message.replace(/failed to fetch from the server/gi, 'Unable to connect to the server');
+  message = message.replace(/error connecting to the server/gi, 'Unable to connect to the server');
+  message = message.replace(/the server\s+/g, 'the server ');
 
   // Handle common technical error messages
   if (message.includes('Network Error') || message.includes('ERR_CONNECTION_REFUSED')) {

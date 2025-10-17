@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import '../../styles/pages/enthusiast/Quizzes.scss'
 import '../../styles/pages/enthusiast/Leaderboard.scss'
 import Button from '../../components/Button'
+import ConfirmDialog from '../../components/ConfirmDialog'
 import TimeIcon from '../../assets/svg/TimeIcon'
 import QuestionIcon from '../../assets/svg/QuestionIcon'
 import ParticipantsIcon from '../../assets/svg/ParticipantsIcon'
@@ -50,6 +51,10 @@ const Quizzes = () => {
     correct_answer: '',
     question_explanation: ''
   })
+
+  // Delete confirmation dialog state
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [quizToDelete, setQuizToDelete] = useState<{ id: number; name: string } | null>(null)
 
   // Fetch data based on active tab
   useEffect(() => {
@@ -291,14 +296,23 @@ const Quizzes = () => {
     }
   }
 
-  const handleDeleteQuiz = async (quizId: number) => {
-    if (!confirm('Are you sure you want to delete this quiz? This action cannot be undone.')) {
-      return
-    }
+  const handleDeleteQuiz = (quizId: number, quizName: string) => {
+    setQuizToDelete({ id: quizId, name: quizName })
+    setShowDeleteConfirm(true)
+  }
+
+  const confirmDeleteQuiz = async () => {
+    if (!quizToDelete) return
 
     try {
       setLoading(true)
-      await quizService.deleteQuiz(quizId)
+      await quizService.deleteQuiz(quizToDelete.id)
+      
+      // Close the dialog first
+      setShowDeleteConfirm(false)
+      setQuizToDelete(null)
+      
+      // Show success message
       showSuccess('Quiz deleted successfully!')
       
       // Refresh my quizzes
@@ -306,6 +320,9 @@ const Quizzes = () => {
       setMyQuizzes(quizzes)
     } catch (err: any) {
       showError(getErrorMessage(err, 'Unable to delete quiz. Please try again.'))
+      // Close dialog even on error
+      setShowDeleteConfirm(false)
+      setQuizToDelete(null)
     } finally {
       setLoading(false)
     }
@@ -789,7 +806,7 @@ const Quizzes = () => {
                 Edit
               </Button>
               <Button
-                onClick={() => handleDeleteQuiz(quiz.id)}
+                onClick={() => handleDeleteQuiz(quiz.id, quiz.name)}
                 variant="secondary"
                 size="small"
               >
@@ -1133,6 +1150,25 @@ const Quizzes = () => {
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        title="Delete Quiz"
+        message={
+          quizToDelete
+            ? `Are you sure you want to delete "${quizToDelete.name}"? This action cannot be undone and all quiz data will be permanently removed.`
+            : 'Are you sure you want to delete this quiz?'
+        }
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+        onConfirm={confirmDeleteQuiz}
+        onCancel={() => {
+          setShowDeleteConfirm(false)
+          setQuizToDelete(null)
+        }}
+      />
     </div>
   )
 }

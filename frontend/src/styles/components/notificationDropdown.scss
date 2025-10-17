@@ -1,8 +1,8 @@
 // Notification Dropdown Styles - Dark Theme (Matching Profile Dropdown)
 .notification-dropdown {
-  position: absolute;
-  top: calc(100% + 12px);
-  right: 0;
+  position: absolute; // Absolute to notification-bell-container
+  top: calc(100% + 12px); // 12px below the bell button
+  right: 0; // Aligned to right edge of bell button
   width: 360px;
   max-height: 520px;
   min-height: 200px;
@@ -12,7 +12,7 @@
   border-radius: 12px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
   overflow: visible;
-  z-index: 9999;
+  z-index: 9999; // Very high z-index to stay above everything
   opacity: 1;
   transform: translateY(0);
   display: flex;
@@ -21,6 +21,16 @@
   &.empty {
     max-height: 280px;
     min-height: 280px;
+  }
+
+  // Mobile responsive positioning
+  @media (max-width: 768px) {
+    position: fixed; // Fixed on mobile for better positioning
+    top: 70px; // Below mobile navbar
+    right: 10px;
+    left: 10px;
+    width: auto;
+    max-width: calc(100vw - 20px);
   }
 }
 

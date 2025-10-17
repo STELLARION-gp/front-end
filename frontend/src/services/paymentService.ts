@@ -1,6 +1,7 @@
-import { auth } from '../firebase';
+import { auth } from "../firebase";
+import { API_CONFIG } from "../config/api.config";
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = API_CONFIG.API_BASE_URL;
 
 export interface PaymentOrder {
   payment_id: number;
@@ -67,21 +68,24 @@ class PaymentService {
     try {
       return await user.getIdToken();
     } catch (error) {
-      console.error('Error getting auth token:', error);
+      console.error("Error getting auth token:", error);
       return null;
     }
   }
 
-  private async makeRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  private async makeRequest<T>(
+    endpoint: string,
+    options: RequestInit = {}
+  ): Promise<T> {
     const token = await this.getAuthToken();
-    
+
     const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-      ...(options.headers as Record<string, string> || {}),
+      "Content-Type": "application/json",
+      ...((options.headers as Record<string, string>) || {}),
     };
 
     if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
+      headers["Authorization"] = `Bearer ${token}`;
     }
 
     try {
@@ -96,25 +100,32 @@ class PaymentService {
 
       return await response.json();
     } catch (error) {
-      console.error('API request failed:', error);
+      console.error("API request failed:", error);
       throw error;
     }
   }
 
   // Create a payment order
-  async createPaymentOrder(planId: number, amount: number, currency: string = 'LKR'): Promise<PaymentOrder> {
+  async createPaymentOrder(
+    planId: number,
+    amount: number,
+    currency: string = "LKR"
+  ): Promise<PaymentOrder> {
     try {
-      const response = await this.makeRequest<{success: boolean, data: PaymentOrder}>('/payments/create-order', {
-        method: 'POST',
+      const response = await this.makeRequest<{
+        success: boolean;
+        data: PaymentOrder;
+      }>("/payments/create-order", {
+        method: "POST",
         body: JSON.stringify({
           planId,
           amount,
-          currency
-        })
+          currency,
+        }),
       });
       return response.data;
     } catch (error) {
-      console.error('Error creating payment order:', error);
+      console.error("Error creating payment order:", error);
       throw error;
     }
   }
@@ -122,9 +133,11 @@ class PaymentService {
   // Get payment status
   async getPaymentStatus(orderId: string): Promise<PaymentStatus> {
     try {
-      return await this.makeRequest<PaymentStatus>(`/payments/status/${orderId}`);
+      return await this.makeRequest<PaymentStatus>(
+        `/payments/status/${orderId}`
+      );
     } catch (error) {
-      console.error('Error fetching payment status:', error);
+      console.error("Error fetching payment status:", error);
       throw error;
     }
   }
@@ -132,9 +145,11 @@ class PaymentService {
   // Get user's payment history
   async getUserPayments(userId: string): Promise<PaymentStatus[]> {
     try {
-      return await this.makeRequest<PaymentStatus[]>(`/payments/user/${userId}`);
+      return await this.makeRequest<PaymentStatus[]>(
+        `/payments/user/${userId}`
+      );
     } catch (error) {
-      console.error('Error fetching user payments:', error);
+      console.error("Error fetching user payments:", error);
       throw error;
     }
   }
@@ -145,19 +160,19 @@ class PaymentService {
     const payment = paymentOrder.payhere_data;
 
     // Check if PayHere is available
-    if (typeof (window as any).payhere !== 'undefined') {
-      console.log('Starting PayHere payment with:', payment);
+    if (typeof (window as any).payhere !== "undefined") {
+      console.log("Starting PayHere payment with:", payment);
       // Show payment
       (window as any).payhere.startPayment(payment);
     } else {
-      console.error('PayHere library not loaded');
-      throw new Error('PayHere payment gateway is not available');
+      console.error("PayHere library not loaded");
+      throw new Error("PayHere payment gateway is not available");
     }
   }
 
   // Initialize PayHere callbacks
   initializePayHereCallbacks(): void {
-    if (typeof (window as any).payhere !== 'undefined') {
+    if (typeof (window as any).payhere !== "undefined") {
       (window as any).payhere.onCompleted = (orderId: string) => {
         console.log("Payment completed. OrderID:" + orderId);
         // Verify payment on backend
@@ -179,16 +194,16 @@ class PaymentService {
     try {
       // Get payment status from backend
       const paymentStatus = await this.getPaymentStatus(orderId);
-      
-      if (paymentStatus.payment_status === 'completed') {
-        console.log('Payment verified as completed');
+
+      if (paymentStatus.payment_status === "completed") {
+        console.log("Payment verified as completed");
         // Reload the page or redirect to success page
         window.location.reload();
       } else {
         console.log(`Payment status: ${paymentStatus.payment_status}`);
       }
     } catch (error) {
-      console.error('Error checking payment completion:', error);
+      console.error("Error checking payment status:", error);
     }
   }
 }

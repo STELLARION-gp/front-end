@@ -42,7 +42,9 @@
     "react-time-picker": "^7.0.0",
     "recharts": "^3.0.2",
     "sass": "^1.89.1",
-    "three": "^0.177.0"
+    "three": "^0.177.0",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^2.5.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",

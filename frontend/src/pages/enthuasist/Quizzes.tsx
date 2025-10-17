@@ -778,7 +778,6 @@ const Quizzes = () => {
                 onClick={() => handleEditQuiz(quiz)}
                 variant="secondary"
                 size="small"
-                disabled={quiz.status === 'approved'}
               >
                 Edit
               </Button>

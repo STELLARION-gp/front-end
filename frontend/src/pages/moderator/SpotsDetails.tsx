@@ -275,6 +275,28 @@ const SpotsDetails: React.FC = () => {
             </div>
           )}
 
+          {/* Submitter Information */}
+          {spot.creator && (
+            <div className="detail-card submitter-info">
+              <div className="card-header">
+                <h2>Submitter Information</h2>
+              </div>
+              <div className="card-content">
+                <div className="submitter-profile">
+                  <div className="submitter-avatar">
+                    {(spot.creator.display_name || spot.creator.first_name || 'U')[0].toUpperCase()}
+                  </div>
+                  <div className="submitter-details">
+                    <div className="submitter-username">
+                      {spot.creator.display_name || `${spot.creator.first_name} ${spot.creator.last_name}`}
+                    </div>
+                    <div className="submitter-id">User ID: {spot.creator.id}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Fact Check Results */}
           {factCheckReport && (
             <div className="detail-card fact-check-section">
@@ -355,28 +377,6 @@ const SpotsDetails: React.FC = () => {
                     ))}
                   </div>
                 )}
-              </div>
-            </div>
-          )}
-
-          {/* Submitter Information */}
-          {spot.creator && (
-            <div className="detail-card submitter-info">
-              <div className="card-header">
-                <h2>Submitter Information</h2>
-              </div>
-              <div className="card-content">
-                <div className="submitter-profile">
-                  <div className="submitter-avatar">
-                    {(spot.creator.display_name || spot.creator.first_name || 'U')[0].toUpperCase()}
-                  </div>
-                  <div className="submitter-details">
-                    <div className="submitter-username">
-                      {spot.creator.display_name || `${spot.creator.first_name} ${spot.creator.last_name}`}
-                    </div>
-                    <div className="submitter-id">User ID: {spot.creator.id}</div>
-                  </div>
-                </div>
               </div>
             </div>
           )}

@@ -3,6 +3,7 @@
   min-height: 100vh;
   color: #ffffff;
   font-family: 'Inter', 'Segoe UI', sans-serif;
+  padding-bottom: 4rem; // Add bottom padding for better spacing
   
   .loading-container,
   .error-container {
@@ -81,11 +82,16 @@
   .details-content {
     max-width: 1400px;
     margin: 0 auto;
-    // padding: 0 2rem 2rem;
+    padding: 2rem;
     display: grid;
-    grid-template-columns: 1fr 350px;
+    grid-template-columns: 1fr 380px;
     gap: 2rem;
-    padding-bottom: 10px;
+    align-items: start; // Important: prevents stretching
+
+    @media (max-width: 1200px) {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
 
     .main-content,
     .sidebar-content {
@@ -94,42 +100,104 @@
       gap: 1.5rem;
     }
 
+    .sidebar-content {
+      position: sticky;
+      top: 2rem; // Sticks to top when scrolling
+      max-height: calc(100vh - 4rem);
+      overflow-y: auto;
+      
+      // Custom scrollbar
+      &::-webkit-scrollbar {
+        width: 6px;
+      }
+      
+      &::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 3px;
+      }
+      
+      &::-webkit-scrollbar-thumb {
+        background: rgba(102, 126, 234, 0.5);
+        border-radius: 3px;
+        
+        &:hover {
+          background: rgba(102, 126, 234, 0.7);
+        }
+      }
+    }
+
     .detail-card {
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 12px;
+      border-radius: 16px;
       overflow: hidden;
+      transition: all 0.3s ease;
+      
+      &:hover {
+        border-color: rgba(102, 126, 234, 0.3);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      }
 
       .card-header {
-        background: rgba(255, 255, 255, 0.05);
         padding: 1.5rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.02);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         display: flex;
         justify-content: space-between;
         align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
 
         h2 {
-          color: #667eea;
-          margin: 0;
-          font-size: 1.2rem;
+          font-size: 1.25rem;
           font-weight: 600;
+          margin: 0;
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          color: #ffffff;
+
+          svg {
+            color: #818cf8;
+          }
         }
 
         .spot-status {
-          padding: 0.5rem 1rem;
+          padding: 0.5rem 1.25rem;
           border-radius: 20px;
-          font-size: 0.8rem;
+          font-size: 0.85rem;
           font-weight: 600;
           text-transform: uppercase;
           letter-spacing: 0.5px;
-          color: white;
 
-          &.pending { background: #ffa502; }
-          &.approved { background: #2ed573; }
-          &.rejected { background: #ff4757; }
-          &.needs-verification { background: #3742fa; }
+          &.status-pending {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            color: #92400e;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+          }
+
+          &.status-approved {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            color: #065f46;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+          }
+
+          &.status-rejected {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            color: #991b1b;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+          }
         }
+      }
 
+      .card-content {
+        padding: 1.5rem;
+      }
+    }
+
+    // Spot Info Specific Styles
+    .spot-info {
+      .card-header {
         .completeness-score {
           background: rgba(102, 126, 234, 0.2);
           color: #667eea;
@@ -344,7 +412,32 @@
         .action-buttons {
           display: flex;
           flex-direction: column;
-          gap: 0.75rem;
+          gap: 1rem;
+
+          button {
+            width: 100%;
+            padding: 0.875rem 1.5rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+
+            &:disabled {
+              opacity: 0.6;
+              cursor: not-allowed;
+            }
+
+            &:not(:disabled):hover {
+              transform: translateY(-2px);
+              box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            }
+          }
         }
 
         .reports-list {
@@ -441,14 +534,24 @@
 
   // Fact Check Section Styles
   .fact-check-section {
+    .card-header {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    }
+
     .credibility-badge {
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      padding: 0.5rem 1rem;
-      border-radius: 20px;
+      padding: 0.625rem 1.25rem;
+      border-radius: 24px;
       font-size: 0.85rem;
-      font-weight: 600;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      
+      svg {
+        font-size: 1rem;
+      }
       
       &.credibility-high {
         background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
@@ -473,31 +576,52 @@
 
     .fact-check-overview {
       display: flex;
-      gap: 2rem;
-      margin-bottom: 2rem;
+      gap: 2.5rem;
+      margin-bottom: 2.5rem;
+      align-items: flex-start;
+
+      @media (max-width: 768px) {
+        flex-direction: column;
+        gap: 1.5rem;
+      }
       
       .score-circle {
         flex-shrink: 0;
-        width: 120px;
-        height: 120px;
+        width: 140px;
+        height: 140px;
         border-radius: 50%;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+        box-shadow: 0 12px 40px rgba(102, 126, 234, 0.4);
+        position: relative;
+        
+        &::after {
+          content: '';
+          position: absolute;
+          inset: -4px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          opacity: 0.3;
+          z-index: -1;
+          filter: blur(10px);
+        }
         
         .score-value {
-          font-size: 2.5rem;
-          font-weight: 700;
+          font-size: 3rem;
+          font-weight: 800;
           color: #ffffff;
+          line-height: 1;
         }
         
         .score-label {
           font-size: 0.75rem;
-          color: rgba(255, 255, 255, 0.8);
+          color: rgba(255, 255, 255, 0.9);
           text-transform: uppercase;
+          letter-spacing: 0.5px;
+          margin-top: 0.25rem;
         }
       }
       
@@ -510,40 +634,61 @@
         .claim-stat {
           display: flex;
           align-items: center;
-          gap: 0.75rem;
-          padding: 0.75rem 1rem;
+          gap: 1rem;
+          padding: 1rem 1.25rem;
           background: rgba(255, 255, 255, 0.05);
-          border-radius: 8px;
-          border-left: 3px solid;
+          border-radius: 12px;
+          border-left: 4px solid;
+          transition: all 0.3s ease;
+          
+          &:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateX(4px);
+          }
           
           svg {
-            font-size: 1.25rem;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+          }
+
+          span {
+            font-size: 1rem;
+            font-weight: 600;
           }
           
           &.verified {
             border-color: #10b981;
-            color: #d1fae5;
             
             svg {
               color: #10b981;
+            }
+
+            span {
+              color: #d1fae5;
             }
           }
           
           &.false {
             border-color: #ef4444;
-            color: #fee2e2;
             
             svg {
               color: #ef4444;
+            }
+
+            span {
+              color: #fee2e2;
             }
           }
           
           &.unverified {
             border-color: #f59e0b;
-            color: #fef3c7;
             
             svg {
               color: #f59e0b;
+            }
+
+            span {
+              color: #fef3c7;
             }
           }
         }
@@ -552,37 +697,60 @@
 
     .fact-check-warnings,
     .fact-check-recommendations {
-      margin-top: 1.5rem;
-      padding: 1rem;
-      border-radius: 8px;
+      margin-top: 2rem;
+      padding: 1.5rem;
+      border-radius: 12px;
+      border: 2px solid;
       
       h4 {
-        margin: 0 0 0.75rem 0;
-        font-size: 1rem;
-        font-weight: 600;
+        margin: 0 0 1rem 0;
+        font-size: 1.1rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
       }
       
       ul {
         margin: 0;
-        padding-left: 1.5rem;
+        padding-left: 1.75rem;
         
         li {
-          margin: 0.5rem 0;
-          line-height: 1.6;
+          margin: 0.75rem 0;
+          line-height: 1.7;
+          font-size: 0.95rem;
+          
+          &::marker {
+            font-weight: 700;
+          }
         }
       }
     }
 
     .fact-check-warnings {
-      background: rgba(239, 68, 68, 0.1);
-      border: 1px solid rgba(239, 68, 68, 0.3);
-      color: #fee2e2;
+      background: rgba(239, 68, 68, 0.08);
+      border-color: rgba(239, 68, 68, 0.4);
+      
+      h4 {
+        color: #fca5a5;
+      }
+      
+      li {
+        color: #fee2e2;
+      }
     }
 
     .fact-check-recommendations {
-      background: rgba(59, 130, 246, 0.1);
-      border: 1px solid rgba(59, 130, 246, 0.3);
-      color: #dbeafe;
+      background: rgba(59, 130, 246, 0.08);
+      border-color: rgba(59, 130, 246, 0.4);
+      
+      h4 {
+        color: #93c5fd;
+      }
+      
+      li {
+        color: #dbeafe;
+      }
     }
 
     .fact-check-claims {

@@ -201,6 +201,25 @@ export const cancelBooking = async (bookingId: number, reason?: string): Promise
   });
 };
 
+/**
+ * Confirm a booking (guide accepts)
+ */
+export const confirmBooking = async (bookingId: number): Promise<Booking> => {
+  return apiCall<Booking>(`/bookings/${bookingId}/confirm`, {
+    method: 'PATCH',
+  });
+};
+
+/**
+ * Reject a booking (guide rejects)
+ */
+export const rejectBooking = async (bookingId: number, reason?: string): Promise<Booking> => {
+  return apiCall<Booking>(`/bookings/${bookingId}/reject`, {
+    method: 'PATCH',
+    body: JSON.stringify({ reason }),
+  });
+};
+
 // ============================================================================
 // REVIEW OPERATIONS
 // ============================================================================
@@ -253,6 +272,8 @@ export default {
   getGuideBookings,
   getBookingById,
   cancelBooking,
+  confirmBooking,
+  rejectBooking,
   createReview,
   getServiceReviews,
 };

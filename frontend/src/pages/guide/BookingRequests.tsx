@@ -4,7 +4,7 @@ import Button from '../../components/Button';
 import Card from '../../components/Card';
 import { Calendar, CheckCircle, XCircle, Users } from 'lucide-react';
 import '../../styles/pages/guide/_bookingRequests.scss';
-import { getGuideBookings, type Booking } from '../../services/bookingService';
+import { getGuideBookings, confirmBooking, rejectBooking, type Booking } from '../../services/bookingService';
 
 interface BookingRequest {
   id: string;
@@ -104,25 +104,29 @@ const BookingRequests: React.FC = () => {
 
   const handleAccept = async (id: string) => {
     try {
-      // TODO: Implement accept booking API call
-      // await updateBookingStatus(parseInt(id), 'confirmed');
+      await confirmBooking(parseInt(id));
       setAcceptedCount(prev => prev + 1);
       setRequests(prev => prev.filter(req => req.id !== id));
+      // Show success message
+      alert('Booking confirmed successfully! The learner has been notified.');
     } catch (err) {
       console.error('Error accepting booking:', err);
-      alert('Failed to accept booking');
+      alert(err instanceof Error ? err.message : 'Failed to accept booking');
     }
   };
 
   const handleReject = async (id: string) => {
+    const reason = prompt('Please provide a reason for rejection (optional):');
+    
     try {
-      // TODO: Implement reject booking API call
-      // await cancelBooking(parseInt(id), 'Rejected by guide');
+      await rejectBooking(parseInt(id), reason || undefined);
       setRejectedCount(prev => prev + 1);
       setRequests(prev => prev.filter(req => req.id !== id));
+      // Show success message
+      alert('Booking rejected successfully. The learner has been notified.');
     } catch (err) {
       console.error('Error rejecting booking:', err);
-      alert('Failed to reject booking');
+      alert(err instanceof Error ? err.message : 'Failed to reject booking');
     }
   };
 

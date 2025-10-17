@@ -68,6 +68,7 @@ import Mentors from "../pages/learner/Mentors";
 import ApplyMentor from "../pages/learner/ApplyMentor";
 import AstronomyServices from "../pages/learner/AstronomyServices";
 import AstronomyServiceDetails from "../pages/learner/AstronomyServiceDetails";
+import MyBookings from "../pages/learner/MyBookings";
 import GuideDetails from "../pages/learner/GuideDetails";
 import CompetitionPage from "../pages/learner/CompetitionPage";
 //import Competitions from '../pages/influencer/competitions';
@@ -357,6 +358,14 @@ const DashboardRoutes = () => {
         element={
           <RoleGuard allowedRoles={["learner", "enthusiast"]}>
             <AstronomyServiceDetails />
+          </RoleGuard>
+        }
+      />
+      <Route
+        path="my-bookings"
+        element={
+          <RoleGuard allowedRoles={["learner", "enthusiast"]}>
+            <MyBookings />
           </RoleGuard>
         }
       />

@@ -286,3 +286,93 @@ export const getBookingPaymentTransactions = async (params?: {
 
   return await response.json();
 };
+
+/**
+ * Payment detail interface
+ */
+export interface BookingPaymentDetails {
+  bookingId: number;
+  orderId: string;
+  amount: number;
+  currency: string;
+  paymentStatus: string;
+  paymentMethod: string;
+  transactionId: string | null;
+  customer: {
+    id: number;
+    name: string;
+    email: string;
+    phone?: string;
+  };
+  service: {
+    id: number;
+    title: string;
+    description: string;
+  };
+  bookingDetails: {
+    date: string;
+    time: string;
+    participants: number;
+    specialRequests: string | null;
+  };
+  canRefund: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * Get booking payment details
+ */
+export const getBookingPaymentDetails = async (bookingId: number): Promise<BookingPaymentDetails> => {
+  const token = await auth.currentUser?.getIdToken();
+  
+  const response = await fetch(`${API_BASE_URL}/payments/booking/${bookingId}/details`, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || 'Failed to fetch payment details');
+  }
+
+  const result = await response.json();
+  return result.data;
+};
+
+/**
+ * Process booking refund
+ */
+export const processBookingRefund = async (
+  bookingId: number,
+  refundData: {
+    amount?: number;
+    reason?: string;
+    refundType?: 'full' | 'partial';
+  }
+): Promise<{
+  bookingId: number;
+  amount: number;
+  status: string;
+  processedAt: string;
+}> => {
+  const token = await auth.currentUser?.getIdToken();
+  
+  const response = await fetch(`${API_BASE_URL}/payments/booking/${bookingId}/refund`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(refundData),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || 'Failed to process refund');
+  }
+
+  const result = await response.json();
+  return result.data;
+};

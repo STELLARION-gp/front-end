@@ -4,20 +4,19 @@ import Button from '../../components/Button';
 import InputField from '../../components/InputField';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import '../../styles/pages/guide/PaymentProcessing.scss';
+import { 
+  getBookingPaymentStats, 
+  getBookingPaymentTransactions,
+  getBookingPaymentDetails,
+  processBookingRefund,
+  type PaymentStats as ImportedPaymentStats,
+  type Transaction as ImportedTransaction
+} from '../../services/paymentService';
 
 // Types for payment data
-interface Transaction {
-  id: string;
-  date: string;
-  amount: number;
-  currency: string;
-  status: 'completed' | 'pending' | 'failed' | 'refunded';
-  type: 'payment' | 'refund' | 'subscription' | 'booking';
-  description: string;
-  gateway: 'stripe' | 'paypal' | 'razorpay' | 'square';
-  reference: string;
-  customerEmail: string;
-  customerName: string;
+interface Transaction extends ImportedTransaction {
+  bookingId?: number;
+  serviceId?: number;
 }
 
 interface PaymentStats {
@@ -33,6 +32,7 @@ const PaymentProcessing: React.FC = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [paymentStats, setPaymentStats] = useState<PaymentStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [selectedGateway, setSelectedGateway] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [dateRange, setDateRange] = useState<string>('30');
@@ -40,108 +40,69 @@ const PaymentProcessing: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState<'date' | 'amount' | 'status'>('date');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [totalTransactions, setTotalTransactions] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
 
   const itemsPerPage = 10;
 
-  // Mock data generation
+  // Fetch payment statistics
   useEffect(() => {
-    const generateMockData = () => {
-      const mockTransactions: Transaction[] = [];
-      const gateways: Transaction['gateway'][] = ['stripe', 'paypal', 'razorpay', 'square'];
-      const statuses: Transaction['status'][] = ['completed', 'pending', 'failed', 'refunded'];
-      const types: Transaction['type'][] = ['payment', 'refund', 'subscription', 'booking'];
-      
-      for (let i = 0; i < 100; i++) {
-        const date = new Date();
-        date.setDate(date.getDate() - Math.floor(Math.random() * 90));
-        
-        mockTransactions.push({
-          id: `TXN${String(i + 1).padStart(6, '0')}`,
-          date: date.toISOString().split('T')[0],
-          amount: Math.floor(Math.random() * 50000) + 100,
-          currency: 'USD',
-          status: statuses[Math.floor(Math.random() * statuses.length)],
-          type: types[Math.floor(Math.random() * types.length)],
-          description: `Stellarion ${types[Math.floor(Math.random() * types.length)]} service`,
-          gateway: gateways[Math.floor(Math.random() * gateways.length)],
-          reference: `REF${Math.random().toString(36).substring(2, 15)}`,
-          customerEmail: `user${i + 1}@stellarion.com`,
-          customerName: `Customer ${i + 1}`
-        });
+    const fetchStats = async () => {
+      try {
+        const stats = await getBookingPaymentStats(parseInt(dateRange));
+        setPaymentStats(stats);
+      } catch (err) {
+        console.error('Error fetching payment stats:', err);
+        setError('Failed to load payment statistics');
       }
-
-      const totalRevenue = mockTransactions
-        .filter(t => t.status === 'completed')
-        .reduce((sum, t) => sum + t.amount, 0);
-      
-      const mockStats: PaymentStats = {
-        totalRevenue,
-        totalTransactions: mockTransactions.length,
-        successRate: 94.2,
-        pendingAmount: mockTransactions
-          .filter(t => t.status === 'pending')
-          .reduce((sum, t) => sum + t.amount, 0),
-        refundedAmount: mockTransactions
-          .filter(t => t.status === 'refunded')
-          .reduce((sum, t) => sum + t.amount, 0),
-        monthlyGrowth: 12.5
-      };
-
-      setTransactions(mockTransactions);
-      setPaymentStats(mockStats);
-      setLoading(false);
     };
 
-    // Simulate API call
-    setTimeout(generateMockData, 1000);
-  }, []);
+    fetchStats();
+  }, [dateRange]);
 
-  // Filter and sort transactions
-  const filteredAndSortedTransactions = useMemo(() => {
-    const filtered = transactions.filter(transaction => {
+  // Fetch transactions
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const result = await getBookingPaymentTransactions({
+          status: statusFilter,
+          dateRange: parseInt(dateRange),
+          page: currentPage,
+          limit: itemsPerPage,
+          sortBy: sortBy,
+          sortOrder: sortOrder,
+        });
+
+        setTransactions(result.transactions);
+        setTotalTransactions(result.total);
+        setTotalPages(result.totalPages);
+      } catch (err) {
+        console.error('Error fetching transactions:', err);
+        setError('Failed to load transactions');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTransactions();
+  }, [statusFilter, dateRange, currentPage, sortBy, sortOrder]);
+
+  // Filter transactions by search term and gateway (client-side filtering)
+  const filteredTransactions = useMemo(() => {
+    return transactions.filter(transaction => {
       const matchesGateway = selectedGateway === 'all' || transaction.gateway === selectedGateway;
-      const matchesStatus = statusFilter === 'all' || transaction.status === statusFilter;
       const matchesSearch = searchTerm === '' || 
         transaction.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
         transaction.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         transaction.customerEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
         transaction.reference.toLowerCase().includes(searchTerm.toLowerCase());
-      
-      const transactionDate = new Date(transaction.date);
-      const daysAgo = parseInt(dateRange);
-      const cutoffDate = new Date();
-      cutoffDate.setDate(cutoffDate.getDate() - daysAgo);
-      const matchesDate = transactionDate >= cutoffDate;
 
-      return matchesGateway && matchesStatus && matchesSearch && matchesDate;
+      return matchesGateway && matchesSearch;
     });
-
-    // Sort transactions
-    filtered.sort((a, b) => {
-      let comparison = 0;
-      switch (sortBy) {
-        case 'date':
-          comparison = new Date(a.date).getTime() - new Date(b.date).getTime();
-          break;
-        case 'amount':
-          comparison = a.amount - b.amount;
-          break;
-        case 'status':
-          comparison = a.status.localeCompare(b.status);
-          break;
-      }
-      return sortOrder === 'asc' ? comparison : -comparison;
-    });
-
-    return filtered;
-  }, [transactions, selectedGateway, statusFilter, searchTerm, dateRange, sortBy, sortOrder]);
-
-  // Pagination
-  const totalPages = Math.ceil(filteredAndSortedTransactions.length / itemsPerPage);
-  const paginatedTransactions = filteredAndSortedTransactions.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  }, [transactions, selectedGateway, searchTerm]);
 
   const getStatusBadgeClass = (status: Transaction['status']) => {
     switch (status) {
@@ -154,10 +115,53 @@ const PaymentProcessing: React.FC = () => {
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('en-LK', {
       style: 'currency',
-      currency: 'USD'
-    }).format(amount / 100);
+      currency: 'LKR'
+    }).format(amount);
+  };
+
+  const handleRefund = async (bookingId: number) => {
+    if (!window.confirm('Are you sure you want to process a refund for this booking?')) {
+      return;
+    }
+
+    const reason = prompt('Please provide a reason for the refund:');
+    if (!reason) return;
+
+    try {
+      await processBookingRefund(bookingId, {
+        reason,
+        refundType: 'full'
+      });
+      alert('Refund processed successfully!');
+      // Refresh transactions
+      window.location.reload();
+    } catch (err) {
+      console.error('Error processing refund:', err);
+      alert(err instanceof Error ? err.message : 'Failed to process refund');
+    }
+  };
+
+  const handleViewDetails = async (bookingId: number) => {
+    try {
+      const details = await getBookingPaymentDetails(bookingId);
+      // For now, show an alert with details. You can create a modal later.
+      alert(`
+Booking Details:
+Order ID: ${details.orderId}
+Amount: Rs. ${details.amount.toLocaleString()}
+Status: ${details.paymentStatus}
+Customer: ${details.customer.name}
+Email: ${details.customer.email}
+Service: ${details.service.title}
+Date: ${new Date(details.bookingDetails.date).toLocaleDateString()}
+Participants: ${details.bookingDetails.participants}
+      `.trim());
+    } catch (err) {
+      console.error('Error fetching payment details:', err);
+      alert('Failed to load payment details');
+    }
   };
 
   if (loading) {
@@ -241,22 +245,29 @@ const PaymentProcessing: React.FC = () => {
             <h3>Payment Gateway Distribution</h3>
             <div className="payment-pie-chart-placeholder">
               <div className="payment-gateway-stats">
-                <div className="payment-gateway-item">
-                  <span className="payment-gateway-color stripe"></span>
-                  <span>Stripe (45%)</span>
-                </div>
-                <div className="payment-gateway-item">
-                  <span className="payment-gateway-color paypal"></span>
-                  <span>PayPal (30%)</span>
-                </div>
-                <div className="payment-gateway-item">
-                  <span className="payment-gateway-color razorpay"></span>
-                  <span>Razorpay (15%)</span>
-                </div>
-                <div className="payment-gateway-item">
-                  <span className="payment-gateway-color square"></span>
-                  <span>Square (10%)</span>
-                </div>
+                {(() => {
+                  // Calculate gateway distribution from transactions
+                  const gatewayCounts: Record<string, number> = {};
+                  transactions.forEach(t => {
+                    gatewayCounts[t.gateway] = (gatewayCounts[t.gateway] || 0) + 1;
+                  });
+                  
+                  const total = transactions.length || 1;
+                  return Object.entries(gatewayCounts).map(([gateway, count]) => {
+                    const percentage = ((count / total) * 100).toFixed(1);
+                    return (
+                      <div key={gateway} className="payment-gateway-item">
+                        <span className={`payment-gateway-color ${gateway}`}></span>
+                        <span>{gateway.charAt(0).toUpperCase() + gateway.slice(1)} ({percentage}%)</span>
+                      </div>
+                    );
+                  });
+                })()}
+                {transactions.length === 0 && (
+                  <div className="payment-gateway-item">
+                    <span>No transactions yet</span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -293,10 +304,9 @@ const PaymentProcessing: React.FC = () => {
               aria-label="Payment Gateway Filter"
             >
               <option value="all">All Gateways</option>
+              <option value="payhere">PayHere</option>
               <option value="stripe">Stripe</option>
               <option value="paypal">PayPal</option>
-              <option value="razorpay">Razorpay</option>
-              <option value="square">Square</option>
             </select>
           </div>
 
@@ -350,7 +360,7 @@ const PaymentProcessing: React.FC = () => {
       {/* Transactions Table */}
       <div className="payment-transactions-table-section">
         <div className="payment-table-header">
-          <h3>Recent Transactions ({filteredAndSortedTransactions.length} results)</h3>
+          <h3>Recent Transactions ({filteredTransactions.length} results)</h3>
           <div className="payment-table-controls">
             <div className="payment-sort-controls">
               <label>Sort by:</label>
@@ -391,38 +401,62 @@ const PaymentProcessing: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {paginatedTransactions.map((transaction) => (
-                <tr key={transaction.id}>
-                  <td className="payment-transaction-id">{transaction.id}</td>
-                  <td>{new Date(transaction.date).toLocaleDateString()}</td>
-                  <td>
-                    <div className="payment-customer-info">
-                      <div className="payment-customer-name">{transaction.customerName}</div>
-                      <div className="payment-customer-email">{transaction.customerEmail}</div>
-                    </div>
-                  </td>
-                  <td className="payment-amount">{formatCurrency(transaction.amount)}</td>
-                  <td>
-                    <span className={`payment-gateway-badge ${transaction.gateway}`}>
-                      {transaction.gateway}
-                    </span>
-                  </td>
-                  <td>
-                    <span className={`payment-status-badge ${getStatusBadgeClass(transaction.status)}`}>
-                      {transaction.status}
-                    </span>
-                  </td>
-                  <td className="payment-transaction-type">{transaction.type}</td>
-                  <td>
-                    <div className="payment-action-buttons">
-                      <Button variant="ghost" size="small">View</Button>
-                      {transaction.status === 'completed' && (
-                        <Button variant="ghost" size="small">Refund</Button>
-                      )}
-                    </div>
+              {filteredTransactions.length === 0 ? (
+                <tr>
+                  <td colSpan={8} style={{ textAlign: 'center', padding: '2rem' }}>
+                    No transactions found
                   </td>
                 </tr>
-              ))}
+              ) : (
+                filteredTransactions.map((transaction) => (
+                  <tr key={transaction.id}>
+                    <td className="payment-transaction-id">{transaction.id}</td>
+                    <td>{new Date(transaction.date).toLocaleDateString()}</td>
+                    <td>
+                      <div className="payment-customer-info">
+                        <div className="payment-customer-name">{transaction.customerName}</div>
+                        <div className="payment-customer-email">{transaction.customerEmail}</div>
+                      </div>
+                    </td>
+                    <td className="payment-amount">{formatCurrency(transaction.amount)}</td>
+                    <td>
+                      <span className={`payment-gateway-badge ${transaction.gateway}`}>
+                        {transaction.gateway}
+                      </span>
+                    </td>
+                    <td>
+                      <span className={`payment-status-badge ${getStatusBadgeClass(transaction.status)}`}>
+                        {transaction.status}
+                      </span>
+                    </td>
+                    <td className="payment-transaction-type">{transaction.type}</td>
+                    <td>
+                      <div className="payment-action-buttons">
+                        {transaction.bookingId && (
+                          <>
+                            <Button 
+                              variant="ghost" 
+                              size="small"
+                              onClick={() => handleViewDetails(transaction.bookingId!)}
+                            >
+                              View
+                            </Button>
+                            {transaction.status === 'completed' && (
+                              <Button 
+                                variant="ghost" 
+                                size="small"
+                                onClick={() => handleRefund(transaction.bookingId!)}
+                              >
+                                Refund
+                              </Button>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -431,8 +465,8 @@ const PaymentProcessing: React.FC = () => {
         <div className="payment-pagination">
           <div className="payment-pagination-info">
             Showing {(currentPage - 1) * itemsPerPage + 1} to{' '}
-            {Math.min(currentPage * itemsPerPage, filteredAndSortedTransactions.length)} of{' '}
-            {filteredAndSortedTransactions.length} transactions
+            {Math.min(currentPage * itemsPerPage, totalTransactions)} of{' '}
+            {totalTransactions} transactions
           </div>
           <div className="payment-pagination-controls">
             <Button

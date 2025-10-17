@@ -3,71 +3,77 @@ import { Link, useNavigate } from "react-router-dom";
 import "../../styles/pages/learner/BlogPage.scss";
 import Button from "../../components/Button";
 import { ArrowDownTrayIcon, HeartIcon } from "@heroicons/react/24/outline";
+import { blogService, type BlogComment } from "../../services/blogService";
 
 interface Blog {
+  id?: number;
   title: string;
-  author: string;
-  createdAt: string;
-  image: string;
-  content: string;
+  author?: string;
+  createdAt?: string;
+  image?: string;
+  content?: string;
 }
 
 interface BlogDetailedPageProps {
   blog: Blog;
+  comments?: BlogComment[];
 }
 
-const sampleComments = [
-  {
-    id: 1,
-    author: "Stella Observer",
-    avatar: "https://randomuser.me/api/portraits/women/44.jpg",
-    date: "2025-06-21",
-    rating: 5,
-    text: "Amazing article! The Orion Nebula is truly fascinating.",
-  },
-  {
-    id: 2,
-    author: "Cosmo Reader",
-    avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-    date: "2025-06-21",
-    rating: 4,
-    text: "Great insights, thanks for sharing!",
-  },
-];
-
-const BlogDetailedPage: React.FC<BlogDetailedPageProps> = ({ blog }) => {
+const BlogDetailedPage: React.FC<BlogDetailedPageProps> = ({ blog, comments: initialComments = [] }) => {
   const navigate = useNavigate();
   const [comment, setComment] = useState("");
   const [rating, setRating] = useState(0);
   const [hovered, setHovered] = useState(0);
   const [submitted, setSubmitted] = useState(false);
-  const [comments, setComments] = useState(sampleComments);
+  const [comments, setComments] = useState<BlogComment[]>(initialComments);
   const [isFavorite, setIsFavorite] = useState(false);
 
   const handleDownload = () => {
-    // Logic for downloading the blog post
     console.log("Download blog post");
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setComments([
-      ...comments,
-      {
-        id: comments.length + 1,
-        author: "You",
-        avatar: "https://randomuser.me/api/portraits/lego/1.jpg",
-        date: new Date().toISOString().slice(0, 10),
-        rating,
-        text: comment,
-      },
-    ]);
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 2000);
-    setComment("");
-    setRating(0);
-    setHovered(0);
+    if (!blog?.id) return;
+
+    try {
+      const createReq = { content: comment } as any;
+      const resp: any = await blogService.addBlogComment(blog.id, createReq);
+      // Try to extract created comment
+      const created = resp?.data || resp?.comment || resp;
+      setComments(prev => [...prev, created]);
+      setSubmitted(true);
+      setTimeout(() => setSubmitted(false), 2000);
+      setComment("");
+      setRating(0);
+      setHovered(0);
+    } catch (err) {
+      console.error('Failed to submit comment', err);
+      // fallback: append locally
+      setComments(prev => [...prev, {
+        id: prev.length + 1,
+        blog_id: blog.id as number,
+        user_id: 0,
+        content: comment,
+        is_edited: false,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        user_display_name: 'You'
+      } as BlogComment]);
+      setComment("");
+    }
   };
+
+  // compute author avatar with sensible fallbacks
+  const authorName = String((blog as any).author || (blog as any).author_display_name || '');
+  const authorAvatar =
+    (blog as any).author_avatar ||
+    (blog as any).author_image ||
+    (blog as any).author_profile_image ||
+    (blog as any).metadata?.author_avatar ||
+    // fallback to ui-avatars service which generates an initials avatar
+    (authorName && `https://ui-avatars.com/api/?name=${encodeURIComponent(authorName)}&background=333&color=fff&rounded=true&size=128`) ||
+    'https://www.gravatar.com/avatar/?d=mp';
 
   return (
     <div className="blog-page">
@@ -80,19 +86,19 @@ const BlogDetailedPage: React.FC<BlogDetailedPageProps> = ({ blog }) => {
           <div className="blog-meta">
             <span className="blog-author">
               <img
-                src="https://www.shutterstock.com/image-vector/vector-colorful-gray-scientist-professor-260nw-279473522.jpg"
+                src={authorAvatar}
                 alt="Author profile"
                 className="blog-author-avatar"
               />
               <Link
-                to={`/dashboard/author/${encodeURIComponent(blog.author)}`}
+                to={`/dashboard/author/${encodeURIComponent(String(blog.author || ''))}`}
                 className="blog-author-link"
               >
-                {blog.author}
+                {blog.author || 'Unknown'}
               </Link>
             </span>
             <span className="blog-date">
-              {new Date(blog.createdAt).toLocaleDateString()}
+              {blog.createdAt ? new Date(blog.createdAt).toLocaleDateString() : 'N/A'}
             </span>
           </div>
           <div className="blog-header-actions">
@@ -115,7 +121,7 @@ const BlogDetailedPage: React.FC<BlogDetailedPageProps> = ({ blog }) => {
           </div>
         </div>
       </header>
-      <img src={blog.image} alt={blog.title} className="blog-image" />
+      {blog.image && <img src={blog.image} alt={blog.title} className="blog-image" />}
       <article className="blog-content">{blog.content}</article>
       <section className="blog-comments-section">
         <h3>Comments</h3>
@@ -123,27 +129,18 @@ const BlogDetailedPage: React.FC<BlogDetailedPageProps> = ({ blog }) => {
           {comments.map((c) => (
             <div className="blog-comment" key={c.id}>
               <img
-                src={c.avatar}
-                alt={c.author}
+                src={(c as any).avatar || 'https://www.gravatar.com/avatar/?d=mp'}
+                alt={(c as any).user_display_name || (c as any).user_name || 'Commenter'}
                 className="blog-comment-avatar"
               />
               <div className="blog-comment-body">
                 <div className="blog-comment-meta">
-                  <span className="blog-comment-author">{c.author}</span>
+                  <span className="blog-comment-author">{(c as any).user_display_name || (c as any).user_name || 'Anonymous'}</span>
                   <span className="blog-comment-date">
-                    {new Date(c.date).toLocaleDateString()}
-                  </span>
-                  <span className="blog-comment-rating">
-                    {[...Array(5)].map((_, i) => (
-                      <span
-                        key={i}
-                        className={
-                          i < c.rating ? "blogstar" : "blogstar empty"
-                        }>&#9733;</span>
-                    ))}
+                    {new Date((c as any).created_at || (c as any).createdAt || Date.now()).toLocaleDateString()}
                   </span>
                 </div>
-                <div className="blog-comment-text">{c.text}</div>
+                <div className="blog-comment-text">{(c as any).content || (c as any).text}</div>
               </div>
             </div>
           ))}

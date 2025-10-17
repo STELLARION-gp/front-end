@@ -4,6 +4,9 @@ import "../../styles/pages/learner/BlogPage.scss";
 import Button from "../../components/Button";
 import { ArrowDownTrayIcon, HeartIcon } from "@heroicons/react/24/outline";
 import { blogService, type BlogComment } from "../../services/blogService";
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+import { useRef } from 'react';
 
 interface Blog {
   id?: number;
@@ -28,8 +31,58 @@ const BlogDetailedPage: React.FC<BlogDetailedPageProps> = ({ blog, comments: ini
   const [comments, setComments] = useState<BlogComment[]>(initialComments);
   const [isFavorite, setIsFavorite] = useState(false);
 
-  const handleDownload = () => {
-    console.log("Download blog post");
+  const contentRef = useRef<HTMLDivElement | null>(null);
+
+  const handleDownload = async () => {
+    if (!contentRef.current) return;
+    try {
+      // render the content to a canvas
+      const canvas = await html2canvas(contentRef.current, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#0f1724'
+      });
+
+      const imgData = canvas.toDataURL('image/jpeg', 0.92);
+      const pdf = new jsPDF({ unit: 'pt', format: 'a4', orientation: 'portrait' });
+
+      // A4 size in points
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+
+      // calculate image dimensions while preserving aspect ratio
+      const imgProps = (pdf as any).getImageProperties(imgData);
+      const imgWidth = pageWidth - 40; // margins
+      const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+
+      let position = 20;
+      if (imgHeight < pageHeight) {
+        pdf.addImage(imgData, 'JPEG', 20, position, imgWidth, imgHeight);
+      } else {
+        // multi-page handling
+        let remainingHeight = imgHeight;
+        let srcHeight = imgProps.height;
+        let sliceHeight = Math.floor((srcHeight * (pageWidth - 40)) / imgProps.width);
+        let offsetY = 0;
+        while (remainingHeight > 0) {
+          const canvasPage = document.createElement('canvas');
+          canvasPage.width = canvas.width;
+          canvasPage.height = Math.min(canvas.height - offsetY, Math.floor((sliceHeight * canvas.width) / imgProps.width));
+          const ctx = canvasPage.getContext('2d');
+          if (ctx) ctx.drawImage(canvas, 0, offsetY, canvasPage.width, canvasPage.height, 0, 0, canvasPage.width, canvasPage.height);
+          const pageData = canvasPage.toDataURL('image/jpeg', 0.92);
+          pdf.addImage(pageData, 'JPEG', 20, position, imgWidth, (canvasPage.height * imgWidth) / canvasPage.width);
+          remainingHeight -= sliceHeight;
+          offsetY += canvasPage.height;
+          if (remainingHeight > 0) pdf.addPage();
+        }
+      }
+
+      const filename = `${(blog.title || 'blog').replace(/[^a-z0-9]/gi, '_').toLowerCase()}.pdf`;
+      pdf.save(filename);
+    } catch (err) {
+      console.error('Failed to generate PDF', err);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -121,9 +174,14 @@ const BlogDetailedPage: React.FC<BlogDetailedPageProps> = ({ blog, comments: ini
           </div>
         </div>
       </header>
-      {blog.image && <img src={blog.image} alt={blog.title} className="blog-image" />}
-      <article className="blog-content">{blog.content}</article>
-      <section className="blog-comments-section">
+      <div className="blog-main">
+        <div className="blog-left" ref={contentRef}>
+          {blog.image && <img src={blog.image} alt={blog.title} className="blog-image" />}
+          <article className="blog-content">{blog.content}</article>
+        </div>
+
+        <aside className="blog-right">
+          <section className="blog-comments-section">
         <h3>Comments</h3>
         <div className="blog-comments-list">
           {comments.map((c) => (
@@ -145,8 +203,11 @@ const BlogDetailedPage: React.FC<BlogDetailedPageProps> = ({ blog, comments: ini
             </div>
           ))}
         </div>
-        <h3 style={{ marginTop: "2rem" }}>Leave a Comment</h3>
-        <form className="comment-form" onSubmit={handleSubmit}>
+          </section>
+
+          <section style={{ marginTop: '1.25rem' }}>
+            <h3 style={{ marginBottom: 8 }}>Leave a Comment</h3>
+            <form className="comment-form" onSubmit={handleSubmit}>
           <textarea
             className="comment-textarea"
             placeholder="Write your comment..."
@@ -187,7 +248,9 @@ const BlogDetailedPage: React.FC<BlogDetailedPageProps> = ({ blog, comments: ini
             {submitted ? "Submitted!" : "Submit"}
           </Button>
         </form>
-      </section>
+          </section>
+        </aside>
+      </div>
     </div>
   );
 };

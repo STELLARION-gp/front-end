@@ -142,7 +142,7 @@ const MentorDashboard = () => {
         <div className="main-content-row">
           {/* Left Column - Controls */}
           <div className="controls-column">
-            <div className="controls-section">
+            <div className="controls-section_1">
               <h3 className="section-title">Mentorship Controls</h3>
               <AvailabilityToggle
                 isAccepting={isAccepting}

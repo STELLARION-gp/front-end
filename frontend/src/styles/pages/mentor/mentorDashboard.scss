@@ -526,7 +526,7 @@
   height: 100%;
 }
 
-.controls-section {
+.controls-section_1 {
   background: rgba(59, 130, 246, 0.08);
   border: 1px solid rgba(59, 130, 246, 0.25);
   border-radius: 16px;
@@ -830,7 +830,7 @@
     .controls-column {
       grid-column: 1 / -1;
       
-      .controls-section {
+      .controls-section_1 {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 2rem;
@@ -871,7 +871,7 @@
     gap: 1.5rem;
   }
 
-  .controls-section {
+  .controls-section_1 {
     grid-template-columns: 1fr !important;
     gap: 1.5rem !important;
   }

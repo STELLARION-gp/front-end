@@ -7,11 +7,10 @@ import QuestionIcon from '../../assets/svg/QuestionIcon'
 import ParticipantsIcon from '../../assets/svg/ParticipantsIcon'
 import * as quizService from '../../services/quizService'
 
-type TabType = 'all' | 'my' | 'create' | 'leaderboard'
+type TabType = 'my' | 'create' | 'leaderboard'
 
 const Quizzes = () => {
-  const [activeTab, setActiveTab] = useState<TabType>('all')
-  const [allQuizzes, setAllQuizzes] = useState<quizService.Quiz[]>([])
+  const [activeTab, setActiveTab] = useState<TabType>('my')
   const [myQuizzes, setMyQuizzes] = useState<quizService.Quiz[]>([])
   const [leaderboard, setLeaderboard] = useState<quizService.LeaderboardData | null>(null)
   const [loading, setLoading] = useState(false)
@@ -58,10 +57,7 @@ const Quizzes = () => {
     setLoading(true)
     setError(null)
     try {
-      if (activeTab === 'all') {
-        const quizzes = await quizService.getAllQuizzes()
-        setAllQuizzes(quizzes)
-      } else if (activeTab === 'my') {
+      if (activeTab === 'my') {
         const quizzes = await quizService.getMyQuizzes()
         setMyQuizzes(quizzes)
       } else if (activeTab === 'leaderboard') {
@@ -152,10 +148,10 @@ const Quizzes = () => {
       setQuizResult(result)
       setIsQuizCompleted(true)
       
-      // Refresh quiz lists
-      if (activeTab === 'all') {
-        const quizzes = await quizService.getAllQuizzes()
-        setAllQuizzes(quizzes)
+      // Refresh quiz lists if on my quizzes tab
+      if (activeTab === 'my') {
+        const quizzes = await quizService.getMyQuizzes()
+        setMyQuizzes(quizzes)
       }
     } catch (err: any) {
       alert(err.response?.data?.message || 'Failed to submit quiz')
@@ -812,12 +808,6 @@ const Quizzes = () => {
       {/* Tab Navigation */}
       <div className="quizzes-tabs">
         <Button
-          onClick={() => setActiveTab('all')}
-          variant={activeTab === 'all' ? 'primary' : 'secondary'}
-        >
-          All Quizzes
-        </Button>
-        <Button
           onClick={() => setActiveTab('my')}
           variant={activeTab === 'my' ? 'primary' : 'secondary'}
         >
@@ -843,7 +833,7 @@ const Quizzes = () => {
           {/* Section Title */}
           <div className="section-header">
             <h2 className="section-title">
-              {activeTab === 'all' ? 'All Available Quizzes' : 'My Created Quizzes'}
+              My Created Quizzes
             </h2>
           </div>
 
@@ -865,19 +855,19 @@ const Quizzes = () => {
           {!loading && (
             <>
               <div className="quiz-grid">
-                {(activeTab === 'all' ? allQuizzes : myQuizzes).map((quiz) => 
-                  renderQuizCard(quiz, activeTab === 'my')
+                {myQuizzes.map((quiz) => 
+                  renderQuizCard(quiz, true)
                 )}
               </div>
 
-              {(activeTab === 'all' ? allQuizzes : myQuizzes).length === 0 && (
+              {myQuizzes.length === 0 && (
                 <div className="empty-state">
                   <svg className="empty-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                   </svg>
                   <h3 className="empty-title">No quizzes found</h3>
                   <p className="empty-text">
-                    {activeTab === 'my' ? "You haven't created any quizzes yet." : "No quizzes available at the moment."}
+                    You haven't created any quizzes yet.
                   </p>
                 </div>
               )}

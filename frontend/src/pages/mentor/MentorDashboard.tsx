@@ -1,267 +1,186 @@
-import React, { useState } from 'react';
-import Button from '../../components/Button';
-import { ChevronLeftIcon, ChevronRightIcon, PlusIcon } from '@heroicons/react/24/outline';
-import avatarImg from '../../assets/Mentee.png';
-import dayjs from 'dayjs';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import '../../styles/pages/mentor/mentorDashboardSimplified.scss';
+import { Button } from '@headlessui/react';
 
-// Import new components
-import MenteeOfMonth from '../../components/mentor/MenteeOfMonth';
-import AvailabilityToggle from '../../components/mentor/AvailabilityToggle';
-import MenteeCounter from '../../components/mentor/MenteeCounter';
-import DashboardStats from '../../components/mentor/DashboardStats';
+// Mock data — replace with real context/API
+const MOCK_MENTOR = {
+  name: 'Dr. Stella Orion',
+  avatar: 'https://randomuser.me/api/portraits/women/44.jpg',
+  email: 'stella.orion@astrohub.com',
+  specialties: ['Exoplanets', 'Data Analysis', 'Astrophotography'],
+  bio: 'Passionate astronomer with 10+ years of experience mentoring young scientists. I help early-career astronomers build research skills and portfolios.',
+  qualifications: ['PhD in Astronomy', 'Published 25+ research papers', '10 years teaching experience'],
+  isAvailable: true,
+  menteeCount: 12,
+  maxMentees: 15,
+}
 
-// Import styles
-import '../../styles/pages/mentor/mentorprofile.scss';
-import '../../styles/pages/Dashboard.scss';
-import '../../styles/components/_buttons.scss';
-import '../../styles/pages/mentor/mentorDashboard.scss';
+const MOCK_MENTEES = [
+  { id: '1', name: 'Alice Johnson', avatar: 'https://randomuser.me/api/portraits/women/1.jpg', status: 'Active', email: 'alice.johnson@example.com' },
+  { id: '2', name: 'Bob Smith', avatar: 'https://randomuser.me/api/portraits/men/2.jpg', status: 'Active', email: 'bob.smith@example.com' },
+  { id: '3', name: 'Charlie Lee', avatar: 'https://randomuser.me/api/portraits/men/3.jpg', status: 'Active', email: 'charlie.lee@example.com' },
+  { id: '4', name: 'Diana Prince', avatar: 'https://randomuser.me/api/portraits/women/4.jpg', status: 'Active', email: 'diana.prince@example.com' },
+]
 
-// Import contexts
-import { useMentorPause } from '../../contexts/mentor/MentorPauseContext';
-import { useMentee } from '../../contexts/mentor/MenteeContext';
+const MOCK_STATS = {
+  activeMentees: 12,
+  sessionsHeld: 48,
+  avgRating: 4.9,
+  hoursMentored: 156,
+  pendingRequests: 5,
+  completedGoals: 23,
+}
 
-const mentees = [
-  { id: 1, name: 'Alice', img: avatarImg },
-  { id: 2, name: 'Bob', img: avatarImg },
-  { id: 3, name: 'Charlie', img: avatarImg },
-];
-
-const MentorDashboard = () => {
-  const { isPaused, setIsPaused } = useMentorPause();
-  const { 
-    menteeCount, 
-    maxMentees, 
-    setMaxMentees, 
-    isAccepting, 
-    setIsAccepting 
-  } = useMentee();
-  
-  const [selectedDate, setSelectedDate] = useState(dayjs());
-  const [calendarMonth, setCalendarMonth] = useState(dayjs().month());
-  const [calendarYear, setCalendarYear] = useState(dayjs().year());
-  const navigate = useNavigate();
-
-  // Dashboard stats
-  const stats = {
-    sessionsHeld: 7,
-    menteeRequests: 5,
-    activeMembers: menteeCount,
-    avgRating: 4.9,
-    hoursMentored: 156
-  };
-
-  // Calendar logic
-  const daysInMonth = dayjs().year(calendarYear).month(calendarMonth).daysInMonth();
-  const firstDayOfMonth = dayjs().year(calendarYear).month(calendarMonth).date(1).day();
-  const calendarDays = [];
-  for (let i = 0; i < firstDayOfMonth; i++) calendarDays.push(null);
-  for (let d = 1; d <= daysInMonth; d++) calendarDays.push(d);
-  while (calendarDays.length % 7 !== 0) calendarDays.push(null);
-  const weeks = [];
-  for (let i = 0; i < calendarDays.length; i += 7) weeks.push(calendarDays.slice(i, i + 7));
-
-  const handlePrevMonth = () => {
-    if (calendarMonth === 0) {
-      setCalendarMonth(11);
-      setCalendarYear(calendarYear - 1);
-    } else {
-      setCalendarMonth(calendarMonth - 1);
-    }
-  };
-
-  const handleNextMonth = () => {
-    if (calendarMonth === 11) {
-      setCalendarMonth(0);
-      setCalendarYear(calendarYear + 1);
-    } else {
-      setCalendarMonth(calendarMonth + 1);
-    }
-  };
-
-  const handleYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setCalendarYear(Number(e.target.value));
-  };
-
-  const handleIncreaseMaxMentees = () => {
-    setMaxMentees(maxMentees + 1);
-  };
-
-  const handleDecreaseMaxMentees = () => {
-    setMaxMentees(Math.max(1, maxMentees - 1));
-  };
-
-  const handleGoToToday = () => {
-    const today = dayjs();
-    setCalendarMonth(today.month());
-    setCalendarYear(today.year());
-    setSelectedDate(today);
-  };
+const MentorDashboard: React.FC = () => {
+  const navigate = useNavigate()
 
   return (
-    <div className="mentor-dashboard-full">
+    <div className="mentor-dashboard-main">
       {/* Header Section */}
       <div className="dashboard-header-section">
         <div className="greeting-section">
-          <h1 className="dashboard-title">Hi Mentor</h1>
-          <p className="dashboard-subtitle">Let's inspire another thousand minds!!</p>
+          <h1 className="dashboard-title">Welcome back, {MOCK_MENTOR.name.split(' ')[1]} 👋</h1>
+          <p className="dashboard-subtitle">Here's what's happening with your mentorship program today.</p>
         </div>
         <div className="header-actions">
-          <Button 
-            className="activity-log-btn" 
-            onClick={() => navigate('/dashboard/mentornotification')}
-          >
-            🔔 Notifications 
-          </Button>
-          <Button 
-            className="activity-log-btn" 
-            onClick={() => navigate('/dashboard/mentoractivelog')}
-          >
-            📊 Activity Log
+          <Button onClick={() => navigate('/dashboard/mentor-selfcontent')}>
+            Add and Change Profile
           </Button>
         </div>
       </div>
 
-      {/* Main Dashboard Grid */}
-      <div className="dashboard-grid">
-        {/* Stats Row (hero + quick stats) */}
-        <div className="stats-section">
-          <MenteeOfMonth mentees={mentees} />
-          <DashboardStats
-            sessionsHeld={stats.sessionsHeld}
-            menteeRequests={stats.menteeRequests}
-            activeMembers={stats.activeMembers}
-            avgRating={stats.avgRating}
-            hoursMentored={stats.hoursMentored}
-            onRequestsClick={() => navigate('/dashboard/mentorshiprequest')}
-            onMembersClick={() => navigate('/dashboard/mentees')}
-          />
+      
+      {/* Stats Grid */}
+      <div className="stats-grid">
+        <div className="stat-card">
+          <div className="stat-icon">👥</div>
+          <div className="stat-content">
+            <h3>Active Mentees</h3>
+            <div className="stat-value">{MOCK_STATS.activeMentees}/{MOCK_MENTOR.maxMentees}</div>
+            <div className="stat-change positive">+3 this month</div>
+          </div>
         </div>
 
-        {/* Main Content Row */}
-        <div className="main-content-row">
-          {/* Left Column - Controls */}
-          <div className="controls-column">
-            <div className="controls-section">
-              <h3 className="section-title">Mentorship Controls</h3>
-              <AvailabilityToggle
-                isAccepting={isAccepting}
-                onToggle={setIsAccepting}
-                isPaused={isPaused}
-                onPauseToggle={setIsPaused}
-              />
-              <MenteeCounter
-                maxMentees={maxMentees}
-                onIncrease={handleIncreaseMaxMentees}
-                onDecrease={handleDecreaseMaxMentees}
-              />
+        <div className="stat-card">
+          <div className="stat-icon">📅</div>
+          <div className="stat-content">
+            <h3>Sessions Held</h3>
+            <div className="stat-value">{MOCK_STATS.sessionsHeld}</div>
+            <div className="stat-change positive">This month</div>
+          </div>
+        </div>
+
+        <div className="stat-card">
+          <div className="stat-icon">⭐</div>
+          <div className="stat-content">
+            <h3>Average Rating</h3>
+            <div className="stat-value">{MOCK_STATS.avgRating}/5.0</div>
+            <div className="stat-change neutral">Excellent</div>
+          </div>
+        </div>
+
+        <div className="stat-card">
+          <div className="stat-icon">⏱️</div>
+          <div className="stat-content">
+            <h3>Hours Mentored</h3>
+            <div className="stat-value">{MOCK_STATS.hoursMentored}h</div>
+            <div className="stat-change positive">+12h this week</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Mentor Profile Details */}
+      <div className="mentor-profile-details">
+        <div className="profile-header">
+          <img src={MOCK_MENTOR.avatar} alt={MOCK_MENTOR.name} className="profile-avatar" />
+          <div className="profile-info">
+            <h2 className="profile-name">{MOCK_MENTOR.name}</h2>
+            <p className="profile-email">{MOCK_MENTOR.email}</p>
+            <div className="availability-badge">
+              <span className={`status-dot ${MOCK_MENTOR.isAvailable ? 'available' : 'unavailable'}`}></span>
+              {MOCK_MENTOR.isAvailable ? 'Available for mentoring' : 'Not available'}
+            </div>
+          </div>
+        </div>
+
+        <div className="profile-content">
+          {/* About Section - Full Width */}
+          <div className="profile-section about-section">
+            <div className="section-icon">📝</div>
+            <div className="section-content">
+              <h3>About Me</h3>
+              <p>{MOCK_MENTOR.bio}</p>
             </div>
           </div>
 
-          {/* Center Column - Calendar */}
-          <div className="calendar-column">
-            <div className="calendar-section">
-              <h3 className="section-title">Calendar</h3>
-              <div className="calendar-widget">
-                <div className="calendar-header">
-                <div className="calendar-nav-row">
-                  <Button 
-                    className="nav-btn" 
-                    onClick={handlePrevMonth}
-                  >
-                    <ChevronLeftIcon className="icon" />
-                  </Button>
-
-                  <div className="calendar-title">
-                    <div className="month-row">{dayjs().month(calendarMonth).format('MMMM')}</div>
-                    <select 
-                      value={calendarYear} 
-                      onChange={handleYearChange}
-                      className="year-select"
-                    >
-                      {Array.from({ length: 10 }, (_, i) => dayjs().year() - 5 + i).map(y => (
-                        <option key={y} value={y}>{y}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <Button className="today-btn" onClick={handleGoToToday}>
-                    Today
-                  </Button>
-
-                  <Button 
-                    className="nav-btn" 
-                    onClick={handleNextMonth}
-                  >
-                    <ChevronRightIcon className="icon" />
-                  </Button>
-                </div>
-                </div>
-
-                <div className="calendar-days-header">
-                  {['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d => (
-                    <div key={d} className="day-label">{d}</div>
+          {/* Specialties and Qualifications - Side by Side */}
+          <div className="profile-grid">
+            <div className="profile-section specialties-section">
+              <div className="section-icon">🌟</div>
+              <div className="section-content">
+                <h3>Specialties</h3>
+                <div className="specialties-chips">
+                  {MOCK_MENTOR.specialties.map((specialty, index) => (
+                    <span key={index} className="specialty-chip">
+                      <span className="chip-icon">✨</span>
+                      {specialty}
+                    </span>
                   ))}
                 </div>
-
-                <div className="calendar-grid">
-                  {weeks.map((week, wi) => week.map((d, di) => (
-                    <div
-                      key={wi + '-' + di}
-                      onClick={() => d && setSelectedDate(dayjs().year(calendarYear).month(calendarMonth).date(d))}
-                      className={`calendar-day ${
-                        d && selectedDate.date() === d && 
-                        selectedDate.month() === calendarMonth && 
-                        selectedDate.year() === calendarYear ? 'selected' : ''
-                      } ${d ? 'clickable' : 'empty'}`}
-                    >
-                      {d || ''}
-                    </div>
-                  )))}
-                </div>
               </div>
+            </div>
 
-              {/* Events Section */}
-              <div className="events-section">
-                <div className="events-header">
-                  <h4>{dayjs(selectedDate).format('MMMM D, YYYY')}</h4>
-                  <PlusIcon className="add-event-icon" />
-                </div>
-                <div className="events-content">
-                  <p>No events scheduled for this date.</p>
-                </div>
+            <div className="profile-section qualifications-section">
+              <div className="section-icon">🎓</div>
+              <div className="section-content">
+                <h3>Qualifications</h3>
+                <ul className="qualifications-list">
+                  {MOCK_MENTOR.qualifications.map((qualification, index) => (
+                    <li key={index}>
+                      <span className="check-icon">✓</span>
+                      {qualification}
+                    </li>
+                  ))}
+                </ul>
               </div>
             </div>
           </div>
-
-          {/* Quick actions moved below main content */}
         </div>
-        {/* Centered Quick Actions Row */}
-        <div className="quick-actions-row">
-          <div className="action-buttons horizontal">
-            <Button 
-              className="action-btn primary"
-              onClick={() => navigate('/dashboard/mentees')}
-            >
-              View All Mentees
-            </Button>
-            <Button 
-              className="action-btn secondary"
-              onClick={() => navigate('/dashboard/mentorshiprequest')}
-            >
-              Review Requests
-            </Button>
-            <Button 
-              className="action-btn tertiary"
-              onClick={() => navigate('/dashboard/groupchat')}
-            >
-              Group Chat
-            </Button>
+      </div>
+
+
+      {/* Main Content Grid */}
+      <div className="dashboard-content-grid">
+        {/* Center Column - Mentees Only */}
+        <div className="center-column">
+          {/* Mentees Section */}
+          <div className="mentees-section">
+            <div className="section-header">
+              <h2>Your Mentees ({MOCK_MENTEES.length})</h2>
+              <button className="btn-link" onClick={() => navigate('/dashboard/mentees')}>View All →</button>
+            </div>
+
+            <div className="mentees-grid">
+              {MOCK_MENTEES.map(mentee => (
+                <div key={mentee.id} className="mentee-card" onClick={() => navigate(`/dashboard/mentees`)}>
+                  <img src={mentee.avatar} alt={mentee.name} className="mentee-avatar" />
+                  <div className="mentee-info">
+                    <h4>{mentee.name}</h4>
+                    <div className="mentee-status-badge">
+                      <span className="status-dot active"></span>
+                      <span className="status-text">{mentee.status}</span>
+                    </div>
+                    <p className="mentee-email">{mentee.email}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default MentorDashboard;
+export default MentorDashboard

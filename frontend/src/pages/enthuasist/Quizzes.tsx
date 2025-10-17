@@ -701,70 +701,101 @@ const Quizzes = () => {
 
   const renderQuizCard = (quiz: quizService.Quiz, isMyQuiz: boolean = false) => (
     <div key={quiz.id} className="quiz-card">
-      <div className="quiz-header">
-        <h3 className="quiz-title">{quiz.name}</h3>
-        <div className="quiz-badges">
-          <span className={`difficulty-badge difficulty-${quiz.level.toLowerCase()}`}>
+      <div className="card-content">
+        <div className="card-header">
+          <h3 className="quiz-title">{quiz.name}</h3>
+          <span className={`level-badge ${quiz.level.toLowerCase()}`}>
             {quiz.level}
           </span>
-          {isMyQuiz && (
-            <span className={`status-badge status-${quiz.status.toLowerCase()}`}>
+        </div>
+        
+        {isMyQuiz && (
+          <div style={{ marginBottom: '0.75rem' }}>
+            <span style={{
+              padding: '0.35rem 0.75rem',
+              borderRadius: '20px',
+              fontSize: '0.7rem',
+              fontWeight: 600,
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              background: quiz.status === 'pending' ? 'rgba(251, 191, 36, 0.2)' : 
+                         quiz.status === 'approved' ? 'rgba(34, 197, 94, 0.2)' : 
+                         quiz.status === 'rejected' ? 'rgba(239, 68, 68, 0.2)' : 
+                         'rgba(107, 114, 128, 0.2)',
+              color: quiz.status === 'pending' ? '#fbbf24' : 
+                    quiz.status === 'approved' ? '#22c55e' : 
+                    quiz.status === 'rejected' ? '#ef4444' : 
+                    '#9ca3af',
+              border: quiz.status === 'pending' ? '1px solid rgba(251, 191, 36, 0.3)' : 
+                     quiz.status === 'approved' ? '1px solid rgba(34, 197, 94, 0.3)' : 
+                     quiz.status === 'rejected' ? '1px solid rgba(239, 68, 68, 0.3)' : 
+                     '1px solid rgba(107, 114, 128, 0.3)',
+              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
+            }}>
               {quiz.status}
             </span>
+          </div>
+        )}
+        
+        <p className="quiz-description">{quiz.description}</p>
+        
+        <div className="quiz-stats">
+          <div className="stat-item">
+            <TimeIcon className="stat-icon" size={16} />
+            <span>{quiz.time_limit} min</span>
+          </div>
+          
+          <div className="stat-item">
+            <QuestionIcon className="stat-icon" size={16} />
+            <span>{quiz.question_count} questions</span>
+          </div>
+          
+          <div className="stat-item">
+            <ParticipantsIcon className="stat-icon" size={16} />
+            <span>{quiz.participants_count} participants</span>
+          </div>
+        </div>
+        
+        <div className="event-actions">
+          {!isMyQuiz ? (
+            <Button
+              onClick={() => handleParticipate(quiz)}
+              variant="primary"
+              size="small"
+              disabled={quiz.hasParticipated}
+            >
+              {quiz.hasParticipated ? 'Completed' : 'Take Quiz'}
+            </Button>
+          ) : (
+            <>
+              {quiz.status === 'pending' && (
+                <span style={{ color: '#fbbf24', fontSize: '0.875rem', marginRight: '0.5rem' }}>
+                  Awaiting Approval
+                </span>
+              )}
+              {quiz.status === 'rejected' && (
+                <span style={{ color: '#ef4444', fontSize: '0.875rem', marginRight: '0.5rem' }}>
+                  Rejected
+                </span>
+              )}
+              <Button
+                onClick={() => handleEditQuiz(quiz)}
+                variant="secondary"
+                size="small"
+                disabled={quiz.status === 'approved'}
+              >
+                Edit
+              </Button>
+              <Button
+                onClick={() => handleDeleteQuiz(quiz.id)}
+                variant="secondary"
+                size="small"
+              >
+                Delete
+              </Button>
+            </>
           )}
         </div>
-      </div>
-
-      <p className="quiz-description">{quiz.description}</p>
-
-      <div className="quiz-stats">
-        <div className="stat">
-          <TimeIcon />
-          <span>{quiz.time_limit} min</span>
-        </div>
-        <div className="stat">
-          <QuestionIcon />
-          <span>{quiz.question_count} questions</span>
-        </div>
-        <div className="stat">
-          <ParticipantsIcon />
-          <span>{quiz.participants_count} participants</span>
-        </div>
-      </div>
-
-      <div className="quiz-footer">
-        <span className="quiz-category">{quiz.category}</span>
-        {isMyQuiz ? (
-          <div className="quiz-actions">
-            {quiz.status === 'pending' && (
-              <span className="text-yellow-400 text-sm mr-2">Awaiting Approval</span>
-            )}
-            {quiz.status === 'rejected' && (
-              <span className="text-red-400 text-sm mr-2">Rejected</span>
-            )}
-            <Button
-              onClick={() => handleEditQuiz(quiz)}
-              className="btn-edit-small"
-              disabled={quiz.status === 'approved'}
-            >
-              Edit
-            </Button>
-            <Button
-              onClick={() => handleDeleteQuiz(quiz.id)}
-              className="btn-delete-small"
-            >
-              Delete
-            </Button>
-          </div>
-        ) : (
-          <Button
-            onClick={() => handleParticipate(quiz)}
-            className="btn-primary-small"
-            disabled={quiz.hasParticipated}
-          >
-            {quiz.hasParticipated ? 'Completed' : 'Take Quiz'}
-          </Button>
-        )}
       </div>
     </div>
   )
@@ -772,227 +803,336 @@ const Quizzes = () => {
   return (
     <div className="quizzes-container">
       <div className="quizzes-header">
-        <h1 className="page-title">Quizzes</h1>
-        <p className="page-description">Test your space knowledge and compete with others!</p>
+        <h1 className="page-title">Space Explorer Quizzes</h1>
+        <p className="page-subtitle">
+          Test your knowledge about space exploration and astronomy with our interactive quizzes.
+        </p>
       </div>
-
-      {/* Tabs */}
-      <div className="tabs">
-        <button
-          className={`tab ${activeTab === 'all' ? 'active' : ''}`}
+      
+      {/* Tab Navigation */}
+      <div className="quizzes-tabs">
+        <Button
           onClick={() => setActiveTab('all')}
+          variant={activeTab === 'all' ? 'primary' : 'secondary'}
         >
           All Quizzes
-        </button>
-        <button
-          className={`tab ${activeTab === 'my' ? 'active' : ''}`}
+        </Button>
+        <Button
           onClick={() => setActiveTab('my')}
+          variant={activeTab === 'my' ? 'primary' : 'secondary'}
         >
           My Quizzes
-        </button>
-        <button
-          className={`tab ${activeTab === 'create' ? 'active' : ''}`}
+        </Button>
+        <Button
           onClick={() => setActiveTab('create')}
+          variant={activeTab === 'create' ? 'primary' : 'secondary'}
         >
           Create Quiz
-        </button>
-        <button
-          className={`tab ${activeTab === 'leaderboard' ? 'active' : ''}`}
+        </Button>
+        <Button
           onClick={() => setActiveTab('leaderboard')}
+          variant={activeTab === 'leaderboard' ? 'primary' : 'secondary'}
         >
           Leaderboard
-        </button>
+        </Button>
       </div>
 
-      {/* Error Message */}
-      {error && (
-        <div className="error-message">
-          {error}
-        </div>
-      )}
+      {/* Tab Content */}
+      {activeTab !== 'create' && activeTab !== 'leaderboard' && (
+        <>
+          {/* Section Title */}
+          <div className="section-header">
+            <h2 className="section-title">
+              {activeTab === 'all' ? 'All Available Quizzes' : 'My Created Quizzes'}
+            </h2>
+          </div>
 
-      {/* Loading */}
-      {loading && activeTab !== 'create' && (
-        <div className="loading-message">
-          Loading...
-        </div>
-      )}
-
-      {/* All Quizzes Tab */}
-      {activeTab === 'all' && !loading && (
-        <div className="quizzes-grid">
-          {allQuizzes.length === 0 ? (
-            <p className="text-gray-400">No quizzes available at the moment.</p>
-          ) : (
-            allQuizzes.map(quiz => renderQuizCard(quiz, false))
+          {/* Error Message */}
+          {error && (
+            <div className="error-message">
+              {error}
+            </div>
           )}
-        </div>
-      )}
 
-      {/* My Quizzes Tab */}
-      {activeTab === 'my' && !loading && (
-        <div className="quizzes-grid">
-          {myQuizzes.length === 0 ? (
-            <p className="text-gray-400">You haven't created any quizzes yet.</p>
-          ) : (
-            myQuizzes.map(quiz => renderQuizCard(quiz, true))
+          {/* Loading */}
+          {loading && (
+            <div className="loading-message">
+              Loading...
+            </div>
           )}
-        </div>
-      )}
 
-      {/* Create Quiz Tab */}
-      {activeTab === 'create' && renderCreateQuizContent()}
-
-      {/* Leaderboard Tab */}
-      {activeTab === 'leaderboard' && !loading && renderLeaderboardContent()}
-
-      {/* Quiz Taking Modal */}
-      {showQuizModal && selectedQuiz && (
-        <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal-content quiz-modal" onClick={(e) => e.stopPropagation()}>
-            {!isQuizStarted ? (
-              // Quiz Introduction
-              <div className="quiz-intro">
-                <h2 className="text-2xl font-bold text-white mb-4">{selectedQuiz.name}</h2>
-                <p className="text-gray-300 mb-6">{selectedQuiz.description}</p>
-
-                <div className="quiz-details">
-                  <div className="detail-item">
-                    <strong>Questions:</strong> {selectedQuiz.question_count}
-                  </div>
-                  <div className="detail-item">
-                    <strong>Time Limit:</strong> {selectedQuiz.time_limit} minutes
-                  </div>
-                  <div className="detail-item">
-                    <strong>Difficulty:</strong> {selectedQuiz.level}
-                  </div>
-                </div>
-
-                <div className="modal-actions mt-6">
-                  <Button onClick={handleStartQuiz} className="btn-primary">
-                    Start Quiz
-                  </Button>
-                  <Button onClick={closeModal} className="btn-secondary">
-                    Cancel
-                  </Button>
-                </div>
+          {/* Quiz Cards Grid */}
+          {!loading && (
+            <>
+              <div className="quiz-grid">
+                {(activeTab === 'all' ? allQuizzes : myQuizzes).map((quiz) => 
+                  renderQuizCard(quiz, activeTab === 'my')
+                )}
               </div>
-            ) : !isQuizCompleted ? (
-              // Quiz Questions
-              <div className="quiz-taking">
-                <div className="quiz-header-info">
-                  <div className="question-progress">
-                    Question {currentQuestionIndex + 1} of {selectedQuiz.questions.length}
-                  </div>
-                  <div className={`timer ${timeRemaining < 60 ? 'warning' : ''}`}>
-                    ⏱ {formatTime(timeRemaining)}
-                  </div>
-                </div>
 
-                <div className="question-section">
-                  <h3 className="question-text">
-                    {selectedQuiz.questions[currentQuestionIndex].question}
-                  </h3>
-
-                  <div className="answers-grid">
-                    {selectedQuiz.questions[currentQuestionIndex].answers.map((answer, index) => (
-                      <button
-                        key={index}
-                        className={`answer-option ${
-                          selectedAnswers[selectedQuiz.questions[currentQuestionIndex].id] === answer
-                            ? 'selected'
-                            : ''
-                        }`}
-                        onClick={() => handleAnswerSelect(answer)}
-                      >
-                        {answer}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="quiz-navigation">
-                  <Button
-                    onClick={handlePreviousQuestion}
-                    disabled={currentQuestionIndex === 0}
-                    className="btn-secondary"
-                  >
-                    Previous
-                  </Button>
-                  <Button
-                    onClick={handleNextQuestion}
-                    className="btn-primary"
-                  >
-                    {currentQuestionIndex === selectedQuiz.questions.length - 1 ? 'Submit' : 'Next'}
-                  </Button>
-                </div>
-              </div>
-            ) : !showReview ? (
-              // Quiz Results
-              <div className="quiz-results">
-                <h2 className="text-2xl font-bold text-white mb-4">Quiz Completed!</h2>
-
-                <div className="results-summary">
-                  <div className={`score-display ${getScoreColor(quizResult!.correct_answers, quizResult!.total_questions)}`}>
-                    {quizResult!.percentage}%
-                  </div>
-                  <p className="text-gray-300 text-lg mb-4">
-                    You got {quizResult!.correct_answers} out of {quizResult!.total_questions} questions correct!
+              {(activeTab === 'all' ? allQuizzes : myQuizzes).length === 0 && (
+                <div className="empty-state">
+                  <svg className="empty-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                  </svg>
+                  <h3 className="empty-title">No quizzes found</h3>
+                  <p className="empty-text">
+                    {activeTab === 'my' ? "You haven't created any quizzes yet." : "No quizzes available at the moment."}
                   </p>
                 </div>
+              )}
+            </>
+          )}
+        </>
+      )}
 
-                <div className="modal-actions">
-                  <Button onClick={handleShowReview} className="btn-primary">
-                    Review Answers
-                  </Button>
-                  <Button onClick={closeModal} className="btn-secondary">
-                    Close
-                  </Button>
+      {activeTab === 'create' && renderCreateQuizContent()}
+
+      {activeTab === 'leaderboard' && (
+        <>
+          {/* Section Title */}
+          <div className="section-header">
+            <h2 className="section-title">Quiz Champions</h2>
+          </div>
+          {!loading && renderLeaderboardContent()}
+          {loading && (
+            <div className="loading-message">
+              Loading...
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Quiz Participation Modal */}
+      {showQuizModal && selectedQuiz && (
+        <div className="quiz-modal-overlay" onClick={!isQuizStarted ? closeModal : undefined}>
+          <div className="quiz-modal" onClick={(e) => e.stopPropagation()}>
+            {!isQuizStarted ? (
+              // Quiz Instructions Modal
+              <>
+                <div className="quiz-modal-header">
+                  <h2>{selectedQuiz.name}</h2>
+                  <button className="close-button" onClick={closeModal}>
+                    ×
+                  </button>
                 </div>
-              </div>
-            ) : (
-              // Answer Review
-              <div className="quiz-review">
-                <h2 className="text-2xl font-bold text-white mb-4">Answer Review</h2>
+                
+                <div className="quiz-modal-body">
+                  <div className="quiz-summary">
+                    <p><strong>Description:</strong> {selectedQuiz.description}</p>
+                    <p><strong>Questions:</strong> {selectedQuiz.question_count}</p>
+                    <p><strong>Time Limit:</strong> {selectedQuiz.time_limit} minutes</p>
+                    <p><strong>Difficulty:</strong> {selectedQuiz.level}</p>
+                    <p><strong>Category:</strong> {selectedQuiz.category}</p>
+                  </div>
 
-                <div className="review-list">
-                  {quizResult!.answers.map((answer, index) => (
-                    <div key={index} className={`review-item ${answer.is_correct ? 'correct' : 'incorrect'}`}>
-                      <div className="review-header">
-                        <span className="question-number">Question {index + 1}</span>
-                        <span className={`result-badge ${answer.is_correct ? 'correct' : 'incorrect'}`}>
-                          {answer.is_correct ? '✓ Correct' : '✗ Incorrect'}
-                        </span>
+                  <div className="quiz-instructions">
+                    <h3>Quiz Instructions</h3>
+                    <ul>
+                      <li>Read each question carefully before selecting your answer</li>
+                      <li>You can navigate back to previous questions using the Previous button</li>
+                      <li>Your quiz will be automatically submitted when time runs out</li>
+                      <li>Make sure to review your answers before final submission</li>
+                      <li>Click "Submit" on the last question to finish the quiz</li>
+                    </ul>
+                  </div>
+
+                  <div className="quiz-actions">
+                    <Button onClick={handleStartQuiz} variant="primary">
+                      Start Quiz
+                    </Button>
+                    <Button onClick={closeModal} variant="secondary">
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              </>
+            ) : (
+              // Quiz Interface
+              <>
+                <div className="quiz-modal-header">
+                  <h2>{selectedQuiz.name}</h2>
+                  {!isQuizCompleted && !showReview && (
+                    <div className="quiz-progress">
+                      <div className="question-progress">
+                        Question {currentQuestionIndex + 1} of {selectedQuiz.questions.length}
                       </div>
-                      <p className="review-question">{answer.question}</p>
-                      <div className="review-answers">
-                        <div className="your-answer">
-                          <strong>Your answer:</strong> {answer.selected_answer || 'No answer'}
-                        </div>
-                        {!answer.is_correct && (
-                          <div className="correct-answer">
-                            <strong>Correct answer:</strong> {answer.correct_answer}
-                          </div>
-                        )}
-                        {answer.explanation && (
-                          <div className="explanation">
-                            <strong>Explanation:</strong> {answer.explanation}
-                          </div>
-                        )}
+                      <div className={`quiz-timer ${timeRemaining < 60 ? 'warning' : ''}`}>
+                        ⏱ {formatTime(timeRemaining)}
                       </div>
                     </div>
-                  ))}
+                  )}
+                  {(isQuizCompleted || showReview) && (
+                    <button className="close-button" onClick={closeModal}>
+                      ×
+                    </button>
+                  )}
                 </div>
 
-                <div className="modal-actions mt-6">
-                  <Button onClick={handleBackToResults} className="btn-secondary">
-                    Back to Results
-                  </Button>
-                  <Button onClick={closeModal} className="btn-primary">
-                    Close
-                  </Button>
+                <div className="quiz-modal-body">
+                  {!isQuizCompleted ? (
+                    <div className="quiz-question-container">
+                      <div className="progress-bar">
+                        <div 
+                          className="progress-fill" 
+                          style={{ width: `${((currentQuestionIndex + 1) / selectedQuiz.questions.length) * 100}%` }}
+                        />
+                      </div>
+
+                      <div className="question-section">
+                        <p className="question-text">
+                          {selectedQuiz.questions[currentQuestionIndex].question}
+                        </p>
+
+                        <div className="options-container">
+                          {selectedQuiz.questions[currentQuestionIndex].answers.map((answer, index) => (
+                            <button
+                              key={index}
+                              className={`option-button ${
+                                selectedAnswers[selectedQuiz.questions[currentQuestionIndex].id] === answer
+                                  ? 'selected'
+                                  : ''
+                              }`}
+                              onClick={() => handleAnswerSelect(answer)}
+                            >
+                              <span className="option-letter">{String.fromCharCode(65 + index)}</span>
+                              <span className="option-text">{answer}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="quiz-navigation">
+                        <Button
+                          onClick={handlePreviousQuestion}
+                          disabled={currentQuestionIndex === 0}
+                          variant="secondary"
+                        >
+                          Previous
+                        </Button>
+                        <Button
+                          onClick={handleNextQuestion}
+                          variant="primary"
+                        >
+                          {currentQuestionIndex === selectedQuiz.questions.length - 1 ? 'Submit' : 'Next'}
+                        </Button>
+                      </div>
+                    </div>
+                  ) : showReview ? (
+                    <div className="quiz-review">
+                      <div className="review-header">
+                        <h3>Answer Review</h3>
+                        <p>Review your answers and learn from explanations</p>
+                      </div>
+
+                      <div className="review-questions">
+                        {quizResult!.answers.map((answer, index) => (
+                          <div key={index} className="review-question">
+                            <div className="review-question-header">
+                              <span className="question-number">Question {index + 1}</span>
+                              <span className={`question-result ${answer.is_correct ? 'correct' : 'incorrect'}`}>
+                                <span className="result-icon">{answer.is_correct ? '✓' : '✗'}</span>
+                                {answer.is_correct ? 'Correct' : 'Incorrect'}
+                              </span>
+                            </div>
+
+                            <div className="review-question-content">
+                              <p className="question-text">{answer.question}</p>
+                            </div>
+
+                            <div className="review-options">
+                              {selectedQuiz.questions[index].answers.map((opt, optIndex) => (
+                                <div
+                                  key={optIndex}
+                                  className={`review-option ${
+                                    opt === answer.correct_answer ? 'correct-answer' : ''
+                                  } ${
+                                    opt === answer.selected_answer && !answer.is_correct ? 'user-wrong-answer' : ''
+                                  } ${
+                                    opt === answer.selected_answer && answer.is_correct ? 'user-selected' : ''
+                                  }`}
+                                >
+                                  <span className="option-letter">{String.fromCharCode(65 + optIndex)}</span>
+                                  <span className="option-text">{opt}</span>
+                                  <div className="option-indicators">
+                                    {opt === answer.correct_answer && (
+                                      <span className="correct-indicator">
+                                        <svg className="indicator-icon" fill="currentColor" viewBox="0 0 20 20">
+                                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                        </svg>
+                                        Correct
+                                      </span>
+                                    )}
+                                    {opt === answer.selected_answer && opt !== answer.correct_answer && (
+                                      <span className="user-indicator">Your Answer</span>
+                                    )}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+
+                            {answer.explanation && (
+                              <div className="explanation-section">
+                                <h5>Explanation</h5>
+                                <p>{answer.explanation}</p>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="review-actions">
+                        <Button onClick={handleBackToResults} variant="secondary">
+                          Back to Results
+                        </Button>
+                        <Button onClick={closeModal} variant="primary">
+                          Close
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="quiz-results">
+                      <div className="results-header">
+                        <h3>Quiz Completed!</h3>
+                        <div className={`final-score ${getScoreColor(quizResult!.correct_answers, quizResult!.total_questions)}`}>
+                          {quizResult!.percentage}%
+                        </div>
+                        <p className="score-percentage">
+                          You got {quizResult!.correct_answers} out of {quizResult!.total_questions} questions correct!
+                        </p>
+                      </div>
+
+                      <div className="results-summary">
+                        <div className="summary-item">
+                          <span>Total Questions:</span>
+                          <strong>{quizResult!.total_questions}</strong>
+                        </div>
+                        <div className="summary-item">
+                          <span>Correct Answers:</span>
+                          <strong className="text-green-400">{quizResult!.correct_answers}</strong>
+                        </div>
+                        <div className="summary-item">
+                          <span>Incorrect Answers:</span>
+                          <strong className="text-red-400">{quizResult!.total_questions - quizResult!.correct_answers}</strong>
+                        </div>
+                        <div className="summary-item">
+                          <span>Your Score:</span>
+                          <strong>{quizResult!.percentage}%</strong>
+                        </div>
+                      </div>
+
+                      <div className="results-actions">
+                        <Button onClick={handleShowReview} variant="primary">
+                          Review Answers
+                        </Button>
+                        <Button onClick={closeModal} variant="secondary">
+                          Close
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </div>
+              </>
             )}
           </div>
         </div>

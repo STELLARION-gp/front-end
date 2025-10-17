@@ -139,7 +139,7 @@ export default function ContentModeration() {
       </header>
 
       {/* Controls */}
-      <div className="controls-section">
+      <div className="controls-section1">
         <div className="search-box">
           <FaSearch className="search-icon" />
           <input

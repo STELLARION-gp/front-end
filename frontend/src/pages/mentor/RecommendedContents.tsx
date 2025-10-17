@@ -1,18 +1,18 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import ContentModal from '../../components/mentor/ContentModal';
 import AddContentModal from '../../components/mentor/AddContentModal';
 import { PlusIcon, PlayIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
 import '../../styles/pages/mentor/recommendedContents.scss';
+import { apiService } from '../../services/api';
 
-interface VideoContent {
+type ApiListResponse<T> = { success: boolean; message: string; data: { items: T[]; pagination?: any } };
+type ApiItemResponse<T> = { success: boolean; message: string; data: T };
+
+interface ContentItem {
   id: number;
-  url: string;
   title: string;
-}
-
-interface DocumentContent {
-  id: number;
-  name: string;
+  description?: string | null;
+  source_type: 'youtube' | 'pdf';
   url: string;
 }
 
@@ -21,36 +21,14 @@ function getYoutubeId(url: string) {
   return match ? match[1] : '';
 }
 
-const initialVideos: VideoContent[] = [
-  {
-    id: 1,
-    url: 'https://www.youtube.com/watch?v=0rHUDWjR5gg',
-    title: 'Introduction to Astronomy',
-  },
-  {
-    id: 2,
-    url: 'https://www.youtube.com/watch?v=L-Wtlev6suc',
-    title: 'Observational Techniques in Astronomy',
-  },
-];
-
-const initialDocs: DocumentContent[] = [
-  {
-    id: 1,
-    name: 'Mentor Handbook.pdf',
-    url: '/docs/mentor-handbook.pdf',
-  },
-  {
-    id: 2,
-    name: 'Session Checklist.docx',
-    url: '/docs/session-checklist.docx',
-  },
-];
+const initialItems: ContentItem[] = [];
 
 const RecommendedContents: React.FC = () => {
-  const [videos, setVideos] = useState<VideoContent[]>(initialVideos);
-  const [docs, setDocs] = useState<DocumentContent[]>(initialDocs);
+  const [items, setItems] = useState<ContentItem[]>(initialItems);
   const [tab, setTab] = useState<'videos' | 'documents'>('videos');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedVideoId, setSelectedVideoId] = useState<string>('');
@@ -61,18 +39,51 @@ const RecommendedContents: React.FC = () => {
     setModalOpen(true);
   };
 
-  const handleAddVideo = (url: string) => {
-    setVideos(vs => [
-      ...vs,
-      { id: Date.now(), url, title: 'New Video' },
-    ]);
+  // fetch items on mount
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = (await apiService.listRecommendedContents()) as unknown as ApiListResponse<ContentItem>;
+        const fetched: ContentItem[] = res?.data?.items || [];
+        if (mounted) setItems(fetched);
+      } catch (e) {
+        console.error('Failed to load recommended contents', e);
+        const msg = e instanceof Error ? e.message : 'Failed to load recommended contents';
+        if (mounted) setError(msg);
+      }
+      if (mounted) setLoading(false);
+    })();
+    return () => { mounted = false; };
+  }, []);
+
+  const videos = useMemo(() => items.filter(i => i.source_type === 'youtube'), [items]);
+  const docs = useMemo(() => items.filter(i => i.source_type === 'pdf'), [items]);
+
+  const handleAddVideo = async (data: { url: string; title: string; description?: string }) => {
+    try {
+      setActionError(null);
+      const res = (await apiService.createRecommendedYouTube({ title: data.title, url: data.url, description: data.description })) as unknown as ApiItemResponse<ContentItem>;
+      const created: ContentItem | undefined = res?.data;
+      if (created) setItems(prev => [created, ...prev]);
+    } catch (e) {
+      console.error('Failed to add YouTube content', e);
+      setActionError(e instanceof Error ? e.message : 'Failed to add YouTube content');
+    }
   };
 
-  const handleAddDocument = (file: File) => {
-    setDocs(ds => [
-      ...ds,
-      { id: Date.now(), name: file.name, url: URL.createObjectURL(file) },
-    ]);
+  const handleAddDocument = async (data: { file: File; title: string; description?: string }) => {
+    try {
+      setActionError(null);
+      const res = (await apiService.uploadRecommendedPdf(data.file, data.title, data.description)) as unknown as ApiItemResponse<ContentItem>;
+      const created: ContentItem | undefined = res?.data;
+      if (created) setItems(prev => [created, ...prev]);
+    } catch (e) {
+      console.error('Failed to upload PDF', e);
+      setActionError(e instanceof Error ? e.message : 'Failed to upload PDF');
+    }
   };
 
   return (
@@ -87,6 +98,16 @@ const RecommendedContents: React.FC = () => {
           Add Content
         </button>
       </div>
+      {error && (
+        <div className="bg-red-50 text-red-700 border border-red-200 rounded p-2 mb-3">
+          {error}
+        </div>
+      )}
+      {actionError && (
+        <div className="bg-yellow-50 text-yellow-700 border border-yellow-200 rounded p-2 mb-3">
+          {actionError}
+        </div>
+      )}
       <div className="recommended-contents-tabs">
         <button
           className={`tab-btn${tab === 'videos' ? ' active' : ''}`}
@@ -102,6 +123,9 @@ const RecommendedContents: React.FC = () => {
         </button>
       </div>
       <div className="recommended-contents-tabpanel">
+        {loading && (
+          <div className="text-gray-400 text-sm mb-2">Loading...</div>
+        )}
         {tab === 'videos' ? (
           <div className="video-list">
             {videos.map(video => (
@@ -133,7 +157,7 @@ const RecommendedContents: React.FC = () => {
                 className="doc-link"
               >
                 <DocumentTextIcon className="doc-icon" />
-                <span className="doc-title">{doc.name}</span>
+                <span className="doc-title">{doc.title}</span>
               </a>
             ))}
           </div>

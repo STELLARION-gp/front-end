@@ -182,17 +182,35 @@ class ApiService {
     );
     console.log("🤖 ApiService: Context:", context);
 
-    const result = await this.makeRequest("/chatbot", {
-      method: "POST",
-      body: JSON.stringify({
-        message,
-        context,
-        conversationId,
-      }),
-    });
+    try {
+      const result = await this.makeRequest("/chatbot/chat", {
+        method: "POST",
+        body: JSON.stringify({
+          message,
+          context,
+          conversationId,
+        }),
+      });
 
-    console.log("🤖 ApiService: Chat response received:", result);
-    return result;
+      console.log("🤖 ApiService: Chat response received:", result);
+      return result;
+    } catch (error) {
+      console.error("🤖 ApiService: Chat request failed:", error);
+      // Re-throw with more context
+      if (error instanceof Error) {
+        // Check for limit reached error
+        if (
+          error.message.includes("403") ||
+          error.message.includes("Daily chatbot question limit reached")
+        ) {
+          throw new Error(
+            "Daily chatbot question limit reached. Upgrade your plan for unlimited access!"
+          );
+        }
+        throw error;
+      }
+      throw new Error("Failed to send chat message");
+    }
   }
 
   // Chatbot health check
@@ -231,6 +249,58 @@ class ApiService {
         throw new Error(text || `Upload failed (${response.status})`);
       }
       return response.json(); // expected { file: {...} }
+    };
+
+    return doUpload(false);
+  }
+
+  /* ============== Mentor Recommended Contents ============== */
+  /**
+   * List mentor's recommended contents
+   * Returns wrapper: { success, message, data: { items, pagination }, meta }
+   */
+  async listRecommendedContents(page = 1, limit = 20) {
+    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+    return this.makeRequest(`/mentors/recommended-contents?${params.toString()}`);
+  }
+
+  /** Create a YouTube recommended content item */
+  async createRecommendedYouTube(input: { title: string; url: string; description?: string }) {
+    return this.makeRequest('/mentors/recommended-contents/youtube', {
+      method: 'POST',
+      body: JSON.stringify(input)
+    });
+  }
+
+  /** Upload a PDF as recommended content (multipart form-data: file, title, description?) */
+  async uploadRecommendedPdf(file: File, title: string, description?: string) {
+    if (file.type !== 'application/pdf') {
+      throw new Error('Only PDF files are allowed');
+    }
+    const token = await this.getAuthToken();
+    if (!token) throw new Error('Not authenticated');
+    const form = new FormData();
+    form.append('file', file);
+    form.append('title', title);
+    if (description) form.append('description', description);
+
+    const doUpload = async (forceRefresh = false) => {
+      const authToken = forceRefresh ? await this.getAuthToken(true) : token;
+      const response = await fetch(`${API_BASE_URL}/mentors/recommended-contents/pdf`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${authToken}`
+        },
+        body: form
+      });
+      if (response.status === 401 && !forceRefresh) {
+        return doUpload(true);
+      }
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || `Upload failed (${response.status})`);
+      }
+      return response.json();
     };
 
     return doUpload(false);

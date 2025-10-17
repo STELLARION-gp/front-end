@@ -23,6 +23,11 @@ export const useChatbot = (config?: ChatbotAPIConfig) => {
   ]);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Debug: Log initial state
+  useEffect(() => {
+    console.log("🤖 [INIT] useChatbot initialized, isLoading:", false);
+  }, []);
+
   // Use provided config or get from environment
   const chatbotConfig = config || getChatbotConfig();
 
@@ -137,23 +142,25 @@ export const useChatbot = (config?: ChatbotAPIConfig) => {
         console.log("🔑 Current user:", currentUser.email);
 
         // Use apiService which automatically handles Firebase authentication
-        const response = (await apiService.sendChatMessage(
+        const response = await apiService.sendChatMessage(
           userMessage,
           "space_exploration_assistant"
-        )) as any;
+        );
 
         console.log("🤖 Backend response data:", response);
 
         // Handle response from apiService
-        if (response.success === false) {
+        if ((response as { success?: boolean }).success === false) {
           throw new Error(
-            response.error || response.message || "Backend returned an error"
+            (response as { error?: string; message?: string }).error ||
+              (response as { error?: string; message?: string }).message ||
+              "Backend returned an error"
           );
         }
 
         return (
-          response.response ||
-          response.message ||
+          (response as { response?: string }).response ||
+          (response as { message?: string }).message ||
           "Sorry, I couldn't generate a response."
         );
       } catch (backendError) {
@@ -170,6 +177,8 @@ export const useChatbot = (config?: ChatbotAPIConfig) => {
     async (userMessage: string) => {
       if (!userMessage.trim() || isLoading) return;
 
+      console.log("🤖 [SEND] Starting message send, isLoading:", isLoading);
+
       const newUserMessage: ChatMessage = {
         id: generateMessageId(),
         text: userMessage.trim(),
@@ -179,11 +188,22 @@ export const useChatbot = (config?: ChatbotAPIConfig) => {
 
       setMessages((prev) => [...prev, newUserMessage]);
       setIsLoading(true);
+      console.log("🤖 [SEND] Set isLoading to TRUE");
 
-      // Add typing indicator
+      // Add typing indicator with dynamic messages
+      const typingMessages = [
+        "STELLA is analyzing your question...",
+        "Searching the cosmos for answers...",
+        "Consulting the stellar database...",
+        "Processing your space inquiry...",
+        "STELLA is thinking...",
+      ];
+      const randomTypingMessage =
+        typingMessages[Math.floor(Math.random() * typingMessages.length)];
+
       const typingMessage: ChatMessage = {
         id: "typing",
-        text: "AstroBot is thinking...",
+        text: randomTypingMessage,
         sender: "bot",
         timestamp: new Date(),
         isTyping: true,
@@ -240,8 +260,7 @@ export const useChatbot = (config?: ChatbotAPIConfig) => {
             errorMessage.includes("Daily chatbot question limit reached")
           ) {
             botResponse =
-              "📊 You've reached your daily chatbot limit. Consider upgrading your plan for unlimited access! Here's a basic response: " +
-              getRuleBasedResponse(userMessage);
+              "📊 **Daily Limit Reached!** 🚀\n\nYou've used all 3 of your daily chatbot questions as a Starseeker member. Your limit will reset tomorrow.\n\n💡 Want unlimited chatbot access? Upgrade to Galaxy Explorer or Cosmic Voyager!\n\n🔗 Visit Subscription Plans to upgrade.";
           } else {
             botResponse = getRuleBasedResponse(userMessage);
           }
@@ -265,21 +284,45 @@ export const useChatbot = (config?: ChatbotAPIConfig) => {
           ];
         });
       } catch (error) {
-        console.error("Error getting bot response:", error);
-        setMessages((prev) => {
-          const filtered = prev.filter((msg) => msg.id !== "typing");
-          return [
-            ...filtered,
-            {
-              id: generateMessageId(),
-              text: "Sorry, I encountered an error. Please try again later.",
-              sender: "bot",
-              timestamp: new Date(),
-            },
-          ];
-        });
+        console.error("🤖 [ERROR] Error getting bot response:", error);
+
+        // Remove typing indicator
+        setMessages((prev) => prev.filter((msg) => msg.id !== "typing"));
+
+        // Add error message
+        const errorMessage =
+          error instanceof Error ? error.message : String(error);
+        let userFriendlyMessage =
+          "Sorry, I encountered an error. Please try again later.";
+
+        // Provide specific error messages
+        if (errorMessage.includes("Daily chatbot question limit reached")) {
+          userFriendlyMessage =
+            "📊 **Daily Limit Reached!** 🚀\n\nYou've used all 3 of your daily chatbot questions as a Starseeker member. Your limit will reset tomorrow.\n\n💡 Want unlimited chatbot access? Upgrade to Galaxy Explorer or Cosmic Voyager!";
+        } else if (errorMessage.includes("Authentication")) {
+          userFriendlyMessage =
+            "🔐 Authentication required. Please sign in to use the chatbot.";
+        } else if (
+          errorMessage.includes("Network") ||
+          errorMessage.includes("Failed to fetch")
+        ) {
+          userFriendlyMessage =
+            "🌐 Network error. Please check your connection and try again.";
+        }
+
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: generateMessageId(),
+            text: userFriendlyMessage,
+            sender: "bot",
+            timestamp: new Date(),
+          },
+        ]);
       } finally {
+        console.log("🤖 [SEND] Setting isLoading to FALSE in finally block");
         setIsLoading(false);
+        console.log("🤖 [SEND] Message send complete");
       }
     },
     [

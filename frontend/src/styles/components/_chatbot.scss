@@ -44,7 +44,6 @@
 }
 
 @keyframes pulse {
-
   0%,
   100% {
     opacity: 1;
@@ -265,9 +264,10 @@
     align-items: flex-start;
 
     .message-content {
-      background: $theme4;
-      color: $theme1;
+      background: linear-gradient(135deg, $theme2 0%, darken($theme2, 5%) 100%);
+      color: $text-light;
       border-radius: 18px 18px 18px 4px;
+      border: 1px solid rgba($theme3, 0.2);
     }
   }
 
@@ -306,46 +306,123 @@
 .typing-indicator {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
+  padding: 8px 12px;
+  position: relative;
+  overflow: hidden; // Prevent overflow
+  max-width: 100%; // Stay within container
 
   .typing-dots {
     display: flex;
-    gap: 4px;
+    gap: 6px;
+    position: relative;
+    flex-shrink: 0; // Prevent dots from shrinking
 
-    span {
-      width: 6px;
-      height: 6px;
-      background: #9ca3af;
+    .dot {
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
-      animation: typingBounce 1.4s ease-in-out infinite both;
+      background: linear-gradient(135deg, $theme3, $accent-color);
+      animation: modernTypingBounce 1.4s infinite ease-in-out;
+      box-shadow: 0 2px 8px rgba($theme3, 0.4);
 
       &:nth-child(1) {
-        animation-delay: -0.32s;
+        animation-delay: 0s;
       }
 
       &:nth-child(2) {
-        animation-delay: -0.16s;
+        animation-delay: 0.2s;
+        background: $accent-color;
       }
 
       &:nth-child(3) {
-        animation-delay: 0s;
+        animation-delay: 0.4s;
       }
     }
   }
-}
 
-@keyframes typingBounce {
-
-  0%,
-  80%,
-  100% {
-    transform: scale(0);
-    opacity: 0.5;
+  .typing-text {
+    font-size: 14px;
+    color: $text-light;
+    opacity: 0.9;
+    animation: fadeInOut 2s ease-in-out infinite;
+    font-style: italic;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; // Handle long text gracefully
+    flex: 1; // Take remaining space
   }
 
-  40% {
-    transform: scale(1);
+  // Add a shimmer effect background
+  &::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.1) 50%,
+      transparent 100%
+    );
+    animation: shimmer 2s infinite;
+    pointer-events: none;
+    border-radius: 18px;
+    z-index: 0; // Behind content
+  }
+
+  // Ensure content is above shimmer
+  .typing-dots,
+  .typing-text {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+@keyframes modernTypingBounce {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 0.7;
+  }
+
+  30% {
+    transform: translateY(-6px) scale(1.05);
     opacity: 1;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes fadeInOut {
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes subtlePulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.95;
+    transform: scale(0.99);
   }
 }
 
@@ -366,7 +443,7 @@
     font-size: 14px;
     outline: none;
     transition: border-color 0.2s;
-    color:black;
+    color: black;
 
     &:focus {
       border-color: #6366f1;
@@ -406,6 +483,11 @@
       background: $theme5;
       color: $theme2;
       transform: scale(1.05);
+    }
+
+    &.loading {
+      background: linear-gradient(135deg, $theme4, $theme5);
+      animation: buttonPulse 1.5s ease-in-out infinite;
     }
 
     &:disabled {

@@ -126,7 +126,7 @@ const Stargazing: React.FC = () => {
     description: '',
     image: '',
     facilities: [''],
-    rating: 0
+    rating: undefined as number | undefined
   });
 
   // NEW: Image upload state
@@ -369,7 +369,7 @@ const Stargazing: React.FC = () => {
           best_time: addSpotForm.bestTime.trim() || undefined,
           image_url: addSpotForm.image.trim() || undefined,
           facilities: addSpotForm.facilities.filter(f => f.trim()),
-          rating: addSpotForm.rating > 0 ? addSpotForm.rating : undefined,
+          rating: (addSpotForm.rating && addSpotForm.rating > 0) ? addSpotForm.rating : undefined,
           images: selectedImages  // Add selected images
         };
 
@@ -384,7 +384,7 @@ const Stargazing: React.FC = () => {
             description: '',
             image: '',
             facilities: [''],
-            rating: 0
+            rating: undefined
           });
           setSelectedImages([]);
           setImagePreviews([]);
@@ -416,7 +416,7 @@ const Stargazing: React.FC = () => {
       description: '',
       image: '',
       facilities: [''],
-      rating: 0
+      rating: undefined
     });
     setSelectedImages([]);
     setImagePreviews([]);
@@ -859,7 +859,7 @@ const Stargazing: React.FC = () => {
               {/* Add rating input */}
               <div className="add-spot-form__row">
                 <div className="add-spot-form__group">
-                  <label htmlFor="spotRating">Rating (0-5)</label>
+                  <label htmlFor="spotRating">Rating (0-5, optional)</label>
                   <input
                     type="number"
                     id="spotRating"
@@ -868,14 +868,16 @@ const Stargazing: React.FC = () => {
                     step={0.1}
                     value={addSpotForm.rating ?? ''}
                     onChange={e => {
-                      let val = parseFloat(e.target.value);
-                      if (isNaN(val)) val = 0;
+                      const val = e.target.value === '' ? undefined : parseFloat(e.target.value);
+                      if (val !== undefined && (isNaN(val) || val < 0 || val > 5)) {
+                        return; // Don't update if invalid
+                      }
                       setAddSpotForm(prev => ({
                         ...prev,
                         rating: val
                       }));
                     }}
-                    placeholder="e.g., 4.5"
+                    placeholder="Leave empty for default rating"
                   />
                 </div>
               </div>

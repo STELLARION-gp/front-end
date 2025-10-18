@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Button from '../../components/Button';
 import stargazingSpotService from '../../services/stargazingSpotService.ts';
 import { AuthContext } from '../../contexts/AuthContext';
@@ -97,6 +98,7 @@ const Stargazing: React.FC = () => {
   // Get authentication context
   const authContext = useContext(AuthContext);
   const user = authContext?.user;
+  const navigate = useNavigate();
   
   // State for stargazing spots data
   const [stargazingSpots, setStargazingSpots] = useState<StargazingSpot[]>([]);
@@ -164,7 +166,7 @@ const Stargazing: React.FC = () => {
       
       const apiFilters: StargazingSpotFilters = {
         limit: 50, // Get more spots for the initial load
-        sort_by: 'rating',
+        sort_by: 'created_at',
         sort_order: 'desc'
       };
       
@@ -175,7 +177,9 @@ const Stargazing: React.FC = () => {
       const response = await stargazingSpotService.getAllStargazingSpots(apiFilters);
       
       if (response.success && response.data) {
-        const transformedSpots = response.data.map(transformApiSpotToFrontend);
+        // Filter to show only approved spots
+        const approvedSpots = response.data.filter(spot => spot.status === 'approved');
+        const transformedSpots = approvedSpots.map(transformApiSpotToFrontend);
         setStargazingSpots(transformedSpots);
       } else {
         setError('Failed to fetch stargazing spots');
@@ -602,7 +606,7 @@ const Stargazing: React.FC = () => {
 
                 <div className="stargazing-card__actions">
                   <Button
-                    onClick={() => handleViewDetails(spot)}
+                    onClick={() => navigate(`/dashboard/enthusiast/stargazing/${spot.id}`)}
                     className="stargazing-card__view-button"
                   >
                     View Details

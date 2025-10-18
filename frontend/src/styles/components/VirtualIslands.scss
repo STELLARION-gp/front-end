@@ -1,0 +1,301 @@
+// Virtual Islands Section - Split Layout with Dividing Lines
+.virtual-islands-section {
+  width: 100%;
+  padding: 80px 20px;
+  background: linear-gradient(135deg, #1a0033 0%, #0a0015 100%);
+  position: relative;
+  overflow: hidden;
+
+  .islands-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 2px 1fr 2px 1fr;
+    gap: 40px;
+    align-items: start;
+
+    @media (max-width: 1024px) {
+      grid-template-columns: 1fr 2px 1fr;
+      
+      .virtual-island:last-child {
+        grid-column: 1 / -1;
+        margin-top: 40px;
+      }
+
+      .island-divider:last-of-type {
+        display: none;
+      }
+    }
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      gap: 40px;
+      
+      .island-divider {
+        display: none;
+      }
+
+      .virtual-island:last-child {
+        margin-top: 0;
+      }
+    }
+  }
+
+  .island-divider {
+    width: 2px;
+    min-height: 400px;
+    background: linear-gradient(
+      to bottom,
+      transparent 0%,
+      rgba(138, 99, 210, 0.5) 10%,
+      rgba(138, 99, 210, 0.8) 50%,
+      rgba(138, 99, 210, 0.5) 90%,
+      transparent 100%
+    );
+    position: relative;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 8px;
+      height: 8px;
+      background: rgba(138, 99, 210, 1);
+      border-radius: 50%;
+      box-shadow: 0 0 20px rgba(138, 99, 210, 0.8);
+      animation: pulse 2s ease-in-out infinite;
+    }
+  }
+
+  .virtual-island {
+    position: relative;
+    min-height: 500px;
+
+    .island-content {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .island-title {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin: 0;
+      text-align: center;
+    }
+
+    .island-cta {
+      padding: 12px 32px;
+      background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+      border: none;
+      border-radius: 12px;
+      color: white;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: auto;
+      align-self: center;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(139, 92, 246, 0.4);
+      }
+
+      &:active {
+        transform: translateY(0);
+      }
+    }
+
+    .loading-state {
+      padding: 40px;
+      text-align: center;
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 1rem;
+    }
+  }
+
+  // Stargazing Island Specific Styles
+  .stargazing-island {
+    position: relative;
+    cursor: crosshair;
+
+    .trail-image {
+      position: absolute;
+      width: 120px;
+      height: 120px;
+      background-size: cover;
+      background-position: center;
+      border-radius: 12px;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      z-index: 10;
+    }
+
+    .spots-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+
+      @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .spot-card {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      cursor: pointer;
+
+      &:hover {
+        transform: translateY(-4px);
+        border-color: rgba(138, 99, 210, 0.5);
+        box-shadow: 0 8px 32px rgba(138, 99, 210, 0.3);
+      }
+
+      .spot-image {
+        width: 100%;
+        height: 140px;
+        background-size: cover;
+        background-position: center;
+        background-color: rgba(0, 0, 0, 0.3);
+      }
+
+      .spot-info {
+        padding: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+
+        h3 {
+          font-size: 1rem;
+          font-weight: 600;
+          color: #fff;
+          margin: 0;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .spot-meta {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          font-size: 0.875rem;
+
+          .spot-rating {
+            color: #fbbf24;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+          }
+
+          .spot-location {
+            color: rgba(255, 255, 255, 0.6);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+        }
+      }
+    }
+  }
+
+  // Blogs Island Specific Styles
+  .blogs-island {
+    .blogs-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .blog-card {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 16px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+
+      &:hover {
+        border-color: rgba(138, 99, 210, 0.5);
+        transform: translateX(4px);
+        box-shadow: 0 4px 16px rgba(138, 99, 210, 0.2);
+      }
+
+      .blog-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #fff;
+        margin: 0 0 8px 0;
+      }
+
+      .blog-author {
+        font-size: 0.875rem;
+        color: rgba(255, 255, 255, 0.6);
+      }
+    }
+  }
+
+  // Events Island Specific Styles
+  .events-island {
+    .events-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .event-card {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 16px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+
+      &:hover {
+        border-color: rgba(138, 99, 210, 0.5);
+        transform: translateX(4px);
+        box-shadow: 0 4px 16px rgba(138, 99, 210, 0.2);
+      }
+
+      .event-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #fff;
+        margin: 0 0 8px 0;
+      }
+
+      .event-date {
+        font-size: 0.875rem;
+        color: rgba(138, 99, 210, 1);
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+}

@@ -5,6 +5,7 @@ import { stargazingSpotService } from '../../services/stargazingSpotService';
 import type { StargazingSpot } from '../../services/stargazingSpotService';
 import { blogService, type Blog } from '../../services/blogService';
 import { listEvents, mapBackendEvent, type PlatformEventMapped } from '../../services/eventsService';
+import TrueFocus from '../TrueFocus';
 
 const StargazingIsland: React.FC = () => {
   const [spots, setSpots] = useState<StargazingSpot[]>([]);
@@ -28,7 +29,9 @@ const StargazingIsland: React.FC = () => {
   return (
     <div className="virtual-island stargazing-island">
       <div className="island-content">
-        <h2 className="island-title">Spots</h2>
+        <h2 className="island-title">
+          <TrueFocus sentence="Stargazing Spots" manualMode={false} blurAmount={4} animationDuration={0.8} pauseBetweenAnimations={1.5} />
+        </h2>
         
         {loading ? (
           <div className="loading-state">Loading...</div>
@@ -127,7 +130,9 @@ const BlogsIsland: React.FC = () => {
   return (
     <div className="virtual-island blogs-island">
       <div className="island-content">
-        <h2 className="island-title">Blogs</h2>
+        <h2 className="island-title">
+          <TrueFocus sentence="Featured Blogs" manualMode={false} blurAmount={4} animationDuration={0.8} pauseBetweenAnimations={1.5} />
+        </h2>
         
         {loading ? (
           <div className="loading-state">Loading...</div>
@@ -143,7 +148,7 @@ const BlogsIsland: React.FC = () => {
               >
                 {blog.image_url && (
                   <div 
-                    className="blog-image" 
+                    className="blog-image_1" 
                     style={{ backgroundImage: `url(${blog.image_url})` }}
                   ></div>
                 )}
@@ -181,19 +186,45 @@ const EventsIsland: React.FC = () => {
       try {
         console.log('Fetching events...');
         const response = await listEvents();
-        console.log('Events response:', response);
+        console.log('Events raw response:', response);
+        console.log('Response type:', typeof response);
+        console.log('Response keys:', response ? Object.keys(response) : 'null');
+        
+        // Handle different response structures
+        let eventsData: any[] = [];
+        if (response && response.events) {
+          console.log('Using response.events, length:', response.events.length);
+          eventsData = response.events;
+        } else if (response && response.data) {
+          console.log('Using response.data, length:', response.data.length);
+          eventsData = response.data;
+        } else if (Array.isArray(response)) {
+          console.log('Response is array, length:', response.length);
+          eventsData = response;
+        } else {
+          console.log('Unknown response structure');
+        }
+        
+        console.log('Events data before mapping:', eventsData);
         
         // Map backend events to frontend format
-        const eventsData = (response.data || response.events || [])
-          .map(mapBackendEvent)
-          .filter((event: PlatformEventMapped) => event.status === 'approved')
-          .slice(0, 4);
+        const mappedEvents = eventsData.map(mapBackendEvent);
+        console.log('Mapped events:', mappedEvents);
         
-        console.log('Processed events:', eventsData);
-        setEvents(eventsData);
+        // Filter approved events
+        const approvedEvents = mappedEvents.filter((event: PlatformEventMapped) => {
+          console.log(`Event ${event.id} status:`, event.status);
+          return event.status === 'approved';
+        });
+        console.log('Approved events:', approvedEvents);
+        
+        // Take first 4
+        const processedEvents = approvedEvents.slice(0, 4);
+        console.log('Final processed events:', processedEvents);
+        
+        setEvents(processedEvents);
       } catch (error) {
         console.error('Error fetching events:', error);
-        // Set empty array on error
         setEvents([]);
       } finally {
         setLoading(false);
@@ -205,12 +236,14 @@ const EventsIsland: React.FC = () => {
   return (
     <div className="virtual-island events-island">
       <div className="island-content">
-        <h2 className="island-title">Events</h2>
+        <h2 className="island-title">
+          <TrueFocus sentence="Upcoming Events" manualMode={false} blurAmount={4} animationDuration={0.8} pauseBetweenAnimations={1.5} />
+        </h2>
         
         {loading ? (
-          <div className="loading-state">Loading...</div>
+          <div className="loading-state">Loading events...</div>
         ) : events.length === 0 ? (
-          <div className="loading-state">No events available</div>
+          <div className="loading-state">No approved events available at the moment</div>
         ) : (
           <div className="events-list">
             {events.map((event) => (

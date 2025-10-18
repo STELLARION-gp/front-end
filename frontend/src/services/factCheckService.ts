@@ -144,16 +144,21 @@ class FactCheckService {
       });
 
       console.log('🔍 Calling Google Fact Check API for claim:', claim.substring(0, 100));
+      console.log('🌐 API URL:', `${this.GOOGLE_FACT_CHECK_API}?${params.toString()}`);
       const response = await fetch(`${this.GOOGLE_FACT_CHECK_API}?${params}`);
+      
+      console.log('📡 Response status:', response.status, response.statusText);
       
       if (!response.ok) {
         const errorText = await response.text();
-        console.error(`Google Fact Check API error: ${response.status}`, errorText);
+        console.error(`❌ Google Fact Check API error: ${response.status}`, errorText);
+        console.error('Response body:', errorText);
         throw new Error(`Google Fact Check API error: ${response.status}`);
       }
 
       const data = await response.json();
-      console.log('✅ Google API Response:', data);
+      console.log('✅ Google API Response:', JSON.stringify(data, null, 2));
+      console.log('📊 Claims in response:', data.claims?.length || 0);
 
       if (data.claims && data.claims.length > 0) {
         const factCheck = data.claims[0];
@@ -220,7 +225,8 @@ class FactCheckService {
     }
 
     try {
-      const searchQuery = `${claim} fact check OR verify OR truth`;
+      // More targeted search query for fact-checking
+      const searchQuery = `"${claim.substring(0, 100)}" site:(snopes.com OR factcheck.org OR politifact.com OR reuters.com OR apnews.com OR bbc.com OR fullfact.org)`;
       const params = new URLSearchParams({
         key: this.GOOGLE_CUSTOM_SEARCH_API_KEY,
         cx: this.GOOGLE_CUSTOM_SEARCH_ENGINE_ID,
@@ -229,6 +235,7 @@ class FactCheckService {
       });
 
       console.log('🔎 Calling Custom Search API for claim:', claim.substring(0, 100));
+      console.log('🔍 Search query:', searchQuery);
       const response = await fetch(`https://www.googleapis.com/customsearch/v1?${params}`);
       
       if (!response.ok) {
@@ -331,20 +338,28 @@ class FactCheckService {
    * Analyze blog content and generate fact check report
    */
   async checkBlogContent(content: string, title?: string): Promise<FactCheckReport> {
-    console.log('🚀 Starting fact check analysis...');
+    console.log('🚀 ===== FACT CHECK ANALYSIS START =====');
     console.log('📝 Content length:', content.length, 'characters');
+    console.log('📰 Title:', title || 'No title');
     console.log('🔑 API Key configured:', !!this.GOOGLE_API_KEY);
+    console.log('🔑 API Key value:', this.GOOGLE_API_KEY ? `${this.GOOGLE_API_KEY.substring(0, 10)}...` : 'NOT SET');
     console.log('🔍 Custom Search configured:', !!this.GOOGLE_CUSTOM_SEARCH_API_KEY);
+    console.log('📄 First 200 chars of content:', content.substring(0, 200));
     
     const fullText = title ? `${title}. ${content}` : content;
     
     // Extract potential claims
-    console.log('🔎 Extracting claims from content...');
+    console.log('\n🔎 Extracting claims from content...');
     const extractedClaims = this.extractClaims(fullText);
     console.log('📊 Found', extractedClaims.length, 'potential claims');
     
     if (extractedClaims.length > 0) {
-      console.log('Claims extracted:', extractedClaims.map(c => c.substring(0, 80) + '...'));
+      console.log('\n📋 Extracted Claims:');
+      extractedClaims.forEach((claim, i) => {
+        console.log(`  ${i + 1}. ${claim.substring(0, 100)}${claim.length > 100 ? '...' : ''}`);
+      });
+    } else {
+      console.log('⚠️ NO CLAIMS EXTRACTED - Check content format');
     }
     
     if (extractedClaims.length === 0) {
@@ -382,18 +397,53 @@ class FactCheckService {
         result = await this.verifyClaimWithWebSearch(claim);
       }
       
-      // If still no result, score with ClaimBuster
+      // If still no result, use improved heuristic scoring instead of ClaimBuster
       if (!result) {
-        console.log('⏭️ No web results, using ClaimBuster scoring...');
-        const claimScore = await this.scoreClaimWithClaimBuster(claim);
+        console.log('⏭️ No web results, using heuristic scoring...');
+        
+        // Analyze claim characteristics for confidence scoring
+        const hasSpecificNumbers = /\d+([,.]\d+)?/.test(claim);
+        const hasDateReference = /(20\d{2}|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|\d{4})/i.test(claim);
+        const hasCitations = /(according to|research|study|report|data|source)/i.test(claim);
+        const hasAuthority = /(NASA|scientist|doctor|expert|professor|engineer)/i.test(claim);
+        const isOpinion = /(believe|think|feel|opinion|seems|appears|probably|might|could)/i.test(claim);
+        const hasAbsolutes = /(always|never|all|none|every|impossible|definitely)/i.test(claim);
+        
+        // Calculate confidence score based on claim characteristics
+        let confidence = 50; // Base neutral score
+        
+        if (hasCitations) confidence += 15; // Has source references
+        if (hasSpecificNumbers) confidence += 10; // Specific data
+        if (hasDateReference) confidence += 5; // Timely information
+        if (hasAuthority) confidence += 10; // Authority figures mentioned
+        if (isOpinion) confidence -= 20; // Opinion-based, lower confidence
+        if (hasAbsolutes) confidence -= 15; // Absolute claims are harder to verify
+        
+        // Claim length considerations
+        if (claim.length < 50) confidence -= 10; // Too short, likely fragment
+        if (claim.length > 250) confidence -= 5; // Too long, likely complex
+        
+        confidence = Math.max(20, Math.min(80, confidence)); // Clamp between 20-80
+        
+        console.log('📊 Heuristic analysis:');
+        console.log('  - Has citations:', hasCitations);
+        console.log('  - Has numbers:', hasSpecificNumbers);
+        console.log('  - Has dates:', hasDateReference);
+        console.log('  - Has authority:', hasAuthority);
+        console.log('  - Is opinion:', isOpinion);
+        console.log('  - Has absolutes:', hasAbsolutes);
+        console.log('  - Confidence:', confidence);
+        
         result = {
           claim,
           rating: 'unverified',
-          confidence: Math.round(claimScore * 100),
+          confidence,
           sources: [],
-          explanation: claimScore > 0.7 
-            ? 'High claim-worthiness detected - requires fact-checking'
-            : 'Low claim-worthiness - likely opinion or general statement',
+          explanation: confidence > 60 
+            ? 'Claim appears well-sourced but requires independent verification'
+            : confidence > 40
+            ? 'Claim requires fact-checking - add sources to improve credibility'
+            : 'Claim lacks specific details or sources for verification',
           checkDate: new Date().toISOString()
         };
       }
@@ -418,20 +468,36 @@ class FactCheckService {
     console.log('⚠️ Mixture:', mixtureClaims);
     console.log('❓ Unverified:', unverifiedClaims);
 
-    // Calculate overall score
+    // Calculate overall score with weighted approach
     let overallScore = 50;
     if (claimResults.length > 0) {
+      // Weight based on confidence levels
+      const totalConfidence = claimResults.reduce((sum, c) => sum + c.confidence, 0);
+      const avgConfidence = totalConfidence / claimResults.length;
+      
+      // Calculate score based on ratings and confidence
       const trueWeight = verifiedClaims * 100;
       const mixtureWeight = mixtureClaims * 50;
       const falseWeight = falseClaims * 0;
-      const unverifiedWeight = unverifiedClaims * 50;
       
-      overallScore = Math.round(
-        (trueWeight + mixtureWeight + falseWeight + unverifiedWeight) / claimResults.length
-      );
+      // For unverified claims, use their actual confidence scores
+      const unverifiedScore = claimResults
+        .filter(c => c.rating === 'unverified' || c.rating === 'unknown')
+        .reduce((sum, c) => sum + c.confidence, 0);
+      
+      if (claimResults.length > 0) {
+        overallScore = Math.round(
+          (trueWeight + mixtureWeight + falseWeight + unverifiedScore) / claimResults.length
+        );
+      }
+      
+      // Adjust score based on average confidence
+      if (avgConfidence < 40 && unverifiedClaims > claimResults.length * 0.7) {
+        overallScore = Math.min(overallScore, 45); // Lower score for low-confidence claims
+      }
     }
 
-    console.log('🎯 Overall Score:', overallScore);
+    console.log('🎯 Overall Score:', overallScore, '(calculated from confidence scores)');
 
     // Determine credibility level
     let credibilityLevel: FactCheckReport['credibilityLevel'] = 'medium';

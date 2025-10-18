@@ -8,6 +8,7 @@ const API_BASE_URL = API_CONFIG.API_BASE_URL;
 export type SessionType = "live" | "recorded";
 export type PaymentType = "paid" | "free";
 export type DifficultyLevel = "beginner" | "intermediate" | "advanced";
+export type SessionStatus = "pending" | "approved" | "rejected";
 
 export interface Session {
   id: number;
@@ -26,6 +27,7 @@ export interface Session {
   session_notes?: string | null;
   created_by: number;
   is_enabled: boolean;
+  status: SessionStatus; // Session approval status
   created_at: Date | string;
   updated_at: Date | string;
   // Creator info when included

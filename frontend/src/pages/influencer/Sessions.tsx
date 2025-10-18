@@ -609,6 +609,13 @@ const Sessions = () => {
                         </div>
                         <div className="session-status-container">
                           <span className="session-status live">LIVE</span>
+                          {session.status && (
+                            <span className={`approval-status ${session.status}`}>
+                              {session.status === 'pending' ? '⏳ Pending' : 
+                               session.status === 'approved' ? '✓ Approved' : 
+                               '✗ Rejected'}
+                            </span>
+                          )}
                         </div>
                       </div>
                       <div className="session-details">
@@ -720,6 +727,13 @@ const Sessions = () => {
                           <span className="session-status recorded">
                             RECORDED
                           </span>
+                          {session.status && (
+                            <span className={`approval-status ${session.status}`}>
+                              {session.status === 'pending' ? '⏳ Pending' : 
+                               session.status === 'approved' ? '✓ Approved' : 
+                               '✗ Rejected'}
+                            </span>
+                          )}
                         </div>
                       </div>
                       <div className="session-details">

@@ -6,6 +6,7 @@ const API_BASE_URL = API_CONFIG.API_BASE_URL;
 
 // Poll types
 export type PollChoiceType = string; // Changed to string to support custom options
+export type PollStatus = 'pending' | 'approved' | 'rejected';
 
 export interface PollChoice {
   choice: string; // Changed to string to support custom options
@@ -25,9 +26,13 @@ export interface Poll {
   title: string;
   description?: string | null;
   is_active: boolean;
+  status?: PollStatus;
+  moderated_by?: number | null;
+  moderated_at?: Date | string | null;
   created_at: Date | string;
   updated_at: Date | string;
   creator: PollCreator;
+  moderator?: PollCreator | null;
   choices: PollChoice[];
   total_votes: number;
   comment_count: number;
@@ -242,8 +247,8 @@ const makeRequest = async (
   const result = await response.json();
   console.log("✅ Request successful:", result.message || "OK");
   
-  // Extract data from backend response wrapper { success, message, data }
-  return result.data || result;
+  // Return full result to preserve pagination and other metadata
+  return result;
 };
 
 export const pollService = {
@@ -291,6 +296,24 @@ export const pollService = {
       ...filters,
       is_active: true,
     });
+  },
+
+  /**
+   * Get user's own polls (all statuses: pending, approved, rejected)
+   */
+  async getMyPolls(filters: PollFilters = {}): Promise<PollsListResponse> {
+    const queryParams = new URLSearchParams();
+
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        queryParams.append(key, value.toString());
+      }
+    });
+
+    const url = `/polls/my-polls${
+      queryParams.toString() ? `?${queryParams.toString()}` : ""
+    }`;
+    return makeRequest(url, {}, true); // Requires authentication
   },
 
   /**

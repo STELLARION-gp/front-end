@@ -28,18 +28,30 @@ const TrueFocus: React.FC<TrueFocusProps> = ({
   const wordRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const [focusRect, setFocusRect] = useState({ x: 0, y: 0, width: 0, height: 0 });
 
+  // Initialize first word on mount
+  useEffect(() => {
+    console.log('TrueFocus initialized with sentence:', sentence);
+    console.log('Words:', words);
+    console.log('Initial currentIndex:', 0);
+    setCurrentIndex(0);
+  }, [sentence, words]);
+
   useEffect(() => {
     if (!manualMode) {
       const interval = setInterval(
         () => {
-          setCurrentIndex(prev => (prev + 1) % words.length);
+          setCurrentIndex(prev => {
+            const next = (prev + 1) % words.length;
+            console.log('TrueFocus animation - switching to word:', words[next], 'index:', next);
+            return next;
+          });
         },
         (animationDuration + pauseBetweenAnimations) * 1000
       );
 
       return () => clearInterval(interval);
     }
-  }, [manualMode, animationDuration, pauseBetweenAnimations, words.length]);
+  }, [manualMode, animationDuration, pauseBetweenAnimations, words.length, words]);
 
   useEffect(() => {
     if (currentIndex === null || currentIndex === -1) return;
@@ -78,17 +90,7 @@ const TrueFocus: React.FC<TrueFocusProps> = ({
           <span
             key={index}
             ref={el => (wordRefs.current[index] = el)}
-            className={`focus-word ${manualMode ? 'manual' : ''} ${isActive && !manualMode ? 'active' : ''}`}
-            style={{
-              filter: manualMode
-                ? isActive
-                  ? `blur(0px)`
-                  : `blur(${blurAmount}px)`
-                : isActive
-                  ? `blur(0px)`
-                  : `blur(${blurAmount}px)`,
-              transition: `filter ${animationDuration}s ease`
-            }}
+            className={`focus-word ${isActive ? 'active' : ''}`}
             onMouseEnter={() => handleMouseEnter(index)}
             onMouseLeave={handleMouseLeave}
           >

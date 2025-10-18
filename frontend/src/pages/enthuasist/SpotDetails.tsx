@@ -144,10 +144,14 @@ const SpotDetails: React.FC = () => {
     <div className="spot-details">
       {/* Header */}
       <div className="spot-header">
+        <div className="spot-header-content">
+          <h1 className="spot-title">Stargazing Spot Details</h1>
+          <div className="spot-rating_1">{renderStars(spot.rating)}</div>
+        </div>
         <Button
           variant="ghost"
           size="medium"
-          onClick={() => navigate('/dashboard/enthusiast/stargazing')}
+          onClick={() => navigate('/dashboard/stargazing')}
           className="back-button"
         >
           <FaArrowLeft /> Back to Stargazing
@@ -180,8 +184,8 @@ const SpotDetails: React.FC = () => {
         <div className="spot-info">
           <div className="info-header">
             <h1 className="spot-name">{spot.name}</h1>
-            <div className="rating-display">
-              <div className="stars">{renderStars(spot.rating)}</div>
+            <div className="rating-display_1">
+              <div className="stars_1">{renderStars(spot.rating)}</div>
               <span className="rating-number">{spot.rating.toFixed(1)}</span>
               <span className="review-count">({spot.review_count || 0} reviews)</span>
             </div>

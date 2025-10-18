@@ -6,10 +6,10 @@ import { useState, useEffect } from 'react';
 import { 
   getConnectionDetails, 
   getNotes,
-  saveNote,
   updateNote,
   deleteNote,
   getGoals,
+  getSessions,
   updateGoal,
   type Note,
   type Goal
@@ -23,14 +23,19 @@ const MentorMenteeConnectionPage: React.FC = () => {
   const [application, setApplication] = useState<MenteeApplication | null>(null);
   const [notes, setNotes] = useState<Note[]>([]);
   const [goals, setGoals] = useState<Goal[]>([]);
+  const [sessions, setSessions] = useState<any[]>([]);
+  const [copiedSessionId, setCopiedSessionId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [resources, setResources] = useState<any[]>([]);
+  const [shortNotes, setShortNotes] = useState<any[]>([]);
+  const [shortNoteText, setShortNoteText] = useState('');
+  const [shortNoteEmoji, setShortNoteEmoji] = useState('👍');
+  const [editingShortNoteId, setEditingShortNoteId] = useState<number | null>(null);
+  const [editingShortNoteText, setEditingShortNoteText] = useState('');
   
   // Note form states
-  const [newNoteTitle, setNewNoteTitle] = useState('');
-  const [newNoteContent, setNewNoteContent] = useState('');
-  const [newNoteTags, setNewNoteTags] = useState('');
-  const [savingNote, setSavingNote] = useState(false);
+  // Learner view: note creation is managed by the mentor; learners can view/pin/delete notes
 
   useEffect(() => {
     const fetchConnectionData = async () => {
@@ -52,6 +57,12 @@ const MentorMenteeConnectionPage: React.FC = () => {
         setApplication(connectionData.application);
         setNotes(notesData);
         setGoals(goalsData);
+    // fetch sessions separately
+    fetchSessions(parseInt(id));
+    // load local resources
+    setResources(loadResources(parseInt(id)));
+    // load short notes
+    setShortNotes(loadShortNotes(parseInt(id)));
         setError('');
       } catch (err: any) {
         console.error('Error fetching connection data:', err);
@@ -64,35 +75,166 @@ const MentorMenteeConnectionPage: React.FC = () => {
     fetchConnectionData();
   }, [id]);
 
-  // Note handlers
-  const handleSaveNote = async () => {
-    if (!id || !newNoteContent.trim()) return;
-    
-    setSavingNote(true);
+  const fetchSessions = async (applicationId: number) => {
     try {
-      const tags = newNoteTags.split(',').map(tag => tag.trim()).filter(tag => tag);
-      await saveNote(parseInt(id), {
-        title: newNoteTitle,
-        content: newNoteContent,
-        tags,
-        isPinned: false
-      });
-      
-      // Clear form
-      setNewNoteTitle('');
-      setNewNoteContent('');
-      setNewNoteTags('');
-      
-      // Refresh notes
-      const notesData = await getNotes(parseInt(id));
-      setNotes(notesData);
+      const data = await getSessions(applicationId);
+      setSessions(data || []);
     } catch (err: any) {
-      console.error('Error saving note:', err);
-      alert(err.response?.data?.error || 'Failed to save note');
-    } finally {
-      setSavingNote(false);
+      console.error('Error fetching sessions:', err);
     }
   };
+
+  // LocalStorage-based resource helpers (per application)
+  const resourcesKey = (applicationId: number) => `mm_resources:${applicationId}`;
+
+  const loadResources = (applicationId: number) => {
+    try {
+      const raw = localStorage.getItem(resourcesKey(applicationId));
+      if (!raw) return [];
+      return JSON.parse(raw);
+    } catch (e) {
+      console.error('Failed to load resources from localStorage', e);
+      return [];
+    }
+  };
+
+  const saveResources = (applicationId: number, items: any[]) => {
+    try {
+      localStorage.setItem(resourcesKey(applicationId), JSON.stringify(items));
+    } catch (e) {
+      console.error('Failed to save resources to localStorage', e);
+    }
+  };
+
+  const handleResourceUpload = async (files: FileList | null) => {
+    if (!id || !files || files.length === 0) return;
+    const applicationId = parseInt(id);
+    const newItems: any[] = [];
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const dataUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result));
+        reader.onerror = () => reject(new Error('File read error'));
+        reader.readAsDataURL(file);
+      });
+
+      newItems.push({
+        id: Date.now() + i,
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        dataUrl,
+        uploaded_at: new Date().toISOString()
+      });
+    }
+
+    const current = loadResources(applicationId);
+    const updated = [...newItems, ...current];
+    saveResources(applicationId, updated);
+    setResources(updated);
+  };
+
+  const handleResourceDelete = (resourceId: number) => {
+    if (!id) return;
+    const applicationId = parseInt(id);
+    const current = loadResources(applicationId).filter((r: any) => r.id !== resourceId);
+    saveResources(applicationId, current);
+    setResources(current);
+  };
+
+  const handleResourceOpen = (dataUrl: string, name?: string) => {
+    // open data url in new tab; for large files browser will handle
+    const win = window.open();
+    if (!win) return;
+    win.document.write(`<iframe src="${dataUrl}" frameborder="0" style="border:0; top:0; left:0; bottom:0; right:0; width:100%; height:100%;"></iframe>`);
+    win.document.title = name || 'Resource';
+  };
+
+  // Short-notes localStorage helpers (per application)
+  const shortNotesKey = (applicationId: number) => `mm_shortnotes:${applicationId}`;
+
+  const loadShortNotes = (applicationId: number) => {
+    try {
+      const raw = localStorage.getItem(shortNotesKey(applicationId));
+      if (!raw) return [];
+      return JSON.parse(raw);
+    } catch (e) {
+      console.error('Failed to load short notes', e);
+      return [];
+    }
+  };
+
+  const saveShortNotes = (applicationId: number, items: any[]) => {
+    try {
+      localStorage.setItem(shortNotesKey(applicationId), JSON.stringify(items));
+    } catch (e) {
+      console.error('Failed to save short notes', e);
+    }
+  };
+
+  const handleAddShortNote = () => {
+    if (!id || !shortNoteText.trim()) return;
+    const applicationId = parseInt(id);
+    const item = {
+      id: Date.now(),
+      text: shortNoteText.trim(),
+      emoji: shortNoteEmoji,
+      pinned: false,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+    const updated = [item, ...loadShortNotes(applicationId)];
+    saveShortNotes(applicationId, updated);
+    setShortNotes(updated);
+    setShortNoteText('');
+  };
+
+  const handleStartEditShortNote = (note: any) => {
+    setEditingShortNoteId(note.id);
+    setEditingShortNoteText(note.text);
+  };
+
+  const handleSaveEditShortNote = () => {
+    if (!id || editingShortNoteId === null) return;
+    const applicationId = parseInt(id);
+    const items = loadShortNotes(applicationId).map((n: any) => n.id === editingShortNoteId ? { ...n, text: editingShortNoteText, updated_at: new Date().toISOString() } : n);
+    saveShortNotes(applicationId, items);
+    setShortNotes(items);
+    setEditingShortNoteId(null);
+    setEditingShortNoteText('');
+  };
+
+  const handleDeleteShortNote = (noteId: number) => {
+    if (!id) return;
+    const applicationId = parseInt(id);
+    const items = loadShortNotes(applicationId).filter((n: any) => n.id !== noteId);
+    saveShortNotes(applicationId, items);
+    setShortNotes(items);
+  };
+
+  const togglePinShortNote = (noteId: number) => {
+    if (!id) return;
+    const applicationId = parseInt(id);
+    const items = loadShortNotes(applicationId).map((n: any) => n.id === noteId ? { ...n, pinned: !n.pinned } : n);
+    saveShortNotes(applicationId, items);
+    setShortNotes(items);
+  };
+
+  const extractMeetingLink = (text?: string | null) => {
+    if (!text) return null;
+    const lines = text.split('\n');
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (trimmed.toLowerCase().startsWith('meeting_link:')) {
+        return trimmed.substring('meeting_link:'.length).trim();
+      }
+    }
+    const urlMatch = text.match(/https?:\/\/[^\s]+/i);
+    return urlMatch ? urlMatch[0] : null;
+  };
+
+  // Note handlers (view/pin/delete handled below)
 
   const handleUpdateNote = async (noteId: number, isPinned: boolean) => {
     if (!id) return;
@@ -248,35 +390,6 @@ const MentorMenteeConnectionPage: React.FC = () => {
       <section className="mentor-section mentor-notes-section">
         <h2>Saved Notes</h2>
         <div className="notes-ui">
-          <div className="notes-create">
-            <input 
-              className="notes-input" 
-              placeholder="Note title (optional)..."
-              value={newNoteTitle}
-              onChange={(e) => setNewNoteTitle(e.target.value)}
-              style={{ marginBottom: '0.5rem', padding: '0.5rem', width: '100%' }}
-            />
-            <textarea 
-              className="notes-input" 
-              placeholder="Write a note about your learning..."
-              value={newNoteContent}
-              onChange={(e) => setNewNoteContent(e.target.value)}
-            ></textarea>
-            <input 
-              className="notes-input" 
-              placeholder="Tags (comma-separated)..."
-              value={newNoteTags}
-              onChange={(e) => setNewNoteTags(e.target.value)}
-              style={{ marginTop: '0.5rem', padding: '0.5rem', width: '100%' }}
-            />
-            <button 
-              className="notes-save-btn"
-              onClick={handleSaveNote}
-              disabled={savingNote || !newNoteContent.trim()}
-            >
-              {savingNote ? 'Saving...' : 'Save Note'}
-            </button>
-          </div>
           <div className="notes-list">
             {notes.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '2rem', color: '#8b93ab' }}>
@@ -353,25 +466,43 @@ const MentorMenteeConnectionPage: React.FC = () => {
         <h2>Short Notes</h2>
         <div className="shortnotes-ui">
           <div className="shortnotes-create">
-            <input className="shortnote-input" placeholder="Add a short note..." />
-            <select className="shortnote-emoji">
+            <input className="shortnote-input" placeholder="Add a short note..." value={shortNoteText} onChange={(e) => setShortNoteText(e.target.value)} />
+            <select className="shortnote-emoji" value={shortNoteEmoji} onChange={(e) => setShortNoteEmoji(e.target.value)}>
               <option>👍</option>
               <option>😃</option>
               <option>🔥</option>
               <option>🚀</option>
               <option>🎯</option>
             </select>
-            <button className="shortnote-save-btn">Save</button>
+            <button className="shortnote-save-btn" onClick={handleAddShortNote}>Save</button>
           </div>
-          <div className="shortnote-card pinned">
-            <span className="shortnote-pin">📌</span>
-            <span className="shortnote-content">Remember to check assignment feedback!</span>
-            <span className="shortnote-reactions">👍 😃</span>
-          </div>
-          <div className="shortnote-card">
-            <span className="shortnote-content">Book next session for Friday.</span>
-            <span className="shortnote-reactions">🔥</span>
-          </div>
+          {shortNotes.length === 0 ? (
+            <div style={{ padding: '1rem', color: '#8b93ab' }}>No short notes yet.</div>
+          ) : (
+            shortNotes.map((n) => (
+              <div key={n.id} className={`shortnote-card ${n.pinned ? 'pinned': ''}`}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <span className="shortnote-pin" style={{ marginRight: '0.5rem' }} onClick={() => togglePinShortNote(n.id)}>{n.pinned ? '📌' : '📍'}</span>
+                    <span className="shortnote-content">{n.text}</span>
+                  </div>
+                  <div>
+                    <button className="shortnote-save-btn" onClick={() => handleStartEditShortNote(n)}>Edit</button>
+                    <button className="shortnote-save-btn" onClick={() => handleDeleteShortNote(n.id)} style={{ marginLeft: '0.5rem', color: '#ef4444' }}>Delete</button>
+                  </div>
+                </div>
+                {editingShortNoteId === n.id && (
+                  <div style={{ marginTop: '0.5rem' }}>
+                    <input value={editingShortNoteText} onChange={(e) => setEditingShortNoteText(e.target.value)} style={{ width: '100%', padding: '0.5rem' }} />
+                    <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+                      <button onClick={handleSaveEditShortNote}>Save</button>
+                      <button onClick={() => setEditingShortNoteId(null)}>Cancel</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))
+          )}
         </div>
       </section>
 
@@ -380,27 +511,31 @@ const MentorMenteeConnectionPage: React.FC = () => {
         <h2>Resources</h2>
         <div className="resources-ui">
           <div className="resource-list">
-            <div className="resource-item">
-              <span className="resource-filename">Session1-Notes.pdf</span>
-              <button className="resource-download">Download</button>
-              <span className="resource-category">#session1</span>
-            </div>
-            <div className="resource-item">
-              <span className="resource-filename">BlackHole-Research.png</span>
-              <button className="resource-download">Download</button>
-              <span className="resource-category">#topic</span>
-            </div>
+            {resources.length === 0 ? (
+              <div style={{ padding: '1rem', color: '#8b93ab' }}>No resources uploaded for this connection yet.</div>
+            ) : (
+              resources.map((r) => (
+                <div key={r.id} className="resource-item">
+                  <span className="resource-filename">{r.name}</span>
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <button className="resource-download" onClick={() => handleResourceOpen(r.dataUrl, r.name)}>Open</button>
+                    <a href={r.dataUrl} download={r.name} className="resource-download">Download</a>
+                    <button onClick={() => handleResourceDelete(r.id)} style={{ color: '#ef4444' }}>Delete</button>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
           <div className="resource-upload">
-            <input type="file" />
-            <button>Upload</button>
+            <input type="file" multiple onChange={(e) => handleResourceUpload(e.target.files)} />
+            <button onClick={(e) => { const input = (e.currentTarget.previousElementSibling as HTMLInputElement); input && input.click(); }}>Upload</button>
           </div>
         </div>
       </section>
 
       {/* Session History Section */}
       <section className="mentor-section mentor-history-section">
-        <h2>Session History</h2>
+        <h2>Session</h2>
         <div className="history-ui">
           <table className="history-table enhanced">
             <thead>
@@ -409,46 +544,93 @@ const MentorMenteeConnectionPage: React.FC = () => {
                 <th>Duration</th>
                 <th>Title/Goal</th>
                 <th>Notes</th>
-                <th>Export</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>2025-07-10</td>
-                <td>1h</td>
-                <td>Black Holes</td>
-                <td><Button variant="ghost" size="small">View</Button></td>
-                <td><Button variant="primary" size="small" icon={<span>📄</span>} iconPosition="left">PDF</Button></td>
-              </tr>
-              <tr>
-                <td>2025-07-03</td>
-                <td>45m</td>
-                <td>Stellar Evolution</td>
-                <td><Button variant="ghost" size="small">View</Button></td>
-                <td><Button variant="primary" size="small" icon={<span>📄</span>} iconPosition="left">PDF</Button></td>
-              </tr>
+              {sessions.length === 0 ? (
+                <tr>
+                  <td colSpan={5} style={{ textAlign: 'center', padding: '2rem', color: '#8b93ab' }}>
+                    No sessions scheduled yet.
+                  </td>
+                </tr>
+              ) : (
+                // Split upcoming and past: upcoming first (ascending), past below (descending)
+                (() => {
+                  const now = new Date();
+                  const upcoming = sessions.filter(s => new Date(s.session_date) >= now).sort((a,b) => new Date(a.session_date).getTime() - new Date(b.session_date).getTime());
+                  const past = sessions.filter(s => new Date(s.session_date) < now).sort((a,b) => new Date(b.session_date).getTime() - new Date(a.session_date).getTime());
+                  const rows: any[] = [];
+
+                  if (upcoming.length > 0) {
+                    rows.push(
+                      <tr key="upcoming-header"><td colSpan={5} style={{ padding: '0.5rem 1rem', background: '#071025', color: '#9fb0ff', fontWeight: 600 }}>Upcoming Sessions</td></tr>
+                    );
+
+                    upcoming.forEach((s: any) => {
+                      const link = extractMeetingLink(s.notes || s.description || '');
+                      rows.push(
+                        <tr key={s.session_id}>
+                          <td>{new Date(s.session_date).toLocaleString()}</td>
+                          <td>{s.duration ? `${s.duration} mins` : '-'}</td>
+                          <td>{s.title || '-'}</td>
+                          <td style={{ whiteSpace: 'pre-wrap' }}>{s.notes || s.description || '-'}</td>
+                          <td>
+                            {link ? (
+                              <>
+                                <Button variant="ghost" size="small" onClick={async () => { try { await navigator.clipboard.writeText(link); setCopiedSessionId(s.session_id); setTimeout(() => setCopiedSessionId(null), 2000); } catch { alert('Failed to copy link'); } }}>
+                                  {copiedSessionId === s.session_id ? 'Copied!' : 'Copy Link'}
+                                </Button>
+                                <Button variant="primary" size="small" onClick={() => window.open(link, '_blank')}>Open</Button>
+                              </>
+                            ) : (
+                              '-'
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    });
+                  }
+
+                  if (past.length > 0) {
+                    rows.push(
+                      <tr key="past-header"><td colSpan={5} style={{ padding: '0.5rem 1rem', background: '#071025', color: '#9fb0ff', fontWeight: 600 }}>Past Sessions</td></tr>
+                    );
+
+                    past.forEach((s: any) => {
+                      const link = extractMeetingLink(s.notes || s.description || '');
+                      rows.push(
+                        <tr key={s.session_id}>
+                          <td>{new Date(s.session_date).toLocaleString()}</td>
+                          <td>{s.duration ? `${s.duration} mins` : '-'}</td>
+                          <td>{s.title || '-'}</td>
+                          <td style={{ whiteSpace: 'pre-wrap' }}>{s.notes || s.description || '-'}</td>
+                          <td>
+                            {link ? (
+                              <>
+                                <Button variant="ghost" size="small" onClick={async () => { try { await navigator.clipboard.writeText(link); setCopiedSessionId(s.session_id); setTimeout(() => setCopiedSessionId(null), 2000); } catch { alert('Failed to copy link'); } }}>
+                                  {copiedSessionId === s.session_id ? 'Copied!' : 'Copy Link'}
+                                </Button>
+                                <Button variant="primary" size="small" onClick={() => window.open(link, '_blank')}>Open</Button>
+                              </>
+                            ) : (
+                              '-'
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    });
+                  }
+
+                  return rows;
+                })()
+              )}
             </tbody>
           </table>
         </div>
       </section>
 
-      {/* Feedback Section */}
-      <section className="mentor-section mentor-feedback-section">
-        <h2>Feedback</h2>
-        <div className="feedback-ui">
-          <div className="feedback-rating">
-            <span>Rate this session:</span>
-            {[1,2,3,4,5].map(star => (
-              <span key={star} className="star">★</span>
-            ))}
-          </div>
-          <textarea className="feedback-comment" placeholder="Leave a comment..." />
-          <div className="feedback-options">
-            <label><input type="checkbox" /> Anonymous</label>
-            <span className="overall-rating">Overall Mentor Rating: 4.8 ★</span>
-          </div>
-        </div>
-      </section>
+      
 
       {/* Goal Tracker Section */}
       <section className="mentor-section mentor-goals-section">
@@ -562,7 +744,7 @@ const MentorMenteeConnectionPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Mentor Profile Section */}
+      {/* Mentor Profile Section
       <section className="mentor-section mentor-profile-section">
         <h2>Mentor Profile Preview</h2>
         <div className="profile-ui">
@@ -589,15 +771,9 @@ const MentorMenteeConnectionPage: React.FC = () => {
             </ul>
           </div>
         </div>
-      </section>
+      </section> */}
 
-      {/* Action Buttons */}
-      <div className="mentor-actions" style={{ marginTop: '2rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-        <button className="mentor-action-btn">Schedule Session</button>
-        <button className="mentor-action-btn">End Mentorship</button>
-        <button className="mentor-action-btn">Request Resume Review</button>
-        <button className="mentor-action-btn">Upload Assignment for Feedback</button>
-      </div>
+      
     </div>
   );
 };

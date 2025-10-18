@@ -50,6 +50,7 @@ const MenteeProfile: React.FC = () => {
   const [meetingLink, setMeetingLink] = useState('');
   const [scheduling, setScheduling] = useState(false);
   const [copiedSessionId, setCopiedSessionId] = useState<number | null>(null);
+  const [resources, setResources] = useState<any[]>([]);
 
   useEffect(() => {
     fetchMenteeProfile();
@@ -74,6 +75,8 @@ const MenteeProfile: React.FC = () => {
         ]);
         // fetch sessions separately so we can handle errors without blocking other loads
         fetchSessions(foundMentee.application_id);
+        // load resources from localStorage
+        setResources(loadResources(foundMentee.application_id));
       } else {
         setError('Mentee not found or not connected.');
       }
@@ -92,6 +95,71 @@ const MenteeProfile: React.FC = () => {
     } catch (err: any) {
       console.error('Error fetching sessions:', err);
     }
+  };
+
+  // resources localStorage helpers (per application)
+  const resourcesKey = (applicationId: number) => `mm_resources:${applicationId}`;
+  const loadResources = (applicationId: number) => {
+    try {
+      const raw = localStorage.getItem(resourcesKey(applicationId));
+      if (!raw) return [];
+      return JSON.parse(raw);
+    } catch (e) {
+      console.error('Failed to load resources from localStorage', e);
+      return [];
+    }
+  };
+
+  const saveResources = (applicationId: number, items: any[]) => {
+    try {
+      localStorage.setItem(resourcesKey(applicationId), JSON.stringify(items));
+    } catch (e) {
+      console.error('Failed to save resources to localStorage', e);
+    }
+  };
+
+  const handleResourceUpload = async (files: FileList | null) => {
+    if (!mentee || !files || files.length === 0) return;
+    const applicationId = mentee.application_id;
+    const newItems: any[] = [];
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const dataUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result));
+        reader.onerror = () => reject(new Error('File read error'));
+        reader.readAsDataURL(file);
+      });
+
+      newItems.push({
+        id: Date.now() + i,
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        dataUrl,
+        uploaded_at: new Date().toISOString()
+      });
+    }
+
+    const current = loadResources(applicationId);
+    const updated = [...newItems, ...current];
+    saveResources(applicationId, updated);
+    setResources(updated);
+  };
+
+  const handleResourceDelete = (resourceId: number) => {
+    if (!mentee) return;
+    const applicationId = mentee.application_id;
+    const current = loadResources(applicationId).filter((r: any) => r.id !== resourceId);
+    saveResources(applicationId, current);
+    setResources(current);
+  };
+
+  const handleResourceOpen = (dataUrl: string, name?: string) => {
+    const win = window.open();
+    if (!win) return;
+    win.document.write(`<iframe src="${dataUrl}" frameborder="0" style="border:0; top:0; left:0; bottom:0; right:0; width:100%; height:100%;"></iframe>`);
+    win.document.title = name || 'Resource';
   };
 
   const extractMeetingLink = (text?: string | null) => {
@@ -240,7 +308,7 @@ const MenteeProfile: React.FC = () => {
     try {
       await endConnection(mentee.application_id, reason || undefined);
       alert('Mentorship connection ended successfully.');
-      navigate('/mentor/mentees');
+      navigate('/dashboard/mentees');
     } catch (err: any) {
       console.error('Error ending connection:', err);
       alert(err.message || 'Failed to end connection');
@@ -298,7 +366,7 @@ const MenteeProfile: React.FC = () => {
           variant="secondary"
           icon={<span style={{ fontSize: '1.2rem' }}>&larr;</span>}
           iconPosition="left"
-          onClick={() => navigate('/mentor/mentees')}
+          onClick={() => navigate('/dashboard/mentees')}
           size="medium"
         >
           Back to Mentees
@@ -664,6 +732,33 @@ const MenteeProfile: React.FC = () => {
               ))}
             </div>
           )}
+        </div>
+      </section>
+
+      {/* Resources Section */}
+      <section className="mentor-section mentor-resources-section">
+        <h2>Resources</h2>
+        <div className="resources-ui">
+          <div className="resource-list">
+            {resources.length === 0 ? (
+              <div style={{ padding: '1rem', color: '#8b93ab' }}>No resources uploaded for this mentee yet.</div>
+            ) : (
+              resources.map((r) => (
+                <div key={r.id} className="resource-item">
+                  <span className="resource-filename">{r.name}</span>
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <button className="resource-download" onClick={() => handleResourceOpen(r.dataUrl, r.name)}>Open</button>
+                    <a href={r.dataUrl} download={r.name} className="resource-download">Download</a>
+                    <button onClick={() => handleResourceDelete(r.id)} style={{ color: '#ef4444' }}>Delete</button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+          <div className="resource-upload">
+            <input type="file" multiple onChange={(e) => handleResourceUpload(e.target.files)} />
+            <button onClick={(e) => { const input = (e.currentTarget.previousElementSibling as HTMLInputElement); input && input.click(); }}>Upload</button>
+          </div>
         </div>
       </section>
 

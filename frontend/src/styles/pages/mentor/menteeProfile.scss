@@ -1,10 +1,10 @@
 .mentee-profile-page {
   min-height: 120vh;
-  background: rgba(59,130,246,0.07);
-  border-radius: 16px;
+  background: $secondary-color;
+  border-radius: $border-radius-xl;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2.5rem 4vw;
+  padding: $spacing-2xl 4vw;
   box-sizing: border-box;
   display: flex;
   align-items: flex-start;
@@ -18,28 +18,28 @@
   min-width: 320px;
   max-width: 340px;
   flex: 0 0 320px;
-  border-radius: 12px;
-  padding: 2rem 1.5rem;
+  border-radius: $border-radius-lg;
+  padding: $spacing-xl $spacing-md;
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: #232b3b;
+  background: $secondary-color;
   box-shadow: 0 2px 12px rgba(59,130,246,0.08);
 }
 .mentee-profile-avatar {
-  margin-bottom: 24px;
+  margin-bottom: $spacing-lg;
   display: flex;
   justify-content: center;
   align-items: center;
   width: 120px;
   height: 120px;
-  border-radius: 50%;
-  background: #1a202c;
+  border-radius: $radius-full;
+  background: $primary-color;
   overflow: hidden;
   img {
     width: 120px;
     height: 120px;
-    border-radius: 50%;
+    border-radius: $radius-full;
     object-fit: cover;
     display: block;
   }
@@ -52,19 +52,19 @@
 }
 .mentee-profile-info-item {
   label {
-    color: #60a5fa;
-    font-size: 1.1rem;
+    color: $accent-color;
+    font-size: $font-size-lg;
     font-weight: 600;
     margin-bottom: 0.2rem;
     display: block;
   }
   .value {
     font-weight: 600;
-    color: #fff;
-    font-size: 1.08rem;
-    background: #181f2a;
-    border-radius: 8px;
-    padding: 0.5rem 1rem;
+    color: $text-light;
+    font-size: $font-size-base;
+    background: $primary-color;
+    border-radius: $border-radius-md;
+    padding: $spacing-sm $spacing-md;
     margin-top: 0.2rem;
   }
 }
@@ -95,11 +95,11 @@
   gap: 1rem;
 }
 .mentee-profile-docs-box {
-  background: #232b3b;
-  border-radius: 12px;
+  background: $secondary-color;
+  border-radius: $border-radius-md;
   box-shadow: 0 2px 12px rgba(59,130,246,0.08);
-  padding: 1.5rem 2rem 1.2rem 2rem;
-  margin-bottom: 0.5rem;
+  padding: $spacing-lg $spacing-2xl $spacing-md $spacing-2xl;
+  margin-bottom: $spacing-sm;
   display: flex;
   flex-direction: column;
 }
@@ -143,31 +143,31 @@
   text-overflow: ellipsis;
 }
 .mentee-profile-docs-seemore {
-  background: #2563eb;
-  color: #fff;
+  background: $color-info;
+  color: $text-light;
   border: none;
-  border-radius: 8px;
+  border-radius: $border-radius-md;
   height: 35px;
   width: 160px;
-  font-size: 1.08rem;
+  font-size: $font-size-base;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s;
-  margin-top: 0.5rem;
+  transition: background $transition-fast;
+  margin-top: $spacing-sm;
   align-self: flex-end;
   &:hover {
-    background: #1d4ed8;
+    background: darken($color-info, 8%);
   }
 }
 .mentee-profile-stats-box {
-  background: #232b3b;
-  border-radius: 12px;
+  background: $secondary-color;
+  border-radius: $border-radius-md;
   box-shadow: 0 2px 12px rgba(59,130,246,0.08);
-  padding: 1.5rem 1.2rem 1.2rem 2rem;
-  padding-top: 1rem;
+  padding: $spacing-lg $spacing-md $spacing-md $spacing-2xl;
+  padding-top: $spacing-md;
 }
 .mentee-profile-stats-title {
   color: #60a5fa;
@@ -186,14 +186,14 @@
   margin-bottom: 0;
 }
 .stat-label {
-  font-size: 1.3rem;
+  font-size: $font-size-2xl;
   font-weight: 700;
-  color: #60a5fa;
+  color: $accent-color;
   margin-bottom: 0.3rem;
 }
 .stat-desc {
-  font-size: 1rem;
-  color: #a0aec0;
+  font-size: $font-size-base;
+  color: $text-color-secondary;
 }
 .mentee-profile-stats-actions {
   display: flex;
@@ -206,9 +206,9 @@
 .mentee-profile-stats-actions button {
   min-width: 110px;
   height: 38px;
-  font-size: 1rem;
+  font-size: $font-size-base;
   font-weight: 600;
-  border-radius: 8px;
+  border-radius: $border-radius-md;
   margin: 0;
 }
 @media (max-width: 600px) {
@@ -224,32 +224,32 @@
   }
 }
 .mentee-profile-rate-btn, .mentee-profile-remove-btn {
-  background: #2563eb;
-  color: #fff;
+  background: $color-info;
+  color: $text-light;
   border: none;
-  border-radius: 8px;
-  padding: 0.7rem 2.2rem;
-  font-size: 1rem;
+  border-radius: $border-radius-md;
+  padding: $spacing-sm $spacing-xl;
+  font-size: $font-size-base;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background $transition-fast;
 }
 .mentee-profile-remove-btn {
-  background: #ef4444;
+  background: $danger-color;
   &:hover {
-    background: #b91c1c;
+    background: darken($danger-color, 8%);
   }
 }
 .mentee-profile-rate-btn:hover {
-  background: #1d4ed8;
+  background: darken($color-info, 6%);
 }
 .mentee-profile-privatechat-icon {
   position: fixed;
   bottom: 6.5rem;
   right: 1.5rem;
   z-index: 100;
-  background: #aebac8;
-  border-radius: 50%;
+  background: $theme5;
+  border-radius: $radius-full;
   box-shadow: 0 2px 12px rgba(59,130,246,0.13);
   width: 60px;
   height: 60px;
@@ -257,7 +257,7 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: box-shadow 0.2s, background 0.2s;
+  transition: box-shadow $transition-fast, background $transition-fast;
 }
 .mentee-profile-privatechat-icon img {
   width: 38px;
@@ -278,10 +278,10 @@
   justify-content: center;
 }
 .mentee-modal {
-  background: #232b3b;
-  border-radius: 16px;
+  background: $secondary-color;
+  border-radius: $border-radius-xl;
   box-shadow: 0 8px 32px rgba(30,41,59,0.18);
-  padding: 2.5rem 2.8rem 2.2rem 2.8rem;
+  padding: $spacing-2xl $spacing-2xl $spacing-xl $spacing-2xl;
   min-width: 340px;
   max-width: 95vw;
   display: flex;
@@ -306,19 +306,19 @@
   min-width: 220px;
   max-width: 600px;
   min-height: 80px;
-  background: #181f2a;
-  color: #fff;
-  border: 1.5px solid #3b82f6;
-  border-radius: 8px;
-  font-size: 1.1rem;
-  padding: 0.7rem 1rem;
-  margin-bottom: 1.2rem;
+  background: $primary-color;
+  color: $text-light;
+  border: 1.5px solid $color-info;
+  border-radius: $border-radius-md;
+  font-size: $font-size-lg;
+  padding: $spacing-sm $spacing-md;
+  margin-bottom: $spacing-lg;
   resize: vertical;
   outline: none;
-  transition: border 0.2s;
+  transition: border $transition-fast;
 }
 .mentee-modal-textarea:focus {
-  border: 1.5px solid #60a5fa;
+  border: 1.5px solid $accent-color;
 }
 .mentee-modal-actions {
   display: flex;

@@ -1,6 +1,6 @@
 import React from 'react';
 import RollingGallery from './RollingGallery';
-import TrueFocus from '../TrueFocus';
+// import TrueFocus from '../TrueFocus';
 import '../../styles/components/TeamSection.scss';
 
 const TeamSection: React.FC = () => {
@@ -8,13 +8,14 @@ const TeamSection: React.FC = () => {
     <section className="team-section">
       <div className="team-header">
         <div className="team-title-wrapper">
-          <TrueFocus 
+          {/* <TrueFocus 
             sentence="Meet Our Team"
             manualMode={false}
-            blurAmount={5}
-            animationDuration={0.8}
-            pauseBetweenAnimations={1.5}
-          />
+            blurAmount={3}
+            animationDuration={0.6}
+            pauseBetweenAnimations={1500}
+          /> */}
+          <h1 className='Meet-our-team'>Meet Our Team</h1>
         </div>
         <p className="team-subtitle">
           The passionate individuals behind Stellarion

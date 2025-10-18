@@ -1,281 +1,333 @@
+// pages/mentor/Mentees.tsx
 import React, { useState, useEffect } from 'react';
-import '../../styles/pages/mentor/mentees.scss';
-import signupImg from '../../assets/signup.webp';
-import groupChatIcon from '../../assets/groupchat.png';
 import { useNavigate } from 'react-router-dom';
-import { useMentee } from '../../contexts/mentor/MenteeContext';
-import StudentCard from '../../components/mentor/StudentCard';
-
-// Enhanced mentees data structure
-const mentees = [
-  { 
-    id: 1, 
-    name: 'Luna Skywatcher', 
-    img: signupImg,
-    level: 'Advanced',
-    interests: 'Astrophotography, Deep Space Objects',
-    description: 'Passionate about capturing the beauty of nebulae and galaxies. Currently working on improving long-exposure techniques.',
-    joinDate: '2024-01-15',
-    isActive: true,
-    progress: 85,
-    sessionsCompleted: 12
-  },
-  { 
-    id: 2, 
-    name: 'Heshan Malith', 
-    img: signupImg,
-    level: 'Intermediate',
-    interests: 'Planetary Science, Solar System',
-    description: 'Enthusiastic about studying planetary formations and atmospheric phenomena across our solar system.',
-    joinDate: '2024-02-03',
-    isActive: true,
-    progress: 68,
-    sessionsCompleted: 8
-  },
-  { 
-    id: 3, 
-    name: 'Senesh Dinelka', 
-    img: signupImg,
-    level: 'Beginner',
-    interests: 'Telescopes, Stargazing',
-    description: 'New to astronomy but very eager to learn. Interested in getting started with basic telescope observations.',
-    joinDate: '2024-02-20',
-    isActive: true,
-    progress: 32,
-    sessionsCompleted: 3
-  },
-  { 
-    id: 4, 
-    name: 'Kalindu Mendis', 
-    img: signupImg,
-    level: 'Intermediate',
-    interests: 'Cosmology, Dark Matter',
-    description: 'Fascinated by the mysteries of dark matter and the large-scale structure of the universe.',
-    joinDate: '2024-01-28',
-    isActive: true,
-    progress: 72,
-    sessionsCompleted: 10
-  },
-  { 
-    id: 5, 
-    name: 'Maleesha Tharindu', 
-    img: signupImg,
-    level: 'Advanced',
-    interests: 'Stellar Evolution, Binary Stars',
-    description: 'Studying the lifecycle of stars and the dynamics of binary star systems.',
-    joinDate: '2024-01-10',
-    isActive: true,
-    progress: 91,
-    sessionsCompleted: 15
-  },
-  { 
-    id: 6, 
-    name: 'Adam Sam', 
-    img: signupImg,
-    level: 'Beginner',
-    interests: 'Moon Phases, Constellation Mapping',
-    description: 'Just starting out with astronomy. Very interested in learning about moon phases and identifying constellations.',
-    joinDate: '2024-02-25',
-    isActive: true,
-    progress: 25,
-    sessionsCompleted: 2
-  },
-  { 
-    id: 7, 
-    name: 'Freddy Johnas', 
-    img: signupImg,
-    level: 'Intermediate',
-    interests: 'Exoplanets, SETI',
-    description: 'Passionate about the search for extraterrestrial life and studying potentially habitable exoplanets.',
-    joinDate: '2024-02-08',
-    isActive: true,
-    progress: 55,
-    sessionsCompleted: 6
-  },
-  { 
-    id: 8, 
-    name: 'Liam Collins', 
-    img: signupImg,
-    level: 'Advanced',
-    interests: 'Radio Astronomy, Pulsars',
-    description: 'Working on understanding radio signals from space, particularly interested in pulsar research.',
-    joinDate: '2024-01-18',
-    isActive: true,
-    progress: 88,
-    sessionsCompleted: 14
-  },
-  { 
-    id: 9, 
-    name: 'Andrew Swane', 
-    img: signupImg,
-    level: 'Beginner',
-    interests: 'Solar Observation, Meteor Showers',
-    description: 'Interested in safe solar observation techniques and tracking annual meteor shower events.',
-    joinDate: '2024-02-22',
-    isActive: false,
-    progress: 18,
-    sessionsCompleted: 1
-  }
-];
+import { getReceivedApplications, type MenteeApplication } from '../../services/menteeApplicationApi';
+import Button from '../../components/Button';
 
 const Mentees: React.FC = () => {
-  const [search, setSearch] = useState('');
-  const [viewMode, setViewMode] = useState<'grid' | 'cards'>('grid');
-  const [showInactive, setShowInactive] = useState(false);
-  const [sortBy, setSortBy] = useState<'name' | 'progress' | 'joinDate'>('name');
-  const [visibleCount, setVisibleCount] = useState(9);
   const navigate = useNavigate();
-  const { setMenteeCount } = useMentee();
+  const [mentees, setMentees] = useState<MenteeApplication[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
 
-  // Filter and sort mentees
-  const filteredMentees = mentees
-    .filter(m => m.name.toLowerCase().includes(search.toLowerCase()))
-    .filter(m => showInactive || m.isActive)
-    .sort((a, b) => {
-      switch (sortBy) {
-        case 'progress':
-          return b.progress - a.progress;
-        case 'joinDate':
-          return new Date(b.joinDate).getTime() - new Date(a.joinDate).getTime();
-        default:
-          return a.name.localeCompare(b.name);
+  useEffect(() => {
+    fetchMentees();
+    // Add pulse animation and responsive styles
+    const style = document.createElement('style');
+    style.innerHTML = `
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
       }
-    });
+      @media (max-width: 1200px) {
+        .mentor-mentees-grid-responsive {
+          grid-template-columns: 1fr !important;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
 
-  const visibleMentees = filteredMentees.slice(0, visibleCount);
-  const hasMore = filteredMentees.length > visibleCount;
-
-  // Update mentee count in real-time
-  useEffect(() => {
-    setMenteeCount(filteredMentees.filter(m => m.isActive).length);
-  }, [filteredMentees, setMenteeCount]);
-
-  // Reset visible count when filters change
-  useEffect(() => {
-    setVisibleCount(9);
-  }, [search, showInactive, sortBy]);
-
-  const handleViewProfile = (menteeId: number) => {
-    navigate(`/dashboard/mentee-profile/${menteeId}`);
+  const fetchMentees = async () => {
+    try {
+      setLoading(true);
+      const data = await getReceivedApplications();
+      // Filter only accepted applications
+      const acceptedMentees = data.filter(app => app.application_status === 'accepted');
+      setMentees(acceptedMentees);
+      setError('');
+    } catch (err: any) {
+      console.error('Error fetching mentees:', err);
+      const errorMsg = err.response?.data?.error || 'Failed to load mentees.';
+      setError(errorMsg);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleMessage = (menteeId: number) => {
-    navigate(`/dashboard/chat/${menteeId}`);
+  const filteredMentees = mentees.filter(mentee => {
+    const searchLower = searchQuery.toLowerCase();
+    const displayName = mentee.learner?.display_name || '';
+    const firstName = mentee.learner?.first_name || '';
+    const lastName = mentee.learner?.last_name || '';
+    const email = mentee.learner?.email || '';
+    
+    return (
+      displayName.toLowerCase().includes(searchLower) ||
+      firstName.toLowerCase().includes(searchLower) ||
+      lastName.toLowerCase().includes(searchLower) ||
+      email.toLowerCase().includes(searchLower)
+    );
+  });
+
+  const handleMenteeClick = (applicationId: number) => {
+    navigate(`/dashboard/mentee-profile/${applicationId}`);
   };
 
-  const handleScheduleSession = (menteeId: number) => {
-    navigate(`/dashboard/schedule-session/${menteeId}`);
-  };
-
-  const handleLoadMore = () => {
-    setVisibleCount(prev => prev + 6);
-  };
-
-  const handleClearSearch = () => {
-    setSearch('');
-    setShowInactive(false);
-    setSortBy('name');
-  };
+  if (loading) {
+    return (
+      <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '2rem', color: '#fff' }}>
+        <div style={{ textAlign: 'center', padding: '3rem', fontSize: '1.2rem', color: '#c7d0e6' }}>
+          Loading mentees...
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <>
-      <div className="dashboard-page mentor-dashboard mentor-dashboard-large mentees-page">
-        <div className="mentees-header">
-          <div className="mentees-header-row">
-        <h2 className="mentees-title">
-          My Mentees <span className="mentees-count">({filteredMentees.filter(m => m.isActive).length})</span>
-        </h2>
-        <div className="mentees-view-toggle">
-          <button className={`view-toggle-btn ${viewMode === 'grid' ? 'active' : ''}`} onClick={() => setViewMode('grid')} aria-label="Grid view" title="Grid View">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h7v7H3V3zm0 11h7v7H3v-7zm11-11h7v7h-7V3zm0 11h7v7h-7v-7z"/></svg>
-          </button>
-          <button className={`view-toggle-btn ${viewMode === 'cards' ? 'active' : ''}`} onClick={() => setViewMode('cards')} aria-label="Card view" title="Card View">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h16v4H4V4zm0 6h16v4H4v-4zm0 6h16v4H4v-4z"/></svg>
-          </button>
-        </div>
-          </div>
-          <div className="mentees-controls">
-        <div className="mentees-search-container">
-          <input type="text" className="mentees-search-input" placeholder="Search mentees..." value={search} onChange={e => setSearch(e.target.value)} aria-label="Search mentees" />
-          <span className="mentees-search-icon">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="7" stroke="#64748b" strokeWidth="2" /><line x1="16.3" y1="16.3" x2="21" y2="21" stroke="#64748b" strokeWidth="2" strokeLinecap="round" /></svg>
-          </span>
-        </div>
-        <div className="mentees-filters">
-          <select className="mentees-sort-select" value={sortBy} onChange={e => setSortBy(e.target.value as 'name' | 'progress' | 'joinDate')}>
-            <option value="name">Sort by Name</option>
-            <option value="progress">Sort by Progress</option>
-            <option value="joinDate">Sort by Join Date</option>
-          </select>
-          <label className="mentees-checkbox-label">
-            <input type="checkbox" checked={showInactive} onChange={e => setShowInactive(e.target.checked)} /> Show Inactive
-          </label>
-        </div>
-          </div>
-        </div>
-        {viewMode === 'cards' ? (
-          <div className="mentees-cards-grid">
-        {visibleMentees.map((mentee) => (
-          <StudentCard key={mentee.id} student={{ id: mentee.id, name: mentee.name, level: mentee.level, interests: mentee.interests, description: mentee.description, joinDate: mentee.joinDate, image: mentee.img, isActive: mentee.isActive }} onAccept={handleViewProfile} onMessage={handleMessage} onScheduleSession={handleScheduleSession} />
-        ))}
-          </div>
-        ) : (
-          <div className="mentees-grid">
-        {visibleMentees.map((mentee) => (
-          <div className={`mentee-card ${!mentee.isActive ? 'inactive' : ''}`} key={mentee.id}>
-            <img src={mentee.img} alt={mentee.name} className="mentee-avatar" />
-            <div className="mentee-info">
-          <div className="mentee-name">{mentee.name}</div>
-          <div className="mentee-level">{mentee.level}</div>
-          <div className="mentee-progress">
-            <div className="progress-bar">
-              <div className="progress-fill" style={{ width: `${mentee.progress}%` }}></div>
-            </div>
-            <span className="progress-text">{mentee.progress}%</span>
-          </div>
-          <div className="mentee-sessions">{mentee.sessionsCompleted} sessions completed</div>
-            </div>
-            <div className="mentee-actions">
-          <button className="mentee-info-btn primary" onClick={() => handleViewProfile(mentee.id)}>View Profile</button>
-          <button className="mentee-info-btn secondary" onClick={() => handleMessage(mentee.id)}>Message</button>
-            </div>
-            {!mentee.isActive && <div className="inactive-badge">Inactive</div>}
-          </div>
-        ))}
-          </div>
-        )}
-        {filteredMentees.length === 0 && (
-          <div className="no-mentees">
-        <div className="no-mentees-icon">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="48" height="48"><circle cx="12" cy="12" r="10" stroke="#94a3b8" strokeWidth="2"/><path d="M8 14s1.5 2 4 2 4-2 4-2" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round"/><line x1="9" y1="9" x2="9.01" y2="9" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round"/><line x1="15" y1="9" x2="15.01" y2="9" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round"/></svg>
-        </div>
-        <p>No mentees found matching your criteria.</p>
-        {(search || showInactive || sortBy !== 'name') && <button className="clear-search-btn" onClick={handleClearSearch}>Clear All Filters</button>}
-          </div>
-        )}
-        {hasMore && <div className="mentees-see-more-wrapper"><button className="mentees-see-more" onClick={handleLoadMore}>Load More Mentees ({filteredMentees.length - visibleCount} remaining)</button></div>}
-        {filteredMentees.length > 0 && (
-          <div className="mentees-summary">
-        <div className="summary-item"><span className="summary-label">Total Mentees:</span> <span className="summary-value">{filteredMentees.length}</span></div>
-        <div className="summary-item"><span className="summary-label">Active:</span> <span className="summary-value">{filteredMentees.filter(m => m.isActive).length}</span></div>
-        <div className="summary-item"><span className="summary-label">Average Progress:</span> <span className="summary-value">{Math.round(filteredMentees.reduce((acc, m) => acc + m.progress, 0) / filteredMentees.length)}%</span></div>
-          </div>
-        )}
+    <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '2rem', color: '#fff' }}>
+      <div style={{ marginBottom: '2rem' }}>
+        <h1 style={{ color: '#fff', marginBottom: '0.5rem', fontSize: '2.5rem' }}>My Mentees</h1>
+        <p style={{ color: '#c7d0e6', fontSize: '1.1rem' }}>Connect and manage your mentee relationships</p>
       </div>
 
-      {/* Group Chat Icon */}
-      <div 
-        className="mentees-groupchat-icon" 
-        onClick={() => navigate('/dashboard/groupchat')} 
-        style={{ cursor: 'pointer' }}
-        title="Open Group Chat"
-      >
-        <img src={groupChatIcon} alt="Group Chat" style={{ width: 38, height: 38 }} />
-        <div className="chat-badge">
-          {filteredMentees.filter(m => m.isActive).length}
+      {error && (
+        <div style={{
+          background: 'rgba(239, 68, 68, 0.1)',
+          border: '1px solid rgba(239, 68, 68, 0.5)',
+          borderRadius: '8px',
+          padding: '1rem',
+          marginBottom: '1.5rem',
+          color: '#ef4444'
+        }}>
+          ⚠️ {error}
         </div>
+      )}
+
+      {/* Search Bar */}
+      <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap' }}>
+        <input
+          type="text"
+          placeholder="Search mentees by name or email..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          style={{
+            flex: '1',
+            minWidth: '300px',
+            padding: '0.9rem 1.2rem',
+            background: '#19223a',
+            border: '2px solid #2e3a5e',
+            borderRadius: '12px',
+            color: '#fff',
+            fontSize: '1rem',
+            transition: 'all 0.3s'
+          }}
+        />
+        <span style={{
+          padding: '0.9rem 1.5rem',
+          background: '#19223a',
+          border: '2px solid #2e3a5e',
+          borderRadius: '12px',
+          color: '#4f8cff',
+          fontWeight: '600',
+          whiteSpace: 'nowrap'
+        }}>
+          {filteredMentees.length} {filteredMentees.length === 1 ? 'Mentee' : 'Mentees'}
+        </span>
       </div>
-    </>
+
+      {/* Mentees Grid */}
+      {filteredMentees.length === 0 ? (
+        <div style={{
+          textAlign: 'center',
+          padding: '4rem 2rem',
+          background: '#19223a',
+          border: '2px dashed #2e3a5e',
+          borderRadius: '12px'
+        }}>
+          {searchQuery ? (
+            <p style={{ color: '#c7d0e6', fontSize: '1.1rem', marginBottom: '1rem' }}>
+              No mentees found matching "{searchQuery}"
+            </p>
+          ) : (
+            <>
+              <p style={{ color: '#c7d0e6', fontSize: '1.1rem', marginBottom: '1rem' }}>
+                You don't have any mentees yet.
+              </p>
+              <p style={{ color: '#c7d0e6', fontSize: '1.1rem', marginBottom: '1.5rem' }}>
+                Accept mentee applications to start mentoring!
+              </p>
+              <Button 
+                variant="primary" 
+                onClick={() => navigate('/mentor/mentee-applications')}
+              >
+                View Applications
+              </Button>
+            </>
+          )}
+        </div>
+      ) : (
+        <div 
+          className="mentor-mentees-grid-responsive"
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, 1fr)',
+            gap: '1.5rem'
+          }}
+        >
+          {filteredMentees.map((mentee) => {
+            const learner = mentee.learner;
+            const displayName = learner?.display_name || 
+                               `${learner?.first_name || ''} ${learner?.last_name || ''}`.trim() || 
+                               'Anonymous';
+            
+            return (
+              <div 
+                key={mentee.application_id} 
+                onClick={() => handleMenteeClick(mentee.application_id)}
+                style={{
+                  background: '#19223a',
+                  border: '2px solid #2e3a5e',
+                  borderRadius: '16px',
+                  padding: '2rem',
+                  transition: 'all 0.3s',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '1.5rem'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = '#4f8cff';
+                  e.currentTarget.style.boxShadow = '0 8px 24px rgba(79, 140, 255, 0.2)';
+                  e.currentTarget.style.transform = 'translateY(-4px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = '#2e3a5e';
+                  e.currentTarget.style.boxShadow = 'none';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                  <div style={{
+                    width: '80px',
+                    height: '80px',
+                    borderRadius: '50%',
+                    background: 'linear-gradient(135deg, #4f8cff 0%, #2563eb 100%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '2rem',
+                    fontWeight: '700',
+                    color: '#fff',
+                    border: '3px solid #2e3a5e',
+                    flexShrink: '0'
+                  }}>
+                    {displayName.charAt(0).toUpperCase()}
+                  </div>
+                  <span style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    padding: '0.4rem 0.9rem',
+                    background: 'rgba(34, 197, 94, 0.1)',
+                    border: '1px solid rgba(34, 197, 94, 0.3)',
+                    borderRadius: '20px',
+                    color: '#22c55e',
+                    fontSize: '0.85rem',
+                    fontWeight: '600'
+                  }}>
+                    <span style={{
+                      width: '8px',
+                      height: '8px',
+                      borderRadius: '50%',
+                      background: '#22c55e',
+                      animation: 'pulse 2s infinite'
+                    }}></span>
+                    Active
+                  </span>
+                </div>
+
+                <div style={{ flex: '1' }}>
+                  <h3 style={{
+                    color: '#fff',
+                    fontSize: '1.5rem',
+                    margin: '0 0 0.5rem 0',
+                    fontWeight: '700'
+                  }}>
+                    {displayName}
+                  </h3>
+                  <p style={{
+                    color: '#8b93ab',
+                    margin: '0 0 1rem 0',
+                    fontSize: '0.95rem'
+                  }}>
+                    📧 {learner?.email}
+                  </p>
+
+                  <div style={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: '1rem',
+                    marginTop: '1rem'
+                  }}>
+                    <span style={{
+                      color: '#8b93ab',
+                      fontSize: '0.9rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem'
+                    }}>
+                      📅 Connected: {new Date(mentee.reviewed_at || mentee.submitted_at).toLocaleDateString()}
+                    </span>
+                  </div>
+
+                  {mentee.interest_statement && (
+                    <div style={{
+                      marginTop: '1rem',
+                      padding: '1rem',
+                      background: '#0f1629',
+                      borderRadius: '8px',
+                      border: '1px solid #2e3a5e'
+                    }}>
+                      <strong style={{
+                        color: '#4f8cff',
+                        display: 'block',
+                        marginBottom: '0.5rem',
+                        fontSize: '0.9rem'
+                      }}>
+                        Interest:
+                      </strong>
+                      <p style={{
+                        color: '#c7d0e6',
+                        margin: '0',
+                        lineHeight: '1.5',
+                        fontSize: '0.95rem'
+                      }}>
+                        {mentee.interest_statement.length > 80 
+                          ? `${mentee.interest_statement.substring(0, 80)}...` 
+                          : mentee.interest_statement}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                <div 
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    paddingTop: '1rem',
+                    borderTop: '1px solid #2e3a5e'
+                  }}
+                  onClick={(e: React.MouseEvent) => e.stopPropagation()}
+                >
+                  <Button 
+                    variant="primary" 
+                    size="small"
+                    onClick={() => handleMenteeClick(mentee.application_id)}
+                  >
+                    View Profile
+                  </Button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
   );
 };
 

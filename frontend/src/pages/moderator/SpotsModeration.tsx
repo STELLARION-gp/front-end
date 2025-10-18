@@ -142,11 +142,11 @@ const SpotsModeration: React.FC = () => {
             {filteredSpots.map(spot => (
               <div key={spot.id} className="spot-item">
                 <div className="spot-header">
-                  <div className="spot-info">
+                  <div className="spot-info_1">
                     <div className="location-icon">
                       <FaMapMarkerAlt />
                     </div>
-                    <div className="spot-details">
+                    <div className="spot-details_1">
                       <h3 className="spot-name">{spot.name}</h3>
                       <p className="spot-location">{spot.location}</p>
                       <div className="submitter-info">
@@ -170,7 +170,7 @@ const SpotsModeration: React.FC = () => {
 
                   {/* Image Gallery Preview */}
                   {spot.image_urls && spot.image_urls.length > 0 && (
-                    <div className="spot-images-preview">
+                    <div className="spot-images-preview_1">
                       {spot.image_urls.slice(0, 3).map((url, index) => (
                         <img key={index} src={url} alt={`${spot.name} ${index + 1}`} />
                       ))}
@@ -188,7 +188,13 @@ const SpotsModeration: React.FC = () => {
                       </div>
                       <div className="meta-item">
                         <span className="label">Facilities:</span>
-                        <span className="value">{spot.facilities.length} facilities</span>
+                        <span className="value">
+                          {Array.isArray(spot.facilities) 
+                            ? spot.facilities.length 
+                            : typeof spot.facilities === 'string' 
+                              ? JSON.parse(spot.facilities).length 
+                              : 0} facilities
+                        </span>
                       </div>
                     </div>
                     

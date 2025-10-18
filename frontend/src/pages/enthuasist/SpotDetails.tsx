@@ -207,11 +207,16 @@ const SpotDetails: React.FC = () => {
             <p>{spot.description}</p>
           </div>
 
-          {spot.facilities && spot.facilities.length > 0 && (
+          {spot.facilities && (
             <div className="facilities-section">
               <h2>Available Facilities</h2>
               <div className="facilities-grid">
-                {spot.facilities.map((facility, index) => (
+                {(Array.isArray(spot.facilities) 
+                  ? spot.facilities 
+                  : typeof spot.facilities === 'string' 
+                    ? JSON.parse(spot.facilities)
+                    : []
+                ).map((facility: string, index: number) => (
                   <div key={index} className="facility-item">
                     <span className="checkmark">✓</span>
                     {facility}

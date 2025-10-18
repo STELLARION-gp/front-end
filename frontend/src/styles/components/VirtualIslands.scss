@@ -6,6 +6,22 @@
   position: relative;
   overflow: hidden;
 
+  // Animated stars background
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: 
+      radial-gradient(2px 2px at 10% 20%, rgba(255, 255, 255, 0.8), transparent),
+      radial-gradient(1px 1px at 90% 80%, rgba(255, 255, 255, 0.6), transparent),
+      radial-gradient(2px 2px at 50% 50%, rgba(255, 255, 255, 0.7), transparent),
+      radial-gradient(1px 1px at 30% 70%, rgba(255, 255, 255, 0.5), transparent),
+      radial-gradient(2px 2px at 70% 30%, rgba(255, 255, 255, 0.8), transparent);
+    animation: twinkleStars 15s ease-in-out infinite;
+    pointer-events: none;
+    opacity: 0.4;
+  }
+
   .islands-container {
     max-width: 1400px;
     margin: 0 auto;
@@ -43,13 +59,15 @@
 
   .island-divider {
     width: 2px;
-    min-height: 400px;
+    min-height: 600px;
     background: linear-gradient(
       to bottom,
       transparent 0%,
-      rgba(138, 99, 210, 0.5) 10%,
+      rgba(138, 99, 210, 0.3) 5%,
+      rgba(138, 99, 210, 0.6) 15%,
       rgba(138, 99, 210, 0.8) 50%,
-      rgba(138, 99, 210, 0.5) 90%,
+      rgba(138, 99, 210, 0.6) 85%,
+      rgba(138, 99, 210, 0.3) 95%,
       transparent 100%
     );
     position: relative;
@@ -66,6 +84,10 @@
       border-radius: 50%;
       box-shadow: 0 0 20px rgba(138, 99, 210, 0.8);
       animation: pulse 2s ease-in-out infinite;
+    }
+
+    @media (max-width: 1024px) {
+      min-height: 500px;
     }
   }
 
@@ -124,26 +146,28 @@
   // Stargazing Island Specific Styles
   .stargazing-island {
     position: relative;
-    cursor: crosshair;
+    animation: fadeInUp 0.6s ease-out;
 
-    .trail-image {
+    // Unique background glow effect
+    &::before {
+      content: '';
       position: absolute;
-      width: 120px;
-      height: 120px;
-      background-size: cover;
-      background-position: center;
-      border-radius: 12px;
+      top: 50%;
+      left: 50%;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(138, 99, 210, 0.15) 0%, transparent 70%);
+      transform: translate(-50%, -50%);
       pointer-events: none;
-      transition: opacity 0.3s ease;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-      border: 2px solid rgba(255, 255, 255, 0.1);
-      z-index: 10;
+      animation: breathe 4s ease-in-out infinite;
     }
 
     .spots-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 16px;
+      position: relative;
+      z-index: 1;
 
       @media (max-width: 768px) {
         grid-template-columns: 1fr;
@@ -152,13 +176,20 @@
 
     .spot-card {
       position: relative;
-      background: rgba(255, 255, 255, 0.05);
+      background: rgba(138, 99, 210, 0.08);
       -webkit-backdrop-filter: blur(10px);
       backdrop-filter: blur(10px);
       border-radius: 12px;
       overflow: hidden;
       transition: all 0.3s ease;
       cursor: pointer;
+      animation: fadeInScale 0.5s ease-out backwards;
+
+      @for $i from 1 through 4 {
+        &:nth-child(#{$i}) {
+          animation-delay: #{$i * 0.1}s;
+        }
+      }
 
       // Magic border effect
       &::before {
@@ -170,7 +201,7 @@
         background: linear-gradient(
           45deg,
           transparent 25%,
-          rgba(138, 99, 210, 0.5) 50%,
+          rgba(138, 99, 210, 0.6) 50%,
           transparent 75%
         );
         background-size: 300% 300%;
@@ -183,17 +214,22 @@
       }
 
       &:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 32px rgba(138, 99, 210, 0.3);
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 0 12px 40px rgba(138, 99, 210, 0.4);
+        background: rgba(138, 99, 210, 0.12);
 
         &::before {
           background: linear-gradient(
             45deg,
             transparent 25%,
-            rgba(138, 99, 210, 0.8) 50%,
+            rgba(138, 99, 210, 0.9) 50%,
             transparent 75%
           );
           animation-duration: 1.5s;
+        }
+
+        .spot-image {
+          transform: scale(1.1);
         }
       }
 
@@ -203,6 +239,7 @@
         background-size: cover;
         background-position: center;
         background-color: rgba(0, 0, 0, 0.3);
+        transition: transform 0.4s ease;
       }
 
       .spot-info {
@@ -247,23 +284,64 @@
 
   // Blogs Island Specific Styles
   .blogs-island {
+    animation: fadeInUp 0.6s ease-out 0.2s backwards;
+
+    // Unique floating particles effect
+    &::before {
+      content: '';
+      position: absolute;
+      top: 20%;
+      right: 10%;
+      width: 150px;
+      height: 150px;
+      background: radial-gradient(circle, rgba(129, 140, 248, 0.12) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 20%;
+      left: 10%;
+      width: 100px;
+      height: 100px;
+      background: radial-gradient(circle, rgba(129, 140, 248, 0.08) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+      animation: float 8s ease-in-out infinite reverse;
+    }
+
     .blogs-list {
       display: flex;
       flex-direction: column;
       gap: 12px;
+      position: relative;
+      z-index: 1;
     }
 
     .blog-card {
       position: relative;
-      background: rgba(255, 255, 255, 0.05);
+      background: rgba(129, 140, 248, 0.08);
       -webkit-backdrop-filter: blur(10px);
       backdrop-filter: blur(10px);
       border-radius: 12px;
-      padding: 16px;
+      overflow: hidden;
       transition: all 0.3s ease;
       cursor: pointer;
+      display: flex;
+      gap: 0;
+      animation: slideInRight 0.5s ease-out backwards;
+      height: 110px;
 
-      // Magic border effect
+      @for $i from 1 through 4 {
+        &:nth-child(#{$i}) {
+          animation-delay: #{0.2 + ($i * 0.1)}s;
+        }
+      }
+
+      // Magic border effect with rotate animation
       &::before {
         content: '';
         position: absolute;
@@ -273,7 +351,7 @@
         background: linear-gradient(
           90deg,
           transparent 25%,
-          rgba(129, 140, 248, 0.5) 50%,
+          rgba(129, 140, 248, 0.6) 50%,
           transparent 75%
         );
         background-size: 300% 300%;
@@ -286,51 +364,113 @@
       }
 
       &:hover {
-        transform: translateX(4px);
-        box-shadow: 0 4px 16px rgba(138, 99, 210, 0.2);
+        transform: translateX(8px) scale(1.02);
+        box-shadow: 0 6px 24px rgba(129, 140, 248, 0.3);
+        background: rgba(129, 140, 248, 0.12);
 
         &::before {
           background: linear-gradient(
             90deg,
             transparent 25%,
-            rgba(129, 140, 248, 0.8) 50%,
+            rgba(129, 140, 248, 0.9) 50%,
             transparent 75%
           );
           animation-duration: 2s;
         }
+
+        .blog-image {
+          transform: scale(1.1) rotate(2deg);
+          filter: brightness(1.1);
+        }
+      }
+
+      .blog-image {
+        width: 120px;
+        min-width: 120px;
+        height: 100%;
+        background-size: cover;
+        background-position: center;
+        background-color: rgba(0, 0, 0, 0.3);
+        transition: all 0.4s ease;
+      }
+
+      .blog-info {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 6px;
+        flex: 1;
+        min-width: 0;
+        padding: 12px 16px;
       }
 
       .blog-title {
         font-size: 1rem;
         font-weight: 600;
         color: #fff;
-        margin: 0 0 8px 0;
+        margin: 0;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
 
       .blog-author {
         font-size: 0.875rem;
-        color: rgba(255, 255, 255, 0.6);
+        color: rgba(129, 140, 248, 0.9);
+        font-weight: 500;
       }
     }
   }
 
   // Events Island Specific Styles
   .events-island {
+    animation: fadeInUp 0.6s ease-out 0.4s backwards;
+
+    // Unique shimmer effect
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(165, 180, 252, 0.1) 50%,
+        transparent 100%
+      );
+      animation: shimmer 8s ease-in-out infinite;
+      pointer-events: none;
+    }
+
     .events-list {
       display: flex;
       flex-direction: column;
       gap: 12px;
+      position: relative;
+      z-index: 1;
     }
 
     .event-card {
       position: relative;
-      background: rgba(255, 255, 255, 0.05);
+      background: rgba(165, 180, 252, 0.08);
       -webkit-backdrop-filter: blur(10px);
       backdrop-filter: blur(10px);
       border-radius: 12px;
       padding: 16px;
       transition: all 0.3s ease;
       cursor: pointer;
+      animation: bounceIn 0.6s ease-out backwards;
+
+      @for $i from 1 through 4 {
+        &:nth-child(#{$i}) {
+          animation-delay: #{0.4 + ($i * 0.1)}s;
+        }
+      }
 
       // Magic border effect
       &::before {
@@ -342,7 +482,7 @@
         background: linear-gradient(
           90deg,
           transparent 25%,
-          rgba(165, 180, 252, 0.5) 50%,
+          rgba(165, 180, 252, 0.6) 50%,
           transparent 75%
         );
         background-size: 300% 300%;
@@ -355,17 +495,23 @@
       }
 
       &:hover {
-        transform: translateX(4px);
-        box-shadow: 0 4px 16px rgba(138, 99, 210, 0.2);
+        transform: translateY(-4px) rotate(1deg);
+        box-shadow: 0 8px 28px rgba(165, 180, 252, 0.35);
+        background: rgba(165, 180, 252, 0.12);
 
         &::before {
           background: linear-gradient(
             90deg,
             transparent 25%,
-            rgba(165, 180, 252, 0.8) 50%,
+            rgba(165, 180, 252, 0.9) 50%,
             transparent 75%
           );
           animation-duration: 2s;
+        }
+
+        .event-date {
+          transform: scale(1.05);
+          box-shadow: 0 4px 12px rgba(138, 99, 210, 0.3);
         }
       }
 
@@ -373,13 +519,20 @@
         font-size: 1rem;
         font-weight: 600;
         color: #fff;
-        margin: 0 0 8px 0;
+        margin: 0 0 10px 0;
       }
 
       .event-date {
         font-size: 0.875rem;
-        color: rgba(138, 99, 210, 1);
-        font-weight: 500;
+        color: rgba(165, 180, 252, 1);
+        font-weight: 600;
+        display: inline-block;
+        padding: 6px 14px;
+        background: rgba(138, 99, 210, 0.25);
+        border-radius: 20px;
+        width: fit-content;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(165, 180, 252, 0.3);
       }
     }
   }
@@ -403,5 +556,113 @@
   }
   100% {
     background-position: 300% 0%;
+  }
+}
+
+@keyframes twinkleStars {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.95);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes breathe {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.15;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.2);
+    opacity: 0.25;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+// Accessibility
+@media (prefers-reduced-motion: reduce) {
+  .stargazing-island,
+  .blogs-island,
+  .events-island,
+  .spot-card,
+  .blog-card,
+  .event-card {
+    animation: none !important;
+  }
+
+  .virtual-islands-section::before,
+  .stargazing-island::before,
+  .blogs-island::before,
+  .blogs-island::after,
+  .events-island::before {
+    animation: none;
   }
 }

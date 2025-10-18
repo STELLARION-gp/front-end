@@ -1,41 +1,20 @@
-import React, { useRef, useState, useEffect } from 'react';
-import type { MouseEvent } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../../styles/components/VirtualIslands.scss';
 import { stargazingSpotService } from '../../services/stargazingSpotService';
 import type { StargazingSpot } from '../../services/stargazingSpotService';
-
-interface TrailImage {
-  id: number;
-  x: number;
-  y: number;
-  src: string;
-  opacity: number;
-}
-
-interface Blog {
-  id: number;
-  title: string;
-  author: string;
-}
-
-interface Event {
-  id: number;
-  title: string;
-  date: string;
-}
+import { blogService, type Blog } from '../../services/blogService';
+import { listEvents, mapBackendEvent, type PlatformEventMapped } from '../../services/eventsService';
 
 const StargazingIsland: React.FC = () => {
-  const [images, setImages] = useState<TrailImage[]>([]);
   const [spots, setSpots] = useState<StargazingSpot[]>([]);
   const [loading, setLoading] = useState(true);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const imageIndexRef = useRef(0);
-  const throttleRef = useRef<number>(0);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchSpots = async () => {
       try {
-        const response = await stargazingSpotService.getAllStargazingSpots({ limit: 6 });
+        const response = await stargazingSpotService.getAllStargazingSpots({ limit: 4 });
         setSpots(response.data || []);
       } catch (error) {
         console.error('Error fetching stargazing spots:', error);
@@ -46,102 +25,51 @@ const StargazingIsland: React.FC = () => {
     fetchSpots();
   }, []);
 
-  const spotImages = spots
-    .filter(spot => spot.image_urls && spot.image_urls.length > 0)
-    .map(spot => spot.image_urls![0])
-    .slice(0, 10);
-
-  const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
-    if (spotImages.length === 0) return;
-    
-    const now = Date.now();
-    if (now - throttleRef.current < 80) return;
-    throttleRef.current = now;
-
-    if (!containerRef.current) return;
-
-    const rect = containerRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    const newImage: TrailImage = {
-      id: Date.now() + Math.random(),
-      x,
-      y,
-      src: spotImages[imageIndexRef.current % spotImages.length],
-      opacity: 1,
-    };
-
-    imageIndexRef.current += 1;
-
-    setImages((prev) => {
-      const updated = [...prev, newImage];
-      if (updated.length > 20) {
-        return updated.slice(-20);
-      }
-      return updated;
-    });
-
-    setTimeout(() => {
-      setImages((prev) => prev.filter((img) => img.id !== newImage.id));
-    }, 1500);
-  };
-
   return (
     <div className="virtual-island stargazing-island">
-      <div 
-        ref={containerRef}
-        className="island-interactive-area"
-        onMouseMove={handleMouseMove}
-      >
-        {images.map((img) => (
-          <div
-            key={img.id}
-            className="trail-image"
-            style={{
-              left: `${img.x}px`,
-              top: `${img.y}px`,
-              backgroundImage: `url(${img.src})`,
-              opacity: img.opacity
-            }}
-          />
-        ))}
-
-        <div className="island-content">
-          <h2 className="island-title">Spots</h2>
-          
-          {loading ? (
-            <div className="loading-state">Loading...</div>
-          ) : (
-            <div className="spots-grid">
-              {spots.slice(0, 4).map((spot) => (
-                <div key={spot.id} className="spot-card">
-                  {spot.image_urls && spot.image_urls[0] && (
-                    <div 
-                      className="spot-image" 
-                      style={{ backgroundImage: `url(${spot.image_urls[0]})` }}
-                    ></div>
-                  )}
-                  <div className="spot-info">
-                    <h3>{spot.name}</h3>
-                    <div className="spot-meta">
-                      {spot.rating && (
-                        <span className="spot-rating">★ {spot.rating}</span>
-                      )}
-                      {spot.location && (
-                        <span className="spot-location">{spot.location}</span>
-                      )}
-                    </div>
+      <div className="island-content">
+        <h2 className="island-title">Spots</h2>
+        
+        {loading ? (
+          <div className="loading-state">Loading...</div>
+        ) : (
+          <div className="spots-grid">
+            {spots.map((spot) => (
+              <div 
+                key={spot.id} 
+                className="spot-card"
+                onClick={() => navigate(`/dashboard/stargazing`)}
+              >
+                {spot.image_urls && spot.image_urls[0] && (
+                  <div 
+                    className="spot-image" 
+                    style={{ backgroundImage: `url(${spot.image_urls[0]})` }}
+                  ></div>
+                )}
+                <div className="spot-info">
+                  <h3>{spot.name}</h3>
+                  <div className="spot-meta">
+                    {spot.rating && (
+                      <span className="spot-rating">★ {spot.rating}</span>
+                    )}
+                    {spot.location && (
+                      <span className="spot-location">{spot.location}</span>
+                    )}
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
+              </div>
+            ))}
+          </div>
+        )}
 
-          {!loading && spots.length > 0 && (
-            <button className="island-cta">View All →</button>
-          )}
-        </div>
+        {!loading && spots.length > 0 && (
+          <button 
+            className="island-cta"
+            onClick={() => navigate('/dashboard/stargazing')}
+          >
+            View All →
+          </button>
+        )}
       </div>
     </div>
   );
@@ -150,21 +78,45 @@ const StargazingIsland: React.FC = () => {
 const BlogsIsland: React.FC = () => {
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // TODO: Replace with actual blog service when available
     const fetchBlogs = async () => {
       try {
-        // Placeholder - replace with actual API call
-        await new Promise(resolve => setTimeout(resolve, 500));
-        setBlogs([
-          { id: 1, title: 'Understanding Dark Matter', author: 'Dr. Smith' },
-          { id: 2, title: 'Galaxy Formation Theories', author: 'Prof. Johnson' },
-          { id: 3, title: 'Black Holes Explained', author: 'Dr. Lee' },
-          { id: 4, title: 'The Hubble Deep Field', author: 'NASA' },
-        ]);
+        console.log('Fetching blogs...');
+        const response = await blogService.getBlogs({ 
+          status: 'published',
+          limit: 4,
+          sort_by: 'published_at',
+          sort_order: 'desc'
+        });
+        
+        console.log('Blogs response:', response);
+        
+        // Handle different response structures
+        let blogsData: Blog[] = [];
+        if (response && response.success && response.data && response.data.blogs) {
+          blogsData = response.data.blogs;
+        } else if (response && response.data) {
+          blogsData = response.data;
+        } else if (response && response.blogs) {
+          blogsData = response.blogs;
+        } else if (Array.isArray(response)) {
+          blogsData = response;
+        }
+        
+        // Map to include proper image URLs
+        const processedBlogs = blogsData.map((blog: Blog) => ({
+          ...blog,
+          image_url: blog.featured_image || blog.image_url || `https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=400`
+        }));
+        
+        console.log('Processed blogs:', processedBlogs);
+        setBlogs(processedBlogs);
       } catch (error) {
         console.error('Error fetching blogs:', error);
+        // Set empty array on error
+        setBlogs([]);
       } finally {
         setLoading(false);
       }
@@ -179,19 +131,40 @@ const BlogsIsland: React.FC = () => {
         
         {loading ? (
           <div className="loading-state">Loading...</div>
+        ) : blogs.length === 0 ? (
+          <div className="loading-state">No blogs available</div>
         ) : (
           <div className="blogs-list">
             {blogs.map((blog) => (
-              <div key={blog.id} className="blog-card">
-                <h3 className="blog-title">{blog.title}</h3>
-                <span className="blog-author">by {blog.author}</span>
+              <div 
+                key={blog.id} 
+                className="blog-card"
+                onClick={() => navigate(`/dashboard/blogs/${blog.id}`)}
+              >
+                {blog.image_url && (
+                  <div 
+                    className="blog-image" 
+                    style={{ backgroundImage: `url(${blog.image_url})` }}
+                  ></div>
+                )}
+                <div className="blog-info">
+                  <h3 className="blog-title">{blog.title}</h3>
+                  <span className="blog-author">
+                    by {blog.author_display_name || blog.author_name || 'Unknown Author'}
+                  </span>
+                </div>
               </div>
             ))}
           </div>
         )}
 
         {!loading && blogs.length > 0 && (
-          <button className="island-cta">View All →</button>
+          <button 
+            className="island-cta"
+            onClick={() => navigate('/dashboard/blogs')}
+          >
+            View All →
+          </button>
         )}
       </div>
     </div>
@@ -199,23 +172,29 @@ const BlogsIsland: React.FC = () => {
 };
 
 const EventsIsland: React.FC = () => {
-  const [events, setEvents] = useState<Event[]>([]);
+  const [events, setEvents] = useState<PlatformEventMapped[]>([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // TODO: Replace with actual events service when available
     const fetchEvents = async () => {
       try {
-        // Placeholder - replace with actual API call
-        await new Promise(resolve => setTimeout(resolve, 500));
-        setEvents([
-          { id: 1, title: 'Meteor Shower Watch', date: '2025-11-15' },
-          { id: 2, title: 'Telescope Workshop', date: '2025-11-20' },
-          { id: 3, title: 'Lunar Eclipse Viewing', date: '2025-12-05' },
-          { id: 4, title: 'Astronomy Quiz Night', date: '2025-12-10' },
-        ]);
+        console.log('Fetching events...');
+        const response = await listEvents();
+        console.log('Events response:', response);
+        
+        // Map backend events to frontend format
+        const eventsData = (response.data || response.events || [])
+          .map(mapBackendEvent)
+          .filter((event: PlatformEventMapped) => event.status === 'approved')
+          .slice(0, 4);
+        
+        console.log('Processed events:', eventsData);
+        setEvents(eventsData);
       } catch (error) {
         console.error('Error fetching events:', error);
+        // Set empty array on error
+        setEvents([]);
       } finally {
         setLoading(false);
       }
@@ -230,19 +209,36 @@ const EventsIsland: React.FC = () => {
         
         {loading ? (
           <div className="loading-state">Loading...</div>
+        ) : events.length === 0 ? (
+          <div className="loading-state">No events available</div>
         ) : (
           <div className="events-list">
             {events.map((event) => (
-              <div key={event.id} className="event-card">
-                <h3 className="event-title">{event.title}</h3>
-                <span className="event-date">{new Date(event.date).toLocaleDateString()}</span>
+              <div 
+                key={event.id} 
+                className="event-card"
+                onClick={() => navigate(`/dashboard/events`)}
+              >
+                <h3 className="event-title">{event.eventName}</h3>
+                <span className="event-date">
+                  {new Date(event.date).toLocaleDateString('en-US', { 
+                    month: 'short', 
+                    day: 'numeric',
+                    year: 'numeric'
+                  })}
+                </span>
               </div>
             ))}
           </div>
         )}
 
         {!loading && events.length > 0 && (
-          <button className="island-cta">View All →</button>
+          <button 
+            className="island-cta"
+            onClick={() => navigate('/dashboard/events')}
+          >
+            View All →
+          </button>
         )}
       </div>
     </div>

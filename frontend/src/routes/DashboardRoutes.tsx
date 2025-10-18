@@ -881,6 +881,7 @@ const DashboardRoutes = () => {
               "learner",
               "guide",
               "moderator",
+              "mentor"
             ]}
           >
             <AstroHub />

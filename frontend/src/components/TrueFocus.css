@@ -1,14 +1,10 @@
 .focus-container {
   position: relative;
   display: flex;
-  gap: 0.3em;
+  gap: 0.5em;
   justify-content: center;
   align-items: center;
   flex-wrap: wrap;
-  width: 100%;
-  font-size: clamp(2.5rem, 5vw, 4.5rem);
-  line-height: 1.2;
-  font-weight: 700;
 }
 
 .focus-word {
@@ -16,24 +12,13 @@
   font-size: inherit;
   font-weight: inherit;
   cursor: default;
-  display: inline-block;
-  filter: blur(5px) !important;
-  opacity: 0.4 !important;
   transition:
-    filter 0.5s ease-in-out,
-    opacity 0.5s ease-in-out,
-    color 0.5s ease-in-out,
-    transform 0.5s ease-in-out;
-  color: rgba(199, 210, 254, 0.5) !important;
-  transform: scale(0.98);
-  will-change: filter, opacity, color, transform;
+    filter 0.3s ease,
+    color 0.3s ease;
 }
 
 .focus-word.active {
-  filter: blur(0px) !important;
-  opacity: 1 !important;
-  color: rgba(255, 255, 255, 1) !important;
-  transform: scale(1) !important;
+  filter: blur(0);
 }
 
 .focus-frame {
@@ -47,10 +32,10 @@
 
 .corner {
   position: absolute;
-  width: 1.2rem;
-  height: 1.2rem;
-  border: 2.5px solid var(--border-color, rgba(167, 139, 250, 0.8));
-  filter: drop-shadow(0px 0px 6px var(--glow-color, rgba(167, 139, 250, 0.5)));
+  width: 1rem;
+  height: 1rem;
+  border: 3px solid var(--border-color, rgb(138, 99, 210));
+  filter: drop-shadow(0px 0px 4px var(--border-color, rgb(138, 99, 210)));
   border-radius: 3px;
   transition: none;
 }

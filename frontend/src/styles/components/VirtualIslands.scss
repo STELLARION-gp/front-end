@@ -104,12 +104,23 @@
     .island-title {
       font-size: 2rem;
       font-weight: 700;
-      background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin: 0;
+      margin: 0 0 28px 0;
       text-align: center;
+      letter-spacing: 0.5px;
+      
+      .focus-container {
+        background: linear-gradient(135deg, #a78bfa 0%, #818cf8 50%, #c084fc 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      
+      .focus-word {
+        background: linear-gradient(135deg, #a78bfa 0%, #818cf8 50%, #c084fc 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
     }
 
     .island-cta {
@@ -243,39 +254,46 @@
       }
 
       .spot-info {
-        padding: 12px;
+        padding: 14px;
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        justify-content: space-between;
+        flex: 1;
 
         h3 {
-          font-size: 1rem;
+          font-size: 1.05rem;
           font-weight: 600;
           color: #fff;
-          margin: 0;
-          white-space: nowrap;
+          margin: 0 0 8px 0;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          line-clamp: 2;
+          -webkit-box-orient: vertical;
           overflow: hidden;
           text-overflow: ellipsis;
+          line-height: 1.3;
         }
 
         .spot-meta {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          font-size: 0.875rem;
+          font-size: 0.85rem;
 
           .spot-rating {
             color: #fbbf24;
             display: flex;
             align-items: center;
             gap: 4px;
+            font-weight: 500;
           }
 
           .spot-location {
-            color: rgba(255, 255, 255, 0.6);
+            color: rgba(138, 99, 210, 0.9);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            font-weight: 500;
           }
         }
       }
@@ -331,9 +349,10 @@
       transition: all 0.3s ease;
       cursor: pointer;
       display: flex;
+      flex-direction: row;
       gap: 0;
       animation: slideInRight 0.5s ease-out backwards;
-      height: 110px;
+      height: 120px;
 
       @for $i from 1 through 4 {
         &:nth-child(#{$i}) {
@@ -384,9 +403,10 @@
         }
       }
 
-      .blog-image {
-        width: 120px;
-        min-width: 120px;
+      .blog-image_1 {
+        width: 140px;
+        min-width: 140px;
+        flex-shrink: 0;
         height: 100%;
         background-size: cover;
         background-position: center;
@@ -405,7 +425,7 @@
       }
 
       .blog-title {
-        font-size: 1rem;
+        font-size: 1.05rem;
         font-weight: 600;
         color: #fff;
         margin: 0;
@@ -415,6 +435,7 @@
         -webkit-box-orient: vertical;
         overflow: hidden;
         text-overflow: ellipsis;
+        line-height: 1.4;
       }
 
       .blog-author {
@@ -516,10 +537,17 @@
       }
 
       .event-title {
-        font-size: 1rem;
+        font-size: 1.05rem;
         font-weight: 600;
         color: #fff;
         margin: 0 0 10px 0;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        line-height: 1.4;
       }
 
       .event-date {

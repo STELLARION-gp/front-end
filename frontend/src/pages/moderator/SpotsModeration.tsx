@@ -24,7 +24,10 @@ const SpotsModeration: React.FC = () => {
       let response;
       
       if (selectedFilter === 'all') {
-        response = await stargazingSpotService.getAllStargazingSpots();
+        // Fetch all spots regardless of status by not passing status filter
+        response = await stargazingSpotService.getAllStargazingSpots({
+          // Don't pass status filter to get all spots
+        });
       } else {
         response = await stargazingSpotService.getSpotsByStatus(selectedFilter);
       }
@@ -142,11 +145,11 @@ const SpotsModeration: React.FC = () => {
             {filteredSpots.map(spot => (
               <div key={spot.id} className="spot-item">
                 <div className="spot-header">
-                  <div className="spot-info">
+                  <div className="spot-info_1">
                     <div className="location-icon">
                       <FaMapMarkerAlt />
                     </div>
-                    <div className="spot-details">
+                    <div className="spot-details_1">
                       <h3 className="spot-name">{spot.name}</h3>
                       <p className="spot-location">{spot.location}</p>
                       <div className="submitter-info">
@@ -170,7 +173,7 @@ const SpotsModeration: React.FC = () => {
 
                   {/* Image Gallery Preview */}
                   {spot.image_urls && spot.image_urls.length > 0 && (
-                    <div className="spot-images-preview">
+                    <div className="spot-images-preview_3">
                       {spot.image_urls.slice(0, 3).map((url, index) => (
                         <img key={index} src={url} alt={`${spot.name} ${index + 1}`} />
                       ))}
@@ -188,7 +191,13 @@ const SpotsModeration: React.FC = () => {
                       </div>
                       <div className="meta-item">
                         <span className="label">Facilities:</span>
-                        <span className="value">{spot.facilities.length} facilities</span>
+                        <span className="value">
+                          {Array.isArray(spot.facilities) 
+                            ? spot.facilities.length 
+                            : typeof spot.facilities === 'string' 
+                              ? JSON.parse(spot.facilities).length 
+                              : 0} facilities
+                        </span>
                       </div>
                     </div>
                     
@@ -223,9 +232,10 @@ const SpotsModeration: React.FC = () => {
                       <Button
                         variant="success"
                         size="small"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleModerate(spot.id, 'approve');
+                        onClick={() => {
+                          if (window.confirm(`Are you sure you want to approve "${spot.name}"?`)) {
+                            handleModerate(spot.id, 'approve');
+                          }
                         }}
                         disabled={actionLoading === `${spot.id}-approve`}
                       >
@@ -234,15 +244,44 @@ const SpotsModeration: React.FC = () => {
                       <Button
                         variant="danger"
                         size="small"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleModerate(spot.id, 'reject');
+                        onClick={() => {
+                          if (window.confirm(`Are you sure you want to reject "${spot.name}"?`)) {
+                            handleModerate(spot.id, 'reject');
+                          }
                         }}
                         disabled={actionLoading === `${spot.id}-reject`}
                       >
                         <FaTimes /> {actionLoading === `${spot.id}-reject` ? 'Rejecting...' : 'Reject'}
                       </Button>
                     </>
+                  )}
+                  {spot.status === 'approved' && (
+                    <Button
+                      variant="danger"
+                      size="small"
+                      onClick={() => {
+                        if (window.confirm(`Are you sure you want to reject "${spot.name}"? This will remove it from public view.`)) {
+                          handleModerate(spot.id, 'reject');
+                        }
+                      }}
+                      disabled={actionLoading === `${spot.id}-reject`}
+                    >
+                      <FaTimes /> {actionLoading === `${spot.id}-reject` ? 'Rejecting...' : 'Reject'}
+                    </Button>
+                  )}
+                  {spot.status === 'rejected' && (
+                    <Button
+                      variant="success"
+                      size="small"
+                      onClick={() => {
+                        if (window.confirm(`Are you sure you want to approve "${spot.name}"? This will make it visible to the public.`)) {
+                          handleModerate(spot.id, 'approve');
+                        }
+                      }}
+                      disabled={actionLoading === `${spot.id}-approve`}
+                    >
+                      <FaCheck /> {actionLoading === `${spot.id}-approve` ? 'Approving...' : 'Re-approve'}
+                    </Button>
                   )}
                 </div>
               </div>

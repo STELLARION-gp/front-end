@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Button from '../../components/Button';
 import ErrorBoundary from '../../components/ErrorBoundary';
-import { FaMapMarkerAlt, FaStar, FaEye, FaClock, FaCalendarAlt, FaCamera, FaCheckCircle, FaTimesCircle, FaExclamationCircle } from 'react-icons/fa';
+import { FaMapMarkerAlt, FaStar, FaEye, FaClock, FaCalendarAlt, FaCamera, FaCheckCircle, FaTimesCircle, FaExclamationCircle, FaTimes, FaExclamationTriangle, FaInfoCircle } from 'react-icons/fa';
 import '../../styles/pages/moderator/SpotsDetails.scss';
 import { stargazingSpotService } from '../../services/stargazingSpotService';
 import type { StargazingSpot } from '../../services/stargazingSpotService';
@@ -19,6 +19,7 @@ const SpotsDetails: React.FC = () => {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [factCheckReport, setFactCheckReport] = useState<FactCheckReport | null>(null);
   const [checkingFacts, setCheckingFacts] = useState(false);
+  const [showFactCheckModal, setShowFactCheckModal] = useState(false);
 
   // Fetch spot details from API
   useEffect(() => {
@@ -93,6 +94,7 @@ const SpotsDetails: React.FC = () => {
     if (!spot || checkingFacts) return;
     
     setCheckingFacts(true);
+    setShowFactCheckModal(true); // Show modal immediately
     try {
       console.log('🔍 Starting fact check for spot:', spot.name);
       const report = await factCheckService.checkBlogContent(spot.description, spot.name);
@@ -101,9 +103,14 @@ const SpotsDetails: React.FC = () => {
     } catch (error) {
       console.error('❌ Error during fact check:', error);
       alert('Error running fact check. Please try again.');
+      setShowFactCheckModal(false); // Close modal on error
     } finally {
       setCheckingFacts(false);
     }
+  };
+
+  const closeFactCheckModal = () => {
+    setShowFactCheckModal(false);
   };
 
   const formatDate = (dateString?: string) => {
@@ -459,6 +466,133 @@ const SpotsDetails: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Fact Check Modal */}
+      {showFactCheckModal && (
+        <div className="fact-check-modal-overlay" onClick={closeFactCheckModal}>
+          <div className="fact-check-modal-content" onClick={(e) => e.stopPropagation()}>
+            <button 
+              className="modal-close-btn" 
+              onClick={closeFactCheckModal}
+              aria-label="Close modal"
+              title="Close"
+            >
+              <FaTimes />
+            </button>
+
+            {checkingFacts ? (
+              <div className="modal-loading">
+                <div className="loading-spinner"></div>
+                <p>Analyzing spot description...</p>
+              </div>
+            ) : factCheckReport ? (
+              <div className="fact-check-modal-body">
+                <h2 className="modal-title">
+                  <FaCheckCircle className="icon-check" />
+                  Fact Check Results
+                </h2>
+
+                {/* Credibility Badge */}
+                <div className={`credibility-badge ${
+                  factCheckReport.overallScore >= 70 ? 'high' :
+                  factCheckReport.overallScore >= 50 ? 'medium' : 'low'
+                }`}>
+                  {factCheckReport.overallScore >= 70 ? 'HIGH CREDIBILITY' :
+                   factCheckReport.overallScore >= 50 ? 'MODERATE CREDIBILITY' : 'LOW CREDIBILITY'}
+                </div>
+
+                {/* Score Overview */}
+                <div className="fact-check-overview">
+                  <div className="score-circle">
+                    <div className="score-value">{factCheckReport.overallScore}</div>
+                    <div className="score-label">Credibility Score</div>
+                  </div>
+
+                  <div className="claims-summary">
+                    <div className="claim-stat verified">
+                      <FaCheckCircle />
+                      <span>{factCheckReport.verifiedClaims} Verified</span>
+                    </div>
+                    <div className="claim-stat false">
+                      <FaTimesCircle />
+                      <span>{factCheckReport.falseClaiims} False</span>
+                    </div>
+                    <div className="claim-stat unverified">
+                      <FaExclamationCircle />
+                      <span>{factCheckReport.unverifiedClaims} Unverified</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Warnings */}
+                {factCheckReport.warnings && factCheckReport.warnings.length > 0 && (
+                  <div className="fact-check-warnings">
+                    <h3><FaExclamationTriangle /> Warnings</h3>
+                    <ul>
+                      {factCheckReport.warnings.map((warning, index) => (
+                        <li key={index}>{warning}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Recommendations */}
+                {factCheckReport.recommendations && factCheckReport.recommendations.length > 0 && (
+                  <div className="fact-check-recommendations">
+                    <h3><FaInfoCircle /> Recommendations</h3>
+                    <ul>
+                      {factCheckReport.recommendations.map((rec, index) => (
+                        <li key={index}>{rec}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Individual Claims */}
+                {factCheckReport.claims && factCheckReport.claims.length > 0 && (
+                  <div className="fact-check-claims">
+                    <h3>Analyzed Claims ({factCheckReport.claims.length})</h3>
+                    <div className="claims-list">
+                      {factCheckReport.claims.map((claim, index) => (
+                        <div key={index} className={`claim-item ${claim.rating.toLowerCase()}`}>
+                          <div className="claim-header">
+                            <span className="claim-number">#{index + 1}</span>
+                            <span className={`claim-rating ${claim.rating.toLowerCase()}`}>
+                              {claim.rating === 'true' && <FaCheckCircle />}
+                              {claim.rating === 'false' && <FaTimesCircle />}
+                              {claim.rating === 'mixture' && <FaExclamationCircle />}
+                              {claim.rating === 'unverified' && <FaExclamationCircle />}
+                              {claim.rating.toUpperCase()}
+                            </span>
+                          </div>
+                          <p className="claim-text">{claim.claim}</p>
+                          {claim.sources && claim.sources.length > 0 && (
+                            <div className="claim-sources">
+                              <strong>Sources:</strong>
+                              {claim.sources.map((source, idx) => (
+                                <a key={idx} href={source.url} target="_blank" rel="noopener noreferrer">
+                                  {source.name}
+                                </a>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="modal-footer">
+                  <p className="disclaimer">
+                    <FaInfoCircle /> This analysis is automated and may not be 100% accurate. 
+                    Manual verification is recommended for critical decisions.
+                  </p>
+                </div>
+              </div>
+            ) : null}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

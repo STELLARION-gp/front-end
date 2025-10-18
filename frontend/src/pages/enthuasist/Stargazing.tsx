@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Button from '../../components/Button';
 import stargazingSpotService from '../../services/stargazingSpotService.ts';
 import { AuthContext } from '../../contexts/AuthContext';
@@ -97,6 +98,7 @@ const Stargazing: React.FC = () => {
   // Get authentication context
   const authContext = useContext(AuthContext);
   const user = authContext?.user;
+  const navigate = useNavigate();
   
   // State for stargazing spots data
   const [stargazingSpots, setStargazingSpots] = useState<StargazingSpot[]>([]);
@@ -126,7 +128,7 @@ const Stargazing: React.FC = () => {
     description: '',
     image: '',
     facilities: [''],
-    rating: 0
+    rating: undefined as number | undefined
   });
 
   // NEW: Image upload state
@@ -164,7 +166,7 @@ const Stargazing: React.FC = () => {
       
       const apiFilters: StargazingSpotFilters = {
         limit: 50, // Get more spots for the initial load
-        sort_by: 'rating',
+        sort_by: 'created_at',
         sort_order: 'desc'
       };
       
@@ -175,7 +177,9 @@ const Stargazing: React.FC = () => {
       const response = await stargazingSpotService.getAllStargazingSpots(apiFilters);
       
       if (response.success && response.data) {
-        const transformedSpots = response.data.map(transformApiSpotToFrontend);
+        // Filter to show only approved spots
+        const approvedSpots = response.data.filter(spot => spot.status === 'approved');
+        const transformedSpots = approvedSpots.map(transformApiSpotToFrontend);
         setStargazingSpots(transformedSpots);
       } else {
         setError('Failed to fetch stargazing spots');
@@ -369,9 +373,22 @@ const Stargazing: React.FC = () => {
           best_time: addSpotForm.bestTime.trim() || undefined,
           image_url: addSpotForm.image.trim() || undefined,
           facilities: addSpotForm.facilities.filter(f => f.trim()),
-          rating: addSpotForm.rating > 0 ? addSpotForm.rating : undefined,
-          images: selectedImages  // Add selected images
         };
+
+        // Only include rating if it's a valid number between 1-5
+        if (addSpotForm.rating !== undefined && addSpotForm.rating >= 1 && addSpotForm.rating <= 5) {
+          spotData.rating = addSpotForm.rating;
+        }
+
+        // Only include images if any are selected
+        if (selectedImages.length > 0) {
+          spotData.images = selectedImages;
+        }
+
+        console.log('Submitting spot data:', {
+          ...spotData,
+          images: spotData.images ? `${spotData.images.length} images` : 'no images'
+        });
 
         const response = await stargazingSpotService.createStargazingSpot(spotData);
         
@@ -384,7 +401,7 @@ const Stargazing: React.FC = () => {
             description: '',
             image: '',
             facilities: [''],
-            rating: 0
+            rating: undefined
           });
           setSelectedImages([]);
           setImagePreviews([]);
@@ -416,7 +433,7 @@ const Stargazing: React.FC = () => {
       description: '',
       image: '',
       facilities: [''],
-      rating: 0
+      rating: undefined
     });
     setSelectedImages([]);
     setImagePreviews([]);
@@ -558,23 +575,13 @@ const Stargazing: React.FC = () => {
             </div>
 
             <div className="stargazing-card__content">
-              <div className="stargazing-card__content-top" style={{position: 'relative'}}>
+              <div className="stargazing-card__content-top">
                 <h3 className="stargazing-card__title">{spot.name}</h3>
-                <div style={{
-                  position: 'absolute',
-                  top: 0,
-                  right: 0,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '2px',
-                  fontSize: '1.1rem',
-                  borderRadius: '0 0 0 8px',
-                  padding: '2px 8px'
-                }}>
-                  <span style={{color: '#FFD700', letterSpacing: '1px'}}>
+                <div className="stargazing-card__rating">
+                  <span className="stargazing-card__rating-stars">
                     {renderStars(spot.rating)}
                   </span>
-                  <span style={{marginLeft: 4, color: '#fff', fontSize: '0.95em'}}>{spot.rating.toFixed(1)}</span>
+                  <span className="stargazing-card__rating-value">{spot.rating.toFixed(1)}</span>
                 </div>
                 <div className="stargazing-card__location">
                   <span className="stargazing-card__location-icon">📍</span>
@@ -589,7 +596,7 @@ const Stargazing: React.FC = () => {
 
                 <div className="stargazing-card__actions">
                   <Button
-                    onClick={() => handleViewDetails(spot)}
+                    onClick={() => navigate(`/dashboard/enthusiast/stargazing/${spot.id}`)}
                     className="stargazing-card__view-button"
                   >
                     View Details
@@ -838,7 +845,7 @@ const Stargazing: React.FC = () => {
                       {addSpotForm.facilities.length > 1 && (
                         <button
                           type="button"
-                          className="facility-remove"
+                          className="facility-remove_1"
                           onClick={() => removeFacility(index)}
                         >
                           ×
@@ -856,27 +863,46 @@ const Stargazing: React.FC = () => {
                 </div>
               </div>
 
-              {/* Add rating input */}
+              {/* Add rating input with star selector */}
               <div className="add-spot-form__row">
                 <div className="add-spot-form__group">
-                  <label htmlFor="spotRating">Rating (0-5)</label>
-                  <input
-                    type="number"
-                    id="spotRating"
-                    min={0}
-                    max={5}
-                    step={0.1}
-                    value={addSpotForm.rating ?? ''}
-                    onChange={e => {
-                      let val = parseFloat(e.target.value);
-                      if (isNaN(val)) val = 0;
-                      setAddSpotForm(prev => ({
-                        ...prev,
-                        rating: val
-                      }));
-                    }}
-                    placeholder="e.g., 4.5"
-                  />
+                  <label>Your Rating (optional)</label>
+                  <div className="star-rating-selector">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        type="button"
+                        className={`star-btn ${addSpotForm.rating && star <= addSpotForm.rating ? 'filled' : ''}`}
+                        onClick={() => {
+                          setAddSpotForm(prev => ({
+                            ...prev,
+                            rating: star
+                          }));
+                        }}
+                        title={`Rate ${star} star${star > 1 ? 's' : ''}`}
+                      >
+                        ★
+                      </button>
+                    ))}
+                    {addSpotForm.rating && (
+                      <button
+                        type="button"
+                        className="star-clear-btn"
+                        onClick={() => {
+                          setAddSpotForm(prev => ({
+                            ...prev,
+                            rating: undefined
+                          }));
+                        }}
+                        title="Clear rating"
+                      >
+                        ✕
+                      </button>
+                    )}
+                    <span className="rating-label">
+                      {addSpotForm.rating ? `${addSpotForm.rating} star${addSpotForm.rating > 1 ? 's' : ''}` : 'No rating'}
+                    </span>
+                  </div>
                 </div>
               </div>
 

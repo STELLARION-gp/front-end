@@ -38,7 +38,7 @@ interface FactCheckReport {
 
 class FactCheckService {
   private readonly GOOGLE_FACT_CHECK_API = 'https://factchecktools.googleapis.com/v1alpha1/claims:search';
-  private readonly CLAIMBUSTER_API = 'https://idir.uta.edu/claimbuster/api/v2/score/text';
+  // private readonly CLAIMBUSTER_API = 'https://idir.uta.edu/claimbuster/api/v2/score/text'; // DEPRECATED - API returns 401
   
   // You'll need to add these to your .env file
   private readonly GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_FACT_CHECK_API_KEY;
@@ -60,7 +60,7 @@ class FactCheckService {
 
     console.log('🔍 Total sentences found:', sentences.length);
 
-    // Patterns that indicate factual claims (expanded)
+    // Patterns that indicate factual claims (expanded for descriptive content)
     const claimPatterns = [
       // Research/Studies
       /\b(according to|research shows|studies show|data shows|statistics show|reports indicate)\b/i,
@@ -72,13 +72,13 @@ class FactCheckService {
       /\b(\d{1,2}%|\d+[,.]\d+%)\b/i, // Percentages
       
       // Statistics and counts
-      /\b\d+\s*(people|users|individuals|deaths|cases|customers|cars|vehicles)\b/i,
+      /\b\d+\s*(people|users|individuals|deaths|cases|customers|cars|vehicles|meters?|kilometers?|feet|miles|degrees)\b/i,
       
       // Authority claims
-      /\b(scientists|researchers|experts|doctors|professionals|mechanics|engineers)\s+(say|claim|found|discovered|prove|recommend)\b/i,
+      /\b(scientists|researchers|experts|doctors|professionals|mechanics|engineers|astronomers|historians)\s+(say|claim|found|discovered|prove|recommend)\b/i,
       
       // Causal claims
-      /\b(causes|caused by|results in|leads to|increases|decreases|reduces|improves)\b/i,
+      /\b(causes|caused by|results in|leads to|increases|decreases|reduces|improves|creates|provides|enables)\b/i,
       
       // Absolute statements
       /\b(always|never|all|none|every|no one|everyone|nobody)\b/i,
@@ -87,11 +87,19 @@ class FactCheckService {
       /\b(proven|confirmed|verified|established|guaranteed|certified)\b/i,
       
       // Comparisons and market claims
-      /\b(better than|worse than|faster than|cheaper than|more expensive|less expensive|best|worst)\b/i,
+      /\b(better than|worse than|faster than|cheaper than|more expensive|less expensive|best|worst|most|least)\b/i,
       /\b(isn't|is not|aren't|are not)\s+(always|the)\b/i, // "isn't always"
       
       // Product/service claims
       /\b(loses value|gains value|depreciates|appreciates)\b/i,
+      
+      // Location/Descriptive claims (NEW for stargazing spots)
+      /\b(located|situated|positioned|found|built|constructed|established|created)\b/i,
+      /\b(offers|provides|features|includes|contains|has|displays)\b/i,
+      /\b(known for|famous for|recognized for|noted for)\b/i,
+      /\b(historical|ancient|modern|traditional|UNESCO|heritage|monument)\b/i,
+      /\b(altitude|elevation|height|distance|area|size|capacity)\b/i,
+      /\b(temperature|climate|weather|season|visibility|conditions)\b/i,
     ];
 
     for (const sentence of sentences) {
@@ -100,7 +108,7 @@ class FactCheckService {
       
       // Check if sentence contains numbers or statistics
       const hasNumbers = /\d+/.test(sentence);
-      const hasStatistics = /\d+[,.]?\d*\s*(%|percent|million|billion|thousand|hundred)/i.test(sentence);
+      const hasStatistics = /\d+[,.]?\d*\s*(%|percent|million|billion|thousand|hundred|meters?|km|feet|miles|degrees)/i.test(sentence);
       const hasMoney = /\$|€|£|dollars?|pounds?|euros?/i.test(sentence);
       
       // Check if sentence makes a definitive statement
@@ -108,18 +116,30 @@ class FactCheckService {
       
       // Check for comparative or absolute statements
       const isComparative = /(better|worse|more|less|most|least|best|worst|always|never)/i.test(sentence);
+      
+      // Check for descriptive factual statements (NEW)
+      const hasLocationInfo = /(located|situated|positioned|found|built)\s+(in|at|on|near)/i.test(sentence);
+      const hasFeatureInfo = /(offers|provides|features|includes)\s+(a|an|the|access|views?|facilities)/i.test(sentence);
+      const hasHistoricalInfo = /(ancient|historical|UNESCO|heritage|built in|established|constructed)/i.test(sentence);
 
-      // More lenient detection
+      // More lenient detection - include descriptive claims
       const shouldInclude = (
         (hasClaimPattern && sentence.length < 300) ||
         (hasStatistics && sentence.length < 300) ||
         (hasMoney && hasNumbers && sentence.length < 300) ||
-        ((isDefinitive || isComparative) && hasNumbers && sentence.length < 300)
+        ((isDefinitive || isComparative) && hasNumbers && sentence.length < 300) ||
+        (hasLocationInfo && sentence.length < 300) ||
+        (hasFeatureInfo && sentence.length < 300) ||
+        (hasHistoricalInfo && sentence.length < 300) ||
+        // Fallback: any sentence with definitive verbs that's not too short or too long
+        (isDefinitive && sentence.length > 30 && sentence.length < 300 && sentence.split(' ').length > 5)
       );
 
       if (shouldInclude) {
         console.log('✅ Claim detected:', sentence.substring(0, 100));
         claims.push(sentence);
+      } else {
+        console.log('❌ Skipped (not a claim):', sentence.substring(0, 80));
       }
     }
 
@@ -144,16 +164,21 @@ class FactCheckService {
       });
 
       console.log('🔍 Calling Google Fact Check API for claim:', claim.substring(0, 100));
+      console.log('🌐 API URL:', `${this.GOOGLE_FACT_CHECK_API}?${params.toString()}`);
       const response = await fetch(`${this.GOOGLE_FACT_CHECK_API}?${params}`);
+      
+      console.log('📡 Response status:', response.status, response.statusText);
       
       if (!response.ok) {
         const errorText = await response.text();
-        console.error(`Google Fact Check API error: ${response.status}`, errorText);
+        console.error(`❌ Google Fact Check API error: ${response.status}`, errorText);
+        console.error('Response body:', errorText);
         throw new Error(`Google Fact Check API error: ${response.status}`);
       }
 
       const data = await response.json();
-      console.log('✅ Google API Response:', data);
+      console.log('✅ Google API Response:', JSON.stringify(data, null, 2));
+      console.log('📊 Claims in response:', data.claims?.length || 0);
 
       if (data.claims && data.claims.length > 0) {
         const factCheck = data.claims[0];
@@ -191,24 +216,28 @@ class FactCheckService {
   /**
    * Use ClaimBuster API to score claim worthiness
    */
-  private async scoreClaimWithClaimBuster(claim: string): Promise<number> {
-    try {
-      console.log('🎯 Calling ClaimBuster API for claim:', claim.substring(0, 100));
-      const response = await fetch(`${this.CLAIMBUSTER_API}/${encodeURIComponent(claim)}`);
-      
-      if (!response.ok) {
-        console.warn('ClaimBuster API returned error, using default score');
-        return 0.5; // Default neutral score
-      }
-
-      const data = await response.json();
-      console.log('✅ ClaimBuster score:', data.score);
-      return data.score || 0.5;
-    } catch (error) {
-      console.error('❌ Error scoring claim with ClaimBuster:', error);
-      return 0.5;
-    }
-  }
+  /**
+   * Legacy ClaimBuster API scoring (DEPRECATED - API returns 401)
+   * Kept for reference but no longer used
+   */
+  // private async scoreClaimWithClaimBuster(claim: string): Promise<number> {
+  //   try {
+  //     console.log('🎯 Calling ClaimBuster API for claim:', claim.substring(0, 100));
+  //     const response = await fetch(`${this.CLAIMBUSTER_API}/${encodeURIComponent(claim)}`);
+  //     
+  //     if (!response.ok) {
+  //       console.warn('ClaimBuster API returned error, using default score');
+  //       return 0.5; // Default neutral score
+  //     }
+  //
+  //     const data = await response.json();
+  //     console.log('✅ ClaimBuster score:', data.score);
+  //     return data.score || 0.5;
+  //   } catch (error) {
+  //     console.error('❌ Error scoring claim with ClaimBuster:', error);
+  //     return 0.5;
+  //   }
+  // }
 
   /**
    * Perform web search to verify claim
@@ -220,7 +249,8 @@ class FactCheckService {
     }
 
     try {
-      const searchQuery = `${claim} fact check OR verify OR truth`;
+      // More targeted search query for fact-checking
+      const searchQuery = `"${claim.substring(0, 100)}" site:(snopes.com OR factcheck.org OR politifact.com OR reuters.com OR apnews.com OR bbc.com OR fullfact.org)`;
       const params = new URLSearchParams({
         key: this.GOOGLE_CUSTOM_SEARCH_API_KEY,
         cx: this.GOOGLE_CUSTOM_SEARCH_ENGINE_ID,
@@ -229,6 +259,7 @@ class FactCheckService {
       });
 
       console.log('🔎 Calling Custom Search API for claim:', claim.substring(0, 100));
+      console.log('🔍 Search query:', searchQuery);
       const response = await fetch(`https://www.googleapis.com/customsearch/v1?${params}`);
       
       if (!response.ok) {
@@ -331,20 +362,28 @@ class FactCheckService {
    * Analyze blog content and generate fact check report
    */
   async checkBlogContent(content: string, title?: string): Promise<FactCheckReport> {
-    console.log('🚀 Starting fact check analysis...');
+    console.log('🚀 ===== FACT CHECK ANALYSIS START =====');
     console.log('📝 Content length:', content.length, 'characters');
+    console.log('📰 Title:', title || 'No title');
     console.log('🔑 API Key configured:', !!this.GOOGLE_API_KEY);
+    console.log('🔑 API Key value:', this.GOOGLE_API_KEY ? `${this.GOOGLE_API_KEY.substring(0, 10)}...` : 'NOT SET');
     console.log('🔍 Custom Search configured:', !!this.GOOGLE_CUSTOM_SEARCH_API_KEY);
+    console.log('📄 First 200 chars of content:', content.substring(0, 200));
     
     const fullText = title ? `${title}. ${content}` : content;
     
     // Extract potential claims
-    console.log('🔎 Extracting claims from content...');
+    console.log('\n🔎 Extracting claims from content...');
     const extractedClaims = this.extractClaims(fullText);
     console.log('📊 Found', extractedClaims.length, 'potential claims');
     
     if (extractedClaims.length > 0) {
-      console.log('Claims extracted:', extractedClaims.map(c => c.substring(0, 80) + '...'));
+      console.log('\n📋 Extracted Claims:');
+      extractedClaims.forEach((claim, i) => {
+        console.log(`  ${i + 1}. ${claim.substring(0, 100)}${claim.length > 100 ? '...' : ''}`);
+      });
+    } else {
+      console.log('⚠️ NO CLAIMS EXTRACTED - Check content format');
     }
     
     if (extractedClaims.length === 0) {
@@ -382,18 +421,70 @@ class FactCheckService {
         result = await this.verifyClaimWithWebSearch(claim);
       }
       
-      // If still no result, score with ClaimBuster
+      // If still no result, use improved heuristic scoring instead of ClaimBuster
       if (!result) {
-        console.log('⏭️ No web results, using ClaimBuster scoring...');
-        const claimScore = await this.scoreClaimWithClaimBuster(claim);
+        console.log('⏭️ No web results, using heuristic scoring...');
+        
+        // Analyze claim characteristics for confidence scoring
+        const hasSpecificNumbers = /\d+([,.]\d+)?/.test(claim);
+        const hasDateReference = /(20\d{2}|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|\d{4}|century|BCE|CE)/i.test(claim);
+        const hasCitations = /(according to|research|study|report|data|source)/i.test(claim);
+        const hasAuthority = /(NASA|scientist|doctor|expert|professor|engineer|UNESCO|archaeologist|historian)/i.test(claim);
+        const isOpinion = /(believe|think|feel|opinion|seems|appears|probably|might|could|mesmerizing|beautiful|amazing|stunning)/i.test(claim);
+        const hasAbsolutes = /(always|never|all|none|every|impossible|definitely)/i.test(claim);
+        
+        // NEW: Descriptive location/spot characteristics
+        const hasLocationInfo = /(located|situated|positioned|found|built)\s+(in|at|on|near)/i.test(claim);
+        const hasHistoricalInfo = /(ancient|historical|heritage|monument|fortress|temple|palace|UNESCO)/i.test(claim);
+        const hasFeatureInfo = /(offers|provides|features|includes|contains)\s+(views?|access|facilities|experience)/i.test(claim);
+        const hasEnvironmentInfo = /(forest|mountain|valley|lake|ocean|sky|altitude|elevation|climate)/i.test(claim);
+        
+        // Calculate confidence score based on claim characteristics
+        let confidence = 50; // Base neutral score
+        
+        // Traditional fact-check factors
+        if (hasCitations) confidence += 15; // Has source references
+        if (hasSpecificNumbers) confidence += 10; // Specific data
+        if (hasDateReference) confidence += 5; // Timely information
+        if (hasAuthority) confidence += 10; // Authority figures mentioned
+        if (isOpinion) confidence -= 20; // Opinion-based, lower confidence
+        if (hasAbsolutes) confidence -= 15; // Absolute claims are harder to verify
+        
+        // NEW: Descriptive content factors (for locations/spots)
+        if (hasLocationInfo) confidence += 10; // Verifiable location claim
+        if (hasHistoricalInfo) confidence += 8; // Historical facts can be checked
+        if (hasFeatureInfo && !isOpinion) confidence += 5; // Factual features
+        if (hasEnvironmentInfo) confidence += 5; // Environmental descriptions
+        
+        // Claim length considerations
+        if (claim.length < 50) confidence -= 10; // Too short, likely fragment
+        if (claim.length > 250) confidence -= 5; // Too long, likely complex
+        
+        confidence = Math.max(20, Math.min(80, confidence)); // Clamp between 20-80
+        
+        console.log('📊 Heuristic analysis:');
+        console.log('  - Has citations:', hasCitations);
+        console.log('  - Has numbers:', hasSpecificNumbers);
+        console.log('  - Has dates:', hasDateReference);
+        console.log('  - Has authority:', hasAuthority);
+        console.log('  - Is opinion:', isOpinion);
+        console.log('  - Has absolutes:', hasAbsolutes);
+        console.log('  - Has location info:', hasLocationInfo);
+        console.log('  - Has historical info:', hasHistoricalInfo);
+        console.log('  - Has feature info:', hasFeatureInfo);
+        console.log('  - Has environment info:', hasEnvironmentInfo);
+        console.log('  - Confidence:', confidence);
+        
         result = {
           claim,
           rating: 'unverified',
-          confidence: Math.round(claimScore * 100),
+          confidence,
           sources: [],
-          explanation: claimScore > 0.7 
-            ? 'High claim-worthiness detected - requires fact-checking'
-            : 'Low claim-worthiness - likely opinion or general statement',
+          explanation: confidence > 60 
+            ? 'Claim appears well-sourced or factually descriptive but requires independent verification'
+            : confidence > 40
+            ? 'Claim requires fact-checking - add sources to improve credibility'
+            : 'Claim lacks specific details or sources for verification',
           checkDate: new Date().toISOString()
         };
       }
@@ -418,20 +509,36 @@ class FactCheckService {
     console.log('⚠️ Mixture:', mixtureClaims);
     console.log('❓ Unverified:', unverifiedClaims);
 
-    // Calculate overall score
+    // Calculate overall score with weighted approach
     let overallScore = 50;
     if (claimResults.length > 0) {
+      // Weight based on confidence levels
+      const totalConfidence = claimResults.reduce((sum, c) => sum + c.confidence, 0);
+      const avgConfidence = totalConfidence / claimResults.length;
+      
+      // Calculate score based on ratings and confidence
       const trueWeight = verifiedClaims * 100;
       const mixtureWeight = mixtureClaims * 50;
       const falseWeight = falseClaims * 0;
-      const unverifiedWeight = unverifiedClaims * 50;
       
-      overallScore = Math.round(
-        (trueWeight + mixtureWeight + falseWeight + unverifiedWeight) / claimResults.length
-      );
+      // For unverified claims, use their actual confidence scores
+      const unverifiedScore = claimResults
+        .filter(c => c.rating === 'unverified' || c.rating === 'unknown')
+        .reduce((sum, c) => sum + c.confidence, 0);
+      
+      if (claimResults.length > 0) {
+        overallScore = Math.round(
+          (trueWeight + mixtureWeight + falseWeight + unverifiedScore) / claimResults.length
+        );
+      }
+      
+      // Adjust score based on average confidence
+      if (avgConfidence < 40 && unverifiedClaims > claimResults.length * 0.7) {
+        overallScore = Math.min(overallScore, 45); // Lower score for low-confidence claims
+      }
     }
 
-    console.log('🎯 Overall Score:', overallScore);
+    console.log('🎯 Overall Score:', overallScore, '(calculated from confidence scores)');
 
     // Determine credibility level
     let credibilityLevel: FactCheckReport['credibilityLevel'] = 'medium';

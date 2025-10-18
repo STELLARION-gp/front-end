@@ -1,0 +1,59 @@
+// True Focus Text Animation
+.true-focus {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0;
+
+  .true-focus-char {
+    display: inline-block;
+    opacity: 0;
+    filter: blur(10px);
+    transform: scale(1.2);
+    animation: none;
+    transition: opacity 0.8s cubic-bezier(0.23, 1, 0.32, 1),
+                filter 0.8s cubic-bezier(0.23, 1, 0.32, 1),
+                transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+    animation-delay: var(--char-delay, 0s);
+  }
+
+  &.true-focus-active .true-focus-char {
+    animation: trueFocusIn 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+    animation-delay: var(--char-delay, 0s);
+  }
+}
+
+@keyframes trueFocusIn {
+  0% {
+    opacity: 0;
+    filter: blur(10px);
+    transform: scale(1.2);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0px);
+    transform: scale(1);
+  }
+}
+
+// Variation with different timing
+.true-focus-slow {
+  .true-focus-char {
+    animation-duration: 1.2s;
+  }
+}
+
+.true-focus-fast {
+  .true-focus-char {
+    animation-duration: 0.5s;
+  }
+}
+
+// Reduced motion support
+@media (prefers-reduced-motion: reduce) {
+  .true-focus .true-focus-char {
+    animation: none !important;
+    opacity: 1 !important;
+    filter: blur(0px) !important;
+    transform: scale(1) !important;
+  }
+}

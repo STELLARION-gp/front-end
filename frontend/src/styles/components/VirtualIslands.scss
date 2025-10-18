@@ -1,0 +1,634 @@
+// Virtual Islands Section - Split Layout with Dividing Lines
+.virtual-islands-section {
+  width: 100%;
+  padding: 80px 20px;
+  background: linear-gradient(135deg, rgb(14, 15, 33) 0%, #000000 100%);
+  position: relative;
+  overflow: hidden;
+
+  // Animated stars background
+//   &::before {
+//     content: '';
+//     position: absolute;
+//     inset: 0;
+//     background-image: 
+//       radial-gradient(2px 2px at 10% 20%, rgba(255, 255, 255, 0.8), transparent),
+//       radial-gradient(1px 1px at 90% 80%, rgba(255, 255, 255, 0.6), transparent),
+//       radial-gradient(2px 2px at 50% 50%, rgba(255, 255, 255, 0.7), transparent),
+//       radial-gradient(1px 1px at 30% 70%, rgba(255, 255, 255, 0.5), transparent),
+//       radial-gradient(2px 2px at 70% 30%, rgba(255, 255, 255, 0.8), transparent);
+//     animation: twinkleStars 15s ease-in-out infinite;
+//     pointer-events: none;
+//     opacity: 0.4;
+//   }
+
+  .islands-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 2px 1fr 2px 1fr;
+    gap: 40px;
+    align-items: start;
+
+    @media (max-width: 1024px) {
+      grid-template-columns: 1fr 2px 1fr;
+      
+      .virtual-island:last-child {
+        grid-column: 1 / -1;
+        margin-top: 40px;
+      }
+
+      .island-divider:last-of-type {
+        display: none;
+      }
+    }
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      gap: 40px;
+      
+      .island-divider {
+        display: none;
+      }
+
+      .virtual-island:last-child {
+        margin-top: 0;
+      }
+    }
+  }
+
+  .island-divider {
+    width: 2px;
+    min-height: 600px;
+    background: linear-gradient(
+      to bottom,
+      transparent 0%,
+      rgba(138, 99, 210, 0.3) 5%,
+      rgba(138, 99, 210, 0.6) 15%,
+      rgba(138, 99, 210, 0.8) 50%,
+      rgba(138, 99, 210, 0.6) 85%,
+      rgba(138, 99, 210, 0.3) 95%,
+      transparent 100%
+    );
+    position: relative;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 8px;
+      height: 8px;
+      background: rgba(138, 99, 210, 1);
+      border-radius: 50%;
+      box-shadow: 0 0 20px rgba(138, 99, 210, 0.8);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @media (max-width: 1024px) {
+      min-height: 500px;
+    }
+  }
+
+  .virtual-island {
+    position: relative;
+    min-height: 500px;
+
+    .island-content {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .island-title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin: 0 0 28px 0;
+      text-align: center;
+      letter-spacing: 0.5px;
+      
+      .focus-container {
+        background: linear-gradient(135deg, #a78bfa 0%, #818cf8 50%, #c084fc 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      
+      .focus-word {
+        background: linear-gradient(135deg, #a78bfa 0%, #818cf8 50%, #c084fc 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+    }
+
+    .island-cta {
+      padding: 12px 32px;
+      background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+      border: none;
+      border-radius: 12px;
+      color: white;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: auto;
+      align-self: center;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(139, 92, 246, 0.4);
+      }
+
+      &:active {
+        transform: translateY(0);
+      }
+    }
+
+    .loading-state {
+      padding: 40px;
+      text-align: center;
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 1rem;
+    }
+  }
+
+  // Stargazing Island Specific Styles
+  .stargazing-island {
+    position: relative;
+    animation: fadeInUp 0.6s ease-out;
+
+    .spots-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      position: relative;
+      z-index: 1;
+
+      @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .spot-card {
+      position: relative;
+      background: rgba(138, 99, 210, 0.08);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      animation: fadeInScale 0.5s ease-out backwards;
+
+      @for $i from 1 through 4 {
+        &:nth-child(#{$i}) {
+          animation-delay: #{$i * 0.1}s;
+        }
+      }
+
+      // Magic border effect
+      &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 12px;
+        padding: 1px;
+        background: linear-gradient(
+          45deg,
+          transparent 25%,
+          rgba(138, 99, 210, 0.6) 50%,
+          transparent 75%
+        );
+        background-size: 300% 300%;
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        mask-composite: exclude;
+        animation: moveBorder 3s linear infinite;
+        pointer-events: none;
+      }
+
+      &:hover {
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 0 12px 40px rgba(138, 99, 210, 0.4);
+        background: rgba(138, 99, 210, 0.12);
+
+        &::before {
+          background: linear-gradient(
+            45deg,
+            transparent 25%,
+            rgba(138, 99, 210, 0.9) 50%,
+            transparent 75%
+          );
+          animation-duration: 1.5s;
+        }
+
+        .spot-image {
+          transform: scale(1.1);
+        }
+      }
+
+      .spot-image {
+        width: 100%;
+        height: 140px;
+        background-size: cover;
+        background-position: center;
+        background-color: rgba(0, 0, 0, 0.3);
+        transition: transform 0.4s ease;
+      }
+
+      .spot-info {
+        padding: 14px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        flex: 1;
+
+        h3 {
+          font-size: 1.05rem;
+          font-weight: 600;
+          color: #fff;
+          margin: 0 0 8px 0;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          line-height: 1.3;
+        }
+
+        .spot-meta {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          font-size: 0.85rem;
+
+          .spot-rating {
+            color: #fbbf24;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-weight: 500;
+          }
+
+          .spot-location {
+            color: rgba(138, 99, 210, 0.9);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-weight: 500;
+          }
+        }
+      }
+    }
+  }
+
+  // Blogs Island Specific Styles
+  .blogs-island {
+    animation: fadeInUp 0.6s ease-out 0.2s backwards;
+
+    .blogs-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .blog-card {
+      position: relative;
+      background: rgba(129, 140, 248, 0.08);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      display: flex;
+      flex-direction: row;
+      gap: 0;
+      animation: slideInRight 0.5s ease-out backwards;
+      height: 120px;
+
+      @for $i from 1 through 4 {
+        &:nth-child(#{$i}) {
+          animation-delay: #{0.2 + ($i * 0.1)}s;
+        }
+      }
+
+      // Magic border effect with rotate animation
+      &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 12px;
+        padding: 1px;
+        background: linear-gradient(
+          90deg,
+          transparent 25%,
+          rgba(129, 140, 248, 0.6) 50%,
+          transparent 75%
+        );
+        background-size: 300% 300%;
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        mask-composite: exclude;
+        animation: moveBorder 4s linear infinite;
+        pointer-events: none;
+      }
+
+      &:hover {
+        transform: translateX(8px) scale(1.02);
+        box-shadow: 0 6px 24px rgba(129, 140, 248, 0.3);
+        background: rgba(129, 140, 248, 0.12);
+
+        &::before {
+          background: linear-gradient(
+            90deg,
+            transparent 25%,
+            rgba(129, 140, 248, 0.9) 50%,
+            transparent 75%
+          );
+          animation-duration: 2s;
+        }
+
+        .blog-image {
+          transform: scale(1.1) rotate(2deg);
+          filter: brightness(1.1);
+        }
+      }
+
+      .blog-image_1 {
+        width: 140px;
+        min-width: 140px;
+        flex-shrink: 0;
+        height: 100%;
+        background-size: cover;
+        background-position: center;
+        background-color: rgba(0, 0, 0, 0.3);
+        transition: all 0.4s ease;
+      }
+
+      .blog-info {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 6px;
+        flex: 1;
+        min-width: 0;
+        padding: 12px 16px;
+      }
+
+      .blog-title {
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: #fff;
+        margin: 0;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        line-height: 1.4;
+      }
+
+      .blog-author {
+        font-size: 0.875rem;
+        color: rgba(129, 140, 248, 0.9);
+        font-weight: 500;
+      }
+    }
+  }
+
+  // Events Island Specific Styles
+  .events-island {
+    animation: fadeInUp 0.6s ease-out 0.4s backwards;
+
+    .events-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .event-card_1 {
+      position: relative;
+      background: rgba(165, 180, 252, 0.08);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      animation: bounceIn 0.6s ease-out backwards;
+      display: flex;
+      gap: 16px;
+      min-height: 100px;
+      border: 1px solid rgba(165, 180, 252, 0.15);
+
+      @for $i from 1 through 4 {
+        &:nth-child(#{$i}) {
+          animation-delay: #{0.4 + ($i * 0.1)}s;
+        }
+      }
+
+      // Magic border effect
+      &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 16px;
+        padding: 1px;
+        background: linear-gradient(
+          135deg,
+          transparent 25%,
+          rgba(165, 180, 252, 0.6) 50%,
+          transparent 75%
+        );
+        background-size: 300% 300%;
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        mask-composite: exclude;
+        animation: moveBorder 5s linear infinite;
+        pointer-events: none;
+      }
+
+      &:hover {
+        transform: translateY(-4px) scale(1.01);
+        box-shadow: 0 12px 32px rgba(165, 180, 252, 0.35);
+        background: rgba(165, 180, 252, 0.12);
+        border-color: rgba(165, 180, 252, 0.3);
+
+        &::before {
+          background: linear-gradient(
+            135deg,
+            transparent 25%,
+            rgba(165, 180, 252, 0.9) 50%,
+            transparent 75%
+          );
+          animation-duration: 2.5s;
+        }
+
+        .event-image {
+          transform: scale(1.05);
+        }
+      }
+
+      .event-image {
+        width: 100px;
+        min-width: 100px;
+        height: 100%;
+        min-height: 100px;
+        background-size: cover;
+        background-position: center;
+        background-color: rgba(0, 0, 0, 0.3);
+        border-radius: 12px;
+        transition: transform 0.4s ease;
+        border: 2px solid rgba(165, 180, 252, 0.2);
+      }
+
+      .event-info {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 10px;
+        flex: 1;
+        min-width: 0;
+        padding: 12px 12px 12px 0;
+      }
+
+      .event-title {
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: #fff;
+        margin: 0;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        line-height: 1.4;
+      }
+
+      .event-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .event-date,
+      .event-location {
+        font-size: 0.85rem;
+        color: rgba(165, 180, 252, 1);
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .event-location {
+        color: rgba(165, 180, 252, 0.85);
+      }
+    }
+  }
+}
+
+// Animations
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+}
+
+@keyframes moveBorder {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 300% 0%;
+  }
+}
+
+@keyframes twinkleStars {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.95);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+// Accessibility
+@media (prefers-reduced-motion: reduce) {
+  .stargazing-island,
+  .blogs-island,
+  .events-island,
+  .spot-card,
+  .blog-card,
+  .event-card {
+    animation: none !important;
+  }
+}

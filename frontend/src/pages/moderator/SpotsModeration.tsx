@@ -24,7 +24,10 @@ const SpotsModeration: React.FC = () => {
       let response;
       
       if (selectedFilter === 'all') {
-        response = await stargazingSpotService.getAllStargazingSpots();
+        // Fetch all spots regardless of status by not passing status filter
+        response = await stargazingSpotService.getAllStargazingSpots({
+          // Don't pass status filter to get all spots
+        });
       } else {
         response = await stargazingSpotService.getSpotsByStatus(selectedFilter);
       }
@@ -170,7 +173,7 @@ const SpotsModeration: React.FC = () => {
 
                   {/* Image Gallery Preview */}
                   {spot.image_urls && spot.image_urls.length > 0 && (
-                    <div className="spot-images-preview_1">
+                    <div className="spot-images-preview_3">
                       {spot.image_urls.slice(0, 3).map((url, index) => (
                         <img key={index} src={url} alt={`${spot.name} ${index + 1}`} />
                       ))}

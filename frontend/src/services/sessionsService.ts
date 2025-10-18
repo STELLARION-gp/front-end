@@ -28,6 +28,8 @@ export interface Session {
   created_by: number;
   is_enabled: boolean;
   status: SessionStatus; // Session approval status
+  moderated_by?: number | null;
+  moderated_at?: Date | string | null;
   created_at: Date | string;
   updated_at: Date | string;
   // Creator info when included
@@ -38,6 +40,14 @@ export interface Session {
     email: string;
     display_name?: string;
   };
+  // Moderator info when included
+  moderator?: {
+    id: number;
+    first_name?: string;
+    last_name?: string;
+    email: string;
+    display_name?: string;
+  } | null;
 }
 
 export interface CreateSessionRequest {

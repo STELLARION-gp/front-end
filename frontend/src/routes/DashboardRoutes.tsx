@@ -734,7 +734,7 @@ const DashboardRoutes = () => {
       />
 
       <Route
-        path="mentee-profile"
+        path="mentee-profile/:id"
         element={
           <RoleGuard allowedRoles={["mentor", "moderator", "admin"]}>
             <MenteeProfile />

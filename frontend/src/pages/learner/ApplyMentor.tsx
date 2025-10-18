@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "../../styles/pages/learner/ApplyMentor.scss";
+import "../../styles/pages/influencer/SessionsNotification.scss";
 import Button from "../../components/Button";
 import { getMentorProfileById } from "../../services/mentorApi";
 import type { MentorProfile } from "../../services/mentorApi";
@@ -15,6 +16,26 @@ const ApplyMentor: React.FC = () => {
   const [interest, setInterest] = useState("");
   const [files, setFiles] = useState<File[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  const [notification, setNotification] = useState<{
+    show: boolean;
+    type: "success" | "error" | "info";
+    message: string;
+  }>({
+    show: false,
+    type: "success",
+    message: "",
+  });
+
+  // Show notification helper
+  const showNotification = (
+    type: "success" | "error" | "info",
+    message: string
+  ) => {
+    setNotification({ show: true, type, message });
+    setTimeout(() => {
+      setNotification({ show: false, type, message: "" });
+    }, 5000); // Auto-hide after 5 seconds
+  };
 
   // Fetch mentor details
   useEffect(() => {
@@ -60,6 +81,13 @@ const ApplyMentor: React.FC = () => {
     
     if (!interest.trim()) {
       setError("Please enter your interest.");
+      showNotification("error", "Please enter your interest.");
+      return;
+    }
+
+    if (!mentorId) {
+      setError("Invalid mentor ID.");
+      showNotification("error", "Invalid mentor ID.");
       return;
     }
 
@@ -67,18 +95,27 @@ const ApplyMentor: React.FC = () => {
       setSubmitting(true);
       setError("");
 
-      // TODO: Implement backend API for mentor application
-      // const formData = new FormData();
-      // formData.append('mentorId', mentorId!);
-      // formData.append('interest', interest);
-      // files.forEach(file => formData.append('documents', file));
-      // await submitMentorApplication(formData);
+      // Import the API function
+      const { submitMenteeApplication } = await import('../../services/menteeApplicationApi');
+      
+      // Submit the application with documents
+      await submitMenteeApplication(
+        Number(mentorId),
+        interest,
+        files.length > 0 ? files : undefined
+      );
 
-      alert("Application submitted successfully! The mentor will review your application.");
-      navigate("/dashboard/mentors");
+      showNotification("success", "✨ Application submitted successfully! The mentor will review your application.");
+      
+      // Navigate after showing notification
+      setTimeout(() => {
+        navigate("/dashboard/mentors");
+      }, 2000); // Give user time to see the notification
     } catch (err: any) {
       console.error('Error submitting application:', err);
-      setError(err.response?.data?.error || 'Failed to submit application. Please try again.');
+      const errorMsg = err.response?.data?.error || 'Failed to submit application. Please try again.';
+      setError(errorMsg);
+      showNotification("error", errorMsg);
     } finally {
       setSubmitting(false);
     }
@@ -210,6 +247,21 @@ const ApplyMentor: React.FC = () => {
           </Button>
         </div>
       </form>
+
+      {/* Notification Toast */}
+      {notification.show && (
+        <div className={`notification-toast ${notification.type}`}>
+          <div className="notification-content">
+            <span className="notification-message">{notification.message}</span>
+            <button
+              className="notification-close"
+              onClick={() => setNotification({ ...notification, show: false })}
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -223,9 +223,10 @@ const SpotsModeration: React.FC = () => {
                       <Button
                         variant="success"
                         size="small"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleModerate(spot.id, 'approve');
+                        onClick={() => {
+                          if (window.confirm(`Are you sure you want to approve "${spot.name}"?`)) {
+                            handleModerate(spot.id, 'approve');
+                          }
                         }}
                         disabled={actionLoading === `${spot.id}-approve`}
                       >
@@ -234,15 +235,44 @@ const SpotsModeration: React.FC = () => {
                       <Button
                         variant="danger"
                         size="small"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleModerate(spot.id, 'reject');
+                        onClick={() => {
+                          if (window.confirm(`Are you sure you want to reject "${spot.name}"?`)) {
+                            handleModerate(spot.id, 'reject');
+                          }
                         }}
                         disabled={actionLoading === `${spot.id}-reject`}
                       >
                         <FaTimes /> {actionLoading === `${spot.id}-reject` ? 'Rejecting...' : 'Reject'}
                       </Button>
                     </>
+                  )}
+                  {spot.status === 'approved' && (
+                    <Button
+                      variant="danger"
+                      size="small"
+                      onClick={() => {
+                        if (window.confirm(`Are you sure you want to reject "${spot.name}"? This will remove it from public view.`)) {
+                          handleModerate(spot.id, 'reject');
+                        }
+                      }}
+                      disabled={actionLoading === `${spot.id}-reject`}
+                    >
+                      <FaTimes /> {actionLoading === `${spot.id}-reject` ? 'Rejecting...' : 'Reject'}
+                    </Button>
+                  )}
+                  {spot.status === 'rejected' && (
+                    <Button
+                      variant="success"
+                      size="small"
+                      onClick={() => {
+                        if (window.confirm(`Are you sure you want to approve "${spot.name}"? This will make it visible to the public.`)) {
+                          handleModerate(spot.id, 'approve');
+                        }
+                      }}
+                      disabled={actionLoading === `${spot.id}-approve`}
+                    >
+                      <FaCheck /> {actionLoading === `${spot.id}-approve` ? 'Approving...' : 'Re-approve'}
+                    </Button>
                   )}
                 </div>
               </div>

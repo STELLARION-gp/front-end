@@ -27,7 +27,7 @@ export interface Session {
   session_notes?: string | null;
   created_by: number;
   is_enabled: boolean;
-  status: SessionStatus; // Session approval status
+  status?: SessionStatus; // Session approval status (optional - requires DB migration)
   moderated_by?: number | null;
   moderated_at?: Date | string | null;
   created_at: Date | string;
@@ -128,16 +128,12 @@ const getAuthToken = async (): Promise<string | null> => {
   try {
     const user = auth.currentUser;
     if (!user) {
-      console.warn("⚠️ No authenticated user found - User needs to log in");
       return null;
     }
-    const token = await user.getIdToken(true); // Force refresh the token
-    console.log("✅ Got auth token for user:", user.email);
-    console.log("📋 User UID:", user.uid);
-    console.log("🔑 Token (first 50 chars):", token.substring(0, 50) + "...");
+    const token = await user.getIdToken(true);
     return token;
   } catch (error) {
-    console.error("❌ Error getting auth token:", error);
+    console.error("Error getting auth token:", error);
     return null;
   }
 };
@@ -161,28 +157,17 @@ const makeRequest = async (
 
   if (token) {
     headers.Authorization = `Bearer ${token}`;
-    console.log("✅ Added Authorization header with Bearer token");
-    console.log("📋 Full request headers:", JSON.stringify(headers, null, 2));
-  } else {
-    console.warn("⚠️ No token available - making unauthenticated request");
   }
-
-  console.log(
-    `🌐 Making ${options.method || "GET"} request to: ${API_BASE_URL}${url}`
-  );
 
   const response = await fetch(`${API_BASE_URL}${url}`, {
     ...options,
     headers,
   });
 
-  console.log(`📡 Response status: ${response.status} ${response.statusText}`);
-
   if (!response.ok) {
     const errorData = await response
       .json()
       .catch(() => ({ message: "Unknown error" }));
-    console.error("❌ Request failed:", errorData);
 
     // Provide better error messages
     if (response.status === 401) {
@@ -200,10 +185,7 @@ const makeRequest = async (
   }
 
   const result = await response.json();
-  console.log("✅ Request successful:", result.message || "OK");
-  
-  // Extract data from backend response wrapper { success, message, data }
-  return result.data || result;
+  return result;
 };
 
 export const sessionsService = {
@@ -213,7 +195,6 @@ export const sessionsService = {
   async createSession(
     sessionData: CreateSessionRequest
   ): Promise<SessionResponse> {
-    console.log("📝 Creating new session:", sessionData);
     return makeRequest(
       "/sessions",
       {
@@ -221,7 +202,7 @@ export const sessionsService = {
         body: JSON.stringify(sessionData),
       },
       true
-    ); // Requires authentication
+    );
   },
 
   /**
@@ -245,8 +226,7 @@ export const sessionsService = {
     const url = `/sessions/user/my-sessions${
       queryParams.toString() ? `?${queryParams.toString()}` : ""
     }`;
-    console.log("📋 Fetching my sessions from:", url);
-    return makeRequest(url, {}, true); // Requires authentication
+    return makeRequest(url, {}, true);
   },
 
   /**
@@ -282,8 +262,7 @@ export const sessionsService = {
     const url = `/sessions/user/enrolled${
       queryParams.toString() ? `?${queryParams.toString()}` : ""
     }`;
-    console.log("📚 Fetching enrolled sessions from:", url);
-    return makeRequest(url, {}, true); // Requires authentication
+    return makeRequest(url, {}, true);
   },
 
   /**
@@ -320,8 +299,7 @@ export const sessionsService = {
     };
     message: string;
   }> {
-    console.log(`📖 Fetching session details for enrollment ${enrollmentId}`);
-    return makeRequest(`/sessions/enrolled/${enrollmentId}`, {}, true); // Requires authentication
+    return makeRequest(`/sessions/enrolled/${enrollmentId}`, {}, true);
   },
 
   /**
@@ -345,8 +323,7 @@ export const sessionsService = {
     };
     message: string;
   }> {
-    console.log(`🔍 Checking enrollment status for session ${sessionId}`);
-    return makeRequest(`/sessions/${sessionId}/my-enrollment`, {}, true); // Requires authentication
+    return makeRequest(`/sessions/${sessionId}/my-enrollment`, {}, true);
   },
 
   /**
@@ -356,7 +333,6 @@ export const sessionsService = {
     id: number,
     sessionData: UpdateSessionRequest
   ): Promise<SessionResponse> {
-    console.log(`📝 Updating session ${id}:`, sessionData);
     return makeRequest(
       `/sessions/${id}`,
       {
@@ -364,7 +340,7 @@ export const sessionsService = {
         body: JSON.stringify(sessionData),
       },
       true
-    ); // Requires authentication
+    );
   },
 
   /**
@@ -384,7 +360,6 @@ export const sessionsService = {
     id: number,
     is_enabled: boolean
   ): Promise<SessionResponse> {
-    console.log(`🔄 Toggling session ${id} status to: ${is_enabled}`);
     return makeRequest(
       `/sessions/${id}/toggle`,
       {
@@ -392,14 +367,13 @@ export const sessionsService = {
         body: JSON.stringify({ is_enabled }),
       },
       true
-    ); // Requires authentication
+    );
   },
 
   /**
    * Disable a session
    */
   async disableSession(id: number): Promise<SessionResponse> {
-    console.log(`❌ Disabling session ${id}`);
     return this.toggleSessionStatus(id, false);
   },
 
@@ -407,7 +381,6 @@ export const sessionsService = {
    * Enable a disabled session
    */
   async enableSession(id: number): Promise<SessionResponse> {
-    console.log(`✅ Enabling session ${id}`);
     return this.toggleSessionStatus(id, true);
   },
 
@@ -417,14 +390,13 @@ export const sessionsService = {
   async deleteSession(
     id: number
   ): Promise<{ success: boolean; message: string }> {
-    console.log(`🗑️ Deleting session ${id}`);
     return makeRequest(
       `/sessions/${id}`,
       {
         method: "DELETE",
       },
       true
-    ); // Requires authentication
+    );
   },
 
   /**
@@ -476,8 +448,7 @@ export const sessionsService = {
    * Get analytics for user's sessions
    */
   async getMySessionsAnalytics(): Promise<any> {
-    console.log("📊 Fetching sessions analytics");
-    return makeRequest("/sessions/user/analytics", {}, true); // Requires authentication
+    return makeRequest("/sessions/user/analytics", {}, true);
   },
 
   /**

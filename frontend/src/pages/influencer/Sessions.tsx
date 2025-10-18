@@ -232,7 +232,6 @@ const Sessions = () => {
     setLoading(true);
     setError(null);
     try {
-      console.log(" Loading sessions for user:", userEmail);
       const response = await sessionsService.getMySessions({
         page: currentPage,
         limit: 10,
@@ -241,9 +240,8 @@ const Sessions = () => {
         ...filters,
       });
       setMySessions(response.data || []);
-      console.log("Loaded", response.data?.length || 0, "sessions");
     } catch (err) {
-      console.error(" Error loading sessions:", err);
+      console.error("Error loading sessions:", err);
       const errorMessage =
         err instanceof Error ? err.message : "Failed to load sessions";
       setError(errorMessage);
@@ -270,12 +268,10 @@ const Sessions = () => {
     setLoading(true);
     setError(null);
     try {
-      console.log("📊 Loading analytics for user:", userEmail);
       const response = await sessionsService.getMySessionsAnalytics();
       setAnalyticsData(response.data || null);
-      console.log("✅ Analytics loaded successfully");
     } catch (err) {
-      console.error("❌ Error loading analytics:", err);
+      console.error("Error loading analytics:", err);
       const errorMessage =
         err instanceof Error ? err.message : "Failed to load analytics";
       setError(errorMessage);
@@ -296,7 +292,7 @@ const Sessions = () => {
     e.preventDefault();
 
     if (!isAuthenticated) {
-      showNotification("error", " Please log in to create a session.");
+      showNotification("error", "Please log in to create a session.");
       return;
     }
 
@@ -304,7 +300,6 @@ const Sessions = () => {
     setError(null);
 
     try {
-      console.log(" Creating session for user:", userEmail);
       const sessionData: CreateSessionRequest = {
         title: newSession.title,
         description: newSession.description,
@@ -326,8 +321,7 @@ const Sessions = () => {
         session_notes: newSession.notes || undefined,
       };
 
-      const result = await sessionsService.createSession(sessionData);
-      console.log("Session created successfully:", result);
+      await sessionsService.createSession(sessionData);
 
       // Reset form and switch to my sessions tab
       setNewSession({
@@ -372,8 +366,7 @@ const Sessions = () => {
     setError(null);
 
     try {
-      const result = await sessionsService.updateSession(sessionId, updates);
-      console.log("Session updated successfully:", result);
+      await sessionsService.updateSession(sessionId, updates);
 
       // Reload sessions
       loadMySessions();
@@ -407,7 +400,6 @@ const Sessions = () => {
 
     try {
       await sessionsService.deleteSession(sessionId);
-      console.log("Session deleted successfully");
 
       // Reload sessions
       loadMySessions();

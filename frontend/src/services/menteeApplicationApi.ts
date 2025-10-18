@@ -52,6 +52,12 @@ export interface MenteeApplication {
     first_name?: string;
     last_name?: string;
     display_name?: string;
+    profile_data?: {
+      avatarUrl?: string;
+      profilePicture?: string;
+      avatar?: string;
+      [key: string]: any;
+    };
   };
 }
 

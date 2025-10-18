@@ -575,23 +575,13 @@ const Stargazing: React.FC = () => {
             </div>
 
             <div className="stargazing-card__content">
-              <div className="stargazing-card__content-top" style={{position: 'relative'}}>
+              <div className="stargazing-card__content-top">
                 <h3 className="stargazing-card__title">{spot.name}</h3>
-                <div style={{
-                  position: 'absolute',
-                  top: 0,
-                  right: 0,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '2px',
-                  fontSize: '1.1rem',
-                  borderRadius: '0 0 0 8px',
-                  padding: '2px 8px'
-                }}>
-                  <span style={{color: '#FFD700', letterSpacing: '1px'}}>
+                <div className="stargazing-card__rating">
+                  <span className="stargazing-card__rating-stars">
                     {renderStars(spot.rating)}
                   </span>
-                  <span style={{marginLeft: 4, color: '#fff', fontSize: '0.95em'}}>{spot.rating.toFixed(1)}</span>
+                  <span className="stargazing-card__rating-value">{spot.rating.toFixed(1)}</span>
                 </div>
                 <div className="stargazing-card__location">
                   <span className="stargazing-card__location-icon">📍</span>

@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../styles/pages/mentor/mentorDashboardSimplified.scss';
 import { Button } from '@headlessui/react';
-import { getMentorProfile } from '../../services/mentorApi';
-import type { MentorProfile } from '../../services/mentorApi';
+import { getMentorProfile, getMentorMentees, getMentorStats } from '../../services/mentorApi';
+import type { MentorProfile, MentorMentee, MentorStats } from '../../services/mentorApi';
 import { auth } from '../../firebase';
 
 // Mock data — replace with real context/API
@@ -20,25 +20,13 @@ const MOCK_MENTOR: MentorProfile = {
   maxMentees: 15,
 }
 
-const MOCK_MENTEES = [
-  { id: '1', name: 'Alice Johnson', avatar: 'https://randomuser.me/api/portraits/women/1.jpg', status: 'Active', email: 'alice.johnson@example.com' },
-  { id: '2', name: 'Bob Smith', avatar: 'https://randomuser.me/api/portraits/men/2.jpg', status: 'Active', email: 'bob.smith@example.com' },
-  { id: '3', name: 'Charlie Lee', avatar: 'https://randomuser.me/api/portraits/men/3.jpg', status: 'Active', email: 'charlie.lee@example.com' },
-  { id: '4', name: 'Diana Prince', avatar: 'https://randomuser.me/api/portraits/women/4.jpg', status: 'Active', email: 'diana.prince@example.com' },
-]
-
-const MOCK_STATS = {
-  activeMentees: 12,
-  sessionsHeld: 48,
-  avgRating: 4.9,
-  hoursMentored: 156,
-  pendingRequests: 5,
-  completedGoals: 23,
-}
+// Legacy mocks removed; dashboard now uses live data with safe fallbacks
 
 const MentorDashboard: React.FC = () => {
   const navigate = useNavigate();
   const [mentorProfile, setMentorProfile] = useState<MentorProfile | null>(null);
+  const [mentees, setMentees] = useState<MentorMentee[]>([]);
+  const [stats, setStats] = useState<MentorStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -55,9 +43,15 @@ const MentorDashboard: React.FC = () => {
         const token = await user.getIdToken();
         console.log('🔑 Fetching mentor profile with token...');
         
-        const profile = await getMentorProfile(token);
+        const [profile, menteesData, statsData] = await Promise.all([
+          getMentorProfile(token),
+          getMentorMentees(token).catch(() => []),
+          getMentorStats(token).catch(() => null),
+        ]);
         console.log('✅ Received mentor profile:', profile);
-        console.log('📊 Profile details:', {
+        console.log('👥 Mentees:', menteesData);
+        console.log('� Stats:', statsData);
+        console.log('�📊 Profile details:', {
           name: profile.name,
           email: profile.email,
           bio: profile.bio,
@@ -69,6 +63,8 @@ const MentorDashboard: React.FC = () => {
         });
         
         setMentorProfile(profile);
+        setMentees(menteesData || []);
+        setStats(statsData);
         setError(null);
       } catch (err: any) {
         console.error('❌ Error fetching mentor profile:', err);
@@ -157,7 +153,7 @@ const MentorDashboard: React.FC = () => {
           <div className="stat-icon">👥</div>
           <div className="stat-content">
             <h3>Active Mentees</h3>
-            <div className="stat-value">{mentor.menteeCount || MOCK_STATS.activeMentees}/{mentor.maxMentees || MOCK_MENTOR.maxMentees}</div>
+            <div className="stat-value">{(stats?.activeMentees ?? mentor.menteeCount ?? 0)}/{mentor.maxMentees || MOCK_MENTOR.maxMentees}</div>
             <div className="stat-change positive">+3 this month</div>
           </div>
         </div>
@@ -166,7 +162,7 @@ const MentorDashboard: React.FC = () => {
           <div className="stat-icon">📅</div>
           <div className="stat-content">
             <h3>Sessions Held</h3>
-            <div className="stat-value">{MOCK_STATS.sessionsHeld}</div>
+            <div className="stat-value">{(stats?.sessionsHeld ?? 0)}</div>
             <div className="stat-change positive">This month</div>
           </div>
         </div>
@@ -175,7 +171,7 @@ const MentorDashboard: React.FC = () => {
           <div className="stat-icon">⭐</div>
           <div className="stat-content">
             <h3>Average Rating</h3>
-            <div className="stat-value">{MOCK_STATS.avgRating}/5.0</div>
+            <div className="stat-value">{Number((stats?.avgRating ?? 0)).toFixed(1)}/5.0</div>
             <div className="stat-change neutral">Excellent</div>
           </div>
         </div>
@@ -184,7 +180,7 @@ const MentorDashboard: React.FC = () => {
           <div className="stat-icon">⏱️</div>
           <div className="stat-content">
             <h3>Hours Mentored</h3>
-            <div className="stat-value">{MOCK_STATS.hoursMentored}h</div>
+            <div className="stat-value">{(stats?.hoursMentored ?? 0)}h</div>
             <div className="stat-change positive">+12h this week</div>
           </div>
         </div>
@@ -265,24 +261,29 @@ const MentorDashboard: React.FC = () => {
           {/* Mentees Section */}
           <div className="mentees-section">
             <div className="section-header">
-              <h2>Your Mentees ({MOCK_MENTEES.length})</h2>
+              <h2>Your Mentees ({mentees.length || mentor.menteeCount || 0})</h2>
               <button className="btn-link" onClick={() => navigate('/dashboard/mentees')}>View All →</button>
             </div>
 
             <div className="mentees-grid">
-              {MOCK_MENTEES.map(mentee => (
+              {(mentees.length > 0 ? mentees : []).map(mentee => (
                 <div key={mentee.id} className="mentee-card" onClick={() => navigate(`/dashboard/mentees`)}>
-                  <img src={mentee.avatar} alt={mentee.name} className="mentee-avatar" />
+                  <img src={mentee.avatarUrl || 'https://i.pravatar.cc/100'} alt={mentee.name} className="mentee-avatar" />
                   <div className="mentee-info">
                     <h4>{mentee.name}</h4>
                     <div className="mentee-status-badge">
-                      <span className="status-dot active"></span>
-                      <span className="status-text">{mentee.status}</span>
+                      <span className={`status-dot ${mentee.status === 'active' ? 'active' : 'inactive'}`}></span>
+                      <span className="status-text">{mentee.status || 'Active'}</span>
                     </div>
                     <p className="mentee-email">{mentee.email}</p>
                   </div>
                 </div>
               ))}
+              {mentees.length === 0 && (
+                <div className="empty-message" style={{ padding: '1rem', opacity: 0.8 }}>
+                  No active mentees yet. Once you accept applications, your mentees will appear here.
+                </div>
+              )}
             </div>
           </div>
         </div>

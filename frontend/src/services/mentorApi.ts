@@ -29,6 +29,24 @@ export interface UpdateMentorProfileData {
   qualifications?: string[];
 }
 
+export interface MentorMentee {
+  id: number;
+  name: string;
+  email: string;
+  avatarUrl?: string;
+  status?: string;
+  applicationId?: number;
+}
+
+export interface MentorStats {
+  activeMentees: number;
+  sessionsHeld: number;
+  avgRating: number | null;
+  hoursMentored: number;
+  pendingRequests: number;
+  completedGoals: number;
+}
+
 // Get current mentor profile
 export const getMentorProfile = async (token: string): Promise<MentorProfile> => {
   try {
@@ -98,4 +116,20 @@ export const getMentorProfileById = async (id: number): Promise<MentorProfile> =
     console.error('Error fetching mentor profile by ID:', error);
     throw error;
   }
+};
+
+// Get current mentor's mentees
+export const getMentorMentees = async (token: string) => {
+  const response = await axios.get(`${API_URL}/mentor/mentees`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data.data;
+};
+
+// Get current mentor's stats
+export const getMentorStats = async (token: string) => {
+  const response = await axios.get(`${API_URL}/mentor/stats`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data.data;
 };

@@ -154,7 +154,7 @@ const PreviousTours: React.FC = () => {
       reviews,
       photos: booking.service?.image_url ? [booking.service.image_url] : [],
       weatherConditions: 'N/A',
-      equipmentUsed: booking.service?.equipment || [],
+      equipmentUsed: [],
       highlights: [],
       category,
     };

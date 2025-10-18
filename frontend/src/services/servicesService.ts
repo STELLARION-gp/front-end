@@ -169,7 +169,11 @@ const apiCall = async <T>(
     throw new Error(error.message || `HTTP error! status: ${response.status}`);
   }
 
-  return await response.json();
+  const jsonResponse = await response.json();
+  
+  // Extract data from the response wrapper
+  // Backend returns: { success: true, message: string, data: T }
+  return jsonResponse.data || jsonResponse;
 };
 
 // ============================================================================

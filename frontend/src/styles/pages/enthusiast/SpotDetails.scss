@@ -1,15 +1,60 @@
 @use '../../abstracts/variables' as *;
 @use '../../abstracts/mixins' as *;
 
-.spot-details {
+// ============================================
+// STARGAZING SPOT DETAILS PAGE - MODERN DESIGN
+// ============================================
+
+.spotdetails-page_1 {
   min-height: 100vh;
-//   background: linear-gradient(135deg, $primary-color 0%, $secondary-color 100%);
   padding: 2rem;
   font-family: $font-outfit;
   color: $text-color;
+//   background: linear-gradient(135deg, #0a0e27 0%, #1a1d3a 50%, #0f1329 100%);
+  position: relative;
 
-  .loading-state,
-  .error-state {
+  // Animated background stars
+  &::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+      radial-gradient(2px 2px at 20% 30%, white, transparent),
+      radial-gradient(2px 2px at 60% 70%, white, transparent),
+      radial-gradient(1px 1px at 50% 50%, white, transparent),
+      radial-gradient(1px 1px at 80% 10%, white, transparent),
+      radial-gradient(2px 2px at 90% 60%, white, transparent);
+    background-size: 200% 200%;
+    animation: twinkle 15s ease-in-out infinite;
+    opacity: 0.5;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  @keyframes twinkle {
+    0%, 100% {
+      opacity: 0.3;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.6;
+      transform: scale(1.2);
+    }
+  }
+
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  // ============================================
+  // LOADING & ERROR STATES
+  // ============================================
+  .spotdetails-loading-state,
+  .spotdetails-error-state {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -17,131 +62,204 @@
     min-height: 60vh;
     gap: 1.5rem;
 
-    .spinner {
-      width: 50px;
-      height: 50px;
-      border: 4px solid rgba(255, 255, 255, 0.1);
+    .spotdetails-spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid rgba(126, 117, 250, 0.2);
       border-top-color: $accent-color;
       border-radius: 50%;
-      animation: spin 1s linear infinite;
+      animation: spotdetails-spin 1s linear infinite;
     }
 
     p {
-      font-size: 1.1rem;
+      font-size: 1.2rem;
       color: $text-color-secondary;
+      font-weight: 500;
     }
   }
 
-  @keyframes spin {
+  @keyframes spotdetails-spin {
     to {
       transform: rotate(360deg);
     }
   }
 
-  // Header
-  .spot-header {
-    margin-bottom: 2rem;
-    background-color: rgba(126, 117, 250, 0.1);
-    padding : 1.5rem 1.5rem;
-    border-radius: 12px;
+  // ============================================
+  // HERO HEADER
+  // ============================================
+  .spotdetails-hero-header {
+    margin-bottom: 2.5rem;
+    background: linear-gradient(135deg, rgba(126, 117, 250, 0.15) 0%, rgba(126, 117, 250, 0.05) 100%);
+    padding: 2rem;
+    border-radius: 20px;
+    border: 1px solid rgba(126, 117, 250, 0.2);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    position: relative;
+    overflow: hidden;
 
-    .back-button {
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      animation: spotdetails-shimmer 3s infinite;
+    }
+
+    @keyframes spotdetails-shimmer {
+      0% {
+        left: -100%;
+      }
+      100% {
+        left: 100%;
+      }
+    }
+
+    .spotdetails-back-btn {
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
       color: $text-color;
       font-weight: 600;
-      transition: all 0.3s ease;
+      padding: 0.75rem 1.5rem;
+      background: rgba(126, 117, 250, 0.15);
+      border: 1px solid rgba(126, 117, 250, 0.3);
+      border-radius: 12px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
       &:hover {
-        color: $accent-color;
+        background: rgba(126, 117, 250, 0.25);
+        border-color: $accent-color;
         transform: translateX(-4px);
+        box-shadow: 0 4px 20px rgba(126, 117, 250, 0.3);
       }
     }
-    .spot-header-content {
-      margin-top: 1rem;
-        display: flex;
-        //move right
-        justify-content: space-between;
-        align-items: center;
-        padding-bottom: 10px;
-      .spot-title {
-        font-size: 2.5rem;
-        font-weight: 700;
-        color: $text-color;
-        margin-bottom: 0.5rem;
+
+    .spotdetails-hero-content {
+      margin-top: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+
+      .spotdetails-hero-title {
+        font-size: 3rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #ffffff 0%, #a8b3ff 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin: 0;
+        letter-spacing: -1px;
       }
 
-      .spot-rating_1 {
+      .spotdetails-hero-rating {
         display: flex;
-        align-items: center;
-        gap: 0.25rem;
-
-        .star {
-          font-size: 1.5rem;
-
-          &.filled {
-            color: #FFD700;
-          }
-
-          &.empty {
-            color: rgba(255, 255, 255, 0.2);
-          }
-        }
+        gap: 0.5rem;
       }
     }
   }
 
-  // Main Content
-  .spot-content {
+  // ============================================
+  // MAIN CONTENT GRID
+  // ============================================
+  .spotdetails-main-content {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 2.5rem;
     margin-bottom: 3rem;
 
-    @media (max-width: 1024px) {
+    @media (max-width: 1200px) {
       grid-template-columns: 1fr;
     }
   }
 
-  // Image Gallery
-  .image-gallery {
-    .main-image {
+  // ============================================
+  // IMAGE GALLERY
+  // ============================================
+  .spotdetails-gallery {
+    .spotdetails-gallery-main {
       width: 100%;
-      height: 500px;
-      border-radius: 16px;
+      height: 550px;
+      border-radius: 24px;
       overflow: hidden;
-      margin-bottom: 1rem;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      margin-bottom: 1.25rem;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      position: relative;
+      transition: transform 0.3s ease;
+
+      &:hover {
+        transform: scale(1.02);
+      }
 
       img {
         width: 100%;
         height: 100%;
         object-fit: cover;
+        transition: transform 0.5s ease;
+      }
+
+      &:hover img {
+        transform: scale(1.05);
+      }
+
+      .spotdetails-gallery-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 30%;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+        pointer-events: none;
       }
     }
 
-    .thumbnail-grid {
+    .spotdetails-gallery-thumbs {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-      gap: 0.75rem;
+      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+      gap: 1rem;
 
-      .thumbnail {
-        height: 80px;
-        border-radius: 8px;
+      .spotdetails-thumb {
+        height: 90px;
+        border-radius: 12px;
         overflow: hidden;
         cursor: pointer;
-        border: 3px solid transparent;
-        transition: all 0.3s ease;
+        border: 3px solid rgba(126, 117, 250, 0.2);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
 
-        &:hover {
-          border-color: rgba($accent-color, 0.5);
-          transform: scale(1.05);
+        &::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.4);
+          opacity: 1;
+          transition: opacity 0.3s ease;
         }
 
-        &.active {
+        &:hover {
+          border-color: rgba(126, 117, 250, 0.6);
+          transform: translateY(-4px);
+          box-shadow: 0 8px 20px rgba(126, 117, 250, 0.4);
+
+          &::before {
+            opacity: 0.2;
+          }
+        }
+
+        &.spotdetails-thumb-active {
           border-color: $accent-color;
-          box-shadow: 0 4px 12px rgba($accent-color, 0.4);
+          box-shadow: 0 8px 30px rgba(126, 117, 250, 0.6);
+          transform: scale(1.05);
+
+          &::before {
+            opacity: 0;
+          }
         }
 
         img {
@@ -153,229 +271,348 @@
     }
   }
 
-  // Spot Information
-  .spot-info {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
-    padding: 2rem;
+  // ============================================
+  // INFO CARD
+  // ============================================
+  .spotdetails-info-card {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 24px;
+    padding: 2.5rem;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    position: relative;
 
-    .info-header {
-      margin-bottom: 2rem;
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, $accent-color, transparent);
+    }
 
-      .spot-name {
+    .spotdetails-info-header {
+      margin-bottom: 2.5rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+      .spotdetails-spot-name {
         font-size: 2.5rem;
-        font-weight: 700;
-        margin-bottom: 1rem;
+        font-weight: 800;
+        margin-bottom: 1.25rem;
         color: $text-color;
+        line-height: 1.2;
+        letter-spacing: -0.5px;
       }
 
-      .rating-display_1 {
+      .spotdetails-rating-display {
         display: flex;
         align-items: center;
-        gap: 0.75rem;
+        gap: 1rem;
+        flex-wrap: wrap;
 
-        .stars_1 {
+        .spotdetails-stars-container {
           display: flex;
-          gap: 0.25rem;
-
-          .star {
-            font-size: 1.25rem;
-
-            &.filled {
-              color: #FFD700;
-            }
-
-            &.empty {
-              color: rgba(255, 255, 255, 0.2);
-            }
-          }
+          gap: 0.35rem;
         }
 
-        .rating-number {
-          font-size: 1.25rem;
+        .spotdetails-rating-num {
+          font-size: 1.5rem;
           font-weight: 700;
           color: #FFD700;
+          text-shadow: 0 2px 10px rgba(255, 215, 0, 0.5);
         }
 
-        .review-count {
-          color: $text-color-secondary;
-          font-size: 0.95rem;
+        .spotdetails-review-count {
+          color: rgba(255, 255, 255, 0.6);
+          font-size: 1rem;
+          font-weight: 500;
         }
       }
     }
 
-    .info-section {
-      margin-bottom: 2rem;
+    .spotdetails-info-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 2.5rem;
 
-      .info-item {
+      .spotdetails-info-item {
         display: flex;
         align-items: center;
-        gap: 0.75rem;
-        padding: 1rem;
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 12px;
-        margin-bottom: 0.75rem;
+        gap: 1.25rem;
+        padding: 1.25rem;
+        background: linear-gradient(135deg, rgba(126, 117, 250, 0.1), rgba(126, 117, 250, 0.05));
+        border-radius: 16px;
+        border: 1px solid rgba(126, 117, 250, 0.2);
+        transition: all 0.3s ease;
 
-        .icon {
-          font-size: 1.25rem;
+        &:hover {
+          background: linear-gradient(135deg, rgba(126, 117, 250, 0.15), rgba(126, 117, 250, 0.08));
+          border-color: rgba(126, 117, 250, 0.4);
+          transform: translateX(4px);
+          box-shadow: 0 4px 20px rgba(126, 117, 250, 0.2);
+        }
+
+        .spotdetails-info-icon {
+          font-size: 1.5rem;
           color: $accent-color;
+          min-width: 24px;
         }
 
-        .label {
-          font-weight: 600;
-          color: $text-color-secondary;
-          min-width: 100px;
-        }
-
-        .value {
-          color: $text-color;
-          font-size: 1.05rem;
-        }
-      }
-    }
-
-    .description-section {
-      margin-bottom: 2rem;
-
-      h2 {
-        font-size: 1.5rem;
-        font-weight: 700;
-        margin-bottom: 1rem;
-        color: $text-color;
-      }
-
-      p {
-        line-height: 1.8;
-        color: $text-color-secondary;
-        font-size: 1.05rem;
-      }
-    }
-
-    .facilities-section {
-      margin-bottom: 2rem;
-
-      h2 {
-        font-size: 1.5rem;
-        font-weight: 700;
-        margin-bottom: 1rem;
-        color: $text-color;
-      }
-
-      .facilities-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 0.75rem;
-
-        .facility-item {
+        .spotdetails-info-content {
           display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          padding: 0.75rem 1rem;
-          background: rgba(102, 126, 234, 0.1);
-          border: 1px solid rgba(102, 126, 234, 0.3);
-          border-radius: 8px;
-          color: $text-color;
-          font-size: 0.95rem;
+          flex-direction: column;
+          gap: 0.25rem;
+          flex: 1;
 
-          .checkmark {
-            color: #10b981;
-            font-weight: 700;
+          .spotdetails-info-label {
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+          }
+
+          .spotdetails-info-value {
+            color: $text-color;
             font-size: 1.1rem;
+            font-weight: 600;
           }
         }
       }
     }
 
-    .creator-section {
-      padding-top: 1.5rem;
+    .spotdetails-section-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 1.25rem;
+      color: $text-color;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+
+      &::before {
+        content: '';
+        width: 4px;
+        height: 24px;
+        background: linear-gradient(180deg, $accent-color, transparent);
+        border-radius: 2px;
+      }
+    }
+
+    .spotdetails-description {
+      margin-bottom: 2.5rem;
+
+      .spotdetails-description-text {
+        line-height: 1.8;
+        color: rgba(255, 255, 255, 0.85);
+        font-size: 1.05rem;
+        background: rgba(255, 255, 255, 0.03);
+        padding: 1.5rem;
+        border-radius: 12px;
+        border-left: 3px solid $accent-color;
+      }
+    }
+
+    .spotdetails-facilities {
+      margin-bottom: 2.5rem;
+
+      .spotdetails-facilities-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 1rem;
+
+        .spotdetails-facility-chip {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          padding: 1rem 1.25rem;
+          background: linear-gradient(135deg, rgba(46, 213, 115, 0.15), rgba(46, 213, 115, 0.05));
+          border: 1px solid rgba(46, 213, 115, 0.3);
+          border-radius: 12px;
+          color: #2ed573;
+          font-weight: 600;
+          font-size: 0.95rem;
+          transition: all 0.3s ease;
+
+          &:hover {
+            background: linear-gradient(135deg, rgba(46, 213, 115, 0.2), rgba(46, 213, 115, 0.1));
+            border-color: rgba(46, 213, 115, 0.5);
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(46, 213, 115, 0.2);
+          }
+
+          .spotdetails-facility-icon {
+            font-size: 1.25rem;
+            font-weight: 700;
+          }
+        }
+      }
+    }
+
+    .spotdetails-creator {
+      padding-top: 2rem;
       border-top: 1px solid rgba(255, 255, 255, 0.1);
 
-      h3 {
-        font-size: 0.9rem;
+      .spotdetails-creator-title {
+        font-size: 1rem;
         font-weight: 600;
-        color: $text-color-secondary;
+        color: rgba(255, 255, 255, 0.6);
+        margin-bottom: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .spotdetails-creator-name {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: $text-color;
         margin-bottom: 0.5rem;
       }
 
-      p {
-        color: $text-color;
-        font-size: 1.05rem;
-
-        &.submit-date {
-          color: $text-color-secondary;
-          font-size: 0.9rem;
-          margin-top: 0.25rem;
-        }
+      .spotdetails-creator-date {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.95rem;
       }
     }
   }
 
-  // Reviews Section
-  .reviews-section {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
-    padding: 2rem;
+  // ============================================
+  // STAR RATING SYSTEM
+  // ============================================
+  .spotdetails-star,
+  .spotdetails-star-filled,
+  .spotdetails-star-empty,
+  .spotdetails-star-half {
+    font-size: 1.35rem;
+    transition: all 0.2s ease;
+  }
 
-    .reviews-header {
+  .spotdetails-star-filled {
+    color: #FFD700;
+    filter: drop-shadow(0 2px 8px rgba(255, 215, 0, 0.5));
+  }
+
+  .spotdetails-star-empty {
+    color: rgba(255, 255, 255, 0.2);
+  }
+
+  .spotdetails-star-half {
+    color: #FFD700;
+    filter: drop-shadow(0 2px 8px rgba(255, 215, 0, 0.3));
+  }
+
+  // ============================================
+  // REVIEWS SECTION
+  // ============================================
+  .spotdetails-reviews-section {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    padding: 2.5rem;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+
+    .spotdetails-reviews-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 2rem;
-      padding-bottom: 1rem;
+      margin-bottom: 2.5rem;
+      padding-bottom: 2rem;
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      flex-wrap: wrap;
+      gap: 1.5rem;
 
-      h2 {
-        font-size: 1.75rem;
+      .spotdetails-reviews-title {
+        font-size: 2rem;
         font-weight: 700;
         color: $text-color;
-      }
-
-      @media (max-width: 640px) {
-        flex-direction: column;
-        gap: 1rem;
-        align-items: flex-start;
+        margin: 0;
       }
     }
 
     // Review Form
-    .review-form-container {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      padding: 2rem;
-      margin-bottom: 2rem;
+    .spotdetails-review-form-container {
+      margin-bottom: 2.5rem;
 
-      .review-form {
-        h3 {
-          font-size: 1.25rem;
+      .spotdetails-review-form {
+        background: linear-gradient(135deg, rgba(126, 117, 250, 0.1), rgba(126, 117, 250, 0.05));
+        border: 1px solid rgba(126, 117, 250, 0.2);
+        border-radius: 20px;
+        padding: 2rem;
+
+        .spotdetails-form-title {
+          font-size: 1.5rem;
           font-weight: 700;
-          margin-bottom: 1.5rem;
           color: $text-color;
+          margin-bottom: 1.5rem;
         }
 
-        .form-group {
+        .spotdetails-form-group {
           margin-bottom: 1.5rem;
 
-          label {
+          .spotdetails-form-label {
             display: block;
             font-weight: 600;
-            margin-bottom: 0.75rem;
-            color: $text-color;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 1rem;
+            font-size: 1rem;
           }
 
-          textarea {
+          .spotdetails-star-selector {
+            display: flex;
+            gap: 0.75rem;
+
+            .spotdetails-star-btn {
+              background: rgba(255, 255, 255, 0.05);
+              border: 2px solid rgba(255, 255, 255, 0.2);
+              color: rgba(255, 255, 255, 0.3);
+              font-size: 2.5rem;
+              width: 60px;
+              height: 60px;
+              border-radius: 12px;
+              cursor: pointer;
+              transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+
+              &:hover {
+                background: rgba(255, 215, 0, 0.1);
+                border-color: rgba(255, 215, 0, 0.5);
+                transform: scale(1.1);
+              }
+
+              &.spotdetails-star-btn-filled {
+                background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 215, 0, 0.1));
+                border-color: #FFD700;
+                color: #FFD700;
+                text-shadow: 0 2px 10px rgba(255, 215, 0, 0.5);
+                transform: scale(1.05);
+
+                &:hover {
+                  transform: scale(1.15);
+                  box-shadow: 0 4px 20px rgba(255, 215, 0, 0.4);
+                }
+              }
+            }
+          }
+
+          .spotdetails-form-textarea {
             width: 100%;
-            padding: 1rem;
             background: rgba(255, 255, 255, 0.05);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 1.25rem;
             color: $text-color;
             font-family: $font-outfit;
             font-size: 1rem;
+            line-height: 1.6;
             resize: vertical;
             transition: all 0.3s ease;
 
@@ -383,118 +620,195 @@
               outline: none;
               border-color: $accent-color;
               background: rgba(255, 255, 255, 0.08);
+              box-shadow: 0 0 20px rgba(126, 117, 250, 0.3);
             }
 
             &::placeholder {
-              color: $text-color-secondary;
-              opacity: 0.7;
+              color: rgba(255, 255, 255, 0.4);
             }
           }
         }
 
-        .star-rating-selector {
-          display: flex;
-          gap: 0.5rem;
-
-          .star-btn {
-            background: none;
-            border: none;
-            font-size: 2.5rem;
-            color: rgba(255, 255, 255, 0.2);
-            cursor: pointer;
-            transition: all 0.2s ease;
-            padding: 0.25rem;
-
-            &:hover {
-              color: #FFD700;
-              transform: scale(1.1);
-            }
-
-            &.filled {
-              color: #FFD700;
-              text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
-            }
-          }
-        }
-
-        .form-actions {
+        .spotdetails-form-actions {
           display: flex;
           gap: 1rem;
           justify-content: flex-end;
-
-          @media (max-width: 640px) {
-            flex-direction: column;
-          }
         }
       }
     }
 
     // Reviews List
-    .reviews-list {
-      .review-item {
+    .spotdetails-reviews-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+
+      .spotdetails-review-card {
         background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 12px;
-        padding: 1.5rem;
-        margin-bottom: 1rem;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 1.75rem;
         transition: all 0.3s ease;
 
         &:hover {
           background: rgba(255, 255, 255, 0.05);
-          border-color: rgba(255, 255, 255, 0.15);
+          border-color: rgba(255, 255, 255, 0.2);
+          transform: translateY(-2px);
+          box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
         }
 
-        .review-header {
+        .spotdetails-review-header {
           display: flex;
           justify-content: space-between;
           align-items: flex-start;
           margin-bottom: 1rem;
+          flex-wrap: wrap;
+          gap: 1rem;
 
-          .reviewer-info {
-            .reviewer-name {
-              font-weight: 700;
+          .spotdetails-reviewer-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+
+            .spotdetails-reviewer-name {
               font-size: 1.1rem;
+              font-weight: 700;
               color: $text-color;
-              display: block;
-              margin-bottom: 0.5rem;
             }
 
-            .review-rating {
+            .spotdetails-review-stars {
               display: flex;
               gap: 0.25rem;
-
-              .star {
-                font-size: 1rem;
-
-                &.filled {
-                  color: #FFD700;
-                }
-
-                &.empty {
-                  color: rgba(255, 255, 255, 0.2);
-                }
-              }
             }
           }
 
-          .review-date {
-            color: $text-color-secondary;
+          .spotdetails-review-date {
+            color: rgba(255, 255, 255, 0.5);
             font-size: 0.9rem;
           }
         }
 
-        .review-text {
-          color: $text-color-secondary;
+        .spotdetails-review-text {
+          color: rgba(255, 255, 255, 0.8);
           line-height: 1.7;
           font-size: 1rem;
+          margin: 0;
+        }
+      }
+    }
+
+    .spotdetails-no-reviews {
+      text-align: center;
+      padding: 3rem 2rem;
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 1.1rem;
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 16px;
+      border: 1px dashed rgba(255, 255, 255, 0.2);
+    }
+  }
+
+  // ============================================
+  // RESPONSIVE DESIGN
+  // ============================================
+  @media (max-width: 1200px) {
+    padding: 1.5rem;
+
+    .spotdetails-hero-header {
+      .spotdetails-hero-content {
+        .spotdetails-hero-title {
+          font-size: 2.5rem;
+        }
+      }
+    }
+
+    .spotdetails-info-card {
+      .spotdetails-info-header {
+        .spotdetails-spot-name {
+          font-size: 2rem;
+        }
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+
+    .spotdetails-hero-header {
+      padding: 1.5rem;
+
+      .spotdetails-hero-content {
+        .spotdetails-hero-title {
+          font-size: 2rem;
+        }
+      }
+    }
+
+    .spotdetails-gallery {
+      .spotdetails-gallery-main {
+        height: 350px;
+        border-radius: 16px;
+      }
+
+      .spotdetails-gallery-thumbs {
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+
+        .spotdetails-thumb {
+          height: 70px;
+        }
+      }
+    }
+
+    .spotdetails-info-card {
+      padding: 1.5rem;
+
+      .spotdetails-info-header {
+        .spotdetails-spot-name {
+          font-size: 1.75rem;
+        }
+
+        .spotdetails-rating-display {
+          .spotdetails-rating-num {
+            font-size: 1.25rem;
+          }
         }
       }
 
-      .no-reviews {
-        text-align: center;
-        padding: 3rem;
-        color: $text-color-secondary;
-        font-size: 1.1rem;
+      .spotdetails-facilities {
+        .spotdetails-facilities-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    }
+
+    .spotdetails-reviews-section {
+      padding: 1.5rem;
+
+      .spotdetails-reviews-header {
+        flex-direction: column;
+        align-items: flex-start;
+
+        .spotdetails-reviews-title {
+          font-size: 1.5rem;
+        }
+      }
+
+      .spotdetails-review-form-container {
+        .spotdetails-review-form {
+          padding: 1.5rem;
+
+          .spotdetails-form-group {
+            .spotdetails-star-selector {
+              gap: 0.5rem;
+
+              .spotdetails-star-btn {
+                font-size: 2rem;
+                width: 50px;
+                height: 50px;
+              }
+            }
+          }
+        }
       }
     }
   }

@@ -102,11 +102,11 @@ const SpotDetails: React.FC = () => {
 
     for (let i = 0; i < 5; i++) {
       if (i < fullStars) {
-        stars.push(<FaStar key={i} className="star filled" />);
+        stars.push(<FaStar key={i} className="spotdetails-star spotdetails-star-filled" />);
       } else if (i === fullStars && hasHalfStar) {
-        stars.push(<FaStar key={i} className="star half" />);
+        stars.push(<FaStar key={i} className="spotdetails-star spotdetails-star-half" />);
       } else {
-        stars.push(<FaStar key={i} className="star empty" />);
+        stars.push(<FaStar key={i} className="spotdetails-star spotdetails-star-empty" />);
       }
     }
     return stars;
@@ -114,9 +114,9 @@ const SpotDetails: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="spot-details">
-        <div className="loading-state">
-          <div className="spinner"></div>
+      <div className="spotdetails-page">
+        <div className="spotdetails-loading-state">
+          <div className="spotdetails-spinner"></div>
           <p>Loading spot details...</p>
         </div>
       </div>
@@ -125,8 +125,8 @@ const SpotDetails: React.FC = () => {
 
   if (error || !spot) {
     return (
-      <div className="spot-details">
-        <div className="error-state">
+      <div className="spotdetails-page">
+        <div className="spotdetails-error-state">
           <p>{error || 'Spot not found'}</p>
           <Button onClick={() => navigate('/dashboard/enthusiast/stargazing')}>
             Back to Stargazing
@@ -141,36 +141,37 @@ const SpotDetails: React.FC = () => {
     : [spot.image_url || 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=500&fit=crop'];
 
   return (
-    <div className="spot-details">
+    <div className="spotdetails-page_1">
       {/* Header */}
-      <div className="spot-header">
-        <div className="spot-header-content">
-          <h1 className="spot-title">Stargazing Spot Details</h1>
-          <div className="spot-rating_1">{renderStars(spot.rating)}</div>
-        </div>
+      <div className="spotdetails-hero-header">
         <Button
           variant="ghost"
           size="medium"
           onClick={() => navigate('/dashboard/stargazing')}
-          className="back-button"
+          className="spotdetails-back-btn"
         >
           <FaArrowLeft /> Back to Stargazing
         </Button>
+        <div className="spotdetails-hero-content">
+          <h1 className="spotdetails-hero-title">Stargazing Spot Details</h1>
+          <div className="spotdetails-hero-rating">{renderStars(spot.rating)}</div>
+        </div>
       </div>
 
       {/* Main Content */}
-      <div className="spot-content">
+      <div className="spotdetails-main-content">
         {/* Image Gallery */}
-        <div className="image-gallery">
-          <div className="main-image">
+        <div className="spotdetails-gallery">
+          <div className="spotdetails-gallery-main">
             <img src={images[selectedImageIndex]} alt={spot.name} />
+            <div className="spotdetails-gallery-overlay"></div>
           </div>
           {images.length > 1 && (
-            <div className="thumbnail-grid">
+            <div className="spotdetails-gallery-thumbs">
               {images.map((image, index) => (
                 <div
                   key={index}
-                  className={`thumbnail ${index === selectedImageIndex ? 'active' : ''}`}
+                  className={`spotdetails-thumb ${index === selectedImageIndex ? 'spotdetails-thumb-active' : ''}`}
                   onClick={() => setSelectedImageIndex(index)}
                 >
                   <img src={image} alt={`${spot.name} ${index + 1}`} />
@@ -181,48 +182,52 @@ const SpotDetails: React.FC = () => {
         </div>
 
         {/* Spot Information */}
-        <div className="spot-info">
-          <div className="info-header">
-            <h1 className="spot-name">{spot.name}</h1>
-            <div className="rating-display_1">
-              <div className="stars_1">{renderStars(spot.rating)}</div>
-              <span className="rating-number">{spot.rating.toFixed(1)}</span>
-              <span className="review-count">({spot.review_count || 0} reviews)</span>
+        <div className="spotdetails-info-card">
+          <div className="spotdetails-info-header">
+            <h1 className="spotdetails-spot-name">{spot.name}</h1>
+            <div className="spotdetails-rating-display">
+              <div className="spotdetails-stars-container">{renderStars(spot.rating)}</div>
+              <span className="spotdetails-rating-num">{spot.rating.toFixed(1)}</span>
+              <span className="spotdetails-review-count">({spot.review_count || 0} reviews)</span>
             </div>
           </div>
 
-          <div className="info-section">
-            <div className="info-item">
-              <FaMapMarkerAlt className="icon" />
-              <span className="label">Location:</span>
-              <span className="value">{spot.location}</span>
+          <div className="spotdetails-info-grid">
+            <div className="spotdetails-info-item">
+              <FaMapMarkerAlt className="spotdetails-info-icon" />
+              <div className="spotdetails-info-content">
+                <span className="spotdetails-info-label">Location</span>
+                <span className="spotdetails-info-value">{spot.location}</span>
+              </div>
             </div>
             {spot.best_time && (
-              <div className="info-item">
-                <FaClock className="icon" />
-                <span className="label">Best Time:</span>
-                <span className="value">{spot.best_time}</span>
+              <div className="spotdetails-info-item">
+                <FaClock className="spotdetails-info-icon" />
+                <div className="spotdetails-info-content">
+                  <span className="spotdetails-info-label">Best Time</span>
+                  <span className="spotdetails-info-value">{spot.best_time}</span>
+                </div>
               </div>
             )}
           </div>
 
-          <div className="description-section">
-            <h2>About This Location</h2>
-            <p>{spot.description}</p>
+          <div className="spotdetails-description">
+            <h2 className="spotdetails-section-title">About This Location</h2>
+            <p className="spotdetails-description-text">{spot.description}</p>
           </div>
 
           {spot.facilities && (
-            <div className="facilities-section">
-              <h2>Available Facilities</h2>
-              <div className="facilities-grid">
+            <div className="spotdetails-facilities">
+              <h2 className="spotdetails-section-title">Available Facilities</h2>
+              <div className="spotdetails-facilities-grid">
                 {(Array.isArray(spot.facilities) 
                   ? spot.facilities 
                   : typeof spot.facilities === 'string' 
                     ? JSON.parse(spot.facilities)
                     : []
                 ).map((facility: string, index: number) => (
-                  <div key={index} className="facility-item">
-                    <span className="checkmark">✓</span>
+                  <div key={index} className="spotdetails-facility-chip">
+                    <span className="spotdetails-facility-icon">✓</span>
                     {facility}
                   </div>
                 ))}
@@ -231,19 +236,19 @@ const SpotDetails: React.FC = () => {
           )}
 
           {spot.creator && (
-            <div className="creator-section">
-              <h3>Submitted by</h3>
-              <p>{spot.creator.display_name || spot.creator.first_name || 'Anonymous'}</p>
-              <p className="submit-date">on {formatDate(spot.created_at)}</p>
+            <div className="spotdetails-creator">
+              <h3 className="spotdetails-creator-title">Submitted by</h3>
+              <p className="spotdetails-creator-name">{spot.creator.display_name || spot.creator.first_name || 'Anonymous'}</p>
+              <p className="spotdetails-creator-date">on {formatDate(spot.created_at)}</p>
             </div>
           )}
         </div>
       </div>
 
       {/* Reviews Section */}
-      <div className="reviews-section">
-        <div className="reviews-header">
-          <h2>Reviews ({spot.reviews?.length || 0})</h2>
+      <div className="spotdetails-reviews-section">
+        <div className="spotdetails-reviews-header">
+          <h2 className="spotdetails-reviews-title">Reviews ({spot.reviews?.length || 0})</h2>
           {user && !showReviewForm && (
             <Button
               variant="primary"
@@ -257,18 +262,18 @@ const SpotDetails: React.FC = () => {
 
         {/* Review Form */}
         {showReviewForm && (
-          <div className="review-form-container">
-            <form onSubmit={handleSubmitReview} className="review-form">
-              <h3>Write Your Review</h3>
+          <div className="spotdetails-review-form-container">
+            <form onSubmit={handleSubmitReview} className="spotdetails-review-form">
+              <h3 className="spotdetails-form-title">Write Your Review</h3>
               
-              <div className="form-group">
-                <label>Your Rating</label>
-                <div className="star-rating-selector">
+              <div className="spotdetails-form-group">
+                <label className="spotdetails-form-label">Your Rating</label>
+                <div className="spotdetails-star-selector">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <button
                       key={star}
                       type="button"
-                      className={`star-btn ${reviewForm.rating >= star ? 'filled' : ''}`}
+                      className={`spotdetails-star-btn ${reviewForm.rating >= star ? 'spotdetails-star-btn-filled' : ''}`}
                       onClick={() => setReviewForm(prev => ({ ...prev, rating: star }))}
                       title={`Rate ${star} star${star > 1 ? 's' : ''}`}
                     >
@@ -278,9 +283,10 @@ const SpotDetails: React.FC = () => {
                 </div>
               </div>
 
-              <div className="form-group">
-                <label>Your Review</label>
+              <div className="spotdetails-form-group">
+                <label className="spotdetails-form-label">Your Review</label>
                 <textarea
+                  className="spotdetails-form-textarea"
                   value={reviewForm.reviewText}
                   onChange={(e) => setReviewForm(prev => ({ ...prev, reviewText: e.target.value }))}
                   placeholder="Share your experience at this stargazing location..."
@@ -289,7 +295,7 @@ const SpotDetails: React.FC = () => {
                 />
               </div>
 
-              <div className="form-actions">
+              <div className="spotdetails-form-actions">
                 <Button
                   type="button"
                   variant="ghost"
@@ -314,26 +320,26 @@ const SpotDetails: React.FC = () => {
         )}
 
         {/* Reviews List */}
-        <div className="reviews-list">
+        <div className="spotdetails-reviews-list">
           {spot.reviews && spot.reviews.length > 0 ? (
             spot.reviews.map((review) => (
-              <div key={review.id} className="review-item">
-                <div className="review-header">
-                  <div className="reviewer-info">
-                    <span className="reviewer-name">
+              <div key={review.id} className="spotdetails-review-card">
+                <div className="spotdetails-review-header">
+                  <div className="spotdetails-reviewer-info">
+                    <span className="spotdetails-reviewer-name">
                       {review.user?.display_name || review.user?.first_name || 'Anonymous'}
                     </span>
-                    <div className="review-rating">
+                    <div className="spotdetails-review-stars">
                       {renderStars(review.rating)}
                     </div>
                   </div>
-                  <span className="review-date">{formatDate(review.created_at)}</span>
+                  <span className="spotdetails-review-date">{formatDate(review.created_at)}</span>
                 </div>
-                <p className="review-text">{review.review_text}</p>
+                <p className="spotdetails-review-text">{review.review_text}</p>
               </div>
             ))
           ) : (
-            <div className="no-reviews">
+            <div className="spotdetails-no-reviews">
               <p>No reviews yet. Be the first to review this spot!</p>
             </div>
           )}

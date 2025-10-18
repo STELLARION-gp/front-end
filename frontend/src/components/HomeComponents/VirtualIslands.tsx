@@ -213,14 +213,14 @@ const EventsIsland: React.FC = () => {
         
         // Filter approved events
         const approvedEvents = mappedEvents.filter((event: PlatformEventMapped) => {
-          console.log(`Event ${event.id} status:`, event.status);
+          console.log(`Event ${event.id} status:`, event.status, 'imageUrls:', event.imageUrls);
           return event.status === 'approved';
         });
         console.log('Approved events:', approvedEvents);
         
         // Take first 4
         const processedEvents = approvedEvents.slice(0, 4);
-        console.log('Final processed events:', processedEvents);
+        console.log('Final processed events with images:', processedEvents.map(e => ({ id: e.id, name: e.eventName, images: e.imageUrls })));
         
         setEvents(processedEvents);
       } catch (error) {
@@ -249,17 +249,30 @@ const EventsIsland: React.FC = () => {
             {events.map((event) => (
               <div 
                 key={event.id} 
-                className="event-card"
+                className="event-card_1"
                 onClick={() => navigate(`/dashboard/events`)}
               >
-                <h3 className="event-title">{event.eventName}</h3>
-                <span className="event-date">
-                  {new Date(event.date).toLocaleDateString('en-US', { 
-                    month: 'short', 
-                    day: 'numeric',
-                    year: 'numeric'
-                  })}
-                </span>
+                {event.imageUrls && event.imageUrls.length > 0 && event.imageUrls[0] && (
+                  <div 
+                    className="event-image" 
+                    style={{ backgroundImage: `url(${event.imageUrls[0]})` }}
+                  ></div>
+                )}
+                <div className="event-info">
+                  <h3 className="event-title">{event.eventName}</h3>
+                  <div className="event-meta">
+                    <span className="event-date">
+                      📅 {new Date(event.date).toLocaleDateString('en-US', { 
+                        month: 'short', 
+                        day: 'numeric',
+                        year: 'numeric'
+                      })}
+                    </span>
+                    {event.location && (
+                      <span className="event-location">📍 {event.location}</span>
+                    )}
+                  </div>
+                </div>
               </div>
             ))}
           </div>

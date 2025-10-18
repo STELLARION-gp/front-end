@@ -2,25 +2,25 @@
 .virtual-islands-section {
   width: 100%;
   padding: 80px 20px;
-  background: linear-gradient(135deg, #000333 0%, #020015 100%);
+  background: linear-gradient(135deg, rgb(14, 15, 33) 0%, #000000 100%);
   position: relative;
   overflow: hidden;
 
   // Animated stars background
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image: 
-      radial-gradient(2px 2px at 10% 20%, rgba(255, 255, 255, 0.8), transparent),
-      radial-gradient(1px 1px at 90% 80%, rgba(255, 255, 255, 0.6), transparent),
-      radial-gradient(2px 2px at 50% 50%, rgba(255, 255, 255, 0.7), transparent),
-      radial-gradient(1px 1px at 30% 70%, rgba(255, 255, 255, 0.5), transparent),
-      radial-gradient(2px 2px at 70% 30%, rgba(255, 255, 255, 0.8), transparent);
-    animation: twinkleStars 15s ease-in-out infinite;
-    pointer-events: none;
-    opacity: 0.4;
-  }
+//   &::before {
+//     content: '';
+//     position: absolute;
+//     inset: 0;
+//     background-image: 
+//       radial-gradient(2px 2px at 10% 20%, rgba(255, 255, 255, 0.8), transparent),
+//       radial-gradient(1px 1px at 90% 80%, rgba(255, 255, 255, 0.6), transparent),
+//       radial-gradient(2px 2px at 50% 50%, rgba(255, 255, 255, 0.7), transparent),
+//       radial-gradient(1px 1px at 30% 70%, rgba(255, 255, 255, 0.5), transparent),
+//       radial-gradient(2px 2px at 70% 30%, rgba(255, 255, 255, 0.8), transparent);
+//     animation: twinkleStars 15s ease-in-out infinite;
+//     pointer-events: none;
+//     opacity: 0.4;
+//   }
 
   .islands-container {
     max-width: 1400px;
@@ -159,20 +159,6 @@
     position: relative;
     animation: fadeInUp 0.6s ease-out;
 
-    // Unique background glow effect
-    &::before {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 200px;
-      height: 200px;
-      background: radial-gradient(circle, rgba(138, 99, 210, 0.15) 0%, transparent 70%);
-      transform: translate(-50%, -50%);
-      pointer-events: none;
-      animation: breathe 4s ease-in-out infinite;
-    }
-
     .spots-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -304,33 +290,6 @@
   .blogs-island {
     animation: fadeInUp 0.6s ease-out 0.2s backwards;
 
-    // Unique floating particles effect
-    &::before {
-      content: '';
-      position: absolute;
-      top: 20%;
-      right: 10%;
-      width: 150px;
-      height: 150px;
-      background: radial-gradient(circle, rgba(129, 140, 248, 0.12) 0%, transparent 70%);
-      border-radius: 50%;
-      pointer-events: none;
-      animation: float 6s ease-in-out infinite;
-    }
-
-    &::after {
-      content: '';
-      position: absolute;
-      bottom: 20%;
-      left: 10%;
-      width: 100px;
-      height: 100px;
-      background: radial-gradient(circle, rgba(129, 140, 248, 0.08) 0%, transparent 70%);
-      border-radius: 50%;
-      pointer-events: none;
-      animation: float 8s ease-in-out infinite reverse;
-    }
-
     .blogs-list {
       display: flex;
       flex-direction: column;
@@ -450,42 +409,28 @@
   .events-island {
     animation: fadeInUp 0.6s ease-out 0.4s backwards;
 
-    // Unique shimmer effect
-    &::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(
-        90deg,
-        transparent 0%,
-        rgba(165, 180, 252, 0.1) 50%,
-        transparent 100%
-      );
-      animation: shimmer 8s ease-in-out infinite;
-      pointer-events: none;
-    }
-
     .events-list {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 14px;
       position: relative;
       z-index: 1;
     }
 
-    .event-card {
+    .event-card_1 {
       position: relative;
       background: rgba(165, 180, 252, 0.08);
       -webkit-backdrop-filter: blur(10px);
       backdrop-filter: blur(10px);
-      border-radius: 12px;
-      padding: 16px;
+      border-radius: 16px;
+      overflow: hidden;
       transition: all 0.3s ease;
       cursor: pointer;
       animation: bounceIn 0.6s ease-out backwards;
+      display: flex;
+      gap: 16px;
+      min-height: 100px;
+      border: 1px solid rgba(165, 180, 252, 0.15);
 
       @for $i from 1 through 4 {
         &:nth-child(#{$i}) {
@@ -498,10 +443,10 @@
         content: '';
         position: absolute;
         inset: 0;
-        border-radius: 12px;
+        border-radius: 16px;
         padding: 1px;
         background: linear-gradient(
-          90deg,
+          135deg,
           transparent 25%,
           rgba(165, 180, 252, 0.6) 50%,
           transparent 75%
@@ -511,36 +456,59 @@
         -webkit-mask-composite: xor;
         mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
         mask-composite: exclude;
-        animation: moveBorder 4s linear infinite;
+        animation: moveBorder 5s linear infinite;
         pointer-events: none;
       }
 
       &:hover {
-        transform: translateY(-4px) rotate(1deg);
-        box-shadow: 0 8px 28px rgba(165, 180, 252, 0.35);
+        transform: translateY(-4px) scale(1.01);
+        box-shadow: 0 12px 32px rgba(165, 180, 252, 0.35);
         background: rgba(165, 180, 252, 0.12);
+        border-color: rgba(165, 180, 252, 0.3);
 
         &::before {
           background: linear-gradient(
-            90deg,
+            135deg,
             transparent 25%,
             rgba(165, 180, 252, 0.9) 50%,
             transparent 75%
           );
-          animation-duration: 2s;
+          animation-duration: 2.5s;
         }
 
-        .event-date {
+        .event-image {
           transform: scale(1.05);
-          box-shadow: 0 4px 12px rgba(138, 99, 210, 0.3);
         }
+      }
+
+      .event-image {
+        width: 100px;
+        min-width: 100px;
+        height: 100%;
+        min-height: 100px;
+        background-size: cover;
+        background-position: center;
+        background-color: rgba(0, 0, 0, 0.3);
+        border-radius: 12px;
+        transition: transform 0.4s ease;
+        border: 2px solid rgba(165, 180, 252, 0.2);
+      }
+
+      .event-info {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 10px;
+        flex: 1;
+        min-width: 0;
+        padding: 12px 12px 12px 0;
       }
 
       .event-title {
         font-size: 1.05rem;
         font-weight: 600;
         color: #fff;
-        margin: 0 0 10px 0;
+        margin: 0;
         display: -webkit-box;
         -webkit-line-clamp: 2;
         line-clamp: 2;
@@ -550,17 +518,24 @@
         line-height: 1.4;
       }
 
-      .event-date {
-        font-size: 0.875rem;
+      .event-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .event-date,
+      .event-location {
+        font-size: 0.85rem;
         color: rgba(165, 180, 252, 1);
-        font-weight: 600;
-        display: inline-block;
-        padding: 6px 14px;
-        background: rgba(138, 99, 210, 0.25);
-        border-radius: 20px;
-        width: fit-content;
-        transition: all 0.3s ease;
-        border: 1px solid rgba(165, 180, 252, 0.3);
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .event-location {
+        color: rgba(165, 180, 252, 0.85);
       }
     }
   }
@@ -646,35 +621,6 @@
   }
 }
 
-@keyframes breathe {
-  0%, 100% {
-    transform: translate(-50%, -50%) scale(1);
-    opacity: 0.15;
-  }
-  50% {
-    transform: translate(-50%, -50%) scale(1.2);
-    opacity: 0.25;
-  }
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-20px);
-  }
-}
-
-@keyframes shimmer {
-  0% {
-    left: -100%;
-  }
-  100% {
-    left: 100%;
-  }
-}
-
 // Accessibility
 @media (prefers-reduced-motion: reduce) {
   .stargazing-island,
@@ -684,13 +630,5 @@
   .blog-card,
   .event-card {
     animation: none !important;
-  }
-
-  .virtual-islands-section::before,
-  .stargazing-island::before,
-  .blogs-island::before,
-  .blogs-island::after,
-  .events-island::before {
-    animation: none;
   }
 }

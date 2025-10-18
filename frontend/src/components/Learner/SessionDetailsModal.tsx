@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Button from "../Button";
 import type { Session } from "../../services/sessionsService";
 import "../../styles/components/learner/SessionDetailsModal.scss";
@@ -9,6 +9,8 @@ import ParticipantsIcon from "../../assets/svg/ParticipantsIcon";
 import PriceIcon from "../../assets/svg/PriceIcon";
 import FreeIcon from "../../assets/svg/FreeIcon";
 import DifficultyIcon from "../../assets/svg/DifficultyIcon";
+import SessionPaymentModal from "./SessionPaymentModal";
+import type { CardDetails } from "./SessionPaymentModal";
 
 interface SessionDetailsModalProps {
   session: Session | null;
@@ -23,7 +25,39 @@ const SessionDetailsModal: React.FC<SessionDetailsModalProps> = ({
   onClose,
   onRegister
 }) => {
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [paymentLoading, setPaymentLoading] = useState(false);
+
   if (!open || !session) return null;
+
+  const handlePayment = async (cardDetails: CardDetails) => {
+    try {
+      setPaymentLoading(true);
+      console.log('Processing payment for session:', session.id);
+      console.log('Card details:', {
+        ...cardDetails,
+        cvv: '***' // Don't log actual CVV
+      });
+
+      // TODO: Integrate with existing payment controller
+      // This will be connected to the backend payment flow
+      // Example: await paymentService.processSessionPayment(session.id, cardDetails);
+      
+      // For now, just simulate payment processing
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Close both modals on success
+      setPaymentModalOpen(false);
+      setPaymentLoading(false);
+      alert('Payment successful! You are now enrolled in the session.');
+      onClose();
+      
+    } catch (error) {
+      setPaymentLoading(false);
+      console.error('Payment failed:', error);
+      alert('Payment failed. Please try again.');
+    }
+  };
 
   const creatorName = session.creator?.display_name || 
     `${session.creator?.first_name || ''} ${session.creator?.last_name || ''}`.trim() || 
@@ -188,10 +222,7 @@ const SessionDetailsModal: React.FC<SessionDetailsModalProps> = ({
           {session.payment_type === 'paid' ? (
             <Button 
               variant="primary" 
-              onClick={() => {
-                console.log('Proceeding to payment for session:', session.id);
-                // TODO: Implement payment flow
-              }}
+              onClick={() => setPaymentModalOpen(true)}
             >
               💳 Pay Rs {session.price}
             </Button>
@@ -217,6 +248,15 @@ const SessionDetailsModal: React.FC<SessionDetailsModalProps> = ({
           )}
         </div>
       </div>
+
+      <SessionPaymentModal
+        open={paymentModalOpen}
+        onClose={() => setPaymentModalOpen(false)}
+        onPayment={handlePayment}
+        sessionTitle={session.title}
+        amount={session.price || 0}
+        loading={paymentLoading}
+      />
     </div>
   );
 };

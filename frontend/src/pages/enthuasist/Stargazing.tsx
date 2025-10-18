@@ -369,9 +369,22 @@ const Stargazing: React.FC = () => {
           best_time: addSpotForm.bestTime.trim() || undefined,
           image_url: addSpotForm.image.trim() || undefined,
           facilities: addSpotForm.facilities.filter(f => f.trim()),
-          rating: (addSpotForm.rating && addSpotForm.rating > 0) ? addSpotForm.rating : undefined,
-          images: selectedImages  // Add selected images
         };
+
+        // Only include rating if it's a valid number between 1-5
+        if (addSpotForm.rating !== undefined && addSpotForm.rating >= 1 && addSpotForm.rating <= 5) {
+          spotData.rating = addSpotForm.rating;
+        }
+
+        // Only include images if any are selected
+        if (selectedImages.length > 0) {
+          spotData.images = selectedImages;
+        }
+
+        console.log('Submitting spot data:', {
+          ...spotData,
+          images: spotData.images ? `${spotData.images.length} images` : 'no images'
+        });
 
         const response = await stargazingSpotService.createStargazingSpot(spotData);
         
@@ -838,7 +851,7 @@ const Stargazing: React.FC = () => {
                       {addSpotForm.facilities.length > 1 && (
                         <button
                           type="button"
-                          className="facility-remove"
+                          className="facility-remove_1"
                           onClick={() => removeFacility(index)}
                         >
                           ×
@@ -856,29 +869,46 @@ const Stargazing: React.FC = () => {
                 </div>
               </div>
 
-              {/* Add rating input */}
+              {/* Add rating input with star selector */}
               <div className="add-spot-form__row">
                 <div className="add-spot-form__group">
-                  <label htmlFor="spotRating">Rating (0-5, optional)</label>
-                  <input
-                    type="number"
-                    id="spotRating"
-                    min={0}
-                    max={5}
-                    step={0.1}
-                    value={addSpotForm.rating ?? ''}
-                    onChange={e => {
-                      const val = e.target.value === '' ? undefined : parseFloat(e.target.value);
-                      if (val !== undefined && (isNaN(val) || val < 0 || val > 5)) {
-                        return; // Don't update if invalid
-                      }
-                      setAddSpotForm(prev => ({
-                        ...prev,
-                        rating: val
-                      }));
-                    }}
-                    placeholder="Leave empty for default rating"
-                  />
+                  <label>Your Rating (optional)</label>
+                  <div className="star-rating-selector">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        type="button"
+                        className={`star-btn ${addSpotForm.rating && star <= addSpotForm.rating ? 'filled' : ''}`}
+                        onClick={() => {
+                          setAddSpotForm(prev => ({
+                            ...prev,
+                            rating: star
+                          }));
+                        }}
+                        title={`Rate ${star} star${star > 1 ? 's' : ''}`}
+                      >
+                        ★
+                      </button>
+                    ))}
+                    {addSpotForm.rating && (
+                      <button
+                        type="button"
+                        className="star-clear-btn"
+                        onClick={() => {
+                          setAddSpotForm(prev => ({
+                            ...prev,
+                            rating: undefined
+                          }));
+                        }}
+                        title="Clear rating"
+                      >
+                        ✕
+                      </button>
+                    )}
+                    <span className="rating-label">
+                      {addSpotForm.rating ? `${addSpotForm.rating} star${addSpotForm.rating > 1 ? 's' : ''}` : 'No rating'}
+                    </span>
+                  </div>
                 </div>
               </div>
 

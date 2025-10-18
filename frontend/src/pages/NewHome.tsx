@@ -9,6 +9,7 @@ import StatsSection from '../components/HomeComponents/StatsSection';
 import AboutSection from '../components/HomeComponents/AboutSection';
 import FeaturesSection from '../components/HomeComponents/FeatureSection';
 import CTASection from '../components/HomeComponents/CTASection';
+import SystemFeaturesSection from '../components/HomeComponents/SystemFeaturesSection';
 import astro from '../assets/astro.webp';
 import astro2 from '../assets/astro3.webp';
 //import ActorsCarousel from '../components/HomeComponents/ActorsCarousel';
@@ -60,6 +61,8 @@ const NewHome = () => {
             <div id="features">
               <FeaturesSection />
             </div>
+            {/* New System Features Section - Stargazing Spots, Blogs, Events */}
+            <SystemFeaturesSection />
             {/* <ActorsCarousel /> */}
             <CTASection />
           </div>

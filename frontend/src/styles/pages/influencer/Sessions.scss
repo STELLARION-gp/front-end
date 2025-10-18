@@ -2654,6 +2654,13 @@ input:checked + .toggle-slider:before {
           flex: 1;
         }
 
+        .poll-status-badges {
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+          align-items: flex-end;
+        }
+
         .poll-status {
           padding: 0.25rem 0.75rem;
           border-radius: 20px;
@@ -2668,6 +2675,32 @@ input:checked + .toggle-slider:before {
           &.closed {
             background: rgba(244, 67, 54, 0.2);
             color: #f44336;
+          }
+        }
+
+        .moderation-status {
+          padding: 0.25rem 0.75rem;
+          border-radius: 20px;
+          font-size: 0.75rem;
+          font-weight: 600;
+          white-space: nowrap;
+
+          &.pending {
+            background: rgba(255, 165, 0, 0.2);
+            color: #FFA500;
+            border: 1px solid rgba(255, 165, 0, 0.4);
+          }
+
+          &.approved {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+            border: 1px solid rgba(76, 175, 80, 0.4);
+          }
+
+          &.rejected {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+            border: 1px solid rgba(244, 67, 54, 0.4);
           }
         }
       }

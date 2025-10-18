@@ -6,7 +6,7 @@ const API_BASE_URL = API_CONFIG.API_BASE_URL;
 
 // Poll types
 export type PollChoiceType = string; // Changed to string to support custom options
-export type PollStatus = 'pending' | 'approved' | 'rejected';
+export type PollStatus = 'pending' | 'approved' | 'rejected'; // Poll moderation status
 
 export interface PollChoice {
   choice: string; // Changed to string to support custom options
@@ -32,7 +32,6 @@ export interface Poll {
   created_at: Date | string;
   updated_at: Date | string;
   creator: PollCreator;
-  moderator?: PollCreator | null;
   choices: PollChoice[];
   total_votes: number;
   comment_count: number;

@@ -984,9 +984,10 @@ const Sessions = () => {
     setPollsLoading(true);
     setPollsError(null);
     try {
-      const response = await pollService.getPolls();
+      // Use getMyPolls to get ALL user's polls (pending, approved, rejected)
+      const response = await pollService.getMyPolls({ page: 1, limit: 100 });
       setPolls(response.data || []);
-      console.log("Loaded", response.data?.length || 0, "polls");
+      console.log("Loaded", response.data?.length || 0, "polls (all statuses)");
     } catch (err) {
       console.error("Error loading polls:", err);
       setPollsError(
@@ -1826,7 +1827,7 @@ const Sessions = () => {
                           onClick={() => removePollOption(index)}
                           title="Remove this option"
                         >
-                          <span>🗑️</span>
+                          <span>❌</span>
                         </button>
                       )}
                     </div>
@@ -1883,13 +1884,24 @@ const Sessions = () => {
                 >
                   <div className="poll-header">
                     <h4>{poll.title}</h4>
-                    <span
-                      className={`poll-status ${
-                        poll.is_active ? "active" : "closed"
-                      }`}
-                    >
-                      {poll.is_active ? "🟢 Active" : "🔴 Closed"}
-                    </span>
+                    <div className="poll-status-badges">
+                      <span
+                        className={`poll-status ${
+                          poll.is_active ? "active" : "closed"
+                        }`}
+                      >
+                        {poll.is_active ? " Active" : " Closed"}
+                      </span>
+                      {poll.status && (
+                        <span
+                          className={`moderation-status ${poll.status}`}
+                        >
+                          {poll.status === 'pending' && 'Pending'}
+                          {poll.status === 'approved' && ' Approved'}
+                          {poll.status === 'rejected' && ' Rejected'}
+                        </span>
+                      )}
+                    </div>
                   </div>
 
                   {poll.description && (
@@ -1901,6 +1913,7 @@ const Sessions = () => {
                       📅 {new Date(poll.created_at).toLocaleDateString()}
                     </span>
                     <span>💬 {poll.comment_count || 0} comments</span>
+                    <span>🗳️ {poll.total_votes || 0} votes</span>
                   </div>
 
                   <div className="poll-actions">

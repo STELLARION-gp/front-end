@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "../../styles/pages/influencer/Polls.scss";
 import Button from "../../components/Button";
-import pollService, { type Poll, type PollStatus } from "../../services/pollService";
+import pollService, { type Poll } from "../../services/pollService";
 
 // Define SVG icons as components
 const PlusIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -239,18 +239,37 @@ const CreatePollTab: React.FC<{ onPollCreated: () => void }> = ({ onPollCreated 
 };
 
 // Results Tab Content
-const ResultsTab: React.FC<{ polls: Poll[]; loading: boolean }> = ({ polls, loading }) => {
+const ResultsTab: React.FC<{ 
+  polls: Poll[]; 
+  loading: boolean; 
+  statusFilter: "all" | "pending" | "approved" | "rejected";
+  onStatusFilterChange: (status: "all" | "pending" | "approved" | "rejected") => void;
+}> = ({ polls, loading, statusFilter, onStatusFilterChange }) => {
   const [expandedPoll, setExpandedPoll] = useState<number | null>(null);
-  const [filter, setFilter] = useState<PollStatus | "all">("all");
-  
   const togglePollExpansion = (pollId: number) => {
     setExpandedPoll(expandedPoll === pollId ? null : pollId);
   };
 
   // Filter polls by status
-  const filteredPolls = filter === "all" 
+  const filteredPolls = statusFilter === "all" 
     ? polls 
-    : polls.filter(poll => poll.status === filter);
+    : polls.filter(poll => poll.status === statusFilter);
+
+  console.log("🔍 ResultsTab render:", {
+    totalPolls: polls.length,
+    statusFilter,
+    filteredPollsCount: filteredPolls.length,
+    pollStatuses: polls.map(p => ({ id: p.id, title: p.title, status: p.status }))
+  });
+
+  const getStatusBadgeClass = (status?: string) => {
+    switch (status) {
+      case 'approved': return 'status-badge status-approved';
+      case 'rejected': return 'status-badge status-rejected';
+      case 'pending': return 'status-badge status-pending';
+      default: return 'status-badge';
+    }
+  };
 
   if (loading) {
     return (
@@ -260,62 +279,42 @@ const ResultsTab: React.FC<{ polls: Poll[]; loading: boolean }> = ({ polls, load
     );
   }
 
-  if (polls.length === 0) {
-    return (
-      <div className="no-polls-message">
-        <h3>No polls available</h3>
-        <p>Create your first poll to start gathering feedback</p>
-      </div>
-    );
-  }
-
-  const getStatusBadgeClass = (status?: PollStatus) => {
-    if (!status) return "";
-    return `poll-status-${status}`;
-  };
-
-  const getStatusLabel = (status?: PollStatus) => {
-    if (!status) return "";
-    switch (status) {
-      case "pending":
-        return "⏳ Pending Approval";
-      case "approved":
-        return "✓ Approved";
-      case "rejected":
-        return "✗ Rejected";
-      default:
-        return "";
-    }
-  };
-
   return (
     <div className="results-container">
-      <div className="polls-filter">
-        <Button 
-          className={filter === "all" ? "active" : ""} 
-          onClick={() => setFilter("all")}
+      {/* Status Filter Buttons */}
+      <div className="status-filter-buttons">
+        <button 
+          className={`filter-btn ${statusFilter === 'all' ? 'active' : ''}`}
+          onClick={() => onStatusFilterChange('all')}
         >
-          All Polls ({polls.length})
-        </Button>
-        <Button 
-          className={filter === "pending" ? "active" : ""} 
-          onClick={() => setFilter("pending")}
+          All ({polls.length})
+        </button>
+        <button 
+          className={`filter-btn ${statusFilter === 'pending' ? 'active' : ''}`}
+          onClick={() => onStatusFilterChange('pending')}
         >
-          Pending ({polls.filter(p => p.status === "pending").length})
-        </Button>
-        <Button 
-          className={filter === "approved" ? "active" : ""} 
-          onClick={() => setFilter("approved")}
+          Pending ({polls.filter(p => p.status === 'pending').length})
+        </button>
+        <button 
+          className={`filter-btn ${statusFilter === 'approved' ? 'active' : ''}`}
+          onClick={() => onStatusFilterChange('approved')}
         >
-          Approved ({polls.filter(p => p.status === "approved").length})
-        </Button>
-        <Button 
-          className={filter === "rejected" ? "active" : ""} 
-          onClick={() => setFilter("rejected")}
+          Approved ({polls.filter(p => p.status === 'approved').length})
+        </button>
+        <button 
+          className={`filter-btn ${statusFilter === 'rejected' ? 'active' : ''}`}
+          onClick={() => onStatusFilterChange('rejected')}
         >
-          Rejected ({polls.filter(p => p.status === "rejected").length})
-        </Button>
+          Rejected ({polls.filter(p => p.status === 'rejected').length})
+        </button>
       </div>
+
+      {filteredPolls.length === 0 ? (
+        <div className="no-polls-message">
+          <h3>No polls found</h3>
+          <p>{statusFilter === 'all' ? 'Create your first poll to start gathering feedback' : `No ${statusFilter} polls`}</p>
+        </div>
+      ) : null}
 
       <div className="polls-results-list">
         {filteredPolls.map(poll => {
@@ -327,21 +326,22 @@ const ResultsTab: React.FC<{ polls: Poll[]; loading: boolean }> = ({ polls, load
           return (
             <div 
               key={poll.id} 
-              className={`poll-result-card ${isExpanded ? 'expanded' : ''} ${getStatusBadgeClass(poll.status)}`}
+              className={`poll-result-card ${isExpanded ? 'expanded' : ''}`}
             >
               <div className="poll-result-header" onClick={() => togglePollExpansion(poll.id)}>
                 <div>
-                  <div className="poll-title-row">
-                    <h3>{poll.title}</h3>
-                    {poll.status && (
-                      <span className={`poll-status-badge ${getStatusBadgeClass(poll.status)}`}>
-                        {getStatusLabel(poll.status)}
-                      </span>
-                    )}
-                  </div>
+                  <h3>
+                    {poll.title}
+                    {poll.status && <span className={getStatusBadgeClass(poll.status)}>{poll.status}</span>}
+                  </h3>
                   <p className="poll-meta">
                     Created: {new Date(poll.created_at).toLocaleDateString()} by {displayName}
                   </p>
+                  {poll.moderated_at && (
+                    <p className="poll-moderation-info">
+                      Moderated: {new Date(poll.moderated_at).toLocaleDateString()}
+                    </p>
+                  )}
                 </div>
                 <div className="poll-stats">
                   <span className="total-votes">{poll.total_votes} votes</span>
@@ -365,30 +365,6 @@ const ResultsTab: React.FC<{ polls: Poll[]; loading: boolean }> = ({ polls, load
                       </div>
                     ))}
                   </div>
-                  
-                  {poll.status === "rejected" && poll.moderator && (
-                    <div className="poll-moderation-info rejected">
-                      <p>
-                        <strong>Rejected by:</strong> {poll.moderator.display_name || 
-                        `${poll.moderator.first_name || ''} ${poll.moderator.last_name || ''}`.trim()}
-                      </p>
-                      {poll.moderated_at && (
-                        <p><strong>Date:</strong> {new Date(poll.moderated_at).toLocaleString()}</p>
-                      )}
-                    </div>
-                  )}
-                  
-                  {poll.status === "approved" && poll.moderator && (
-                    <div className="poll-moderation-info approved">
-                      <p>
-                        <strong>Approved by:</strong> {poll.moderator.display_name || 
-                        `${poll.moderator.first_name || ''} ${poll.moderator.last_name || ''}`.trim()}
-                      </p>
-                      {poll.moderated_at && (
-                        <p><strong>Date:</strong> {new Date(poll.moderated_at).toLocaleString()}</p>
-                      )}
-                    </div>
-                  )}
                 </div>
               )}
             </div>
@@ -404,6 +380,7 @@ const Polls: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"create" | "results">("create");
   const [polls, setPolls] = useState<Poll[]>([]);
   const [loading, setLoading] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "approved" | "rejected">("all");
 
   // Load user's polls
   const loadMyPolls = async () => {
@@ -414,9 +391,26 @@ const Polls: React.FC = () => {
       console.log("📦 Full API response:", response);
       console.log("📊 Response data:", response.data);
       console.log("📈 Number of polls:", response.data?.length || 0);
+      
+      // Debug each poll's status
+      if (response.data && response.data.length > 0) {
+        response.data.forEach((poll, index) => {
+          console.log(`Poll ${index + 1}:`, {
+            id: poll.id,
+            title: poll.title,
+            status: poll.status,
+            moderated_at: poll.moderated_at,
+            created_at: poll.created_at
+          });
+        });
+      } else {
+        console.warn("⚠️ No polls returned from API");
+      }
+      
       setPolls(response.data || []);
     } catch (error: any) {
       console.error("❌ Failed to load polls:", error);
+      console.error("❌ Error details:", error.message);
     } finally {
       setLoading(false);
     }
@@ -458,7 +452,12 @@ const Polls: React.FC = () => {
         {activeTab === "create" ? (
           <CreatePollTab onPollCreated={handlePollCreated} />
         ) : (
-          <ResultsTab polls={polls} loading={loading} />
+          <ResultsTab 
+            polls={polls} 
+            loading={loading} 
+            statusFilter={statusFilter}
+            onStatusFilterChange={setStatusFilter}
+          />
         )}
       </div>
     </div>

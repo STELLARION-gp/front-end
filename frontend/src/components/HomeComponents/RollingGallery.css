@@ -1,0 +1,137 @@
+.gallery-container {
+  position: relative;
+  height: 600px;
+  width: 100%;
+  overflow: hidden;
+  background: linear-gradient(135deg, #000333 0%, #020015 100%);
+}
+
+.gallery-gradient {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 120px;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.gallery-gradient-left {
+  left: 0;
+  background: linear-gradient(to left, rgba(0, 3, 51, 0) 0%, #000333 100%);
+}
+
+.gallery-gradient-right {
+  right: 0;
+  background: linear-gradient(to right, rgba(0, 3, 51, 0) 0%, #000333 100%);
+}
+
+.gallery-content {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  perspective: 1200px;
+  transform-style: preserve-3d;
+}
+
+.gallery-track {
+  display: flex;
+  height: auto;
+  min-height: 200px;
+  justify-content: center;
+  align-items: center;
+  cursor: grab;
+  transform-style: preserve-3d;
+  width: 100%;
+}
+
+.gallery-track:active {
+  cursor: grabbing;
+}
+
+.gallery-item {
+  position: absolute;
+  display: flex;
+  height: fit-content;
+  align-items: center;
+  justify-content: center;
+  backface-visibility: hidden;
+  transition: transform 0.3s ease;
+}
+
+.gallery-item.focused {
+  z-index: 100;
+}
+
+/* ProfileCard integration */
+.gallery-item .pc-card-wrapper {
+  width: 280px;
+  pointer-events: auto;
+}
+
+.gallery-item.focused .pc-card-wrapper {
+  width: 320px;
+  transform: scale(1.1);
+}
+
+.gallery-item .pc-card {
+  height: 400px;
+  max-height: 400px;
+}
+
+.gallery-item.focused .pc-card {
+  height: 450px;
+  max-height: 450px;
+}
+
+@media (max-width: 768px) {
+  .gallery-container {
+    height: 500px;
+  }
+
+  .gallery-gradient {
+    width: 60px;
+  }
+
+  .gallery-item .pc-card-wrapper {
+    width: 220px;
+  }
+
+  .gallery-item.focused .pc-card-wrapper {
+    width: 260px;
+  }
+
+  .gallery-item .pc-card {
+    height: 350px;
+    max-height: 350px;
+  }
+
+  .gallery-item.focused .pc-card {
+    height: 380px;
+    max-height: 380px;
+  }
+}
+
+@media (max-width: 480px) {
+  .gallery-container {
+    height: 450px;
+  }
+
+  .gallery-item .pc-card-wrapper {
+    width: 200px;
+  }
+
+  .gallery-item.focused .pc-card-wrapper {
+    width: 230px;
+  }
+
+  .gallery-item .pc-card {
+    height: 320px;
+    max-height: 320px;
+  }
+
+  .gallery-item.focused .pc-card {
+    height: 350px;
+    max-height: 350px;
+  }
+}

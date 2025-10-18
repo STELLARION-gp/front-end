@@ -18,7 +18,8 @@ import {
   type Goal
 } from '../../services/mentorMenteeConnectionApi';
 import Button from '../../components/Button';
-import '../../styles/pages/learner/MentorMenteeConnectionPage.scss';
+import '../../styles/pages/mentor/MenteeProfileModern.scss';
+
 
 const MenteeProfile: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -487,13 +488,12 @@ const MenteeProfile: React.FC = () => {
               onChange={(e) => setNewNoteTags(e.target.value)}
               style={{ marginTop: '0.5rem', padding: '0.5rem', width: '100%' }}
             />
-            <button 
-              className="notes-save-btn"
+            <Button 
               onClick={handleSaveNote}
               disabled={savingNote || !newNoteContent.trim()}
             >
               {savingNote ? 'Saving...' : 'Save Note'}
-            </button>
+            </Button>
           </div>
           <div className="notes-list">
             {notes.length === 0 ? (
@@ -830,18 +830,18 @@ const MenteeProfile: React.FC = () => {
 
       {/* Action Buttons */}
       <div className="mentor-actions" style={{ marginTop: '2rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-  <button className="mentor-action-btn" onClick={() => setShowScheduleModal(true)}>Schedule Session</button>
-        <button 
-          className="mentor-action-btn"
+  <Button variant="secondary" onClick={() => setShowScheduleModal(true)}>Schedule Session</Button>
+        <Button 
+          // className="mentor-action-btn"
           onClick={handleEndConnection}
           disabled={endingConnection}
-          style={{ 
-            background: endingConnection ? '#6b7280' : '#ef4444',
-            cursor: endingConnection ? 'not-allowed' : 'pointer'
-          }}
+          // style={{ 
+          //   background: endingConnection ? '#6b7280' : '#ef4444',
+          //   cursor: endingConnection ? 'not-allowed' : 'pointer'
+          // }}
         >
           {endingConnection ? 'Ending...' : 'End Mentorship'}
-        </button>
+        </Button>
         {/* <button className="mentor-action-btn">Send Message</button>
         <button className="mentor-action-btn">View Full Profile</button> */}
       </div>

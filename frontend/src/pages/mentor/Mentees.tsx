@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getReceivedApplications, type MenteeApplication } from '../../services/menteeApplicationApi';
 import Button from '../../components/Button';
+import '../../styles/pages/mentor/MenteesModern.scss';
 
 const Mentees: React.FC = () => {
   const navigate = useNavigate();

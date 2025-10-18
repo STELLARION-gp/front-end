@@ -98,9 +98,12 @@ const StargazingIsland: React.FC = () => {
           <div
             key={img.id}
             className="trail-image"
-            data-trail-x={img.x}
-            data-trail-y={img.y}
-            data-trail-bg={img.src}
+            style={{
+              left: `${img.x}px`,
+              top: `${img.y}px`,
+              backgroundImage: `url(${img.src})`,
+              opacity: img.opacity
+            }}
           />
         ))}
 
@@ -114,11 +117,21 @@ const StargazingIsland: React.FC = () => {
               {spots.slice(0, 4).map((spot) => (
                 <div key={spot.id} className="spot-card">
                   {spot.image_urls && spot.image_urls[0] && (
-                    <div className="spot-image" data-bg-url={spot.image_urls[0]}></div>
+                    <div 
+                      className="spot-image" 
+                      style={{ backgroundImage: `url(${spot.image_urls[0]})` }}
+                    ></div>
                   )}
                   <div className="spot-info">
-                    <h3 className="spot-name">{spot.name}</h3>
-                    {spot.rating && <span className="spot-rating">★ {spot.rating}</span>}
+                    <h3>{spot.name}</h3>
+                    <div className="spot-meta">
+                      {spot.rating && (
+                        <span className="spot-rating">★ {spot.rating}</span>
+                      )}
+                      {spot.location && (
+                        <span className="spot-location">{spot.location}</span>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}

@@ -2,7 +2,7 @@
 .virtual-islands-section {
   width: 100%;
   padding: 80px 20px;
-  background: linear-gradient(135deg, #1a0033 0%, #0a0015 100%);
+  background: linear-gradient(135deg, #000333 0%, #020015 100%);
   position: relative;
   overflow: hidden;
 
@@ -151,18 +151,50 @@
     }
 
     .spot-card {
+      position: relative;
       background: rgba(255, 255, 255, 0.05);
+      -webkit-backdrop-filter: blur(10px);
       backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 12px;
       overflow: hidden;
       transition: all 0.3s ease;
       cursor: pointer;
 
+      // Magic border effect
+      &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 12px;
+        padding: 1px;
+        background: linear-gradient(
+          45deg,
+          transparent 25%,
+          rgba(138, 99, 210, 0.5) 50%,
+          transparent 75%
+        );
+        background-size: 300% 300%;
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        mask-composite: exclude;
+        animation: moveBorder 3s linear infinite;
+        pointer-events: none;
+      }
+
       &:hover {
         transform: translateY(-4px);
-        border-color: rgba(138, 99, 210, 0.5);
         box-shadow: 0 8px 32px rgba(138, 99, 210, 0.3);
+
+        &::before {
+          background: linear-gradient(
+            45deg,
+            transparent 25%,
+            rgba(138, 99, 210, 0.8) 50%,
+            transparent 75%
+          );
+          animation-duration: 1.5s;
+        }
       }
 
       .spot-image {
@@ -222,18 +254,50 @@
     }
 
     .blog-card {
+      position: relative;
       background: rgba(255, 255, 255, 0.05);
+      -webkit-backdrop-filter: blur(10px);
       backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 12px;
       padding: 16px;
       transition: all 0.3s ease;
       cursor: pointer;
 
+      // Magic border effect
+      &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 12px;
+        padding: 1px;
+        background: linear-gradient(
+          90deg,
+          transparent 25%,
+          rgba(129, 140, 248, 0.5) 50%,
+          transparent 75%
+        );
+        background-size: 300% 300%;
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        mask-composite: exclude;
+        animation: moveBorder 4s linear infinite;
+        pointer-events: none;
+      }
+
       &:hover {
-        border-color: rgba(138, 99, 210, 0.5);
         transform: translateX(4px);
         box-shadow: 0 4px 16px rgba(138, 99, 210, 0.2);
+
+        &::before {
+          background: linear-gradient(
+            90deg,
+            transparent 25%,
+            rgba(129, 140, 248, 0.8) 50%,
+            transparent 75%
+          );
+          animation-duration: 2s;
+        }
       }
 
       .blog-title {
@@ -259,18 +323,50 @@
     }
 
     .event-card {
+      position: relative;
       background: rgba(255, 255, 255, 0.05);
+      -webkit-backdrop-filter: blur(10px);
       backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 12px;
       padding: 16px;
       transition: all 0.3s ease;
       cursor: pointer;
 
+      // Magic border effect
+      &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 12px;
+        padding: 1px;
+        background: linear-gradient(
+          90deg,
+          transparent 25%,
+          rgba(165, 180, 252, 0.5) 50%,
+          transparent 75%
+        );
+        background-size: 300% 300%;
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        mask-composite: exclude;
+        animation: moveBorder 4s linear infinite;
+        pointer-events: none;
+      }
+
       &:hover {
-        border-color: rgba(138, 99, 210, 0.5);
         transform: translateX(4px);
         box-shadow: 0 4px 16px rgba(138, 99, 210, 0.2);
+
+        &::before {
+          background: linear-gradient(
+            90deg,
+            transparent 25%,
+            rgba(165, 180, 252, 0.8) 50%,
+            transparent 75%
+          );
+          animation-duration: 2s;
+        }
       }
 
       .event-title {
@@ -289,6 +385,7 @@
   }
 }
 
+// Animations
 @keyframes pulse {
   0%, 100% {
     opacity: 1;
@@ -297,5 +394,14 @@
   50% {
     opacity: 0.6;
     transform: translate(-50%, -50%) scale(1.2);
+  }
+}
+
+@keyframes moveBorder {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 300% 0%;
   }
 }

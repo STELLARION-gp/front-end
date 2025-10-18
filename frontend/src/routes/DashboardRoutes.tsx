@@ -34,6 +34,7 @@ import NasaImagesPage from "../pages/learner/NasaImagesPage";
 import NightCamps from "../pages/enthuasist/NightCamps";
 import VolunteerManagement from "../pages/enthuasist/VolunteerManagement";
 import Stargazing from "../pages/enthuasist/Stargazing";
+import SpotDetails from "../pages/enthuasist/SpotDetails";
 
 import ServiceListing from "../pages/guide/ServiceListing";
 import CreateService from "../pages/guide/CreateService";
@@ -859,6 +860,15 @@ const DashboardRoutes = () => {
         element={
           <RoleGuard allowedRoles={["enthusiast", "influencer", "learner"]}>
             <Stargazing />
+          </RoleGuard>
+        }
+      />
+
+      <Route
+        path="enthusiast/stargazing/:id"
+        element={
+          <RoleGuard allowedRoles={["enthusiast", "influencer", "learner"]}>
+            <SpotDetails />
           </RoleGuard>
         }
       />

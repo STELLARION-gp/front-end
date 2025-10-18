@@ -7,13 +7,15 @@ const TeamSection: React.FC = () => {
   return (
     <section className="team-section">
       <div className="team-header">
-        <TrueFocus 
-          sentence="Meet Our Team"
-          manualMode={false}
-          blurAmount={4}
-          animationDuration={0.8}
-          pauseBetweenAnimations={2000}
-        />
+        <div className="team-title-wrapper">
+          <TrueFocus 
+            sentence="Meet Our Team"
+            manualMode={false}
+            blurAmount={5}
+            animationDuration={0.8}
+            pauseBetweenAnimations={1.5}
+          />
+        </div>
         <p className="team-subtitle">
           The passionate individuals behind Stellarion
         </p>

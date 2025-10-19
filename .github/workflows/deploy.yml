@@ -71,7 +71,7 @@ jobs:
             echo "🚀 Starting frontend deployment..."
 
             # Navigate to frontend directory
-            cd deployments/stellarion/front-end
+            cd ${{ env.DEPLOY_PATH }}
 
             # Backup current state
             echo "📦 Creating backup..."

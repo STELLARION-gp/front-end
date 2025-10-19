@@ -6,8 +6,11 @@ import NasaImageCard from "../../components/Learner/NasaImageCard";
 import '../../styles/pages/learner/preview.scss'
 import UpcomingSpaceEventCard from "../../components/Learner/UpcomingSpaceEventCard";
 import OrganizedEventCard from "../../components/Learner/OrganizedEventCard";
+
+import { astronomyEventsService } from "../../services/astronomyEventsService";
 import { blogService } from "../../services/blogService";
 import type { Blog } from "../../services/blogService";
+import type { AstronomyEvent } from "../../services/astronomyEventsService";
 
 
 
@@ -38,52 +41,7 @@ const nasaImages = [
   },
   
 ];
-const spaceEvents = [
-  {
-    id: 1,
-    event: "Perseid Meteor Shower Peak",
-    date: "2025-08-12",
-    category: "meteor",
-    imageUrl: "https://cata.cl/wp-content/uploads/2024/08/perseids-radiant-credit-preston-dyches-cc-by-nc-2-0.webp",
-    description: "A prolific meteor shower with up to 100 meteors per hour.",
-    visibility: "Northern Hemisphere",
-    bestTime: "2:00 AM - 4:00 AM",
-    duration: "2 hours"
-  },
-  {
-    id: 2,
-    event: "Total Lunar Eclipse",
-    date: "2025-09-07",
-    category: "eclipse",
-    imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQLFZiyInZT896tZ8u7c0a1_8EDuhJ5STRTzA&s",
-    description: "Experience the beauty of a full lunar eclipse as the moon turns red.",
-    visibility: "Worldwide",
-    bestTime: "9:00 PM - 11:00 PM",
-    duration: "1 hour 40 minutes"
-  },
-  {
-    id: 3,
-    event: "International Observe the Moon Night",
-    date: "2025-10-04",
-    category: "moon",
-    imageUrl: "https://static.vecteezy.com/system/resources/thumbnails/022/751/189/small_2x/full-moon-over-the-river-in-the-forest-at-night-nature-background-photo.jpg",
-    description: "Join a global celebration of lunar science and exploration.",
-    visibility: "Global",
-    bestTime: "8:00 PM local time",
-    duration: "Evening"
-  },
-  {
-    id: 4,
-    event: "Next Stargazing Meetup",
-    date: "2025-08-30",
-    category: "meetup",
-    imageUrl: "https://as1.ftcdn.net/v2/jpg/01/01/42/64/1000_F_101426449_2mhwexDmrvGW7JWT94jPeOZble75zFmr.jpg",
-    description: "Gather with fellow enthusiasts to stargaze and share knowledge.",
-    visibility: "Local Clubs",
-    bestTime: "8:30 PM",
-    duration: "3 hours"
-  }
-];
+
 
 const competitions = [
   {
@@ -160,9 +118,15 @@ const organizedEvents = [
 ];
 const Preview = () => {
   const navigate = useNavigate();
+
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const [events, setEvents] = useState<AstronomyEvent[]>([]);
+  const [eventsLoading, setEventsLoading] = useState(true);
+  const [eventsError, setEventsError] = useState<string | null>(null);
+
 
   useEffect(() => {
     setLoading(true);
@@ -181,6 +145,17 @@ const Preview = () => {
         setError(err.message || 'Failed to fetch blogs');
       })
       .finally(() => setLoading(false));
+
+    setEventsLoading(true);
+    astronomyEventsService.getEvents({ limit: 4 })
+      .then((data) => {
+        setEvents(Array.isArray(data) ? data : data.events || []);
+        setEventsError(null);
+      })
+      .catch((err) => {
+        setEventsError(err.message || 'Failed to fetch events');
+      })
+      .finally(() => setEventsLoading(false));
   }, []);
 
   return (
@@ -220,24 +195,32 @@ const Preview = () => {
     </div>
 
     
+
     {/* upcoming events */}
     <h2 style={{ marginTop: "4rem" }}>Upcoming Space Events</h2>
     <p className="section-subtitle">Don't miss your chance to witness the wonders of the night sky.</p>
     <div className="space-events-container">
-      {spaceEvents.map(ev => (
-        // <UpcomingEventCard key={ev.id} event={ev} />
-        <UpcomingSpaceEventCard
-      key={ev.id}
-      event={ev.event}
-      date={ev.date}
-      category={ev.category}
-      description={ev.description}
-      visibility={ev.visibility}
-      bestTime={ev.bestTime}
-      duration={ev.duration}
-      imageUrl={ev.imageUrl} // ✅ pass image
-    />
-      ))}
+      {eventsLoading ? (
+        <div>Loading events...</div>
+      ) : eventsError ? (
+        <div style={{ color: 'red' }}>{eventsError}</div>
+      ) : events.length === 0 ? (
+        <div>No astronomy events found.</div>
+      ) : (
+        events.slice(0, 4).map(ev => (
+          <UpcomingSpaceEventCard
+            key={ev.id}
+            event={ev.name}
+            date={ev.event_date}
+            category={ev.event_type}
+            description={ev.description}
+            visibility={ev.visibility}
+            bestTime={ev.best_time}
+            duration={ev.duration}
+            imageUrl={ev.image_url || ''}
+          />
+        ))
+      )}
     </div>
 
       {/* Platform-Organized Events */}

@@ -180,8 +180,26 @@ const BookingRequests: React.FC = () => {
         }
       }
 
-      alert(message || 'Failed to load booking details');
-      setModalOpen(false);
+      // If we couldn't find a specific payment or booking row, keep the modal open and show an error state
+      const errorDetail = {
+        bookingId: parseInt(id),
+        orderId: `BOOKING-${id}`,
+        amount: 0,
+        currency: 'LKR',
+        paymentStatus: 'not_found',
+        paymentMethod: '',
+        transactionId: null,
+        customer: { id: 0, name: 'Unknown', email: '' },
+        service: { id: 0, title: 'Unknown Service', description: '' },
+        bookingDetails: { date: '', time: '', participants: 0, specialRequests: null },
+        canRefund: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        _errorMessage: message || 'Failed to load booking details',
+      } as any;
+
+      setSelectedDetails(errorDetail);
+      // keep modalOpen true so the modal loads and shows the error
     }
   };
 
@@ -205,9 +223,21 @@ const BookingRequests: React.FC = () => {
     if (!selectedDetails) return;
     const reason = prompt('Please provide a reason for rejection (optional):');
     try {
-      // If payment completed, process refund through payment API
+      // If payment completed, attempt refund through payment API first
       if (selectedDetails.paymentStatus && selectedDetails.paymentStatus.toLowerCase() === 'completed') {
-        await processBookingRefund(selectedDetails.bookingId, { reason: reason || undefined, refundType: 'full' });
+        try {
+          await processBookingRefund(selectedDetails.bookingId, { reason: reason || undefined, refundType: 'full' });
+        } catch (refundErr) {
+          console.error('Refund failed during reject flow:', refundErr);
+          const refundMsg = refundErr instanceof Error ? refundErr.message : String(refundErr);
+          if (refundMsg.includes('Payment for booking not found') || refundMsg.includes('404')) {
+            alert('No payment record found to refund for this booking. Proceeding to reject the booking.');
+          } else if (refundMsg.includes('Only completed')) {
+            alert('Refund cannot be processed because the payment is not completed. Proceeding to reject the booking.');
+          } else {
+            alert(refundMsg || 'Refund failed during rejection.');
+          }
+        }
       }
 
       // Then mark booking as rejected in booking service
@@ -216,9 +246,16 @@ const BookingRequests: React.FC = () => {
       setRequests(prev => prev.filter(req => req.id !== String(selectedDetails.bookingId)));
       alert('Booking rejected and (if applicable) refunded successfully.');
       setModalOpen(false);
+      // Notify other pages (e.g., PaymentProcessing) to refresh
+      try { window.dispatchEvent(new Event('payments-updated')); } catch(e) {}
     } catch (err) {
       console.error('Error rejecting booking:', err);
-      alert(err instanceof Error ? err.message : 'Failed to reject booking');
+      const message = err instanceof Error ? err.message : String(err);
+      if (message.includes('Payment for booking not found') || message.includes('404')) {
+        alert('No payment record found for this booking.');
+      } else {
+        alert(message || 'Failed to reject booking');
+      }
     }
   };
 
@@ -366,9 +403,20 @@ const BookingRequests: React.FC = () => {
         onReject={handleModalReject}
         onRefund={async () => {
           if (!selectedDetails) return;
+          // Only allow refund if payment is completed or backend marked canRefund
+          const paymentStatus = (selectedDetails.paymentStatus || '').toString().toLowerCase();
+          const canRefund = !!selectedDetails.canRefund;
+          if (paymentStatus !== 'completed' && !canRefund) {
+            // Friendly message — prevent calling refund endpoint which would return 404
+            alert('No completed payment found for this booking to refund.');
+            return;
+          }
+
           try {
             await processBookingRefund(selectedDetails.bookingId, { refundType: 'full' });
             alert('Refund processed');
+            // Notify other pages to refresh
+            try { window.dispatchEvent(new Event('payments-updated')); } catch(e) {}
           } catch (err) {
             console.error('Refund failed:', err);
             alert(err instanceof Error ? err.message : 'Refund failed');

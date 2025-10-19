@@ -151,6 +151,32 @@ const PaymentProcessing: React.FC = () => {
       setShowDetailsModal(true);
     } catch (err) {
       console.error('Error fetching payment details:', err);
+      const message = err instanceof Error ? err.message : String(err);
+      // If payment not found, build a fallback details object from the transaction list
+      if (message.includes('Payment for booking not found') || message.includes('404')) {
+        const tx = transactions.find(t => Number(t.bookingId) === bookingId);
+        if (tx) {
+          const fallback: any = {
+            bookingId,
+            orderId: `BOOKING-${bookingId}`,
+            amount: tx.amount || 0,
+            currency: tx.currency || 'LKR',
+            paymentStatus: (tx.status as any) || 'not_paid',
+            paymentMethod: '',
+            transactionId: tx.reference || null,
+            customer: { id: 0, name: tx.customerName || '', email: tx.customerEmail || '' },
+            service: { id: tx.serviceId || 0, title: tx.description || '', description: '' },
+            bookingDetails: { date: tx.date ? new Date(tx.date).toISOString().split('T')[0] : '', time: '', participants: 0, specialRequests: null },
+            canRefund: false,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          };
+          setSelectedPaymentDetails(fallback);
+          setShowDetailsModal(true);
+          return;
+        }
+      }
+
       alert('Failed to load payment details');
     }
   };
@@ -182,10 +208,16 @@ const PaymentProcessing: React.FC = () => {
       setSelectedPaymentDetails(null);
       
       // Refresh the page to show updated data
-      window.location.reload();
+      try { window.dispatchEvent(new Event('payments-updated')); } catch(e) {}
+      // Freshen transactions/stats by re-fetching is handled by payments-updated listener
     } catch (err) {
       console.error('Error processing refund:', err);
-      alert(err instanceof Error ? err.message : 'Failed to process refund');
+      const message = err instanceof Error ? err.message : String(err);
+      if (message.includes('Payment for booking not found') || message.includes('404')) {
+        alert('No payment record found to refund for this booking.');
+      } else {
+        alert(message || 'Failed to process refund');
+      }
     }
   };
 

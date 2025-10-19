@@ -75,8 +75,14 @@ const PaymentDetailsModal: React.FC<PaymentDetailsModalProps> = ({
   };
 
   return (
-    <div className="payment-details-modal-overlay" onClick={onClose}>
-      <div className="payment-details-modal" onClick={(e) => e.stopPropagation()}>
+    <div
+      className="payment-details-modal-overlay"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+    >
+      <div className="payment-details-modal" onClick={(e) => e.stopPropagation()} style={{ zIndex: 10000, position: 'relative' }}>
         {/* Header */}
         <div className="payment-modal-header">
           <div>

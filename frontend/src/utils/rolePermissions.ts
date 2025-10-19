@@ -355,28 +355,28 @@ export const ROLE_BASED_MENU_ITEMS = {
     //{ label: 'Blogs', icon: 'BookOpenIcon', href: '/dashboard/blogs' },
     //{ label: 'Night Camps', icon: 'MoonIcon', href: '/dashboard/night-camps' },
     //{ label: 'Stargazing Spot', icon: 'StarIcon', href: '/dashboard/stargazing' },
-    {
-      label: "Requests",
-      icon: "ChatBubbleLeftRightIcon",
-      href: "/dashboard/booking-requests",
-    },
-    {
-      label: "Mentors",
-      icon: "AcademicCapIcon",
-      href: "/dashboard/system-mentors",
-    },
+    // {
+    //   label: "Requests",
+    //   icon: "ChatBubbleLeftRightIcon",
+    //   href: "/dashboard/booking-requests",
+    // },
+    // {
+    //   label: "Mentors",
+    //   icon: "AcademicCapIcon",
+    //   href: "/dashboard/system-mentors",
+    // },
     //{ label: 'Events', icon: 'CalendarDaysIcon', href: '/dashboard/events' },
     //{ label: 'Chat', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/chat' },
     {
-      label: "Moderators",
-      icon: "ShieldCheckIcon",
-      href: "/dashboard/moderators",
-    },
-    {
-      label: "Revenue Analytics",
-      icon: "CurrencyDollarIcon",
-      href: "/dashboard/revenue-analytics",
-    },
+      label: "Payments",
+     icon: "ShieldCheckIcon",
+      href: "/dashboard/provider-payments",
+     },
+    // {
+    //   label: "Revenue Analytics",
+    //   icon: "CurrencyDollarIcon",
+    //   href: "/dashboard/revenue-analytics",
+    // },
   ],
 } as const;
 

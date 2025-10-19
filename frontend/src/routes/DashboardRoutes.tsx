@@ -98,12 +98,12 @@ import Followers from "../pages/influencer/Followers";
 import AdminModeratorsPage from "../pages/admin/AdminModeratorsPage";
 import AdminOverview from "../pages/admin/AdminOverview";
 import RevenueAnalytics from "../pages/admin/RevenueAnalytics";
+import ProviderPayments from "../pages/admin/ProviderPayments";
 import InfluencerApplication from "../pages/learner/InfluencerApplication";
 import Mentor from "../pages/admin/Mentor";
 import MentorApplication from "../pages/admin/MentorApplication";
 import MentorProfiles from "../pages/admin/MentorProfiles";
 import MentorProfileDetail from "../pages/admin/MentorProfileDetail";
-import FinanceAnalytics from "../pages/admin/FinanceAnalytics";
 import SubscriptionDashboard from "../pages/SubscriptionDashboard";
 import NightCampDetailsModerator from "../pages/moderator/NightCampDetails";
 import EditNightCamp from "../pages/moderator/EditNightCamp";
@@ -695,6 +695,15 @@ const DashboardRoutes = () => {
         element={
           <RoleGuard allowedRoles={["admin"]}>
             <RevenueAnalytics />
+          </RoleGuard>
+        }
+      />
+
+      <Route
+        path="provider-payments"
+        element={
+          <RoleGuard allowedRoles={["admin"]}>
+            <ProviderPayments />
           </RoleGuard>
         }
       />

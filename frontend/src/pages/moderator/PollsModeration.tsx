@@ -228,7 +228,7 @@ const PollsModeration: React.FC = () => {
                 <div
                   key={poll.id}
                   className={`polls-item status-${poll.status || 'pending'}`}
-                  onClick={() => navigate(`/dashboard/moderation/poll/details/${poll.id}`)}
+                  onClick={() => navigate(`/dashboard/moderation/polls/details/${poll.id}`)}
                 >
                   <div className="polls-item-header">
                     <div className="poll-type">
@@ -274,10 +274,10 @@ const PollsModeration: React.FC = () => {
 
                   <div className="polls-item-actions">
                     <button
-                      className="action-btn view-btn"
+                      className="polls-action-btn polls-view-btn"
                       onClick={(e) => {
                         e.stopPropagation();
-                        navigate(`/dashboard/moderation/poll/details/${poll.id}`);
+                        navigate(`/dashboard/moderation/polls/details/${poll.id}`);
                       }}
                       title="View poll details"
                     >
@@ -286,7 +286,7 @@ const PollsModeration: React.FC = () => {
                     {poll.status === 'pending' && (
                       <>
                         <button
-                          className="action-btn approve-btn"
+                          className="polls-action-btn polls-approve-btn"
                           title="Approve poll"
                           onClick={(e) => {
                             e.stopPropagation();
@@ -296,7 +296,7 @@ const PollsModeration: React.FC = () => {
                           <FaCheck />
                         </button>
                         <button
-                          className="action-btn reject-btn"
+                          className="polls-action-btn polls-reject-btn"
                           title="Reject poll"
                           onClick={(e) => {
                             e.stopPropagation();

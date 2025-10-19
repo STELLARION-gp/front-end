@@ -389,6 +389,22 @@
               }
             }
 
+            &.polls-approve-btn {
+              &:hover {
+                background: rgba(46, 213, 115, 0.2);
+                border-color: #2ed573;
+                color: #2ed573;
+              }
+            }
+
+            &.polls-reject-btn {
+              &:hover {
+                background: rgba(255, 71, 87, 0.2);
+                border-color: #ff4757;
+                color: #ff4757;
+              }
+            }
+
             &.polls-suspend-btn {
               &:hover {
                 background: rgba(255, 165, 2, 0.2);

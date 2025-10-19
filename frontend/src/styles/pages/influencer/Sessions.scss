@@ -290,7 +290,7 @@
     }
   }
 
-  .session-details {
+  .session-details_1 {
     flex-shrink: 0;
 
     p {
@@ -305,6 +305,9 @@
       .icon {
         font-size: 1rem;
         flex-shrink: 0;
+        background-color: #33787e;
+        padding: 5px;
+        border-radius: 5px;
       }
     }
 
@@ -312,12 +315,16 @@
       margin: 0.5rem 0;
 
       .payment-label {
-        font-size: 0.75rem;
-        padding: 0.2rem 0.6rem;
-        border-radius: 12px;
+        font-size: 0.85rem;
+        padding: 0.2rem 0.8rem;
+        border-radius: 17px;
         font-weight: 600;
         display: inline-block;
-        
+        //indicate red glow animation
+        animation: glow 1s infinite alternate;
+        margin-top: 5px;
+        margin-bottom: 5px;
+
         &.paid {
           background: #fee2e2;
           color: #b91c1c;
@@ -463,7 +470,7 @@
       }
     }
 
-    .session-details p {
+    .session-details_1 p {
       font-size: 0.85rem;
     }
 
@@ -739,7 +746,7 @@
   }
 }
 
-.session-details {
+.session-details_1 {
   margin-bottom: 1.5rem;
 
   .session-payment-type {
@@ -2430,7 +2437,7 @@ input:checked + .toggle-slider:before {
 }
 
 // Add styles for paid/free label and ensure radio input is clickable
-.session-details {
+.session-details_1 {
   // ...existing code...
 
   .session-payment-type {

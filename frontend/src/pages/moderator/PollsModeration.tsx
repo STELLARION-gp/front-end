@@ -283,7 +283,7 @@ const PollsModeration: React.FC = () => {
                     >
                       <FaEye />
                     </button>
-                    {poll.status === 'pending' && (
+                    {poll.status !== 'approved' && (
                       <>
                         <button
                           className="polls-action-btn polls-approve-btn"

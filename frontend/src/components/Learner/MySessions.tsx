@@ -182,6 +182,8 @@ const MySessions: React.FC = () => {
         session={selectedSession}
         open={modalOpen}
         onClose={() => setModalOpen(false)}
+        onEnrollmentSuccess={fetchMySessions}
+        isEnrolled={true}
       />
     </div>
   );

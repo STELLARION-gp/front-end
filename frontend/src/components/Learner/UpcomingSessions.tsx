@@ -149,6 +149,7 @@ const UpcomingSessions: React.FC = () => {
           console.log('Register for session:', sessionId);
           // TODO: Implement registration logic
         }}
+        onEnrollmentSuccess={fetchUpcomingSessions}
       />
     </div>
   );

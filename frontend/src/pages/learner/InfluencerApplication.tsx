@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import InputField from "../../components/InputField";
 import Button from "../../components/Button";
 import styles from "../../styles/pages/GuideApplication.module.scss";
+import { auth } from "../../firebase";
+import { buildApiUrl } from "../../config/api.config";
 
 const InfluencerApplication = () => {
   const navigate = useNavigate();
@@ -75,10 +77,14 @@ const InfluencerApplication = () => {
     setLoading(true);
     setError("");
     try {
-      // TODO: Add auth token
-      const res = await fetch("/api/influencer-applications", {
+      const user = auth.currentUser;
+      const token = await user?.getIdToken();
+      const res = await fetch(buildApiUrl("/influencer-applications"), {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify(form),
       });
       if (res.status === 201) {

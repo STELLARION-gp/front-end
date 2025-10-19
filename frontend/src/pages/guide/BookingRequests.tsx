@@ -5,6 +5,8 @@ import Card from '../../components/Card';
 import { Calendar, CheckCircle, XCircle, Users } from 'lucide-react';
 import '../../styles/pages/guide/_bookingRequests.scss';
 import { getGuideBookings, confirmBooking, rejectBooking, type Booking } from '../../services/bookingService';
+import PaymentDetailsModal from '../../components/PaymentDetailsModal';
+import { getBookingPaymentDetails, processBookingRefund } from '../../services/paymentService';
 
 interface BookingRequest {
   id: string;
@@ -15,6 +17,7 @@ interface BookingRequest {
   endTime: string;
   participants: number;
   totalAmount: number;
+  paymentStatus?: string;
 }
 
 const BookingRequests: React.FC = () => {
@@ -24,6 +27,8 @@ const BookingRequests: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [acceptedCount, setAcceptedCount] = useState(0);
   const [rejectedCount, setRejectedCount] = useState(0);
+  const [selectedDetails, setSelectedDetails] = useState<any | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -108,6 +113,7 @@ const BookingRequests: React.FC = () => {
       endTime,
       participants: booking.participants_count,
       totalAmount: booking.total_amount,
+      paymentStatus: (booking as any).payment_status || (booking as any).paymentStatus || 'not_paid',
     };
   };
 
@@ -125,28 +131,89 @@ const BookingRequests: React.FC = () => {
     return `${String(endHour).padStart(2, '0')}:${String(startMin).padStart(2, '0')}`;
   };
 
-  const handleAccept = async (id: string) => {
+  // modal state handlers below
+
+  const handleViewBooking = async (id: string) => {
+    setSelectedDetails(null);
+    setModalOpen(true);
     try {
-      await confirmBooking(parseInt(id));
-      setAcceptedCount(prev => prev + 1);
-      setRequests(prev => prev.filter(req => req.id !== id));
-      // Show success message
-      alert('Booking confirmed successfully! The learner has been notified.');
+      const details = await getBookingPaymentDetails(parseInt(id));
+      setSelectedDetails(details);
     } catch (err) {
-      console.error('Error accepting booking:', err);
-      alert(err instanceof Error ? err.message : 'Failed to accept booking');
+      console.error('Failed to load booking details:', err);
+      const message = err instanceof Error ? err.message : String(err);
+      // If payment not found for the booking, show a fallback details object built from the booking row
+      if (message.includes('Payment for booking not found') || message.includes('404')) {
+        const row = requests.find(r => r.id === id);
+        if (row) {
+          const fallback = {
+            bookingId: parseInt(id),
+            orderId: `BOOKING-${id}`,
+            amount: row.totalAmount,
+            currency: 'LKR',
+              paymentStatus: row.paymentStatus || 'not_paid',
+            paymentMethod: '',
+            transactionId: null,
+            customer: {
+              id: 0,
+              name: row.userName,
+              email: '',
+            },
+            service: {
+              id: 0,
+              title: row.serviceName,
+              description: '',
+            },
+            bookingDetails: {
+              date: row.date,
+              time: row.startTime,
+              participants: row.participants,
+              specialRequests: null,
+            },
+            canRefund: false,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          } as any;
+
+          setSelectedDetails(fallback);
+          return;
+        }
+      }
+
+      alert(message || 'Failed to load booking details');
+      setModalOpen(false);
     }
   };
 
-  const handleReject = async (id: string) => {
-    const reason = prompt('Please provide a reason for rejection (optional):');
-    
+  const handleModalAccept = async () => {
+    if (!selectedDetails) return;
     try {
-      await rejectBooking(parseInt(id), reason || undefined);
+      await confirmBooking(selectedDetails.bookingId);
+      setAcceptedCount(prev => prev + 1);
+      setRequests(prev => prev.filter(req => req.id !== String(selectedDetails.bookingId)));
+      alert('Booking confirmed successfully!');
+      setModalOpen(false);
+    } catch (err) {
+      console.error('Error confirming booking:', err);
+      alert(err instanceof Error ? err.message : 'Failed to confirm booking');
+    }
+  };
+
+  const handleModalReject = async () => {
+    if (!selectedDetails) return;
+    const reason = prompt('Please provide a reason for rejection (optional):');
+    try {
+      // If payment completed, process refund through payment API
+      if (selectedDetails.paymentStatus && selectedDetails.paymentStatus.toLowerCase() === 'completed') {
+        await processBookingRefund(selectedDetails.bookingId, { reason: reason || undefined, refundType: 'full' });
+      }
+
+      // Then mark booking as rejected in booking service
+      await rejectBooking(selectedDetails.bookingId, reason || undefined);
       setRejectedCount(prev => prev + 1);
-      setRequests(prev => prev.filter(req => req.id !== id));
-      // Show success message
-      alert('Booking rejected successfully. The learner has been notified.');
+      setRequests(prev => prev.filter(req => req.id !== String(selectedDetails.bookingId)));
+      alert('Booking rejected and (if applicable) refunded successfully.');
+      setModalOpen(false);
     } catch (err) {
       console.error('Error rejecting booking:', err);
       alert(err instanceof Error ? err.message : 'Failed to reject booking');
@@ -281,14 +348,32 @@ const BookingRequests: React.FC = () => {
                 <td>{new Date(req.date).toLocaleDateString()}</td>
                 <td>{req.startTime} - {req.endTime}</td>
                 <td className="actions-cell">
-                  <Button variant="success" size="small" onClick={() => handleAccept(req.id)}>Accept</Button>
-                  <Button variant="danger" size="small" onClick={() => handleReject(req.id)}>Reject</Button>
+                  <Button variant="primary" size="small" onClick={() => handleViewBooking(req.id)}>View</Button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       )}
+      {/* Payment details modal */}
+      <PaymentDetailsModal
+        isOpen={modalOpen}
+        details={selectedDetails}
+        onClose={() => { setModalOpen(false); setSelectedDetails(null); }}
+        onAccept={handleModalAccept}
+        onReject={handleModalReject}
+        onRefund={async () => {
+          if (!selectedDetails) return;
+          try {
+            await processBookingRefund(selectedDetails.bookingId, { refundType: 'full' });
+            alert('Refund processed');
+          } catch (err) {
+            console.error('Refund failed:', err);
+            alert(err instanceof Error ? err.message : 'Refund failed');
+          }
+        }}
+        showRefundButton={true}
+      />
     </div>
   );
 };

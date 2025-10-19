@@ -20,6 +20,7 @@ interface ConfirmedBooking {
   notes?: string;
   participantCount: number;
   totalAmount: number;
+  paymentStatus?: string;
 }
 
 const ConfirmedBookings: React.FC = () => {
@@ -129,6 +130,7 @@ const ConfirmedBookings: React.FC = () => {
       participantCount: booking.participants_count,
       totalAmount: booking.total_amount,
       notes: booking.special_requests,
+      paymentStatus: (booking as any).payment_status || (booking as any).paymentStatus || 'not_paid',
     };
   };
 

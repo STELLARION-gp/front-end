@@ -61,7 +61,11 @@ interface StargazingSpot {
 // Helper function to transform API data to frontend format
 const transformApiSpotToFrontend = (apiSpot: ApiStargazingSpot): StargazingSpot => {
   // Backend returns reviews under `stargazing_spot_reviews`; prefer that, fallback to `reviews` if present
-  const apiReviews: any[] = (apiSpot as any).stargazing_spot_reviews || (apiSpot as any).reviews || [];
+  const apiSpotWithReviews = apiSpot as ApiStargazingSpot & { 
+    stargazing_spot_reviews?: ApiStargazingSpotReview[]; 
+    reviews?: ApiStargazingSpotReview[];
+  };
+  const apiReviews: ApiStargazingSpotReview[] = apiSpotWithReviews.stargazing_spot_reviews || apiSpotWithReviews.reviews || [];
 
   return {
     id: apiSpot.id,
@@ -158,6 +162,7 @@ const Stargazing = () => {
   // Fetch stargazing spots on component mount
   useEffect(() => {
     fetchStargazingSpots();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Show success alert function
@@ -486,7 +491,6 @@ const Stargazing = () => {
   // const hasActiveFilters = () => {
   //   return filters.location || filters.rating > 0;
   // };
-
   // Handle filter changes and trigger API calls
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -496,6 +500,7 @@ const Stargazing = () => {
     }, 500); // Debounce filter changes
 
     return () => clearTimeout(timeoutId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters.location]);
 
   const filteredSpots = stargazingSpots; // Filtering is now handled by the API
@@ -651,7 +656,7 @@ const Stargazing = () => {
                             `/dashboard/enthusiast/stargazing/${spot.id}`
                           )
                         }
-                        className="stargazing-card__view-button"
+                        className=""
                       >
                         View Details
                       </Button>
@@ -874,7 +879,6 @@ const Stargazing = () => {
                   <p className="help-text">
                     Upload up to 10 images (JPEG, PNG, GIF, WebP)
                   </p>
-
                   <div className="image-upload-area">
                     <input
                       type="file"
@@ -882,7 +886,7 @@ const Stargazing = () => {
                       accept="image/*"
                       multiple
                       onChange={handleImageSelect}
-                      style={{ display: "none" }}
+                      className="image-upload-input"
                     />
                     <label htmlFor="spotImages" className="upload-button">
                       📷 Choose Images
@@ -1056,6 +1060,8 @@ const Stargazing = () => {
             <button
               className="success-alert__close"
               onClick={() => setSuccessAlert({ show: false, message: "" })}
+              title="Close alert"
+              aria-label="Close alert"
             >
               <svg viewBox="0 0 14 14" fill="none">
                 <path

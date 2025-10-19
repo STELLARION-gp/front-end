@@ -1,18 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { loadStripe } from '@stripe/stripe-js';
-import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+// Using PayHere for booking payments (no Stripe required for service bookings)
 import { getServiceById, getServiceAvailability, type Service, type ServiceAvailability } from '../../services/servicesService';
 import { createBooking, getServiceReviews, type Review } from '../../services/bookingService';
 import '../../styles/components/learner/BookingModal.scss';
 
-// Initialize Stripe with environment variable
-const stripePublishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
-
-if (!stripePublishableKey) {
-  console.error('⚠️ VITE_STRIPE_PUBLISHABLE_KEY is not configured in .env file');
-}
-
-const stripePromise = stripePublishableKey ? loadStripe(stripePublishableKey) : null;
+// No Stripe initialization here; service bookings use PayHere gateway via backend
+import paymentService from '../../services/paymentService';
 
 interface BookingModalProps {
   serviceId: number;
@@ -26,8 +19,6 @@ const BookingModalContent: React.FC<Omit<BookingModalProps, 'isOpen'>> = ({
   onClose,
   onSuccess
 }) => {
-  const stripe = useStripe();
-  const elements = useElements();
 
   const [service, setService] = useState<Service | null>(null);
   const [availability, setAvailability] = useState<ServiceAvailability[]>([]);
@@ -40,7 +31,7 @@ const BookingModalContent: React.FC<Omit<BookingModalProps, 'isOpen'>> = ({
   const [participants, setParticipants] = useState(1);
   const [specialRequests, setSpecialRequests] = useState('');
   const [paymentProcessing, setPaymentProcessing] = useState(false);
-  const [bookingStep, setBookingStep] = useState<'details' | 'payment' | 'confirmation'>('details');
+  const [bookingStep, setBookingStep] = useState<'details' | 'confirmation'>('details');
 
   useEffect(() => {
     fetchServiceData();
@@ -77,7 +68,23 @@ const BookingModalContent: React.FC<Omit<BookingModalProps, 'isOpen'>> = ({
 
   const totalPrice = service ? parseFloat(service.price.toString()) * participants : 0;
 
-  const handleBookingSubmit = async () => {
+  // Helper to extract time from datetime string or return time as-is
+  const extractTimeFromString = (time: string): string => {
+    if (!time) return '';
+    
+    const timeStr = String(time).trim();
+    
+    // If it's a full datetime string (contains T), extract the time part
+    if (timeStr.includes('T')) {
+      return timeStr.split('T')[1].split('.')[0]; // Get HH:MM:SS part
+    }
+    
+    // Otherwise return as-is (already in HH:MM:SS format)
+    return timeStr;
+  };
+
+  const handlePayment = async () => {
+
     if (!selectedDate || !service) {
       setError('Please select a date and time');
       return;
@@ -94,57 +101,93 @@ const BookingModalContent: React.FC<Omit<BookingModalProps, 'isOpen'>> = ({
       return;
     }
 
-    setBookingStep('payment');
-  };
-
-  const handlePayment = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!stripe || !elements || !selectedDate || !service) {
-      setError('Payment system is not properly configured. Please contact support.');
-      return;
-    }
-
     setPaymentProcessing(true);
     setError(null);
 
     try {
-      const cardElement = elements.getElement(CardElement);
-      
-      if (!cardElement) {
-        throw new Error('Card element not found');
-      }
-
-      // Create payment method
-      const { error: stripeError } = await stripe.createPaymentMethod({
-        type: 'card',
-        card: cardElement,
-      });
-
-      if (stripeError) {
-        throw new Error(stripeError.message);
-      }
-
-      // Create booking
+      // 1) Create booking (pending payment)
       const booking = await createBooking({
         service_id: serviceId,
         availability_id: selectedDate.id,
         participants,
         total_price: totalPrice,
         special_requests: specialRequests || undefined,
+        booking_date: selectedDate.available_date,
+        booking_time: extractTimeFromString(selectedDate.start_time),
       });
 
-      setBookingStep('confirmation');
-      
-      // Call success callback after a short delay to show confirmation
-      setTimeout(() => {
-        onSuccess(booking.id);
-      }, 2000);
+      // 2) Ask backend to create a PayHere order for this booking
+      const paymentOrder = await paymentService.createBookingPaymentOrder(booking.id);
+
+      console.log('PayHere order from backend:', paymentOrder);
+
+      // 3) Initialize PayHere callbacks
+      // Wait for payhere to be available on window (retry briefly)
+      let payhere = (window as any).payhere;
+      if (!payhere) {
+        // Try loading for up to 3 seconds
+        await new Promise((resolve) => {
+          let attempts = 0;
+          const interval = setInterval(() => {
+            payhere = (window as any).payhere;
+            attempts++;
+            if (payhere || attempts > 30) {
+              clearInterval(interval);
+              resolve(null);
+            }
+          }, 100);
+        });
+      }
+
+      if (!payhere) {
+        throw new Error('PayHere payment gateway could not load. Please refresh the page and try again.');
+      }
+
+      // Attach callbacks similar to other payment modal
+      payhere.onCompleted = (orderId: string) => {
+        console.log('Payment completed. OrderID:', orderId);
+        setPaymentProcessing(false);
+        setBookingStep('confirmation');
+        setTimeout(() => onSuccess(booking.id), 1500);
+      };
+
+      payhere.onDismissed = () => {
+        console.log('Payment dismissed');
+        setPaymentProcessing(false);
+      };
+
+      payhere.onError = (err: any) => {
+        console.error('PayHere error', err);
+        setError('Payment failed. Please try again.');
+        setPaymentProcessing(false);
+      };
+
+      // Start the PayHere checkout
+      const payment = paymentOrder.payhere_data;
+
+      // Basic validation of payment object
+      const requiredFields = [
+        'merchant_id',
+        'order_id',
+        'amount',
+        'currency',
+        'hash',
+        'first_name',
+        'last_name',
+        'email',
+      ];
+  const payObj: any = payment;
+  const missing = requiredFields.filter((f) => !payObj[f]);
+      if (missing.length > 0) {
+        console.error('Missing payhere fields:', missing);
+        throw new Error('Payment gateway returned incomplete payment data');
+      }
+
+      payhere.startPayment(payment);
 
     } catch (err) {
       console.error('Payment error:', err);
       setError(err instanceof Error ? err.message : 'Payment failed. Please try again.');
-      setBookingStep('details');
     } finally {
       setPaymentProcessing(false);
     }
@@ -168,15 +211,8 @@ const BookingModalContent: React.FC<Omit<BookingModalProps, 'isOpen'>> = ({
   const formatTime = (time: string) => {
     if (!time) return '';
     
-    console.log('Formatting time:', time); // Debug log
-    
-    // Handle different time formats
-    let timeStr = String(time).trim();
-    
-    // If it's a full datetime string, extract the time part
-    if (timeStr.includes('T')) {
-      timeStr = timeStr.split('T')[1].split('.')[0]; // Get HH:MM:SS part
-    }
+    // Extract time if it's a datetime string
+    const timeStr = extractTimeFromString(time);
     
     // Handle time in HH:MM:SS or HH:MM format
     const timeParts = timeStr.split(':');
@@ -336,11 +372,11 @@ const BookingModalContent: React.FC<Omit<BookingModalProps, 'isOpen'>> = ({
             </div>
 
             <button 
-              onClick={handleBookingSubmit}
+              onClick={handlePayment}
               className="btn-primary btn-full"
-              disabled={!selectedDate || participants < 1}
+              disabled={!selectedDate || participants < 1 || paymentProcessing}
             >
-              Continue to Payment
+              {paymentProcessing ? 'Processing...' : `Pay Rs. ${Math.round(totalPrice).toLocaleString()}`}
             </button>
           </div>
 
@@ -397,65 +433,6 @@ const BookingModalContent: React.FC<Omit<BookingModalProps, 'isOpen'>> = ({
         </>
       )}
 
-      {bookingStep === 'payment' && (
-        <div className="booking-section payment-section">
-          <h3>Payment Details</h3>
-          
-          <div className="booking-summary">
-            <h4>Booking Summary</h4>
-            <p><strong>Service:</strong> {service.title}</p>
-            <p><strong>Date:</strong> {selectedDate && formatDate(selectedDate.available_date)}</p>
-            <p><strong>Time:</strong> {selectedDate && `${formatTime(selectedDate.start_time)} - ${formatTime(selectedDate.end_time)}`}</p>
-            <p><strong>Participants:</strong> {participants}</p>
-            <p className="total-price"><strong>Total:</strong> Rs. {Math.round(totalPrice).toLocaleString()}</p>
-          </div>
-
-          {error && <div className="error-message">{error}</div>}
-
-          <form onSubmit={handlePayment}>
-            <div className="form-group">
-              <label>Card Details</label>
-              <div className="card-element-wrapper">
-                <CardElement 
-                  options={{
-                    style: {
-                      base: {
-                        fontSize: '16px',
-                        color: '#e0e0e0',
-                        '::placeholder': {
-                          color: '#aaa',
-                        },
-                      },
-                      invalid: {
-                        color: '#ff6b6b',
-                      },
-                    },
-                  }}
-                />
-              </div>
-            </div>
-
-            <div className="payment-actions">
-              <button 
-                type="button"
-                onClick={() => setBookingStep('details')}
-                className="btn-secondary"
-                disabled={paymentProcessing}
-              >
-                Back
-              </button>
-              <button 
-                type="submit"
-                className="btn-primary"
-                disabled={!stripe || paymentProcessing}
-              >
-                {paymentProcessing ? 'Processing...' : `Pay Rs. ${Math.round(totalPrice).toLocaleString()}`}
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-
       {bookingStep === 'confirmation' && (
         <div className="booking-section confirmation-section">
           <div className="success-icon">✓</div>
@@ -473,11 +450,9 @@ const BookingModal: React.FC<BookingModalProps> = ({ isOpen, ...props }) => {
 
   return (
     <div className="booking-modal-overlay" onClick={props.onClose}>
-      <div className="booking-modal" onClick={(e) => e.stopPropagation()}>
-        <Elements stripe={stripePromise}>
-          <BookingModalContent {...props} />
-        </Elements>
-      </div>
+          <div className="booking-modal" onClick={(e) => e.stopPropagation()}>
+            <BookingModalContent {...props} />
+          </div>
     </div>
   );
 };

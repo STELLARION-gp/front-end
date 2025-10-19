@@ -9,6 +9,8 @@ interface PaymentDetailsModalProps {
   onClose: () => void;
   onRefund?: () => void;
   showRefundButton?: boolean;
+  onAccept?: () => void;
+  onReject?: () => void;
 }
 
 const PaymentDetailsModal: React.FC<PaymentDetailsModalProps> = ({
@@ -17,6 +19,8 @@ const PaymentDetailsModal: React.FC<PaymentDetailsModalProps> = ({
   onClose,
   onRefund,
   showRefundButton = false,
+  onAccept,
+  onReject,
 }) => {
   if (!isOpen || !details) return null;
 
@@ -25,6 +29,17 @@ const PaymentDetailsModal: React.FC<PaymentDetailsModalProps> = ({
       style: 'currency',
       currency: 'LKR'
     }).format(amount);
+  };
+
+  const normalizePaymentStatus = (status: string | undefined | null) => {
+    if (!status) return { key: 'not_paid', label: 'Not Paid' };
+    const s = status.toString().toLowerCase();
+    if (s === 'completed' || s === 'paid') return { key: 'paid', label: 'Paid' };
+    if (s === 'refunded') return { key: 'refunded', label: 'Refunded' };
+    if (s === 'pending') return { key: 'pending', label: 'Pending' };
+    if (s === 'failed') return { key: 'failed', label: 'Failed' };
+    if (s === 'not_paid' || s === 'not-paid' || s === 'notpaid') return { key: 'not_paid', label: 'Not Paid' };
+    return { key: s.replace(/\s+/g, '_'), label: status };
   };
 
   const formatDate = (dateString: string) => {
@@ -60,8 +75,14 @@ const PaymentDetailsModal: React.FC<PaymentDetailsModalProps> = ({
   };
 
   return (
-    <div className="payment-details-modal-overlay" onClick={onClose}>
-      <div className="payment-details-modal" onClick={(e) => e.stopPropagation()}>
+    <div
+      className="payment-details-modal-overlay"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+    >
+      <div className="payment-details-modal" onClick={(e) => e.stopPropagation()} style={{ zIndex: 10000, position: 'relative' }}>
         {/* Header */}
         <div className="payment-modal-header">
           <div>
@@ -86,7 +107,7 @@ const PaymentDetailsModal: React.FC<PaymentDetailsModalProps> = ({
               <div className="info-item">
                 <span className="info-label">Status</span>
                 <span className="info-value">
-                  {details.paymentStatus}
+                  {normalizePaymentStatus(details.paymentStatus).label}
                 </span>
               </div>
               {details.paymentMethod && (
@@ -174,11 +195,28 @@ const PaymentDetailsModal: React.FC<PaymentDetailsModalProps> = ({
           <Button variant="secondary" size="medium" onClick={onClose}>
             Close
           </Button>
-          {showRefundButton && onRefund && details.paymentStatus.toLowerCase() === 'completed' && (
-            <Button variant="danger" size="medium" onClick={onRefund}>
-              Process Refund
-            </Button>
-          )}
+                {/* Accept/Reject controls for guides */}
+                {onAccept && (
+                  <Button variant="primary" size="medium" onClick={onAccept}>
+                    Accept
+                  </Button>
+                )}
+
+                {onReject && (() => {
+                  const norm = normalizePaymentStatus(details.paymentStatus);
+                  const label = norm.key === 'paid' || norm.key === 'completed' ? 'Reject & Refund' : 'Reject';
+                  return (
+                    <Button variant="danger" size="medium" onClick={onReject}>
+                      {label}
+                    </Button>
+                  );
+                })()}
+                {/* Legacy refund button (if explicitly required) */}
+                {showRefundButton && onRefund && details.paymentStatus.toLowerCase() === 'completed' && (
+                  <Button variant="danger" size="medium" onClick={onRefund}>
+                    Process Refund
+                  </Button>
+                )}
         </div>
       </div>
     </div>

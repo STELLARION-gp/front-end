@@ -1540,9 +1540,11 @@ to {
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem;
+  /* tighter, more compact cards */
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
   margin-bottom: 1rem;
+  justify-items: center; /* center align cards horizontally */
 
   @media (max-width: 768px) {
     grid-template-columns: repeat(2, 1fr);
@@ -1555,95 +1557,97 @@ to {
 }
 
 .stat-card {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 16px;
-  padding: 1rem;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 10px;
+  padding: 0.5rem 0.6rem; /* reduce vertical padding */
+  width: 100%;
+  max-width: 220px; /* limit card width for compact layout */
   text-align: center;
-  backdrop-filter: blur(20px);
-  transition: all 0.3s ease;
+  backdrop-filter: blur(6px);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.08);
-    transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
   }
 
-  .stat-icon-wrapper {
+  /* show icon wrapper only when the card opts-in (keeps default compact look) */
+  .stat-card--with-icon .stat-icon-wrapper {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 50px;
-    height: 50px;
-    border-radius: 12px;
-    margin-bottom: 1rem;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    margin-bottom: 0.45rem;
+    box-shadow: none;
+  }
 
-    .stat-icon {
-      width: 28px;
-      height: 28px;
-    }
+  /* colored backgrounds for each stat type */
+  .stat-card--with-icon .stat-icon-wrapper.total { background: linear-gradient(135deg, #60a5fa, #1d4ed8); border: 1px solid rgba(29,78,216,0.16); }
+  .stat-card--with-icon .stat-icon-wrapper.approved { background: linear-gradient(135deg, #34d399, #059669); border: 1px solid rgba(5,150,105,0.16); }
+  .stat-card--with-icon .stat-icon-wrapper.pending { background: linear-gradient(135deg, #fbbf24, #f59e0b); border: 1px solid rgba(245,158,11,0.12); }
+  .stat-card--with-icon .stat-icon-wrapper.rejected { background: linear-gradient(135deg, #fb7185, #ef4444); border: 1px solid rgba(239,68,68,0.12); }
+  .stat-card--with-icon .stat-icon-wrapper.participants { background: linear-gradient(135deg, #a78bfa, #7c3aed); border: 1px solid rgba(124,58,237,0.12); }
+  .stat-card--with-icon .stat-icon-wrapper.questions { background: linear-gradient(135deg, #f97316, #ea580c); border: 1px solid rgba(234,88,12,0.12); }
+  .stat-card--with-icon .stat-icon-wrapper.average { background: linear-gradient(135deg, #06b6d4, #0891b2); border: 1px solid rgba(8,145,178,0.12); }
 
-    &.total {
-      background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(59, 130, 246, 0.1));
-      color: #3b82f6;
-      border: 1px solid rgba(59, 130, 246, 0.3);
-    }
+  .stat-card--with-icon .stat-icon {
+    width: 18px;
+    height: 18px;
+    color: #ffffff; /* ensure icon contrast */
+    transition: transform 0.12s ease, filter 0.12s ease;
+    display: block;
+  }
 
-    &.approved {
-      background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(34, 197, 94, 0.1));
-      color: #22c55e;
-      border: 1px solid rgba(34, 197, 94, 0.3);
-    }
+  .stat-icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    border-radius: 6px;
+  }
 
-    &.pending {
-      background: linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(251, 191, 36, 0.1));
-      color: #fbbf24;
-      border: 1px solid rgba(251, 191, 36, 0.3);
-    }
+  .stat-icon-btn:hover .stat-icon,
+  .stat-icon-btn:focus .stat-icon {
+    transform: translateY(-2px) scale(1.06);
+    filter: drop-shadow(0 6px 10px rgba(0,0,0,0.12));
+  }
 
-    &.rejected {
-      background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.1));
-      color: #ef4444;
-      border: 1px solid rgba(239, 68, 68, 0.3);
-    }
+  .stat-icon-btn:focus {
+    outline: 2px solid rgba(59,130,246,0.28);
+    outline-offset: 2px;
+  }
 
-    &.participants {
-      background: linear-gradient(135deg, rgba(147, 51, 234, 0.2), rgba(147, 51, 234, 0.1));
-      color: #9333ea;
-      border: 1px solid rgba(147, 51, 234, 0.3);
-    }
-
-    &.questions {
-      background: linear-gradient(135deg, rgba(236, 72, 153, 0.2), rgba(236, 72, 153, 0.1));
-      color: #ec4899;
-      border: 1px solid rgba(236, 72, 153, 0.3);
-    }
-
-    &.average {
-      background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(6, 182, 212, 0.1));
-      color: #06b6d4;
-      border: 1px solid rgba(6, 182, 212, 0.3);
-    }
+  .stat-card--active {
+    border-color: rgba(59, 130, 246, 0.35);
+    box-shadow: 0 10px 22px rgba(59, 130, 246, 0.06);
+    background: rgba(59, 130, 246, 0.04);
   }
 
   .stat-value {
-    font-size: 2.5rem;
-    font-weight: 800;
-    color: #ffffff;
-    margin-bottom: 0.5rem;
-    line-height: 1;
-
-    @media (max-width: 768px) {
-      font-size: 2rem;
-    }
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #0f172a; /* dark text for readability */
+    margin: 0;
+    line-height: 1.05;
+    padding-top: 0.35rem;
+    padding-bottom: 0.25rem;
   }
 
   .stat-label {
-    font-size: 0.875rem;
-    color: rgba(255, 255, 255, 0.7);
-    font-weight: 500;
+    font-size: 0.72rem;
+    color: rgba(15, 23, 42, 0.65);
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.04em;
+    margin-top: 0.15rem;
   }
 }
 

@@ -167,8 +167,8 @@ const SessionPaymentModal: React.FC<SessionPaymentModalProps> = ({
         </button>
 
         <div className="payment-modal-header">
-          <h2>💳 Payment Details</h2>
-          <p className="session-info">Session: {sessionTitle}</p>
+          <h2>{sessionTitle}</h2>
+          {/* <p className="session-info">Session: {sessionTitle}</p> */}
           <div className="payment-amount">
             <span className="amount-label">Total Amount:</span>
             <span className="amount-value">Rs {amount?.toLocaleString()}</span>

@@ -6,6 +6,7 @@ import NasaImageCard from "../../components/Learner/NasaImageCard";
 import '../../styles/pages/learner/preview.scss'
 import UpcomingSpaceEventCard from "../../components/Learner/UpcomingSpaceEventCard";
 import OrganizedEventCard from "../../components/Learner/OrganizedEventCard";
+import { eventService, type Event as FeaturedEvent } from "../../services/eventService";
 
 import { astronomyEventsService } from "../../services/astronomyEventsService";
 import { blogService } from "../../services/blogService";
@@ -66,56 +67,8 @@ const competitions = [
     description: "Capture the night sky and compete with others.",
   },
 ];
-const organizedEvents = [
-  {
-    id: 1,
-    name: "Astro Discovery Workshop",
-    category: "Workshop",
-    imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQdtIgJnLi_IClK8CtccZnSRMdcA-sSMJ9u4w&s",
-    date: "2025-08-25",
-    location: "Colombo Planetarium",
-    contact: "astrolearn@platform.com",
-    attendees: 120,
-    description: "Engage in hands-on astronomy experiments and learn from experts.",
-    sponsors: ["NASA", "AstroWorld"]
-  },
-  {
-    id: 2,
-    name: "Night Sky Observation Camp",
-    category: "Camp",
-    imageUrl: "https://cdn.mos.cms.futurecdn.net/Yad64zizbbNCtXS5eZGMgB.jpg",
-    date: "2025-09-20",
-    location: "Hanthana Observation Deck",
-    contact: "camp@astro.lk",
-    attendees: 80,
-    description: "Enjoy the stars in a full-night observation camp with astronomers.",
-    sponsors: ["Celestia Society"]
-  },
-  {
-    id: 3,
-    name: "Galactic Odyssey",
-    category: "Astronomy",
-    imageUrl: "https://thumbs.dreamstime.com/b/spacecraft-traveling-stars-galactic-odyssey-exploration-interstellar-journey-high-quality-photo-300649665.jpg",
-    date: "2025-09-21T19:00:00",
-    location: "National Planetarium, Colombo",
-    contact: "astro@galaxyfest.org",
-    attendees: 500,
-    description: "Embark on a breathtaking expedition across galaxies at Galactic Odyssey! Witness live telescope demos, space talks from top scientists, VR exploration zones, and interact with Sri Lanka’s top astronomy clubs. A cosmic experience for stargazers and dreamers alike.",
-    sponsors: ["NASA", "Astro Lanka"]
-  },
-  {
-    id: 4,
-    name: "Stellar Science Fair",
-    category: "Astronomy",
-    imageUrl: "https://c8.alamy.com/comp/2CGXY86/stellar-nebula-and-cosmic-dust-cosmic-gas-clusters-and-constellations-in-deep-space-ideal-for-a-space-science-project-elements-furnished-by-nasa-2CGXY86.jpg",
-    date: "2025-09-21T19:00:00",
-    location: "National Planetarium, Colombo",
-    contact: "astro@galaxyfest.org",
-    attendees: 500,
-    description: "Embark on a breathtaking expedition across galaxies at Galactic Odyssey! Witness live telescope demos, space talks from top scientists, VR exploration zones, and interact with Sri Lanka’s top astronomy clubs. A cosmic experience for stargazers and dreamers alike.",
-    sponsors: ["NASA", "SpaceX"]
-  }
-];
+// (moved inside Preview component)
+
 const Preview = () => {
   const navigate = useNavigate();
 
@@ -127,10 +80,15 @@ const Preview = () => {
   const [eventsLoading, setEventsLoading] = useState(true);
   const [eventsError, setEventsError] = useState<string | null>(null);
 
+  // Featured Events state (moved here)
+  const [featuredEvents, setFeaturedEvents] = useState<FeaturedEvent[]>([]);
+  const [featuredEventsLoading, setFeaturedEventsLoading] = useState(true);
+  const [featuredEventsError, setFeaturedEventsError] = useState<string | null>(null);
+
 
   useEffect(() => {
-    setLoading(true);
-    blogService.getBlogs({ status: 'published', sort_by: 'created_at', sort_order: 'desc', limit: 4 })
+  setLoading(true);
+  blogService.getBlogs({ status: 'published', sort_by: 'created_at', sort_order: 'desc', limit: 4 })
       .then((data) => {
         if (data && data.success && data.data && data.data.blogs) {
           setBlogs(data.data.blogs);
@@ -156,6 +114,18 @@ const Preview = () => {
         setEventsError(err.message || 'Failed to fetch events');
       })
       .finally(() => setEventsLoading(false));
+
+    // Fetch featured events from backend
+    setFeaturedEventsLoading(true);
+    eventService.getApprovedEvents()
+      .then((events) => {
+        setFeaturedEvents(events);
+        setFeaturedEventsError(null);
+      })
+      .catch((err) => {
+        setFeaturedEventsError(err.message || 'Failed to fetch featured events');
+      })
+      .finally(() => setFeaturedEventsLoading(false));
   }, []);
 
   return (
@@ -227,9 +197,17 @@ const Preview = () => {
       <h2 style={{ marginTop: "4rem" }}>Featured Events</h2>
       <p className="section-subtitle">Join exclusive events organized by our platform. Limited seats. </p>
       <div className="organized-events-container">
-        {organizedEvents.map((event) => (
-          <OrganizedEventCard key={event.id} event={event} />
-        ))}
+        {featuredEventsLoading ? (
+          <div>Loading featured events...</div>
+        ) : featuredEventsError ? (
+          <div style={{ color: 'red' }}>{featuredEventsError}</div>
+        ) : featuredEvents.length === 0 ? (
+          <div>No featured events found.</div>
+        ) : (
+          featuredEvents.map((event) => (
+            <OrganizedEventCard key={event.id} event={event} />
+          ))
+        )}
       </div>
 
     {/* upcoming competitions */}

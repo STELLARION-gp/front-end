@@ -54,7 +54,7 @@ const AstronomyBlogCard: React.FC<AstronomyBlogCardProps> = ({
     </p>
     <div className="astro-blog-card-rating">
       {renderStars(rating)}
-      <span className="rating-number">{rating.toFixed(1)}</span>
+  <span className="rating-number">{(typeof rating === 'number' && !isNaN(rating) ? rating : 0).toFixed(1)}</span>
     </div>
     <p className="astro-blog-card-content">{content.slice(0, 80)}...</p>
     <Button onClick={onClick} >Read More</Button>

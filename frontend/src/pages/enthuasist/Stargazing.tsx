@@ -59,9 +59,10 @@ interface StargazingSpot {
 }
 
 // Helper function to transform API data to frontend format
-const transformApiSpotToFrontend = (
-  apiSpot: ApiStargazingSpot
-): StargazingSpot => {
+const transformApiSpotToFrontend = (apiSpot: ApiStargazingSpot): StargazingSpot => {
+  // Backend returns reviews under `stargazing_spot_reviews`; prefer that, fallback to `reviews` if present
+  const apiReviews: any[] = (apiSpot as any).stargazing_spot_reviews || (apiSpot as any).reviews || [];
+
   return {
     id: apiSpot.id,
     name: apiSpot.name,
@@ -75,16 +76,14 @@ const transformApiSpotToFrontend = (
     bestTime: apiSpot.best_time || "",
     description: apiSpot.description,
     facilities: apiSpot.facilities,
-    status: apiSpot.status || "pending",
-    reviews:
-      apiSpot.reviews?.map((review: ApiStargazingSpotReview) => ({
-        id: review.id,
-        userName:
-          review.user?.display_name || review.user?.first_name || "Anonymous",
-        rating: review.rating,
-        reviewText: review.review_text,
-        date: new Date(review.created_at).toISOString().split("T")[0],
-      })) || [],
+    status: apiSpot.status || 'pending',
+    reviews: apiReviews.map((review: ApiStargazingSpotReview) => ({
+      id: review.id,
+      userName: review.user?.display_name || review.user?.first_name || 'Anonymous',
+      rating: review.rating,
+      reviewText: review.review_text,
+      date: new Date(review.created_at).toISOString().split('T')[0]
+    })),
     // Include API fields for backend operations
     image_url: apiSpot.image_url,
     best_time: apiSpot.best_time,

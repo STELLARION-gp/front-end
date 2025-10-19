@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Button from './Button';
 import { astronomyEventsService, type CreateEventRequest } from '../services/astronomyEventsService';
+import { apiService } from '../services/api';
 import '../styles/components/AstronomyEventModal.scss';
 
 interface AstronomyEventModalProps {
@@ -25,6 +26,12 @@ const AstronomyEventModal: React.FC<AstronomyEventModalProps> = ({ isOpen, onClo
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Image upload state
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
   const resetForm = () => {
     setFormData({
       name: '',
@@ -38,6 +45,9 @@ const AstronomyEventModal: React.FC<AstronomyEventModalProps> = ({ isOpen, onClo
       event_type: 'meteor_shower'
     });
     setError(null);
+    setSelectedImage(null);
+    setUploadedImageUrl(null);
+    setUploadError(null);
   };
 
   // Set default date when modal opens
@@ -58,6 +68,60 @@ const AstronomyEventModal: React.FC<AstronomyEventModalProps> = ({ isOpen, onClo
     setFormData(prev => ({
       ...prev,
       [name]: value
+    }));
+  };
+
+  const handleImageSelection = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      setUploadError('Please select a valid image file (JPEG, PNG, GIF, or WebP)');
+      return;
+    }
+
+    // Validate file size (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setUploadError('Image size must be less than 5MB');
+      return;
+    }
+
+    setSelectedImage(file);
+    setUploadError(null);
+    
+    // Upload immediately after selection
+    setUploadingImage(true);
+    try {
+      const response = await apiService.uploadMedia(file);
+      const imageUrl = response?.file?.file_path || response?.cloudinary?.url;
+      
+      if (!imageUrl) {
+        throw new Error('Failed to get image URL from upload response');
+      }
+
+      setUploadedImageUrl(imageUrl);
+      setFormData(prev => ({
+        ...prev,
+        image_url: imageUrl
+      }));
+    } catch (err) {
+      console.error('Image upload error:', err);
+      setUploadError(err instanceof Error ? err.message : 'Failed to upload image');
+      setSelectedImage(null);
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setSelectedImage(null);
+    setUploadedImageUrl(null);
+    setUploadError(null);
+    setFormData(prev => ({
+      ...prev,
+      image_url: ''
     }));
   };
 
@@ -257,15 +321,50 @@ const AstronomyEventModal: React.FC<AstronomyEventModalProps> = ({ isOpen, onClo
           </div>
 
           <div className="form-group">
-            <label htmlFor="image_url">Image URL</label>
-            <input
-              type="url"
-              id="image_url"
-              name="image_url"
-              value={formData.image_url}
-              onChange={handleInputChange}
-              placeholder="Optional image URL for the event"
-            />
+            <label htmlFor="image_url">Event Image</label>
+            <div className="image-upload-section">
+              {!uploadedImageUrl && !uploadingImage && (
+                <div className="upload-button-wrapper">
+                  <input
+                    type="file"
+                    id="event_image"
+                    accept="image/jpeg,image/png,image/jpg,image/gif,image/webp"
+                    onChange={handleImageSelection}
+                    style={{ display: 'none' }}
+                  />
+                  <label htmlFor="event_image" className="upload-button-label">
+                    📷 Select Image
+                  </label>
+                  <p className="upload-hint">JPEG, PNG, GIF, or WebP (max 5MB)</p>
+                </div>
+              )}
+
+              {uploadingImage && (
+                <div className="upload-status">
+                  <span className="uploading-spinner">⏳</span> Uploading image...
+                </div>
+              )}
+
+              {uploadError && (
+                <div className="error-message">{uploadError}</div>
+              )}
+
+              {uploadedImageUrl && !uploadingImage && (
+                <div className="uploaded-images">
+                  <div className="image-preview">
+                    <img src={uploadedImageUrl} alt="Event preview" />
+                    <button
+                      type="button"
+                      className="remove-image"
+                      onClick={handleRemoveImage}
+                      title="Remove image"
+                    >
+                      ×
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="modal-actions">

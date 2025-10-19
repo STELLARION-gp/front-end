@@ -27,7 +27,6 @@ const getMonthName = (monthNum: number): string => {
 };
 
 const ProviderPayments: React.FC = () => {
-  const [payments, setPayments] = useState<ProviderPayment[]>([]);
   const [filteredPayments, setFilteredPayments] = useState<ProviderPayment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -62,7 +61,6 @@ const ProviderPayments: React.FC = () => {
       };
 
       const data = await ProviderPaymentsService.getProviderPayments(filters);
-      setPayments(data);
       setFilteredPayments(data);
     } catch (err) {
       console.error('Error fetching payments:', err);

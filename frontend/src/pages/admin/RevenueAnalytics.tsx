@@ -72,6 +72,7 @@ const RevenueAnalytics: React.FC = () => {
   const [overview, setOverview] = useState<RevenueOverview | null>(null);
   const [trends, setTrends] = useState<RevenueTrend[]>([]);
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethodStat[]>([]);
+  // @ts-ignore - topUsers is set but used in commented section
   const [topUsers, setTopUsers] = useState<TopUser[]>([]);
   const [mrrTrends, setMRRTrends] = useState<MRRTrend[]>([]);
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatusDistribution | null>(null);

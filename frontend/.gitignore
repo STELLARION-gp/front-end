@@ -6,13 +6,26 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+
+# Environment files
 .env
+.env.local
+.env.development
+.env.development.local
+.env.test
+.env.test.local
+.env.production
+.env.production.local
+.env.staging
+*.local
+
+# Keep example files
+!.env.example
 
 node_modules
 package-lock.json
 dist
 dist-ssr
-*.local
 
 # Build files
 build

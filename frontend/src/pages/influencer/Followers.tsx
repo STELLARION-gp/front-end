@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import '../../styles/pages/influencer/followers.scss';
+import '../../styles/pages/influencer/Followers.scss';
 import Button from '../../components/Button';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 

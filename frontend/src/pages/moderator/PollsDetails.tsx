@@ -41,17 +41,17 @@ const PollsDetails: React.FC = () => {
     setActionLoading('approve');
     try {
       await pollService.approvePoll(poll.id);
-      alert('Poll approved successfully!');
       
-      // Reload poll details
-      const response = await pollService.getPollById(poll.id);
-      if (response.success) {
-        setPoll(response.data);
-      }
+      // Redirect to polls moderation with success message
+      navigate('/dashboard/moderation/polls', { 
+        state: { 
+          message: 'Poll approved successfully!',
+          type: 'success'
+        } 
+      });
     } catch (error) {
       console.error('Error approving poll:', error);
       alert((error as Error).message || 'Error approving poll. Please try again.');
-    } finally {
       setActionLoading(null);
     }
   };
@@ -66,19 +66,19 @@ const PollsDetails: React.FC = () => {
     setActionLoading('reject');
     try {
       await pollService.rejectPoll(poll.id, rejectionReason || undefined);
-      alert('Poll rejected successfully!');
-      setShowRejectModal(false);
-      setRejectionReason('');
       
-      // Reload poll details
-      const response = await pollService.getPollById(poll.id);
-      if (response.success) {
-        setPoll(response.data);
-      }
+      // Redirect to polls moderation with success message
+      navigate('/dashboard/moderation/polls', { 
+        state: { 
+          message: rejectionReason 
+            ? `Poll rejected: ${rejectionReason}` 
+            : 'Poll rejected successfully!',
+          type: 'success'
+        } 
+      });
     } catch (error) {
       console.error('Error rejecting poll:', error);
       alert((error as Error).message || 'Error rejecting poll. Please try again.');
-    } finally {
       setActionLoading(null);
     }
   };

@@ -57,25 +57,47 @@ const BookingRequests: React.FC = () => {
   }, []);
 
   const transformBooking = (booking: Booking): BookingRequest => {
-    const userName = booking.user
-      ? `${booking.user.first_name || ''} ${booking.user.last_name || ''}`.trim() || booking.user.email
+    const userObj = booking.user;
+    const userName = userObj
+      ? `${userObj.first_name || ''} ${userObj.last_name || ''}`.trim() || userObj.email
       : 'Unknown User';
-    
-    const serviceName = booking.service?.title || 'Unknown Service';
-    const date = typeof booking.booking_date === 'string' 
-      ? booking.booking_date.split('T')[0]
-      : new Date(booking.booking_date).toISOString().split('T')[0];
-    
-    const startTime = booking.booking_time 
-      ? typeof booking.booking_time === 'string' 
-        ? booking.booking_time.substring(11, 16)
-        : new Date(booking.booking_time).toTimeString().substring(0, 5)
+
+    const serviceObj = booking.service;
+    const serviceName = serviceObj?.title || 'Unknown Service';
+
+    // booking_date is Date or string
+    const dateObj = typeof booking.booking_date === 'string'
+      ? new Date(booking.booking_date)
+      : booking.booking_date;
+    const date = dateObj.toISOString().split('T')[0];
+
+    // booking_time is Date or string or undefined
+    let startTime = '00:00';
+    if (booking.booking_time) {
+      let timeObj: Date | null = null;
+      if (typeof booking.booking_time === 'string') {
+        // Try to parse as ISO or time string
+        if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(booking.booking_time)) {
+          timeObj = new Date(booking.booking_time);
+        } else if (/^\d{2}:\d{2}/.test(booking.booking_time)) {
+          timeObj = new Date(`1970-01-01T${booking.booking_time}`);
+        }
+      } else if (
+        typeof booking.booking_time === 'object' &&
+        booking.booking_time !== null &&
+        'getTime' in booking.booking_time
+      ) {
+        timeObj = booking.booking_time as Date;
+      }
+      if (timeObj && !isNaN(timeObj.getTime())) {
+        startTime = timeObj.toISOString().substring(11, 16);
+      }
+    }
+
+    const endTime = serviceObj?.duration
+      ? calculateEndTime(startTime, serviceObj.duration)
       : '00:00';
-    
-    const endTime = booking.service?.duration 
-      ? calculateEndTime(startTime, booking.service.duration)
-      : '00:00';
-    
+
     return {
       id: booking.id.toString(),
       userName,

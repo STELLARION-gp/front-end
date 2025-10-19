@@ -7,7 +7,6 @@ import DateIcon from "../../assets/svg/DateIcon";
 import TimeIcon from "../../assets/svg/TimeIcon";
 import DurationIcon from "../../assets/svg/DurationIcon";
 import ParticipantsIcon from "../../assets/svg/ParticipantsIcon";
-import PriceIcon from "../../assets/svg/PriceIcon";
 import FreeIcon from "../../assets/svg/FreeIcon";
 import DifficultyIcon from "../../assets/svg/DifficultyIcon";
 import SessionPaymentModal from "./SessionPaymentModal";
@@ -28,7 +27,7 @@ const SessionDetailsModal: React.FC<SessionDetailsModalProps> = ({
   onClose,
   onRegister,
   onEnrollmentSuccess,
-  isEnrolled = false
+  isEnrolled = false,
 }) => {
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [paymentLoading, setPaymentLoading] = useState(false);
@@ -38,55 +37,60 @@ const SessionDetailsModal: React.FC<SessionDetailsModalProps> = ({
   const handlePayment = async (cardDetails: CardDetails) => {
     try {
       setPaymentLoading(true);
-      console.log('Processing payment for session:', session.id);
-      
+      console.log("Processing payment for session:", session.id);
+
       // Call the enrollment API with payment details
-      const result = await sessionsService.enrollInPaidSession(session.id, cardDetails);
-      
-      console.log('Enrollment successful:', result);
-      
+      const result = await sessionsService.enrollInPaidSession(
+        session.id,
+        cardDetails
+      );
+
+      console.log("Enrollment successful:", result);
+
       // Close both modals on success
       setPaymentModalOpen(false);
       setPaymentLoading(false);
-      
+
       alert(`Payment successful! You are now enrolled in "${session.title}".`);
-      
+
       // Trigger refresh of sessions list
       if (onEnrollmentSuccess) {
         onEnrollmentSuccess();
       }
-      
+
       onClose();
-      
     } catch (error: any) {
       setPaymentLoading(false);
-      console.error('Payment failed:', error);
-      alert(error.message || 'Payment failed. Please try again.');
+      console.error("Payment failed:", error);
+      alert(error.message || "Payment failed. Please try again.");
     }
   };
 
-  const creatorName = session.creator?.display_name || 
-    `${session.creator?.first_name || ''} ${session.creator?.last_name || ''}`.trim() || 
-    'Unknown Instructor';
+  const creatorName =
+    session.creator?.display_name ||
+    `${session.creator?.first_name || ""} ${
+      session.creator?.last_name || ""
+    }`.trim() ||
+    "Unknown Instructor";
 
   const sessionDate = new Date(session.session_date);
-  const formattedDate = sessionDate.toLocaleDateString('en-US', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
+  const formattedDate = sessionDate.toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   });
 
   // Handle session_time - backend now sends as "HH:MM:SS" string format
-  let formattedTime = '';
-  if (typeof session.session_time === 'string') {
+  let formattedTime = "";
+  if (typeof session.session_time === "string") {
     // Extract HH:MM from string format like "14:30:00"
-    const timeParts = session.session_time.split(':');
+    const timeParts = session.session_time.split(":");
     if (timeParts.length >= 2) {
       const hours = parseInt(timeParts[0]);
       const minutes = timeParts[1];
-      const period = hours >= 12 ? 'PM' : 'AM';
-      const displayHours = hours > 12 ? hours - 12 : (hours === 0 ? 12 : hours);
+      const period = hours >= 12 ? "PM" : "AM";
+      const displayHours = hours > 12 ? hours - 12 : hours === 0 ? 12 : hours;
       formattedTime = `${displayHours}:${minutes} ${period}`;
     } else {
       formattedTime = session.session_time;
@@ -97,20 +101,23 @@ const SessionDetailsModal: React.FC<SessionDetailsModalProps> = ({
     if (!isNaN(timeDate.getTime())) {
       const hours = timeDate.getHours();
       const minutes = timeDate.getMinutes();
-      const period = hours >= 12 ? 'PM' : 'AM';
-      const displayHours = hours > 12 ? hours - 12 : (hours === 0 ? 12 : hours);
-      const minutesStr = minutes.toString().padStart(2, '0');
+      const period = hours >= 12 ? "PM" : "AM";
+      const displayHours = hours > 12 ? hours - 12 : hours === 0 ? 12 : hours;
+      const minutesStr = minutes.toString().padStart(2, "0");
       formattedTime = `${displayHours}:${minutesStr} ${period}`;
     } else {
-      formattedTime = 'Time not available';
+      formattedTime = "Time not available";
     }
   } else {
-    formattedTime = 'Time not available';
+    formattedTime = "Time not available";
   }
 
   return (
     <div className="session-details-modal-backdrop" onClick={onClose}>
-      <div className="session-details-modal" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="session-details-modal"
+        onClick={(e) => e.stopPropagation()}
+      >
         <button className="session-details-close" onClick={onClose}>
           ×
         </button>
@@ -119,12 +126,11 @@ const SessionDetailsModal: React.FC<SessionDetailsModalProps> = ({
           <h2>{session.title}</h2>
           <div className="session-badges">
             <span className={`badge badge-${session.session_type}`}>
-              {session.session_type === 'live' ? ' Live' : ' Recorded'}
+              {session.session_type === "live" ? " Live" : " Recorded"}
             </span>
             <span className={`badge badge-${session.payment_type}`}>
-              {session.payment_type === 'paid' ? (
+              {session.payment_type === "paid" ? (
                 <>
-                  
                   <span>Paid Rs {session.price}</span>
                 </>
               ) : (
@@ -135,7 +141,8 @@ const SessionDetailsModal: React.FC<SessionDetailsModalProps> = ({
               )}
             </span>
             <span className={`badge badge-${session.difficulty_level}`}>
-              {session.difficulty_level.charAt(0).toUpperCase() + session.difficulty_level.slice(1)}
+              {session.difficulty_level.charAt(0).toUpperCase() +
+                session.difficulty_level.slice(1)}
             </span>
           </div>
         </div>
@@ -167,7 +174,7 @@ const SessionDetailsModal: React.FC<SessionDetailsModalProps> = ({
                   <ParticipantsIcon size={16} /> Max Participants:
                 </span>
                 <span className="info-value">
-                  {session.max_participants || 'Unlimited'}
+                  {session.max_participants || "Unlimited"}
                 </span>
               </div>
               <div className="info-item">
@@ -206,16 +213,18 @@ const SessionDetailsModal: React.FC<SessionDetailsModalProps> = ({
             </div>
           )}
 
-          {session.session_link && session.payment_type === 'free' && (
+          {session.session_link && session.payment_type === "free" && (
             <div className="session-link-section">
               <h3> Session Link</h3>
-              <a 
-                href={session.session_link} 
-                target="_blank" 
+              <a
+                href={session.session_link}
+                target="_blank"
                 rel="noopener noreferrer"
                 className="session-link"
               >
-                {session.session_type === 'live' ? 'Join Live Session' : 'Watch Recording'}
+                {session.session_type === "live"
+                  ? "Join Live Session"
+                  : "Watch Recording"}
               </a>
             </div>
           )}
@@ -225,43 +234,45 @@ const SessionDetailsModal: React.FC<SessionDetailsModalProps> = ({
           <Button variant="secondary" onClick={onClose}>
             Close
           </Button>
-          
+
           {!isEnrolled && (
             <>
-              {session.payment_type === 'paid' ? (
-                <Button 
-                  variant="primary" 
+              {session.payment_type === "paid" ? (
+                <Button
+                  variant="primary"
                   onClick={() => setPaymentModalOpen(true)}
                 >
                   💳 Pay Rs {session.price}
                 </Button>
               ) : (
                 <>
-                  {session.session_type === 'live' && (
-                    <Button 
-                      variant="primary" 
+                  {session.session_type === "live" && (
+                    <Button
+                      variant="primary"
                       onClick={() => onRegister && onRegister(session.id)}
                     >
                       Register for Session
                     </Button>
                   )}
-                  {session.session_type === 'recorded' && session.session_link && (
-                    <Button 
-                      variant="primary"
-                      onClick={() => session.session_link && window.open(session.session_link, '_blank')}
-                    >
-                      Watch Recording
-                    </Button>
-                  )}
+                  {session.session_type === "recorded" &&
+                    session.session_link && (
+                      <Button
+                        variant="primary"
+                        onClick={() =>
+                          session.session_link &&
+                          window.open(session.session_link, "_blank")
+                        }
+                      >
+                        Watch Recording
+                      </Button>
+                    )}
                 </>
               )}
             </>
           )}
-          
+
           {isEnrolled && (
-            <div className="enrolled-badge">
-              ✓ Already Enrolled
-            </div>
+            <div className="enrolled-badge">✓ Already Enrolled</div>
           )}
         </div>
       </div>

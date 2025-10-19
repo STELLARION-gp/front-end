@@ -1,12 +1,13 @@
-import { auth } from '../firebase';
+import { auth } from "../firebase";
+import { API_CONFIG } from "../config/api.config";
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = API_CONFIG.API_BASE_URL;
 
 export interface GroupChat {
   id: number;
   name: string;
   description: string;
-  type: 'public' | 'private';
+  type: "public" | "private";
   created_by: number;
   is_active: boolean;
   created_at: string;
@@ -27,7 +28,7 @@ export interface GroupMember {
   id: number;
   group_id: number;
   user_id: number;
-  role: 'admin' | 'member';
+  role: "admin" | "member";
   joined_at: string;
   user?: {
     id: number;
@@ -42,7 +43,7 @@ export interface ChatMessage {
   group_id: number;
   user_id: number;
   content: string;
-  message_type: 'text' | 'image' | 'file';
+  message_type: "text" | "image" | "file";
   sent_at: string;
   is_deleted: boolean;
   user?: {
@@ -71,12 +72,12 @@ export interface MessageReaction {
 export interface CreateGroupRequest {
   name: string;
   description: string;
-  type: 'public' | 'private';
+  type: "public" | "private";
 }
 
 export interface SendMessageRequest {
   content: string;
-  message_type?: 'text' | 'image' | 'file';
+  message_type?: "text" | "image" | "file";
 }
 
 class ChatService {
@@ -84,24 +85,26 @@ class ChatService {
     try {
       const user = auth.currentUser;
       if (!user) {
-        throw new Error('User not authenticated');
+        throw new Error("User not authenticated");
       }
-      
+
       const token = await user.getIdToken();
       return {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
       };
     } catch (error) {
-      console.error('Error getting auth headers:', error);
-      throw new Error('Authentication failed');
+      console.error("Error getting auth headers:", error);
+      throw new Error("Authentication failed");
     }
   }
 
   private async handleResponse(response: Response) {
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+      throw new Error(
+        errorData.message || `HTTP error! status: ${response.status}`
+      );
     }
     return response.json();
   }
@@ -111,7 +114,7 @@ class ChatService {
     page?: number;
     limit?: number;
     search?: string;
-    type?: 'all' | 'public' | 'joined';
+    type?: "all" | "public" | "joined";
   }): Promise<{
     groups: GroupChat[];
     pagination: {
@@ -124,23 +127,23 @@ class ChatService {
     try {
       const headers = await this.getAuthHeaders();
       const queryParams = new URLSearchParams();
-      
-      if (params?.page) queryParams.append('page', params.page.toString());
-      if (params?.limit) queryParams.append('limit', params.limit.toString());
-      if (params?.search) queryParams.append('search', params.search);
-      if (params?.type) queryParams.append('type', params.type);
+
+      if (params?.page) queryParams.append("page", params.page.toString());
+      if (params?.limit) queryParams.append("limit", params.limit.toString());
+      if (params?.search) queryParams.append("search", params.search);
+      if (params?.type) queryParams.append("type", params.type);
 
       const response = await fetch(
         `${API_BASE_URL}/chat/groups?${queryParams.toString()}`,
         {
-          method: 'GET',
+          method: "GET",
           headers,
         }
       );
 
       return this.handleResponse(response);
     } catch (error) {
-      console.error('Error fetching groups:', error);
+      console.error("Error fetching groups:", error);
       throw error;
     }
   }
@@ -152,13 +155,13 @@ class ChatService {
     try {
       const headers = await this.getAuthHeaders();
       const response = await fetch(`${API_BASE_URL}/chat/user/groups`, {
-        method: 'GET',
+        method: "GET",
         headers,
       });
 
       return this.handleResponse(response);
     } catch (error) {
-      console.error('Error fetching user groups:', error);
+      console.error("Error fetching user groups:", error);
       throw error;
     }
   }
@@ -170,14 +173,14 @@ class ChatService {
     try {
       const headers = await this.getAuthHeaders();
       const response = await fetch(`${API_BASE_URL}/chat/groups`, {
-        method: 'POST',
+        method: "POST",
         headers,
         body: JSON.stringify(groupData),
       });
 
       return this.handleResponse(response);
     } catch (error) {
-      console.error('Error creating group:', error);
+      console.error("Error creating group:", error);
       throw error;
     }
   }
@@ -188,14 +191,17 @@ class ChatService {
   }> {
     try {
       const headers = await this.getAuthHeaders();
-      const response = await fetch(`${API_BASE_URL}/chat/groups/${groupId}/join`, {
-        method: 'POST',
-        headers,
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/chat/groups/${groupId}/join`,
+        {
+          method: "POST",
+          headers,
+        }
+      );
 
       return this.handleResponse(response);
     } catch (error) {
-      console.error('Error joining group:', error);
+      console.error("Error joining group:", error);
       throw error;
     }
   }
@@ -206,14 +212,17 @@ class ChatService {
   }> {
     try {
       const headers = await this.getAuthHeaders();
-      const response = await fetch(`${API_BASE_URL}/chat/groups/${groupId}/leave`, {
-        method: 'DELETE',
-        headers,
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/chat/groups/${groupId}/leave`,
+        {
+          method: "DELETE",
+          headers,
+        }
+      );
 
       return this.handleResponse(response);
     } catch (error) {
-      console.error('Error leaving group:', error);
+      console.error("Error leaving group:", error);
       throw error;
     }
   }
@@ -225,22 +234,25 @@ class ChatService {
     try {
       const headers = await this.getAuthHeaders();
       const response = await fetch(`${API_BASE_URL}/chat/groups/${groupId}`, {
-        method: 'GET',
+        method: "GET",
         headers,
       });
 
       return this.handleResponse(response);
     } catch (error) {
-      console.error('Error fetching group details:', error);
+      console.error("Error fetching group details:", error);
       throw error;
     }
   }
 
   // Get group messages
-  async getGroupMessages(groupId: number, params?: {
-    page?: number;
-    limit?: number;
-  }): Promise<{
+  async getGroupMessages(
+    groupId: number,
+    params?: {
+      page?: number;
+      limit?: number;
+    }
+  ): Promise<{
     messages: ChatMessage[];
     pagination: {
       page: number;
@@ -252,59 +264,71 @@ class ChatService {
     try {
       const headers = await this.getAuthHeaders();
       const queryParams = new URLSearchParams();
-      
-      if (params?.page) queryParams.append('page', params.page.toString());
-      if (params?.limit) queryParams.append('limit', params.limit.toString());
+
+      if (params?.page) queryParams.append("page", params.page.toString());
+      if (params?.limit) queryParams.append("limit", params.limit.toString());
 
       const response = await fetch(
         `${API_BASE_URL}/chat/groups/${groupId}/messages?${queryParams.toString()}`,
         {
-          method: 'GET',
+          method: "GET",
           headers,
         }
       );
 
       return this.handleResponse(response);
     } catch (error) {
-      console.error('Error fetching group messages:', error);
+      console.error("Error fetching group messages:", error);
       throw error;
     }
   }
 
   // Send a message
-  async sendMessage(groupId: number, messageData: SendMessageRequest): Promise<{
+  async sendMessage(
+    groupId: number,
+    messageData: SendMessageRequest
+  ): Promise<{
     message: ChatMessage;
   }> {
     try {
       const headers = await this.getAuthHeaders();
-      const response = await fetch(`${API_BASE_URL}/chat/groups/${groupId}/messages`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(messageData),
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/chat/groups/${groupId}/messages`,
+        {
+          method: "POST",
+          headers,
+          body: JSON.stringify(messageData),
+        }
+      );
 
       return this.handleResponse(response);
     } catch (error) {
-      console.error('Error sending message:', error);
+      console.error("Error sending message:", error);
       throw error;
     }
   }
 
   // React to a message
-  async reactToMessage(messageId: number, reactionType: string): Promise<{
+  async reactToMessage(
+    messageId: number,
+    reactionType: string
+  ): Promise<{
     reaction: MessageReaction;
   }> {
     try {
       const headers = await this.getAuthHeaders();
-      const response = await fetch(`${API_BASE_URL}/chat/messages/${messageId}/react`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ reaction_type: reactionType }),
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/chat/messages/${messageId}/react`,
+        {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ reaction_type: reactionType }),
+        }
+      );
 
       return this.handleResponse(response);
     } catch (error) {
-      console.error('Error reacting to message:', error);
+      console.error("Error reacting to message:", error);
       throw error;
     }
   }

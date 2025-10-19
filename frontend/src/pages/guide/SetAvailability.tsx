@@ -1,90 +1,194 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import Button from '../../components/Button';
-import Card from '../../components/Card';
-import ConfirmDialog from '../../components/ConfirmDialog';
-import SuccessMessage from '../../components/SuccessMessage';
-import '../../styles/pages/guide/_setAvailability.scss';
+import React, { useState, useEffect, useMemo } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import Button from "../../components/Button";
+import Card from "../../components/Card";
+import ConfirmDialog from "../../components/ConfirmDialog";
+import SuccessMessage from "../../components/SuccessMessage";
+import "../../styles/pages/guide/_setAvailability.scss";
 import type {
   Service as ApiService,
   ServiceAvailability as ApiAvailability,
-  CreateAvailabilityRequest
-} from '../../services/servicesService';
+  CreateAvailabilityRequest,
+} from "../../services/servicesService";
 import {
   getMyServices,
   getServiceAvailability,
   createAvailability,
   createBulkAvailability,
   updateAvailability,
-  deleteAvailability
-} from '../../services/servicesService';
+  deleteAvailability,
+} from "../../services/servicesService";
 
 // Icons
-const ArrowLeftIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
-  <svg className={className} width="16" height="16" viewBox="0 0 20 20" fill="none">
-    <path d="M12.5 15l-5-5 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-);
-
-const ArrowRightIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
-  <svg className={className} width="16" height="16" viewBox="0 0 20 20" fill="none">
-    <path d="M7.5 5l5 5-5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+const ArrowLeftIcon: React.FC<{ className?: string }> = ({
+  className = "",
+}) => (
+  <svg
+    className={className}
+    width="16"
+    height="16"
+    viewBox="0 0 20 20"
+    fill="none"
+  >
+    <path
+      d="M12.5 15l-5-5 5-5"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
   </svg>
 );
 
 const CalendarIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
-  <svg className={className} width="16" height="16" viewBox="0 0 24 24" fill="none">
-    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="currentColor" strokeWidth="2"/>
-    <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" strokeWidth="2"/>
-    <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" strokeWidth="2"/>
-    <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" strokeWidth="2"/>
+  <svg
+    className={className}
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+  >
+    <rect
+      x="3"
+      y="4"
+      width="18"
+      height="18"
+      rx="2"
+      ry="2"
+      stroke="currentColor"
+      strokeWidth="2"
+    />
+    <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" strokeWidth="2" />
+    <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" strokeWidth="2" />
+    <line
+      x1="3"
+      y1="10"
+      x2="21"
+      y2="10"
+      stroke="currentColor"
+      strokeWidth="2"
+    />
   </svg>
 );
 
 const ClockIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
-  <svg className={className} width="16" height="16" viewBox="0 0 24 24" fill="none">
-    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
-    <polyline points="12,6 12,12 16,14" stroke="currentColor" strokeWidth="2"/>
+  <svg
+    className={className}
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+  >
+    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
+    <polyline points="12,6 12,12 16,14" stroke="currentColor" strokeWidth="2" />
   </svg>
 );
 
 const UsersIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
-  <svg className={className} width="16" height="16" viewBox="0 0 24 24" fill="none">
-    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" stroke="currentColor" strokeWidth="2"/>
-    <circle cx="12" cy="7" r="4" stroke="currentColor" strokeWidth="2"/>
+  <svg
+    className={className}
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+  >
+    <path
+      d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"
+      stroke="currentColor"
+      strokeWidth="2"
+    />
+    <circle cx="12" cy="7" r="4" stroke="currentColor" strokeWidth="2" />
   </svg>
 );
 
 const PlusIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
-  <svg className={className} width="16" height="16" viewBox="0 0 24 24" fill="none">
-    <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+  <svg
+    className={className}
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+  >
+    <path
+      d="M12 5v14M5 12h14"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
   </svg>
 );
 
 const DeleteIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
-  <svg className={className} width="16" height="16" viewBox="0 0 24 24" fill="none">
-    <polyline points="3,6 5,6 21,6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+  <svg
+    className={className}
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+  >
+    <polyline
+      points="3,6 5,6 21,6"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
   </svg>
 );
 
 const EditIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
-  <svg className={className} width="16" height="16" viewBox="0 0 24 24" fill="none">
-    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="currentColor" strokeWidth="2"/>
-    <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" strokeWidth="2"/>
+  <svg
+    className={className}
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+  >
+    <path
+      d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"
+      stroke="currentColor"
+      strokeWidth="2"
+    />
+    <path
+      d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"
+      stroke="currentColor"
+      strokeWidth="2"
+    />
   </svg>
 );
 
 const SaveIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
-  <svg className={className} width="16" height="16" viewBox="0 0 24 24" fill="none">
-    <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" stroke="currentColor" strokeWidth="2"/>
-    <polyline points="17,21 17,13 7,13 7,21" stroke="currentColor" strokeWidth="2"/>
-    <polyline points="7,3 7,8 15,8" stroke="currentColor" strokeWidth="2"/>
+  <svg
+    className={className}
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+  >
+    <path
+      d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"
+      stroke="currentColor"
+      strokeWidth="2"
+    />
+    <polyline
+      points="17,21 17,13 7,13 7,21"
+      stroke="currentColor"
+      strokeWidth="2"
+    />
+    <polyline points="7,3 7,8 15,8" stroke="currentColor" strokeWidth="2" />
   </svg>
 );
 
 // Interfaces - extending API types
-interface Service extends Omit<ApiService, 'id' | 'media' | 'availability'> {
+interface Service extends Omit<ApiService, "id" | "media" | "availability"> {
   id: string; // Convert to string for UI compatibility
 }
 
@@ -98,9 +202,9 @@ interface AvailabilitySlot {
   bookedCount: number;
   price?: number;
   isRecurring?: boolean;
-  recurringPattern?: 'weekly' | 'monthly';
+  recurringPattern?: "weekly" | "monthly";
   recurringEndDate?: string;
-  status: 'active' | 'inactive' | 'full';
+  status: "active" | "inactive" | "full";
   notes?: string;
   created_at?: string | Date;
   updated_at?: string | Date;
@@ -111,22 +215,24 @@ interface AvailabilitySlot {
 const transformApiService = (apiService: ApiService): Service => {
   return {
     ...apiService,
-    id: apiService.id.toString()
+    id: apiService.id.toString(),
   };
 };
 
 // Transform API availability to local format
-const transformApiAvailability = (apiAvail: ApiAvailability): AvailabilitySlot => {
+const transformApiAvailability = (
+  apiAvail: ApiAvailability
+): AvailabilitySlot => {
   // Extract time from DateTime string (e.g., "2025-07-05T19:00:00.000Z" -> "19:00")
   const extractTime = (dateTimeStr: string): string => {
-    if (!dateTimeStr) return '';
+    if (!dateTimeStr) return "";
     try {
       const date = new Date(dateTimeStr);
-      const hours = String(date.getUTCHours()).padStart(2, '0');
-      const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+      const hours = String(date.getUTCHours()).padStart(2, "0");
+      const minutes = String(date.getUTCMinutes()).padStart(2, "0");
       return `${hours}:${minutes}`;
     } catch (err) {
-      console.error('Error extracting time:', err);
+      console.error("Error extracting time:", err);
       return dateTimeStr; // Return original if parsing fails
     }
   };
@@ -134,57 +240,67 @@ const transformApiAvailability = (apiAvail: ApiAvailability): AvailabilitySlot =
   return {
     id: apiAvail.id.toString(),
     serviceId: apiAvail.service_id.toString(),
-    date: typeof apiAvail.available_date === 'string' ? apiAvail.available_date.split('T')[0] : new Date(apiAvail.available_date).toISOString().split('T')[0],
+    date:
+      typeof apiAvail.available_date === "string"
+        ? apiAvail.available_date.split("T")[0]
+        : new Date(apiAvail.available_date).toISOString().split("T")[0],
     startTime: extractTime(apiAvail.start_time),
     endTime: extractTime(apiAvail.end_time),
     capacity: apiAvail.slots_available,
     bookedCount: apiAvail.slots_booked || 0,
-    status: apiAvail.status === 'available' ? 'active' : (apiAvail.slots_booked >= apiAvail.slots_available ? 'full' : 'inactive'),
+    status:
+      apiAvail.status === "available"
+        ? "active"
+        : apiAvail.slots_booked >= apiAvail.slots_available
+        ? "full"
+        : "inactive",
     created_at: apiAvail.created_at,
     updated_at: apiAvail.updated_at,
-    slots_booked: apiAvail.slots_booked
+    slots_booked: apiAvail.slots_booked,
   };
 };
 
 const SetAvailability: React.FC = () => {
   const navigate = useNavigate();
   const { serviceId } = useParams<{ serviceId?: string }>();
-  
+
   // State
   const [services, setServices] = useState<Service[]>([]);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
-  const [availabilitySlots, setAvailabilitySlots] = useState<AvailabilitySlot[]>([]);
+  const [availabilitySlots, setAvailabilitySlots] = useState<
+    AvailabilitySlot[]
+  >([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingSlot, setEditingSlot] = useState<AvailabilitySlot | null>(null);
-  const [selectedDate, setSelectedDate] = useState('');
+  const [selectedDate, setSelectedDate] = useState("");
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Message states
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteSlotId, setDeleteSlotId] = useState<string | null>(null);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
-  const [successMessageText, setSuccessMessageText] = useState('');
+  const [successMessageText, setSuccessMessageText] = useState("");
   const [showErrorMessage, setShowErrorMessage] = useState(false);
-  const [errorMessageText, setErrorMessageText] = useState('');
-  
+  const [errorMessageText, setErrorMessageText] = useState("");
+
   // Form data
   const [formData, setFormData] = useState({
-    date: '',
-    startTime: '',
-    endTime: '',
+    date: "",
+    startTime: "",
+    endTime: "",
     capacity: 1,
     price: 0,
     isRecurring: false,
-    recurringPattern: 'weekly' as 'weekly' | 'monthly',
-    recurringEndDate: '',
-    notes: '',
+    recurringPattern: "weekly" as "weekly" | "monthly",
+    recurringEndDate: "",
+    notes: "",
     // New fields for date series
     isDateSeries: false,
-    seriesStartDate: '',
-    seriesEndDate: '',
-    seriesDays: [] as string[] // ['monday', 'tuesday', etc.]
+    seriesStartDate: "",
+    seriesEndDate: "",
+    seriesDays: [] as string[], // ['monday', 'tuesday', etc.]
   });
 
   // Fetch services and availability on mount
@@ -193,29 +309,39 @@ const SetAvailability: React.FC = () => {
       try {
         setLoading(true);
         setError(null);
-        
+
         // Fetch services
         const servicesResponse = await getMyServices({});
-        const transformedServices = servicesResponse.services.map(transformApiService);
+        const transformedServices =
+          servicesResponse.services.map(transformApiService);
         setServices(transformedServices);
-        
+
         // If serviceId is provided, select and fetch availability for that service
         if (serviceId) {
-          const service = transformedServices.find(s => s.id === serviceId);
+          const service = transformedServices.find((s) => s.id === serviceId);
           if (service) {
             setSelectedService(service);
-            setFormData(prev => ({ ...prev, capacity: service.max_participants, price: service.price }));
-            
+            setFormData((prev) => ({
+              ...prev,
+              capacity: service.max_participants,
+              price: service.price,
+            }));
+
             // Fetch availability for the service
-            const availResponse = await getServiceAvailability(parseInt(serviceId), {});
-            console.log('Initial availability fetch:', availResponse); // Debug log
-            const transformedAvailability = availResponse.map(transformApiAvailability);
+            const availResponse = await getServiceAvailability(
+              parseInt(serviceId),
+              {}
+            );
+            console.log("Initial availability fetch:", availResponse); // Debug log
+            const transformedAvailability = availResponse.map(
+              transformApiAvailability
+            );
             setAvailabilitySlots(transformedAvailability);
           }
         }
       } catch (err) {
-        console.error('Error fetching data:', err);
-        setError(err instanceof Error ? err.message : 'Failed to load data');
+        console.error("Error fetching data:", err);
+        setError(err instanceof Error ? err.message : "Failed to load data");
       } finally {
         setLoading(false);
       }
@@ -236,8 +362,8 @@ const SetAvailability: React.FC = () => {
   // Format a Date object to 'YYYY-MM-DD' in local time to avoid timezone offsets
   const formatDate = (date: Date) => {
     const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
   };
 
@@ -252,8 +378,8 @@ const SetAvailability: React.FC = () => {
     const times: string[] = [];
     for (let h = 0; h < 24; h++) {
       for (let m = 0; m < 60; m += 30) {
-        const hour = String(h).padStart(2, '0');
-        const minute = String(m).padStart(2, '0');
+        const hour = String(h).padStart(2, "0");
+        const minute = String(m).padStart(2, "0");
         times.push(`${hour}:${minute}`);
       }
     }
@@ -265,9 +391,8 @@ const SetAvailability: React.FC = () => {
   };
 
   const hasAvailability = (date: string) => {
-    return availabilitySlots.some(slot => 
-      slot.date === date && 
-      slot.serviceId === selectedService?.id
+    return availabilitySlots.some(
+      (slot) => slot.date === date && slot.serviceId === selectedService?.id
     );
   };
 
@@ -276,16 +401,16 @@ const SetAvailability: React.FC = () => {
   const handleServiceSelect = (service: Service) => {
     // Select a new service and reset form state
     setSelectedService(service);
-    setFormData(prev => ({ 
-      ...prev, 
-      capacity: service.max_participants, 
-      price: service.price 
+    setFormData((prev) => ({
+      ...prev,
+      capacity: service.max_participants,
+      price: service.price,
     }));
     // Close any open form when changing service
     setIsFormOpen(false);
     setEditingSlot(null);
-    setSelectedDate('');
-    
+    setSelectedDate("");
+
     // Fetch availability for the new service
     fetchServiceAvailability(service.id);
   };
@@ -296,13 +421,17 @@ const SetAvailability: React.FC = () => {
       setLoading(true);
       // Fetch all availability slots for the service (no date filter to see all)
       const availResponse = await getServiceAvailability(parseInt(svcId), {});
-      console.log('Fetched availability:', availResponse); // Debug log
-      const transformedAvailability = availResponse.map(transformApiAvailability);
-      console.log('Transformed availability:', transformedAvailability); // Debug log
+      console.log("Fetched availability:", availResponse); // Debug log
+      const transformedAvailability = availResponse.map(
+        transformApiAvailability
+      );
+      console.log("Transformed availability:", transformedAvailability); // Debug log
       setAvailabilitySlots(transformedAvailability);
     } catch (err) {
-      console.error('Error fetching availability:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load availability');
+      console.error("Error fetching availability:", err);
+      setError(
+        err instanceof Error ? err.message : "Failed to load availability"
+      );
     } finally {
       setLoading(false);
     }
@@ -310,7 +439,7 @@ const SetAvailability: React.FC = () => {
 
   const handleDateSelect = (date: string) => {
     setSelectedDate(date);
-    setFormData(prev => ({ ...prev, date }));
+    setFormData((prev) => ({ ...prev, date }));
     setIsFormOpen(true);
   };
 
@@ -321,29 +450,33 @@ const SetAvailability: React.FC = () => {
     // Validation for date series
     if (formData.isDateSeries) {
       if (!formData.seriesStartDate || !formData.seriesEndDate) {
-        setErrorMessageText('Please select both start and end dates for the date series.');
+        setErrorMessageText(
+          "Please select both start and end dates for the date series."
+        );
         setShowErrorMessage(true);
         return;
       }
-      if (new Date(formData.seriesStartDate) > new Date(formData.seriesEndDate)) {
-        setErrorMessageText('End date must be after or equal to start date.');
+      if (
+        new Date(formData.seriesStartDate) > new Date(formData.seriesEndDate)
+      ) {
+        setErrorMessageText("End date must be after or equal to start date.");
         setShowErrorMessage(true);
         return;
       }
     } else if (!formData.date) {
-      setErrorMessageText('Please select a date.');
+      setErrorMessageText("Please select a date.");
       setShowErrorMessage(true);
       return;
     }
 
     // Validation for time
     if (!formData.startTime || !formData.endTime) {
-      setErrorMessageText('Please select both start and end times.');
+      setErrorMessageText("Please select both start and end times.");
       setShowErrorMessage(true);
       return;
     }
     if (formData.startTime >= formData.endTime) {
-      setErrorMessageText('End time must be after start time.');
+      setErrorMessageText("End time must be after start time.");
       setShowErrorMessage(true);
       return;
     }
@@ -357,34 +490,42 @@ const SetAvailability: React.FC = () => {
           date: formData.date,
           start_time: timeToDateTime(formData.date, formData.startTime),
           end_time: timeToDateTime(formData.date, formData.endTime),
-          slots_available: formData.capacity
+          slots_available: formData.capacity,
         });
-        
+
         const transformedUpdated = transformApiAvailability(updated);
-        setAvailabilitySlots(prev => prev.map(slot => 
-          slot.id === editingSlot.id ? transformedUpdated : slot
-        ));
-        
-        setSuccessMessageText('Availability updated successfully!');
+        setAvailabilitySlots((prev) =>
+          prev.map((slot) =>
+            slot.id === editingSlot.id ? transformedUpdated : slot
+          )
+        );
+
+        setSuccessMessageText("Availability updated successfully!");
         setShowSuccessMessage(true);
       } else {
         // Handle creating new slot(s)
         if (formData.isDateSeries) {
           // Generate multiple slots for date series
           const slotsToCreate = generateDateSeriesSlots();
-          const requestsData: CreateAvailabilityRequest[] = slotsToCreate.map(slot => ({
-            service_id: parseInt(selectedService.id),
-            date: slot.date,
-            start_time: timeToDateTime(slot.date, slot.startTime),
-            end_time: timeToDateTime(slot.date, slot.endTime),
-            slots_available: slot.capacity
-          }));
-          
+          const requestsData: CreateAvailabilityRequest[] = slotsToCreate.map(
+            (slot) => ({
+              service_id: parseInt(selectedService.id),
+              date: slot.date,
+              start_time: timeToDateTime(slot.date, slot.startTime),
+              end_time: timeToDateTime(slot.date, slot.endTime),
+              slots_available: slot.capacity,
+            })
+          );
+
           const createdSlots = await createBulkAvailability(requestsData);
           const transformedCreated = createdSlots.map(transformApiAvailability);
-          setAvailabilitySlots(prev => [...prev, ...transformedCreated]);
-          
-          setSuccessMessageText(`Successfully created ${createdSlots.length} availability slot${createdSlots.length > 1 ? 's' : ''}!`);
+          setAvailabilitySlots((prev) => [...prev, ...transformedCreated]);
+
+          setSuccessMessageText(
+            `Successfully created ${createdSlots.length} availability slot${
+              createdSlots.length > 1 ? "s" : ""
+            }!`
+          );
           setShowSuccessMessage(true);
         } else {
           // Single slot creation
@@ -393,21 +534,25 @@ const SetAvailability: React.FC = () => {
             date: formData.date,
             start_time: timeToDateTime(formData.date, formData.startTime),
             end_time: timeToDateTime(formData.date, formData.endTime),
-            slots_available: formData.capacity
+            slots_available: formData.capacity,
           });
-          
+
           const transformedCreated = transformApiAvailability(created);
-          setAvailabilitySlots(prev => [...prev, transformedCreated]);
-          
-          setSuccessMessageText('Availability created successfully!');
+          setAvailabilitySlots((prev) => [...prev, transformedCreated]);
+
+          setSuccessMessageText("Availability created successfully!");
           setShowSuccessMessage(true);
         }
       }
 
       handleFormReset();
     } catch (err) {
-      console.error('Error saving availability:', err);
-      setErrorMessageText(`Failed to save availability: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      console.error("Error saving availability:", err);
+      setErrorMessageText(
+        `Failed to save availability: ${
+          err instanceof Error ? err.message : "Unknown error"
+        }`
+      );
       setShowErrorMessage(true);
     } finally {
       setLoading(false);
@@ -416,7 +561,12 @@ const SetAvailability: React.FC = () => {
 
   // Generate slots for date series (returns local format, not saved to API yet)
   const generateDateSeriesSlots = (): AvailabilitySlot[] => {
-    if (!selectedService || !formData.seriesStartDate || !formData.seriesEndDate) return [];
+    if (
+      !selectedService ||
+      !formData.seriesStartDate ||
+      !formData.seriesEndDate
+    )
+      return [];
 
     const slots: AvailabilitySlot[] = [];
     const startDate = new Date(formData.seriesStartDate);
@@ -424,15 +574,33 @@ const SetAvailability: React.FC = () => {
     const selectedDays = formData.seriesDays;
 
     // If no specific days selected, use all days
-    const daysToInclude = selectedDays.length > 0 ? selectedDays : 
-      ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    const daysToInclude =
+      selectedDays.length > 0
+        ? selectedDays
+        : [
+            "sunday",
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+          ];
 
     const currentDate = new Date(startDate);
     let slotId = Date.now();
 
     while (currentDate <= endDate) {
-      const dayName = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][currentDate.getDay()];
-      
+      const dayName = [
+        "sunday",
+        "monday",
+        "tuesday",
+        "wednesday",
+        "thursday",
+        "friday",
+        "saturday",
+      ][currentDate.getDay()];
+
       if (daysToInclude.includes(dayName)) {
         const slot: AvailabilitySlot = {
           id: (slotId++).toString(),
@@ -443,15 +611,15 @@ const SetAvailability: React.FC = () => {
           capacity: formData.capacity,
           bookedCount: 0,
           price: formData.price || selectedService.price,
-          status: 'active',
+          status: "active",
           notes: formData.notes,
           created_at: new Date(),
           updated_at: new Date(),
-          slots_booked: 0
+          slots_booked: 0,
         };
         slots.push(slot);
       }
-      
+
       currentDate.setDate(currentDate.getDate() + 1);
     }
 
@@ -461,21 +629,21 @@ const SetAvailability: React.FC = () => {
   const handleFormReset = () => {
     setIsFormOpen(false);
     setEditingSlot(null);
-    setSelectedDate('');
+    setSelectedDate("");
     setFormData({
-      date: '',
-      startTime: '',
-      endTime: '',
+      date: "",
+      startTime: "",
+      endTime: "",
       capacity: selectedService?.max_participants || 1,
       price: selectedService?.price || 0,
       isRecurring: false,
-      recurringPattern: 'weekly',
-      recurringEndDate: '',
-      notes: '',
+      recurringPattern: "weekly",
+      recurringEndDate: "",
+      notes: "",
       isDateSeries: false,
-      seriesStartDate: '',
-      seriesEndDate: '',
-      seriesDays: []
+      seriesStartDate: "",
+      seriesEndDate: "",
+      seriesDays: [],
     });
   };
 
@@ -488,13 +656,13 @@ const SetAvailability: React.FC = () => {
       capacity: slot.capacity,
       price: slot.price || selectedService?.price || 0,
       isRecurring: slot.isRecurring || false,
-      recurringPattern: slot.recurringPattern || 'weekly',
-      recurringEndDate: slot.recurringEndDate || '',
-      notes: slot.notes || '',
+      recurringPattern: slot.recurringPattern || "weekly",
+      recurringEndDate: slot.recurringEndDate || "",
+      notes: slot.notes || "",
       isDateSeries: false,
-      seriesStartDate: '',
-      seriesEndDate: '',
-      seriesDays: []
+      seriesStartDate: "",
+      seriesEndDate: "",
+      seriesDays: [],
     });
     setIsFormOpen(true);
   };
@@ -506,20 +674,26 @@ const SetAvailability: React.FC = () => {
 
   const confirmDelete = async () => {
     if (!deleteSlotId) return;
-    
+
     try {
       setLoading(true);
       await deleteAvailability(parseInt(deleteSlotId));
-      setAvailabilitySlots(prev => prev.filter(slot => slot.id !== deleteSlotId));
+      setAvailabilitySlots((prev) =>
+        prev.filter((slot) => slot.id !== deleteSlotId)
+      );
       setShowDeleteConfirm(false);
       setDeleteSlotId(null);
-      setSuccessMessageText('Availability deleted successfully!');
+      setSuccessMessageText("Availability deleted successfully!");
       setShowSuccessMessage(true);
     } catch (err) {
-      console.error('Error deleting availability:', err);
+      console.error("Error deleting availability:", err);
       setShowDeleteConfirm(false);
       setDeleteSlotId(null);
-      setErrorMessageText(`Failed to delete availability: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      setErrorMessageText(
+        `Failed to delete availability: ${
+          err instanceof Error ? err.message : "Unknown error"
+        }`
+      );
       setShowErrorMessage(true);
     } finally {
       setLoading(false);
@@ -528,11 +702,11 @@ const SetAvailability: React.FC = () => {
 
   // Handle day selection for date series
   const handleDayToggle = (day: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       seriesDays: prev.seriesDays.includes(day)
-        ? prev.seriesDays.filter(d => d !== day)
-        : [...prev.seriesDays, day]
+        ? prev.seriesDays.filter((d) => d !== day)
+        : [...prev.seriesDays, day],
     }));
   };
 
@@ -549,7 +723,11 @@ const SetAvailability: React.FC = () => {
 
     // Current month's days
     for (let day = 1; day <= daysInMonth; day++) {
-      const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
+      const date = new Date(
+        currentMonth.getFullYear(),
+        currentMonth.getMonth(),
+        day
+      );
       const dateString = formatDate(date);
       const isDisabled = isDateDisabled(date);
       const hasAvail = hasAvailability(dateString);
@@ -558,8 +736,12 @@ const SetAvailability: React.FC = () => {
       days.push(
         <div
           key={day}
-          className={`calendar-day ${isDisabled ? 'disabled' : ''} ${hasAvail ? 'has-availability' : ''} ${isSelected ? 'selected' : ''}`}
-          onClick={() => !isDisabled && selectedService && handleDateSelect(dateString)}
+          className={`calendar-day ${isDisabled ? "disabled" : ""} ${
+            hasAvail ? "has-availability" : ""
+          } ${isSelected ? "selected" : ""}`}
+          onClick={() =>
+            !isDisabled && selectedService && handleDateSelect(dateString)
+          }
         >
           <span className="day-number">{day}</span>
           {hasAvail && <div className="availability-indicator"></div>}
@@ -573,17 +755,22 @@ const SetAvailability: React.FC = () => {
   // Get slots for selected service
   const serviceSlots = useMemo(() => {
     const slots = selectedService
-      ? availabilitySlots.filter(slot => slot.serviceId === selectedService.id)
-        .sort((a, b) => new Date(a.date + ' ' + a.startTime).getTime() - new Date(b.date + ' ' + b.startTime).getTime())
+      ? availabilitySlots
+          .filter((slot) => slot.serviceId === selectedService.id)
+          .sort(
+            (a, b) =>
+              new Date(a.date + " " + a.startTime).getTime() -
+              new Date(b.date + " " + b.startTime).getTime()
+          )
       : [];
-    
-    console.log('Service slots for display:', {
+
+    console.log("Service slots for display:", {
       selectedServiceId: selectedService?.id,
       totalAvailabilitySlots: availabilitySlots.length,
       filteredSlots: slots.length,
-      slots
+      slots,
     });
-    
+
     return slots;
   }, [availabilitySlots, selectedService]);
 
@@ -599,12 +786,12 @@ const SetAvailability: React.FC = () => {
                 size="medium"
                 icon={<ArrowLeftIcon />}
                 iconPosition="left"
-                onClick={() => navigate('/dashboard/services')}
+                onClick={() => navigate("/dashboard/services")}
               >
                 Back to Services
               </Button>
             </div>
-            
+
             <div className="title-section">
               <h1 className="page-title">Set Availability</h1>
               <p className="page-subtitle">
@@ -635,41 +822,49 @@ const SetAvailability: React.FC = () => {
 
         {/* Service Selection */}
         {!loading && !error && (
-        <Card className="service-selection" variant="elevated">
-          <div className="section-header">
-            <h2>Select Service</h2>
-            <p>Choose a service to manage its availability</p>
-          </div>
-          
-          <div className="services-grid">
-            {services.map(service => (
-              <Card
-                key={service.id}
-                className={`service-card ${selectedService?.id === service.id ? 'selected' : ''}`}
-                variant="outlined"
-                hover
-                clickable
-                onClick={() => handleServiceSelect(service)}
-              >
-                <div className="service-info">
-                  <h3 className="service-title">{service.title}</h3>
-                  <div className="service-details">
-                    <span className="service-category">{service.category}</span>
-                    <span className="service-duration">{service.duration}</span>
-                    <span className="service-price">Rs. {service.price.toLocaleString()}</span>
+          <Card className="service-selection" variant="elevated">
+            <div className="section-header">
+              <h2>Select Service</h2>
+              <p>Choose a service to manage its availability</p>
+            </div>
+
+            <div className="services-grid">
+              {services.map((service) => (
+                <Card
+                  key={service.id}
+                  className={`service-card ${
+                    selectedService?.id === service.id ? "selected" : ""
+                  }`}
+                  variant="outlined"
+                  hover
+                  clickable
+                  onClick={() => handleServiceSelect(service)}
+                >
+                  <div className="service-info">
+                    <h3 className="service-title">{service.title}</h3>
+                    <div className="service-details">
+                      <span className="service-category">
+                        {service.category}
+                      </span>
+                      <span className="service-duration">
+                        {service.duration}
+                      </span>
+                      <span className="service-price">
+                        Rs. {service.price.toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="service-capacity">
+                      <UsersIcon className="capacity-icon" />
+                      <span>Up to {service.max_participants} participants</span>
+                    </div>
                   </div>
-                  <div className="service-capacity">
-                    <UsersIcon className="capacity-icon" />
-                    <span>Up to {service.max_participants} participants</span>
-                  </div>
-                </div>
-                {selectedService?.id === service.id && (
-                  <div className="selected-indicator">✓</div>
-                )}
-              </Card>
-            ))}
-          </div>
-        </Card>
+                  {selectedService?.id === service.id && (
+                    <div className="selected-indicator">✓</div>
+                  )}
+                </Card>
+              ))}
+            </div>
+          </Card>
         )}
 
         {!loading && !error && selectedService && (
@@ -695,7 +890,10 @@ const SetAvailability: React.FC = () => {
                 <div className="empty-state">
                   <CalendarIcon className="empty-icon" />
                   <h4>No availability set</h4>
-                  <p>Click on a date in the calendar or use the "Add New Slot" button to create your first availability slot.</p>
+                  <p>
+                    Click on a date in the calendar or use the "Add New Slot"
+                    button to create your first availability slot.
+                  </p>
                 </div>
               ) : (
                 <div className="availability-table">
@@ -706,19 +904,19 @@ const SetAvailability: React.FC = () => {
                     <div className="header-cell">Status</div>
                     <div className="header-cell">Actions</div>
                   </div>
-                  
+
                   <div className="table-body">
-                    {serviceSlots.map(slot => (
+                    {serviceSlots.map((slot) => (
                       <div key={slot.id} className="table-row">
                         <div className="table-cell date-time">
                           <div className="date-time-content">
                             <div className="date">
                               <CalendarIcon className="date-icon" />
-                              {new Date(slot.date).toLocaleDateString('en-US', { 
-                                weekday: 'short', 
-                                month: 'short', 
-                                day: 'numeric',
-                                year: 'numeric'
+                              {new Date(slot.date).toLocaleDateString("en-US", {
+                                weekday: "short",
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
                               })}
                             </div>
                             <div className="time">
@@ -727,25 +925,33 @@ const SetAvailability: React.FC = () => {
                             </div>
                           </div>
                         </div>
-                        
+
                         <div className="table-cell capacity">
                           <div className="capacity-content">
                             <UsersIcon className="capacity-icon" />
-                            <span>{slot.bookedCount}/{slot.capacity}</span>
+                            <span>
+                              {slot.bookedCount}/{slot.capacity}
+                            </span>
                           </div>
                         </div>
-                        
+
                         <div className="table-cell price">
-                          Rs. {(slot.price || selectedService.price).toLocaleString()}
+                          Rs.{" "}
+                          {(
+                            slot.price || selectedService.price
+                          ).toLocaleString()}
                         </div>
-                        
+
                         <div className="table-cell status">
                           <span className={`status-badge ${slot.status}`}>
-                            {slot.status === 'active' ? 'Available' : 
-                             slot.status === 'full' ? 'Full' : 'Inactive'}
+                            {slot.status === "active"
+                              ? "Available"
+                              : slot.status === "full"
+                              ? "Full"
+                              : "Inactive"}
                           </span>
                         </div>
-                        
+
                         <div className="table-cell actions">
                           <div className="action-buttons">
                             <Button
@@ -781,11 +987,14 @@ const SetAvailability: React.FC = () => {
                   <Card className="availability-form-card" variant="elevated">
                     <div className="form-header">
                       <h3>
-                        {editingSlot ? 'Edit Availability' : 'Add Availability'}
+                        {editingSlot ? "Edit Availability" : "Add Availability"}
                       </h3>
                     </div>
                     {/* Availability Form */}
-                    <form onSubmit={handleFormSubmit} className="availability-form">
+                    <form
+                      onSubmit={handleFormSubmit}
+                      className="availability-form"
+                    >
                       {/* Availability Form Fields */}
                       <div className="form-grid">
                         {!formData.isDateSeries && (
@@ -795,7 +1004,12 @@ const SetAvailability: React.FC = () => {
                               id="date"
                               type="date"
                               value={formData.date}
-                              onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
+                              onChange={(e) =>
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  date: e.target.value,
+                                }))
+                              }
                               className="form-input"
                               required={!formData.isDateSeries}
                             />
@@ -807,13 +1021,20 @@ const SetAvailability: React.FC = () => {
                           <select
                             id="startTime"
                             value={formData.startTime}
-                            onChange={(e) => setFormData(prev => ({ ...prev, startTime: e.target.value }))}
+                            onChange={(e) =>
+                              setFormData((prev) => ({
+                                ...prev,
+                                startTime: e.target.value,
+                              }))
+                            }
                             className="form-select"
                             required
                           >
                             <option value="">Select start time</option>
-                            {generateTimeOptions().map(time => (
-                              <option key={time} value={time}>{time}</option>
+                            {generateTimeOptions().map((time) => (
+                              <option key={time} value={time}>
+                                {time}
+                              </option>
                             ))}
                           </select>
                         </div>
@@ -823,13 +1044,20 @@ const SetAvailability: React.FC = () => {
                           <select
                             id="endTime"
                             value={formData.endTime}
-                            onChange={(e) => setFormData(prev => ({ ...prev, endTime: e.target.value }))}
+                            onChange={(e) =>
+                              setFormData((prev) => ({
+                                ...prev,
+                                endTime: e.target.value,
+                              }))
+                            }
                             className="form-select"
                             required
                           >
                             <option value="">Select end time</option>
-                            {generateTimeOptions().map(time => (
-                              <option key={time} value={time}>{time}</option>
+                            {generateTimeOptions().map((time) => (
+                              <option key={time} value={time}>
+                                {time}
+                              </option>
                             ))}
                           </select>
                         </div>
@@ -840,7 +1068,12 @@ const SetAvailability: React.FC = () => {
                             id="capacity"
                             type="number"
                             value={formData.capacity}
-                            onChange={(e) => setFormData(prev => ({ ...prev, capacity: parseInt(e.target.value) }))}
+                            onChange={(e) =>
+                              setFormData((prev) => ({
+                                ...prev,
+                                capacity: parseInt(e.target.value),
+                              }))
+                            }
                             className="form-input"
                             min="1"
                             max={selectedService.max_participants}
@@ -854,7 +1087,12 @@ const SetAvailability: React.FC = () => {
                             id="price"
                             type="number"
                             value={formData.price}
-                            onChange={(e) => setFormData(prev => ({ ...prev, price: parseFloat(e.target.value) }))}
+                            onChange={(e) =>
+                              setFormData((prev) => ({
+                                ...prev,
+                                price: parseFloat(e.target.value),
+                              }))
+                            }
                             className="form-input"
                             min="0"
                             step="100"
@@ -867,7 +1105,12 @@ const SetAvailability: React.FC = () => {
                           <textarea
                             id="notes"
                             value={formData.notes}
-                            onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+                            onChange={(e) =>
+                              setFormData((prev) => ({
+                                ...prev,
+                                notes: e.target.value,
+                              }))
+                            }
                             className="form-textarea"
                             rows={3}
                             placeholder="Special instructions, requirements, etc."
@@ -879,7 +1122,13 @@ const SetAvailability: React.FC = () => {
                             <input
                               type="checkbox"
                               checked={formData.isRecurring}
-                              onChange={(e) => setFormData(prev => ({ ...prev, isRecurring: e.target.checked, isDateSeries: false }))}
+                              onChange={(e) =>
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  isRecurring: e.target.checked,
+                                  isDateSeries: false,
+                                }))
+                              }
                               disabled={formData.isDateSeries}
                             />
                             <span>Recurring Availability</span>
@@ -891,24 +1140,40 @@ const SetAvailability: React.FC = () => {
                             <input
                               type="checkbox"
                               checked={formData.isDateSeries}
-                              onChange={(e) => setFormData(prev => ({ ...prev, isDateSeries: e.target.checked, isRecurring: false }))}
+                              onChange={(e) =>
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  isDateSeries: e.target.checked,
+                                  isRecurring: false,
+                                }))
+                              }
                               disabled={formData.isRecurring}
                             />
                             <span>Create Multiple Sessions (Date Range)</span>
                           </label>
                           <p className="form-help-text">
-                            Create multiple availability slots across a date range with the same time and settings.
+                            Create multiple availability slots across a date
+                            range with the same time and settings.
                           </p>
                         </div>
 
                         {formData.isRecurring && (
                           <>
                             <div className="form-group">
-                              <label htmlFor="recurringPattern">Repeat Every</label>
+                              <label htmlFor="recurringPattern">
+                                Repeat Every
+                              </label>
                               <select
                                 id="recurringPattern"
                                 value={formData.recurringPattern}
-                                onChange={(e) => setFormData(prev => ({ ...prev, recurringPattern: e.target.value as 'weekly' | 'monthly' }))}
+                                onChange={(e) =>
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    recurringPattern: e.target.value as
+                                      | "weekly"
+                                      | "monthly",
+                                  }))
+                                }
                                 className="form-select"
                               >
                                 <option value="weekly">Week</option>
@@ -922,7 +1187,12 @@ const SetAvailability: React.FC = () => {
                                 id="recurringEndDate"
                                 type="date"
                                 value={formData.recurringEndDate}
-                                onChange={(e) => setFormData(prev => ({ ...prev, recurringEndDate: e.target.value }))}
+                                onChange={(e) =>
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    recurringEndDate: e.target.value,
+                                  }))
+                                }
                                 className="form-input"
                                 min={formData.date}
                               />
@@ -933,14 +1203,21 @@ const SetAvailability: React.FC = () => {
                         {formData.isDateSeries && (
                           <>
                             <div className="form-group">
-                              <label htmlFor="seriesStartDate">Start Date</label>
+                              <label htmlFor="seriesStartDate">
+                                Start Date
+                              </label>
                               <input
                                 id="seriesStartDate"
                                 type="date"
                                 value={formData.seriesStartDate}
-                                onChange={(e) => setFormData(prev => ({ ...prev, seriesStartDate: e.target.value }))}
+                                onChange={(e) =>
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    seriesStartDate: e.target.value,
+                                  }))
+                                }
                                 className="form-input"
-                                min={new Date().toISOString().split('T')[0]}
+                                min={new Date().toISOString().split("T")[0]}
                                 required
                               />
                             </div>
@@ -951,31 +1228,54 @@ const SetAvailability: React.FC = () => {
                                 id="seriesEndDate"
                                 type="date"
                                 value={formData.seriesEndDate}
-                                onChange={(e) => setFormData(prev => ({ ...prev, seriesEndDate: e.target.value }))}
+                                onChange={(e) =>
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    seriesEndDate: e.target.value,
+                                  }))
+                                }
                                 className="form-input"
-                                min={formData.seriesStartDate || new Date().toISOString().split('T')[0]}
+                                min={
+                                  formData.seriesStartDate ||
+                                  new Date().toISOString().split("T")[0]
+                                }
                                 required
                               />
                             </div>
 
                             <div className="form-group full-width">
-                              <label>Days of the Week (Optional - leave blank for all days)</label>
+                              <label>
+                                Days of the Week (Optional - leave blank for all
+                                days)
+                              </label>
                               <div className="days-selector">
-                                {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map(day => (
+                                {[
+                                  "monday",
+                                  "tuesday",
+                                  "wednesday",
+                                  "thursday",
+                                  "friday",
+                                  "saturday",
+                                  "sunday",
+                                ].map((day) => (
                                   <label key={day} className="day-checkbox">
                                     <input
                                       type="checkbox"
-                                      checked={formData.seriesDays.includes(day)}
+                                      checked={formData.seriesDays.includes(
+                                        day
+                                      )}
                                       onChange={() => handleDayToggle(day)}
                                     />
                                     <span className="day-label">
-                                      {day.charAt(0).toUpperCase() + day.slice(1, 3)}
+                                      {day.charAt(0).toUpperCase() +
+                                        day.slice(1, 3)}
                                     </span>
                                   </label>
                                 ))}
                               </div>
                               <p className="form-help-text">
-                                Select specific days or leave blank to include all days in the date range.
+                                Select specific days or leave blank to include
+                                all days in the date range.
                               </p>
                             </div>
                           </>
@@ -996,9 +1296,12 @@ const SetAvailability: React.FC = () => {
                           icon={<SaveIcon />}
                           iconPosition="left"
                         >
-                          {editingSlot ? 'Update' : 
-                           formData.isDateSeries ? 'Create Sessions' : 
-                           'Add'} Availability
+                          {editingSlot
+                            ? "Update"
+                            : formData.isDateSeries
+                            ? "Create Sessions"
+                            : "Add"}{" "}
+                          Availability
                         </Button>
                       </div>
                     </form>
@@ -1016,31 +1319,54 @@ const SetAvailability: React.FC = () => {
                           <Button
                             variant="secondary"
                             size="small"
-                            onClick={() => setCurrentMonth(prev => new Date(prev.getFullYear(), prev.getMonth() - 1))}
+                            onClick={() =>
+                              setCurrentMonth(
+                                (prev) =>
+                                  new Date(
+                                    prev.getFullYear(),
+                                    prev.getMonth() - 1
+                                  )
+                              )
+                            }
                           >
                             ‹
                           </Button>
                           <span className="current-month">
-                            {currentMonth.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                            {currentMonth.toLocaleDateString("en-US", {
+                              month: "short",
+                              year: "numeric",
+                            })}
                           </span>
                           <Button
                             variant="secondary"
                             size="small"
-                            onClick={() => setCurrentMonth(prev => new Date(prev.getFullYear(), prev.getMonth() + 1))}
+                            onClick={() =>
+                              setCurrentMonth(
+                                (prev) =>
+                                  new Date(
+                                    prev.getFullYear(),
+                                    prev.getMonth() + 1
+                                  )
+                              )
+                            }
                           >
                             ›
                           </Button>
                         </div>
                       </div>
-                      
+
                       {/* Calendar Grid */}
                       <div className="calendar">
                         <div className="calendar-weekdays">
-                          {['S','M','T','W','T','F','S'].map((day, idx) => <div key={`${day}-${idx}`} className="weekday">{day}</div>)}
+                          {["S", "M", "T", "W", "T", "F", "S"].map(
+                            (day, idx) => (
+                              <div key={`${day}-${idx}`} className="weekday">
+                                {day}
+                              </div>
+                            )
+                          )}
                         </div>
-                        <div className="calendar-days">
-                          {renderCalendar()}
-                        </div>
+                        <div className="calendar-days">{renderCalendar()}</div>
                       </div>
 
                       <div className="calendar-legend">

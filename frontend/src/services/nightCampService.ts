@@ -1,6 +1,7 @@
-import { auth } from '../firebase';
+import { auth } from "../firebase";
+import { API_CONFIG } from "../config/api.config";
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = API_CONFIG.API_BASE_URL;
 
 export interface NightCamp {
   id: number;
@@ -29,7 +30,7 @@ export interface NightCampActivity {
 export interface NightCampEquipment {
   id: number;
   night_camp_id: number;
-  category: 'provided' | 'required' | 'optional';
+  category: "provided" | "required" | "optional";
   equipment_name: string;
   created_at: string;
 }
@@ -59,7 +60,7 @@ export interface VolunteeringApplication {
   emergency_contact_name?: string;
   emergency_contact_phone?: string;
   emergency_contact_relationship?: string;
-  status: 'pending' | 'approved' | 'rejected';
+  status: "pending" | "approved" | "rejected";
   application_date: string;
   reviewed_by?: number;
   reviewed_at?: string;
@@ -98,7 +99,7 @@ export interface NightCampRegistration {
   id: number;
   camp_id: number;
   user_id: number;
-  status: 'confirmed' | 'cancelled' | 'waitlisted' | 'pending';
+  status: "confirmed" | "cancelled" | "waitlisted" | "pending";
   registered_date: string;
   registered_time: string;
   created_at: string;
@@ -124,7 +125,7 @@ export interface PendingRegistration {
   user_name: string;
   email: string;
   registration_date: string;
-  status: 'pending';
+  status: "pending";
 }
 
 export interface VolunteerManagementData {
@@ -161,7 +162,7 @@ class NightCampService {
     try {
       return await user.getIdToken();
     } catch (error) {
-      console.error('Error getting auth token:', error);
+      console.error("Error getting auth token:", error);
       return null;
     }
   }
@@ -173,15 +174,15 @@ class NightCampService {
     console.log(`📡 Night Camp API Request: ${endpoint}`);
 
     const token = await this.getAuthToken();
-    console.log(`🔑 Auth token: ${token ? 'Present' : 'Missing'}`);
+    console.log(`🔑 Auth token: ${token ? "Present" : "Missing"}`);
 
     const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       ...(options.headers as Record<string, string>),
     };
 
     if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
+      headers["Authorization"] = `Bearer ${token}`;
     }
 
     try {
@@ -194,17 +195,18 @@ class NightCampService {
       console.log(`📨 Response status: ${response.status}`);
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Network error' }));
-        console.error('❌ API Error:', errorData);
+        const errorData = await response
+          .json()
+          .catch(() => ({ error: "Network error" }));
+        console.error("❌ API Error:", errorData);
         throw new Error(errorData.error || `HTTP ${response.status}`);
       }
 
       const data = await response.json();
-      console.log('✅ API Success:', data);
+      console.log("✅ API Success:", data);
       return data;
-
     } catch (error) {
-      console.error('❌ Network/Parse Error:', error);
+      console.error("❌ Network/Parse Error:", error);
       throw error;
     }
   }
@@ -212,10 +214,12 @@ class NightCampService {
   // Get all night camps
   async getAllNightCamps(): Promise<NightCampWithDetails[]> {
     try {
-      const response = await this.makeRequest<{ data: NightCampWithDetails[] }>('/nightcamps');
+      const response = await this.makeRequest<{ data: NightCampWithDetails[] }>(
+        "/nightcamps"
+      );
       return response.data || [];
     } catch (error) {
-      console.error('Error fetching night camps:', error);
+      console.error("Error fetching night camps:", error);
       throw error;
     }
   }
@@ -223,24 +227,31 @@ class NightCampService {
   // Get night camp by ID
   async getNightCampById(id: number): Promise<NightCampWithDetails | null> {
     try {
-      const response = await this.makeRequest<{ data: NightCampWithDetails }>(`/nightcamps/${id}`);
+      const response = await this.makeRequest<{ data: NightCampWithDetails }>(
+        `/nightcamps/${id}`
+      );
       return response.data || null;
     } catch (error) {
-      console.error('Error fetching night camp:', error);
+      console.error("Error fetching night camp:", error);
       throw error;
     }
   }
 
   // Apply for volunteering role
-  async applyForVolunteering(applicationData: CreateVolunteeringApplicationRequest): Promise<VolunteeringApplication> {
+  async applyForVolunteering(
+    applicationData: CreateVolunteeringApplicationRequest
+  ): Promise<VolunteeringApplication> {
     try {
-      const response = await this.makeRequest<{ data: VolunteeringApplication, message: string }>('/nightcamps/volunteering/apply', {
-        method: 'POST',
+      const response = await this.makeRequest<{
+        data: VolunteeringApplication;
+        message: string;
+      }>("/nightcamps/volunteering/apply", {
+        method: "POST",
         body: JSON.stringify(applicationData),
       });
       return response.data;
     } catch (error) {
-      console.error('Error submitting volunteering application:', error);
+      console.error("Error submitting volunteering application:", error);
       throw error;
     }
   }
@@ -248,63 +259,70 @@ class NightCampService {
   // Get user's volunteering applications
   async getUserVolunteeringApplications(): Promise<VolunteeringApplication[]> {
     try {
-      const response = await this.makeRequest<{ data: VolunteeringApplication[] }>('/nightcamps/volunteering/my-applications');
+      const response = await this.makeRequest<{
+        data: VolunteeringApplication[];
+      }>("/nightcamps/volunteering/my-applications");
       return response.data || [];
     } catch (error) {
-      console.error('Error fetching user volunteering applications:', error);
+      console.error("Error fetching user volunteering applications:", error);
       throw error;
     }
   }
 
   // Update user's volunteering application
   async updateUserVolunteeringApplication(
-    applicationId: number, 
+    applicationId: number,
     updateData: UpdateVolunteeringApplicationRequest
   ): Promise<VolunteeringApplication> {
     try {
-      const response = await this.makeRequest<{ data: VolunteeringApplication }>(
-        `/nightcamps/volunteering/my-applications/${applicationId}`,
-        {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(updateData),
-        }
-      );
+      const response = await this.makeRequest<{
+        data: VolunteeringApplication;
+      }>(`/nightcamps/volunteering/my-applications/${applicationId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updateData),
+      });
       return response.data;
     } catch (error) {
-      console.error('Error updating volunteering application:', error);
+      console.error("Error updating volunteering application:", error);
       throw error;
     }
   }
 
   // Get volunteering roles for a night camp
-  async getVolunteeringRoles(nightCampId: number): Promise<NightCampVolunteering[]> {
+  async getVolunteeringRoles(
+    nightCampId: number
+  ): Promise<NightCampVolunteering[]> {
     try {
-      const response = await this.makeRequest<{ data: NightCampVolunteering[] }>(`/nightcamps/${nightCampId}/volunteering`);
+      const response = await this.makeRequest<{
+        data: NightCampVolunteering[];
+      }>(`/nightcamps/${nightCampId}/volunteering`);
       return response.data || [];
     } catch (error) {
-      console.error('Error fetching volunteering roles:', error);
+      console.error("Error fetching volunteering roles:", error);
       throw error;
     }
   }
 
   // Register for night camp
-  async registerForNightCamp(nightCampId: number): Promise<NightCampRegistration> {
+  async registerForNightCamp(
+    nightCampId: number
+  ): Promise<NightCampRegistration> {
     try {
       const response = await this.makeRequest<{ data: NightCampRegistration }>(
         `/nightcamps/${nightCampId}/register`,
         {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
         }
       );
       return response.data;
     } catch (error) {
-      console.error('Error registering for night camp:', error);
+      console.error("Error registering for night camp:", error);
       throw error;
     }
   }
@@ -312,71 +330,86 @@ class NightCampService {
   // Get user's night camp registrations
   async getUserRegistrations(): Promise<NightCampRegistration[]> {
     try {
-      const response = await this.makeRequest<{ data: NightCampRegistration[] }>('/nightcamps/registrations/my-registrations');
+      const response = await this.makeRequest<{
+        data: NightCampRegistration[];
+      }>("/nightcamps/registrations/my-registrations");
       return response.data || [];
     } catch (error) {
-      console.error('Error fetching user registrations:', error);
+      console.error("Error fetching user registrations:", error);
       throw error;
     }
   }
 
   // Get volunteer management data for a night camp
-  async getVolunteerManagement(nightCampId: number): Promise<VolunteerManagementData> {
+  async getVolunteerManagement(
+    nightCampId: number
+  ): Promise<VolunteerManagementData> {
     try {
-      const response = await this.makeRequest<{ data: VolunteerManagementData }>(`/nightcamps/${nightCampId}/volunteer-management`);
+      const response = await this.makeRequest<{
+        data: VolunteerManagementData;
+      }>(`/nightcamps/${nightCampId}/volunteer-management`);
       return response.data;
     } catch (error) {
-      console.error('Error fetching volunteer management data:', error);
+      console.error("Error fetching volunteer management data:", error);
       throw error;
     }
   }
 
   // Get confirmed registration count for a night camp (public endpoint)
-  async getConfirmedRegistrationCount(nightCampId: number): Promise<ConfirmedRegistrationCount> {
+  async getConfirmedRegistrationCount(
+    nightCampId: number
+  ): Promise<ConfirmedRegistrationCount> {
     try {
-      const response = await this.makeRequest<{ data: ConfirmedRegistrationCount }>(`/nightcamps/${nightCampId}/confirmed-count`);
+      const response = await this.makeRequest<{
+        data: ConfirmedRegistrationCount;
+      }>(`/nightcamps/${nightCampId}/confirmed-count`);
       return response.data;
     } catch (error) {
-      console.error('Error fetching confirmed registration count:', error);
+      console.error("Error fetching confirmed registration count:", error);
       throw error;
     }
   }
 
   // Approve a registration by volunteer
-  async approveRegistrationByVolunteer(registrationId: number): Promise<{ message: string }> {
+  async approveRegistrationByVolunteer(
+    registrationId: number
+  ): Promise<{ message: string }> {
     try {
       const response = await this.makeRequest<{ message: string }>(
         `/nightcamps/volunteer/registrations/${registrationId}/approve`,
         {
-          method: 'PUT',
+          method: "PUT",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
         }
       );
       return response;
     } catch (error) {
-      console.error('Error approving registration:', error);
+      console.error("Error approving registration:", error);
       throw error;
     }
   }
 
   // Reject a registration by volunteer
-  async rejectRegistrationByVolunteer(registrationId: number, reason?: string): Promise<{ message: string }> {
+  async rejectRegistrationByVolunteer(
+    registrationId: number,
+    reason?: string
+  ): Promise<{ message: string }> {
     try {
       const response = await this.makeRequest<{ message: string }>(
         `/nightcamps/volunteer/registrations/${registrationId}/reject`,
         {
-          method: 'PUT',
+          method: "PUT",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({ reason }),
         }
       );
       return response;
     } catch (error) {
-      console.error('Error rejecting registration:', error);
+      console.error("Error rejecting registration:", error);
       throw error;
     }
   }

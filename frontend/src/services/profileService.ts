@@ -1,81 +1,81 @@
-import { auth } from '../firebase';
+import { auth } from "../firebase";
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = "http://localhost:5000/api";
 
 interface ProfileData {
-    id?: number;
-    firebase_uid?: string;
-    email?: string;
-    first_name?: string;
-    last_name?: string;
-    display_name?: string;
-    role?: string;
-    is_active?: boolean;
-    created_at?: string;
-    last_login?: string;
-    profile_data?: {
-        profile_picture?: string;
-        bio?: string;
-        location?: string;
-        website?: string;
-        github?: string;
-        linkedin?: string;
-        astronomy_experience?: 'beginner' | 'intermediate' | 'advanced' | 'expert';
-        favorite_astronomy_fields?: string[];
-        telescope_owned?: boolean;
-        telescope_type?: string;
-        observation_experience?: number;
-        certifications?: string[];
-        achievements?: string[];
-        contributions?: string[];
-        joined_communities?: string[];
-    };
-    role_specific_data?: {
-        // For mentors/guides
-        mentoring_areas?: string[];
-        years_of_experience?: number;
-        // For influencers
-        social_media_followers?: number;
-        content_platforms?: string[];
-        // For learners/enthusiasts
-        learning_goals?: string[];
-        current_projects?: string[];
-    };
+  id?: number;
+  firebase_uid?: string;
+  email?: string;
+  first_name?: string;
+  last_name?: string;
+  display_name?: string;
+  role?: string;
+  is_active?: boolean;
+  created_at?: string;
+  last_login?: string;
+  profile_data?: {
+    profile_picture?: string;
+    bio?: string;
+    location?: string;
+    website?: string;
+    github?: string;
+    linkedin?: string;
+    astronomy_experience?: "beginner" | "intermediate" | "advanced" | "expert";
+    favorite_astronomy_fields?: string[];
+    telescope_owned?: boolean;
+    telescope_type?: string;
+    observation_experience?: number;
+    certifications?: string[];
+    achievements?: string[];
+    contributions?: string[];
+    joined_communities?: string[];
+  };
+  role_specific_data?: {
+    // For mentors/guides
+    mentoring_areas?: string[];
+    years_of_experience?: number;
+    // For influencers
+    social_media_followers?: number;
+    content_platforms?: string[];
+    // For learners/enthusiasts
+    learning_goals?: string[];
+    current_projects?: string[];
+  };
 }
 
 interface SettingsData {
-    language: string;
-    email_notifications: boolean;
-    push_notifications: boolean;
-    profile_visibility: 'public' | 'private' | 'community-only';
-    allow_direct_messages: boolean;
-    show_online_status: boolean;
-    theme?: string;
-    timezone?: string;
+  language: string;
+  email_notifications: boolean;
+  push_notifications: boolean;
+  profile_visibility: "public" | "private" | "community-only";
+  allow_direct_messages: boolean;
+  show_online_status: boolean;
+  theme?: string;
+  timezone?: string;
 }
 
 interface PasswordChangeData {
-    current_password: string;
-    new_password: string;
+  current_password: string;
+  new_password: string;
 }
 
 interface RoleUpgradeRequest {
-    requested_role: string;
-    reason: string;
-    supporting_evidence: string[];
+  requested_role: string;
+  reason: string;
+  supporting_evidence: string[];
 }
 
 interface AccountDeletionData {
-    confirmation: string;
-    password: string;
+  confirmation: string;
+  password: string;
 }
 
 interface ApiResponse<T> {
-    success: boolean;
-    data?: T;
-    message?: string;
-    error?: string;
-    details?: Record<string, unknown>;
+  success: boolean;
+  data?: T;
+  message?: string;
+  error?: string;
+  details?: Record<string, unknown>;
 }
 
 /**
@@ -83,377 +83,426 @@ interface ApiResponse<T> {
  * Handles all profile-related API calls with proper error handling
  */
 class ProfileService {
-    private async getAuthToken(forceRefresh = false): Promise<string | null> {
-        const user = auth.currentUser;
-        if (!user) return null;
+  private async getAuthToken(forceRefresh = false): Promise<string | null> {
+    const user = auth.currentUser;
+    if (!user) return null;
 
-        try {
-            return await user.getIdToken(forceRefresh);
-        } catch (error) {
-            console.error('Error getting auth token:', error);
-            return null;
-        }
+    try {
+      return await user.getIdToken(forceRefresh);
+    } catch (error) {
+      console.error("Error getting auth token:", error);
+      return null;
+    }
+  }
+
+  private async makeRequest<T>(
+    endpoint: string,
+    options: RequestInit = {},
+    retry = true
+  ): Promise<ApiResponse<T>> {
+    console.log(`📡 Profile API Request: ${endpoint}`);
+
+    let token = await this.getAuthToken();
+
+    if (!token) {
+      console.error("❌ No authentication token available");
+      return {
+        success: false,
+        error: "authentication_required",
+        message: "User must be logged in to access this resource",
+      };
     }
 
-    private async makeRequest<T>(
-        endpoint: string,
-        options: RequestInit = {},
-        retry = true
-    ): Promise<ApiResponse<T>> {
-        console.log(`📡 Profile API Request: ${endpoint}`);
+    const buildHeaders = (tokenValue: string) => ({
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${tokenValue}`,
+      ...(options.headers as Record<string, string>),
+    });
 
-        let token = await this.getAuthToken();
+    let headers = buildHeaders(token);
 
-        if (!token) {
-            console.error('❌ No authentication token available');
+    try {
+      console.log(`🚀 Making request to: ${API_BASE_URL}${endpoint}`);
+      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+        ...options,
+        headers,
+      });
+
+      console.log(`📨 Response status: ${response.status}`);
+
+      // Handle token expiration with retry
+      if (response.status === 401 && retry) {
+        console.warn("🔄 Token expired or invalid, refreshing and retrying...");
+        token = await this.getAuthToken(true); // Force refresh
+        if (token) {
+          headers = buildHeaders(token);
+          const retryResponse = await fetch(`${API_BASE_URL}${endpoint}`, {
+            ...options,
+            headers,
+          });
+
+          console.log(`📨 Retry response status: ${retryResponse.status}`);
+
+          if (retryResponse.status === 401) {
             return {
-                success: false,
-                error: 'authentication_required',
-                message: 'User must be logged in to access this resource'
+              success: false,
+              error: "authentication_failed",
+              message: "Authentication failed after token refresh",
             };
+          }
+
+          let retryData;
+          try {
+            retryData = await retryResponse.json();
+          } catch {
+            retryData = null;
+          }
+
+          return {
+            success: retryResponse.ok,
+            data: retryData,
+            error: retryResponse.ok
+              ? undefined
+              : retryData?.error || "request_failed",
+            message: retryData?.message,
+          };
+        } else {
+          return {
+            success: false,
+            error: "token_refresh_failed",
+            message: "Could not refresh authentication token",
+          };
+        }
+      }
+
+      let data;
+      const contentType = response.headers.get("content-type");
+
+      try {
+        // Try to parse as JSON first
+        data = await response.json();
+      } catch {
+        // If JSON parsing fails, get as text
+        const textResponse = await response.text();
+        console.error(`❌ Non-JSON response received:`, textResponse);
+
+        // Handle common authentication errors
+        if (
+          textResponse.includes("Invalid token") ||
+          textResponse.includes("Unauthorized")
+        ) {
+          return {
+            success: false,
+            error: "authentication_error",
+            message:
+              "Authentication token is invalid or expired. Please log in again.",
+          };
         }
 
-        const buildHeaders = (tokenValue: string) => ({
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${tokenValue}`,
-            ...(options.headers as Record<string, string>),
-        });
+        // Handle other non-JSON responses
+        return {
+          success: false,
+          error: "invalid_response",
+          message: `Server returned non-JSON response: ${textResponse}`,
+          details: {
+            status: response.status,
+            contentType: contentType,
+            rawResponse: textResponse,
+          },
+        };
+      }
 
-        let headers = buildHeaders(token);
+      if (!response.ok) {
+        console.error(`❌ API Error ${response.status}:`, data);
+        return {
+          success: false,
+          error: data.error || "api_error",
+          message: data.message || `HTTP ${response.status}`,
+          details: data.details,
+        };
+      }
 
-        try {
-            console.log(`🚀 Making request to: ${API_BASE_URL}${endpoint}`);
-            const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-                ...options,
-                headers,
-            });
+      console.log(`✅ Profile API Response:`, data);
+      return data;
+    } catch (error) {
+      console.error(`❌ Request failed:`, error);
+      return {
+        success: false,
+        error: "network_error",
+        message:
+          error instanceof Error ? error.message : "Network error occurred",
+      };
+    }
+  }
 
-            console.log(`📨 Response status: ${response.status}`);
+  private async makeFileUploadRequest<T>(
+    endpoint: string,
+    formData: FormData,
+    retry = true
+  ): Promise<ApiResponse<T>> {
+    console.log(`📡 Profile File Upload: ${endpoint}`);
 
-            // Handle token expiration with retry
-            if (response.status === 401 && retry) {
-                console.warn('🔄 Token expired or invalid, refreshing and retrying...');
-                token = await this.getAuthToken(true); // Force refresh
-                if (token) {
-                    headers = buildHeaders(token);
-                    const retryResponse = await fetch(`${API_BASE_URL}${endpoint}`, {
-                        ...options,
-                        headers,
-                    });
-                    
-                    console.log(`📨 Retry response status: ${retryResponse.status}`);
-                    
-                    if (retryResponse.status === 401) {
-                        return {
-                            success: false,
-                            error: 'authentication_failed',
-                            message: 'Authentication failed after token refresh'
-                        };
-                    }
-                    
-                    let retryData;
-                    try {
-                        retryData = await retryResponse.json();
-                    } catch (e) {
-                        retryData = null;
-                    }
+    let token = await this.getAuthToken();
 
-                    return {
-                        success: retryResponse.ok,
-                        data: retryData,
-                        error: retryResponse.ok ? undefined : retryData?.error || 'request_failed',
-                        message: retryData?.message
-                    };
-                } else {
-                    return {
-                        success: false,
-                        error: 'token_refresh_failed',
-                        message: 'Could not refresh authentication token'
-                    };
-                }
-            }
+    if (!token) {
+      console.error("❌ No authentication token available for file upload");
+      return {
+        success: false,
+        error: "authentication_required",
+        message: "User must be logged in to upload files",
+      };
+    }
 
-            let data;
-            const contentType = response.headers.get('content-type');
+    const buildHeaders = (tokenValue: string) => ({
+      Authorization: `Bearer ${tokenValue}`,
+      // Don't set Content-Type for FormData, let browser set it with boundary
+    });
 
-            try {
-                // Try to parse as JSON first
-                data = await response.json();
-            } catch {
-                // If JSON parsing fails, get as text
-                const textResponse = await response.text();
-                console.error(`❌ Non-JSON response received:`, textResponse);
+    let headers = buildHeaders(token);
 
-                // Handle common authentication errors
-                if (textResponse.includes('Invalid token') || textResponse.includes('Unauthorized')) {
-                    return {
-                        success: false,
-                        error: 'authentication_error',
-                        message: 'Authentication token is invalid or expired. Please log in again.'
-                    };
-                }
+    try {
+      console.log(`🚀 Making file upload to: ${API_BASE_URL}${endpoint}`);
+      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+        method: "POST",
+        headers,
+        body: formData,
+      });
 
-                // Handle other non-JSON responses
-                return {
-                    success: false,
-                    error: 'invalid_response',
-                    message: `Server returned non-JSON response: ${textResponse}`,
-                    details: {
-                        status: response.status,
-                        contentType: contentType,
-                        rawResponse: textResponse
-                    }
-                };
-            }
+      console.log(`📨 Upload response status: ${response.status}`);
 
-            if (!response.ok) {
-                console.error(`❌ API Error ${response.status}:`, data);
-                return {
-                    success: false,
-                    error: data.error || 'api_error',
-                    message: data.message || `HTTP ${response.status}`,
-                    details: data.details
-                };
-            }
+      // Handle token expiration with retry
+      if (response.status === 401 && retry) {
+        console.warn(
+          "🔄 Token expired or invalid during upload, refreshing and retrying..."
+        );
+        token = await this.getAuthToken(true); // Force refresh
+        if (token) {
+          headers = buildHeaders(token);
+          const retryResponse = await fetch(`${API_BASE_URL}${endpoint}`, {
+            method: "POST",
+            headers,
+            body: formData,
+          });
 
-            console.log(`✅ Profile API Response:`, data);
-            return data;
-        } catch (error) {
-            console.error(`❌ Request failed:`, error);
+          console.log(
+            `📨 Upload retry response status: ${retryResponse.status}`
+          );
+
+          if (retryResponse.status === 401) {
             return {
-                success: false,
-                error: 'network_error',
-                message: error instanceof Error ? error.message : 'Network error occurred'
+              success: false,
+              error: "authentication_failed",
+              message: "Authentication failed after token refresh",
             };
-        }
-    }
+          }
 
-    private async makeFileUploadRequest<T>(
-        endpoint: string,
-        formData: FormData,
-        retry = true
-    ): Promise<ApiResponse<T>> {
-        console.log(`📡 Profile File Upload: ${endpoint}`);
-
-        let token = await this.getAuthToken();
-
-        if (!token) {
-            console.error('❌ No authentication token available for file upload');
+          let retryData;
+          try {
+            retryData = await retryResponse.json();
+          } catch {
+            const textResponse = await retryResponse.text();
             return {
-                success: false,
-                error: 'authentication_required',
-                message: 'User must be logged in to upload files'
+              success: false,
+              error: "invalid_response",
+              message: `Server returned non-JSON response: ${textResponse}`,
             };
+          }
+
+          return {
+            success: retryResponse.ok,
+            data: retryData,
+            error: retryResponse.ok
+              ? undefined
+              : retryData?.error || "request_failed",
+            message: retryData?.message,
+          };
+        } else {
+          return {
+            success: false,
+            error: "token_refresh_failed",
+            message: "Could not refresh authentication token",
+          };
+        }
+      }
+
+      let data;
+      const contentType = response.headers.get("content-type");
+
+      try {
+        // Try to parse as JSON first
+        data = await response.json();
+      } catch {
+        // If JSON parsing fails, get as text
+        const textResponse = await response.text();
+        console.error(`❌ Non-JSON upload response:`, textResponse);
+
+        // Handle common authentication errors
+        if (
+          textResponse.includes("Invalid token") ||
+          textResponse.includes("Unauthorized")
+        ) {
+          return {
+            success: false,
+            error: "authentication_error",
+            message:
+              "Authentication token is invalid or expired. Please log in again.",
+          };
         }
 
-        const buildHeaders = (tokenValue: string) => ({
-            'Authorization': `Bearer ${tokenValue}`,
-            // Don't set Content-Type for FormData, let browser set it with boundary
-        });
+        // Handle other non-JSON responses
+        return {
+          success: false,
+          error: "invalid_response",
+          message: `Server returned non-JSON response: ${textResponse}`,
+          details: {
+            status: response.status,
+            contentType: contentType,
+            rawResponse: textResponse,
+          },
+        };
+      }
 
-        let headers = buildHeaders(token);
+      if (!response.ok) {
+        console.error(`❌ Upload Error ${response.status}:`, data);
+        return {
+          success: false,
+          error: data.error || "upload_error",
+          message:
+            data.message || `Upload failed with status ${response.status}`,
+          details: data.details,
+        };
+      }
 
-        try {
-            console.log(`🚀 Making file upload to: ${API_BASE_URL}${endpoint}`);
-            const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-                method: 'POST',
-                headers,
-                body: formData,
-            });
-
-            console.log(`📨 Upload response status: ${response.status}`);
-
-            // Handle token expiration with retry
-            if (response.status === 401 && retry) {
-                console.warn('🔄 Token expired or invalid during upload, refreshing and retrying...');
-                token = await this.getAuthToken(true); // Force refresh
-                if (token) {
-                    headers = buildHeaders(token);
-                    const retryResponse = await fetch(`${API_BASE_URL}${endpoint}`, {
-                        method: 'POST',
-                        headers,
-                        body: formData,
-                    });
-                    
-                    console.log(`📨 Upload retry response status: ${retryResponse.status}`);
-                    
-                    if (retryResponse.status === 401) {
-                        return {
-                            success: false,
-                            error: 'authentication_failed',
-                            message: 'Authentication failed after token refresh'
-                        };
-                    }
-                    
-                    let retryData;
-                    try {
-                        retryData = await retryResponse.json();
-                    } catch {
-                        const textResponse = await retryResponse.text();
-                        return {
-                            success: false,
-                            error: 'invalid_response',
-                            message: `Server returned non-JSON response: ${textResponse}`
-                        };
-                    }
-
-                    return {
-                        success: retryResponse.ok,
-                        data: retryData,
-                        error: retryResponse.ok ? undefined : retryData?.error || 'request_failed',
-                        message: retryData?.message
-                    };
-                } else {
-                    return {
-                        success: false,
-                        error: 'token_refresh_failed',
-                        message: 'Could not refresh authentication token'
-                    };
-                }
-            }
-
-            let data;
-            const contentType = response.headers.get('content-type');
-
-            try {
-                // Try to parse as JSON first
-                data = await response.json();
-            } catch {
-                // If JSON parsing fails, get as text
-                const textResponse = await response.text();
-                console.error(`❌ Non-JSON upload response:`, textResponse);
-
-                // Handle common authentication errors
-                if (textResponse.includes('Invalid token') || textResponse.includes('Unauthorized')) {
-                    return {
-                        success: false,
-                        error: 'authentication_error',
-                        message: 'Authentication token is invalid or expired. Please log in again.'
-                    };
-                }
-
-                // Handle other non-JSON responses
-                return {
-                    success: false,
-                    error: 'invalid_response',
-                    message: `Server returned non-JSON response: ${textResponse}`,
-                    details: {
-                        status: response.status,
-                        contentType: contentType,
-                        rawResponse: textResponse
-                    }
-                };
-            }
-
-            if (!response.ok) {
-                console.error(`❌ Upload Error ${response.status}:`, data);
-                return {
-                    success: false,
-                    error: data.error || 'upload_error',
-                    message: data.message || `Upload failed with status ${response.status}`,
-                    details: data.details
-                };
-            }
-
-            console.log(`✅ Upload success:`, data);
-            return data;
-        } catch (error) {
-            console.error(`❌ Upload failed:`, error);
-            return {
-                success: false,
-                error: 'network_error',
-                message: error instanceof Error ? error.message : 'Upload network error occurred'
-            };
-        }
+      console.log(`✅ Upload success:`, data);
+      return data;
+    } catch (error) {
+      console.error(`❌ Upload failed:`, error);
+      return {
+        success: false,
+        error: "network_error",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Upload network error occurred",
+      };
     }
+  }
 
-    // Profile Management
-    async getUserProfile(): Promise<ApiResponse<ProfileData>> {
-        return this.makeRequest<ProfileData>('/user/profile');
-    }
+  // Profile Management
+  async getUserProfile(): Promise<ApiResponse<ProfileData>> {
+    return this.makeRequest<ProfileData>("/user/profile");
+  }
 
-    async updateUserProfile(profileData: Partial<ProfileData>): Promise<ApiResponse<ProfileData>> {
-        return this.makeRequest<ProfileData>('/user/profile', {
-            method: 'PUT',
-            body: JSON.stringify(profileData),
-        });
-    }
+  async updateUserProfile(
+    profileData: Partial<ProfileData>
+  ): Promise<ApiResponse<ProfileData>> {
+    return this.makeRequest<ProfileData>("/user/profile", {
+      method: "PUT",
+      body: JSON.stringify(profileData),
+    });
+  }
 
-    async uploadProfilePicture(file: File): Promise<ApiResponse<{ profile_picture_url: string }>> {
-        const formData = new FormData();
-        formData.append('avatar', file);
+  async uploadProfilePicture(
+    file: File
+  ): Promise<ApiResponse<{ profile_picture_url: string }>> {
+    const formData = new FormData();
+    formData.append("avatar", file);
 
-        return this.makeFileUploadRequest<{ profile_picture_url: string }>('/user/profile/avatar', formData);
-    }
+    return this.makeFileUploadRequest<{ profile_picture_url: string }>(
+      "/user/profile/avatar",
+      formData
+    );
+  }
 
-    // Settings Management
-    async getUserSettings(): Promise<ApiResponse<SettingsData>> {
-        return this.makeRequest<SettingsData>('/user/settings');
-    }
+  // Settings Management
+  async getUserSettings(): Promise<ApiResponse<SettingsData>> {
+    return this.makeRequest<SettingsData>("/user/settings");
+  }
 
-    async updateUserSettings(settings: Partial<SettingsData>): Promise<ApiResponse<SettingsData>> {
-        return this.makeRequest<SettingsData>('/user/settings', {
-            method: 'PUT',
-            body: JSON.stringify(settings),
-        });
-    }
+  async updateUserSettings(
+    settings: Partial<SettingsData>
+  ): Promise<ApiResponse<SettingsData>> {
+    return this.makeRequest<SettingsData>("/user/settings", {
+      method: "PUT",
+      body: JSON.stringify(settings),
+    });
+  }
 
-    // Security Operations
-    async changePassword(passwordData: PasswordChangeData): Promise<ApiResponse<void>> {
-        return this.makeRequest<void>('/user/password', {
-            method: 'PUT',
-            body: JSON.stringify(passwordData),
-        });
-    }
+  // Security Operations
+  async changePassword(
+    passwordData: PasswordChangeData
+  ): Promise<ApiResponse<void>> {
+    return this.makeRequest<void>("/user/password", {
+      method: "PUT",
+      body: JSON.stringify(passwordData),
+    });
+  }
 
-    async deleteAccount(deletionData: AccountDeletionData): Promise<ApiResponse<void>> {
-        return this.makeRequest<void>('/user/account', {
-            method: 'DELETE',
-            body: JSON.stringify(deletionData),
-        });
-    }
+  async deleteAccount(
+    deletionData: AccountDeletionData
+  ): Promise<ApiResponse<void>> {
+    return this.makeRequest<void>("/user/account", {
+      method: "DELETE",
+      body: JSON.stringify(deletionData),
+    });
+  }
 
-    async exportUserData(): Promise<ApiResponse<{ download_url: string; expires_at: string }>> {
-        return this.makeRequest<{ download_url: string; expires_at: string }>('/user/data-export');
-    }
+  async exportUserData(): Promise<
+    ApiResponse<{ download_url: string; expires_at: string }>
+  > {
+    return this.makeRequest<{ download_url: string; expires_at: string }>(
+      "/user/data-export"
+    );
+  }
 
-    // Role Management
-    async requestRoleUpgrade(upgradeData: RoleUpgradeRequest): Promise<ApiResponse<{
+  // Role Management
+  async requestRoleUpgrade(upgradeData: RoleUpgradeRequest): Promise<
+    ApiResponse<{
+      request_id: number;
+      status: string;
+      submitted_at: string;
+    }>
+  > {
+    return this.makeRequest<{
+      request_id: number;
+      status: string;
+      submitted_at: string;
+    }>("/user/role-upgrade", {
+      method: "POST",
+      body: JSON.stringify(upgradeData),
+    });
+  }
+
+  async getRoleUpgradeStatus(): Promise<
+    ApiResponse<{
+      current_requests: Array<{
         request_id: number;
+        requested_role: string;
         status: string;
         submitted_at: string;
-    }>> {
-        return this.makeRequest<{
-            request_id: number;
-            status: string;
-            submitted_at: string;
-        }>('/user/role-upgrade', {
-            method: 'POST',
-            body: JSON.stringify(upgradeData),
-        });
-    }
-
-    async getRoleUpgradeStatus(): Promise<ApiResponse<{
-        current_requests: Array<{
-            request_id: number;
-            requested_role: string;
-            status: string;
-            submitted_at: string;
-            reviewed_at?: string;
-            reviewer_notes?: string;
-        }>;
-        request_history: Array<{
-            request_id: number;
-            requested_role: string;
-            status: string;
-            submitted_at: string;
-            reviewed_at?: string;
-            reviewer_notes?: string;
-        }>;
-    }>> {
-        return this.makeRequest('/user/role-upgrade/status');
-    }
+        reviewed_at?: string;
+        reviewer_notes?: string;
+      }>;
+      request_history: Array<{
+        request_id: number;
+        requested_role: string;
+        status: string;
+        submitted_at: string;
+        reviewed_at?: string;
+        reviewer_notes?: string;
+      }>;
+    }>
+  > {
+    return this.makeRequest("/user/role-upgrade/status");
+  }
 }
 
 export const profileService = new ProfileService();
-export type { ProfileData, SettingsData, PasswordChangeData, RoleUpgradeRequest, AccountDeletionData, ApiResponse };
+export type {
+  ProfileData,
+  SettingsData,
+  PasswordChangeData,
+  RoleUpgradeRequest,
+  AccountDeletionData,
+  ApiResponse,
+};

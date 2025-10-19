@@ -283,6 +283,10 @@
 
     .session-status-container {
       flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
     }
   }
 
@@ -478,6 +482,8 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .session-status {
@@ -529,7 +535,7 @@
     animation: livePulse 2s infinite;
   }
 
-  &.scheduled {
+  &.recorded {
     background: linear-gradient(135deg, #6366f1, #4f46e5);
     color: white;
     box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
@@ -547,7 +553,7 @@
     }
   }
 
-  &.recorded {
+  &.scheduled{
     background: linear-gradient(135deg, #f59e0b, #d97706);
     color: white;
     box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
@@ -581,6 +587,56 @@
       transform: translateY(0);
       box-shadow: 0 2px 10px rgba(124, 58, 237, 0.3);
     }
+  }
+}
+
+// Approval status badges
+.approval-status {
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+  margin-left: 0.5rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &.pending {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+    border: 1px solid rgba(245, 158, 11, 0.5);
+    animation: pendingPulse 2s infinite;
+  }
+
+  &.approved {
+    background: linear-gradient(135deg, #059669, #047857);
+    color: white;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    border: 1px solid rgba(16, 185, 129, 0.5);
+  }
+
+  &.rejected {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    color: white;
+    box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
+    border: 1px solid rgba(220, 38, 38, 0.5);
+  }
+}
+
+@keyframes pendingPulse {
+  0% {
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+    opacity: 0.9;
+  }
+  50% {
+    box-shadow: 0 4px 20px rgba(245, 158, 11, 0.5);
+    opacity: 1;
+  }
+  100% {
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+    opacity: 0.9;
   }
 }
 
@@ -1126,6 +1182,80 @@ input:checked + .toggle-slider:before {
         grid-template-columns: 1fr;
       }
 
+      .pie-chart-container {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2rem;
+
+        .pie-chart {
+          width: 100%;
+          max-width: 300px;
+          height: auto;
+          filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.2));
+
+          .pie-slice {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            
+            &:hover {
+              opacity: 0.8;
+              transform: scale(1.05);
+              transform-origin: center;
+              filter: brightness(1.2);
+            }
+          }
+        }
+
+        .pie-chart-legend {
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          gap: 0.75rem;
+
+          .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            transition: all 0.2s ease;
+
+            &:hover {
+              background: rgba(255, 255, 255, 0.08);
+              transform: translateX(4px);
+            }
+
+            .legend-color {
+              width: 16px;
+              height: 16px;
+              border-radius: 4px;
+              flex-shrink: 0;
+            }
+
+            .legend-text {
+              flex: 1;
+              font-size: 0.9rem;
+              color: var(--text-primary);
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+            }
+
+            .legend-value {
+              font-size: 0.85rem;
+              font-weight: 600;
+              color: var(--text-secondary);
+              flex-shrink: 0;
+            }
+          }
+        }
+      }
+
       .interactive-chart {
         height: 300px;
         background: rgba(255, 255, 255, 0.05);
@@ -1242,6 +1372,7 @@ input:checked + .toggle-slider:before {
             font-weight: 600;
             color: var(--text-primary);
             margin: 0.5rem 0;
+            text-align: center;
           }
 
           .metric-label {
@@ -2187,11 +2318,14 @@ input:checked + .toggle-slider:before {
         margin-top: 1rem;
         padding: 0 10px;
         color: var(--text-secondary);
-        font-size: 0.85rem;
+        font-size: 0.75rem;
 
         span {
           flex: 1;
           text-align: center;
+          word-break: break-word;
+          line-height: 1.2;
+          max-width: 80px;
         }
       }
     }
@@ -2401,3 +2535,546 @@ input:checked + .toggle-slider:before {
     }
   }
 }
+// Polls Section Styles
+.polls-section {
+  .create-poll-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+
+    h3 {
+      color: $text-color;
+      margin-bottom: 0.5rem;
+    }
+
+    .section-description {
+      color: rgba(255, 255, 255, 0.6);
+      margin-bottom: 1.5rem;
+      font-size: 0.9rem;
+    }
+
+    form {
+      .form-group {
+        margin-bottom: 1.5rem;
+
+        label {
+          display: block;
+          color: $text-color;
+          margin-bottom: 0.5rem;
+          font-weight: 500;
+
+          .required {
+            color: #ff4444;
+          }
+        }
+
+        input, textarea {
+          width: 100%;
+          padding: 0.75rem;
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 8px;
+          color: $text-color;
+          font-size: 1rem;
+
+          &:focus {
+            outline: none;
+            border-color: $primary-color;
+            background: rgba(255, 255, 255, 0.08);
+          }
+        }
+
+        textarea {
+          resize: vertical;
+          min-height: 80px;
+        }
+      }
+
+      .form-actions {
+        display: flex;
+        justify-content: flex-end;
+      }
+    }
+  }
+
+  .polls-list-section {
+    h3 {
+      color: $text-color;
+      margin-bottom: 1.5rem;
+    }
+
+    .loading-state, .error-state, .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: rgba(255, 255, 255, 0.6);
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+    }
+
+    .error-state {
+      color: #ff6b6b;
+    }
+
+    .polls-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .poll-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: all 0.3s ease;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        border-color: rgba(255, 255, 255, 0.2);
+      }
+
+      &.closed {
+        opacity: 0.7;
+        background: rgba(255, 255, 255, 0.03);
+      }
+
+      .poll-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+        gap: 1rem;
+
+        h4 {
+          color: $text-color;
+          margin: 0;
+          flex: 1;
+        }
+
+        .poll-status-badges {
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+          align-items: flex-end;
+        }
+
+        .poll-status {
+          padding: 0.25rem 0.75rem;
+          border-radius: 20px;
+          font-size: 0.85rem;
+          white-space: nowrap;
+
+          &.active {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+          }
+
+          &.closed {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+          }
+        }
+
+        .moderation-status {
+          padding: 0.25rem 0.75rem;
+          border-radius: 20px;
+          font-size: 0.75rem;
+          font-weight: 600;
+          white-space: nowrap;
+
+          &.pending {
+            background: rgba(255, 165, 0, 0.2);
+            color: #FFA500;
+            border: 1px solid rgba(255, 165, 0, 0.4);
+          }
+
+          &.approved {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+            border: 1px solid rgba(76, 175, 80, 0.4);
+          }
+
+          &.rejected {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+            border: 1px solid rgba(244, 67, 54, 0.4);
+          }
+        }
+      }
+
+      .poll-description {
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+      }
+
+      .poll-meta {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.6);
+      }
+
+      .poll-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+      }
+    }
+  }
+
+  .poll-details-modal {
+    max-width: 600px;
+    width: 90%;
+
+    .modal-body {
+      h4 {
+        color: $text-color;
+        margin-bottom: 0.5rem;
+      }
+
+      .poll-description {
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 1.5rem;
+      }
+
+      .poll-results {
+        .total-votes {
+          text-align: center;
+          padding: 1rem;
+          background: rgba(255, 255, 255, 0.05);
+          border-radius: 8px;
+          margin-bottom: 1.5rem;
+          color: $text-color;
+          font-size: 1.1rem;
+        }
+
+        .vote-breakdown {
+          display: flex;
+          flex-direction: column;
+          gap: 1.5rem;
+          margin-bottom: 1.5rem;
+
+          .vote-option {
+            .vote-label {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 0.5rem;
+              color: $text-color;
+
+              .vote-count {
+                color: rgba(255, 255, 255, 0.6);
+                font-size: 0.9rem;
+              }
+            }
+
+            .vote-bar {
+              height: 32px;
+              background: rgba(255, 255, 255, 0.1);
+              border-radius: 16px;
+              overflow: hidden;
+              margin-bottom: 0.5rem;
+
+              .vote-fill {
+                height: 100%;
+                border-radius: 16px;
+                transition: width 0.5s ease;
+
+                &.yes-fill {
+                  background: linear-gradient(90deg, #4caf50, #66bb6a);
+                }
+
+                &.maybe-fill {
+                  background: linear-gradient(90deg, #ff9800, #ffa726);
+                }
+
+                &.no-fill {
+                  background: linear-gradient(90deg, #f44336, #ef5350);
+                }
+              }
+            }
+
+            .vote-percentage {
+              color: rgba(255, 255, 255, 0.8);
+              font-size: 0.9rem;
+              font-weight: 600;
+            }
+          }
+        }
+
+        .poll-info {
+          padding-top: 1.5rem;
+          border-top: 1px solid rgba(255, 255, 255, 0.1);
+          color: rgba(255, 255, 255, 0.7);
+          font-size: 0.9rem;
+
+          p {
+            margin: 0.5rem 0;
+          }
+        }
+
+        // Poll Comments Section
+        .poll-comments-section {
+          margin-top: 2rem;
+          padding-top: 1.5rem;
+          border-top: 1px solid rgba(255, 255, 255, 0.1);
+
+          h4 {
+            color: $text-color;
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+          }
+
+          .loading-comments {
+            text-align: center;
+            padding: 2rem;
+            color: rgba(255, 255, 255, 0.6);
+            font-style: italic;
+          }
+
+          .no-comments {
+            text-align: center;
+            padding: 2rem;
+            color: rgba(255, 255, 255, 0.5);
+            font-style: italic;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+          }
+
+          .comments-list {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 1.5rem;
+            padding-right: 0.5rem;
+
+            &::-webkit-scrollbar {
+              width: 6px;
+            }
+
+            &::-webkit-scrollbar-track {
+              background: rgba(255, 255, 255, 0.05);
+              border-radius: 3px;
+            }
+
+            &::-webkit-scrollbar-thumb {
+              background: rgba(255, 255, 255, 0.2);
+              border-radius: 3px;
+
+              &:hover {
+                background: rgba(255, 255, 255, 0.3);
+              }
+            }
+
+            .comment-item {
+              background: rgba(255, 255, 255, 0.05);
+              border: 1px solid rgba(255, 255, 255, 0.1);
+              border-radius: 8px;
+              padding: 1rem;
+              margin-bottom: 1rem;
+              transition: all 0.3s ease;
+
+              &:hover {
+                background: rgba(255, 255, 255, 0.08);
+                border-color: rgba(255, 255, 255, 0.15);
+              }
+
+              .comment-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 0.5rem;
+
+                .commenter-name {
+                  color: $primary-color;
+                  font-weight: 600;
+                  font-size: 0.95rem;
+                }
+
+                .comment-date {
+                  color: rgba(255, 255, 255, 0.5);
+                  font-size: 0.85rem;
+                }
+              }
+
+              .comment-text {
+                color: rgba(255, 255, 255, 0.8);
+                margin: 0;
+                line-height: 1.5;
+                font-size: 0.95rem;
+              }
+            }
+          }
+
+          .add-comment-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+
+            textarea {
+              width: 100%;
+              background: rgba(255, 255, 255, 0.05);
+              border: 1px solid rgba(255, 255, 255, 0.2);
+              border-radius: 8px;
+              padding: 0.75rem;
+              color: $text-color;
+              font-size: 0.95rem;
+              font-family: inherit;
+              resize: vertical;
+              min-height: 80px;
+              transition: all 0.3s ease;
+
+              &:focus {
+                outline: none;
+                border-color: $primary-color;
+                background: rgba(255, 255, 255, 0.08);
+                box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.2);
+              }
+
+              &::placeholder {
+                color: rgba(255, 255, 255, 0.4);
+              }
+
+              &:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+              }
+            }
+
+            button {
+              align-self: flex-end;
+              min-width: 140px;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+    // Custom poll options styles
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      
+      input[type="checkbox"] {
+        width: auto;
+        cursor: pointer;
+      }
+      
+      span {
+        color: rgba(255, 255, 255, 0.8);
+      }
+    }
+    
+    .custom-options-group {
+      background: rgba(255, 255, 255, 0.03);
+      padding: 1rem;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      
+      label {
+        margin-bottom: 1rem;
+        
+        small {
+          font-weight: normal;
+          color: rgba(255, 255, 255, 0.5);
+          margin-left: 0.5rem;
+        }
+      }
+      
+      .option-input-row {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+        
+        .option-input {
+          flex: 1;
+          margin-bottom: 0;
+        }
+        
+        .remove-option-btn {
+          width: 36px;
+          height: 36px;
+          padding: 0;
+          background: rgba(244, 67, 54, 0.2);
+          border: 1px solid rgba(244, 67, 54, 0.3);
+          border-radius: 6px;
+          color: #f44336;
+          font-size: 1.5rem;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          
+          &:hover {
+            background: rgba(244, 67, 54, 0.3);
+            border-color: #f44336;
+          }
+        }
+      }
+      
+      .add-option-btn {
+        width: 100%;
+        padding: 0.5rem;
+        background: rgba(76, 175, 80, 0.2);
+        border: 1px dashed rgba(76, 175, 80, 0.4);
+        border-radius: 6px;
+        color: #4caf50;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+        
+        &:hover {
+          background: rgba(76, 175, 80, 0.3);
+          border-color: #4caf50;
+        }
+      }
+    }
+    
+    // Custom fill colors for more than 3 options
+    .vote-fill {
+      &.custom-fill-1 {
+        background: linear-gradient(90deg, #9c27b0, #ba68c8);
+      }
+      
+      &.custom-fill-2 {
+        background: linear-gradient(90deg, #3f51b5, #7986cb);
+      }
+      
+      &.custom-fill-3 {
+        background: linear-gradient(90deg, #00bcd4, #4dd0e1);
+      }
+      
+      &.custom-fill-4 {
+        background: linear-gradient(90deg, #cddc39, #d4e157);
+      }
+      
+      &.custom-fill-5 {
+        background: linear-gradient(90deg, #ff5722, #ff7043);
+      }
+      
+      &.custom-fill-6 {
+        background: linear-gradient(90deg, #795548, #a1887f);
+      }
+      
+      &.custom-fill-7 {
+        background: linear-gradient(90deg, #607d8b, #90a4ae);
+      }
+      
+      &.custom-fill-default {
+        background: linear-gradient(90deg, #9e9e9e, #bdbdbd);
+      }
+    }
+    
+    .option-text {
+      font-weight: 600;
+      text-transform: capitalize;
+    }

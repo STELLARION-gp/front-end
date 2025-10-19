@@ -11,7 +11,7 @@ export interface Blog {
     image_url?: string; // Legacy field for compatibility
     featured_image?: string; // Backend field
     author_id: number;
-    status: 'draft' | 'published' | 'archived';
+    status: 'draft' | 'published' | 'archived' | 'pending' | 'approved' | 'rejected';
     published_at?: string;
     view_count: number;
     like_count: number;
@@ -46,8 +46,9 @@ export interface CreateBlogRequest {
     title: string;
     content: string;
     excerpt?: string;
-    featured_image?: string;
-    status?: 'draft' | 'published';
+    featured_image?: string; // For backward compatibility (URL)
+    image?: File; // For multipart upload
+    status?: 'draft' | 'published' | 'pending';
     tags?: string[];
     metadata?: Record<string, any>;
 }
@@ -56,14 +57,15 @@ export interface UpdateBlogRequest {
     title?: string;
     content?: string;
     excerpt?: string;
-    featured_image?: string;
-    status?: 'draft' | 'published';
+    featured_image?: string; // For backward compatibility (URL)
+    image?: File; // For multipart upload
+    status?: 'draft' | 'published' | 'pending' | 'approved' | 'rejected';
     tags?: string[];
     metadata?: Record<string, any>;
 }
 
 export interface BlogFilters {
-    status?: 'draft' | 'published' | 'archived';
+    status?: 'draft' | 'published' | 'archived' | 'pending' | 'approved' | 'rejected';
     author_id?: number;
     search?: string;
     tags?: string[];
@@ -152,20 +154,96 @@ export const blogService = {
         return makeRequest(`/blogs/${id}`);
     },
 
-    // Create new blog
+    // Create new blog with multipart/form-data support
     async createBlog(blogData: CreateBlogRequest) {
-        return makeRequest('/blogs', {
-            method: 'POST',
-            body: JSON.stringify(blogData)
-        });
+        const token = await getAuthToken();
+        
+        // If there's an image file, use FormData
+        if (blogData.image) {
+            const formData = new FormData();
+            formData.append('title', blogData.title);
+            formData.append('content', blogData.content);
+            if (blogData.excerpt) formData.append('excerpt', blogData.excerpt);
+            if (blogData.status) formData.append('status', blogData.status);
+            if (blogData.tags && blogData.tags.length > 0) {
+                formData.append('tags', JSON.stringify(blogData.tags));
+            }
+            if (blogData.metadata) {
+                formData.append('metadata', JSON.stringify(blogData.metadata));
+            }
+            formData.append('image', blogData.image);
+
+            const headers: Record<string, string> = {};
+            if (token) {
+                headers.Authorization = `Bearer ${token}`;
+            }
+
+            console.log('Creating blog with FormData (multipart/form-data)');
+            const response = await fetch(`${API_BASE_URL}/blogs`, {
+                method: 'POST',
+                headers,
+                body: formData
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+                throw new Error(errorData.message || `Request failed with status ${response.status}`);
+            }
+
+            return response.json();
+        } else {
+            // No image, use regular JSON request
+            return makeRequest('/blogs', {
+                method: 'POST',
+                body: JSON.stringify(blogData)
+            });
+        }
     },
 
-    // Update blog
+    // Update blog with multipart/form-data support
     async updateBlog(id: number, blogData: UpdateBlogRequest) {
-        return makeRequest(`/blogs/${id}`, {
-            method: 'PUT',
-            body: JSON.stringify(blogData)
-        });
+        const token = await getAuthToken();
+        
+        // If there's an image file, use FormData
+        if (blogData.image) {
+            const formData = new FormData();
+            if (blogData.title) formData.append('title', blogData.title);
+            if (blogData.content) formData.append('content', blogData.content);
+            if (blogData.excerpt) formData.append('excerpt', blogData.excerpt);
+            if (blogData.status) formData.append('status', blogData.status);
+            if (blogData.tags && blogData.tags.length > 0) {
+                formData.append('tags', JSON.stringify(blogData.tags));
+            }
+            if (blogData.metadata) {
+                formData.append('metadata', JSON.stringify(blogData.metadata));
+            }
+            formData.append('image', blogData.image);
+
+            const headers: Record<string, string> = {};
+            if (token) {
+                headers.Authorization = `Bearer ${token}`;
+            }
+
+            console.log('Updating blog with FormData (multipart/form-data)');
+            const response = await fetch(`${API_BASE_URL}/blogs/${id}`, {
+                method: 'PUT',
+                headers,
+                body: formData
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+                throw new Error(errorData.message || `Request failed with status ${response.status}`);
+            }
+
+            return response.json();
+        } else {
+            // No image, use regular JSON request
+            return makeRequest(`/blogs/${id}`, {
+                method: 'PUT',
+                body: JSON.stringify(blogData)
+            });
+        }
     },
 
     // Delete blog
@@ -179,6 +257,14 @@ export const blogService = {
     async toggleBlogLike(id: number) {
         return makeRequest(`/blogs/${id}/like`, {
             method: 'POST'
+        });
+    },
+
+    // Submit a rating for a blog (1-5)
+    async rateBlog(id: number, rating: number) {
+        return makeRequest(`/blogs/${id}/rate`, {
+            method: 'POST',
+            body: JSON.stringify({ rating })
         });
     },
 

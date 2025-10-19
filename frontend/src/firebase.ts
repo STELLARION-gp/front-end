@@ -1,6 +1,11 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
+import {
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
+} from "firebase/firestore";
 
 // Firebase config
 const firebaseConfig = {
@@ -25,18 +30,26 @@ if (typeof window !== "undefined") {
 // Auth instance
 const auth = getAuth(app);
 
+// Firestore instance with long polling to fix QUIC protocol errors
+const db = initializeFirestore(app, {
+  localCache: persistentLocalCache({
+    tabManager: persistentMultipleTabManager(),
+  }),
+  experimentalForceLongPolling: true, // Fix for ERR_QUIC_PROTOCOL_ERROR
+});
+
 // Google Auth Provider
 const googleProvider = new GoogleAuthProvider();
-googleProvider.addScope('profile');
-googleProvider.addScope('email');
+googleProvider.addScope("profile");
+googleProvider.addScope("email");
 // Add additional parameters for better compatibility
 googleProvider.setCustomParameters({
-  prompt: 'select_account'
+  prompt: "select_account",
 });
 
-console.log('🔧 Firebase initialized with config:', {
+console.log("🔧 Firebase initialized with config:", {
   projectId: firebaseConfig.projectId,
-  authDomain: firebaseConfig.authDomain
+  authDomain: firebaseConfig.authDomain,
 });
 
-export { app, auth, analytics, googleProvider };
+export { app, auth, analytics, googleProvider, db };

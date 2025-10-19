@@ -2,23 +2,97 @@ import { useNavigate } from "react-router-dom";
 import AstronomyBlogCard from "../../components/Learner/blogcard";
 import "../../styles/pages/learner/blog_explore.scss"
 import { BookOpenIcon, UserGroupIcon, StarIcon, CalendarDaysIcon } from "@heroicons/react/24/outline";
-import { blogs, totalBlogs, avgRating, latestDate } from "./blogData";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { blogService, type Blog } from "../../services/blogService";
 
 const BlogExplore: React.FC = () => {
   const navigate = useNavigate();
-  const [filter, setFilter] = React.useState({
+  const [blogs, setBlogs] = useState<Blog[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [filter, setFilter] = useState({
     author: '',
     minRating: '',
     search: ''
   });
+
+  useEffect(() => {
+    const loadPublishedBlogs = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const response = await blogService.getBlogs({ 
+          status: 'published', 
+          limit: 50,
+          sort_by: 'published_at',
+          sort_order: 'desc'
+        });
+        
+        if (response && response.success && response.data && response.data.blogs) {
+          setBlogs(response.data.blogs as Blog[]);
+        } else if (response && response.blogs) {
+          setBlogs(response.blogs as Blog[]);
+        } else {
+          setBlogs([]);
+        }
+      } catch (err: any) {
+        console.error('Failed to load published blogs:', err);
+        setError(err.message || 'Failed to load blogs');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadPublishedBlogs();
+  }, []);
+
   const filteredBlogs = blogs.filter(blog => {
-    if (filter.author && blog.author !== filter.author) return false;
-    if (filter.minRating && blog.rating < Number(filter.minRating)) return false;
-    if (filter.search && !blog.title.toLowerCase().includes(filter.search.toLowerCase()) && !blog.content.toLowerCase().includes(filter.search.toLowerCase())) return false;
+    const authorName = blog.author_display_name || blog.author_name || '';
+    const content = blog.excerpt || (blog.content as unknown as string) || '';
+    
+    if (filter.author && authorName !== filter.author) return false;
+    if (filter.search && !blog.title.toLowerCase().includes(filter.search.toLowerCase()) && !content.toLowerCase().includes(filter.search.toLowerCase())) return false;
     return true;
   });
-  const uniqueAuthors = Array.from(new Set(blogs.map(b => b.author)));
+  
+  const uniqueAuthors = Array.from(new Set(blogs.map(b => b.author_display_name || b.author_name || 'Unknown')));
+  
+  // Calculate stats from loaded blogs
+  const totalBlogs = blogs.length;
+  const avgLikes = blogs.length > 0 ? (
+    (blogs.reduce((sum, b) => {
+      const likes = (b as any).like_count ?? (b as any).likes_count ?? ((b as any).metadata?.like_count ?? (b as any).metadata?.likes) ?? 0;
+      return sum + (typeof likes === 'number' ? likes : Number(likes) || 0);
+    }, 0) / blogs.length)
+  ).toFixed(1) : '0';
+  const latestDate = blogs.length > 0 && blogs[0].published_at 
+    ? new Date(blogs[0].published_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    : 'N/A';
+
+  if (loading) {
+    return (
+      <div className="blog-explore-page">
+        <div className="loader" style={{ textAlign: 'center', padding: '2rem' }}>
+          Loading published blogs...
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="blog-explore-page">
+        <div className="error" style={{ textAlign: 'center', padding: '2rem', color: '#ef4444' }}>
+          <p>Error: {error}</p>
+          <button onClick={() => window.location.reload()} style={{ marginTop: '1rem', padding: '0.5rem 1rem' }}>
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="blog-explore-page">
       <h2>Explore Astronomy Blogs</h2>
@@ -28,7 +102,7 @@ const BlogExplore: React.FC = () => {
           <BookOpenIcon className="blog-stat-icon" />
           <div>
             <div className="blog-stat-value">{totalBlogs}</div>
-            <div className="blog-stat-label">Total Blogs</div>
+            <div className="blog-stat-label">Published Blogs</div>
           </div>
         </div>
         <div className="blog-stat-card">
@@ -41,8 +115,8 @@ const BlogExplore: React.FC = () => {
         <div className="blog-stat-card">
           <StarIcon className="blog-stat-icon" />
           <div>
-            <div className="blog-stat-value">{avgRating}</div>
-            <div className="blog-stat-label">Average Rating</div>
+            <div className="blog-stat-value">{avgLikes}</div>
+            <div className="blog-stat-label">Avg Likes</div>
           </div>
           </div>
         <div className="blog-stat-card">
@@ -72,32 +146,31 @@ const BlogExplore: React.FC = () => {
             <option key={author} value={author}>{author}</option>
           ))}
         </select>
-        <select
-          value={filter.minRating}
-          onChange={e => setFilter(f => ({ ...f, minRating: e.target.value }))}
-          style={{ padding: '0.5rem 1rem', borderRadius: 8, border: '1px solid #334155', minWidth: 120 }}
-        >
-          <option value="">Any Rating</option>
-          {[5,4,3,2,1].map(r => (
-            <option key={r} value={r}>{r}+</option>
-          ))}
-        </select>
       </div>
       
-      <div className="astronomy-card-container">
-        {filteredBlogs.map(blog => (
-          <AstronomyBlogCard
-            key={blog.id}
-            image={blog.image}
-            title={blog.title}
-            author={blog.author}
-            createdAt={blog.createdAt}
-            rating={blog.rating}
-            content={blog.content}
-            onClick={() => navigate(`/dashboard/blogs/${blog.id}`)}
-          />
-        ))}
-      </div>
+      {filteredBlogs.length === 0 ? (
+        <div className="no-results" style={{ textAlign: 'center', padding: '2rem', color: '#94a3b8' }}>
+          No published blogs found.
+        </div>
+      ) : (
+        <div className="astronomy-card-container">
+          {filteredBlogs.map(blog => {
+            const avg = (blog.metadata && typeof (blog.metadata as any).rating !== 'undefined') ? Number((blog.metadata as any).rating) : 0;
+            return (
+              <AstronomyBlogCard
+                key={blog.id}
+                image={blog.featured_image || blog.image_url || ''}
+                title={blog.title}
+                author={blog.author_display_name || blog.author_name || 'Unknown'}
+                createdAt={blog.published_at || blog.created_at}
+                rating={isNaN(avg) ? 0 : avg}
+                content={blog.excerpt || (typeof blog.content === 'string' ? blog.content : '')}
+                onClick={() => navigate(`/dashboard/blogs/${blog.id}`)}
+              />
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

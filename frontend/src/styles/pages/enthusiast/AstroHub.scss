@@ -1612,7 +1612,7 @@
 // Group Chat Styles
 .group-chat {
   text-align: center;
-  max-width: 1000px;
+  max-width: 1000px; // Increased from 1000px for wider message area
   margin: 0 auto;
   height: 80vh;
   display: flex;
@@ -1701,12 +1701,16 @@
 
   &__messages {
     flex: 1;
-    padding: 2rem;
+    padding: 1.5rem 3rem; // Reduced top/bottom padding, increased side padding for wider use
     overflow-y: auto;
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
     max-height: calc(80vh - 200px);
+
+    @media (max-width: 768px) {
+      padding: 1.5rem 1rem; // Smaller padding on mobile
+    }
 
     &::-webkit-scrollbar {
       width: 6px;
@@ -1773,10 +1777,10 @@
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
     padding: 1rem 1.5rem;
-    max-width: 70%;
+    max-width: 85%; // Increased from 70% for better readability
 
     @media (max-width: 768px) {
-      max-width: 85%;
+      max-width: 95%; // Increased from 85% for mobile
     }
   }
 
@@ -1980,6 +1984,240 @@
     background: rgba(255, 255, 255, 0.05);
     border-radius: 12px;
     border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+}
+
+// Astronomy Events Section
+.astronomy-events-section {
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+
+    h2 {
+      margin: 0;
+      color: $text-color;
+      font-size: 2rem;
+      font-weight: 600;
+    }
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+  }
+
+  .events-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+  }
+
+  .event-card {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+
+    &:hover {
+      transform: translateY(-8px);
+      border-color: rgba(100, 120, 180, 0.4);
+      background: rgba(255, 255, 255, 0.12);
+      box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.3),
+        0 0 0 1px rgba(100, 120, 180, 0.2) inset;
+    }
+
+    &__image {
+      position: relative;
+      height: 200px;
+      overflow: hidden;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+      }
+
+      &:hover img {
+        transform: scale(1.05);
+      }
+    }
+
+    &__date-badge {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      background: rgba(100, 120, 180, 0.9);
+      color: #ffffff;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    &__difficulty {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: rgba(220, 38, 127, 0.9);
+      color: #ffffff;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    &__content {
+      padding: 1.5rem;
+    }
+
+    &__meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      font-size: 0.875rem;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    &__category {
+      background: rgba(100, 120, 180, 0.2);
+      color: rgba(100, 120, 180, 1);
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-weight: 500;
+    }
+
+    &__duration {
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    &__title {
+      margin: 0 0 1rem 0;
+      color: #ffffff;
+      font-size: 1.25rem;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+
+    &__description {
+      margin: 0 0 1rem 0;
+      color: rgba(255, 255, 255, 0.8);
+      line-height: 1.5;
+      font-size: 0.9rem;
+    }
+
+    &__details {
+      margin-bottom: 1rem;
+
+      .event-detail {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        font-size: 0.875rem;
+
+        &:last-child {
+          border-bottom: none;
+        }
+
+        &__label {
+          color: rgba(255, 255, 255, 0.7);
+          font-weight: 500;
+        }
+
+        &__value {
+          color: #ffffff;
+          text-align: right;
+          max-width: 60%;
+        }
+      }
+    }
+
+    &__additional-info {
+      margin-bottom: 1rem;
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      border-left: 3px solid rgba(100, 120, 180, 0.6);
+
+      p {
+        margin: 0;
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.875rem;
+        line-height: 1.4;
+      }
+    }
+
+    &__footer {
+      margin-bottom: 1.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    &__creator {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.875rem;
+      margin-bottom: 0.5rem;
+    }
+
+    &__stats {
+      .reminder-count {
+        color: rgba(100, 120, 180, 0.8);
+        font-size: 0.875rem;
+        font-weight: 500;
+      }
+    }
+
+    &__actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: flex-end;
+
+      @media (max-width: 768px) {
+        justify-content: stretch;
+
+        button {
+          flex: 1;
+        }
+      }
+    }
+  }
+
+  .loading-message,
+  .error-message {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+    font-size: 1.1rem;
+    grid-column: 1 / -1;
+  }
+
+  .loading-message {
+    color: rgba(100, 120, 180, 0.8);
+  }
+
+  .error-message {
+    color: rgba(220, 38, 127, 0.8);
   }
 }
 

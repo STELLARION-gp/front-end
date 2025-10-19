@@ -1,0 +1,148 @@
+.gallery-container {
+  position: relative;
+  height: 650px;
+  width: 100%;
+  overflow: visible;
+  background: transparent;
+  z-index: 5;
+}
+
+.gallery-gradient {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 150px;
+  z-index: 15;
+  pointer-events: none;
+}
+
+.gallery-gradient-left {
+  left: 0;
+  background: linear-gradient(to left, rgba(10, 5, 21, 0) 0%, rgba(10, 5, 21, 0.8) 60%, rgba(10, 5, 21, 1) 100%);
+}
+
+.gallery-gradient-right {
+  right: 0;
+  background: linear-gradient(to right, rgba(10, 5, 21, 0) 0%, rgba(10, 5, 21, 0.8) 60%, rgba(10, 5, 21, 1) 100%);
+}
+
+.gallery-content {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  perspective: 1500px;
+  transform-style: preserve-3d;
+  z-index: 5;
+}
+
+.gallery-track {
+  display: flex;
+  height: auto;
+  min-height: 200px;
+  justify-content: center;
+  align-items: center;
+  cursor: grab;
+  transform-style: preserve-3d;
+  width: 100%;
+}
+
+.gallery-track:active {
+  cursor: grabbing;
+}
+
+.gallery-item {
+  position: absolute;
+  display: flex;
+  height: fit-content;
+  align-items: center;
+  justify-content: center;
+  backface-visibility: hidden;
+  transition: transform 0.4s ease, z-index 0s;
+  z-index: 5;
+}
+
+.gallery-item.focused {
+  z-index: 20 !important;
+  transform: scale(1.05);
+}
+
+/* ProfileCard integration */
+.gallery-item .pc-card-wrapper {
+  width: 300px;
+  pointer-events: auto;
+  position: relative;
+  z-index: 5;
+}
+
+.gallery-item.focused .pc-card-wrapper {
+  width: 340px;
+  z-index: 20;
+}
+
+.gallery-item .pc-card {
+  height: 440px;
+  max-height: 440px;
+  aspect-ratio: 0.7;
+}
+
+.gallery-item.focused .pc-card {
+  height: 500px;
+  max-height: 500px;
+}
+
+@media (max-width: 768px) {
+  .gallery-container {
+    height: 550px;
+  }
+
+  .gallery-gradient {
+    width: 80px;
+  }
+
+  .gallery-item .pc-card-wrapper {
+    width: 240px;
+  }
+
+  .gallery-item.focused .pc-card-wrapper {
+    width: 280px;
+  }
+
+  .gallery-item .pc-card {
+    height: 380px;
+    max-height: 380px;
+  }
+
+  .gallery-item.focused .pc-card {
+    height: 420px;
+    max-height: 420px;
+  }
+}
+
+@media (max-width: 480px) {
+  .gallery-container {
+    height: 500px;
+  }
+
+  .gallery-gradient {
+    width: 50px;
+  }
+
+  .gallery-item .pc-card-wrapper {
+    width: 220px;
+  }
+
+  .gallery-item.focused .pc-card-wrapper {
+    width: 250px;
+  }
+
+  .gallery-item .pc-card {
+    height: 340px;
+    max-height: 340px;
+  }
+
+  .gallery-item.focused .pc-card {
+    height: 380px;
+    max-height: 380px;
+  }
+}

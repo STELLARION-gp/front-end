@@ -1,17 +1,41 @@
-import React, { useState } from 'react';
-import Button from '../../components/Button';
-import '../../styles/pages/enthusiast/AstroHub.scss';
+import React, { useState, useEffect } from "react";
+import Button from "../../components/Button";
+import "../../styles/pages/enthusiast/AstroHub.scss";
+import {
+  chatService,
+  type GroupChat,
+  type ChatMessage,
+  type CreateGroupRequest,
+} from "../../services/chatService";
+import SpaceNewsModal from "../../components/SpaceNewsModal";
+import AstronomyEventModal from "../../components/AstronomyEventModal";
+import {
+  spaceNewsService,
+  type SpaceNews as RealSpaceNews,
+} from "../../services/spaceNewsService";
+import {
+  astronomyEventsService,
+  type AstronomyEvent as RealAstronomyEvent,
+} from "../../services/astronomyEventsService";
+import {
+  spaceDiscussionService,
+  type DiscussionComment as BackendDiscussionComment,
+  type CreateDiscussionRequest,
+  type AddCommentRequest,
+} from "../../services/spaceDiscussionService";
+import { useAuth } from "../../hooks/useAuth";
 
-interface AstronomicalEvent {
-  id: number;
-  name: string;
-  description: string;
-  visibility: string;
-  bestTime: string;
-  image: string;
-  date: string;
-  duration: string;
-}
+// Commented out unused interface
+// interface AstronomicalEvent {
+//   id: number;
+//   name: string;
+//   description: string;
+//   visibility: string;
+//   bestTime: string;
+//   image: string;
+//   date: string;
+//   duration: string;
+// }
 
 interface SpaceNews {
   id: number;
@@ -51,24 +75,61 @@ interface NewsReply {
 interface Discussion {
   id: number;
   title: string;
-  author: string;
-  replies: number;
-  lastActivity: string;
+  author?: string; // For display compatibility
+  author_id?: number;
+  replies?: number; // For display compatibility
+  replies_count?: number;
+  lastActivity?: string; // For display compatibility
+  last_activity?: string;
   category: string;
-  isSticky?: boolean;
+  isSticky?: boolean; // For display compatibility
+  is_sticky?: boolean;
+  is_closed?: boolean;
   content?: string;
-  discussions?: DiscussionComment[];
+  views_count?: number;
+  created_at?: string;
+  updated_at?: string;
+  discussions?: DiscussionComment[]; // For display compatibility
+  comments?: BackendDiscussionComment[];
+  _count?: {
+    comments: number;
+    likes: number;
+  };
+  isLiked?: boolean;
+  authorInfo?: {
+    id: number;
+    display_name: string;
+    first_name: string;
+    last_name: string;
+  };
 }
 
 interface DiscussionComment {
   id: number;
-  userName: string;
+  userName?: string; // For display compatibility
+  user_id?: number;
+  discussion_id?: number;
+  parent_id?: number;
   userAvatar?: string;
-  comment: string;
-  postedTime: string;
-  likes: number;
-  isLiked: boolean;
+  comment?: string; // For display compatibility
+  content?: string;
+  postedTime?: string; // For display compatibility
+  created_at?: string;
+  updated_at?: string;
+  likes?: number; // For display compatibility
+  is_edited?: boolean;
+  isLiked?: boolean;
   replies?: DiscussionReply[];
+  user?: {
+    id: number;
+    display_name: string;
+    first_name: string;
+    last_name: string;
+  };
+  _count?: {
+    likes: number;
+    replies: number;
+  };
 }
 
 interface DiscussionReply {
@@ -81,66 +142,60 @@ interface DiscussionReply {
   isLiked: boolean;
 }
 
-interface GroupChat {
-  id: number;
-  name: string;
-  description: string;
-  members: number;
-  lastMessage: string;
-  lastMessageTime: string;
-  isActive: boolean;
-}
-
-const astronomicalEvents: AstronomicalEvent[] = [
-  {
-    id: 1,
-    name: "Perseid Meteor Shower",
-    description: "One of the most spectacular meteor showers of the year, with up to 60 meteors per hour at peak. The Perseids are known for their bright, fast meteors and occasional fireballs.",
-    visibility: "Northern Hemisphere",
-    bestTime: "2:00 AM - 5:00 AM",
-    image: "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=400&h=250&fit=crop",
-    date: "July 17 - August 24, 2025",
-    duration: "5 weeks"
-  },
-  {
-    id: 2,
-    name: "Total Lunar Eclipse",
-    description: "A complete lunar eclipse where the Moon passes through Earth's shadow, creating a stunning red 'Blood Moon' effect visible to the naked eye.",
-    visibility: "Asia, Australia, Pacific",
-    bestTime: "10:30 PM - 2:30 AM",
-    image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=250&fit=crop",
-    date: "September 7, 2025",
-    duration: "4 hours"
-  },
-  {
-    id: 3,
-    name: "Jupiter Opposition",
-    description: "Jupiter reaches its closest approach to Earth, appearing brightest and largest in the night sky. Perfect time for telescope observations of the Great Red Spot and moons.",
-    visibility: "Worldwide",
-    bestTime: "9:00 PM - 6:00 AM",
-    image: "https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?w=400&h=250&fit=crop",
-    date: "November 3, 2025",
-    duration: "1 night"
-  },
-  {
-    id: 4,
-    name: "Geminids Meteor Shower",
-    description: "The year's most reliable meteor shower, producing bright, colorful meteors. Unlike most meteor showers, the Geminids originate from an asteroid rather than a comet.",
-    visibility: "Worldwide",
-    bestTime: "10:00 PM - 4:00 AM",
-    image: "https://images.unsplash.com/photo-1502134249126-9f3755a50d78?w=400&h=250&fit=crop",
-    date: "December 4 - 20, 2025",
-    duration: "2 weeks"
-  }
-];
+// Commented out unused variable
+// const astronomicalEvents: AstronomicalEvent[] = [
+//   {
+//     id: 1,
+//     name: "Perseid Meteor Shower",
+//     description: "One of the most spectacular meteor showers of the year, with up to 60 meteors per hour at peak. The Perseids are known for their bright, fast meteors and occasional fireballs.",
+//     visibility: "Northern Hemisphere",
+//     bestTime: "2:00 AM - 5:00 AM",
+//     image: "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=400&h=250&fit=crop",
+//     date: "July 17 - August 24, 2025",
+//     duration: "5 weeks"
+//   },
+//   {
+//     id: 2,
+//     name: "Total Lunar Eclipse",
+//     description: "A complete lunar eclipse where the Moon passes through Earth's shadow, creating a stunning red 'Blood Moon' effect visible to the naked eye.",
+//     visibility: "Asia, Australia, Pacific",
+//     bestTime: "10:30 PM - 2:30 AM",
+//     image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=250&fit=crop",
+//     date: "September 7, 2025",
+//     duration: "4 hours"
+//   },
+//   {
+//     id: 3,
+//     name: "Jupiter Opposition",
+//     description: "Jupiter reaches its closest approach to Earth, appearing brightest and largest in the night sky. Perfect time for telescope observations of the Great Red Spot and moons.",
+//     visibility: "Worldwide",
+//     bestTime: "9:00 PM - 6:00 AM",
+//     image: "https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?w=400&h=250&fit=crop",
+//     date: "November 3, 2025",
+//     duration: "1 night"
+//   },
+//   {
+//     id: 4,
+//     name: "Geminids Meteor Shower",
+//     description: "The year's most reliable meteor shower, producing bright, colorful meteors. Unlike most meteor showers, the Geminids originate from an asteroid rather than a comet.",
+//     visibility: "Worldwide",
+//     bestTime: "10:00 PM - 4:00 AM",
+//     image: "https://images.unsplash.com/photo-1502134249126-9f3755a50d78?w=400&h=250&fit=crop",
+//     date: "December 4 - 20, 2025",
+//     duration: "2 weeks"
+//   }
+// ];
 
 const spaceNews: SpaceNews[] = [
   {
     id: 1,
     title: "James Webb Telescope Discovers Ancient Galaxies",
-    summary: "New observations reveal galaxies that formed just 400 million years after the Big Bang, pushing back the timeline of cosmic evolution.",
-    fullContent: "The James Webb Space Telescope has made groundbreaking discoveries, identifying galaxies that formed merely 400 million years after the Big Bang. These ancient cosmic structures challenge our understanding of early universe formation and provide unprecedented insights into the earliest epochs of cosmic history. The telescope's infrared capabilities have allowed astronomers to peer deeper into space and further back in time than ever before, revealing these primordial galaxies in stunning detail. This discovery suggests that galaxy formation began much earlier than previously thought, fundamentally altering our timeline of cosmic evolution.",
-    image: "https://images.unsplash.com/photo-1614728263952-84ea256f9679?w=400&h=200&fit=crop",
+    summary:
+      "New observations reveal galaxies that formed just 400 million years after the Big Bang, pushing back the timeline of cosmic evolution.",
+    fullContent:
+      "The James Webb Space Telescope has made groundbreaking discoveries, identifying galaxies that formed merely 400 million years after the Big Bang. These ancient cosmic structures challenge our understanding of early universe formation and provide unprecedented insights into the earliest epochs of cosmic history. The telescope's infrared capabilities have allowed astronomers to peer deeper into space and further back in time than ever before, revealing these primordial galaxies in stunning detail. This discovery suggests that galaxy formation began much earlier than previously thought, fundamentally altering our timeline of cosmic evolution.",
+    image:
+      "https://images.unsplash.com/photo-1614728263952-84ea256f9679?w=400&h=200&fit=crop",
     date: "June 28, 2025",
     source: "NASA",
     readTime: "3 min",
@@ -150,7 +205,8 @@ const spaceNews: SpaceNews[] = [
       {
         id: 1,
         userName: "CosmicExplorer_LK",
-        comment: "This is absolutely mind-blowing! The James Webb telescope keeps exceeding expectations. Can't wait to see what other secrets of the early universe it will unveil.",
+        comment:
+          "This is absolutely mind-blowing! The James Webb telescope keeps exceeding expectations. Can't wait to see what other secrets of the early universe it will unveil.",
         postedTime: "2 hours ago",
         likes: 15,
         isLiked: false,
@@ -158,26 +214,29 @@ const spaceNews: SpaceNews[] = [
           {
             id: 1,
             userName: "StarGazer92",
-            comment: "I agree! The fact that galaxies formed so early completely changes our understanding of the universe's timeline.",
+            comment:
+              "I agree! The fact that galaxies formed so early completely changes our understanding of the universe's timeline.",
             postedTime: "1 hour ago",
             likes: 8,
-            isLiked: true
-          }
-        ]
+            isLiked: true,
+          },
+        ],
       },
       {
         id: 2,
         userName: "AstroPhysicist_SL",
-        comment: "The implications for dark matter research are huge. These early galaxies could provide clues about how dark matter influenced structure formation.",
+        comment:
+          "The implications for dark matter research are huge. These early galaxies could provide clues about how dark matter influenced structure formation.",
         postedTime: "4 hours ago",
         likes: 23,
         isLiked: false,
-        replies: []
+        replies: [],
       },
       {
         id: 3,
         userName: "SpaceEnthusiast",
-        comment: "Does this mean we need to revise our models of the Big Bang and early cosmic inflation?",
+        comment:
+          "Does this mean we need to revise our models of the Big Bang and early cosmic inflation?",
         postedTime: "6 hours ago",
         likes: 12,
         isLiked: false,
@@ -185,29 +244,34 @@ const spaceNews: SpaceNews[] = [
           {
             id: 1,
             userName: "CosmologyStudent",
-            comment: "Not necessarily revise the Big Bang model, but definitely refine our understanding of when and how the first structures formed.",
+            comment:
+              "Not necessarily revise the Big Bang model, but definitely refine our understanding of when and how the first structures formed.",
             postedTime: "5 hours ago",
             likes: 6,
-            isLiked: false
+            isLiked: false,
           },
           {
             id: 2,
             userName: "UniverseWatcher",
-            comment: "It's more about adjusting our timeline of galaxy formation rather than fundamental cosmological principles.",
+            comment:
+              "It's more about adjusting our timeline of galaxy formation rather than fundamental cosmological principles.",
             postedTime: "3 hours ago",
             likes: 4,
-            isLiked: true
-          }
-        ]
-      }
-    ]
+            isLiked: true,
+          },
+        ],
+      },
+    ],
   },
   {
     id: 2,
     title: "Mars Sample Return Mission Update",
-    summary: "ESA and NASA provide latest updates on the ambitious mission to bring Martian soil samples back to Earth for detailed analysis.",
-    fullContent: "The Mars Sample Return mission, a collaborative effort between NASA and ESA, has reached critical milestones in its ambitious goal to bring Martian soil and rock samples back to Earth. The mission involves multiple phases: sample collection by the Perseverance rover, sample retrieval by a future Mars mission, and eventual return to Earth for comprehensive laboratory analysis. Recent updates indicate successful sample caching operations and advanced planning for the retrieval phase. This unprecedented mission will provide scientists with pristine Martian materials for detailed study, potentially answering fundamental questions about past life on Mars and the planet's geological history.",
-    image: "https://images.unsplash.com/photo-1528722828814-77b9b83aafb2?w=400&h=200&fit=crop",
+    summary:
+      "ESA and NASA provide latest updates on the ambitious mission to bring Martian soil samples back to Earth for detailed analysis.",
+    fullContent:
+      "The Mars Sample Return mission, a collaborative effort between NASA and ESA, has reached critical milestones in its ambitious goal to bring Martian soil and rock samples back to Earth. The mission involves multiple phases: sample collection by the Perseverance rover, sample retrieval by a future Mars mission, and eventual return to Earth for comprehensive laboratory analysis. Recent updates indicate successful sample caching operations and advanced planning for the retrieval phase. This unprecedented mission will provide scientists with pristine Martian materials for detailed study, potentially answering fundamental questions about past life on Mars and the planet's geological history.",
+    image:
+      "https://images.unsplash.com/photo-1528722828814-77b9b83aafb2?w=400&h=200&fit=crop",
     date: "June 25, 2025",
     source: "ESA",
     readTime: "5 min",
@@ -217,16 +281,18 @@ const spaceNews: SpaceNews[] = [
       {
         id: 1,
         userName: "MarsExplorer",
-        comment: "This mission is going to be a game-changer for astrobiology! Finally, we'll have actual Martian samples to study in Earth labs.",
+        comment:
+          "This mission is going to be a game-changer for astrobiology! Finally, we'll have actual Martian samples to study in Earth labs.",
         postedTime: "3 hours ago",
         likes: 18,
         isLiked: true,
-        replies: []
+        replies: [],
       },
       {
         id: 2,
         userName: "PlanetaryScientist",
-        comment: "The engineering challenges of this mission are incredible. Landing, collecting, launching from Mars, and then returning to Earth - it's like science fiction becoming reality.",
+        comment:
+          "The engineering challenges of this mission are incredible. Landing, collecting, launching from Mars, and then returning to Earth - it's like science fiction becoming reality.",
         postedTime: "5 hours ago",
         likes: 14,
         isLiked: false,
@@ -234,21 +300,25 @@ const spaceNews: SpaceNews[] = [
           {
             id: 1,
             userName: "RocketEngineer",
-            comment: "The Mars Ascent Vehicle is particularly fascinating - launching a rocket from another planet is no small feat!",
+            comment:
+              "The Mars Ascent Vehicle is particularly fascinating - launching a rocket from another planet is no small feat!",
             postedTime: "4 hours ago",
             likes: 9,
-            isLiked: false
-          }
-        ]
-      }
-    ]
+            isLiked: false,
+          },
+        ],
+      },
+    ],
   },
   {
     id: 3,
     title: "Breakthrough in Exoplanet Atmosphere Analysis",
-    summary: "Scientists detect water vapor and clouds in the atmosphere of a potentially habitable exoplanet 100 light-years away.",
-    fullContent: "Astronomers have achieved a remarkable breakthrough in exoplanet research by successfully detecting water vapor and cloud formations in the atmosphere of K2-18b, a potentially habitable exoplanet located 100 light-years from Earth. Using advanced spectroscopic techniques with the James Webb Space Telescope, researchers analyzed the planet's atmospheric composition as it transited in front of its host star. The presence of water vapor, combined with the planet's location in the habitable zone where liquid water could exist, makes K2-18b one of the most promising candidates for potentially harboring life. This discovery represents a significant step forward in our ability to characterize exoplanet atmospheres and search for biosignatures.",
-    image: "https://images.unsplash.com/photo-1528722828814-77b9b83aafb2?w=400&h=200&fit=crop",
+    summary:
+      "Scientists detect water vapor and clouds in the atmosphere of a potentially habitable exoplanet 100 light-years away.",
+    fullContent:
+      "Astronomers have achieved a remarkable breakthrough in exoplanet research by successfully detecting water vapor and cloud formations in the atmosphere of K2-18b, a potentially habitable exoplanet located 100 light-years from Earth. Using advanced spectroscopic techniques with the James Webb Space Telescope, researchers analyzed the planet's atmospheric composition as it transited in front of its host star. The presence of water vapor, combined with the planet's location in the habitable zone where liquid water could exist, makes K2-18b one of the most promising candidates for potentially harboring life. This discovery represents a significant step forward in our ability to characterize exoplanet atmospheres and search for biosignatures.",
+    image:
+      "https://images.unsplash.com/photo-1528722828814-77b9b83aafb2?w=400&h=200&fit=crop",
     date: "June 22, 2025",
     source: "ESO",
     readTime: "4 min",
@@ -258,16 +328,18 @@ const spaceNews: SpaceNews[] = [
       {
         id: 1,
         userName: "ExoplanetHunter",
-        comment: "K2-18b is becoming one of my favorite exoplanets! The possibility of clouds and water vapor is so exciting for astrobiology.",
+        comment:
+          "K2-18b is becoming one of my favorite exoplanets! The possibility of clouds and water vapor is so exciting for astrobiology.",
         postedTime: "1 hour ago",
         likes: 21,
         isLiked: false,
-        replies: []
+        replies: [],
       },
       {
         id: 2,
         userName: "LifeSearcher",
-        comment: "This is exactly the kind of discovery that gets me excited about the search for extraterrestrial life. We're getting so close to finding biosignatures!",
+        comment:
+          "This is exactly the kind of discovery that gets me excited about the search for extraterrestrial life. We're getting so close to finding biosignatures!",
         postedTime: "7 hours ago",
         likes: 16,
         isLiked: true,
@@ -275,26 +347,29 @@ const spaceNews: SpaceNews[] = [
           {
             id: 1,
             userName: "SkepticalScientist",
-            comment: "While exciting, we should be cautious about jumping to conclusions. Water vapor doesn't necessarily mean habitability.",
+            comment:
+              "While exciting, we should be cautious about jumping to conclusions. Water vapor doesn't necessarily mean habitability.",
             postedTime: "6 hours ago",
             likes: 7,
-            isLiked: false
+            isLiked: false,
           },
           {
             id: 2,
             userName: "AstrobiologyFan",
-            comment: "True, but it's definitely a step in the right direction! Can't wait for more detailed atmospheric analysis.",
+            comment:
+              "True, but it's definitely a step in the right direction! Can't wait for more detailed atmospheric analysis.",
             postedTime: "5 hours ago",
             likes: 11,
-            isLiked: true
-          }
-        ]
-      }
-    ]
-  }
+            isLiked: true,
+          },
+        ],
+      },
+    ],
+  },
 ];
 
-const discussions: Discussion[] = [
+// Commented out unused discussions mock data
+/* const discussions: Discussion[] = [
   {
     id: 1,
     title: "Best Telescopes for Beginners in 2025",
@@ -465,10 +540,10 @@ const discussions: Discussion[] = [
       }
     ]
   }
-];
+]; */
 
-// My Discussions (discussions created by current user)
-const myDiscussions: Discussion[] = [
+// Commented out unused myDiscussions mock data
+/* const myDiscussions: Discussion[] = [
   {
     id: 101,
     title: "Observing Jupiter's Moons from Colombo",
@@ -565,97 +640,504 @@ const myDiscussions: Discussion[] = [
       }
     ]
   }
-];
-
-const groupChats: GroupChat[] = [
-  {
-    id: 1,
-    name: "Sri Lanka Astronomers",
-    description: "Main discussion group for astronomy enthusiasts in Sri Lanka",
-    members: 1247,
-    lastMessage: "Anyone observing the ISS pass tonight?",
-    lastMessageTime: "15 min ago",
-    isActive: true
-  },
-  {
-    id: 2,
-    name: "Astrophotography Sri Lanka",
-    description: "Share your astrophotography work and techniques",
-    members: 432,
-    lastMessage: "Amazing Milky Way shot from Ella!",
-    lastMessageTime: "1 hour ago",
-    isActive: true
-  },
-  {
-    id: 3,
-    name: "Telescope Buyers & Sellers",
-    description: "Buy, sell, and trade astronomical equipment",
-    members: 289,
-    lastMessage: "Selling Celestron NexStar 6SE in excellent condition",
-    lastMessageTime: "3 hours ago",
-    isActive: false
-  },
-  {
-    id: 4,
-    name: "Meteor Shower Alerts",
-    description: "Real-time alerts and observations for meteor showers",
-    members: 156,
-    lastMessage: "Perseids peak activity confirmed for tonight!",
-    lastMessageTime: "45 min ago",
-    isActive: true
-  }
-];
+]; */
 
 const AstroHub: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'events' | 'news' | 'discussions' | 'my-discussions' | 'chats'>('events');
+  const { userProfile } = useAuth();
+  const [activeTab, setActiveTab] = useState<
+    "events" | "news" | "discussions" | "my-discussions" | "chats"
+  >("events");
   const [selectedNews, setSelectedNews] = useState<SpaceNews | null>(null);
-  const [selectedDiscussion, setSelectedDiscussion] = useState<Discussion | null>(null);
+  const [selectedDiscussion, setSelectedDiscussion] =
+    useState<Discussion | null>(null);
   const [showCreateDiscussion, setShowCreateDiscussion] = useState(false);
-  const [newComment, setNewComment] = useState('');
+  const [newComment, setNewComment] = useState("");
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
-  const [newReply, setNewReply] = useState('');
+  const [newReply, setNewReply] = useState("");
   const [editingComment, setEditingComment] = useState<number | null>(null);
-  const [editingReply, setEditingReply] = useState<{ discussionId: number; replyId: number } | null>(null);
-  const [editText, setEditText] = useState('');
+  const [editingReply, setEditingReply] = useState<{
+    discussionId: number;
+    replyId: number;
+  } | null>(null);
+  const [editText, setEditText] = useState("");
   const [newsLiked, setNewsLiked] = useState(false);
-  
+
   // New discussion form states
-  const [newDiscussionTitle, setNewDiscussionTitle] = useState('');
-  const [newDiscussionContent, setNewDiscussionContent] = useState('');
-  const [newDiscussionCategory, setNewDiscussionCategory] = useState('General');
-  
+  const [newDiscussionTitle, setNewDiscussionTitle] = useState("");
+  const [newDiscussionContent, setNewDiscussionContent] = useState("");
+  const [newDiscussionCategory, setNewDiscussionCategory] = useState("General");
+
   // Navigation context to track where the user came from
-  const [discussionContext, setDiscussionContext] = useState<'community' | 'my-discussions'>('community');
-  
+  const [discussionContext, setDiscussionContext] = useState<
+    "community" | "my-discussions"
+  >("community");
+
   // Group chat states
-  const [selectedGroupChat, setSelectedGroupChat] = useState<GroupChat | null>(null);
+  const [selectedGroupChat, setSelectedGroupChat] = useState<GroupChat | null>(
+    null
+  );
   const [showCreateGroup, setShowCreateGroup] = useState(false);
   const [showGroupInfo, setShowGroupInfo] = useState(false);
   const [showGroupChat, setShowGroupChat] = useState(false);
-  const [newGroupName, setNewGroupName] = useState('');
-  const [newGroupDescription, setNewGroupDescription] = useState('');
-  const [newGroupType, setNewGroupType] = useState<'public' | 'private'>('public');
-  const [newChatMessage, setNewChatMessage] = useState('');
+  const [newGroupName, setNewGroupName] = useState("");
+  const [newGroupDescription, setNewGroupDescription] = useState("");
+  const [newGroupType, setNewGroupType] = useState<"public" | "private">(
+    "public"
+  );
+  const [newChatMessage, setNewChatMessage] = useState("");
+
+  // Real chat data states
+  const [realGroupChats, setRealGroupChats] = useState<GroupChat[]>([]);
+  const [userGroups, setUserGroups] = useState<GroupChat[]>([]);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [chatLoading, setChatLoading] = useState(false);
+  const [chatError, setChatError] = useState<string | null>(null);
+  const [messagesLoading, setMessagesLoading] = useState(false);
+  const [messagesError, setMessagesError] = useState<string | null>(null);
+  const [membershipRefresh, setMembershipRefresh] = useState(0); // Force UI refresh for membership changes
+
+  // Space News states
+  const [realSpaceNews, setRealSpaceNews] = useState<RealSpaceNews[]>([]);
+  const [spaceNewsLoading, setSpaceNewsLoading] = useState(false);
+  const [spaceNewsError, setSpaceNewsError] = useState<string | null>(null);
+  const [showCreateSpaceNews, setShowCreateSpaceNews] = useState(false);
+  const [selectedRealNews, setSelectedRealNews] =
+    useState<RealSpaceNews | null>(null);
+  const [realNewsComments, setRealNewsComments] = useState<any[]>([]);
+  const [commentsLoading, setCommentsLoading] = useState(false);
+  const [newsLikesState, setNewsLikesState] = useState<{
+    [key: number]: { isLiked: boolean; count: number };
+  }>({});
+
+  // Astronomy Events states (replacing mock data)
+  const [realAstronomyEvents, setRealAstronomyEvents] = useState<
+    RealAstronomyEvent[]
+  >([]);
+  const [astronomyEventsLoading, setAstronomyEventsLoading] = useState(false);
+  const [astronomyEventsError, setAstronomyEventsError] = useState<
+    string | null
+  >(null);
+  const [showCreateAstronomyEvent, setShowCreateAstronomyEvent] =
+    useState(false);
+  const [filteredEvents, setFilteredEvents] = useState<RealAstronomyEvent[]>(
+    []
+  );
+  const [eventReminders, setEventReminders] = useState<{
+    [key: number]: boolean;
+  }>({});
 
   // Success alert state
-  const [successAlert, setSuccessAlert] = useState<{ show: boolean; message: string }>({ 
-    show: false, 
-    message: '' 
+  const [successAlert, setSuccessAlert] = useState<{
+    show: boolean;
+    message: string;
+  }>({
+    show: false,
+    message: "",
   });
 
+  // Real Discussion states
+  const [realDiscussions, setRealDiscussions] = useState<Discussion[]>([]);
+  const [myRealDiscussions, setMyRealDiscussions] = useState<Discussion[]>([]);
+  const [discussionCategories, setDiscussionCategories] = useState<string[]>(
+    []
+  );
+  const [discussionsLoading, setDiscussionsLoading] = useState(false);
+  const [discussionsError, setDiscussionsError] = useState<string | null>(null);
+
   // Search states for filtering
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filteredEvents, setFilteredEvents] = useState(astronomicalEvents);
-  const [filteredNews, setFilteredNews] = useState(spaceNews);
-  const [filteredDiscussions, setFilteredDiscussions] = useState(discussions);
-  const [filteredMyDiscussions, setFilteredMyDiscussions] = useState(myDiscussions);
-  const [filteredGroupChats, setFilteredGroupChats] = useState(groupChats);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filteredRealNews, setFilteredRealNews] = useState<RealSpaceNews[]>([]);
+  const [filteredGroupChats, setFilteredGroupChats] = useState<GroupChat[]>([]);
+
+  // Load group chats data
+  useEffect(() => {
+    if (activeTab === "chats") {
+      loadGroupChats();
+      loadUserGroups(); // Also load user's joined groups
+    }
+  }, [activeTab]);
+
+  // Load user groups when component mounts (in case user switches tabs quickly)
+  useEffect(() => {
+    loadUserGroups();
+  }, []);
+
+  // Auto-scroll to bottom when new messages are loaded
+  useEffect(() => {
+    if (showGroupChat && chatMessages.length > 0) {
+      // Small delay to ensure DOM is updated
+      setTimeout(() => {
+        const messagesContainer = document.querySelector(
+          ".group-chat__messages"
+        );
+        if (messagesContainer) {
+          messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+      }, 100);
+    }
+  }, [chatMessages, showGroupChat]);
+
+  // Load space news when news tab is active
+  useEffect(() => {
+    const loadSpaceNews = async () => {
+      try {
+        setSpaceNewsLoading(true);
+        setSpaceNewsError(null);
+        const response = await spaceNewsService.getSpaceNews();
+        const news = response.spaceNews;
+        setRealSpaceNews(news);
+        setFilteredRealNews(news);
+      } catch (error) {
+        console.error("Failed to load space news:", error);
+        setSpaceNewsError("Failed to load space news");
+      } finally {
+        setSpaceNewsLoading(false);
+      }
+    };
+
+    if (activeTab === "news") {
+      loadSpaceNews();
+    }
+  }, [activeTab]);
+
+  // Load astronomy events when events tab is active
+  useEffect(() => {
+    const loadAstronomyEvents = async () => {
+      try {
+        setAstronomyEventsLoading(true);
+        setAstronomyEventsError(null);
+        const response = await astronomyEventsService.getEvents();
+        const events = response.events;
+        setRealAstronomyEvents(events);
+        setFilteredEvents(events);
+
+        // Load user reminders
+        try {
+          const reminders = await astronomyEventsService.getUserReminders();
+          const reminderMap: { [key: number]: boolean } = {};
+          reminders.forEach((eventId: number) => {
+            reminderMap[eventId] = true;
+          });
+          setEventReminders(reminderMap);
+        } catch (reminderError) {
+          console.error("Failed to load reminders:", reminderError);
+        }
+      } catch (error) {
+        console.error("Failed to load astronomy events:", error);
+        setAstronomyEventsError("Failed to load astronomy events");
+      } finally {
+        setAstronomyEventsLoading(false);
+      }
+    };
+
+    if (activeTab === "events") {
+      loadAstronomyEvents();
+    }
+  }, [activeTab]);
+
+  // Load discussions when discussions tab is active
+  useEffect(() => {
+    const loadDiscussions = async () => {
+      try {
+        setDiscussionsLoading(true);
+        setDiscussionsError(null);
+        const response = await spaceDiscussionService.getDiscussions({
+          page: 1,
+          limit: 20,
+          sortBy: "last_activity",
+          order: "desc",
+        });
+        const transformedDiscussions = response.discussions.map(
+          transformBackendDiscussion
+        );
+        setRealDiscussions(transformedDiscussions);
+        // Removed unused setDiscussionPagination
+      } catch (error) {
+        console.error("Failed to load discussions:", error);
+        setDiscussionsError("Failed to load discussions");
+      } finally {
+        setDiscussionsLoading(false);
+      }
+    };
+
+    if (activeTab === "discussions") {
+      loadDiscussions();
+    }
+  }, [activeTab]);
+
+  // Load my discussions when my-discussions tab is active
+  useEffect(() => {
+    const loadMyDiscussions = async () => {
+      try {
+        setDiscussionsLoading(true);
+        setDiscussionsError(null);
+        const response = await spaceDiscussionService.getMyDiscussions({
+          page: 1,
+          limit: 20,
+        });
+        const transformedDiscussions = response.discussions.map(
+          transformBackendDiscussion
+        );
+        setMyRealDiscussions(transformedDiscussions);
+        // Removed unused setMyDiscussionPagination
+      } catch (error) {
+        console.error("Failed to load my discussions:", error);
+        setDiscussionsError("Failed to load my discussions");
+      } finally {
+        setDiscussionsLoading(false);
+      }
+    };
+
+    if (activeTab === "my-discussions") {
+      loadMyDiscussions();
+    }
+  }, [activeTab]);
+
+  // Load discussion categories when component mounts
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const categories =
+          await spaceDiscussionService.getDiscussionCategories();
+        setDiscussionCategories(categories);
+      } catch (error) {
+        console.error("Failed to load discussion categories:", error);
+      }
+    };
+
+    loadCategories();
+  }, []);
+
+  // Check user's role for moderator features
+  const isModerator =
+    userProfile?.role === "admin" || userProfile?.role === "moderator";
+
+  // Helper function to transform backend discussion to frontend format
+  const transformBackendDiscussion = (backendDiscussion: any): Discussion => {
+    // Map backend comments (space_discussion_comments) to frontend shape with replies
+    const mapBackendComment = (c: any) => ({
+      id: c.id,
+      discussion_id: c.discussion_id,
+      user_id: c.user_id,
+      parent_id: c.parent_id ?? null,
+      content: c.content,
+      is_edited: !!c.is_edited,
+      created_at: c.created_at,
+      updated_at: c.updated_at,
+      user: c.user,
+      // Normalize counts to expected keys
+      _count: {
+        likes:
+          c._count?.space_discussion_comment_likes ??
+          c._count?.likes ??
+          0,
+        replies:
+          c._count?.other_space_discussion_comments ??
+          c._count?.replies ??
+          (Array.isArray(c.other_space_discussion_comments)
+            ? c.other_space_discussion_comments.length
+            : 0),
+      },
+      // Map child comments (replies)
+      replies: Array.isArray(c.other_space_discussion_comments)
+        ? c.other_space_discussion_comments.map((r: any) => ({
+            id: r.id,
+            discussion_id: r.discussion_id,
+            user_id: r.user_id,
+            parent_id: r.parent_id ?? c.id,
+            content: r.content,
+            is_edited: !!r.is_edited,
+            created_at: r.created_at,
+            updated_at: r.updated_at,
+            user: r.user,
+            _count: {
+              likes:
+                r._count?.space_discussion_comment_likes ??
+                r._count?.likes ??
+                0,
+              replies: 0,
+            },
+          }))
+        : [],
+    });
+
+    const backendComments =
+      backendDiscussion.space_discussion_comments || backendDiscussion.comments || [];
+    const mappedComments = backendComments.map(mapBackendComment);
+
+    const repliesCount =
+      backendDiscussion._count?.space_discussion_comments ??
+      backendDiscussion._count?.comments ??
+      backendDiscussion.replies_count ??
+      mappedComments.length;
+
+    return {
+      id: backendDiscussion.id,
+      title: backendDiscussion.title,
+      author: backendDiscussion.author
+        ? `${
+            backendDiscussion.author.display_name ||
+            backendDiscussion.author.first_name ||
+            "Unknown"
+          }`
+        : "Unknown",
+      author_id: backendDiscussion.author_id,
+      replies: repliesCount,
+      replies_count: repliesCount,
+      lastActivity: backendDiscussion.last_activity
+        ? new Date(backendDiscussion.last_activity).toLocaleString()
+        : "Unknown",
+      last_activity: backendDiscussion.last_activity,
+      category: backendDiscussion.category,
+      isSticky: backendDiscussion.is_sticky || false,
+      is_sticky: backendDiscussion.is_sticky || false,
+      is_closed: backendDiscussion.is_closed || false,
+      content: backendDiscussion.content,
+      views_count: backendDiscussion.views_count || 0,
+      created_at: backendDiscussion.created_at,
+      updated_at: backendDiscussion.updated_at,
+      authorInfo: backendDiscussion.author,
+      // Expose normalized counts shape for consumers that expect it
+      _count: {
+        comments:
+          backendDiscussion._count?.space_discussion_comments ??
+          backendDiscussion._count?.comments ??
+          mappedComments.length,
+        likes:
+          backendDiscussion._count?.space_discussion_likes ??
+          backendDiscussion._count?.likes ??
+          0,
+      },
+      isLiked: backendDiscussion.isLiked || false,
+      comments: mappedComments,
+      discussions: mappedComments, // For backward compatibility
+    };
+  };
+
+  // Removed unused currentUserDiscussions filter
+  // const currentUserDiscussions = discussions.filter(discussion =>
+  //   discussion.author === 'current_user' // Replace with actual user check
+  // );
+
+  // Load group chats (only call when needed to avoid overwriting new groups)
+  const loadGroupChats = async (forceReload = false) => {
+    // If we already have groups and this isn't a forced reload, skip loading
+    if (!forceReload && realGroupChats && realGroupChats.length > 0) {
+      console.log(
+        "Skipping group chat reload - already have",
+        realGroupChats.length,
+        "groups"
+      );
+      return;
+    }
+
+    setChatLoading(true);
+    setChatError(null);
+    try {
+      const response = await chatService.getGroups({
+        page: 1,
+        limit: 50,
+        type: "all",
+      });
+
+      console.log("Raw API response:", response);
+
+      // Handle both possible response structures: response.groups or response.data.groups
+      let apiGroups: any[] = [];
+      if ((response as any).data?.groups) {
+        // If the response has response.data.groups structure
+        apiGroups = (response as any).data.groups;
+        console.log("Using response.data.groups:", apiGroups);
+      } else if (response.groups) {
+        // If the response has response.groups structure (expected)
+        apiGroups = response.groups;
+        console.log("Using response.groups:", apiGroups);
+      } else {
+        console.warn("No groups found in response");
+        apiGroups = [];
+      }
+
+      // Filter out any invalid items from the response
+      const validGroups = apiGroups.filter((chat: any) => {
+        const isValid = chat && chat.id && typeof chat.id === "number";
+        if (!isValid) {
+          console.warn("Invalid chat object found:", chat);
+        }
+        return isValid;
+      });
+
+      console.log("Valid groups after filtering:", validGroups);
+      console.log(
+        "Setting realGroupChats and filteredGroupChats to:",
+        validGroups.length,
+        "groups"
+      );
+      setRealGroupChats(validGroups);
+      setFilteredGroupChats(validGroups);
+
+      // Clear search query to show all groups
+      setSearchQuery("");
+    } catch (error) {
+      console.error("Failed to load group chats:", error);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Failed to load group chats. Please try again.";
+      setChatError(errorMessage);
+      // Set empty arrays as fallback
+      setRealGroupChats([]);
+      setFilteredGroupChats([]);
+    } finally {
+      setChatLoading(false);
+    }
+  };
+
+  // Load user's joined groups to check membership status
+  const loadUserGroups = async () => {
+    try {
+      console.log("Loading user groups...");
+      const response = await chatService.getUserGroups();
+      console.log("User groups response:", response);
+
+      // Handle both possible response structures
+      let apiUserGroups: any[] = [];
+      if ((response as any).data?.groups) {
+        apiUserGroups = (response as any).data.groups;
+      } else if (response.groups) {
+        apiUserGroups = response.groups;
+      } else {
+        console.warn("No user groups found in response");
+        apiUserGroups = [];
+      }
+
+      // Filter out any invalid groups
+      const validUserGroups = apiUserGroups.filter((group: any) => {
+        const isValid = group && group.id && typeof group.id === "number";
+        if (!isValid) {
+          console.warn("Invalid user group object found:", group);
+        }
+        return isValid;
+      });
+
+      console.log(
+        "Setting user groups to:",
+        validUserGroups.map((g) => ({ id: g.id, name: g.name }))
+      );
+      setUserGroups(validUserGroups);
+
+      // Trigger membership refresh to update UI
+      setMembershipRefresh((prev) => prev + 1);
+    } catch (error) {
+      console.error("Failed to load user groups:", error);
+      setUserGroups([]);
+    }
+  };
 
   // Show success alert function
   const showSuccessAlert = (message: string) => {
     setSuccessAlert({ show: true, message });
     setTimeout(() => {
-      setSuccessAlert({ show: false, message: '' });
+      setSuccessAlert({ show: false, message: "" });
     }, 4000);
   };
 
@@ -664,56 +1146,384 @@ const AstroHub: React.FC = () => {
     setSearchQuery(query);
     const lowerQuery = query.toLowerCase();
 
-    // Filter events
-    const newFilteredEvents = astronomicalEvents.filter(event =>
-      event.name.toLowerCase().includes(lowerQuery) ||
-      event.description.toLowerCase().includes(lowerQuery) ||
-      event.visibility.toLowerCase().includes(lowerQuery)
+    // Filter astronomy events (now the main events)
+    const newFilteredEvents = realAstronomyEvents.filter(
+      (event) =>
+        event.name.toLowerCase().includes(lowerQuery) ||
+        event.description.toLowerCase().includes(lowerQuery) ||
+        event.event_type.toLowerCase().includes(lowerQuery) ||
+        event.visibility.toLowerCase().includes(lowerQuery) ||
+        (event.best_time && event.best_time.toLowerCase().includes(lowerQuery))
     );
     setFilteredEvents(newFilteredEvents);
 
     // Filter news
-    const newFilteredNews = spaceNews.filter(article =>
-      article.title.toLowerCase().includes(lowerQuery) ||
-      article.summary.toLowerCase().includes(lowerQuery) ||
-      article.source.toLowerCase().includes(lowerQuery)
+    const newFilteredRealNews = realSpaceNews.filter(
+      (article) =>
+        article.title.toLowerCase().includes(lowerQuery) ||
+        article.content.toLowerCase().includes(lowerQuery) ||
+        article.category.toLowerCase().includes(lowerQuery) ||
+        article.publisher.name.toLowerCase().includes(lowerQuery)
     );
-    setFilteredNews(newFilteredNews);
+    setFilteredRealNews(newFilteredRealNews);
 
-    // Filter discussions
-    const newFilteredDiscussions = discussions.filter(discussion =>
-      discussion.title.toLowerCase().includes(lowerQuery) ||
-      discussion.author.toLowerCase().includes(lowerQuery) ||
-      discussion.category.toLowerCase().includes(lowerQuery)
-    );
-    setFilteredDiscussions(newFilteredDiscussions);
+    // Removed unused discussions filtering
+    // const newFilteredDiscussions = discussions.filter(discussion =>
+    //   discussion.title.toLowerCase().includes(lowerQuery) ||
+    //   (discussion.author || '').toLowerCase().includes(lowerQuery) ||
+    //   discussion.category.toLowerCase().includes(lowerQuery)
+    // );
+    // Removed unused setFilteredDiscussions
 
-    // Filter my discussions
-    const newFilteredMyDiscussions = myDiscussions.filter(discussion =>
-      discussion.title.toLowerCase().includes(lowerQuery) ||
-      discussion.category.toLowerCase().includes(lowerQuery)
-    );
-    setFilteredMyDiscussions(newFilteredMyDiscussions);
+    // Filter my discussions - removed unused filtering
+    // const newFilteredMyDiscussions = myDiscussions.filter(discussion =>
+    //   discussion.title.toLowerCase().includes(lowerQuery) ||
+    //   discussion.category.toLowerCase().includes(lowerQuery)
+    // );
+    // Removed unused setFilteredMyDiscussions
 
     // Filter group chats
-    const newFilteredGroupChats = groupChats.filter(chat =>
-      chat.name.toLowerCase().includes(lowerQuery) ||
-      chat.description.toLowerCase().includes(lowerQuery)
-    );
+    const newFilteredGroupChats = (realGroupChats || [])
+      .filter((chat) => chat && chat.id) // Remove any undefined or invalid items
+      .filter(
+        (chat: GroupChat) =>
+          chat.name.toLowerCase().includes(lowerQuery) ||
+          chat.description.toLowerCase().includes(lowerQuery)
+      );
     setFilteredGroupChats(newFilteredGroupChats);
   };
 
-  const handleViewNewsDetails = (article: SpaceNews) => {
-    setSelectedNews(article);
+  // Removed unused handleViewNewsDetails function
+  // const handleViewNewsDetails = (article: SpaceNews) => {
+  //   setSelectedNews(article);
+  // };
+
+  // Handle astronomy event reminder toggle
+  const handleEventReminderToggle = async (eventId: number) => {
+    try {
+      const hasReminder = eventReminders[eventId];
+
+      if (hasReminder) {
+        await astronomyEventsService.removeEventReminder(eventId);
+        setEventReminders((prev) => ({
+          ...prev,
+          [eventId]: false,
+        }));
+        showSuccessAlert("Reminder removed successfully!");
+      } else {
+        // Set reminder for 1 hour before the event (you can customize this)
+        await astronomyEventsService.setEventReminder(eventId, {
+          reminder_time: new Date(
+            Date.now() + 24 * 60 * 60 * 1000
+          ).toISOString(), // 24 hours from now as example
+          notification_type: "email",
+        });
+        setEventReminders((prev) => ({
+          ...prev,
+          [eventId]: true,
+        }));
+        showSuccessAlert("Reminder set successfully!");
+      }
+    } catch (error) {
+      console.error("Failed to toggle reminder:", error);
+      showSuccessAlert("Failed to update reminder");
+    }
+  };
+
+  const handleViewRealNewsDetails = async (article: RealSpaceNews) => {
+    try {
+      // Load the full article with comments
+      setSelectedRealNews(article);
+      setCommentsLoading(true);
+
+      // Get comments for this article
+      const commentsResponse = await spaceNewsService.getComments(article.id);
+      setRealNewsComments(commentsResponse.comments);
+
+      // Initialize like state for this article
+      setNewsLikesState((prev) => ({
+        ...prev,
+        [article.id]: {
+          isLiked: false, // TODO: Get actual like status from backend
+          count: article.number_of_likes,
+        },
+      }));
+    } catch (error) {
+      console.error("Failed to load news details:", error);
+      showSuccessAlert("Failed to load news details");
+    } finally {
+      setCommentsLoading(false);
+    }
   };
 
   const handleBackToNews = () => {
     setSelectedNews(null);
-    setNewComment('');
+    setSelectedRealNews(null);
+    setRealNewsComments([]);
+    setNewComment("");
     setReplyingTo(null);
-    setNewReply('');
+    setNewReply("");
   };
 
+  const handleRealNewsLike = async (newsId: number) => {
+    try {
+      const response = await spaceNewsService.toggleLike(newsId);
+
+      // Update like state
+      setNewsLikesState((prev) => ({
+        ...prev,
+        [newsId]: {
+          isLiked: response.isLiked,
+          count: response.likeCount,
+        },
+      }));
+
+      // Update the news in the list
+      setRealSpaceNews((prev) =>
+        prev.map((news) =>
+          news.id === newsId
+            ? { ...news, number_of_likes: response.likeCount }
+            : news
+        )
+      );
+
+      showSuccessAlert(response.isLiked ? "News liked!" : "News unliked!");
+    } catch (error) {
+      console.error("Failed to toggle like:", error);
+      showSuccessAlert("Failed to toggle like");
+    }
+  };
+
+  const handleAddRealNewsComment = async (
+    newsId: number,
+    content: string,
+    parentCommentId?: number
+  ) => {
+    try {
+      const newComment = await spaceNewsService.addComment(newsId, {
+        content,
+        parent_comment_id: parentCommentId,
+      });
+
+      if (parentCommentId) {
+        // Update replies for existing comment
+        setRealNewsComments((prev) =>
+          prev.map((comment) =>
+            comment.id === parentCommentId
+              ? {
+                  ...comment,
+                  replies: [...(comment.replies || []), newComment],
+                }
+              : comment
+          )
+        );
+      } else {
+        // Add new top-level comment
+        setRealNewsComments((prev) => [newComment, ...prev]);
+      }
+
+      // Update comment count in the news list
+      setRealSpaceNews((prev) =>
+        prev.map((news) =>
+          news.id === newsId
+            ? { ...news, number_of_comments: news.number_of_comments + 1 }
+            : news
+        )
+      );
+
+      setNewComment("");
+      setNewReply("");
+      setReplyingTo(null);
+      showSuccessAlert("Comment added successfully!");
+    } catch (error) {
+      console.error("Failed to add comment:", error);
+      showSuccessAlert("Failed to add comment");
+    }
+  };
+
+  const handleUpdateRealNewsComment = async (
+    newsId: number,
+    commentId: number,
+    content: string
+  ) => {
+    try {
+      const updatedComment = await spaceNewsService.updateComment(
+        newsId,
+        commentId,
+        { content }
+      );
+
+      setRealNewsComments((prev) =>
+        prev.map((comment) =>
+          comment.id === commentId ? updatedComment : comment
+        )
+      );
+
+      setEditingComment(null);
+      setEditText("");
+      showSuccessAlert("Comment updated successfully!");
+    } catch (error) {
+      console.error("Failed to update comment:", error);
+      showSuccessAlert("Failed to update comment");
+    }
+  };
+
+  const handleDeleteRealNewsComment = async (
+    newsId: number,
+    commentId: number
+  ) => {
+    try {
+      await spaceNewsService.deleteComment(newsId, commentId);
+
+      setRealNewsComments((prev) =>
+        prev.filter((comment) => comment.id !== commentId)
+      );
+
+      // Update comment count in the news list
+      setRealSpaceNews((prev) =>
+        prev.map((news) =>
+          news.id === newsId
+            ? { ...news, number_of_comments: news.number_of_comments - 1 }
+            : news
+        )
+      );
+
+      showSuccessAlert("Comment deleted successfully!");
+    } catch (error) {
+      console.error("Failed to delete comment:", error);
+      showSuccessAlert("Failed to delete comment");
+    }
+  };
+
+  // Removed unused handleToggleDiscussionLike function
+  // Discussion interaction handlers
+  // const handleToggleDiscussionLike = async (discussionId: number) => {
+  //   try {
+  //     const result = await spaceDiscussionService.toggleDiscussionLike(discussionId);
+  //
+  //     // Update the selected discussion if it's the one being liked
+  //     if (selectedDiscussion && selectedDiscussion.id === discussionId) {
+  //       setSelectedDiscussion(prev => prev ? {
+  //         ...prev,
+  //         isLiked: result.isLiked,
+  //         _count: {
+  //           comments: prev._count?.comments || 0,
+  //           likes: result.likeCount
+  //         }
+  //       } : null);
+  //     }
+  //
+  //     // Update the discussion in the lists
+  //     setRealDiscussions(prev => prev.map(disc =>
+  //       disc.id === discussionId ? { ...disc, isLiked: result.isLiked } : disc
+  //     ));
+  //     setMyRealDiscussions(prev => prev.map(disc =>
+  //       disc.id === discussionId ? { ...disc, isLiked: result.isLiked } : disc
+  //     ));
+  //
+  //   } catch (error) {
+  //     console.error('Failed to toggle discussion like:', error);
+  //     showSuccessAlert('Failed to update like. Please try again.');
+  //   }
+  // };
+
+  const handleAddDiscussionComment = async () => {
+    if (newComment.trim() && selectedDiscussion) {
+      try {
+        const commentData: AddCommentRequest = {
+          content: newComment.trim(),
+          parentId: replyingTo || undefined,
+        };
+
+        await spaceDiscussionService.addComment(
+          selectedDiscussion.id,
+          commentData
+        );
+
+        // Reload the discussion to get updated comments
+        const updatedDiscussion =
+          await spaceDiscussionService.getDiscussionById(selectedDiscussion.id);
+        const transformedDiscussion =
+          transformBackendDiscussion(updatedDiscussion);
+        setSelectedDiscussion(transformedDiscussion);
+
+        // Clear the comment form
+        setNewComment("");
+        setReplyingTo(null);
+        showSuccessAlert("Comment added successfully!");
+      } catch (error) {
+        console.error("Failed to add comment:", error);
+        showSuccessAlert("Failed to add comment. Please try again.");
+      }
+    }
+  };
+
+  const handleToggleCommentLike = async (commentId: number) => {
+    try {
+      await spaceDiscussionService.toggleCommentLike(commentId);
+
+      // Reload the discussion to get updated comment likes
+      if (selectedDiscussion) {
+        const updatedDiscussion =
+          await spaceDiscussionService.getDiscussionById(selectedDiscussion.id);
+        const transformedDiscussion =
+          transformBackendDiscussion(updatedDiscussion);
+        setSelectedDiscussion(transformedDiscussion);
+      }
+    } catch (error) {
+      console.error("Failed to toggle comment like:", error);
+      showSuccessAlert("Failed to update like. Please try again.");
+    }
+  };
+
+  const handleEditDiscussionComment = async (
+    commentId: number,
+    newContent: string
+  ) => {
+    try {
+      await spaceDiscussionService.updateComment(commentId, {
+        content: newContent,
+      });
+
+      // Reload the discussion to get updated comments
+      if (selectedDiscussion) {
+        const updatedDiscussion =
+          await spaceDiscussionService.getDiscussionById(selectedDiscussion.id);
+        const transformedDiscussion =
+          transformBackendDiscussion(updatedDiscussion);
+        setSelectedDiscussion(transformedDiscussion);
+      }
+
+      setEditingComment(null);
+      setEditText("");
+      showSuccessAlert("Comment updated successfully!");
+    } catch (error) {
+      console.error("Failed to update comment:", error);
+      showSuccessAlert("Failed to update comment. Please try again.");
+    }
+  };
+
+  const handleDeleteDiscussionComment = async (commentId: number) => {
+    try {
+      await spaceDiscussionService.deleteComment(commentId);
+
+      // Reload the discussion to get updated comments
+      if (selectedDiscussion) {
+        const updatedDiscussion =
+          await spaceDiscussionService.getDiscussionById(selectedDiscussion.id);
+        const transformedDiscussion =
+          transformBackendDiscussion(updatedDiscussion);
+        setSelectedDiscussion(transformedDiscussion);
+      }
+
+      showSuccessAlert("Comment deleted successfully!");
+    } catch (error) {
+      console.error("Failed to delete comment:", error);
+      showSuccessAlert("Failed to delete comment. Please try again.");
+    }
+  };
+
+  // Space News handlers (existing)
   const handleAddComment = () => {
     if (newComment.trim() && selectedNews) {
       const newDiscussion: NewsDiscussion = {
@@ -723,21 +1533,23 @@ const AstroHub: React.FC = () => {
         postedTime: "Just now",
         likes: 0,
         isLiked: false,
-        replies: []
+        replies: [],
       };
-      
+
       const updatedNews = {
         ...selectedNews,
         discussions: [...(selectedNews.discussions || []), newDiscussion],
-        comments: selectedNews.comments + 1
+        comments: selectedNews.comments + 1,
       };
-      
+
       setSelectedNews(updatedNews);
-      setNewComment('');
-      showSuccessAlert('Comment added successfully!');
-      
+      setNewComment("");
+      showSuccessAlert("Comment added successfully!");
+
       // Update the original data (in a real app, this would be an API call)
-      const newsIndex = spaceNews.findIndex(news => news.id === selectedNews.id);
+      const newsIndex = spaceNews.findIndex(
+        (news) => news.id === selectedNews.id
+      );
       if (newsIndex !== -1) {
         spaceNews[newsIndex] = updatedNews;
       }
@@ -746,7 +1558,7 @@ const AstroHub: React.FC = () => {
 
   const handleAddReply = (discussionId: number) => {
     if (newReply.trim() && selectedNews) {
-      const updatedDiscussions = selectedNews.discussions?.map(discussion => {
+      const updatedDiscussions = selectedNews.discussions?.map((discussion) => {
         if (discussion.id === discussionId) {
           const newReplyObj: NewsReply = {
             id: (discussion.replies?.length || 0) + 1,
@@ -754,11 +1566,11 @@ const AstroHub: React.FC = () => {
             comment: newReply.trim(),
             postedTime: "Just now",
             likes: 0,
-            isLiked: false
+            isLiked: false,
           };
           return {
             ...discussion,
-            replies: [...(discussion.replies || []), newReplyObj]
+            replies: [...(discussion.replies || []), newReplyObj],
           };
         }
         return discussion;
@@ -766,16 +1578,18 @@ const AstroHub: React.FC = () => {
 
       const updatedNews = {
         ...selectedNews,
-        discussions: updatedDiscussions
+        discussions: updatedDiscussions,
       };
 
       setSelectedNews(updatedNews);
-      setNewReply('');
+      setNewReply("");
       setReplyingTo(null);
-      showSuccessAlert('Reply added successfully!');
-      
+      showSuccessAlert("Reply added successfully!");
+
       // Update the original data
-      const newsIndex = spaceNews.findIndex(news => news.id === selectedNews.id);
+      const newsIndex = spaceNews.findIndex(
+        (news) => news.id === selectedNews.id
+      );
       if (newsIndex !== -1) {
         spaceNews[newsIndex] = updatedNews;
       }
@@ -786,64 +1600,67 @@ const AstroHub: React.FC = () => {
     if (selectedNews) {
       const updatedNews = {
         ...selectedNews,
-        likes: newsLiked ? selectedNews.likes - 1 : selectedNews.likes + 1
+        likes: newsLiked ? selectedNews.likes - 1 : selectedNews.likes + 1,
       };
       setSelectedNews(updatedNews);
       setNewsLiked(!newsLiked);
-      
+
       // Update the original data
-      const newsIndex = spaceNews.findIndex(news => news.id === selectedNews.id);
+      const newsIndex = spaceNews.findIndex(
+        (news) => news.id === selectedNews.id
+      );
       if (newsIndex !== -1) {
         spaceNews[newsIndex] = updatedNews;
       }
     }
   };
 
-  const handleToggleCommentLike = (discussionId: number) => {
-    if (selectedNews) {
-      const updatedDiscussions = selectedNews.discussions?.map(discussion => {
-        if (discussion.id === discussionId) {
-          return {
-            ...discussion,
-            likes: discussion.isLiked ? discussion.likes - 1 : discussion.likes + 1,
-            isLiked: !discussion.isLiked
-          };
-        }
-        return discussion;
-      });
+  // Removed unused handleToggleNewsCommentLike function
+  // const handleToggleNewsCommentLike = (discussionId: number) => {
+  //   if (selectedNews) {
+  //     const updatedDiscussions = selectedNews.discussions?.map(discussion => {
+  //       if (discussion.id === discussionId) {
+  //         return {
+  //           ...discussion,
+  //           likes: discussion.isLiked ? discussion.likes - 1 : discussion.likes + 1,
+  //           isLiked: !discussion.isLiked
+  //         };
+  //       }
+  //       return discussion;
+  //     });
 
-      const updatedNews = {
-        ...selectedNews,
-        discussions: updatedDiscussions
-      };
+  //     const updatedNews = {
+  //       ...selectedNews,
+  //       discussions: updatedDiscussions
+  //     };
 
-      setSelectedNews(updatedNews);
-      
-      // Update the original data
-      const newsIndex = spaceNews.findIndex(news => news.id === selectedNews.id);
-      if (newsIndex !== -1) {
-        spaceNews[newsIndex] = updatedNews;
-      }
-    }
-  };
+  //     setSelectedNews(updatedNews);
+  //
+  //     // Update the original data
+  //     const newsIndex = spaceNews.findIndex(news => news.id === selectedNews.id);
+  //     if (newsIndex !== -1) {
+  //       spaceNews[newsIndex] = updatedNews;
+  //     }
+  //   }
+  // };
 
   const handleToggleReplyLike = (discussionId: number, replyId: number) => {
     if (selectedNews) {
-      const updatedDiscussions = selectedNews.discussions?.map(discussion => {
+      const updatedDiscussions = selectedNews.discussions?.map((discussion) => {
         if (discussion.id === discussionId) {
-          const updatedReplies = discussion.replies?.map(reply => {
+          const updatedReplies = discussion.replies?.map((reply) => {
             if (reply.id === replyId) {
               return {
                 ...reply,
                 likes: reply.isLiked ? reply.likes - 1 : reply.likes + 1,
-                isLiked: !reply.isLiked
+                isLiked: !reply.isLiked,
               };
             }
             return reply;
           });
           return {
             ...discussion,
-            replies: updatedReplies
+            replies: updatedReplies,
           };
         }
         return discussion;
@@ -851,13 +1668,15 @@ const AstroHub: React.FC = () => {
 
       const updatedNews = {
         ...selectedNews,
-        discussions: updatedDiscussions
+        discussions: updatedDiscussions,
       };
 
       setSelectedNews(updatedNews);
-      
+
       // Update the original data
-      const newsIndex = spaceNews.findIndex(news => news.id === selectedNews.id);
+      const newsIndex = spaceNews.findIndex(
+        (news) => news.id === selectedNews.id
+      );
       if (newsIndex !== -1) {
         spaceNews[newsIndex] = updatedNews;
       }
@@ -871,11 +1690,11 @@ const AstroHub: React.FC = () => {
 
   const handleSaveCommentEdit = (discussionId: number) => {
     if (selectedNews && editText.trim()) {
-      const updatedDiscussions = selectedNews.discussions?.map(discussion => {
+      const updatedDiscussions = selectedNews.discussions?.map((discussion) => {
         if (discussion.id === discussionId) {
           return {
             ...discussion,
-            comment: editText.trim()
+            comment: editText.trim(),
           };
         }
         return discussion;
@@ -883,16 +1702,18 @@ const AstroHub: React.FC = () => {
 
       const updatedNews = {
         ...selectedNews,
-        discussions: updatedDiscussions
+        discussions: updatedDiscussions,
       };
 
       setSelectedNews(updatedNews);
       setEditingComment(null);
-      setEditText('');
-      showSuccessAlert('Comment updated successfully!');
-      
+      setEditText("");
+      showSuccessAlert("Comment updated successfully!");
+
       // Update the original data
-      const newsIndex = spaceNews.findIndex(news => news.id === selectedNews.id);
+      const newsIndex = spaceNews.findIndex(
+        (news) => news.id === selectedNews.id
+      );
       if (newsIndex !== -1) {
         spaceNews[newsIndex] = updatedNews;
       }
@@ -901,46 +1722,54 @@ const AstroHub: React.FC = () => {
 
   const handleDeleteComment = (discussionId: number) => {
     if (selectedNews) {
-      const updatedDiscussions = selectedNews.discussions?.filter(discussion => discussion.id !== discussionId);
+      const updatedDiscussions = selectedNews.discussions?.filter(
+        (discussion) => discussion.id !== discussionId
+      );
 
       const updatedNews = {
         ...selectedNews,
         discussions: updatedDiscussions,
-        comments: selectedNews.comments - 1
+        comments: selectedNews.comments - 1,
       };
 
       setSelectedNews(updatedNews);
-      showSuccessAlert('Comment deleted successfully!');
-      
+      showSuccessAlert("Comment deleted successfully!");
+
       // Update the original data
-      const newsIndex = spaceNews.findIndex(news => news.id === selectedNews.id);
+      const newsIndex = spaceNews.findIndex(
+        (news) => news.id === selectedNews.id
+      );
       if (newsIndex !== -1) {
         spaceNews[newsIndex] = updatedNews;
       }
     }
   };
 
-  const handleEditReply = (discussionId: number, replyId: number, currentText: string) => {
+  const handleEditReply = (
+    discussionId: number,
+    replyId: number,
+    currentText: string
+  ) => {
     setEditingReply({ discussionId, replyId });
     setEditText(currentText);
   };
 
   const handleSaveReplyEdit = (discussionId: number, replyId: number) => {
     if (selectedNews && editText.trim()) {
-      const updatedDiscussions = selectedNews.discussions?.map(discussion => {
+      const updatedDiscussions = selectedNews.discussions?.map((discussion) => {
         if (discussion.id === discussionId) {
-          const updatedReplies = discussion.replies?.map(reply => {
+          const updatedReplies = discussion.replies?.map((reply) => {
             if (reply.id === replyId) {
               return {
                 ...reply,
-                comment: editText.trim()
+                comment: editText.trim(),
               };
             }
             return reply;
           });
           return {
             ...discussion,
-            replies: updatedReplies
+            replies: updatedReplies,
           };
         }
         return discussion;
@@ -948,15 +1777,17 @@ const AstroHub: React.FC = () => {
 
       const updatedNews = {
         ...selectedNews,
-        discussions: updatedDiscussions
+        discussions: updatedDiscussions,
       };
 
       setSelectedNews(updatedNews);
       setEditingReply(null);
-      setEditText('');
-      
+      setEditText("");
+
       // Update the original data
-      const newsIndex = spaceNews.findIndex(news => news.id === selectedNews.id);
+      const newsIndex = spaceNews.findIndex(
+        (news) => news.id === selectedNews.id
+      );
       if (newsIndex !== -1) {
         spaceNews[newsIndex] = updatedNews;
       }
@@ -965,12 +1796,14 @@ const AstroHub: React.FC = () => {
 
   const handleDeleteReply = (discussionId: number, replyId: number) => {
     if (selectedNews) {
-      const updatedDiscussions = selectedNews.discussions?.map(discussion => {
+      const updatedDiscussions = selectedNews.discussions?.map((discussion) => {
         if (discussion.id === discussionId) {
-          const updatedReplies = discussion.replies?.filter(reply => reply.id !== replyId);
+          const updatedReplies = discussion.replies?.filter(
+            (reply) => reply.id !== replyId
+          );
           return {
             ...discussion,
-            replies: updatedReplies
+            replies: updatedReplies,
           };
         }
         return discussion;
@@ -978,13 +1811,15 @@ const AstroHub: React.FC = () => {
 
       const updatedNews = {
         ...selectedNews,
-        discussions: updatedDiscussions
+        discussions: updatedDiscussions,
       };
 
       setSelectedNews(updatedNews);
-      
+
       // Update the original data
-      const newsIndex = spaceNews.findIndex(news => news.id === selectedNews.id);
+      const newsIndex = spaceNews.findIndex(
+        (news) => news.id === selectedNews.id
+      );
       if (newsIndex !== -1) {
         spaceNews[newsIndex] = updatedNews;
       }
@@ -992,27 +1827,57 @@ const AstroHub: React.FC = () => {
   };
 
   // Discussion navigation handlers
-  const handleJoinDiscussionFromCommunity = (discussion: Discussion) => {
-    setDiscussionContext('community');
-    setSelectedDiscussion(discussion);
+  const handleJoinDiscussionFromCommunity = async (discussion: Discussion) => {
+    try {
+      setDiscussionContext("community");
+      setDiscussionsLoading(true);
+
+      // Load full discussion details with comments
+      const fullDiscussion = await spaceDiscussionService.getDiscussionById(
+        discussion.id
+      );
+      const transformedDiscussion = transformBackendDiscussion(fullDiscussion);
+      setSelectedDiscussion(transformedDiscussion);
+    } catch (error) {
+      console.error("Failed to load discussion details:", error);
+      showSuccessAlert("Failed to load discussion details. Please try again.");
+    } finally {
+      setDiscussionsLoading(false);
+    }
   };
 
-  const handleJoinDiscussionFromMyDiscussions = (discussion: Discussion) => {
-    setDiscussionContext('my-discussions');
-    setSelectedDiscussion(discussion);
+  const handleJoinDiscussionFromMyDiscussions = async (
+    discussion: Discussion
+  ) => {
+    try {
+      setDiscussionContext("my-discussions");
+      setDiscussionsLoading(true);
+
+      // Load full discussion details with comments
+      const fullDiscussion = await spaceDiscussionService.getDiscussionById(
+        discussion.id
+      );
+      const transformedDiscussion = transformBackendDiscussion(fullDiscussion);
+      setSelectedDiscussion(transformedDiscussion);
+    } catch (error) {
+      console.error("Failed to load discussion details:", error);
+      showSuccessAlert("Failed to load discussion details. Please try again.");
+    } finally {
+      setDiscussionsLoading(false);
+    }
   };
 
   const handleBackToDiscussions = () => {
     setSelectedDiscussion(null);
-    setNewComment('');
+    setNewComment("");
     setReplyingTo(null);
-    setNewReply('');
-    
+    setNewReply("");
+
     // Navigate back to the appropriate context
-    if (discussionContext === 'my-discussions') {
-      setActiveTab('my-discussions');
+    if (discussionContext === "my-discussions") {
+      setActiveTab("my-discussions");
     } else {
-      setActiveTab('discussions');
+      setActiveTab("discussions");
     }
   };
 
@@ -1022,32 +1887,47 @@ const AstroHub: React.FC = () => {
 
   const handleBackToDiscussionsList = () => {
     setShowCreateDiscussion(false);
-    setNewDiscussionTitle('');
-    setNewDiscussionContent('');
-    setNewDiscussionCategory('General');
+    setNewDiscussionTitle("");
+    setNewDiscussionContent("");
+    setNewDiscussionCategory("General");
   };
 
-  const handleCreateDiscussion = () => {
+  const handleCreateDiscussion = async () => {
     if (newDiscussionTitle.trim() && newDiscussionContent.trim()) {
-      const newDiscussion: Discussion = {
-        id: discussions.length + 1,
-        title: newDiscussionTitle.trim(),
-        author: "CurrentUser",
-        replies: 0,
-        lastActivity: "Just now",
-        category: newDiscussionCategory,
-        isSticky: false
-      };
-      
-      // Add to discussions array (in a real app, this would be an API call)
-      discussions.unshift(newDiscussion);
-      
-      // Reset form and go back to discussions list
-      setShowCreateDiscussion(false);
-      setNewDiscussionTitle('');
-      setNewDiscussionContent('');
-      setNewDiscussionCategory('General');
-      showSuccessAlert('Discussion created successfully!');
+      try {
+        setDiscussionsLoading(true);
+
+        const newDiscussionData: CreateDiscussionRequest = {
+          title: newDiscussionTitle.trim(),
+          content: newDiscussionContent.trim(),
+          category: newDiscussionCategory,
+        };
+
+        const createdDiscussion = await spaceDiscussionService.createDiscussion(
+          newDiscussionData
+        );
+        const transformedDiscussion =
+          transformBackendDiscussion(createdDiscussion);
+
+        // Add to the appropriate discussion list
+        if (discussionContext === "community") {
+          setRealDiscussions((prev) => [transformedDiscussion, ...prev]);
+        } else {
+          setMyRealDiscussions((prev) => [transformedDiscussion, ...prev]);
+        }
+
+        // Reset form and go back to discussions list
+        setShowCreateDiscussion(false);
+        setNewDiscussionTitle("");
+        setNewDiscussionContent("");
+        setNewDiscussionCategory("General");
+        showSuccessAlert("Discussion created successfully!");
+      } catch (error) {
+        console.error("Failed to create discussion:", error);
+        showSuccessAlert("Failed to create discussion. Please try again.");
+      } finally {
+        setDiscussionsLoading(false);
+      }
     }
   };
 
@@ -1064,39 +1944,202 @@ const AstroHub: React.FC = () => {
     setShowGroupInfo(false);
     setShowGroupChat(false);
     setSelectedGroupChat(null);
-    setNewGroupName('');
-    setNewGroupDescription('');
-    setNewGroupType('public');
-    setNewChatMessage('');
+    setNewGroupName("");
+    setNewGroupDescription("");
+    setNewGroupType("public");
+    setNewChatMessage("");
+
+    // Clear chat messages when leaving a chat
+    setChatMessages([]);
+    setMessagesError(null);
   };
 
-  const handleCreateGroup = () => {
+  const handleCreateGroup = async () => {
     if (newGroupName.trim() && newGroupDescription.trim()) {
-      const newGroup: GroupChat = {
-        id: groupChats.length + 1,
-        name: newGroupName.trim(),
-        description: newGroupDescription.trim(),
-        members: 1, // Current user
-        lastMessage: "Group created!",
-        lastMessageTime: "Just now",
-        isActive: true
-      };
-      
-      // Add to group chats array (in a real app, this would be an API call)
-      groupChats.unshift(newGroup);
-      
-      // Reset form and go back to group chats list
-      handleBackToGroupChats();
-      showSuccessAlert('Group created successfully!');
+      setChatLoading(true);
+      setChatError(null);
+
+      try {
+        const createGroupRequest: CreateGroupRequest = {
+          name: newGroupName.trim(),
+          description: newGroupDescription.trim(),
+          type: newGroupType,
+        };
+
+        const response = await chatService.createGroup(createGroupRequest);
+        console.log("Create group response:", response);
+
+        // Add to local state with validation
+        if (response.group && response.group.id) {
+          const updatedGroups = [response.group, ...(realGroupChats || [])];
+          console.log(
+            "Updating groups - before:",
+            realGroupChats?.length || 0,
+            "after:",
+            updatedGroups.length
+          );
+          setRealGroupChats(updatedGroups);
+          setFilteredGroupChats(updatedGroups);
+
+          // Also add to user groups since the creator automatically becomes a member
+          const updatedUserGroups = [response.group, ...(userGroups || [])];
+          setUserGroups(updatedUserGroups);
+          setMembershipRefresh((prev) => prev + 1);
+
+          // Clear search query to ensure new group is visible
+          setSearchQuery("");
+        }
+
+        // Reset form and go back to group chats list
+        handleBackToGroupChats();
+        showSuccessAlert("Group created successfully!");
+      } catch (error) {
+        console.error("Failed to create group:", error);
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : "Failed to create group. Please try again.";
+        setChatError(errorMessage);
+      } finally {
+        setChatLoading(false);
+      }
     }
   };
 
-  const handleJoinChat = (chat: GroupChat) => {
-    setSelectedGroupChat(chat);
-    setShowGroupChat(true);
-    setShowCreateGroup(false);
-    setShowGroupInfo(false);
-    showSuccessAlert(`Joined ${chat.name} successfully!`);
+  const handleJoinChat = async (chat: GroupChat) => {
+    try {
+      setChatLoading(true);
+      setChatError(null);
+
+      // Try to join the group
+      try {
+        await chatService.joinGroup(chat.id);
+        showSuccessAlert(`Joined ${chat.name} successfully!`);
+      } catch (joinError: any) {
+        // If already a member, that's okay - continue to open the chat
+        if (joinError?.message?.includes("already a member")) {
+          console.log("User is already a member, proceeding to open chat");
+        } else {
+          // If it's a different error, re-throw it
+          throw joinError;
+        }
+      }
+
+      // Refresh user groups to ensure membership status is correct
+      await loadUserGroups();
+
+      // Add to user groups if not already there (backup in case API refresh is slow)
+      const isAlreadyInUserGroups = userGroups.some(
+        (userGroup) => userGroup.id === chat.id
+      );
+      if (!isAlreadyInUserGroups) {
+        const updatedUserGroups = [chat, ...(userGroups || [])];
+        setUserGroups(updatedUserGroups);
+        setMembershipRefresh((prev) => prev + 1);
+      }
+
+      // Load the chat messages
+      await loadChatMessages(chat.id);
+
+      // Set the selected chat and show the chat interface
+      setSelectedGroupChat(chat);
+      setShowGroupChat(true);
+      setShowCreateGroup(false);
+      setShowGroupInfo(false);
+    } catch (error) {
+      console.error("Failed to join group:", error);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Failed to join group. Please try again.";
+      setChatError(errorMessage);
+    } finally {
+      setChatLoading(false);
+    }
+  };
+
+  // Handle opening chat for existing members
+  const handleOpenChat = async (chat: GroupChat) => {
+    try {
+      setChatLoading(true);
+      setChatError(null);
+
+      // Load the chat messages (no need to join since already a member)
+      await loadChatMessages(chat.id);
+
+      // Set the selected chat and show the chat interface
+      setSelectedGroupChat(chat);
+      setShowGroupChat(true);
+      setShowCreateGroup(false);
+      setShowGroupInfo(false);
+
+      showSuccessAlert(`Opened ${chat.name} chat!`);
+    } catch (error) {
+      console.error("Failed to open chat:", error);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Failed to open chat. Please try again.";
+      setChatError(errorMessage);
+    } finally {
+      setChatLoading(false);
+    }
+  };
+
+  // Combined handler that determines whether to join or open chat
+  const handleChatAction = async (chat: GroupChat) => {
+    if (isUserMemberOfGroup(chat)) {
+      await handleOpenChat(chat);
+    } else {
+      await handleJoinChat(chat);
+    }
+  };
+
+  // Load chat messages for a specific group
+  const loadChatMessages = async (groupId: number) => {
+    try {
+      setMessagesLoading(true);
+      setMessagesError(null);
+
+      const response = await chatService.getGroupMessages(groupId, {
+        page: 1,
+        limit: 50,
+      });
+
+      console.log("Loaded messages for group", groupId, ":", response);
+
+      // Handle both possible response structures
+      let apiMessages: any[] = [];
+      if ((response as any).data?.messages) {
+        apiMessages = (response as any).data.messages;
+      } else if (response.messages) {
+        apiMessages = response.messages;
+      } else {
+        console.warn("No messages found in response");
+        apiMessages = [];
+      }
+
+      // Filter out any invalid messages
+      const validMessages = apiMessages.filter((message: any) => {
+        const isValid = message && message.id && typeof message.id === "number";
+        if (!isValid) {
+          console.warn("Invalid message object found:", message);
+        }
+        return isValid;
+      });
+
+      setChatMessages(validMessages);
+    } catch (error) {
+      console.error("Failed to load chat messages:", error);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Failed to load messages. Please try again.";
+      setMessagesError(errorMessage);
+      setChatMessages([]);
+    } finally {
+      setMessagesLoading(false);
+    }
   };
 
   const handleViewGroupInfo = (chat: GroupChat) => {
@@ -1106,12 +2149,173 @@ const AstroHub: React.FC = () => {
     setShowGroupChat(false);
   };
 
-  const handleSendChatMessage = () => {
+  const handleSendChatMessage = async () => {
     if (newChatMessage.trim() && selectedGroupChat) {
-      // In a real app, this would send the message to the chat server
-      console.log(`Sending message to ${selectedGroupChat.name}: ${newChatMessage}`);
-      setNewChatMessage('');
-      showSuccessAlert('Message sent successfully!');
+      try {
+        setMessagesLoading(true);
+        setMessagesError(null);
+
+        const response = await chatService.sendMessage(selectedGroupChat.id, {
+          content: newChatMessage.trim(),
+          message_type: "text",
+        });
+
+        console.log("Message sent successfully:", response);
+
+        // Clear the input
+        setNewChatMessage("");
+
+        // Reload messages to show the new message
+        await loadChatMessages(selectedGroupChat.id);
+
+        showSuccessAlert("Message sent successfully!");
+      } catch (error) {
+        console.error("Failed to send message:", error);
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : "Failed to send message. Please try again.";
+        setMessagesError(errorMessage);
+      } finally {
+        setMessagesLoading(false);
+      }
+    }
+  };
+
+  // Helper functions for chat display
+  const getChatMemberCount = (chat: GroupChat): number => {
+    if (!chat) {
+      console.warn("getChatMemberCount called with undefined chat");
+      return 0;
+    }
+    if (!chat.id) {
+      console.warn("getChatMemberCount called with chat missing id:", chat);
+      return 0;
+    }
+    return chat.member_count || chat.members?.length || 0;
+  };
+
+  // Format message timestamp - handles ISO format "2025-08-18T10:55:46.837Z"
+  const formatMessageTime = (timestamp: string): string => {
+    try {
+      const date = new Date(timestamp);
+
+      if (isNaN(date.getTime())) {
+        console.warn("Invalid date:", timestamp);
+        return "Invalid Date";
+      }
+
+      return date.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } catch (error) {
+      console.error("Error formatting message time:", error, timestamp);
+      return "Invalid Date";
+    }
+  };
+
+  // Get current user ID (this should come from auth context in real app)
+  const getCurrentUserId = (): number => {
+    return 289; // Hardcoded for now - replace with actual auth
+  };
+
+  // Get username from message object
+  const getMessageUsername = (message: any): string => {
+    // First try to use the user object if available
+    if (message.user) {
+      if (message.user.display_name) return message.user.display_name;
+      if (message.user.first_name && message.user.last_name) {
+        return `${message.user.first_name} ${message.user.last_name}`;
+      }
+      if (message.user.first_name) return message.user.first_name;
+    }
+
+    // Fallback to user ID mapping
+    const currentUserId = getCurrentUserId();
+    if (message.user_id === currentUserId) {
+      return "You";
+    }
+
+    return `User ${message.user_id}`;
+  };
+
+  // Get user initials from message object
+  const getMessageUserInitials = (message: any): string => {
+    // First try to use the user object if available
+    if (message.user) {
+      if (message.user.display_name) {
+        const name = message.user.display_name;
+        if (name.includes(" ")) {
+          const parts = name.split(" ");
+          return (
+            parts[0].charAt(0).toUpperCase() + parts[1].charAt(0).toUpperCase()
+          );
+        }
+        return name.charAt(0).toUpperCase();
+      }
+      if (message.user.first_name && message.user.last_name) {
+        return (
+          message.user.first_name.charAt(0).toUpperCase() +
+          message.user.last_name.charAt(0).toUpperCase()
+        );
+      }
+      if (message.user.first_name) {
+        return message.user.first_name.charAt(0).toUpperCase();
+      }
+    }
+
+    // Fallback
+    const currentUserId = getCurrentUserId();
+    if (message.user_id === currentUserId) {
+      return "Y";
+    }
+
+    return "U";
+  };
+
+  // Check if current user is a member of the group
+  const isUserMemberOfGroup = (chat: GroupChat): boolean => {
+    if (!chat || !chat.id) {
+      console.log("isUserMemberOfGroup: Invalid chat object", chat);
+      return false;
+    }
+
+    // Include membershipRefresh in the calculation to force re-evaluation
+    const currentUserGroups = [...userGroups]; // Create a fresh reference
+    const isMember = currentUserGroups.some(
+      (userGroup) => userGroup && userGroup.id === chat.id
+    );
+
+    console.log(
+      `isUserMemberOfGroup: Checking if user is member of group ${chat.id} (${chat.name}):`,
+      isMember,
+      "refresh:",
+      membershipRefresh
+    );
+    console.log(
+      "User groups:",
+      currentUserGroups.map((g) => ({ id: g?.id, name: g?.name }))
+    );
+    return isMember;
+  };
+
+  const formatLastMessageTime = (time: string | undefined): string => {
+    if (!time) return "No messages yet";
+    try {
+      const date = new Date(time);
+      const now = new Date();
+      const diffInMinutes = Math.floor(
+        (now.getTime() - date.getTime()) / (1000 * 60)
+      );
+
+      if (diffInMinutes < 1) return "Just now";
+      if (diffInMinutes < 60) return `${diffInMinutes} min ago`;
+      if (diffInMinutes < 1440)
+        return `${Math.floor(diffInMinutes / 60)} hours ago`;
+      return date.toLocaleDateString();
+    } catch {
+      return time;
     }
   };
 
@@ -1119,43 +2323,54 @@ const AstroHub: React.FC = () => {
     return (
       <div className="news-details">
         <div className="news-details__header">
-          <Button 
-            variant="secondary" 
-            size="small" 
+          <Button
+            variant="secondary"
+            size="small"
             onClick={handleBackToNews}
             className="back-button"
           >
             ← Back to News
           </Button>
         </div>
-        
+
         <div className="news-details__content">
           <div className="news-details__image">
-            <img src={article.image} alt={article.title} />
+            <img
+              src={
+                "https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?w=400&h=250&fit=crop"
+              }
+              alt={article.title}
+            />
             <div className="news-details__source">{article.source}</div>
           </div>
-          
+
           <div className="news-details__info">
             <div className="news-details__meta">
               <span className="news-details__date">{article.date}</span>
-              <span className="news-details__read-time">{article.readTime} read</span>
+              <span className="news-details__read-time">
+                {article.readTime} read
+              </span>
             </div>
-            
+
             <h1 className="news-details__title">{article.title}</h1>
-            
+
             <div className="news-details__stats">
-              <button 
-                className={`news-like-button ${newsLiked ? 'liked' : ''}`}
+              <button
+                className={`news-like-button ${newsLiked ? "liked" : ""}`}
                 onClick={handleToggleNewsLike}
               >
                 <span className="like-icon">❤️</span>
                 <span className="like-count">{article.likes} likes</span>
               </button>
-              <span className="news-details__comments">{article.comments} comments</span>
+              <span className="news-details__comments">
+                {article.comments} comments
+              </span>
             </div>
-            
+
             <div className="news-details__body">
-              <p className="news-details__full-content">{article.fullContent}</p>
+              <p className="news-details__full-content">
+                {article.fullContent}
+              </p>
             </div>
           </div>
         </div>
@@ -1173,9 +2388,9 @@ const AstroHub: React.FC = () => {
               className="comment-textarea"
               rows={3}
             />
-            <Button 
-              variant="primary" 
-              size="small" 
+            <Button
+              variant="primary"
+              size="small"
               onClick={handleAddComment}
               disabled={!newComment.trim()}
             >
@@ -1192,8 +2407,12 @@ const AstroHub: React.FC = () => {
                       {discussion.userName.charAt(0).toUpperCase()}
                     </div>
                     <div className="discussion-comment__info">
-                      <span className="discussion-comment__username">{discussion.userName}</span>
-                      <span className="discussion-comment__time">{discussion.postedTime}</span>
+                      <span className="discussion-comment__username">
+                        {discussion.userName}
+                      </span>
+                      <span className="discussion-comment__time">
+                        {discussion.postedTime}
+                      </span>
                     </div>
                   </div>
                   {editingComment === discussion.id ? (
@@ -1205,20 +2424,20 @@ const AstroHub: React.FC = () => {
                         rows={3}
                       />
                       <div className="edit-actions">
-                        <Button 
-                          variant="primary" 
-                          size="small" 
+                        <Button
+                          variant="primary"
+                          size="small"
                           onClick={() => handleSaveCommentEdit(discussion.id)}
                           disabled={!editText.trim()}
                         >
                           Save
                         </Button>
-                        <Button 
-                          variant="secondary" 
-                          size="small" 
+                        <Button
+                          variant="secondary"
+                          size="small"
                           onClick={() => {
                             setEditingComment(null);
-                            setEditText('');
+                            setEditText("");
                           }}
                         >
                           Cancel
@@ -1226,35 +2445,48 @@ const AstroHub: React.FC = () => {
                       </div>
                     </div>
                   ) : (
-                    <p className="discussion-comment__text">{discussion.comment}</p>
+                    <p className="discussion-comment__text">
+                      {discussion.comment}
+                    </p>
                   )}
                   <div className="discussion-comment__footer">
-                    <button 
-                      className={`comment-like-button ${discussion.isLiked ? 'liked' : ''}`}
+                    <button
+                      className={`comment-like-button ${
+                        discussion.isLiked ? "liked" : ""
+                      }`}
                       onClick={() => handleToggleCommentLike(discussion.id)}
                     >
                       <span className="like-icon">❤️</span>
                       <span className="like-count">{discussion.likes}</span>
                     </button>
                     <div className="discussion-comment__actions">
-                      <Button 
-                        variant="secondary" 
+                      <Button
+                        variant="secondary"
                         size="small"
-                        onClick={() => setReplyingTo(replyingTo === discussion.id ? null : discussion.id)}
+                        onClick={() =>
+                          setReplyingTo(
+                            replyingTo === discussion.id ? null : discussion.id
+                          )
+                        }
                       >
-                        {replyingTo === discussion.id ? 'Cancel' : 'Reply'}
+                        {replyingTo === discussion.id ? "Cancel" : "Reply"}
                       </Button>
                       {discussion.userName === "CurrentUser" && (
                         <>
-                          <Button 
-                            variant="secondary" 
+                          <Button
+                            variant="secondary"
                             size="small"
-                            onClick={() => handleEditComment(discussion.id, discussion.comment)}
+                            onClick={() =>
+                              handleEditComment(
+                                discussion.id,
+                                discussion.comment
+                              )
+                            }
                           >
                             Edit
                           </Button>
-                          <Button 
-                            variant="secondary" 
+                          <Button
+                            variant="secondary"
                             size="small"
                             onClick={() => handleDeleteComment(discussion.id)}
                           >
@@ -1272,14 +2504,21 @@ const AstroHub: React.FC = () => {
                       <div key={reply.id} className="discussion-reply">
                         <div className="discussion-comment__header">
                           <div className="discussion-comment__avatar">
-                            {reply.userName.charAt(0).toUpperCase()}
+                            {(reply.userName || "Unknown")
+                              .charAt(0)
+                              .toUpperCase()}
                           </div>
                           <div className="discussion-comment__info">
-                            <span className="discussion-comment__username">{reply.userName}</span>
-                            <span className="discussion-comment__time">{reply.postedTime}</span>
+                            <span className="discussion-comment__username">
+                              {reply.userName || "Unknown"}
+                            </span>
+                            <span className="discussion-comment__time">
+                              {reply.postedTime}
+                            </span>
                           </div>
                         </div>
-                        {editingReply?.discussionId === discussion.id && editingReply?.replyId === reply.id ? (
+                        {editingReply?.discussionId === discussion.id &&
+                        editingReply?.replyId === reply.id ? (
                           <div className="edit-form">
                             <textarea
                               value={editText}
@@ -1288,20 +2527,22 @@ const AstroHub: React.FC = () => {
                               rows={2}
                             />
                             <div className="edit-actions">
-                              <Button 
-                                variant="primary" 
-                                size="small" 
-                                onClick={() => handleSaveReplyEdit(discussion.id, reply.id)}
+                              <Button
+                                variant="primary"
+                                size="small"
+                                onClick={() =>
+                                  handleSaveReplyEdit(discussion.id, reply.id)
+                                }
                                 disabled={!editText.trim()}
                               >
                                 Save
                               </Button>
-                              <Button 
-                                variant="secondary" 
-                                size="small" 
+                              <Button
+                                variant="secondary"
+                                size="small"
                                 onClick={() => {
                                   setEditingReply(null);
-                                  setEditText('');
+                                  setEditText("");
                                 }}
                               >
                                 Cancel
@@ -1309,29 +2550,43 @@ const AstroHub: React.FC = () => {
                             </div>
                           </div>
                         ) : (
-                          <p className="discussion-comment__text">{reply.comment}</p>
+                          <p className="discussion-comment__text">
+                            {reply.comment}
+                          </p>
                         )}
                         <div className="discussion-comment__footer">
-                          <button 
-                            className={`reply-like-button ${reply.isLiked ? 'liked' : ''}`}
-                            onClick={() => handleToggleReplyLike(discussion.id, reply.id)}
+                          <button
+                            className={`reply-like-button ${
+                              reply.isLiked ? "liked" : ""
+                            }`}
+                            onClick={() =>
+                              handleToggleReplyLike(discussion.id, reply.id)
+                            }
                           >
                             <span className="like-icon">❤️</span>
                             <span className="like-count">{reply.likes}</span>
                           </button>
-                          {reply.userName === "CurrentUser" && (
+                          {(reply.userName || "") === "CurrentUser" && (
                             <div className="discussion-comment__actions">
-                              <Button 
-                                variant="secondary" 
+                              <Button
+                                variant="secondary"
                                 size="small"
-                                onClick={() => handleEditReply(discussion.id, reply.id, reply.comment)}
+                                onClick={() =>
+                                  handleEditReply(
+                                    discussion.id,
+                                    reply.id,
+                                    reply.comment
+                                  )
+                                }
                               >
                                 Edit
                               </Button>
-                              <Button 
-                                variant="danger" 
+                              <Button
+                                variant="danger"
                                 size="small"
-                                onClick={() => handleDeleteReply(discussion.id, reply.id)}
+                                onClick={() =>
+                                  handleDeleteReply(discussion.id, reply.id)
+                                }
                               >
                                 Delete
                               </Button>
@@ -1353,20 +2608,20 @@ const AstroHub: React.FC = () => {
                       rows={2}
                     />
                     <div className="reply-actions">
-                      <Button 
-                        variant="primary" 
-                        size="small" 
+                      <Button
+                        variant="primary"
+                        size="small"
                         onClick={() => handleAddReply(discussion.id)}
                         disabled={!newReply.trim()}
                       >
                         Post Reply
                       </Button>
-                      <Button 
-                        variant="secondary" 
-                        size="small" 
+                      <Button
+                        variant="secondary"
+                        size="small"
                         onClick={() => {
                           setReplyingTo(null);
-                          setNewReply('');
+                          setNewReply("");
                         }}
                       >
                         Cancel
@@ -1382,37 +2637,350 @@ const AstroHub: React.FC = () => {
     );
   };
 
+  const renderRealNewsDetails = (article: RealSpaceNews) => {
+    const likeState = newsLikesState[article.id] || {
+      isLiked: false,
+      count: article.number_of_likes,
+    };
+
+    return (
+      <div className="news-details">
+        <div className="news-details__header">
+          <Button
+            variant="secondary"
+            size="small"
+            onClick={handleBackToNews}
+            className="back-button"
+          >
+            ← Back to News
+          </Button>
+        </div>
+
+        <div className="news-details__content">
+          <div className="news-details__image">
+            <img
+              src={
+                article.image_urls?.[0] ||
+                "https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?w=400&h=250&fit=crop"
+              }
+              alt={article.title}
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src =
+                  "https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?w=400&h=250&fit=crop";
+              }}
+            />
+            <div className="news-details__source">{article.category}</div>
+          </div>
+
+          <div className="news-details__info">
+            <div className="news-details__meta">
+              <span className="news-details__date">
+                {new Date(article.publish_date).toLocaleDateString()}
+              </span>
+              <span className="news-details__read-time">5 min read</span>
+              <span className="news-details__author">
+                By {article.publisher.name}
+              </span>
+            </div>
+
+            <h1 className="news-details__title">{article.title}</h1>
+
+            <div className="news-details__stats">
+              <button
+                className={`news-like-button ${
+                  likeState.isLiked ? "liked" : ""
+                }`}
+                onClick={() => handleRealNewsLike(article.id)}
+              >
+                <span className="like-icon">❤️</span>
+                <span className="like-count">{likeState.count} likes</span>
+              </button>
+              <span className="news-details__comments">
+                {article.number_of_comments} comments
+              </span>
+            </div>
+
+            <div className="news-details__body">
+              <div className="news-details__full-content">
+                {article.content.split("\n").map((paragraph, index) => (
+                  <p key={index}>{paragraph}</p>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="news-discussions">
+          <div className="news-discussions__header">
+            <h2>Comments ({realNewsComments.length})</h2>
+          </div>
+
+          <div className="news-discussions__add-comment">
+            <textarea
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              placeholder="Share your thoughts about this news..."
+              className="comment-textarea"
+              rows={3}
+            />
+            <Button
+              variant="primary"
+              size="small"
+              onClick={() => handleAddRealNewsComment(article.id, newComment)}
+              disabled={!newComment.trim()}
+            >
+              Post Comment
+            </Button>
+          </div>
+
+          {commentsLoading ? (
+            <div className="loading-message">Loading comments...</div>
+          ) : (
+            <div className="news-discussions__list">
+              {realNewsComments.map((comment) => (
+                <div key={comment.id} className="discussion-thread">
+                  <div className="discussion-comment">
+                    <div className="discussion-comment__header">
+                      <div className="discussion-comment__avatar">
+                        {comment.user.name.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="discussion-comment__info">
+                        <span className="discussion-comment__username">
+                          {comment.user.name}
+                        </span>
+                        <span className="discussion-comment__time">
+                          {new Date(comment.created_at).toLocaleDateString()}
+                          {comment.is_edited && (
+                            <span className="edited-indicator"> (edited)</span>
+                          )}
+                        </span>
+                      </div>
+                    </div>
+                    {editingComment === comment.id ? (
+                      <div className="edit-form">
+                        <textarea
+                          value={editText}
+                          onChange={(e) => setEditText(e.target.value)}
+                          className="edit-textarea"
+                          rows={3}
+                        />
+                        <div className="edit-actions">
+                          <Button
+                            variant="primary"
+                            size="small"
+                            onClick={() =>
+                              handleUpdateRealNewsComment(
+                                article.id,
+                                comment.id,
+                                editText
+                              )
+                            }
+                            disabled={!editText.trim()}
+                          >
+                            Save
+                          </Button>
+                          <Button
+                            variant="secondary"
+                            size="small"
+                            onClick={() => {
+                              setEditingComment(null);
+                              setEditText("");
+                            }}
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="discussion-comment__text">
+                        {comment.content}
+                      </p>
+                    )}
+                    <div className="discussion-comment__footer">
+                      <div className="discussion-comment__actions">
+                        <Button
+                          variant="secondary"
+                          size="small"
+                          onClick={() =>
+                            setReplyingTo(
+                              replyingTo === comment.id ? null : comment.id
+                            )
+                          }
+                        >
+                          {replyingTo === comment.id ? "Cancel" : "Reply"}
+                        </Button>
+                        {userProfile &&
+                          comment.user.id.toString() === userProfile.uid && (
+                            <>
+                              <Button
+                                variant="secondary"
+                                size="small"
+                                onClick={() => {
+                                  setEditingComment(comment.id);
+                                  setEditText(comment.content);
+                                }}
+                              >
+                                Edit
+                              </Button>
+                              <Button
+                                variant="secondary"
+                                size="small"
+                                onClick={() =>
+                                  handleDeleteRealNewsComment(
+                                    article.id,
+                                    comment.id
+                                  )
+                                }
+                              >
+                                Delete
+                              </Button>
+                            </>
+                          )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {comment.replies && comment.replies.length > 0 && (
+                    <div className="discussion-replies">
+                      {comment.replies.map((reply: any) => (
+                        <div key={reply.id} className="discussion-reply">
+                          <div className="discussion-comment__header">
+                            <div className="discussion-comment__avatar">
+                              {reply.user.name.charAt(0).toUpperCase()}
+                            </div>
+                            <div className="discussion-comment__info">
+                              <span className="discussion-comment__username">
+                                {reply.user.name}
+                              </span>
+                              <span className="discussion-comment__time">
+                                {new Date(
+                                  reply.created_at
+                                ).toLocaleDateString()}
+                                {reply.is_edited && (
+                                  <span className="edited-indicator">
+                                    {" "}
+                                    (edited)
+                                  </span>
+                                )}
+                              </span>
+                            </div>
+                          </div>
+                          <p className="discussion-comment__text">
+                            {reply.content}
+                          </p>
+                          {userProfile &&
+                            reply.user.id.toString() === userProfile.uid && (
+                              <div className="discussion-comment__footer">
+                                <div className="discussion-comment__actions">
+                                  <Button
+                                    variant="secondary"
+                                    size="small"
+                                    onClick={() =>
+                                      handleDeleteRealNewsComment(
+                                        article.id,
+                                        reply.id
+                                      )
+                                    }
+                                  >
+                                    Delete
+                                  </Button>
+                                </div>
+                              </div>
+                            )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {replyingTo === comment.id && (
+                    <div className="discussion-reply-form">
+                      <textarea
+                        value={newReply}
+                        onChange={(e) => setNewReply(e.target.value)}
+                        placeholder="Write a reply..."
+                        className="reply-textarea"
+                        rows={2}
+                      />
+                      <div className="reply-actions">
+                        <Button
+                          variant="primary"
+                          size="small"
+                          onClick={() =>
+                            handleAddRealNewsComment(
+                              article.id,
+                              newReply,
+                              comment.id
+                            )
+                          }
+                          disabled={!newReply.trim()}
+                        >
+                          Post Reply
+                        </Button>
+                        <Button
+                          variant="secondary"
+                          size="small"
+                          onClick={() => {
+                            setReplyingTo(null);
+                            setNewReply("");
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   const renderDiscussionDetails = (discussion: Discussion) => {
     return (
       <div className="discussion-details">
         <div className="discussion-details__header">
-          <Button 
-            variant="secondary" 
-            size="small" 
+          <Button
+            variant="secondary"
+            size="small"
             onClick={handleBackToDiscussions}
             className="back-button"
           >
-            ← Back to {discussionContext === 'my-discussions' ? 'My Discussions' : 'Discussions'}
+            ← Back to{" "}
+            {discussionContext === "my-discussions"
+              ? "My Discussions"
+              : "Discussions"}
           </Button>
         </div>
-        
+
         <div className="discussion-details__content">
           <div className="discussion-details__info">
             <div className="discussion-details__meta">
               <span className="category-badge">{discussion.category}</span>
-              {discussion.isSticky && <span className="sticky-badge">📌 Pinned</span>}
-              <span className="discussion-details__activity">Last activity: {discussion.lastActivity}</span>
+              {discussion.isSticky && (
+                <span className="sticky-badge">📌 Pinned</span>
+              )}
+              <span className="discussion-details__activity">
+                Last activity: {discussion.lastActivity}
+              </span>
             </div>
-            
+
             <h1 className="discussion-details__title">{discussion.title}</h1>
-            
+
             <div className="discussion-details__author-info">
               <div className="discussion-details__avatar">
-                {discussion.author.charAt(0).toUpperCase()}
+                {(discussion.author || "Unknown").charAt(0).toUpperCase()}
               </div>
               <div className="author-details">
-                <span className="discussion-details__author">Started by {discussion.author}</span>
-                <span className="discussion-details__replies">{discussion.replies} replies</span>
+                <span className="discussion-details__author">
+                  Started by {discussion.author || "Unknown"}
+                </span>
+                <span className="discussion-details__replies">
+                  {discussion.replies} replies
+                </span>
               </div>
             </div>
           </div>
@@ -1431,10 +2999,10 @@ const AstroHub: React.FC = () => {
               className="comment-textarea"
               rows={3}
             />
-            <Button 
-              variant="primary" 
-              size="small" 
-              onClick={handleAddComment}
+            <Button
+              variant="primary"
+              size="small"
+              onClick={handleAddDiscussionComment}
               disabled={!newComment.trim()}
             >
               Post Reply
@@ -1447,41 +3015,93 @@ const AstroHub: React.FC = () => {
               <div className="discussion-comment">
                 <div className="discussion-comment__header">
                   <div className="discussion-comment__avatar">
-                    {discussion.author.charAt(0).toUpperCase()}
+                    {(discussion.author || "Unknown").charAt(0).toUpperCase()}
                   </div>
                   <div className="discussion-comment__info">
-                    <span className="discussion-comment__username">{discussion.author}</span>
-                    <span className="discussion-comment__time">Started this discussion</span>
+                    <span className="discussion-comment__username">
+                      {discussion.author || "Unknown"}
+                    </span>
+                    <span className="discussion-comment__time">
+                      Started this discussion
+                    </span>
                   </div>
                 </div>
-                <p className="discussion-comment__text">{discussion.content || "No content available for this discussion."}</p>
+                <p className="discussion-comment__text">
+                  {discussion.content ||
+                    "No content available for this discussion."}
+                </p>
               </div>
             </div>
 
             {/* Discussion replies */}
-            {discussion.discussions && discussion.discussions.length > 0 ? (
+            {discussion.comments && discussion.comments.length > 0 ? (
               <div className="discussion-thread-list">
-                {discussion.discussions.map((comment) => (
+                {discussion.comments.map((comment) => (
                   <div key={comment.id} className="discussion-thread">
                     <div className="discussion-comment">
                       <div className="discussion-comment__header">
                         <div className="discussion-comment__avatar">
-                          {comment.userName.charAt(0).toUpperCase()}
+                          {(
+                            comment.user?.display_name ||
+                            comment.user?.first_name ||
+                            "Unknown"
+                          )
+                            .charAt(0)
+                            .toUpperCase()}
                         </div>
                         <div className="discussion-comment__info">
-                          <span className="discussion-comment__username">{comment.userName}</span>
-                          <span className="discussion-comment__time">{comment.postedTime}</span>
+                          <span className="discussion-comment__username">
+                            {comment.user?.display_name ||
+                              (comment.user?.first_name &&
+                              comment.user?.last_name
+                                ? `${comment.user.first_name} ${comment.user.last_name}`
+                                : comment.user?.first_name || "Unknown")}
+                          </span>
+                          <span className="discussion-comment__time">
+                            {new Date(comment.created_at).toLocaleString()}
+                          </span>
                         </div>
                       </div>
-                      <p className="discussion-comment__text">{comment.comment}</p>
+                      <p className="discussion-comment__text">
+                        {comment.content}
+                      </p>
                       <div className="discussion-comment__footer">
-                        <button 
-                          className={`comment-like-button ${comment.isLiked ? 'liked' : ''}`}
-                          onClick={() => {/* Add like functionality for discussion comments */}}
+                        <button
+                          className={`comment-like-button`}
+                          onClick={() => handleToggleCommentLike(comment.id)}
                         >
                           <span className="like-icon">❤️</span>
-                          <span className="like-count">{comment.likes}</span>
+                          <span className="like-count">
+                            {comment._count?.likes || 0}
+                          </span>
                         </button>
+                        {userProfile?.uid &&
+                          String(userProfile.uid) ===
+                            String(comment.user_id) && (
+                            <div className="discussion-comment__actions">
+                              <Button
+                                variant="secondary"
+                                size="small"
+                                onClick={() =>
+                                  handleEditDiscussionComment(
+                                    comment.id,
+                                    comment.content
+                                  )
+                                }
+                              >
+                                Edit
+                              </Button>
+                              <Button
+                                variant="secondary"
+                                size="small"
+                                onClick={() =>
+                                  handleDeleteDiscussionComment(comment.id)
+                                }
+                              >
+                                Delete
+                              </Button>
+                            </div>
+                          )}
                       </div>
                     </div>
 
@@ -1491,22 +3111,69 @@ const AstroHub: React.FC = () => {
                           <div key={reply.id} className="discussion-reply">
                             <div className="discussion-comment__header">
                               <div className="discussion-comment__avatar">
-                                {reply.userName.charAt(0).toUpperCase()}
+                                {(
+                                  reply.user?.display_name ||
+                                  reply.user?.first_name ||
+                                  "Unknown"
+                                )
+                                  .charAt(0)
+                                  .toUpperCase()}
                               </div>
                               <div className="discussion-comment__info">
-                                <span className="discussion-comment__username">{reply.userName}</span>
-                                <span className="discussion-comment__time">{reply.postedTime}</span>
+                                <span className="discussion-comment__username">
+                                  {reply.user?.display_name ||
+                                    (reply.user?.first_name &&
+                                    reply.user?.last_name
+                                      ? `${reply.user.first_name} ${reply.user.last_name}`
+                                      : reply.user?.first_name || "Unknown")}
+                                </span>
+                                <span className="discussion-comment__time">
+                                  {new Date(reply.created_at).toLocaleString()}
+                                </span>
                               </div>
                             </div>
-                            <p className="discussion-comment__text">{reply.comment}</p>
+                            <p className="discussion-comment__text">
+                              {reply.content}
+                            </p>
                             <div className="discussion-comment__footer">
-                              <button 
-                                className={`reply-like-button ${reply.isLiked ? 'liked' : ''}`}
-                                onClick={() => {/* Add like functionality for replies */}}
+                              <button
+                                className={`reply-like-button`}
+                                onClick={() =>
+                                  handleToggleCommentLike(reply.id)
+                                }
                               >
                                 <span className="like-icon">❤️</span>
-                                <span className="like-count">{reply.likes}</span>
+                                <span className="like-count">
+                                  {reply._count?.likes || 0}
+                                </span>
                               </button>
+                              {userProfile?.uid &&
+                                String(userProfile.uid) ===
+                                  String(reply.user_id) && (
+                                  <div className="discussion-comment__actions">
+                                    <Button
+                                      variant="secondary"
+                                      size="small"
+                                      onClick={() =>
+                                        handleEditDiscussionComment(
+                                          reply.id,
+                                          reply.content
+                                        )
+                                      }
+                                    >
+                                      Edit
+                                    </Button>
+                                    <Button
+                                      variant="secondary"
+                                      size="small"
+                                      onClick={() =>
+                                        handleDeleteDiscussionComment(reply.id)
+                                      }
+                                    >
+                                      Delete
+                                    </Button>
+                                  </div>
+                                )}
                             </div>
                           </div>
                         ))}
@@ -1530,22 +3197,27 @@ const AstroHub: React.FC = () => {
     return (
       <div className="create-discussion">
         <div className="create-discussion__header">
-          <Button 
-            variant="secondary" 
-            size="small" 
+          <Button
+            variant="secondary"
+            size="small"
             onClick={handleBackToDiscussionsList}
             className="back-button"
           >
             ← Back to Discussions
           </Button>
         </div>
-        
+
         <div className="create-discussion__content">
           <h1 className="create-discussion__title">Start New Discussion</h1>
-          
-          <form className="create-discussion__form" onSubmit={(e) => e.preventDefault()}>
+
+          <form
+            className="create-discussion__form"
+            onSubmit={(e) => e.preventDefault()}
+          >
             <div className="form-group">
-              <label htmlFor="discussion-title" className="form-label">Discussion Title</label>
+              <label htmlFor="discussion-title" className="form-label">
+                Discussion Title
+              </label>
               <input
                 id="discussion-title"
                 type="text"
@@ -1558,25 +3230,39 @@ const AstroHub: React.FC = () => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="discussion-category" className="form-label">Category</label>
+              <label htmlFor="discussion-category" className="form-label">
+                Category
+              </label>
               <select
                 id="discussion-category"
                 value={newDiscussionCategory}
                 onChange={(e) => setNewDiscussionCategory(e.target.value)}
                 className="form-select"
               >
-                <option value="General">General</option>
-                <option value="Equipment">Equipment</option>
-                <option value="Photography">Photography</option>
-                <option value="Observation">Observation</option>
-                <option value="Travel">Travel</option>
-                <option value="Events">Events</option>
-                <option value="Science">Science</option>
+                {discussionCategories.length > 0 ? (
+                  discussionCategories.map((category) => (
+                    <option key={category} value={category}>
+                      {category}
+                    </option>
+                  ))
+                ) : (
+                  <>
+                    <option value="General">General</option>
+                    <option value="Equipment">Equipment</option>
+                    <option value="Photography">Photography</option>
+                    <option value="Observation">Observation</option>
+                    <option value="Travel">Travel</option>
+                    <option value="Events">Events</option>
+                    <option value="Science">Science</option>
+                  </>
+                )}
               </select>
             </div>
 
             <div className="form-group">
-              <label htmlFor="discussion-content" className="form-label">Discussion Content</label>
+              <label htmlFor="discussion-content" className="form-label">
+                Discussion Content
+              </label>
               <textarea
                 id="discussion-content"
                 value={newDiscussionContent}
@@ -1588,16 +3274,18 @@ const AstroHub: React.FC = () => {
             </div>
 
             <div className="form-actions">
-              <Button 
-                variant="primary" 
+              <Button
+                variant="primary"
                 size="medium"
                 onClick={handleCreateDiscussion}
-                disabled={!newDiscussionTitle.trim() || !newDiscussionContent.trim()}
+                disabled={
+                  !newDiscussionTitle.trim() || !newDiscussionContent.trim()
+                }
               >
                 Create Discussion
               </Button>
-              <Button 
-                variant="secondary" 
+              <Button
+                variant="secondary"
                 size="medium"
                 onClick={handleBackToDiscussionsList}
               >
@@ -1614,22 +3302,27 @@ const AstroHub: React.FC = () => {
     return (
       <div className="create-group">
         <div className="create-group__header">
-          <Button 
-            variant="secondary" 
-            size="small" 
+          <Button
+            variant="secondary"
+            size="small"
             onClick={handleBackToGroupChats}
             className="back-button"
           >
             ← Back to Group Chats
           </Button>
         </div>
-        
+
         <div className="create-group__content">
           <h1 className="create-group__title">Create New Group Chat</h1>
-          
-          <form className="create-group__form" onSubmit={(e) => e.preventDefault()}>
+
+          <form
+            className="create-group__form"
+            onSubmit={(e) => e.preventDefault()}
+          >
             <div className="form-group">
-              <label htmlFor="group-name" className="form-label">Group Name</label>
+              <label htmlFor="group-name" className="form-label">
+                Group Name
+              </label>
               <input
                 id="group-name"
                 type="text"
@@ -1642,11 +3335,15 @@ const AstroHub: React.FC = () => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="group-type" className="form-label">Group Type</label>
+              <label htmlFor="group-type" className="form-label">
+                Group Type
+              </label>
               <select
                 id="group-type"
                 value={newGroupType}
-                onChange={(e) => setNewGroupType(e.target.value as 'public' | 'private')}
+                onChange={(e) =>
+                  setNewGroupType(e.target.value as "public" | "private")
+                }
                 className="form-select"
               >
                 <option value="public">Public (Anyone can join)</option>
@@ -1655,7 +3352,9 @@ const AstroHub: React.FC = () => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="group-description" className="form-label">Group Description</label>
+              <label htmlFor="group-description" className="form-label">
+                Group Description
+              </label>
               <textarea
                 id="group-description"
                 value={newGroupDescription}
@@ -1667,16 +3366,16 @@ const AstroHub: React.FC = () => {
             </div>
 
             <div className="form-actions">
-              <Button 
-                variant="primary" 
+              <Button
+                variant="primary"
                 size="medium"
                 onClick={handleCreateGroup}
                 disabled={!newGroupName.trim() || !newGroupDescription.trim()}
               >
                 Create Group
               </Button>
-              <Button 
-                variant="secondary" 
+              <Button
+                variant="secondary"
                 size="medium"
                 onClick={handleBackToGroupChats}
               >
@@ -1690,31 +3389,40 @@ const AstroHub: React.FC = () => {
   };
 
   const renderGroupInfo = (chat: GroupChat) => {
+    const memberCount = getChatMemberCount(chat);
+    const lastMessageTime = formatLastMessageTime(chat.last_message_time);
+
     return (
       <div className="group-info">
         <div className="group-info__header">
-          <Button 
-            variant="secondary" 
-            size="small" 
+          <Button
+            variant="secondary"
+            size="small"
             onClick={handleBackToGroupChats}
             className="back-button"
           >
             ← Back to Group Chats
           </Button>
         </div>
-        
+
         <div className="group-info__content">
           <div className="group-info__main">
             <div className="group-info__avatar">
               {chat.name.charAt(0).toUpperCase()}
             </div>
-            
+
             <div className="group-info__details">
               <h1 className="group-info__title">{chat.name}</h1>
               <div className="group-info__status">
-                <span className={`status-indicator ${chat.isActive ? 'online' : 'offline'}`}></span>
-                <span className="status-text">{chat.isActive ? 'Active' : 'Inactive'}</span>
-                <span className="member-count">{chat.members} members</span>
+                <span
+                  className={`status-indicator ${
+                    chat.is_active ? "online" : "offline"
+                  }`}
+                ></span>
+                <span className="status-text">
+                  {chat.is_active ? "Active" : "Inactive"}
+                </span>
+                <span className="member-count">{memberCount} members</span>
               </div>
               <p className="group-info__description">{chat.description}</p>
             </div>
@@ -1722,15 +3430,17 @@ const AstroHub: React.FC = () => {
 
           <div className="group-info__stats">
             <div className="stat-card">
-              <div className="stat-number">{chat.members}</div>
+              <div className="stat-number">{memberCount}</div>
               <div className="stat-label">Members</div>
             </div>
             <div className="stat-card">
-              <div className="stat-number">Active</div>
+              <div className="stat-number">
+                {chat.is_active ? "Active" : "Inactive"}
+              </div>
               <div className="stat-label">Status</div>
             </div>
             <div className="stat-card">
-              <div className="stat-number">{chat.lastMessageTime}</div>
+              <div className="stat-number">{lastMessageTime}</div>
               <div className="stat-label">Last Activity</div>
             </div>
           </div>
@@ -1739,22 +3449,24 @@ const AstroHub: React.FC = () => {
             <h3>Recent Activity</h3>
             <div className="recent-message">
               <div className="message-content">
-                <span className="message-text">"{chat.lastMessage}"</span>
-                <span className="message-time">{chat.lastMessageTime}</span>
+                <span className="message-text">
+                  "{chat.last_message || "No messages yet"}"
+                </span>
+                <span className="message-time">{lastMessageTime}</span>
               </div>
             </div>
           </div>
 
           <div className="group-info__actions">
-            <Button 
-              variant="primary" 
+            <Button
+              variant="primary"
               size="medium"
-              onClick={() => handleJoinChat(chat)}
+              onClick={() => handleChatAction(chat)}
             >
-              Join This Group
+              {isUserMemberOfGroup(chat) ? "Open Chat" : "Join This Group"}
             </Button>
-            <Button 
-              variant="secondary" 
+            <Button
+              variant="secondary"
               size="medium"
               onClick={handleBackToGroupChats}
             >
@@ -1767,51 +3479,14 @@ const AstroHub: React.FC = () => {
   };
 
   const renderGroupChat = (chat: GroupChat) => {
-    // Sample chat messages for demo
-    const sampleMessages = [
-      {
-        id: 1,
-        userName: "AstroEnthusiast",
-        message: "Has anyone seen the ISS pass tonight? It should be visible around 9:30 PM.",
-        time: "8:45 PM",
-        avatar: "A"
-      },
-      {
-        id: 2,
-        userName: "StarGazer92",
-        message: "Yes! Just spotted it. Amazing pass tonight, very bright!",
-        time: "9:32 PM",
-        avatar: "S"
-      },
-      {
-        id: 3,
-        userName: "TelescopeGuru",
-        message: "I managed to get some photos. The timing was perfect with Jupiter in the background.",
-        time: "9:45 PM",
-        avatar: "T"
-      },
-      {
-        id: 4,
-        userName: "CurrentUser",
-        message: "That's awesome! Would love to see those photos when you process them.",
-        time: "9:47 PM",
-        avatar: "C"
-      },
-      {
-        id: 5,
-        userName: "ColomboStargazer",
-        message: "Next pass is tomorrow at 8:15 PM. Lower altitude but still should be visible.",
-        time: "10:12 PM",
-        avatar: "C"
-      }
-    ];
+    const memberCount = getChatMemberCount(chat);
 
     return (
       <div className="group-chat">
         <div className="group-chat__header">
-          <Button 
-            variant="secondary" 
-            size="small" 
+          <Button
+            variant="secondary"
+            size="small"
             onClick={handleBackToGroupChats}
             className="back-button"
           >
@@ -1820,29 +3495,76 @@ const AstroHub: React.FC = () => {
           <div className="group-chat__info">
             <h1 className="group-chat__title">{chat.name}</h1>
             <div className="group-chat__status">
-              <span className={`status-indicator ${chat.isActive ? 'online' : 'offline'}`}></span>
-              <span className="member-count">{chat.members} members online</span>
+              <span
+                className={`status-indicator ${
+                  chat.is_active ? "online" : "offline"
+                }`}
+              ></span>
+              <span className="member-count">{memberCount} members</span>
             </div>
           </div>
         </div>
-        
+
         <div className="group-chat__content">
-          <div className="group-chat__messages">
-            {sampleMessages.map((message) => (
-              <div key={message.id} className={`chat-message ${message.userName === 'CurrentUser' ? 'own-message' : ''}`}>
-                <div className="chat-message__avatar">
-                  {message.avatar}
+          {messagesLoading ? (
+            <div className="chat-loading-message">
+              <p>Loading messages...</p>
+            </div>
+          ) : messagesError ? (
+            <div className="error-message">
+              <p>{messagesError}</p>
+              <Button
+                variant="secondary"
+                size="small"
+                onClick={() => loadChatMessages(chat.id)}
+              >
+                Try Again
+              </Button>
+            </div>
+          ) : (
+            <div className="group-chat__messages">
+              {chatMessages && chatMessages.length > 0 ? (
+                chatMessages.map((message) => {
+                  // console.log('Message object:', message);
+                  const currentUserId = getCurrentUserId();
+                  const isOwnMessage = message.user_id === currentUserId;
+                  const messageTime = formatMessageTime(
+                    (message as any).updated_at || (message as any).created_at
+                  );
+                  const userName = getMessageUsername(message);
+                  const userInitials = getMessageUserInitials(message);
+
+                  return (
+                    <div
+                      key={message.id}
+                      className={`chat-message ${
+                        isOwnMessage ? "own-message" : ""
+                      }`}
+                    >
+                      <div className="chat-message__avatar">{userInitials}</div>
+                      <div className="chat-message__content">
+                        <div className="chat-message__header">
+                          <span className="chat-message__username">
+                            {userName}
+                          </span>
+                          <span className="chat-message__time">
+                            {messageTime}
+                          </span>
+                        </div>
+                        <p className="chat-message__text">
+                          {(message as any).message_text || message.content}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="no-messages">
+                  <p>No messages yet. Be the first to send a message!</p>
                 </div>
-                <div className="chat-message__content">
-                  <div className="chat-message__header">
-                    <span className="chat-message__username">{message.userName}</span>
-                    <span className="chat-message__time">{message.time}</span>
-                  </div>
-                  <p className="chat-message__text">{message.message}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+              )}
+            </div>
+          )}
 
           <div className="group-chat__input">
             <div className="chat-input-container">
@@ -1852,21 +3574,22 @@ const AstroHub: React.FC = () => {
                 placeholder="Type your message..."
                 className="chat-input"
                 rows={2}
+                disabled={messagesLoading}
                 onKeyPress={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
+                  if (e.key === "Enter" && !e.shiftKey) {
                     e.preventDefault();
                     handleSendChatMessage();
                   }
                 }}
               />
-              <Button 
-                variant="primary" 
+              <Button
+                variant="primary"
                 size="small"
                 onClick={handleSendChatMessage}
-                disabled={!newChatMessage.trim()}
+                disabled={!newChatMessage.trim() || messagesLoading}
                 className="send-button"
               >
-                Send
+                {messagesLoading ? "Sending..." : "Send"}
               </Button>
             </div>
           </div>
@@ -1877,93 +3600,249 @@ const AstroHub: React.FC = () => {
 
   const renderTabContent = () => {
     switch (activeTab) {
-      case 'events':
+      case "events":
         return (
           <div className="events-section">
             <div className="section-header">
-              <h2>Upcoming Astronomical Events</h2>
+              <h2>Astronomy Events</h2>
+              {isModerator && (
+                <Button
+                  onClick={() => setShowCreateAstronomyEvent(true)}
+                  variant="primary"
+                  size="small"
+                >
+                  Add Event
+                </Button>
+              )}
             </div>
             <div className="events-grid">
-              {filteredEvents.length > 0 ? (
+              {astronomyEventsLoading ? (
+                <div>
+                  Loading astronomy events...
+                </div>
+              ) : astronomyEventsError ? (
+                <div className="error-message">{astronomyEventsError}</div>
+              ) : filteredEvents.length > 0 ? (
                 filteredEvents.map((event) => (
                   <div key={event.id} className="event-card">
                     <div className="event-card__image">
-                      <img src={event.image} alt={event.name} />
+                      <img
+                        src={
+                          event.image_url ||
+                          "https://images.unsplash.com/photo-1502134249126-9f3755a50d78?w=400&h=250&fit=crop"
+                        }
+                        alt={event.name}
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src =
+                            "https://images.unsplash.com/photo-1502134249126-9f3755a50d78?w=400&h=250&fit=crop";
+                        }}
+                      />
                       <div className="event-card__date-badge">
-                        {event.date}
+                        {new Date(event.event_date).toLocaleDateString()}
                       </div>
+                      {event.event_type && (
+                        <div className="event-card__type">
+                          {event.event_type
+                            .replace("_", " ")
+                            .replace(/\b\w/g, (l) => l.toUpperCase())}
+                        </div>
+                      )}
                     </div>
                     <div className="event-card__content">
+                      <div className="event-card__meta">
+                        <span className="event-card__visibility">
+                          {event.visibility}
+                        </span>
+                        <span className="event-card__duration">
+                          {event.duration}
+                        </span>
+                      </div>
                       <h3 className="event-card__title">{event.name}</h3>
-                      <p className="event-card__description">{event.description}</p>
+                      <p className="event-card__description">
+                        {event.description}
+                      </p>
                       <div className="event-card__details">
+                        {event.best_time && (
+                          <div className="event-detail">
+                            <span className="event-detail__label">
+                              Best Time:
+                            </span>
+                            <span className="event-detail__value">
+                              {event.best_time}
+                            </span>
+                          </div>
+                        )}
+                        {event.end_date && (
+                          <div className="event-detail">
+                            <span className="event-detail__label">
+                              End Date:
+                            </span>
+                            <span className="event-detail__value">
+                              {new Date(event.end_date).toLocaleDateString()}
+                            </span>
+                          </div>
+                        )}
                         <div className="event-detail">
-                          <span className="event-detail__label">Visibility:</span>
-                          <span className="event-detail__value">{event.visibility}</span>
+                          <span className="event-detail__label">
+                            Visibility:
+                          </span>
+                          <span className="event-detail__value">
+                            {event.visibility
+                              .replace("_", " ")
+                              .replace(/\b\w/g, (l) => l.toUpperCase())}
+                          </span>
                         </div>
-                        <div className="event-detail">
-                          <span className="event-detail__label">Best Time:</span>
-                          <span className="event-detail__value">{event.bestTime}</span>
+                      </div>
+                      <div className="event-card__footer">
+                        <div className="event-card__creator">
+                          Created by{" "}
+                          {event.creator.display_name ||
+                            `${event.creator.first_name} ${event.creator.last_name}`.trim()}
                         </div>
-                        <div className="event-detail">
-                          <span className="event-detail__label">Duration:</span>
-                          <span className="event-detail__value">{event.duration}</span>
+                        <div className="event-card__stats">
+                          {event._count?.reminders && (
+                            <span className="reminder-count">
+                              {event._count.reminders} reminders
+                            </span>
+                          )}
                         </div>
                       </div>
                       <div className="event-card__actions">
-                        <Button variant="primary" size="small">
-                          Set Reminder
+                        <Button
+                          variant={
+                            eventReminders[event.id] ? "secondary" : "primary"
+                          }
+                          size="small"
+                          onClick={() => handleEventReminderToggle(event.id)}
+                        >
+                          {eventReminders[event.id]
+                            ? "Remove Reminder"
+                            : "Set Reminder"}
                         </Button>
-                        
                       </div>
                     </div>
                   </div>
                 ))
               ) : (
                 <div className="no-results">
-                  <p>No astronomical events found matching your search.</p>
+                  <p>No astronomy events found matching your search.</p>
                 </div>
               )}
             </div>
+
+            {/* Astronomy Event Modal */}
+            {showCreateAstronomyEvent && (
+              <AstronomyEventModal
+                isOpen={showCreateAstronomyEvent}
+                onClose={() => setShowCreateAstronomyEvent(false)}
+                onSuccess={(message: string) => {
+                  setSuccessAlert({ show: true, message });
+                  setShowCreateAstronomyEvent(false);
+                  // Reload astronomy events after creation
+                  if (activeTab === "events") {
+                    const loadAstronomyEvents = async () => {
+                      try {
+                        setAstronomyEventsLoading(true);
+                        const response =
+                          await astronomyEventsService.getEvents();
+                        const events = response.events;
+                        setRealAstronomyEvents(events);
+                        setFilteredEvents(events);
+                      } catch (error) {
+                        console.error(
+                          "Failed to reload astronomy events:",
+                          error
+                        );
+                      } finally {
+                        setAstronomyEventsLoading(false);
+                      }
+                    };
+                    loadAstronomyEvents();
+                  }
+                }}
+              />
+            )}
           </div>
         );
 
-      case 'news':
-        // If a news article is selected, show detailed view
+      case "news":
+        // If a real news article is selected, show real news detailed view
+        if (selectedRealNews) {
+          return renderRealNewsDetails(selectedRealNews);
+        }
+
+        // If a mock news article is selected, show mock news detailed view
         if (selectedNews) {
           return renderNewsDetails(selectedNews);
         }
-        
+
         // Otherwise show the news list
         return (
           <div className="news-section">
             <div className="section-header">
               <h2>Latest Space News</h2>
+              {isModerator && (
+                <Button
+                  onClick={() => setShowCreateSpaceNews(true)}
+                  variant="primary"
+                  size="small"
+                >
+                  Create News
+                </Button>
+              )}
             </div>
             <div className="news-grid">
-              {filteredNews.length > 0 ? (
-                filteredNews.map((article) => (
+              {spaceNewsLoading ? (
+                <div>Loading space news...</div>
+              ) : spaceNewsError ? (
+                <div className="error-message">{spaceNewsError}</div>
+              ) : filteredRealNews.length > 0 ? (
+                filteredRealNews.map((article) => (
                   <div key={article.id} className="news-card">
                     <div className="news-card__image">
-                      <img src={article.image} alt={article.title} />
-                      <div className="news-card__source">{article.source}</div>
+                      <img
+                        src={
+                          article.image_urls?.[0] ||
+                          "https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?w=400&h=250&fit=crop"
+                        }
+                        alt={article.title}
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src =
+                            "https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?w=400&h=250&fit=crop";
+                        }}
+                      />
+                      <div className="news-card__source">
+                        {article.category}
+                      </div>
                     </div>
                     <div className="news-card__content">
                       <div className="news-card__meta">
-                        <span className="news-card__date">{article.date}</span>
-                        <span className="news-card__read-time">{article.readTime} read</span>
+                        <span className="news-card__date">
+                          {new Date(article.publish_date).toLocaleDateString()}
+                        </span>
+                        <span className="news-card__author">
+                          By {article.publisher.name}
+                        </span>
                       </div>
                       <h3 className="news-card__title">{article.title}</h3>
-                      <p className="news-card__summary">{article.summary}</p>
+                      <p className="news-card__summary">
+                        {article.content.substring(0, 150)}...
+                      </p>
                       <div className="news-card__stats">
-                        <span className="news-card__likes">{article.likes} likes</span>
-                        <span className="news-card__comments">{article.comments} comments</span>
+                        <span className="news-card__likes">
+                          {article.number_of_likes} likes
+                        </span>
+                        <span className="news-card__comments">
+                          {article.number_of_comments} comments
+                        </span>
                       </div>
-                      <Button 
-                        variant="secondary" 
-                        size="small" 
+                      <Button
+                        variant="secondary"
+                        size="small"
                         className="news-card__read-more"
-                        onClick={() => handleViewNewsDetails(article)}
+                        onClick={() => handleViewRealNewsDetails(article)}
                       >
                         View More Details
                       </Button>
@@ -1976,35 +3855,64 @@ const AstroHub: React.FC = () => {
                 </div>
               )}
             </div>
+
+            {/* Space News Modal */}
+            {showCreateSpaceNews && (
+              <SpaceNewsModal
+                isOpen={showCreateSpaceNews}
+                onClose={() => setShowCreateSpaceNews(false)}
+                onSuccess={(message: string) => {
+                  setSuccessAlert({ show: true, message });
+                  setShowCreateSpaceNews(false);
+                  // Reload space news after creation
+                  if (activeTab === "news") {
+                    const loadSpaceNews = async () => {
+                      try {
+                        setSpaceNewsLoading(true);
+                        const response = await spaceNewsService.getSpaceNews();
+                        const news = response.spaceNews;
+                        setRealSpaceNews(news);
+                        setFilteredRealNews(news);
+                      } catch (error) {
+                        console.error("Failed to reload space news:", error);
+                      } finally {
+                        setSpaceNewsLoading(false);
+                      }
+                    };
+                    loadSpaceNews();
+                  }
+                }}
+              />
+            )}
           </div>
         );
 
-      case 'discussions':
+      case "discussions":
         // If showing create discussion form
         if (showCreateDiscussion) {
           return renderCreateDiscussion();
         }
-        
+
         // If a discussion is selected, show detailed view
         if (selectedDiscussion) {
           return renderDiscussionDetails(selectedDiscussion);
         }
-        
+
         // Otherwise show the discussions list
         return (
           <div className="discussions-section">
             <div className="section-header">
               <h2>Community Discussions</h2>
               <div className="section-header-buttons">
-                <Button 
-                  variant="secondary" 
+                <Button
+                  variant="secondary"
                   className="my-discussions-btn"
-                  onClick={() => setActiveTab('my-discussions')}
+                  onClick={() => setActiveTab("my-discussions")}
                 >
                   My Discussions
                 </Button>
-                <Button 
-                  variant="primary" 
+                <Button
+                  variant="primary"
                   className="start-discussion-btn"
                   onClick={handleStartNewDiscussion}
                 >
@@ -2013,25 +3921,94 @@ const AstroHub: React.FC = () => {
               </div>
             </div>
             <div className="discussions-list">
-              {filteredDiscussions.length > 0 ? (
-                filteredDiscussions.map((discussion) => (
-                  <div key={discussion.id} className={`discussion-item ${discussion.isSticky ? 'sticky' : ''}`}>
+              {discussionsLoading ? (
+                <div className="loading-state">
+                  <p>Loading discussions...</p>
+                </div>
+              ) : discussionsError ? (
+                <div className="error-state">
+                  <p>{discussionsError}</p>
+                  <Button
+                    variant="secondary"
+                    onClick={() => {
+                      if (activeTab === "discussions") {
+                        // Reload discussions
+                        const loadDiscussions = async () => {
+                          try {
+                            setDiscussionsLoading(true);
+                            setDiscussionsError(null);
+                            const response =
+                              await spaceDiscussionService.getDiscussions({
+                                page: 1,
+                                limit: 20,
+                                sortBy: "last_activity",
+                                order: "desc",
+                              });
+                            const transformedDiscussions =
+                              response.discussions.map(
+                                transformBackendDiscussion
+                              );
+                            setRealDiscussions(transformedDiscussions);
+                            // Removed unused setDiscussionPagination
+                          } catch (error) {
+                            console.error("Failed to load discussions:", error);
+                            setDiscussionsError("Failed to load discussions");
+                          } finally {
+                            setDiscussionsLoading(false);
+                          }
+                        };
+                        loadDiscussions();
+                      }
+                    }}
+                  >
+                    Try Again
+                  </Button>
+                </div>
+              ) : realDiscussions.length > 0 ? (
+                realDiscussions.map((discussion) => (
+                  <div
+                    key={discussion.id}
+                    className={`discussion-item ${
+                      discussion.isSticky || discussion.is_sticky
+                        ? "sticky"
+                        : ""
+                    }`}
+                  >
                     <div className="discussion-item__main">
                       <div className="discussion-item__header">
-                        {discussion.isSticky && <span className="sticky-badge">📌 Pinned</span>}
-                        <span className="category-badge">{discussion.category}</span>
+                        {(discussion.isSticky || discussion.is_sticky) && (
+                          <span className="sticky-badge">📌 Pinned</span>
+                        )}
+                        <span className="category-badge">
+                          {discussion.category}
+                        </span>
                       </div>
-                      <h3 className="discussion-item__title">{discussion.title}</h3>
+                      <h3 className="discussion-item__title">
+                        {discussion.title}
+                      </h3>
                       <div className="discussion-item__meta">
-                        <span className="discussion-item__author">by {discussion.author}</span>
-                        <span className="discussion-item__replies">{discussion.replies} replies</span>
-                        <span className="discussion-item__activity">Last activity: {discussion.lastActivity}</span>
+                        <span className="discussion-item__author">
+                          by {discussion.author || "Unknown"}
+                        </span>
+                        <span className="discussion-item__replies">
+                          {discussion.replies || discussion.replies_count || 0}{" "}
+                          replies
+                        </span>
+                        <span className="discussion-item__activity">
+                          Last activity:{" "}
+                          {discussion.lastActivity ||
+                            new Date(
+                              discussion.last_activity || ""
+                            ).toLocaleString()}
+                        </span>
                       </div>
                     </div>
-                    <Button 
-                      variant="secondary" 
+                    <Button
+                      variant="secondary"
                       size="small"
-                      onClick={() => handleJoinDiscussionFromCommunity(discussion)}
+                      onClick={() =>
+                        handleJoinDiscussionFromCommunity(discussion)
+                      }
                     >
                       Join Discussion
                     </Button>
@@ -2039,31 +4016,33 @@ const AstroHub: React.FC = () => {
                 ))
               ) : (
                 <div className="no-results">
-                  <p>No discussions found matching your search.</p>
+                  <p>
+                    No discussions found. Be the first to start a discussion!
+                  </p>
                 </div>
               )}
             </div>
           </div>
         );
 
-      case 'my-discussions':
+      case "my-discussions":
         // If showing create discussion form
         if (showCreateDiscussion) {
           return renderCreateDiscussion();
         }
-        
+
         // If a discussion is selected, show detailed view
         if (selectedDiscussion) {
           return renderDiscussionDetails(selectedDiscussion);
         }
-        
+
         // Otherwise show the my discussions list
         return (
           <div className="discussions-section">
             <div className="section-header">
               <h2>My Discussions</h2>
-              <Button 
-                variant="primary" 
+              <Button
+                variant="primary"
                 className="start-discussion-btn"
                 onClick={handleStartNewDiscussion}
               >
@@ -2071,25 +4050,97 @@ const AstroHub: React.FC = () => {
               </Button>
             </div>
             <div className="discussions-list">
-              {filteredMyDiscussions.length > 0 ? (
-                filteredMyDiscussions.map((discussion) => (
-                  <div key={discussion.id} className={`discussion-item ${discussion.isSticky ? 'sticky' : ''}`}>
+              {discussionsLoading ? (
+                <div className="loading-state">
+                  <p>Loading your discussions...</p>
+                </div>
+              ) : discussionsError ? (
+                <div className="error-state">
+                  <p>{discussionsError}</p>
+                  <Button
+                    variant="secondary"
+                    onClick={() => {
+                      if (activeTab === "my-discussions") {
+                        // Reload my discussions
+                        const loadMyDiscussions = async () => {
+                          try {
+                            setDiscussionsLoading(true);
+                            setDiscussionsError(null);
+                            const response =
+                              await spaceDiscussionService.getMyDiscussions({
+                                page: 1,
+                                limit: 20,
+                              });
+                            const transformedDiscussions =
+                              response.discussions.map(
+                                transformBackendDiscussion
+                              );
+                            setMyRealDiscussions(transformedDiscussions);
+                            // Removed unused setMyDiscussionPagination
+                          } catch (error) {
+                            console.error(
+                              "Failed to load my discussions:",
+                              error
+                            );
+                            setDiscussionsError(
+                              "Failed to load my discussions"
+                            );
+                          } finally {
+                            setDiscussionsLoading(false);
+                          }
+                        };
+                        loadMyDiscussions();
+                      }
+                    }}
+                  >
+                    Try Again
+                  </Button>
+                </div>
+              ) : myRealDiscussions.length > 0 ? (
+                myRealDiscussions.map((discussion) => (
+                  <div
+                    key={discussion.id}
+                    className={`discussion-item ${
+                      discussion.isSticky || discussion.is_sticky
+                        ? "sticky"
+                        : ""
+                    }`}
+                  >
                     <div className="discussion-item__main">
                       <div className="discussion-item__header">
-                        {discussion.isSticky && <span className="sticky-badge">📌 Pinned</span>}
-                        <span className="category-badge">{discussion.category}</span>
+                        {(discussion.isSticky || discussion.is_sticky) && (
+                          <span className="sticky-badge">📌 Pinned</span>
+                        )}
+                        <span className="category-badge">
+                          {discussion.category}
+                        </span>
                       </div>
-                      <h3 className="discussion-item__title">{discussion.title}</h3>
+                      <h3 className="discussion-item__title">
+                        {discussion.title}
+                      </h3>
                       <div className="discussion-item__meta">
-                        <span className="discussion-item__author">by {discussion.author}</span>
-                        <span className="discussion-item__replies">{discussion.replies} replies</span>
-                        <span className="discussion-item__activity">Last activity: {discussion.lastActivity}</span>
+                        <span className="discussion-item__author">
+                          by {discussion.author || "You"}
+                        </span>
+                        <span className="discussion-item__replies">
+                          {discussion.replies || discussion.replies_count || 0}{" "}
+                          replies
+                        </span>
+                        <span className="discussion-item__activity">
+                          Last activity:{" "}
+                          {discussion.lastActivity ||
+                            new Date(
+                              discussion.last_activity || ""
+                            ).toLocaleString()}
+                        </span>
                       </div>
                     </div>
-                    <Button 
-                      variant="secondary" 
+                    <Button
+                      variant="secondary"
                       size="small"
-                      onClick={() => handleJoinDiscussionFromMyDiscussions(discussion)}
+                      onClick={() =>
+                        handleJoinDiscussionFromMyDiscussions(discussion)
+                      }
                     >
                       View Discussion
                     </Button>
@@ -2097,86 +4148,164 @@ const AstroHub: React.FC = () => {
                 ))
               ) : (
                 <div className="no-results">
-                  <p>No discussions found matching your search.</p>
+                  <p>
+                    You haven't created any discussions yet. Start your first
+                    discussion!
+                  </p>
                 </div>
               )}
             </div>
           </div>
         );
 
-      case 'chats':
+      case "chats":
         // If showing create group form
         if (showCreateGroup) {
           return renderCreateGroup();
         }
-        
+
         // If showing group info
         if (showGroupInfo && selectedGroupChat) {
           return renderGroupInfo(selectedGroupChat);
         }
-        
+
         // If showing group chat
         if (showGroupChat && selectedGroupChat) {
           return renderGroupChat(selectedGroupChat);
         }
-        
+
         // Otherwise show the group chats list
         return (
           <div className="chats-section">
             <div className="section-header">
               <h2>Group Chats</h2>
-              <Button 
-                variant="primary" 
+              <Button
+                variant="primary"
                 className="create-chat-btn"
                 onClick={handleCreateNewGroup}
+                disabled={chatLoading}
               >
                 Create New Group
               </Button>
             </div>
-            <div className="chats-grid">
-              {filteredGroupChats.length > 0 ? (
-                filteredGroupChats.map((chat) => (
-                  <div key={chat.id} className={`chat-card ${chat.isActive ? 'active' : ''}`}>
-                    <div className="chat-card__header">
-                      <div className="chat-card__title-section">
-                        <h3 className="chat-card__title">{chat.name}</h3>
-                        <div className="chat-card__status">
-                          <span className={`status-indicator ${chat.isActive ? 'online' : 'offline'}`}></span>
-                          <span className="member-count">{chat.members} members</span>
+
+            {chatError && (
+              <div className="error-message">
+                <p>{chatError}</p>
+                <Button
+                  variant="secondary"
+                  size="small"
+                  onClick={() => loadGroupChats(true)}
+                >
+                  Try Again
+                </Button>
+              </div>
+            )}
+
+            {chatLoading ? (
+              <div className="chat-loading-message">
+                <p>Loading group chats...</p>
+              </div>
+            ) : (
+              <div className="chats-grid">
+                {(() => {
+                  console.log(
+                    "Rendering chats - filteredGroupChats:",
+                    filteredGroupChats?.length,
+                    "realGroupChats:",
+                    realGroupChats?.length,
+                    "searchQuery:",
+                    searchQuery
+                  );
+                  return null;
+                })()}
+                {filteredGroupChats && filteredGroupChats.length > 0 ? (
+                  filteredGroupChats
+                    .filter((chat) => chat && chat.id) // Filter out any undefined or invalid items
+                    .map((chat) => {
+                      if (!chat || !chat.id) return null; // Extra safety check
+                      console.log("Rendering chat:", chat);
+                      const memberCount = getChatMemberCount(chat);
+                      const lastMessageTime = formatLastMessageTime(
+                        chat.last_message_time
+                      );
+
+                      return (
+                        <div
+                          key={chat.id}
+                          className={`chat-card ${
+                            chat.is_active ? "active" : ""
+                          }`}
+                        >
+                          <div className="chat-card__header">
+                            <div className="chat-card__title-section">
+                              <h3 className="chat-card__title">
+                                {chat.name || "Unnamed Group"}
+                              </h3>
+                              <div className="chat-card__status">
+                                <span
+                                  className={`status-indicator ${
+                                    chat.is_active ? "online" : "offline"
+                                  }`}
+                                ></span>
+                                <span className="member-count">
+                                  {memberCount} members
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <p className="chat-card__description">
+                            {chat.description || "No description available"}
+                          </p>
+                          <div className="chat-card__last-message">
+                            <div className="last-message-content">
+                              <span className="last-message-text">
+                                "{chat.last_message || "No messages yet"}"
+                              </span>
+                              <span className="last-message-time">
+                                {lastMessageTime}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="chat-card__actions">
+                            <Button
+                              variant="primary"
+                              size="small"
+                              onClick={() => handleChatAction(chat)}
+                            >
+                              {isUserMemberOfGroup(chat)
+                                ? "Open Chat"
+                                : "Join Chat"}
+                            </Button>
+                            <Button
+                              variant="secondary"
+                              size="small"
+                              onClick={() => handleViewGroupInfo(chat)}
+                            >
+                              View Info
+                            </Button>
+                          </div>
                         </div>
+                      );
+                    })
+                    .filter(Boolean) // Remove any null values from the map
+                ) : (
+                  <div className="no-results">
+                    {searchQuery ? (
+                      <p>
+                        No group chats found matching "{searchQuery}". Try a
+                        different search term.
+                      </p>
+                    ) : (
+                      <div>
+                        <p>No group chats available yet.</p>
+                        <p>Be the first to create a new group chat!</p>
                       </div>
-                    </div>
-                    <p className="chat-card__description">{chat.description}</p>
-                    <div className="chat-card__last-message">
-                      <div className="last-message-content">
-                        <span className="last-message-text">"{chat.lastMessage}"</span>
-                        <span className="last-message-time">{chat.lastMessageTime}</span>
-                      </div>
-                    </div>
-                    <div className="chat-card__actions">
-                      <Button 
-                        variant="primary" 
-                        size="small"
-                        onClick={() => handleJoinChat(chat)}
-                      >
-                        Join Chat
-                      </Button>
-                      <Button 
-                        variant="secondary" 
-                        size="small"
-                        onClick={() => handleViewGroupInfo(chat)}
-                      >
-                        View Info
-                      </Button>
-                    </div>
+                    )}
                   </div>
-                ))
-              ) : (
-                <div className="no-results">
-                  <p>No group chats found matching your search.</p>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            )}
           </div>
         );
 
@@ -2191,45 +4320,46 @@ const AstroHub: React.FC = () => {
         <div className="astro-hub__header-content">
           <h1 className="astro-hub__title">Astro Hub</h1>
           <p className="astro-hub__subtitle">
-            Your central hub for astronomical events, space news, and community discussions
+            Your central hub for astronomical events, space news, and community
+            discussions
           </p>
         </div>
       </div>
 
       <div className="astro-hub__navigation">
         <div className="tab-buttons">
-          <Button 
-            variant={activeTab === 'events' ? 'primary' : 'secondary'}
+          <Button
+            variant={activeTab === "events" ? "primary" : "secondary"}
             onClick={() => {
-              setActiveTab('events');
-              handleSearch(''); // Clear search when switching tabs
+              setActiveTab("events");
+              handleSearch(""); // Clear search when switching tabs
             }}
           >
-            Astronomical Events
+            Astronomy Events
           </Button>
-          <Button 
-            variant={activeTab === 'news' ? 'primary' : 'secondary'}
+          <Button
+            variant={activeTab === "news" ? "primary" : "secondary"}
             onClick={() => {
-              setActiveTab('news');
-              handleSearch(''); // Clear search when switching tabs
+              setActiveTab("news");
+              handleSearch(""); // Clear search when switching tabs
             }}
           >
             Space News
           </Button>
-          <Button 
-            variant={activeTab === 'discussions' ? 'primary' : 'secondary'}
+          <Button
+            variant={activeTab === "discussions" ? "primary" : "secondary"}
             onClick={() => {
-              setActiveTab('discussions');
-              handleSearch(''); // Clear search when switching tabs
+              setActiveTab("discussions");
+              handleSearch(""); // Clear search when switching tabs
             }}
           >
             Discussions
           </Button>
-          <Button 
-            variant={activeTab === 'chats' ? 'primary' : 'secondary'}
+          <Button
+            variant={activeTab === "chats" ? "primary" : "secondary"}
             onClick={() => {
-              setActiveTab('chats');
-              handleSearch(''); // Clear search when switching tabs
+              setActiveTab("chats");
+              handleSearch(""); // Clear search when switching tabs
             }}
           >
             Group Chats
@@ -2242,40 +4372,68 @@ const AstroHub: React.FC = () => {
         <div className="search-container">
           <input
             type="text"
-            placeholder={`Search ${activeTab === 'events' ? 'astronomical events' : 
-              activeTab === 'news' ? 'space news' : 
-              activeTab === 'discussions' ? 'discussions' : 
-              activeTab === 'my-discussions' ? 'my discussions' : 'group chats'}...`}
+            placeholder={`Search ${
+              activeTab === "events"
+                ? "astronomy events"
+                : activeTab === "news"
+                ? "space news"
+                : activeTab === "discussions"
+                ? "discussions"
+                : activeTab === "my-discussions"
+                ? "my discussions"
+                : "group chats"
+            }...`}
             value={searchQuery}
             onChange={(e) => handleSearch(e.target.value)}
             className="search-input"
           />
           <div className="search-icon">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="11" cy="11" r="8"/>
-              <path d="M21 21l-4.35-4.35"/>
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <path d="M21 21l-4.35-4.35" />
             </svg>
           </div>
         </div>
       </div>
 
-      <div className="astro-hub__content">
-        {renderTabContent()}
-      </div>
+      <div className="astro-hub__content">{renderTabContent()}</div>
 
       {/* Success Alert */}
       {successAlert.show && (
-        <div className={`success-alert ${successAlert.show ? 'show' : ''}`}>
-          <svg className="success-alert__icon" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+        <div className={`success-alert ${successAlert.show ? "show" : ""}`}>
+          <svg
+            className="success-alert__icon"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fillRule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+              clipRule="evenodd"
+            />
           </svg>
           <span className="success-alert__message">{successAlert.message}</span>
-          <button 
+          <button
             className="success-alert__close"
-            onClick={() => setSuccessAlert({ show: false, message: '' })}
+            onClick={() => setSuccessAlert({ show: false, message: "" })}
           >
             <svg viewBox="0 0 14 14" fill="none">
-              <path d="M13 1L1 13M1 1l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path
+                d="M13 1L1 13M1 1l12 12"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
           </button>
         </div>

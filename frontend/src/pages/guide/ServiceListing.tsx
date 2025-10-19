@@ -1,8 +1,20 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../../components/Button';
 import Card from '../../components/Card';
+import ConfirmDialog from '../../components/ConfirmDialog';
+import SuccessMessage from '../../components/SuccessMessage';
 import '../../styles/pages/guide/_serviceListing.scss';
+import type { 
+  Service as ApiService, 
+  UpdateServiceRequest
+} from '../../services/servicesService';
+import { 
+  getMyServices, 
+  updateService, 
+  deleteService,
+  getGuideServiceStats 
+} from '../../services/servicesService';
 
 // Icons
 const StarIcon: React.FC<{ className?: string; filled?: boolean }> = ({ className = "", filled = false }) => (
@@ -114,144 +126,29 @@ const CalendarIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
 //   </svg>
 // );
 
-// Service interface
-interface Service {
-  id: string;
-  title: string;
-  description: string;
-  category: 'stargazing' | 'astrophotography' | 'telescope' | 'planetarium' | 'workshop' | 'expedition';
-  price: number;
-  duration: string;
-  maxParticipants: number;
-  currentBookings: number;
-  rating: number;
-  totalReviews: number;
-  location: string;
-  difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
-  equipment: string[];
-  nextAvailable: string;
-  image: string;
-  featured: boolean;
-  tags: string[];
+// Local Service interface extending API Service
+interface Service extends Omit<ApiService, 'id' | 'media'> {
+  id: string; // Convert number ID to string for component compatibility
+  image: string; // Direct image URL
+  currentBookings?: number; // Add bookings count
+  totalReviews?: number; // Add reviews count
 }
 
-// Dummy data for services
-const dummyServices: Service[] = [
-  {
-    id: '1',
-    title: 'Deep Space Observation Experience',
-    description: 'Explore distant galaxies, nebulae, and star clusters through professional-grade telescopes. Perfect for beginners wanting to discover the wonders beyond our solar system.',
-    category: 'stargazing',
-    price: 75,
-    duration: '3 hours',
-    maxParticipants: 8,
-    currentBookings: 5,
-    rating: 4.9,
-    totalReviews: 127,
-    location: 'Dark Sky Observatory, Mount Wilson',
-    difficulty: 'Beginner',
-    equipment: ['Professional Telescope', 'Star Charts', 'Red Light Flashlight'],
-    nextAvailable: '2025-07-05',
-    image: 'https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?w=400&h=300&fit=crop',
-    featured: true,
-    tags: ['Deep Space', 'Galaxies', 'Nebulae', 'Night Sky']
-  },
-  {
-    id: '2',
-    title: 'Astrophotography Masterclass',
-    description: 'Learn the art and science of capturing celestial objects. From camera settings to post-processing techniques, master the skills to photograph the cosmos.',
-    category: 'astrophotography',
-    price: 150,
-    duration: '6 hours',
-    maxParticipants: 6,
-    currentBookings: 4,
-    rating: 4.8,
-    totalReviews: 89,
-    location: 'Alpine Astrophotography Center',
-    difficulty: 'Intermediate',
-    equipment: ['DSLR Camera', 'Tripod', 'Intervalometer', 'Editing Software'],
-    nextAvailable: '2025-07-08',
-    image: 'https://images.unsplash.com/photo-1502134249126-9f3755a50d78?w=400&h=300&fit=crop',
-    featured: true,
-    tags: ['Photography', 'Long Exposure', 'Milky Way', 'Post-Processing']
-  },
-  {
-    id: '3',
-    title: 'Telescope Building Workshop',
-    description: 'Build your own Dobsonian telescope from scratch. Learn the principles of optics while creating a powerful instrument for lifelong stargazing.',
-    category: 'workshop',
-    price: 200,
-    duration: '8 hours',
-    maxParticipants: 4,
-    currentBookings: 2,
-    rating: 4.7,
-    totalReviews: 34,
-    location: 'Stellar Craft Workshop',
-    difficulty: 'Advanced',
-    equipment: ['Mirror Kit', 'Wood Materials', 'Tools', 'Assembly Guide'],
-    nextAvailable: '2025-07-12',
-    image: 'https://images.unsplash.com/photo-1614728263952-84ea256f9679?w=400&h=300&fit=crop',
-    featured: false,
-    tags: ['DIY', 'Optics', 'Crafting', 'Education']
-  },
-  {
-    id: '4',
-    title: 'Planetary Observation Session',
-    description: 'Get up close with planets in our solar system. Observe Jupiter\'s moons, Saturn\'s rings, and Mars\' surface features through high-powered telescopes.',
-    category: 'stargazing',
-    price: 50,
-    duration: '2 hours',
-    maxParticipants: 10,
-    currentBookings: 8,
-    rating: 4.6,
-    totalReviews: 156,
-    location: 'City Observatory Deck',
-    difficulty: 'Beginner',
-    equipment: ['Planetary Telescope', 'Filters', 'Observation Guide'],
-    nextAvailable: '2025-07-03',
-    image: 'https://images.unsplash.com/photo-1614313913007-2b4ae8ce32d6?w=400&h=300&fit=crop',
-    featured: false,
-    tags: ['Planets', 'Solar System', 'Jupiter', 'Saturn']
-  },
-  {
-    id: '5',
-    title: 'Dark Sky Photography Expedition',
-    description: 'Join us for a multi-day expedition to one of the world\'s darkest sky locations. Capture the Milky Way in all its glory and learn advanced night photography.',
-    category: 'expedition',
-    price: 450,
-    duration: '3 days',
-    maxParticipants: 8,
-    currentBookings: 3,
-    rating: 5.0,
-    totalReviews: 23,
-    location: 'Atacama Desert, Chile',
-    difficulty: 'Advanced',
-    equipment: ['Professional Camera', 'Tracking Mount', 'Camping Gear', 'Transport'],
-    nextAvailable: '2025-07-20',
-    image: 'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=400&h=300&fit=crop',
-    featured: true,
-    tags: ['Expedition', 'Dark Sky', 'Milky Way', 'Desert']
-  },
-  {
-    id: '6',
-    title: 'Lunar Photography Workshop',
-    description: 'Master the art of photographing our closest celestial neighbor. Learn about lunar phases, crater photography, and creative composition techniques.',
-    category: 'astrophotography',
-    price: 90,
-    duration: '4 hours',
-    maxParticipants: 10,
-    currentBookings: 7,
-    rating: 4.8,
-    totalReviews: 72,
-    location: 'Moonrise Observatory',
-    difficulty: 'Intermediate',
-    equipment: ['Telephoto Lens', 'Tripod', 'Moon Filter', 'Timer Remote'],
-    nextAvailable: '2025-07-15',
-    image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop',
-    featured: false,
-    tags: ['Moon', 'Craters', 'Phases', 'Composition']
-  }
-];
+// Transform API service to local Service interface
+const transformApiService = (apiService: ApiService): Service => {
+  // Priority: 1. image_url (direct field), 2. media array, 3. default fallback
+  const firstMedia = apiService.media?.[0];
+  const imageUrl = apiService.image_url || firstMedia?.media_url || 'https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?w=400&h=300&fit=crop';
+  
+  return {
+    ...apiService,
+    id: apiService.id.toString(),
+    image: imageUrl,
+    currentBookings: apiService.bookings_count || 0,
+    totalReviews: 0, // TODO: Add reviews count to API
+    rating: apiService.rating || 0
+  };
+};
 
 const ServiceListing: React.FC = () => {
   const navigate = useNavigate();
@@ -259,13 +156,69 @@ const ServiceListing: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'rating' | 'price' | 'date' | 'popularity'>('rating');
   const [showFeaturedOnly, setShowFeaturedOnly] = useState(false);
-  const [services, setServices] = useState<Service[]>(dummyServices);
+  const [services, setServices] = useState<Service[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Stats state
+  const [stats, setStats] = useState({
+    total_services: 0,
+    active_services: 0,
+    total_bookings: 0,
+    total_revenue: 0,
+    average_rating: 0
+  });
   
   // Modal states
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [editForm, setEditForm] = useState<Service | null>(null);
+  
+  // Message states
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [serviceToDelete, setServiceToDelete] = useState<Service | null>(null);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [successMessageText, setSuccessMessageText] = useState('');
+  const [showErrorMessage, setShowErrorMessage] = useState(false);
+  const [errorMessageText, setErrorMessageText] = useState('');
+
+  // Helper function to refresh stats
+  const refreshStats = async () => {
+    try {
+      const statsResponse = await getGuideServiceStats();
+      setStats(statsResponse);
+    } catch (err) {
+      console.error('Error refreshing stats:', err);
+    }
+  };
+
+  // Fetch services and stats on mount
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        // Fetch services and stats in parallel
+        const [servicesResponse, statsResponse] = await Promise.all([
+          getMyServices({}),
+          getGuideServiceStats()
+        ]);
+        
+        const transformedServices = servicesResponse.services.map(transformApiService);
+        setServices(transformedServices);
+        setStats(statsResponse);
+      } catch (err) {
+        console.error('Error fetching data:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   // Filter and sort services
   const filteredServices = useMemo(() => {
@@ -284,13 +237,13 @@ const ServiceListing: React.FC = () => {
     filtered.sort((a, b) => {
       switch (sortBy) {
         case 'rating':
-          return b.rating - a.rating;
+          return (b.rating || 0) - (a.rating || 0);
         case 'price':
           return a.price - b.price;
         case 'date':
-          return new Date(a.nextAvailable).getTime() - new Date(b.nextAvailable).getTime();
+          return new Date(a.next_available).getTime() - new Date(b.next_available).getTime();
         case 'popularity':
-          return b.totalReviews - a.totalReviews;
+          return (b.totalReviews || 0) - (a.totalReviews || 0);
         default:
           return 0;
       }
@@ -318,14 +271,83 @@ const ServiceListing: React.FC = () => {
     setEditForm(null);
   };
 
-  const handleSaveEdit = () => {
-    if (editForm) {
+  const handleSaveEdit = async () => {
+    if (!editForm) return;
+    
+    try {
+      setLoading(true);
+      
+      // Prepare update data (without id as it's in the URL parameter)
+      const updateData: Partial<UpdateServiceRequest> = {
+        title: editForm.title,
+        description: editForm.description,
+        category: editForm.category,
+        price: editForm.price,
+        duration: editForm.duration,
+        max_participants: editForm.max_participants,
+        location: editForm.location,
+        difficulty: editForm.difficulty,
+        equipment: editForm.equipment,
+        tags: editForm.tags,
+        featured: editForm.featured,
+        next_available: typeof editForm.next_available === 'string' ? editForm.next_available : editForm.next_available.toISOString()
+      };
+      
+      const updatedService = await updateService(parseInt(editForm.id), updateData);
+      
+      // Update local state with the updated service
       setServices(prevServices => 
         prevServices.map(service => 
-          service.id === editForm.id ? editForm : service
+          service.id === editForm.id ? transformApiService(updatedService) : service
         )
       );
+      
+      // Refresh stats to reflect changes
+      await refreshStats();
+      
       handleCloseModals();
+      setSuccessMessageText('Service updated successfully!');
+      setShowSuccessMessage(true);
+    } catch (err) {
+      console.error('Error updating service:', err);
+      setErrorMessageText(`Failed to update service: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      setShowErrorMessage(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteService = async (service: Service) => {
+    setServiceToDelete(service);
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!serviceToDelete) return;
+    
+    try {
+      setLoading(true);
+      await deleteService(parseInt(serviceToDelete.id));
+      
+      // Remove from local state
+      setServices(prevServices => prevServices.filter(s => s.id !== serviceToDelete.id));
+      
+      // Refresh stats to reflect deletion
+      await refreshStats();
+      
+      handleCloseModals();
+      setShowDeleteConfirm(false);
+      setServiceToDelete(null);
+      setSuccessMessageText('Service deleted successfully!');
+      setShowSuccessMessage(true);
+    } catch (err) {
+      console.error('Error deleting service:', err);
+      setShowDeleteConfirm(false);
+      setServiceToDelete(null);
+      setErrorMessageText(`Failed to delete service: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      setShowErrorMessage(true);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -409,9 +431,9 @@ const ServiceListing: React.FC = () => {
                 <ServiceIcon className="icon" />
               </div> */}
               <div className="stat-info">
-                <h3 className="stat-number">24</h3>
-                <p className="stat-label">Active Services</p>
-                <span className="stat-change positive">+3 this month</span>
+                <h3 className="stat-number">{stats.total_services}</h3>
+                <p className="stat-label">Total Services</p>
+                <span className="stat-change positive">{stats.active_services} active</span>
               </div>
             </div>
           </Card>
@@ -421,11 +443,13 @@ const ServiceListing: React.FC = () => {
                 <StarIcon className="icon star-icon" filled />
               </div> */}
               <div className="stat-info">
-                <h3 className="stat-number">4.8</h3>
+                <h3 className="stat-number">{stats.average_rating > 0 ? stats.average_rating.toFixed(1) : 'N/A'}</h3>
                 <p className="stat-label">Average Rating</p>
-                <div className="stat-stars">
-                  {renderStars(4.8)}
-                </div>
+                {stats.average_rating > 0 && (
+                  <div className="stat-stars">
+                    {renderStars(stats.average_rating)}
+                  </div>
+                )}
               </div>
             </div>
           </Card>
@@ -435,9 +459,9 @@ const ServiceListing: React.FC = () => {
                 <BookingIcon className="icon" />
               </div> */}
               <div className="stat-info">
-                <h3 className="stat-number">156</h3>
+                <h3 className="stat-number">{stats.total_bookings}</h3>
                 <p className="stat-label">Total Bookings</p>
-                <span className="stat-change positive">+12 this week</span>
+                <span className="stat-change positive">All time</span>
               </div>
             </div>
           </Card>
@@ -447,9 +471,9 @@ const ServiceListing: React.FC = () => {
                 <RevenueIcon className="icon" />
               </div> */}
               <div className="stat-info">
-                <h3 className="stat-number">$3,240</h3>
-                <p className="stat-label">Monthly Revenue</p>
-                <span className="stat-change positive">+18%</span>
+                <h3 className="stat-number">Rs. {stats.total_revenue.toLocaleString()}</h3>
+                <p className="stat-label">Total Revenue</p>
+                <span className="stat-change positive">All time</span>
               </div>
             </div>
           </Card>
@@ -522,9 +546,31 @@ const ServiceListing: React.FC = () => {
         </div>
       </div>
 
+      {/* Loading State */}
+      {loading && (
+        <div className="loading-state">
+          <div className="spinner"></div>
+          <p>Loading services...</p>
+        </div>
+      )}
+
+      {/* Error State */}
+      {error && !loading && (
+        <div className="error-state">
+          <div className="error-content">
+            <h3>Error Loading Services</h3>
+            <p>{error}</p>
+            <Button variant="primary" onClick={() => window.location.reload()}>
+              Retry
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Services Grid */}
-      <div className="services-grid">
-        {filteredServices.map(service => (
+      {!loading && !error && (
+        <div className="services-grid">
+          {filteredServices.map(service => (
           <div key={service.id} className="service-card1">
             {/* Service Image */}
             <div className="service-image">
@@ -546,9 +592,9 @@ const ServiceListing: React.FC = () => {
               <div className="service-header">
                 <h3 className="service-title">{service.title}</h3>
                 <div className="service-rating">
-                  {renderStars(service.rating)}
+                  {renderStars(service.rating || 0)}
                   <span className="rating-text">
-                    {service.rating} ({service.totalReviews})
+                    {service.rating || 0} ({service.totalReviews || 0})
                   </span>
                 </div>
               </div>
@@ -567,7 +613,7 @@ const ServiceListing: React.FC = () => {
                 </div>
                 <div className="detail-item">
                   <UsersIcon className="detail-icon" />
-                  <span>{service.currentBookings}/{service.maxParticipants}</span>
+                  <span>{service.currentBookings || 0}/{service.max_participants}</span>
                 </div>
               </div>
 
@@ -584,7 +630,7 @@ const ServiceListing: React.FC = () => {
               {/* Service Footer */}
               <div className="service-footer">
                 <div className="price-section">
-                  <span className="price">${service.price}</span>
+                  <span className="price">Rs. {service.price.toLocaleString()}</span>
                   <span className="difficulty-badge" data-difficulty={service.difficulty.toLowerCase()}>
                     {service.difficulty}
                   </span>
@@ -600,6 +646,13 @@ const ServiceListing: React.FC = () => {
                 onClick={() => handleEditService(service)}
               >
                 Edit
+              </Button>
+              <Button 
+                variant="danger" 
+                size="small"
+                onClick={() => handleDeleteService(service)}
+              >
+                Delete
               </Button>
               <Button 
                 variant="secondary" 
@@ -620,10 +673,11 @@ const ServiceListing: React.FC = () => {
             </div>
           </div>
         ))}
-      </div>
+        </div>
+      )}
 
       {/* Empty State */}
-      {filteredServices.length === 0 && (
+      {!loading && !error && filteredServices.length === 0 && (
         <div className="empty-state">
           <div className="empty-content">
             <div className="empty-icon">🔍</div>
@@ -663,10 +717,10 @@ const ServiceListing: React.FC = () => {
                   <h3>{selectedService.title}</h3>
                   <div className="rating-section">
                     <div className="stars">
-                      {renderStars(selectedService.rating)}
+                      {renderStars(selectedService.rating || 0)}
                     </div>
                     <span className="rating-text">
-                      {selectedService.rating} ({selectedService.totalReviews} reviews)
+                      {selectedService.rating || 0} ({selectedService.totalReviews || 0} reviews)
                     </span>
                   </div>
                 </div>
@@ -690,11 +744,11 @@ const ServiceListing: React.FC = () => {
                     <h4>Availability</h4>
                     <div className="detail-item">
                       <span className="label">Next Available:</span>
-                      <span className="value">{new Date(selectedService.nextAvailable).toLocaleDateString()}</span>
+                      <span className="value">{new Date(selectedService.next_available).toLocaleDateString()}</span>
                     </div>
                     <div className="detail-item">
                       <span className="label">Bookings:</span>
-                      <span className="value">{selectedService.currentBookings}/{selectedService.maxParticipants} spots</span>
+                      <span className="value">{selectedService.currentBookings || 0}/{selectedService.max_participants} spots</span>
                     </div>
                   </div>
 
@@ -812,7 +866,7 @@ const ServiceListing: React.FC = () => {
                   </div>
 
                   <div className="form-group">
-                    <label htmlFor="price">Price ($)</label>
+                    <label htmlFor="price">Price (LKR)</label>
                     <input
                       id="price"
                       type="number"
@@ -820,7 +874,7 @@ const ServiceListing: React.FC = () => {
                       onChange={(e) => handleEditFormChange('price', parseFloat(e.target.value))}
                       className="form-input"
                       min="0"
-                      step="0.01"
+                      step="100"
                       required
                     />
                   </div>
@@ -843,8 +897,8 @@ const ServiceListing: React.FC = () => {
                     <input
                       id="maxParticipants"
                       type="number"
-                      value={editForm.maxParticipants}
-                      onChange={(e) => handleEditFormChange('maxParticipants', parseInt(e.target.value))}
+                      value={editForm.max_participants}
+                      onChange={(e) => handleEditFormChange('max_participants', parseInt(e.target.value))}
                       className="form-input"
                       min="1"
                       required
@@ -895,8 +949,8 @@ const ServiceListing: React.FC = () => {
                     <input
                       id="nextAvailable"
                       type="date"
-                      value={editForm.nextAvailable}
-                      onChange={(e) => handleEditFormChange('nextAvailable', e.target.value)}
+                      value={typeof editForm.next_available === 'string' ? editForm.next_available.split('T')[0] : new Date(editForm.next_available).toISOString().split('T')[0]}
+                      onChange={(e) => handleEditFormChange('next_available', e.target.value)}
                       className="form-input"
                       required
                     />
@@ -964,6 +1018,39 @@ const ServiceListing: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        title="Delete Service"
+        message={`Are you sure you want to delete "${serviceToDelete?.title}"? This action cannot be undone and will remove all associated availability slots and bookings.`}
+        confirmText="Delete Service"
+        cancelText="Cancel"
+        variant="danger"
+        onConfirm={confirmDelete}
+        onCancel={() => {
+          setShowDeleteConfirm(false);
+          setServiceToDelete(null);
+        }}
+      />
+
+      {/* Success Message */}
+      <SuccessMessage
+        isOpen={showSuccessMessage}
+        title="Success!"
+        message={successMessageText}
+        type="success"
+        onClose={() => setShowSuccessMessage(false)}
+      />
+
+      {/* Error Message */}
+      <SuccessMessage
+        isOpen={showErrorMessage}
+        title="Error"
+        message={errorMessageText}
+        type="error"
+        onClose={() => setShowErrorMessage(false)}
+      />
       </div>
     </div>
   );

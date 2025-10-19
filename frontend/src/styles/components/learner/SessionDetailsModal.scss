@@ -1,0 +1,323 @@
+// Session Details Modal Styles
+.session-details-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  backdrop-filter: blur(5px);
+  animation: fadeIn 0.3s ease;
+}
+
+.session-details-modal {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  border: 2px solid rgba(59, 130, 246, 0.3);
+  border-radius: 16px;
+  max-width: 800px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(59, 130, 246, 0.2);
+  animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+
+  @media (max-width: 768px) {
+    width: 95%;
+    max-height: 95vh;
+  }
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(59, 130, 246, 0.4);
+    border-radius: 4px;
+
+    &:hover {
+      background: rgba(59, 130, 246, 0.6);
+    }
+  }
+}
+
+.session-details-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #e5e7eb;
+  font-size: 1.5rem;
+  font-weight: bold;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  z-index: 10;
+
+  &:hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: rgba(239, 68, 68, 0.5);
+    color: #ef4444;
+  }
+}
+
+.session-details-header {
+  padding: 2rem;
+  border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+  background: rgba(59, 130, 246, 0.05);
+
+  h2 {
+    margin: 0 0 1rem 0;
+    color: #60a5fa;
+    font-size: 1.8rem;
+    font-weight: 700;
+  }
+
+  .session-badges {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .badge {
+    padding: 0.4rem 0.9rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border: 1px solid;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+
+    svg {
+      flex-shrink: 0;
+    }
+
+    &.badge-live {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: rgba(239, 68, 68, 0.4);
+      color: #ef4444;
+    }
+
+    &.badge-recorded {
+      background: rgba(168, 85, 247, 0.15);
+      border-color: rgba(168, 85, 247, 0.4);
+      color: #a855f7;
+    }
+
+    &.badge-paid {
+      background: rgba(251, 191, 36, 0.15);
+      border-color: rgba(251, 191, 36, 0.4);
+      color: #fbbf24;
+    }
+
+    &.badge-free {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: rgba(16, 185, 129, 0.4);
+      color: #10b981;
+    }
+
+    &.badge-beginner {
+      background: rgba(34, 197, 94, 0.15);
+      border-color: rgba(34, 197, 94, 0.4);
+      color: #22c55e;
+    }
+
+    &.badge-intermediate {
+      background: rgba(251, 191, 36, 0.15);
+      border-color: rgba(251, 191, 36, 0.4);
+      color: #fbbf24;
+    }
+
+    &.badge-advanced {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: rgba(239, 68, 68, 0.4);
+      color: #ef4444;
+    }
+  }
+}
+
+.session-details-body {
+  padding: 2rem;
+  color: #cbd5e1;
+
+  h3 {
+    color: #60a5fa;
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0 0 1rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .session-info-section,
+  .session-description-section,
+  .session-materials-section,
+  .session-notes-section,
+  .session-link-section {
+    margin-bottom: 2rem;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid rgba(59, 130, 246, 0.1);
+  }
+
+  .info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    .info-label {
+      font-size: 0.85rem;
+      color: #94a3b8;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      
+      svg {
+        color: #60a5fa;
+        flex-shrink: 0;
+      }
+    }
+
+    .info-value {
+      font-size: 1rem;
+      color: #e5e7eb;
+      font-weight: 600;
+    }
+  }
+
+  .session-description-section,
+  .session-notes-section {
+    p {
+      margin: 0;
+      line-height: 1.6;
+      color: #cbd5e1;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 1rem;
+      border-radius: 8px;
+      border: 1px solid rgba(59, 130, 246, 0.1);
+    }
+  }
+
+  .session-materials-section {
+    ul {
+      margin: 0;
+      padding: 0 0 0 1.5rem;
+      list-style: none;
+
+      li {
+        position: relative;
+        padding: 0.5rem 0;
+        color: #cbd5e1;
+
+        &::before {
+          content: '✓';
+          position: absolute;
+          left: -1.5rem;
+          color: #10b981;
+          font-weight: bold;
+        }
+      }
+    }
+  }
+
+  .session-link-section {
+    .session-link {
+      display: inline-block;
+      padding: 0.75rem 1.5rem;
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      border: 1px solid rgba(59, 130, 246, 0.5);
+
+      &:hover {
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+      }
+    }
+  }
+}
+
+.session-details-footer {
+  padding: 1.5rem 2rem;
+  border-top: 1px solid rgba(59, 130, 246, 0.2);
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  align-items: center;
+  background: rgba(59, 130, 246, 0.03);
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+  }
+
+  .enrolled-badge {
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+    
+    @media (max-width: 480px) {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

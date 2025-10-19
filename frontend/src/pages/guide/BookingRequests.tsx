@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import Button from '../../components/Button';
 import Card from '../../components/Card';
 import { Calendar, CheckCircle, XCircle, Users } from 'lucide-react';
-import '../../styles/pages/guide/_bookingRequests.scss'; // create styles if needed
+import '../../styles/pages/guide/_bookingRequests.scss';
+import { getGuideBookings, confirmBooking, rejectBooking, type Booking } from '../../services/bookingService';
 
 interface BookingRequest {
   id: string;
@@ -12,43 +13,155 @@ interface BookingRequest {
   date: string;
   startTime: string;
   endTime: string;
+  participants: number;
+  totalAmount: number;
 }
 
 const BookingRequests: React.FC = () => {
   const navigate = useNavigate();
   const [requests, setRequests] = useState<BookingRequest[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [acceptedCount, setAcceptedCount] = useState(0);
   const [rejectedCount, setRejectedCount] = useState(0);
 
   useEffect(() => {
-    // fetch booking requests or use dummy data
-    const dummy: BookingRequest[] = [
-      { id: '1', userName: 'Alice Johnson', serviceName: 'Deep Space Observation', date: '2025-07-10', startTime: '20:00', endTime: '23:00' },
-      { id: '2', userName: 'Bob Smith', serviceName: 'Astrophotography Masterclass', date: '2025-07-08', startTime: '18:00', endTime: '00:00' },
-      { id: '3', userName: 'Carol Lee', serviceName: 'Telescope Building Workshop', date: '2025-07-12', startTime: '09:00', endTime: '17:00' },
-      { id: '4', userName: 'David Kim', serviceName: 'Planetary Observation Session', date: '2025-07-03', startTime: '21:00', endTime: '23:00' },
-    ];
-    setRequests(dummy);
-    // dummy stats initial values
-    setAcceptedCount(2);
-    setRejectedCount(1);
+    const fetchBookings = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        // Fetch all bookings for guide
+        const response = await getGuideBookings({ limit: 100 });
+        
+        // Transform bookings to BookingRequest format
+        const pendingBookings = response.bookings
+          .filter(b => b.booking_status === 'pending')
+          .map(transformBooking);
+        
+        const confirmedCount = response.bookings.filter(b => b.booking_status === 'confirmed').length;
+        const cancelledCount = response.bookings.filter(b => b.booking_status === 'cancelled').length;
+        
+        setRequests(pendingBookings);
+        setAcceptedCount(confirmedCount);
+        setRejectedCount(cancelledCount);
+      } catch (err) {
+        console.error('Error fetching bookings:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load bookings');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBookings();
   }, []);
 
-  const handleAccept = (id: string) => {
-    setAcceptedCount(prev => prev + 1);
-    setRequests(prev => prev.filter(req => req.id !== id));
-    // TODO: call API to accept
+  const transformBooking = (booking: Booking): BookingRequest => {
+    const userName = booking.user
+      ? `${booking.user.first_name || ''} ${booking.user.last_name || ''}`.trim() || booking.user.email
+      : 'Unknown User';
+    
+    const serviceName = booking.service?.title || 'Unknown Service';
+    const date = typeof booking.booking_date === 'string' 
+      ? booking.booking_date.split('T')[0]
+      : new Date(booking.booking_date).toISOString().split('T')[0];
+    
+    const startTime = booking.booking_time 
+      ? typeof booking.booking_time === 'string' 
+        ? booking.booking_time.substring(11, 16)
+        : new Date(booking.booking_time).toTimeString().substring(0, 5)
+      : '00:00';
+    
+    const endTime = booking.service?.duration 
+      ? calculateEndTime(startTime, booking.service.duration)
+      : '00:00';
+    
+    return {
+      id: booking.id.toString(),
+      userName,
+      serviceName,
+      date,
+      startTime,
+      endTime,
+      participants: booking.participants_count,
+      totalAmount: booking.total_amount,
+    };
   };
 
-  const handleReject = (id: string) => {
-    setRejectedCount(prev => prev + 1);
-    setRequests(prev => prev.filter(req => req.id !== id));
-    // TODO: call API to reject
+  const calculateEndTime = (startTime: string, duration: string): string => {
+    // Parse duration (e.g., "3 hours", "2 days")
+    const match = duration.match(/(\d+)\s*(hour|day)/i);
+    if (!match) return startTime;
+    
+    const [, amount, unit] = match;
+    const hours = unit.toLowerCase() === 'day' ? parseInt(amount) * 24 : parseInt(amount);
+    
+    const [startHour, startMin] = startTime.split(':').map(Number);
+    const endHour = (startHour + hours) % 24;
+    
+    return `${String(endHour).padStart(2, '0')}:${String(startMin).padStart(2, '0')}`;
   };
 
-  // derive stats
+  const handleAccept = async (id: string) => {
+    try {
+      await confirmBooking(parseInt(id));
+      setAcceptedCount(prev => prev + 1);
+      setRequests(prev => prev.filter(req => req.id !== id));
+      // Show success message
+      alert('Booking confirmed successfully! The learner has been notified.');
+    } catch (err) {
+      console.error('Error accepting booking:', err);
+      alert(err instanceof Error ? err.message : 'Failed to accept booking');
+    }
+  };
+
+  const handleReject = async (id: string) => {
+    const reason = prompt('Please provide a reason for rejection (optional):');
+    
+    try {
+      await rejectBooking(parseInt(id), reason || undefined);
+      setRejectedCount(prev => prev + 1);
+      setRequests(prev => prev.filter(req => req.id !== id));
+      // Show success message
+      alert('Booking rejected successfully. The learner has been notified.');
+    } catch (err) {
+      console.error('Error rejecting booking:', err);
+      alert(err instanceof Error ? err.message : 'Failed to reject booking');
+    }
+  };
+
   const pendingCount = requests.length;
   const totalCount = acceptedCount + rejectedCount + pendingCount;
+
+  if (loading) {
+    return (
+      <div className="dashboard-page">
+        <div className="page-header">
+          <h2>Booking Requests</h2>
+        </div>
+        <div className="loading-state">
+          <div className="spinner"></div>
+          <p>Loading bookings...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="dashboard-page">
+        <div className="page-header">
+          <h2>Booking Requests</h2>
+        </div>
+        <div className="error-state">
+          <p>{error}</p>
+          <Button variant="primary" onClick={() => window.location.reload()}>
+            Retry
+          </Button>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="dashboard-page">
       <div className="page-header">
@@ -138,7 +251,10 @@ const BookingRequests: React.FC = () => {
             {requests.map(req => (
               <tr key={req.id}>
                 <td>{req.userName}</td>
-                <td>{req.serviceName}</td>
+                <td>
+                  <div>{req.serviceName}</div>
+                  <div className="text-sm text-gray-400">{req.participants} participants • Rs. {req.totalAmount.toLocaleString()}</div>
+                </td>
                 <td>{new Date(req.date).toLocaleDateString()}</td>
                 <td>{req.startTime} - {req.endTime}</td>
                 <td className="actions-cell">

@@ -18,6 +18,7 @@ import {
   Camera
 } from 'lucide-react';
 import '../../styles/pages/guide/_previousTours.scss';
+import { getGuideBookings, getServiceReviews, type Booking, type Review as ServiceReview } from '../../services/bookingService';
 
 interface CompletedTour {
   id: string;
@@ -54,6 +55,8 @@ const PreviousTours: React.FC = () => {
   const navigate = useNavigate();
   const [tours, setTours] = useState<CompletedTour[]>([]);
   const [filteredTours, setFilteredTours] = useState<CompletedTour[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'date' | 'rating' | 'earnings'>('date');
@@ -61,138 +64,124 @@ const PreviousTours: React.FC = () => {
   const [showReviewModal, setShowReviewModal] = useState(false);
 
   useEffect(() => {
-    // Simulate fetching completed tours
-    const dummyTours: CompletedTour[] = [
-      {
-        id: '1',
-        serviceName: 'Deep Space Observation Night',
-        date: '2025-06-15',
-        startTime: '20:00',
-        endTime: '23:30',
-        duration: 3.5,
-        participants: ['Alice Johnson', 'Bob Smith', 'Carol Martinez', 'David Lee'],
-        participantCount: 4,
-        location: 'Mount Wilson Observatory',
-        rating: 4.8,
-        averageRating: 4.8,
-        totalReviews: 4,
-        earnings: 480,
-        photos: [
-          'https://images.unsplash.com/photo-1446776877081-d282a0f896e2?w=400&h=300&fit=crop',
-          'https://images.unsplash.com/photo-1502134249126-9f3755a50d78?w=400&h=300&fit=crop',
-          'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=400&h=300&fit=crop'
-        ],
-        weatherConditions: 'Clear skies, 15°C',
-        equipmentUsed: ['Celestron NexStar 8SE', 'Orion SkyQuest XT10'],
-        highlights: ['Saturn rings clearly visible', 'Andromeda Galaxy photography'],
-        category: 'observation',
-        reviews: [
-          {
-            id: '1',
-            userName: 'Alice Johnson',
-            rating: 5,
-            comment: 'Absolutely incredible experience! The guide was knowledgeable and passionate.',
-            date: '2025-06-16',
-            verified: true
-          },
-          {
-            id: '2',
-            userName: 'Bob Smith',
-            rating: 5,
-            comment: 'Best stargazing tour I\'ve ever been on. Highly recommend!',
-            date: '2025-06-16',
-            verified: true
-          }
-        ]
-      },
-      {
-        id: '2',
-        serviceName: 'Astrophotography Masterclass',
-        date: '2025-06-10',
-        startTime: '18:00',
-        endTime: '02:00',
-        duration: 8,
-        participants: ['Emma Wilson', 'Frank Chen', 'Grace Kim', 'Henry Davis', 'Iris Zhang', 'Jack Brown'],
-        participantCount: 6,
-        location: 'Dark Sky Reserve - Joshua Tree',
-        rating: 4.9,
-        averageRating: 4.9,
-        totalReviews: 6,
-        earnings: 720,
-        photos: [
-          'https://images.unsplash.com/photo-1464207687429-7505649dae38?w=400&h=300&fit=crop',
-          'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop',
-          'https://images.unsplash.com/photo-1545156521-77bd85671d30?w=400&h=300&fit=crop',
-          'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop'
-        ],
-        weatherConditions: 'Perfect conditions, 12°C',
-        equipmentUsed: ['Canon EOS Ra', 'Sky-Watcher Star Adventurer', 'Various lenses'],
-        highlights: ['Milky Way core shots', 'Long exposure techniques', 'Post-processing workshop'],
-        category: 'photography',
-        reviews: [
-          {
-            id: '3',
-            userName: 'Emma Wilson',
-            rating: 5,
-            comment: 'Learned so much about astrophotography techniques. Amazing results!',
-            date: '2025-06-11',
-            verified: true
-          }
-        ]
-      },
-      {
-        id: '3',
-        serviceName: 'Telescope Building Workshop',
-        date: '2025-06-05',
-        startTime: '09:00',
-        endTime: '17:00',
-        duration: 8,
-        participants: ['Lisa Park', 'Mike Taylor', 'Nina Rodriguez', 'Oscar Lee'],
-        participantCount: 4,
-        location: 'Community Workshop Space',
-        rating: 4.7,
-        averageRating: 4.7,
-        totalReviews: 4,
-        earnings: 600,
-        photos: [
-          'https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?w=400&h=300&fit=crop',
-          'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop'
-        ],
-        weatherConditions: 'Indoor workshop',
-        equipmentUsed: ['Dobsonian telescope kits', 'Various tools'],
-        highlights: ['Built functional telescopes', 'Understanding optics', 'First light success'],
-        category: 'workshop',
-        reviews: []
-      },
-      {
-        id: '4',
-        serviceName: 'Planetary Observation Session',
-        date: '2025-05-28',
-        startTime: '21:00',
-        endTime: '23:00',
-        duration: 2,
-        participants: ['Paul Green', 'Quinn Adams'],
-        participantCount: 2,
-        location: 'Local Observatory',
-        rating: 4.5,
-        averageRating: 4.5,
-        totalReviews: 2,
-        earnings: 200,
-        photos: [
-          'https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?w=400&h=300&fit=crop',
-          'https://images.unsplash.com/photo-1614728263952-84ea256f9679?w=400&h=300&fit=crop'
-        ],
-        weatherConditions: 'Partly cloudy, 18°C',
-        equipmentUsed: ['Refractor telescope'],
-        highlights: ['Jupiter and moons', 'Mars observation'],
-        category: 'observation',
-        reviews: []
+    const fetchCompletedTours = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        // Fetch completed bookings
+        const response = await getGuideBookings({ status: 'completed', limit: 100 });
+        
+        // Transform bookings to CompletedTour format
+        const transformedTours: CompletedTour[] = await Promise.all(
+          response.bookings.map(async (booking) => await transformToTour(booking))
+        );
+        
+        setTours(transformedTours);
+        setFilteredTours(transformedTours);
+      } catch (err) {
+        console.error('Error fetching completed tours:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load tours');
+      } finally {
+        setLoading(false);
       }
-    ];
-    
-    setTours(dummyTours);
-    setFilteredTours(dummyTours);
+    };
+
+    fetchCompletedTours();
   }, []);
+
+  const transformToTour = async (booking: Booking): Promise<CompletedTour> => {
+    const userName = booking.user
+      ? `${booking.user.first_name || ''} ${booking.user.last_name || ''}`.trim() || booking.user.email
+      : 'Unknown User';
+    
+    const serviceName = booking.service?.title || 'Unknown Service';
+    const date = typeof booking.booking_date === 'string'
+      ? booking.booking_date.split('T')[0]
+      : new Date(booking.booking_date).toISOString().split('T')[0];
+    
+    const startTime = booking.booking_time
+      ? typeof booking.booking_time === 'string'
+        ? booking.booking_time.substring(11, 16)
+        : new Date(booking.booking_time).toTimeString().substring(0, 5)
+      : '00:00';
+    
+    const duration = booking.service?.duration
+      ? parseDuration(booking.service.duration)
+      : 0;
+    
+    const endTime = calculateEndTime(startTime, duration);
+    
+    // Fetch reviews for this service
+    let reviews: Review[] = [];
+    let averageRating = 0;
+    try {
+      if (booking.service_id) {
+        const reviewsResponse = await getServiceReviews(booking.service_id);
+        reviews = reviewsResponse.reviews.map((r: ServiceReview) => ({
+          id: r.id.toString(),
+          userName: r.user?.display_name || `${r.user?.first_name} ${r.user?.last_name}` || 'Anonymous',
+          rating: r.rating,
+          comment: r.review || '',
+          date: typeof r.created_at === 'string' ? r.created_at.split('T')[0] : new Date(r.created_at).toISOString().split('T')[0],
+          verified: r.is_verified || false,
+        }));
+        
+        if (reviews.length > 0) {
+          averageRating = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching reviews:', err);
+    }
+    
+    // Determine category based on service category or title
+    const category = determineCategory(booking.service?.category || booking.service?.title || '');
+    
+    return {
+      id: booking.id.toString(),
+      serviceName,
+      date,
+      startTime,
+      endTime,
+      duration,
+      participants: [userName], // Single participant name for now
+      participantCount: booking.participants_count,
+      location: booking.service?.location || 'Unknown Location',
+      averageRating,
+      totalReviews: reviews.length,
+      earnings: booking.total_amount,
+      reviews,
+      photos: booking.service?.image_url ? [booking.service.image_url] : [],
+      weatherConditions: 'N/A',
+      equipmentUsed: [],
+      highlights: [],
+      category,
+    };
+  };
+
+  const parseDuration = (duration: string): number => {
+    const match = duration.match(/(\d+)\s*(hour|day)/i);
+    if (!match) return 0;
+    
+    const [, amount, unit] = match;
+    return unit.toLowerCase() === 'day' ? parseInt(amount) * 24 : parseInt(amount);
+  };
+
+  const calculateEndTime = (startTime: string, durationHours: number): string => {
+    const [startHour, startMin] = startTime.split(':').map(Number);
+    const endHour = (startHour + durationHours) % 24;
+    
+    return `${String(endHour).padStart(2, '0')}:${String(startMin).padStart(2, '0')}`;
+  };
+
+  const determineCategory = (categoryOrTitle: string): 'observation' | 'photography' | 'workshop' | 'expedition' => {
+    const lower = categoryOrTitle.toLowerCase();
+    if (lower.includes('photo')) return 'photography';
+    if (lower.includes('workshop') || lower.includes('building')) return 'workshop';
+    if (lower.includes('expedition') || lower.includes('trip')) return 'expedition';
+    return 'observation';
+  };
 
   // Filter and search functionality
   useEffect(() => {
@@ -266,6 +255,36 @@ const PreviousTours: React.FC = () => {
     );
   };
 
+  if (loading) {
+    return (
+      <div className="previous-tours-page">
+        <div className="page-header">
+          <h2>Previous Tours</h2>
+        </div>
+        <div className="loading-state">
+          <div className="spinner"></div>
+          <p>Loading completed tours...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="previous-tours-page">
+        <div className="page-header">
+          <h2>Previous Tours</h2>
+        </div>
+        <div className="error-state">
+          <p>{error}</p>
+          <Button variant="primary" onClick={() => window.location.reload()}>
+            Retry
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="previous-tours-page">
       {/* Header */}
@@ -329,11 +348,11 @@ const PreviousTours: React.FC = () => {
         <Card className="stat-card earnings" variant="outlined">
           <div className="stat-content">
             <div className="stat-icon">
-              <div className="earnings-icon">$</div>
+              <div className="earnings-icon">Rs.</div>
             </div>
             <div className="stat-info">
               <span className="stat-label">Total Earnings</span>
-              <strong className="stat-value">${totalEarnings}</strong>
+              <strong className="stat-value">Rs. {totalEarnings.toLocaleString()}</strong>
             </div>
           </div>
         </Card>
@@ -457,7 +476,7 @@ const PreviousTours: React.FC = () => {
 
                   <div className="tour-earnings">
                     <span className="earnings-label">Earnings:</span>
-                    <span className="earnings-amount">${tour.earnings}</span>
+                    <span className="earnings-amount">Rs. {tour.earnings.toLocaleString()}</span>
                   </div>
 
                   <div className="tour-highlights">

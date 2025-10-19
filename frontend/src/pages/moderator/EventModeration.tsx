@@ -248,6 +248,22 @@ const EventModeration: React.FC = () => {
               </div>
 
               <div className="event-item-content">
+                {/* Event Thumbnail */}
+                {event.imageUrls && event.imageUrls.length > 0 && (
+                  <div className="event-card-image">
+                    <img 
+                      src={event.imageUrls[0]} 
+                      alt={event.eventName}
+                      className="event-thumbnail"
+                    />
+                    {event.imageUrls.length > 1 && (
+                      <span className="image-count-badge">
+                        +{event.imageUrls.length - 1} more
+                      </span>
+                    )}
+                  </div>
+                )}
+
                 <div className="event-description">
                   <p>{event.description.substring(0, 150)}...</p>
                 </div>

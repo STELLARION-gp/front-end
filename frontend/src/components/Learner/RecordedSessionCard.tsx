@@ -1,19 +1,23 @@
 import React from "react";
 import Button from "../Button";
 import { useNavigate } from "react-router-dom";
+import PriceIcon from "../../assets/svg/PriceIcon";
+import DurationIcon from "../../assets/svg/DurationIcon";
+import FreeIcon from "../../assets/svg/FreeIcon";
 
 export interface RecordedSessionCardProps {
-  id: string;
+  id: number | string;
   title: string;
-  date: string;
+  date?: string;
   instructor: string;
   category: string;
   difficulty: string;
   description: string;
-  rating: number;
+  rating?: number;
   image?: string;
-  price: string;
-  duration: string;
+  price: number | string | null | undefined;
+  duration: number | string;
+  onViewDetails?: () => void;
 }
 
 const RecordedSessionCard: React.FC<RecordedSessionCardProps> = ({
@@ -24,49 +28,75 @@ const RecordedSessionCard: React.FC<RecordedSessionCardProps> = ({
   category,
   difficulty,
   description,
-  rating,
+  rating = 0,
   image,
   price,
   duration,
+  onViewDetails,
 }) => {
   const navigate = useNavigate();
+  
+  const displayPrice = typeof price === 'number' ? price : 
+                      price === null || price === undefined ? null : 
+                      Number(price);
+  
+  const displayDuration = typeof duration === 'number' ? duration : Number(duration);
+  
   return (
-    <div className="recorded-session-card">
+    <div className="session-card">
       {image && (
-        <div className="recorded-session-image-wrap">
-          <img className="recorded-session-image" src={image} alt={title} />
+        <div className="session-image-wrap">
+          <img className="session-image" src={image} alt={title} />
         </div>
-    )}
-    <div className="recorded-session-title">{title}</div>
-    <div className="recorded-session-meta">
-      <span className="recorded-session-date">{date}</span>
-      <span className="recorded-session-instructor">
-        by {instructor}
-      </span>
-      <span className="recorded-session-category">{category}</span>
-      <span className="recorded-session-difficulty">{difficulty}</span>
-      <span className="recorded-session-duration">Duration: {duration}</span>
-    </div>
-    <div className="recorded-session-desc">{description}</div>
-    <div className="recorded-session-rating-row">
-      <span className="recorded-session-rating-label">Rating:</span>
-      <span className="recorded-session-rating-value">{rating.toFixed(1)} / 5</span>
-      <span className="recorded-session-rating-stars">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <span
-            key={i}
-            className={i < Math.round(rating) ? 'star-filled' : 'star-empty'}
-          >
-            ★
+      )}
+      <div className="session-title">{title}</div>
+      <div className="session-meta">
+        {date && <span className="session-date">{date}</span>}
+        <span className="session-organizer">
+          by {instructor}
+        </span>
+        <span className="session-category">
+          {category === 'paid' ? (
+            <>
+              <PriceIcon size={14} />
+              <span>Paid{displayPrice ? ` Rs ${displayPrice}` : ''}</span>
+            </>
+          ) : (
+            <>
+              <FreeIcon size={14} />
+              <span>Free</span>
+            </>
+          )}
+        </span>
+        <span className="session-difficulty">
+          {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
+        </span>
+        {displayDuration && (
+          <span className="session-duration">
+            <DurationIcon size={14} />
+            <span>{displayDuration} min</span>
           </span>
-        ))}
-      </span>
+        )}
+      </div>
+      <div className="session-desc">{description}</div>
+      {rating > 0 && (
+        <div className="session-rating-row">
+          <span className="session-rating-label">Rating:</span>
+          <span className="session-rating-value">{"  "+rating.toFixed(1) +"  "} / 5</span>
+          <span className="session-rating-stars">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <span key={i} style={{ color: i < Math.round(rating) ? '#fbbf24' : '#334155', fontSize: '1.1rem' }}>★</span>
+            ))}
+          </span>
+        </div>
+      )}
+      <div className="session-card-actions">
+        <Button onClick={onViewDetails || (() => navigate(`/dashboard/sessions/recorded-sessions/${id}`))}>
+          View Details
+        </Button>
+      </div>
     </div>
-    <div className="recorded-session-purchase-row">
-      <span className="recorded-session-price">{price}</span>
-      <Button onClick={() => navigate(`/dashboard/sessions/recorded-sessions/${id}`)}>Buy Session</Button>
-    </div>
-  </div>
-);
-}
+  );
+};
+
 export default RecordedSessionCard;

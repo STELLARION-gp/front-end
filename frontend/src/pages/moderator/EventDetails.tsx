@@ -249,6 +249,20 @@ const EventDetails: React.FC = () => {
                   <p>{event.description}</p>
                 </div>
 
+                {/* Event Images Gallery */}
+                {event.imageUrls && event.imageUrls.length > 0 && (
+                  <div className="info-card">
+                    <h3>Event Images</h3>
+                    <div className="event-image-gallery">
+                      {event.imageUrls.map((url, index) => (
+                        <div key={index} className="gallery-item">
+                          <img src={url} alt={`${event.eventName} - Image ${index + 1}`} />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <div className="info-card">
                   <h3>Activities</h3>
                   <div className="activities-list">

@@ -1,6 +1,7 @@
-import { auth } from '../firebase';
+import { auth } from "../firebase";
+import { API_CONFIG } from "../config/api.config";
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = API_CONFIG.API_BASE_URL;
 
 export interface SubscriptionPlan {
   id: number;
@@ -14,14 +15,9 @@ export interface SubscriptionPlan {
   is_active: boolean;
 }
 
-export interface UserSubscription {
-  id: number;
-  user_id: string;
-  plan_type: string;
-  status: string;
-  start_date: string;
-  end_date: string;
-}
+// Import the UserSubscription type from the shared types
+import type { UserSubscription as UserSubscriptionType } from "../types/subscription";
+export type UserSubscription = UserSubscriptionType;
 
 export interface PaymentOrder {
   planId: number;
@@ -43,21 +39,24 @@ class SubscriptionService {
     try {
       return await user.getIdToken();
     } catch (error) {
-      console.error('Error getting auth token:', error);
+      console.error("Error getting auth token:", error);
       return null;
     }
   }
 
-  private async makeRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  private async makeRequest<T>(
+    endpoint: string,
+    options: RequestInit = {}
+  ): Promise<T> {
     const token = await this.getAuthToken();
-    
+
     const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-      ...(options.headers as Record<string, string> || {}),
+      "Content-Type": "application/json",
+      ...((options.headers as Record<string, string>) || {}),
     };
 
     if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
+      headers["Authorization"] = `Bearer ${token}`;
     }
 
     try {
@@ -72,7 +71,7 @@ class SubscriptionService {
 
       return await response.json();
     } catch (error) {
-      console.error('API request failed:', error);
+      console.error("API request failed:", error);
       throw error;
     }
   }
@@ -80,9 +79,13 @@ class SubscriptionService {
   // Get all available subscription plans
   async getSubscriptionPlans(): Promise<SubscriptionPlan[]> {
     try {
-      return await this.makeRequest<SubscriptionPlan[]>('/subscriptions/plans');
+      const response = await this.makeRequest<{
+        success: boolean;
+        data: SubscriptionPlan[];
+      }>("/subscriptions/plans");
+      return response.data;
     } catch (error) {
-      console.error('Error fetching subscription plans:', error);
+      console.error("Error fetching subscription plans:", error);
       throw error;
     }
   }
@@ -90,25 +93,36 @@ class SubscriptionService {
   // Get user's current subscription
   async getUserSubscription(userId: string): Promise<UserSubscription | null> {
     try {
-      return await this.makeRequest<UserSubscription>(`/subscriptions/user/${userId}`);
-    } catch (error: any) {
-      if (error.message?.includes('404')) {
+      const response = await this.makeRequest<{
+        success: boolean;
+        data: UserSubscription;
+      }>(`/subscriptions/user/${userId}`);
+      return response.data;
+    } catch (error: unknown) {
+      if (error instanceof Error && error.message?.includes("404")) {
         return null; // User has no subscription
       }
-      console.error('Error fetching user subscription:', error);
+      console.error("Error fetching user subscription:", error);
       throw error;
     }
   }
 
   // Update user's subscription plan
-  async updateSubscription(userId: string, planType: string): Promise<UserSubscription> {
+  async updateSubscription(
+    userId: string,
+    planType: string
+  ): Promise<UserSubscription> {
     try {
-      return await this.makeRequest<UserSubscription>(`/subscriptions/user/${userId}`, {
-        method: 'PUT',
-        body: JSON.stringify({ plan_type: planType })
+      const response = await this.makeRequest<{
+        success: boolean;
+        data: UserSubscription;
+      }>(`/subscriptions/user/${userId}`, {
+        method: "PUT",
+        body: JSON.stringify({ plan_type: planType }),
       });
+      return response.data;
     } catch (error) {
-      console.error('Error updating subscription:', error);
+      console.error("Error updating subscription:", error);
       throw error;
     }
   }
@@ -116,11 +130,14 @@ class SubscriptionService {
   // Cancel user's subscription
   async cancelSubscription(userId: string): Promise<void> {
     try {
-      await this.makeRequest<void>(`/subscriptions/user/${userId}`, {
-        method: 'DELETE'
-      });
+      await this.makeRequest<{ success: boolean; message: string }>(
+        `/subscriptions/user/${userId}`,
+        {
+          method: "DELETE",
+        }
+      );
     } catch (error) {
-      console.error('Error canceling subscription:', error);
+      console.error("Error canceling subscription:", error);
       throw error;
     }
   }
@@ -128,9 +145,13 @@ class SubscriptionService {
   // Check chatbot access for user
   async checkChatbotAccess(userId: string): Promise<ChatbotAccess> {
     try {
-      return await this.makeRequest<ChatbotAccess>(`/subscriptions/user/${userId}/chatbot-access`);
+      const response = await this.makeRequest<{
+        success: boolean;
+        data: ChatbotAccess;
+      }>(`/subscriptions/user/${userId}/chatbot-access`);
+      return response.data;
     } catch (error) {
-      console.error('Error checking chatbot access:', error);
+      console.error("Error checking chatbot access:", error);
       throw error;
     }
   }
@@ -138,11 +159,14 @@ class SubscriptionService {
   // Increment chatbot usage
   async incrementChatbotUsage(userId: string): Promise<void> {
     try {
-      await this.makeRequest<void>(`/subscriptions/user/${userId}/chatbot-usage`, {
-        method: 'POST'
-      });
+      await this.makeRequest<{ success: boolean; message: string }>(
+        `/subscriptions/user/${userId}/chatbot-usage`,
+        {
+          method: "POST",
+        }
+      );
     } catch (error) {
-      console.error('Error incrementing chatbot usage:', error);
+      console.error("Error incrementing chatbot usage:", error);
       throw error;
     }
   }
@@ -150,9 +174,13 @@ class SubscriptionService {
   // Get subscription history
   async getSubscriptionHistory(userId: string): Promise<UserSubscription[]> {
     try {
-      return await this.makeRequest<UserSubscription[]>(`/subscriptions/user/${userId}/history`);
+      const response = await this.makeRequest<{
+        success: boolean;
+        data: UserSubscription[];
+      }>(`/subscriptions/user/${userId}/history`);
+      return response.data;
     } catch (error) {
-      console.error('Error fetching subscription history:', error);
+      console.error("Error fetching subscription history:", error);
       throw error;
     }
   }

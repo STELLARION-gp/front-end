@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "../../styles/pages/influencer/Polls.scss";
-import { sessionIdeasPolls } from "../../components/Learner/sessionIdeasPollsData";
 import Button from "../../components/Button";
+import pollService, { type Poll } from "../../services/pollService";
 
 // Define SVG icons as components
 const PlusIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -60,67 +60,6 @@ const TrashIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
-const EditIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    width={props.width || 24}
-    height={props.height || 24}
-    fill="currentColor"
-  >
-    <path
-      fillRule="evenodd"
-      clipRule="evenodd"
-      d="M15.8787 3.10659C17.0503 1.93496 18.9497 1.93496 20.1213 3.10659L20.8787 3.86406C22.0503 5.0357 22.0503 6.93496 20.8787 8.10659L18.5 10.4853L17.5 14.9999L13 13.9999L8.87868 18.1213C8.31607 18.6839 7.55301 19 6.75736 19H3V15.2427C3 14.447 3.31607 13.684 3.87868 13.1213L15.8787 3.10659ZM19.0251 4.20305C18.4538 3.63175 17.5462 3.63175 16.9749 4.20305L14.4645 6.71351L17.2929 9.54191L19.8033 7.03144C20.3746 6.46014 20.3746 5.55248 19.8033 4.98119L19.0251 4.20305ZM16.5858 11.1213L13.7574 8.29289L5 17.0502V17.9999H6.75736C7.02152 17.9999 7.27425 17.8946 7.46447 17.7044L12.5 12.6689L16.5858 11.1213Z"
-    />
-  </svg>
-);
-
-// Types
-interface PollOption {
-  id: string;
-  text: string;
-  votes: number;
-}
-
-interface Poll {
-  id: string;
-  title: string;
-  description: string;
-  options: PollOption[];
-  trending: boolean;
-  author: string;
-  authorPic: string;
-  createdAt: string;
-  comments: number;
-  feedbacks?: Feedback[];
-}
-
-interface Feedback {
-  id: string;
-  userId: string;
-  userName: string;
-  userPic: string;
-  text: string;
-  createdAt: string;
-}
-
-// Tab component
-// const Tab: React.FC<{
-//   label: string;
-//   icon: React.ReactNode;
-//   active: boolean;
-//   onClick: () => void;
-// }> = ({ label, icon, active, onClick }) => (
-//   <div
-//     className={`polls-tab ${active ? "active" : ""}`}
-//     onClick={onClick}
-//   >
-//     {icon}
-//     <span>{label}</span>
-//   </div>
-// );
-
 // Progress bar component
 const ProgressBar: React.FC<{ percent: number; color?: string }> = ({
   percent,
@@ -138,7 +77,7 @@ const ProgressBar: React.FC<{ percent: number; color?: string }> = ({
 );
 
 // Create Poll Tab Content
-const CreatePollTab: React.FC<{ onPollCreated: (poll: Poll) => void }> = ({ onPollCreated }) => {
+const CreatePollTab: React.FC<{ onPollCreated: () => void }> = ({ onPollCreated }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [options, setOptions] = useState<{ id: string; text: string }[]>([
@@ -146,6 +85,7 @@ const CreatePollTab: React.FC<{ onPollCreated: (poll: Poll) => void }> = ({ onPo
     { id: "2", text: "" },
   ]);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const addOption = () => {
     if (options.length < 10) {
@@ -165,7 +105,7 @@ const CreatePollTab: React.FC<{ onPollCreated: (poll: Poll) => void }> = ({ onPo
     );
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validation
@@ -185,30 +125,41 @@ const CreatePollTab: React.FC<{ onPollCreated: (poll: Poll) => void }> = ({ onPo
       return;
     }
 
-    // Create new poll
-    const newPoll: Poll = {
-      id: `poll-${Date.now()}`,
-      title,
-      description,
-      options: validOptions.map(opt => ({ ...opt, votes: 0 })),
-      trending: false,
-      author: "You", // In a real app, get from user context
-      authorPic: "https://ui-avatars.com/api/?name=You&background=4F46E5&color=fff",
-      createdAt: new Date().toISOString(),
-      comments: 0,
-      feedbacks: []
-    };
-
-    onPollCreated(newPoll);
-    
-    // Reset form
-    setTitle("");
-    setDescription("");
-    setOptions([
-      { id: "1", text: "" },
-      { id: "2", text: "" },
-    ]);
+    setLoading(true);
     setError("");
+
+    try {
+      // Create poll via API
+      console.log("📝 Creating poll with data:", {
+        title: title.trim(),
+        description: description.trim(),
+        options: validOptions.map(opt => opt.text.trim())
+      });
+      
+      const response = await pollService.createPoll({
+        title: title.trim(),
+        description: description.trim(),
+        options: validOptions.map(opt => opt.text.trim())
+      });
+      
+      console.log("✅ Poll created successfully:", response);
+
+      // Reset form
+      setTitle("");
+      setDescription("");
+      setOptions([
+        { id: "1", text: "" },
+        { id: "2", text: "" },
+      ]);
+      
+      // Notify parent component
+      onPollCreated();
+    } catch (err: any) {
+      console.error("❌ Error creating poll:", err);
+      setError(err.message || "Failed to create poll");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -279,8 +230,8 @@ const CreatePollTab: React.FC<{ onPollCreated: (poll: Poll) => void }> = ({ onPo
           </div>
         </div>
         
-        <Button type="submit" className="create-poll-btn">
-          <CheckIcon width={16} height={16} /> Create Poll
+        <Button type="submit" className="create-poll-btn" disabled={loading}>
+          <CheckIcon width={16} height={16} /> {loading ? "Creating..." : "Create Poll"}
         </Button>
       </form>
     </div>
@@ -288,55 +239,90 @@ const CreatePollTab: React.FC<{ onPollCreated: (poll: Poll) => void }> = ({ onPo
 };
 
 // Results Tab Content
-const ResultsTab: React.FC<{ polls: Poll[] }> = ({ polls }) => {
-  const [expandedPoll, setExpandedPoll] = useState<string | null>(null);
-  const [filter, setFilter] = useState<string>("all");
-  
-  const filteredPolls = 
-    filter === "all" ? polls : 
-    filter === "trending" ? polls.filter(poll => poll.trending) : 
-    polls.filter(poll => !poll.trending);
-
-  const togglePollExpansion = (pollId: string) => {
+const ResultsTab: React.FC<{ 
+  polls: Poll[]; 
+  loading: boolean; 
+  statusFilter: "all" | "pending" | "approved" | "rejected";
+  onStatusFilterChange: (status: "all" | "pending" | "approved" | "rejected") => void;
+}> = ({ polls, loading, statusFilter, onStatusFilterChange }) => {
+  const [expandedPoll, setExpandedPoll] = useState<number | null>(null);
+  const togglePollExpansion = (pollId: number) => {
     setExpandedPoll(expandedPoll === pollId ? null : pollId);
   };
 
-  if (polls.length === 0) {
+  // Filter polls by status
+  const filteredPolls = statusFilter === "all" 
+    ? polls 
+    : polls.filter(poll => poll.status === statusFilter);
+
+  console.log("🔍 ResultsTab render:", {
+    totalPolls: polls.length,
+    statusFilter,
+    filteredPollsCount: filteredPolls.length,
+    pollStatuses: polls.map(p => ({ id: p.id, title: p.title, status: p.status }))
+  });
+
+  const getStatusBadgeClass = (status?: string) => {
+    switch (status) {
+      case 'approved': return 'status-badge status-approved';
+      case 'rejected': return 'status-badge status-rejected';
+      case 'pending': return 'status-badge status-pending';
+      default: return 'status-badge';
+    }
+  };
+
+  if (loading) {
     return (
-      <div className="no-polls-message">
-        <h3>No polls available</h3>
-        <p>Create your first poll to start gathering feedback</p>
+      <div className="polls-loading">
+        <p>Loading your polls...</p>
       </div>
     );
   }
 
   return (
     <div className="results-container">
-      <div className="polls-filter">
-        <Button 
-          className={filter === "all" ? "active" : ""} 
-          onClick={() => setFilter("all")}
+      {/* Status Filter Buttons */}
+      <div className="status-filter-buttons">
+        <button 
+          className={`filter-btn ${statusFilter === 'all' ? 'active' : ''}`}
+          onClick={() => onStatusFilterChange('all')}
         >
-          All Polls
-        </Button>
-        <Button 
-          className={filter === "trending" ? "active" : ""} 
-          onClick={() => setFilter("trending")}
+          All ({polls.length})
+        </button>
+        <button 
+          className={`filter-btn ${statusFilter === 'pending' ? 'active' : ''}`}
+          onClick={() => onStatusFilterChange('pending')}
         >
-          Trending
-        </Button>
-        <Button 
-          className={filter === "regular" ? "active" : ""} 
-          onClick={() => setFilter("regular")}
+          Pending ({polls.filter(p => p.status === 'pending').length})
+        </button>
+        <button 
+          className={`filter-btn ${statusFilter === 'approved' ? 'active' : ''}`}
+          onClick={() => onStatusFilterChange('approved')}
         >
-          Regular
-        </Button>
+          Approved ({polls.filter(p => p.status === 'approved').length})
+        </button>
+        <button 
+          className={`filter-btn ${statusFilter === 'rejected' ? 'active' : ''}`}
+          onClick={() => onStatusFilterChange('rejected')}
+        >
+          Rejected ({polls.filter(p => p.status === 'rejected').length})
+        </button>
       </div>
+
+      {filteredPolls.length === 0 ? (
+        <div className="no-polls-message">
+          <h3>No polls found</h3>
+          <p>{statusFilter === 'all' ? 'Create your first poll to start gathering feedback' : `No ${statusFilter} polls`}</p>
+        </div>
+      ) : null}
 
       <div className="polls-results-list">
         {filteredPolls.map(poll => {
-          const totalVotes = poll.options.reduce((sum, opt) => sum + opt.votes, 0) || 1;
           const isExpanded = expandedPoll === poll.id;
+          const displayName = poll.creator?.display_name || 
+                             `${poll.creator?.first_name || ''} ${poll.creator?.last_name || ''}`.trim() ||
+                             'Unknown';
+          
           return (
             <div 
               key={poll.id} 
@@ -344,63 +330,40 @@ const ResultsTab: React.FC<{ polls: Poll[] }> = ({ polls }) => {
             >
               <div className="poll-result-header" onClick={() => togglePollExpansion(poll.id)}>
                 <div>
-                  <h3>{poll.title}</h3>
-                  <p className="poll-date">Created: {new Date(poll.createdAt).toLocaleDateString()}</p>
+                  <h3>
+                    {poll.title}
+                    {poll.status && <span className={getStatusBadgeClass(poll.status)}>{poll.status}</span>}
+                  </h3>
+                  <p className="poll-meta">
+                    Created: {new Date(poll.created_at).toLocaleDateString()} by {displayName}
+                  </p>
+                  {poll.moderated_at && (
+                    <p className="poll-moderation-info">
+                      Moderated: {new Date(poll.moderated_at).toLocaleDateString()}
+                    </p>
+                  )}
                 </div>
                 <div className="poll-stats">
-                  <span className="total-votes">{totalVotes} votes</span>
-                  {poll.trending && <span className="trending-badge">Trending</span>}
+                  <span className="total-votes">{poll.total_votes} votes</span>
+                  <span className="total-comments">{poll.comment_count} comments</span>
                 </div>
               </div>
               
               {isExpanded && (
                 <div className="poll-result-details">
-                  <p className="poll-description">{poll.description}</p>
+                  {poll.description && <p className="poll-description">{poll.description}</p>}
                   
                   <div className="poll-options-results">
-                    {poll.options.map(option => {
-                      const percent = totalVotes ? Math.round((option.votes / totalVotes) * 100) : 0;
-                      return (
-                        <div key={option.id} className="poll-option-result">
-                          <div className="option-info">
-                            <span className="option-text">{option.text}</span>
-                            <span className="option-votes">{option.votes} votes</span>
-                          </div>
-                          <ProgressBar percent={percent} />
+                    <h4>Results</h4>
+                    {poll.choices.map((choice, index) => (
+                      <div key={index} className="poll-option-result">
+                        <div className="option-info">
+                          <span className="option-text">{choice.choice}</span>
+                          <span className="option-votes">{choice.vote_count} votes</span>
                         </div>
-                      );
-                    })}
-                  </div>
-                  
-                  <div className="poll-feedback-section">
-                    <h4>Feedback & Suggestions</h4>
-                    {poll.feedbacks && poll.feedbacks.length > 0 ? (
-                      <div className="feedback-list">
-                        {poll.feedbacks.map(feedback => (
-                          <div key={feedback.id} className="feedback-item">
-                            <div className="feedback-header">
-                              <img src={feedback.userPic} alt={feedback.userName} />
-                              <span>{feedback.userName}</span>
-                              <span className="feedback-date">
-                                {new Date(feedback.createdAt).toLocaleDateString()}
-                              </span>
-                            </div>
-                            <p>{feedback.text}</p>
-                          </div>
-                        ))}
+                        <ProgressBar percent={choice.percentage} />
                       </div>
-                    ) : (
-                      <p className="no-feedback">No feedback yet.</p>
-                    )}
-                  </div>
-                  
-                  <div className="poll-actions">
-                    <Button className="edit-poll-btn">
-                      <EditIcon width={16} height={16} /> Edit Poll
-                    </Button>
-                    <Button className="close-poll-btn">
-                      Close Poll
-                    </Button>
+                    ))}
                   </div>
                 </div>
               )}
@@ -416,15 +379,50 @@ const ResultsTab: React.FC<{ polls: Poll[] }> = ({ polls }) => {
 const Polls: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"create" | "results">("create");
   const [polls, setPolls] = useState<Poll[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "approved" | "rejected">("all");
+
+  // Load user's polls
+  const loadMyPolls = async () => {
+    try {
+      setLoading(true);
+      console.log("🔍 Fetching my polls...");
+      const response = await pollService.getMyPolls({ page: 1, limit: 100 });
+      console.log("📦 Full API response:", response);
+      console.log("📊 Response data:", response.data);
+      console.log("📈 Number of polls:", response.data?.length || 0);
+      
+      // Debug each poll's status
+      if (response.data && response.data.length > 0) {
+        response.data.forEach((poll, index) => {
+          console.log(`Poll ${index + 1}:`, {
+            id: poll.id,
+            title: poll.title,
+            status: poll.status,
+            moderated_at: poll.moderated_at,
+            created_at: poll.created_at
+          });
+        });
+      } else {
+        console.warn("⚠️ No polls returned from API");
+      }
+      
+      setPolls(response.data || []);
+    } catch (error: any) {
+      console.error("❌ Failed to load polls:", error);
+      console.error("❌ Error details:", error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    // In a real app, fetch polls from API
-    // For now, use sample data
-    setPolls(sessionIdeasPolls);
+    loadMyPolls();
   }, []);
 
-  const handlePollCreated = (newPoll: Poll) => {
-    setPolls([newPoll, ...polls]);
+  const handlePollCreated = () => {
+    // Reload polls after creating a new one
+    loadMyPolls();
     setActiveTab("results"); // Switch to results tab after creating
   };
 
@@ -454,7 +452,12 @@ const Polls: React.FC = () => {
         {activeTab === "create" ? (
           <CreatePollTab onPollCreated={handlePollCreated} />
         ) : (
-          <ResultsTab polls={polls} />
+          <ResultsTab 
+            polls={polls} 
+            loading={loading} 
+            statusFilter={statusFilter}
+            onStatusFilterChange={setStatusFilter}
+          />
         )}
       </div>
     </div>

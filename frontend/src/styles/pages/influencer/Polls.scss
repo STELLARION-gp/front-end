@@ -248,32 +248,40 @@ $error: #EF4444 !default; // Fallback definition for error color if not defined 
 
 // Results Tab Styles
 .results-container {
+  .status-filter-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    
+    .filter-btn {
+      background-color: rgba(255, 255, 255, 0.05);
+      padding: 0.5rem 1rem;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      color: $text-color-secondary;
+      font-weight: 500;
+      font-size: 0.9rem;
+      
+      &:hover {
+        background-color: rgba($accent-color, 0.1);
+        border-color: rgba($accent-color, 0.2);
+      }
+      
+      &.active {
+        background: linear-gradient(90deg, rgba($accent-color, 0.8) 0%, rgba($accent-color-light, 0.8) 100%);
+        color: white;
+        border-color: transparent;
+      }
+    }
+  }
+  
   .polls-filter {
     display: flex;
     gap: 1rem;
     margin-bottom: 1.5rem;
-    
-    // button {
-    //   background-color: rgba(255, 255, 255, 0.05);
-    //   padding: 0.5rem 1rem;
-    //   border: 1px solid rgba(255, 255, 255, 0.1);
-    //   border-radius: 8px;
-    //   cursor: pointer;
-    //   transition: all 0.3s ease;
-    //   color: $text-color-secondary;
-    //   font-weight: 500;
-      
-    //   &:hover {
-    //     background-color: rgba($accent-color, 0.1);
-    //     border-color: rgba($accent-color, 0.2);
-    //   }
-      
-    //   &.active {
-    //     background: linear-gradient(90deg, rgba($accent-color, 0.8) 0%, rgba($accent-color-light, 0.8) 100%);
-    //     color: white;
-    //     border-color: transparent;
-    //   }
-    // }
   }
   
   .polls-results-list {
@@ -298,7 +306,7 @@ $error: #EF4444 !default; // Fallback definition for error color if not defined 
         padding: 1.25rem;
         display: flex;
         justify-content: space-between;
-        align-items: center;
+        align-items: flex-start;
         cursor: pointer;
         transition: background 0.3s ease;
         
@@ -306,16 +314,70 @@ $error: #EF4444 !default; // Fallback definition for error color if not defined 
           background-color: rgba($accent-color, 0.1);
         }
         
-        h3 {
-          margin: 0;
-          color: $text-light;
-          font-weight: 600;
+        > div:first-child {
+          flex: 1;
+          
+          h3 {
+            margin: 0 0 0.5rem 0;
+            color: $text-light;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            
+            .status-badge {
+              padding: 0.25rem 0.75rem;
+              border-radius: 20px;
+              font-size: 0.7rem;
+              font-weight: 600;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+              
+              &.status-pending {
+                background-color: rgba(255, 165, 0, 0.2);
+                color: #FFA500;
+                border: 1px solid rgba(255, 165, 0, 0.4);
+              }
+              
+              &.status-approved {
+                background-color: rgba(16, 185, 129, 0.2);
+                color: #10B981;
+                border: 1px solid rgba(16, 185, 129, 0.4);
+              }
+              
+              &.status-rejected {
+                background-color: rgba(239, 68, 68, 0.2);
+                color: #EF4444;
+                border: 1px solid rgba(239, 68, 68, 0.4);
+              }
+            }
+          }
+          
+          .poll-meta {
+            color: $text-color-secondary;
+            font-size: 0.9rem;
+            margin: 0;
+          }
+          
+          .poll-moderation-info {
+            color: rgba($text-color-secondary, 0.8);
+            font-size: 0.85rem;
+            font-style: italic;
+            margin: 0.25rem 0 0 0;
+          }
         }
         
-        .poll-date {
-          color: $text-color-secondary;
-          font-size: 0.9rem;
-          margin-top: 0.3rem;
+        .poll-stats {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+          gap: 0.25rem;
+          
+          span {
+            color: $text-color-secondary;
+            font-size: 0.85rem;
+          }
         }
         
         .poll-stats {

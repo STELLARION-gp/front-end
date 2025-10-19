@@ -1,8 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import Button from './Button';
-import { astronomyEventsService, type CreateEventRequest } from '../services/astronomyEventsService';
-import { apiService } from '../services/api';
-import '../styles/components/AstronomyEventModal.scss';
+import React, { useState, useEffect } from "react";
+import Button from "./Button";
+import {
+  astronomyEventsService,
+  type CreateEventRequest,
+} from "../services/astronomyEventsService";
+import { apiService } from "../services/api";
+import "../styles/components/AstronomyEventModal.scss";
 
 interface AstronomyEventModalProps {
   isOpen: boolean;
@@ -10,42 +13,44 @@ interface AstronomyEventModalProps {
   onSuccess: (message: string) => void;
 }
 
-const AstronomyEventModal: React.FC<AstronomyEventModalProps> = ({ isOpen, onClose, onSuccess }) => {
+const AstronomyEventModal: React.FC<AstronomyEventModalProps> = ({
+  isOpen,
+  onClose,
+  onSuccess,
+}) => {
   const [formData, setFormData] = useState<CreateEventRequest>({
-    name: '',
-    description: '',
-    visibility: 'naked_eye',
-    best_time: '',
-    image_url: '',
-    event_date: '',
-    end_date: '',
-    duration: '',
-    event_type: 'meteor_shower'
+    name: "",
+    description: "",
+    visibility: "naked_eye",
+    best_time: "",
+    image_url: "",
+    event_date: "",
+    end_date: "",
+    duration: "",
+    event_type: "meteor_shower",
   });
-  
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Image upload state
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
   const resetForm = () => {
     setFormData({
-      name: '',
-      description: '',
-      visibility: 'naked_eye',
-      best_time: '',
-      image_url: '',
-      event_date: '',
-      end_date: '',
-      duration: '',
-      event_type: 'meteor_shower'
+      name: "",
+      description: "",
+      visibility: "naked_eye",
+      best_time: "",
+      image_url: "",
+      event_date: "",
+      end_date: "",
+      duration: "",
+      event_type: "meteor_shower",
     });
     setError(null);
-    setSelectedImage(null);
     setUploadedImageUrl(null);
     setUploadError(null);
   };
@@ -56,95 +61,108 @@ const AstronomyEventModal: React.FC<AstronomyEventModalProps> = ({ isOpen, onClo
       // Set default date to tomorrow
       const tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        event_date: tomorrow.toISOString().split('T')[0]
+        event_date: tomorrow.toISOString().split("T")[0],
       }));
     }
   }, [isOpen]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
-  const handleImageSelection = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageSelection = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     // Validate file type
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/webp'];
+    const allowedTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/jpg",
+      "image/gif",
+      "image/webp",
+    ];
     if (!allowedTypes.includes(file.type)) {
-      setUploadError('Please select a valid image file (JPEG, PNG, GIF, or WebP)');
+      setUploadError(
+        "Please select a valid image file (JPEG, PNG, GIF, or WebP)"
+      );
       return;
     }
 
     // Validate file size (5MB)
     if (file.size > 5 * 1024 * 1024) {
-      setUploadError('Image size must be less than 5MB');
+      setUploadError("Image size must be less than 5MB");
       return;
     }
 
-    setSelectedImage(file);
     setUploadError(null);
-    
+
     // Upload immediately after selection
     setUploadingImage(true);
     try {
       const response = await apiService.uploadMedia(file);
       const imageUrl = response?.file?.file_path || response?.cloudinary?.url;
-      
+
       if (!imageUrl) {
-        throw new Error('Failed to get image URL from upload response');
+        throw new Error("Failed to get image URL from upload response");
       }
 
       setUploadedImageUrl(imageUrl);
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        image_url: imageUrl
+        image_url: imageUrl,
       }));
     } catch (err) {
-      console.error('Image upload error:', err);
-      setUploadError(err instanceof Error ? err.message : 'Failed to upload image');
-      setSelectedImage(null);
+      console.error("Image upload error:", err);
+      setUploadError(
+        err instanceof Error ? err.message : "Failed to upload image"
+      );
     } finally {
       setUploadingImage(false);
     }
   };
 
   const handleRemoveImage = () => {
-    setSelectedImage(null);
     setUploadedImageUrl(null);
     setUploadError(null);
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      image_url: ''
+      image_url: "",
     }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.name.trim() || !formData.description.trim()) {
-      setError('Event name and description are required');
+      setError("Event name and description are required");
       return;
     }
 
     if (!formData.event_date) {
-      setError('Event date is required');
+      setError("Event date is required");
       return;
     }
 
     if (!formData.duration.trim()) {
-      setError('Duration is required');
+      setError("Duration is required");
       return;
     }
 
     if (!formData.best_time.trim()) {
-      setError('Best time is required');
+      setError("Best time is required");
       return;
     }
 
@@ -161,17 +179,19 @@ const AstronomyEventModal: React.FC<AstronomyEventModalProps> = ({ isOpen, onClo
         event_date: formData.event_date,
         end_date: formData.end_date || undefined,
         duration: formData.duration.trim(),
-        event_type: formData.event_type
+        event_type: formData.event_type,
       };
 
       await astronomyEventsService.createEvent(eventData);
-      
-      onSuccess('Astronomy event created successfully!');
+
+      onSuccess("Astronomy event created successfully!");
       resetForm();
       onClose();
     } catch (err) {
-      console.error('Create event error:', err);
-      setError(err instanceof Error ? err.message : 'Failed to create astronomy event');
+      console.error("Create event error:", err);
+      setError(
+        err instanceof Error ? err.message : "Failed to create astronomy event"
+      );
     } finally {
       setLoading(false);
     }
@@ -186,10 +206,15 @@ const AstronomyEventModal: React.FC<AstronomyEventModalProps> = ({ isOpen, onClo
 
   return (
     <div className="modal-overlay" onClick={handleClose}>
-      <div className="astronomy-event-modal" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="astronomy-event-modal"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="modal-header">
           <h2>Create Astronomy Event</h2>
-          <button className="close-button" onClick={handleClose}>×</button>
+          <button className="close-button" onClick={handleClose}>
+            ×
+          </button>
         </div>
 
         <form onSubmit={handleSubmit} className="modal-form">
@@ -224,9 +249,15 @@ const AstronomyEventModal: React.FC<AstronomyEventModalProps> = ({ isOpen, onClo
                 <option value="comet_appearance">Comet Appearance</option>
                 <option value="supermoon">Supermoon</option>
                 <option value="new_moon">New Moon</option>
-                <option value="planetary_conjunction">Planetary Conjunction</option>
-                <option value="saturn_rings_visible">Saturn Rings Visible</option>
-                <option value="jupiter_moons_visible">Jupiter Moons Visible</option>
+                <option value="planetary_conjunction">
+                  Planetary Conjunction
+                </option>
+                <option value="saturn_rings_visible">
+                  Saturn Rings Visible
+                </option>
+                <option value="jupiter_moons_visible">
+                  Jupiter Moons Visible
+                </option>
                 <option value="venus_phase">Venus Phase</option>
                 <option value="mars_opposition">Mars Opposition</option>
                 <option value="asteroid_flyby">Asteroid Flyby</option>
@@ -330,18 +361,21 @@ const AstronomyEventModal: React.FC<AstronomyEventModalProps> = ({ isOpen, onClo
                     id="event_image"
                     accept="image/jpeg,image/png,image/jpg,image/gif,image/webp"
                     onChange={handleImageSelection}
-                    style={{ display: 'none' }}
+                    style={{ display: "none" }}
                   />
                   <label htmlFor="event_image" className="upload-button-label">
                     📷 Select Image
                   </label>
-                  <p className="upload-hint">JPEG, PNG, GIF, or WebP (max 5MB)</p>
+                  <p className="upload-hint">
+                    JPEG, PNG, GIF, or WebP (max 5MB)
+                  </p>
                 </div>
               )}
 
               {uploadingImage && (
                 <div className="upload-status">
-                  <span className="uploading-spinner">⏳</span> Uploading image...
+                  <span className="uploading-spinner">⏳</span> Uploading
+                  image...
                 </div>
               )}
 
@@ -376,12 +410,8 @@ const AstronomyEventModal: React.FC<AstronomyEventModalProps> = ({ isOpen, onClo
             >
               Cancel
             </Button>
-            <Button
-              type="submit"
-              variant="primary"
-              disabled={loading}
-            >
-              {loading ? 'Creating...' : 'Create Event'}
+            <Button type="submit" variant="primary" disabled={loading}>
+              {loading ? "Creating..." : "Create Event"}
             </Button>
           </div>
         </form>

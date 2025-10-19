@@ -6,10 +6,10 @@ on:
       - main
       - release
       - deploy-implementation
-  workflow_dispatch: # Allow manual triggers
+  workflow_dispatch:
 
 env:
-  DEPLOY_PATH: /home/deploy/deployments/stellarion/front-end
+  DEPLOY_PATH: /home/deploy/deployments/stellarion
 
 jobs:
   test:
@@ -28,22 +28,19 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "18"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
 
       - name: Install dependencies
-        run: |
-          if [ -f "package-lock.json" ]; then
-            echo "📦 Using package-lock.json (npm ci)"
-            npm ci
-          else
-            echo "📦 No package-lock.json found, using npm install"
-            npm install
-          fi
+        run: npm ci
 
       - name: Run linter
-        run: npm run lint || echo "Linting completed with warnings"
+        run: npm run lint
+        continue-on-error: true
 
       - name: Run type check
-        run: npx tsc --noEmit || echo "Type check completed"
+        run: npx tsc --noEmit
+        continue-on-error: true
 
       - name: Build test
         run: npm run build
@@ -70,34 +67,75 @@ jobs:
 
             echo "🚀 Starting frontend deployment..."
 
-            # Navigate to frontend directory
+            # Check and cleanup disk space if needed
+            DISK_USAGE=$(df / | tail -1 | awk '{print $5}' | sed 's/%//')
+            echo "📊 Current disk usage: ${DISK_USAGE}%"
+            if [ $DISK_USAGE -gt 80 ]; then
+              echo "⚠️  Disk usage high, running cleanup..."
+              docker system prune -f --filter "until=168h"
+              docker volume prune -f
+              apt-get clean 2>/dev/null || true
+            fi
+
+            # Navigate to deployment directory
             cd ${{ env.DEPLOY_PATH }}
 
-            # Backup current state
+            # Create backup
             echo "📦 Creating backup..."
-            BACKUP_DIR="backups/backup-$(date +%Y%m%d-%H%M%S)"
+            BACKUP_DIR="backups/frontend-$(date +%Y%m%d-%H%M%S)"
             mkdir -p $BACKUP_DIR
-            cp -r . $BACKUP_DIR/ || true
+            cp -r front-end $BACKUP_DIR/ 2>/dev/null || true
+
+            # Keep only last 3 backups
+            cd backups
+            ls -t | tail -n +4 | xargs -r rm -rf
+            cd ..
 
             # Pull latest changes
             echo "📥 Pulling latest code..."
+            cd front-end
             git fetch origin
             git reset --hard origin/${{ github.ref_name }}
-
-            # Navigate to parent directory for docker-compose
             cd ..
 
             # Stop frontend container
-            echo "🛑 Stopping frontend container..."
-            docker-compose stop frontend
+            echo "🛑 Stopping frontend..."
+            docker-compose stop frontend 2>/dev/null || true
+            docker-compose rm -f frontend 2>/dev/null || true
 
-            # Build new image
-            echo "🔨 Building new Docker image..."
-            docker-compose build frontend
+            # Build frontend
+            echo "🔨 Building frontend..."
+            docker-compose build --no-cache frontend
 
-            # Start frontend container
-            echo "🚀 Starting frontend container..."
-            docker-compose up -d frontend
+            # Start frontend (with retry if backend is unhealthy)
+            echo "🚀 Starting frontend..."
+            MAX_RETRIES=3
+            RETRY_COUNT=0
+            STARTED=false
+
+            while [ $RETRY_COUNT -lt $MAX_RETRIES ] && [ "$STARTED" = false ]; do
+              if docker-compose up -d frontend 2>&1; then
+                STARTED=true
+                echo "✅ Frontend container started"
+              else
+                RETRY_COUNT=$((RETRY_COUNT+1))
+                echo "⚠️  Attempt $RETRY_COUNT failed, waiting for backend..."
+                sleep 10
+                # Check if backend is running
+                if docker ps | grep stellarion-backend > /dev/null; then
+                  echo "Backend is running, retrying frontend..."
+                else
+                  echo "Backend not running, starting backend first..."
+                  docker-compose up -d backend
+                  sleep 20
+                fi
+              fi
+            done
+
+            if [ "$STARTED" = false ]; then
+              echo "❌ Failed to start frontend after $MAX_RETRIES attempts"
+              exit 1
+            fi
 
             # Wait for frontend to be ready
             echo "⏳ Waiting for frontend to be ready..."
@@ -105,46 +143,27 @@ jobs:
 
             # Health check
             echo "🔍 Running health check..."
-            MAX_RETRIES=5
-            RETRY_COUNT=0
-
-            while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
-              if docker exec stellarion-frontend wget -qO- http://localhost:80/ > /dev/null 2>&1; then
-                echo "✅ Frontend deployment successful!"
-                echo "✅ Health check passed"
-                break
-              else
-                RETRY_COUNT=$((RETRY_COUNT+1))
-                echo "⏳ Health check attempt $RETRY_COUNT/$MAX_RETRIES failed, retrying..."
-                sleep 5
-              fi
-              
-              if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
-                echo "❌ Health check failed after $MAX_RETRIES attempts, rolling back..."
-                docker-compose down frontend
-                cd front-end
-                git reset --hard HEAD@{1}
-                cd ..
-                docker-compose up -d frontend
-                echo "❌ Deployment failed and rolled back"
-                exit 1
-              fi
-            done
-
-            # Test API proxy
-            echo "🔍 Testing API proxy..."
-            if docker exec stellarion-frontend wget -qO- http://localhost:80/api/health > /dev/null 2>&1; then
-              echo "✅ API proxy is working"
+            if docker exec stellarion-frontend wget -qO- http://localhost:80/ > /dev/null 2>&1; then
+              echo "✅ Frontend deployment successful!"
             else
-              echo "⚠️  API proxy test failed, but continuing..."
+              echo "❌ Health check failed, rolling back..."
+              docker-compose down frontend
+              cp -r $BACKUP_DIR/front-end/* front-end/
+              docker-compose up -d frontend
+              exit 1
             fi
 
-            # Cleanup old images
-            echo "🧹 Cleaning up old Docker images..."
+            # Cleanup Docker resources
+            echo "🧹 Cleaning up Docker resources..."
             docker image prune -f
+            docker container prune -f --filter "until=168h"
 
-            echo "✨ Frontend deployment completed successfully!"
-            echo "🌐 Access at: http://stellarion.duckdns.org"
+            # Show final disk usage
+            FINAL_USAGE=$(df / | tail -1 | awk '{print $5}')
+            echo "📊 Final disk usage: ${FINAL_USAGE}"
+
+            echo "✨ Deployment completed!"
+            echo "🌐 Live at: http://stellarion.duckdns.org"
 
       - name: Notify on Success
         if: success()

@@ -1,13 +1,24 @@
 // services/servicesService.ts
-import { auth } from '../firebase';
+import { auth } from "../firebase";
+import { API_CONFIG } from "../config/api.config";
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = API_CONFIG.API_BASE_URL;
 
 // Type definitions matching your CreateService component and database schema
-export type ServiceCategory = 'stargazing' | 'astrophotography' | 'telescope' | 'planetarium' | 'workshop' | 'expedition';
-export type DifficultyLevel = 'Beginner' | 'Intermediate' | 'Advanced';
-export type ServiceStatus = 'draft' | 'active' | 'paused' | 'archived';
-export type WeatherPolicyType = 'reschedule' | 'partial_refund' | 'full_refund' | 'no_refund';
+export type ServiceCategory =
+  | "stargazing"
+  | "astrophotography"
+  | "telescope"
+  | "planetarium"
+  | "workshop"
+  | "expedition";
+export type DifficultyLevel = "Beginner" | "Intermediate" | "Advanced";
+export type ServiceStatus = "draft" | "active" | "paused" | "archived";
+export type WeatherPolicyType =
+  | "reschedule"
+  | "partial_refund"
+  | "full_refund"
+  | "no_refund";
 
 export interface Service {
   id: number;
@@ -58,7 +69,7 @@ export interface ServiceMedia {
   id: number;
   service_id: number;
   media_url: string;
-  media_type: 'image' | 'video';
+  media_type: "image" | "video";
   display_order: number;
   created_at: string | Date;
 }
@@ -143,7 +154,7 @@ export interface ServiceFilters {
 const getAuthToken = async (): Promise<string> => {
   const user = auth.currentUser;
   if (!user) {
-    throw new Error('User not authenticated');
+    throw new Error("User not authenticated");
   }
   return await user.getIdToken();
 };
@@ -154,23 +165,25 @@ const apiCall = async <T>(
   options: RequestInit = {}
 ): Promise<T> => {
   const token = await getAuthToken();
-  
+
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     ...options,
     headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
       ...options.headers,
     },
   });
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'Request failed' }));
+    const error = await response
+      .json()
+      .catch(() => ({ message: "Request failed" }));
     throw new Error(error.message || `HTTP error! status: ${response.status}`);
   }
 
   const jsonResponse = await response.json();
-  
+
   // Extract data from the response wrapper
   // Backend returns: { success: true, message: string, data: T }
   return jsonResponse.data || jsonResponse;
@@ -183,9 +196,11 @@ const apiCall = async <T>(
 /**
  * Create a new service
  */
-export const createService = async (data: CreateServiceRequest): Promise<Service> => {
-  return apiCall<Service>('/services', {
-    method: 'POST',
+export const createService = async (
+  data: CreateServiceRequest
+): Promise<Service> => {
+  return apiCall<Service>("/services", {
+    method: "POST",
     body: JSON.stringify(data),
   });
 };
@@ -193,14 +208,16 @@ export const createService = async (data: CreateServiceRequest): Promise<Service
 /**
  * Get all services (with optional filters)
  */
-export const getServices = async (filters?: ServiceFilters): Promise<{
+export const getServices = async (
+  filters?: ServiceFilters
+): Promise<{
   services: Service[];
   total: number;
   page: number;
   totalPages: number;
 }> => {
   const queryParams = new URLSearchParams();
-  
+
   if (filters) {
     Object.entries(filters).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
@@ -208,9 +225,9 @@ export const getServices = async (filters?: ServiceFilters): Promise<{
       }
     });
   }
-  
+
   const queryString = queryParams.toString();
-  return apiCall(`/services${queryString ? `?${queryString}` : ''}`);
+  return apiCall(`/services${queryString ? `?${queryString}` : ""}`);
 };
 
 /**
@@ -234,7 +251,7 @@ export const getMyServices = async (filters?: {
   totalPages: number;
 }> => {
   const queryParams = new URLSearchParams();
-  
+
   if (filters) {
     Object.entries(filters).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
@@ -242,9 +259,11 @@ export const getMyServices = async (filters?: {
       }
     });
   }
-  
+
   const queryString = queryParams.toString();
-  return apiCall(`/services/my-services${queryString ? `?${queryString}` : ''}`);
+  return apiCall(
+    `/services/my-services${queryString ? `?${queryString}` : ""}`
+  );
 };
 
 /**
@@ -255,7 +274,7 @@ export const updateService = async (
   updates: Partial<CreateServiceRequest>
 ): Promise<Service> => {
   return apiCall<Service>(`/services/${serviceId}`, {
-    method: 'PUT',
+    method: "PUT",
     body: JSON.stringify(updates),
   });
 };
@@ -263,9 +282,11 @@ export const updateService = async (
 /**
  * Delete a service
  */
-export const deleteService = async (serviceId: number): Promise<{ message: string }> => {
+export const deleteService = async (
+  serviceId: number
+): Promise<{ message: string }> => {
   return apiCall(`/services/${serviceId}`, {
-    method: 'DELETE',
+    method: "DELETE",
   });
 };
 
@@ -277,7 +298,7 @@ export const updateServiceStatus = async (
   status: ServiceStatus
 ): Promise<Service> => {
   return apiCall<Service>(`/services/${serviceId}/status`, {
-    method: 'PATCH',
+    method: "PATCH",
     body: JSON.stringify({ status }),
   });
 };
@@ -287,7 +308,7 @@ export const updateServiceStatus = async (
  */
 export const toggleFeatured = async (serviceId: number): Promise<Service> => {
   return apiCall<Service>(`/services/${serviceId}/featured`, {
-    method: 'PATCH',
+    method: "PATCH",
   });
 };
 
@@ -307,7 +328,7 @@ export const getServiceAvailability = async (
   }
 ): Promise<ServiceAvailability[]> => {
   const queryParams = new URLSearchParams();
-  
+
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
@@ -315,9 +336,11 @@ export const getServiceAvailability = async (
       }
     });
   }
-  
+
   const queryString = queryParams.toString();
-  return apiCall(`/services/${serviceId}/availability${queryString ? `?${queryString}` : ''}`);
+  return apiCall(
+    `/services/${serviceId}/availability${queryString ? `?${queryString}` : ""}`
+  );
 };
 
 /**
@@ -326,8 +349,8 @@ export const getServiceAvailability = async (
 export const createAvailability = async (
   data: CreateAvailabilityRequest
 ): Promise<ServiceAvailability> => {
-  return apiCall<ServiceAvailability>('/services/availability', {
-    method: 'POST',
+  return apiCall<ServiceAvailability>("/services/availability", {
+    method: "POST",
     body: JSON.stringify(data),
   });
 };
@@ -338,8 +361,8 @@ export const createAvailability = async (
 export const createBulkAvailability = async (
   slots: CreateAvailabilityRequest[]
 ): Promise<ServiceAvailability[]> => {
-  return apiCall<ServiceAvailability[]>('/services/availability/bulk', {
-    method: 'POST',
+  return apiCall<ServiceAvailability[]>("/services/availability/bulk", {
+    method: "POST",
     body: JSON.stringify({ slots }),
   });
 };
@@ -349,12 +372,15 @@ export const createBulkAvailability = async (
  */
 export const updateAvailability = async (
   availabilityId: number,
-  updates: Omit<UpdateAvailabilityRequest, 'id'>
+  updates: Omit<UpdateAvailabilityRequest, "id">
 ): Promise<ServiceAvailability> => {
-  return apiCall<ServiceAvailability>(`/services/availability/${availabilityId}`, {
-    method: 'PUT',
-    body: JSON.stringify(updates),
-  });
+  return apiCall<ServiceAvailability>(
+    `/services/availability/${availabilityId}`,
+    {
+      method: "PUT",
+      body: JSON.stringify(updates),
+    }
+  );
 };
 
 /**
@@ -364,7 +390,7 @@ export const deleteAvailability = async (
   availabilityId: number
 ): Promise<{ message: string }> => {
   return apiCall(`/services/availability/${availabilityId}`, {
-    method: 'DELETE',
+    method: "DELETE",
   });
 };
 
@@ -374,9 +400,12 @@ export const deleteAvailability = async (
 export const toggleAvailabilityStatus = async (
   availabilityId: number
 ): Promise<ServiceAvailability> => {
-  return apiCall<ServiceAvailability>(`/services/availability/${availabilityId}/toggle`, {
-    method: 'PATCH',
-  });
+  return apiCall<ServiceAvailability>(
+    `/services/availability/${availabilityId}/toggle`,
+    {
+      method: "PATCH",
+    }
+  );
 };
 
 /**
@@ -385,8 +414,8 @@ export const toggleAvailabilityStatus = async (
 export const deleteBulkAvailability = async (
   availabilityIds: number[]
 ): Promise<{ message: string; deleted: number }> => {
-  return apiCall('/services/availability/bulk-delete', {
-    method: 'DELETE',
+  return apiCall("/services/availability/bulk-delete", {
+    method: "DELETE",
     body: JSON.stringify({ ids: availabilityIds }),
   });
 };
@@ -404,22 +433,24 @@ export const uploadServiceMedia = async (
 ): Promise<ServiceMedia[]> => {
   const formData = new FormData();
   files.forEach((file) => {
-    formData.append('files', file);
+    formData.append("files", file);
   });
-  formData.append('service_id', serviceId.toString());
+  formData.append("service_id", serviceId.toString());
 
   const token = await getAuthToken();
-  
+
   const response = await fetch(`${API_BASE_URL}/services/${serviceId}/media`, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
     },
     body: formData,
   });
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'Upload failed' }));
+    const error = await response
+      .json()
+      .catch(() => ({ message: "Upload failed" }));
     throw new Error(error.message || `HTTP error! status: ${response.status}`);
   }
 
@@ -429,7 +460,9 @@ export const uploadServiceMedia = async (
 /**
  * Get all media for a service
  */
-export const getServiceMedia = async (serviceId: number): Promise<ServiceMedia[]> => {
+export const getServiceMedia = async (
+  serviceId: number
+): Promise<ServiceMedia[]> => {
   return apiCall(`/services/${serviceId}/media`);
 };
 
@@ -441,7 +474,7 @@ export const deleteServiceMedia = async (
   mediaId: number
 ): Promise<{ message: string }> => {
   return apiCall(`/services/${serviceId}/media/${mediaId}`, {
-    method: 'DELETE',
+    method: "DELETE",
   });
 };
 
@@ -453,7 +486,7 @@ export const updateMediaOrder = async (
   mediaOrder: { id: number; display_order: number }[]
 ): Promise<{ message: string }> => {
   return apiCall(`/services/${serviceId}/media/reorder`, {
-    method: 'PATCH',
+    method: "PATCH",
     body: JSON.stringify({ media_order: mediaOrder }),
   });
 };
@@ -467,13 +500,13 @@ export const updateMediaOrder = async (
  */
 export const searchServices = async (
   query: string,
-  filters?: Omit<ServiceFilters, 'search'>
+  filters?: Omit<ServiceFilters, "search">
 ): Promise<{
   services: Service[];
   total: number;
 }> => {
   const queryParams = new URLSearchParams({ search: query });
-  
+
   if (filters) {
     Object.entries(filters).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
@@ -481,14 +514,16 @@ export const searchServices = async (
       }
     });
   }
-  
+
   return apiCall(`/services/search?${queryParams.toString()}`);
 };
 
 /**
  * Get featured services
  */
-export const getFeaturedServices = async (limit: number = 10): Promise<Service[]> => {
+export const getFeaturedServices = async (
+  limit: number = 10
+): Promise<Service[]> => {
   return apiCall(`/services/featured?limit=${limit}`);
 };
 
@@ -508,10 +543,10 @@ export const getServicesByCategory = async (
   totalPages: number;
 }> => {
   const queryParams = new URLSearchParams({ category });
-  
-  if (params?.page) queryParams.append('page', params.page.toString());
-  if (params?.limit) queryParams.append('limit', params.limit.toString());
-  
+
+  if (params?.page) queryParams.append("page", params.page.toString());
+  if (params?.limit) queryParams.append("limit", params.limit.toString());
+
   return apiCall(`/services/category/${category}?${queryParams.toString()}`);
 };
 
@@ -532,7 +567,7 @@ export const getServicesByGuide = async (
   totalPages: number;
 }> => {
   const queryParams = new URLSearchParams();
-  
+
   if (filters) {
     Object.entries(filters).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
@@ -540,9 +575,11 @@ export const getServicesByGuide = async (
       }
     });
   }
-  
+
   const queryString = queryParams.toString();
-  return apiCall(`/services/guide/${guideId}${queryString ? `?${queryString}` : ''}`);
+  return apiCall(
+    `/services/guide/${guideId}${queryString ? `?${queryString}` : ""}`
+  );
 };
 
 // ============================================================================
@@ -552,7 +589,9 @@ export const getServicesByGuide = async (
 /**
  * Get service statistics
  */
-export const getServiceStats = async (serviceId: number): Promise<{
+export const getServiceStats = async (
+  serviceId: number
+): Promise<{
   total_bookings: number;
   total_revenue: number;
   average_rating: number;
@@ -575,7 +614,7 @@ export const getGuideServiceStats = async (): Promise<{
   by_category: Record<ServiceCategory, number>;
   by_status: Record<ServiceStatus, number>;
 }> => {
-  return apiCall('/services/my-services/stats');
+  return apiCall("/services/my-services/stats");
 };
 
 export default {
@@ -588,7 +627,7 @@ export default {
   deleteService,
   updateServiceStatus,
   toggleFeatured,
-  
+
   // Availability Management
   getServiceAvailability,
   createAvailability,
@@ -597,19 +636,19 @@ export default {
   deleteAvailability,
   toggleAvailabilityStatus,
   deleteBulkAvailability,
-  
+
   // Media Management
   uploadServiceMedia,
   getServiceMedia,
   deleteServiceMedia,
   updateMediaOrder,
-  
+
   // Search & Discovery
   searchServices,
   getFeaturedServices,
   getServicesByCategory,
   getServicesByGuide,
-  
+
   // Statistics
   getServiceStats,
   getGuideServiceStats,

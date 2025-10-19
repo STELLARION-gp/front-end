@@ -482,6 +482,34 @@ export const sessionsService = {
   },
 
   /**
+   * Get sessions for moderation with optional status filter (moderator only)
+   */
+  async getModerationSessions(
+    filters: {
+      page?: number;
+      limit?: number;
+      status?: SessionStatus | "all";
+      sort_by?: "created_at" | "session_date" | "title";
+      sort_order?: "asc" | "desc";
+    } = {}
+  ): Promise<SessionsListResponse> {
+    const queryParams = new URLSearchParams();
+
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== "all") {
+        queryParams.append(key, value.toString());
+      }
+    });
+
+    const queryString = queryParams.toString();
+    return makeRequest(
+      `/sessions/admin/moderation${queryString ? `?${queryString}` : ""}`,
+      {},
+      true
+    );
+  },
+
+  /**
    * Approve a session (moderator only)
    */
   async approveSession(id: number): Promise<SessionResponse> {

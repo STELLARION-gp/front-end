@@ -207,23 +207,13 @@ const MyBookings: React.FC = () => {
         <div className="bookings-list">
           {bookings.map((booking) => (
             <div key={booking.id} className="booking-card">
-              <div className="booking-image">
-                <img 
-                  src={booking.service?.image_url || 'https://via.placeholder.com/300x200'} 
-                  alt={booking.service?.title || 'Service'}
-                />
-                <span className={getStatusClass(booking.booking_status)}>
-                  {booking.booking_status}
-                </span>
-              </div>
-
               <div className="booking-details">
                 <div className="booking-main">
                   <h3 
                     className="service-title"
                     onClick={() => navigate(`/dashboard/astronomy-services/${booking.service_id}`)}
                   >
-                    {booking.service?.title || 'Service'}
+                    {booking.service?.title ? booking.service.title : ''}
                   </h3>
                   
                   {booking.service?.creator && (
@@ -246,10 +236,10 @@ const MyBookings: React.FC = () => {
                       <span className="label">👥 Participants:</span>
                       <span>{booking.participants_count}</span>
                     </div>
-                    <div className="info-row">
+                    {/* <div className="info-row">
                       <span className="label">📍 Location:</span>
                       <span>{booking.service?.location || 'N/A'}</span>
-                    </div>
+                    </div> */}
                     <div className="info-row">
                       <span className="label">💰 Total:</span>
                       <span className="price">Rs. {booking.total_amount.toLocaleString()}</span>

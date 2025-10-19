@@ -76,6 +76,8 @@ export interface CreateBookingRequest {
   participants: number;
   total_price: number;
   special_requests?: string;
+  booking_date?: string | Date;
+  booking_time?: string | null;
 }
 
 export interface CreateReviewRequest {

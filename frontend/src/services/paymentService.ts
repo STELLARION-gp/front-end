@@ -130,6 +130,43 @@ class PaymentService {
     }
   }
 
+  // Create a PayHere order for a service booking
+  async createBookingPaymentOrder(
+    bookingId: number,
+    payer?: {
+      first_name?: string;
+      last_name?: string;
+      email?: string;
+      phone?: string;
+      address?: string;
+      city?: string;
+      country?: string;
+      card?: {
+        number?: string;
+        expiry?: string;
+        cvc?: string;
+      };
+    }
+  ): Promise<PaymentOrder> {
+    try {
+      const body: any = { bookingId };
+      if (payer) body.payer = payer;
+
+      const response = await this.makeRequest<{ success: boolean; data: PaymentOrder }>(
+        "/payments/create-booking-order",
+        {
+          method: "POST",
+          body: JSON.stringify(body),
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error("Error creating booking payment order:", error);
+      throw error;
+    }
+  }
+
   // Get payment status
   async getPaymentStatus(orderId: string): Promise<PaymentStatus> {
     try {

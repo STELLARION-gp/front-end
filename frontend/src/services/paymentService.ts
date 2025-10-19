@@ -281,7 +281,8 @@ export interface Transaction {
  */
 export const getBookingPaymentStats = async (days: number = 30): Promise<PaymentStats> => {
   const token = await auth.currentUser?.getIdToken();
-  
+  if (!token) throw new Error('No auth token available. Please sign in to view payment stats');
+
   const response = await fetch(`${API_BASE_URL}/payments/booking-stats?days=${days}`, {
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -289,7 +290,8 @@ export const getBookingPaymentStats = async (days: number = 30): Promise<Payment
   });
 
   if (!response.ok) {
-    throw new Error('Failed to fetch payment stats');
+    const body = await response.text().catch(() => '');
+    throw new Error(`Failed to fetch payment stats: ${response.status} ${response.statusText} - ${body}`);
   }
 
   return await response.json();
@@ -312,6 +314,9 @@ export const getBookingPaymentTransactions = async (params?: {
   totalPages: number;
 }> => {
   const token = await auth.currentUser?.getIdToken();
+  if (!token) {
+    throw new Error('No auth token available. Make sure the user is signed in before requesting payment transactions');
+  }
   const queryParams = new URLSearchParams();
   
   if (params) {
@@ -333,7 +338,58 @@ export const getBookingPaymentTransactions = async (params?: {
   );
 
   if (!response.ok) {
-    throw new Error('Failed to fetch payment transactions');
+    let body = '';
+    try {
+      body = await response.text();
+    } catch (e) {
+      body = '<unable to read response body>';
+    }
+    throw new Error(`Failed to fetch payment transactions: ${response.status} ${response.statusText} - ${body}`);
+  }
+
+  return await response.json();
+};
+
+/**
+ * Get booking payment transactions scoped to the currently authenticated guide (services created by guide)
+ */
+export const getBookingPaymentTransactionsForGuide = async (params?: {
+  status?: string;
+  dateRange?: number;
+  page?: number;
+  limit?: number;
+  sortBy?: string;
+  sortOrder?: string;
+}): Promise<{
+  transactions: Transaction[];
+  total: number;
+  page: number;
+  totalPages: number;
+}> => {
+  const token = await auth.currentUser?.getIdToken();
+  if (!token) {
+    throw new Error('No auth token available. Make sure the user is signed in before requesting payment transactions');
+  }
+
+  const queryParams = new URLSearchParams();
+  if (params) {
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        queryParams.append(key, value.toString());
+      }
+    });
+  }
+
+  const queryString = queryParams.toString();
+  const response = await fetch(`${API_BASE_URL}/payments/booking-transactions/guide${queryString ? `?${queryString}` : ''}`, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    const body = await response.text().catch(() => '');
+    throw new Error(`Failed to fetch guide payment transactions: ${response.status} ${response.statusText} - ${body}`);
   }
 
   return await response.json();
@@ -377,7 +433,8 @@ export interface BookingPaymentDetails {
  */
 export const getBookingPaymentDetails = async (bookingId: number): Promise<BookingPaymentDetails> => {
   const token = await auth.currentUser?.getIdToken();
-  
+  if (!token) throw new Error('No auth token available. Please sign in to view payment details');
+
   const response = await fetch(`${API_BASE_URL}/payments/booking/${bookingId}/details`, {
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -385,12 +442,13 @@ export const getBookingPaymentDetails = async (bookingId: number): Promise<Booki
   });
 
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Failed to fetch payment details');
+    const errorText = await response.text().catch(() => '');
+    throw new Error(`Failed to fetch payment details: ${response.status} ${response.statusText} - ${errorText}`);
   }
 
   const result = await response.json();
-  return result.data;
+  // Controller returns { data: detail }
+  return result.data || result;
 };
 
 /**
@@ -410,7 +468,8 @@ export const processBookingRefund = async (
   processedAt: string;
 }> => {
   const token = await auth.currentUser?.getIdToken();
-  
+  if (!token) throw new Error('No auth token available. Please sign in to process refunds');
+
   const response = await fetch(`${API_BASE_URL}/payments/booking/${bookingId}/refund`, {
     method: 'POST',
     headers: {
@@ -421,10 +480,11 @@ export const processBookingRefund = async (
   });
 
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Failed to process refund');
+    const errorText = await response.text().catch(() => '');
+    throw new Error(`Failed to process refund: ${response.status} ${response.statusText} - ${errorText}`);
   }
 
   const result = await response.json();
-  return result.data;
+  // Support both { data: {...} } and direct { bookingId, ... }
+  return result.data || result;
 };

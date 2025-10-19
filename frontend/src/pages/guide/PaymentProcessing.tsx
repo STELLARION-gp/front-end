@@ -9,6 +9,7 @@ import '../../styles/pages/guide/PaymentProcessing.scss';
 import { 
   getBookingPaymentStats, 
   getBookingPaymentTransactions,
+  getBookingPaymentTransactionsForGuide,
   getBookingPaymentDetails,
   processBookingRefund,
   type BookingPaymentDetails,
@@ -72,7 +73,7 @@ const PaymentProcessing: React.FC = () => {
         setLoading(true);
         setError(null);
         
-        const result = await getBookingPaymentTransactions({
+        const result = await getBookingPaymentTransactionsForGuide({
           status: statusFilter,
           dateRange: parseInt(dateRange),
           page: currentPage,
@@ -86,7 +87,8 @@ const PaymentProcessing: React.FC = () => {
         setTotalPages(result.totalPages);
       } catch (err) {
         console.error('Error fetching transactions:', err);
-        setError('Failed to load transactions');
+        const message = err instanceof Error ? err.message : String(err);
+        setError(`Failed to load transactions: ${message}`);
       } finally {
         setLoading(false);
       }
@@ -225,7 +227,7 @@ const PaymentProcessing: React.FC = () => {
           <Card className="payment-stat-card payment-transactions">
             <div className="payment-stat-content">
               <div className="payment-stat-label">Total Transactions</div>
-              <div className="payment-stat-value">{paymentStats?.totalTransactions.toLocaleString()}</div>
+              <div className="payment-stat-value">{(paymentStats && typeof paymentStats.totalTransactions === 'number') ? paymentStats.totalTransactions.toLocaleString() : '0'}</div>
               <div className="payment-stat-change neutral">Last {dateRange} days</div>
             </div>
           </Card>

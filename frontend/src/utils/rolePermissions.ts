@@ -1,5 +1,4 @@
 //import { href } from 'react-router-dom';
-import { icon } from "leaflet";
 import { type UserRole } from "../AuthContext";
 
 // Define permission types
@@ -309,8 +308,16 @@ export const ROLE_BASED_MENU_ITEMS = {
       icon: "StarIcon",
       href: "/dashboard/stargazing",
     },
-    { label: "Astro Hub", icon: "ChatBubbleLeftRightIcon", href: "/dashboard/astrohub" },
-    { label: "Mentee Requests", icon: "HandRaisedIcon", href: "/dashboard/mentee-requests" },
+    {
+      label: "Astro Hub",
+      icon: "ChatBubbleLeftRightIcon",
+      href: "/dashboard/astrohub",
+    },
+    {
+      label: "Mentee Requests",
+      icon: "HandRaisedIcon",
+      href: "/dashboard/mentee-requests",
+    },
     { label: "Mentees", icon: "UsersIcon", href: "/dashboard/mentees" },
     // { label: "Chat", icon: "ChatBubbleLeftRightIcon", href: "/dashboard/chat" },
     // { label: "Sessions", icon: "UsersIcon", href: "/dashboard/sessions" },

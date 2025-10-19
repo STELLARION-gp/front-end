@@ -270,7 +270,7 @@ const RevenueAnalytics: React.FC = () => {
       <div className="chart-section">
         <div className="chart-card">
           <h2>Revenue Trends</h2>
-          <ResponsiveContainer width="100%" height={400}>
+          <ResponsiveContainer width="100%" height={320}>
             <AreaChart data={trends}>
               <defs>
                 <linearGradient id="colorSubscriptions" x1="0" y1="0" x2="0" y2="1">
@@ -328,7 +328,7 @@ const RevenueAnalytics: React.FC = () => {
       <div className="charts-row">
         <div className="chart-card half-width">
           <h2>Revenue by Source</h2>
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={260}>
             <PieChart>
               <Pie
                 data={revenueSourceData}
@@ -336,7 +336,7 @@ const RevenueAnalytics: React.FC = () => {
                 cy="50%"
                 labelLine={false}
                 label={({ name, percent }) => `${name}: ${((percent || 0) * 100).toFixed(0)}%`}
-                outerRadius={100}
+                outerRadius={85}
                 fill="#8884d8"
                 dataKey="value"
               >
@@ -351,7 +351,7 @@ const RevenueAnalytics: React.FC = () => {
 
         <div className="chart-card half-width">
           <h2>Payment Methods</h2>
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={260}>
             <PieChart>
               <Pie
                 data={paymentMethodChartData}
@@ -359,7 +359,7 @@ const RevenueAnalytics: React.FC = () => {
                 cy="50%"
                 labelLine={false}
                 label={({ name, percent }) => `${name}: ${((percent || 0) * 100).toFixed(0)}%`}
-                outerRadius={100}
+                outerRadius={85}
                 fill="#8884d8"
                 dataKey="value"
               >
@@ -377,7 +377,7 @@ const RevenueAnalytics: React.FC = () => {
       <div className="chart-section">
         <div className="chart-card">
           <h2>Monthly Recurring Revenue (MRR) Trends</h2>
-          <ResponsiveContainer width="100%" height={350}>
+          <ResponsiveContainer width="100%" height={280}>
             <LineChart data={mrrTrends}>
               <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
               <XAxis dataKey="month" stroke="#9ca3af" />
@@ -420,7 +420,7 @@ const RevenueAnalytics: React.FC = () => {
       <div className="chart-section">
         <div className="chart-card">
           <h2>Payment Status Distribution</h2>
-          <ResponsiveContainer width="100%" height={350}>
+          <ResponsiveContainer width="100%" height={280}>
             <BarChart data={prepareStatusData()}>
               <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
               <XAxis dataKey="source" stroke="#9ca3af" />

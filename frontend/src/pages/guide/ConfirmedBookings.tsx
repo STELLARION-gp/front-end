@@ -61,12 +61,13 @@ const ConfirmedBookings: React.FC = () => {
   }, []);
 
   const transformBooking = (booking: Booking): ConfirmedBooking => {
-    const userObj = booking.user;
+    // Support backend shapes: booking.user or booking.users, booking.service or booking.services
+    const userObj = (booking as any).user || (booking as any).users || null;
     const userName = userObj
-      ? `${userObj.first_name || ''} ${userObj.last_name || ''}`.trim() || userObj.email
+      ? `${userObj.first_name || ''} ${userObj.last_name || ''}`.trim() || userObj.email || 'Unknown User'
       : 'Unknown User';
 
-    const serviceObj = booking.service;
+    const serviceObj = (booking as any).service || (booking as any).services || null;
     const serviceName = serviceObj?.title || 'Unknown Service';
 
     // booking_date is Date or string

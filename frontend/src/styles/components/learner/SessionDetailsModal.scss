@@ -276,10 +276,29 @@
   display: flex;
   gap: 1rem;
   justify-content: flex-end;
+  align-items: center;
   background: rgba(59, 130, 246, 0.03);
 
   @media (max-width: 480px) {
     flex-direction: column;
+  }
+
+  .enrolled-badge {
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+    
+    @media (max-width: 480px) {
+      width: 100%;
+      justify-content: center;
+    }
   }
 }
 

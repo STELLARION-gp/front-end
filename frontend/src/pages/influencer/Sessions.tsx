@@ -232,7 +232,6 @@ const Sessions = () => {
     setLoading(true);
     setError(null);
     try {
-      console.log(" Loading sessions for user:", userEmail);
       const response = await sessionsService.getMySessions({
         page: currentPage,
         limit: 10,
@@ -241,9 +240,8 @@ const Sessions = () => {
         ...filters,
       });
       setMySessions(response.data || []);
-      console.log("Loaded", response.data?.length || 0, "sessions");
     } catch (err) {
-      console.error(" Error loading sessions:", err);
+      console.error("Error loading sessions:", err);
       const errorMessage =
         err instanceof Error ? err.message : "Failed to load sessions";
       setError(errorMessage);
@@ -270,12 +268,10 @@ const Sessions = () => {
     setLoading(true);
     setError(null);
     try {
-      console.log("📊 Loading analytics for user:", userEmail);
       const response = await sessionsService.getMySessionsAnalytics();
       setAnalyticsData(response.data || null);
-      console.log("✅ Analytics loaded successfully");
     } catch (err) {
-      console.error("❌ Error loading analytics:", err);
+      console.error("Error loading analytics:", err);
       const errorMessage =
         err instanceof Error ? err.message : "Failed to load analytics";
       setError(errorMessage);
@@ -296,7 +292,7 @@ const Sessions = () => {
     e.preventDefault();
 
     if (!isAuthenticated) {
-      showNotification("error", " Please log in to create a session.");
+      showNotification("error", "Please log in to create a session.");
       return;
     }
 
@@ -304,7 +300,6 @@ const Sessions = () => {
     setError(null);
 
     try {
-      console.log(" Creating session for user:", userEmail);
       const sessionData: CreateSessionRequest = {
         title: newSession.title,
         description: newSession.description,
@@ -326,8 +321,7 @@ const Sessions = () => {
         session_notes: newSession.notes || undefined,
       };
 
-      const result = await sessionsService.createSession(sessionData);
-      console.log("Session created successfully:", result);
+      await sessionsService.createSession(sessionData);
 
       // Reset form and switch to my sessions tab
       setNewSession({
@@ -372,8 +366,7 @@ const Sessions = () => {
     setError(null);
 
     try {
-      const result = await sessionsService.updateSession(sessionId, updates);
-      console.log("Session updated successfully:", result);
+      await sessionsService.updateSession(sessionId, updates);
 
       // Reload sessions
       loadMySessions();
@@ -407,7 +400,6 @@ const Sessions = () => {
 
     try {
       await sessionsService.deleteSession(sessionId);
-      console.log("Session deleted successfully");
 
       // Reload sessions
       loadMySessions();
@@ -609,6 +601,13 @@ const Sessions = () => {
                         </div>
                         <div className="session-status-container">
                           <span className="session-status live">LIVE</span>
+                          {session.status && (
+                            <span className={`approval-status ${session.status}`}>
+                              {session.status === 'pending' ? '⏳ Pending' : 
+                               session.status === 'approved' ? '✓ Approved' : 
+                               '✗ Rejected'}
+                            </span>
+                          )}
                         </div>
                       </div>
                       <div className="session-details">
@@ -720,6 +719,13 @@ const Sessions = () => {
                           <span className="session-status recorded">
                             RECORDED
                           </span>
+                          {session.status && (
+                            <span className={`approval-status ${session.status}`}>
+                              {session.status === 'pending' ? '⏳ Pending' : 
+                               session.status === 'approved' ? '✓ Approved' : 
+                               '✗ Rejected'}
+                            </span>
+                          )}
                         </div>
                       </div>
                       <div className="session-details">
@@ -978,9 +984,10 @@ const Sessions = () => {
     setPollsLoading(true);
     setPollsError(null);
     try {
-      const response = await pollService.getPolls();
+      // Use getMyPolls to get ALL user's polls (pending, approved, rejected)
+      const response = await pollService.getMyPolls({ page: 1, limit: 100 });
       setPolls(response.data || []);
-      console.log("Loaded", response.data?.length || 0, "polls");
+      console.log("Loaded", response.data?.length || 0, "polls (all statuses)");
     } catch (err) {
       console.error("Error loading polls:", err);
       setPollsError(
@@ -1820,7 +1827,7 @@ const Sessions = () => {
                           onClick={() => removePollOption(index)}
                           title="Remove this option"
                         >
-                          <span>🗑️</span>
+                          <span>❌</span>
                         </button>
                       )}
                     </div>
@@ -1877,13 +1884,24 @@ const Sessions = () => {
                 >
                   <div className="poll-header">
                     <h4>{poll.title}</h4>
-                    <span
-                      className={`poll-status ${
-                        poll.is_active ? "active" : "closed"
-                      }`}
-                    >
-                      {poll.is_active ? "🟢 Active" : "🔴 Closed"}
-                    </span>
+                    <div className="poll-status-badges">
+                      <span
+                        className={`poll-status ${
+                          poll.is_active ? "active" : "closed"
+                        }`}
+                      >
+                        {poll.is_active ? " Active" : " Closed"}
+                      </span>
+                      {poll.status && (
+                        <span
+                          className={`moderation-status ${poll.status}`}
+                        >
+                          {poll.status === 'pending' && 'Pending'}
+                          {poll.status === 'approved' && ' Approved'}
+                          {poll.status === 'rejected' && ' Rejected'}
+                        </span>
+                      )}
+                    </div>
                   </div>
 
                   {poll.description && (
@@ -1895,6 +1913,7 @@ const Sessions = () => {
                       📅 {new Date(poll.created_at).toLocaleDateString()}
                     </span>
                     <span>💬 {poll.comment_count || 0} comments</span>
+                    <span>🗳️ {poll.total_votes || 0} votes</span>
                   </div>
 
                   <div className="poll-actions">

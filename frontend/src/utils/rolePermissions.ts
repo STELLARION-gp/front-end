@@ -260,7 +260,7 @@ export const ROLE_BASED_MENU_ITEMS = {
       icon: "TrophyIcon",
       href: "/dashboard/competitions",
     },
-    { label: "Polls", icon: "DocumentTextIcon", href: "/dashboard/polls" },
+    //{ label: "Polls", icon: "DocumentTextIcon", href: "/dashboard/polls" },
     {
       label: "Astro Hub",
       icon: "ChatBubbleLeftRightIcon",

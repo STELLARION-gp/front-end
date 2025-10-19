@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Button from "../Button";
 import type { Session } from "../../services/sessionsService";
+import { sessionsService } from "../../services/sessionsService";
 import "../../styles/components/learner/SessionDetailsModal.scss";
 import DateIcon from "../../assets/svg/DateIcon";
 import TimeIcon from "../../assets/svg/TimeIcon";
@@ -17,13 +18,17 @@ interface SessionDetailsModalProps {
   open: boolean;
   onClose: () => void;
   onRegister?: (sessionId: number) => void;
+  onEnrollmentSuccess?: () => void; // Callback to refresh the sessions list
+  isEnrolled?: boolean; // Flag to indicate if user is already enrolled
 }
 
 const SessionDetailsModal: React.FC<SessionDetailsModalProps> = ({
   session,
   open,
   onClose,
-  onRegister
+  onRegister,
+  onEnrollmentSuccess,
+  isEnrolled = false
 }) => {
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [paymentLoading, setPaymentLoading] = useState(false);
@@ -34,28 +39,29 @@ const SessionDetailsModal: React.FC<SessionDetailsModalProps> = ({
     try {
       setPaymentLoading(true);
       console.log('Processing payment for session:', session.id);
-      console.log('Card details:', {
-        ...cardDetails,
-        cvv: '***' // Don't log actual CVV
-      });
-
-      // TODO: Integrate with existing payment controller
-      // This will be connected to the backend payment flow
-      // Example: await paymentService.processSessionPayment(session.id, cardDetails);
       
-      // For now, just simulate payment processing
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Call the enrollment API with payment details
+      const result = await sessionsService.enrollInPaidSession(session.id, cardDetails);
+      
+      console.log('Enrollment successful:', result);
       
       // Close both modals on success
       setPaymentModalOpen(false);
       setPaymentLoading(false);
-      alert('Payment successful! You are now enrolled in the session.');
+      
+      alert(`Payment successful! You are now enrolled in "${session.title}".`);
+      
+      // Trigger refresh of sessions list
+      if (onEnrollmentSuccess) {
+        onEnrollmentSuccess();
+      }
+      
       onClose();
       
-    } catch (error) {
+    } catch (error: any) {
       setPaymentLoading(false);
       console.error('Payment failed:', error);
-      alert('Payment failed. Please try again.');
+      alert(error.message || 'Payment failed. Please try again.');
     }
   };
 
@@ -113,12 +119,12 @@ const SessionDetailsModal: React.FC<SessionDetailsModalProps> = ({
           <h2>{session.title}</h2>
           <div className="session-badges">
             <span className={`badge badge-${session.session_type}`}>
-              {session.session_type === 'live' ? '🔴 Live' : '📼 Recorded'}
+              {session.session_type === 'live' ? ' Live' : ' Recorded'}
             </span>
             <span className={`badge badge-${session.payment_type}`}>
               {session.payment_type === 'paid' ? (
                 <>
-                  <PriceIcon size={14} />
+                  
                   <span>Paid Rs {session.price}</span>
                 </>
               ) : (
@@ -136,7 +142,7 @@ const SessionDetailsModal: React.FC<SessionDetailsModalProps> = ({
 
         <div className="session-details-body">
           <div className="session-info-section">
-            <h3>📋 Session Information</h3>
+            <h3> Session Information</h3>
             <div className="info-grid">
               <div className="info-item">
                 <span className="info-label">
@@ -165,7 +171,7 @@ const SessionDetailsModal: React.FC<SessionDetailsModalProps> = ({
                 </span>
               </div>
               <div className="info-item">
-                <span className="info-label">👨‍🏫 Instructor:</span>
+                <span className="info-label"> Instructor:</span>
                 <span className="info-value">{creatorName}</span>
               </div>
               <div className="info-item">
@@ -178,13 +184,13 @@ const SessionDetailsModal: React.FC<SessionDetailsModalProps> = ({
           </div>
 
           <div className="session-description-section">
-            <h3>📝 Description</h3>
+            <h3>Description</h3>
             <p>{session.description}</p>
           </div>
 
           {session.materials && session.materials.length > 0 && (
             <div className="session-materials-section">
-              <h3>📚 Materials Needed</h3>
+              <h3> Materials Needed</h3>
               <ul>
                 {session.materials.map((material, index) => (
                   <li key={index}>{material}</li>
@@ -195,14 +201,14 @@ const SessionDetailsModal: React.FC<SessionDetailsModalProps> = ({
 
           {session.session_notes && (
             <div className="session-notes-section">
-              <h3>📌 Additional Notes</h3>
+              <h3> Additional Notes</h3>
               <p>{session.session_notes}</p>
             </div>
           )}
 
           {session.session_link && session.payment_type === 'free' && (
             <div className="session-link-section">
-              <h3>🔗 Session Link</h3>
+              <h3> Session Link</h3>
               <a 
                 href={session.session_link} 
                 target="_blank" 
@@ -219,32 +225,43 @@ const SessionDetailsModal: React.FC<SessionDetailsModalProps> = ({
           <Button variant="secondary" onClick={onClose}>
             Close
           </Button>
-          {session.payment_type === 'paid' ? (
-            <Button 
-              variant="primary" 
-              onClick={() => setPaymentModalOpen(true)}
-            >
-              💳 Pay Rs {session.price}
-            </Button>
-          ) : (
+          
+          {!isEnrolled && (
             <>
-              {session.session_type === 'live' && (
+              {session.payment_type === 'paid' ? (
                 <Button 
                   variant="primary" 
-                  onClick={() => onRegister && onRegister(session.id)}
+                  onClick={() => setPaymentModalOpen(true)}
                 >
-                  Register for Session
+                  💳 Pay Rs {session.price}
                 </Button>
-              )}
-              {session.session_type === 'recorded' && session.session_link && (
-                <Button 
-                  variant="primary"
-                  onClick={() => session.session_link && window.open(session.session_link, '_blank')}
-                >
-                  Watch Recording
-                </Button>
+              ) : (
+                <>
+                  {session.session_type === 'live' && (
+                    <Button 
+                      variant="primary" 
+                      onClick={() => onRegister && onRegister(session.id)}
+                    >
+                      Register for Session
+                    </Button>
+                  )}
+                  {session.session_type === 'recorded' && session.session_link && (
+                    <Button 
+                      variant="primary"
+                      onClick={() => session.session_link && window.open(session.session_link, '_blank')}
+                    >
+                      Watch Recording
+                    </Button>
+                  )}
+                </>
               )}
             </>
+          )}
+          
+          {isEnrolled && (
+            <div className="enrolled-badge">
+              ✓ Already Enrolled
+            </div>
           )}
         </div>
       </div>

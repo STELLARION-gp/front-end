@@ -5,8 +5,14 @@ import { getServiceById, getServiceAvailability, type Service, type ServiceAvail
 import { createBooking, getServiceReviews, type Review } from '../../services/bookingService';
 import '../../styles/components/learner/BookingModal.scss';
 
-// Initialize Stripe (replace with your publishable key)
-const stripePromise = loadStripe('pk_test_YOUR_PUBLISHABLE_KEY');
+// Initialize Stripe with environment variable
+const stripePublishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
+
+if (!stripePublishableKey) {
+  console.error('⚠️ VITE_STRIPE_PUBLISHABLE_KEY is not configured in .env file');
+}
+
+const stripePromise = stripePublishableKey ? loadStripe(stripePublishableKey) : null;
 
 interface BookingModalProps {
   serviceId: number;
@@ -95,6 +101,7 @@ const BookingModalContent: React.FC<Omit<BookingModalProps, 'isOpen'>> = ({
     e.preventDefault();
 
     if (!stripe || !elements || !selectedDate || !service) {
+      setError('Payment system is not properly configured. Please contact support.');
       return;
     }
 

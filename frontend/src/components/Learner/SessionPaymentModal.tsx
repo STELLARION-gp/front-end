@@ -202,7 +202,7 @@ const SessionPaymentModal: React.FC<SessionPaymentModalProps> = ({
             <input
               type="text"
               id="cardHolderName"
-              placeholder="JOHN DOE"
+              placeholder="Saman Perera"
               value={cardDetails.cardHolderName}
               onChange={(e) => handleCardHolderNameChange(e.target.value.toUpperCase())}
               className={errors.cardHolderName ? 'error' : ''}

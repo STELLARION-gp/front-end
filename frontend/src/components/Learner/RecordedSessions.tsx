@@ -144,6 +144,7 @@ const RecordedSessions: React.FC = () => {
         session={selectedSession}
         open={modalOpen}
         onClose={() => setModalOpen(false)}
+        onEnrollmentSuccess={fetchRecordedSessions}
       />
     </div>
   );

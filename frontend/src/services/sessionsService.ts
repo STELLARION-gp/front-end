@@ -463,4 +463,66 @@ export const sessionsService = {
       search: keyword,
     });
   },
+
+  /**
+   * Enroll in a paid session with payment details
+   */
+  async enrollInPaidSession(
+    sessionId: number,
+    paymentDetails: {
+      cardNumber: string;
+      cardHolderName: string;
+      expiryDate: string;
+      cvv: string;
+    }
+  ): Promise<{
+    success: boolean;
+    data: {
+      enrollment_id: number;
+      session_id: number;
+      payment_status: string;
+      enrollment_date: string;
+    };
+    message: string;
+  }> {
+    return makeRequest(
+      `/sessions/${sessionId}/enroll/paid`,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          payment_details: {
+            card_number: paymentDetails.cardNumber.replace(/\s/g, ''),
+            card_holder: paymentDetails.cardHolderName,
+            expiry_date: paymentDetails.expiryDate,
+            cvv: paymentDetails.cvv,
+          },
+        }),
+      },
+      true
+    );
+  },
+
+  /**
+   * Enroll in a free session
+   */
+  async enrollInFreeSession(
+    sessionId: number
+  ): Promise<{
+    success: boolean;
+    data: {
+      enrollment_id: number;
+      session_id: number;
+      payment_status: string;
+      enrollment_date: string;
+    };
+    message: string;
+  }> {
+    return makeRequest(
+      `/sessions/${sessionId}/enroll/free`,
+      {
+        method: "POST",
+      },
+      true
+    );
+  },
 };

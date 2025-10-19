@@ -131,14 +131,20 @@ const PreviousTours: React.FC = () => {
     try {
   if (booking.service_id) {
   const reviewsResponse = await getServiceReviews(booking.service_id);
-        reviews = reviewsResponse.reviews.map((r: ServiceReview) => ({
-          id: r.id.toString(),
-          userName: r.user?.display_name || `${r.user?.first_name} ${r.user?.last_name}` || 'Anonymous',
-          rating: r.rating,
-          comment: r.review || '',
-          date: typeof r.created_at === 'string' ? r.created_at.split('T')[0] : new Date(r.created_at).toISOString().split('T')[0],
-          verified: r.is_verified || false,
-        }));
+        reviews = reviewsResponse.reviews.map((r: ServiceReview) => {
+          const reviewUser = (r as any).user || (r as any).users || null;
+          const reviewerName = reviewUser
+            ? (reviewUser.display_name || `${reviewUser.first_name || ''} ${reviewUser.last_name || ''}`.trim() || reviewUser.email || 'Anonymous')
+            : 'Anonymous';
+          return {
+            id: r.id.toString(),
+            userName: reviewerName,
+            rating: r.rating,
+            comment: r.review || '',
+            date: typeof r.created_at === 'string' ? r.created_at.split('T')[0] : new Date(r.created_at).toISOString().split('T')[0],
+            verified: r.is_verified || false,
+          };
+        });
         
         if (reviews.length > 0) {
           averageRating = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
@@ -546,13 +552,13 @@ const PreviousTours: React.FC = () => {
                   >
                     Reviews
                   </Button>
-                  <Button
+                  {/* <Button
                     variant="primary"
                     size="small"
                     icon={<Share2 className="w-4 h-4" />}
                   >
                     Share
-                  </Button>
+                  </Button> */}
                 </div>
               </div>
             </motion.div>
@@ -591,11 +597,11 @@ const PreviousTours: React.FC = () => {
 
               <div className="modal-content1">
                 <div className="tour-details-content">
-                  <div className="tour-images">
+                  {/* <div className="tour-images">
                     {selectedTour.photos.map((photo, index) => (
                       <img key={index} src={photo} alt={`Tour photo ${index + 1}`} />
                     ))}
-                  </div>
+                  </div> */}
 
                   <div className="tour-info-grid">
                     <div className="info-section">
@@ -660,13 +666,13 @@ const PreviousTours: React.FC = () => {
                 <Button variant="primary" onClick={handleCloseModal}>
                   Close
                 </Button>
-                <Button 
+                {/* <Button 
                   variant="primary" 
                   onClick={() => setShowReviewModal(true)}
                   icon={<MessageCircle className="w-4 h-4" />}
                 >
                   View Reviews
-                </Button>
+                </Button> */}
               </div>
             </motion.div>
           </div>
@@ -735,10 +741,10 @@ const PreviousTours: React.FC = () => {
               </div>
 
               <div className="modal-footer">
-                <Button variant="ghost" onClick={() => setShowReviewModal(false)}>
+                <Button variant="primary" onClick={() => setShowReviewModal(false)}>
                   Back to Details
                 </Button>
-                <Button variant="ghost" onClick={handleCloseModal}>
+                <Button variant="primary" onClick={handleCloseModal}>
                   Close
                 </Button>
               </div>

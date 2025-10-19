@@ -131,6 +131,10 @@ const makeRequest = async (url: string, options: RequestInit = {}) => {
 };
 
 export const blogService = {
+    // Get blogs liked by the current user
+    async getLikedBlogs() {
+        return makeRequest('/blogs/liked/me');
+    },
     // Get all blogs with filtering
     async getBlogs(filters: BlogFilters = {}) {
         const queryParams = new URLSearchParams();

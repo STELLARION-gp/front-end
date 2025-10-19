@@ -1,209 +1,100 @@
-import React, { useState } from 'react';
-import { FaArrowLeft, FaSearch, FaCheck, FaTimes, FaExclamationTriangle, FaCalendarAlt, FaUser, FaMapMarkerAlt, FaEye } from 'react-icons/fa';
+import React, { useState, useEffect, useCallback } from 'react';
+import { FaArrowLeft, FaSearch, FaCheck, FaTimes, FaUser, FaMapMarkerAlt, FaEye, FaClock, FaDollarSign } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import '../../styles/pages/moderator/SessionModeration.scss';
 import Button from '../../components/Button';
-
-interface SessionProposal {
-  id: string;
-  title: string;
-  description: string;
-  proposedBy: {
-    id: string;
-    username: string;
-    email: string;
-    avatar: string;
-  };
-  sessionType: 'mentoring' | 'group_learning' | 'workshop' | 'discussion' | 'lecture';
-  subject: string;
-  date: string;
-  time: string;
-  duration: number; // in minutes
-  location: 'online' | 'physical' | 'hybrid';
-  venue?: string;
-  maxParticipants: number;
-  requirements: string[];
-  status: 'pending' | 'approved' | 'rejected' | 'revision_requested';
-  priority: 'low' | 'medium' | 'high';
-  submittedAt: string;
-  lastUpdated: string;
-  moderatorNotes?: string;
-  category: string;
-  targetAudience: string;
-  tags: string[];
-  reports?: {
-    count: number;
-    reasons: string[];
-  };
-}
+import { sessionsService, type Session } from '../../services/sessionsService';
 
 const SessionModeration: React.FC = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all');
+  const [sessions, setSessions] = useState<Session[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [selectedSessionId, setSelectedSessionId] = useState<number | null>(null);
+  const [rejectionReason, setRejectionReason] = useState('');
 
-  // Mock data for session proposals
-const [sessions] = useState<SessionProposal[]>([
-  {
-    id: 'astro_001',
-    title: 'Advanced Astrophotography Techniques',
-    description: 'Master the art of capturing celestial objects with your DSLR or telescope, covering long exposures, stacking, and post-processing.',
-    proposedBy: {
-      id: 'user_101',
-      username: 'CosmicPhotographer',
-      email: 'cosmic.photo@example.com',
-      avatar: 'CP'
-    },
-    sessionType: 'workshop',
-    subject: 'Astrophotography',
-    date: '2024-02-15',
-    time: '20:00',
-    duration: 120,
-    location: 'online',
-    maxParticipants: 20,
-    requirements: ['DSLR camera or telescope (optional)', 'Basic photography knowledge'],
-    status: 'pending',
-    priority: 'high',
-    submittedAt: '2024-01-10T10:30:00Z',
-    lastUpdated: '2024-01-10T10:30:00Z',
-    category: 'Astronomy',
-    targetAudience: 'Intermediate',
-    tags: ['Astrophotography', 'Photography', 'Night Sky', 'Workshop'],
-    reports: {
-      count: 1,
-      reasons: ['Scheduling conflict']
+  // Fetch sessions on component mount and when filters change
+  const loadSessions = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await sessionsService.getPendingSessions({
+        page: currentPage,
+        limit: 20,
+        sort_by: 'created_at',
+        sort_order: 'desc',
+      });
+
+      if (response.success) {
+        setSessions(response.data);
+        setTotalPages(response.pagination.totalPages);
+      }
+    } catch (err) {
+      console.error('Error loading sessions:', err);
+      const errorMessage = (err as Error).message || 'Failed to load sessions';
+      setError(`${errorMessage}. Please check: 1) Backend is running, 2) Database has moderation columns, 3) You have moderator permissions.`);
+    } finally {
+      setLoading(false);
     }
-  },
-  {
-    id: 'astro_002',
-    title: 'සිංහල තාරකා විද්‍යාව: පැරණි සිංහල ජ්‍යොතිෂය හා තාරකා නිරීක්ෂණය',
-    description: 'සිංහල ජනතාවගේ තාරකා විද්‍යාත්මක දැනුම, ජ්‍යොතිෂ්‍ය ක්‍රම, සහ පැරණි තාරකා නිරීක්ෂණ ක්‍රම ගැන ඉගෙන ගනිමු.',
-    proposedBy: {
-      id: 'user_102',
-      username: 'SinhalaJyothishaya',
-      email: 'sinhala.jyothisha@example.com',
-      avatar: 'SJ'
-    },
-    sessionType: 'group_learning',
-    subject: 'Sinhala Astronomy',
-    date: '2024-02-20',
-    time: '18:30',
-    duration: 90,
-    location: 'physical',
-    venue: 'Colombo Planetarium',
-    maxParticipants: 30,
-    requirements: ['සිංහල භාෂා දැනුම', 'තාරකා විද්‍යාව පිළිබඳ උනන්දුව'],
-    status: 'approved',
-    priority: 'medium',
-    submittedAt: '2024-01-08T15:45:00Z',
-    lastUpdated: '2024-01-09T09:15:00Z',
-    category: 'Cultural Astronomy',
-    targetAudience: 'All levels',
-    tags: ['Sinhala Astronomy', 'Jyothishya', 'Cultural Heritage', 'Sinhala']
-  },
-  {
-    id: 'astro_003',
-    title: 'Black Holes and Gravitational Waves',
-    description: 'Explore the fascinating physics of black holes, gravitational waves, and their detection by LIGO and other observatories.',
-    proposedBy: {
-      id: 'user_103',
-      username: 'SpacePhysicist',
-      email: 'space.physics@example.com',
-      avatar: 'SP'
-    },
-    sessionType: 'lecture',
-    subject: 'Theoretical Astronomy',
-    date: '2024-02-25',
-    time: '19:30',
-    duration: 90,
-    location: 'hybrid',
-    venue: 'University Astrophysics Dept - Lecture Hall A',
-    maxParticipants: 50,
-    requirements: ['Basic physics knowledge helpful but not required'],
-    status: 'approved',
-    priority: 'high',
-    submittedAt: '2024-01-05T11:20:00Z',
-    lastUpdated: '2024-01-07T14:30:00Z',
-    category: 'Theoretical Astronomy',
-    targetAudience: 'Advanced',
-    tags: ['Black Holes', 'Gravitational Waves', 'LIGO', 'Theoretical Physics']
-  },
-  {
-    id: 'astro_004',
-    title: 'ශ්‍රී ලංකාවේ තාරකා නිරීක්ෂණ ස්ථාන හා මෙවලම්',
-    description: 'ශ්‍රී ලංකාවේ හොඳම තාරකා නිරීක්ෂණ ස්ථාන, භාවිතා කළ හැකි මෙවලම්, සහ දේශීය තාරකා සමාජ ගැන දැන ගනිමු.',
-    proposedBy: {
-      id: 'user_104',
-      username: 'LKAstronomy',
-      email: 'lk.astronomy@example.com',
-      avatar: 'LK'
-    },
-    sessionType: 'mentoring',
-    subject: 'Local Astronomy',
-    date: '2024-03-05',
-    time: '17:00',
-    duration: 60,
-    location: 'online',
-    maxParticipants: 40,
-    requirements: ['තාරකා විද්‍යාව පිළිබඳ උනන්දුව'],
-    status: 'pending',
-    priority: 'medium',
-    submittedAt: '2024-01-12T08:15:00Z',
-    lastUpdated: '2024-01-12T08:15:00Z',
-    category: 'Local Astronomy',
-    targetAudience: 'Beginner',
-    tags: ['Sri Lanka', 'Astronomy Locations', 'Sinhala', 'Beginner']
-  },
-  {
-    id: 'astro_005',
-    title: 'Exoplanet Discovery and Characterization',
-    description: 'Learn about the methods astronomers use to discover and characterize planets orbiting other stars in our galaxy.',
-    proposedBy: {
-      id: 'user_105',
-      username: 'ExoplanetHunter',
-      email: 'exoplanet.hunter@example.com',
-      avatar: 'EH'
-    },
-    sessionType: 'workshop',
-    subject: 'Exoplanets',
-    date: '2024-03-10',
-    time: '18:00',
-    duration: 120,
-    location: 'online',
-    maxParticipants: 25,
-    requirements: ['Basic astronomy knowledge'],
-    status: 'revision_requested',
-    priority: 'high',
-    submittedAt: '2024-01-15T14:20:00Z',
-    lastUpdated: '2024-01-18T11:10:00Z',
-    moderatorNotes: 'Please include more details about the data analysis techniques to be covered.',
-    category: 'Planetary Science',
-    targetAudience: 'Intermediate',
-    tags: ['Exoplanets', 'Space Exploration', 'Astrobiology', 'Research']
-  }
-]);
+  }, [currentPage]);
 
-  const handleApprove = (sessionId: string) => {
-    console.log('Approving session:', sessionId);
-    // Implementation would update session status
+  useEffect(() => {
+    loadSessions();
+  }, [loadSessions]);
+
+  const handleApprove = async (sessionId: number) => {
+    if (!confirm('Are you sure you want to approve this session?')) {
+      return;
+    }
+
+    try {
+      await sessionsService.approveSession(sessionId);
+      alert('Session approved successfully!');
+      loadSessions(); // Reload the list
+    } catch (err) {
+      console.error('Error approving session:', err);
+      alert((err as Error).message || 'Failed to approve session');
+    }
   };
 
-  const handleReject = (sessionId: string) => {
-    console.log('Rejecting session:', sessionId);
-    // Implementation would update session status
+  const handleRejectClick = (sessionId: number) => {
+    setSelectedSessionId(sessionId);
+    setShowRejectModal(true);
   };
 
-  const handleRequestRevision = (sessionId: string) => {
-    console.log('Requesting revision for session:', sessionId);
-    // Implementation would update session status
+  const handleRejectSubmit = async () => {
+    if (!selectedSessionId || !rejectionReason.trim()) {
+      alert('Please provide a rejection reason');
+      return;
+    }
+
+    try {
+      await sessionsService.rejectSession(selectedSessionId, rejectionReason);
+      alert('Session rejected successfully!');
+      setShowRejectModal(false);
+      setRejectionReason('');
+      setSelectedSessionId(null);
+      loadSessions(); // Reload the list
+    } catch (err) {
+      console.error('Error rejecting session:', err);
+      alert((err as Error).message || 'Failed to reject session');
+    }
   };
 
   const filteredSessions = sessions.filter(session => {
-    const matchesSearch = session.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         session.proposedBy.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         session.subject.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = 
+      session.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      session.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      session.creator?.display_name?.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesFilter = selectedFilter === 'all' || session.status === selectedFilter;
+    const matchesFilter = 
+      selectedFilter === 'all' || 
+      session.status === selectedFilter;
     
     return matchesSearch && matchesFilter;
   });
@@ -215,12 +106,14 @@ const [sessions] = useState<SessionProposal[]>([
       case 'group_learning': return '👥';
       case 'discussion': return '💬';
       case 'lecture': return '📖';
+      case 'webinar': return '🎥';
       default: return '📚';
     }
   };
 
-  const formatDateTime = (date: string, time: string) => {
-    const sessionDate = new Date(`${date}T${time}`);
+  const formatDateTime = (dateString: string | Date) => {
+    if (!dateString) return 'TBD';
+    const sessionDate = typeof dateString === 'string' ? new Date(dateString) : dateString;
     return sessionDate.toLocaleString('en-US', {
       weekday: 'short',
       year: 'numeric',
@@ -262,8 +155,8 @@ const [sessions] = useState<SessionProposal[]>([
               <span className="stat-label">Approved</span>
             </div>
             <div className="stat-card">
-              <span className="stat-number">{sessions.filter(s => s.priority === 'high').length}</span>
-              <span className="stat-label">High Priority</span>
+              <span className="stat-number">{sessions.filter(s => s.status === 'rejected').length}</span>
+              <span className="stat-label">Rejected</span>
             </div>
           </div>
         </div>
@@ -282,7 +175,7 @@ const [sessions] = useState<SessionProposal[]>([
         </div>
 
         <div className="filter-tabs">
-          {['all', 'pending', 'approved', 'rejected', 'revision_requested'].map(filter => (
+          {['all', 'pending', 'approved', 'rejected'].map(filter => (
             <Button
               variant='primary'
               size='large'
@@ -290,7 +183,7 @@ const [sessions] = useState<SessionProposal[]>([
               className={`filter-tab ${selectedFilter === filter ? 'active' : ''}`}
               onClick={() => setSelectedFilter(filter)}
             >
-              {filter.replace('_', ' ').charAt(0).toUpperCase() + filter.replace('_', ' ').slice(1)}
+              {filter.charAt(0).toUpperCase() + filter.slice(1)}
             </Button>
           ))}
         </div>
@@ -298,125 +191,165 @@ const [sessions] = useState<SessionProposal[]>([
 
       {/* Main Content */}
       <div className="moderation-content">
-        <div className="sessions-list">
-          {filteredSessions.length === 0 ? (
-            <div className="empty-state">
-              <p>No session proposals found for your filter/search.</p>
-            </div>
-          ) : (
-            filteredSessions.map(session => (
-              <div
-                key={session.id}
-                className={`session-item priority-${session.priority} status-${session.status.replace('_', '-')}`}
-                onClick={() => navigate(`/dashboard/moderation/session/details/${session.id}`)}
-              >
-                <div className="item-header">
-                  <div className="session-type">
-                    <span className="type-icon">{getSessionTypeIcon(session.sessionType)}</span>
-                    <span className="type-label">{session.sessionType.replace('_', ' ').charAt(0).toUpperCase() + session.sessionType.replace('_', ' ').slice(1)}</span>
-                  </div>
-                  <div className={`priority-badge priority-${session.priority}`}>
-                    {session.priority}
-                  </div>
-                  <div className={`status-indicator status-${session.status.replace('_', '-')}`}>
-                    {session.status.replace('_', ' ')}
-                  </div>
-                </div>
-
-                <div className="item-content">
-                  <h3 className="session-title">{session.title}</h3>
-                  <p className="session-description">{session.description.substring(0, 150)}...</p>
-                  <div className="item-meta">
-                    <span className="proposer">by {session.proposedBy.username}</span>
-                    <span className="subject">{session.subject}</span>
-                    <span className="date">{formatDateTime(session.date, session.time)}</span>
-                  </div>
-                </div>
-
-                <div className="session-details">
-                  <div className="session-info">
-                    <span className="info-item">
-                      <FaCalendarAlt size={12} />
-                      {session.duration} min
-                    </span>
-                    <span className="info-item">
-                      <FaMapMarkerAlt size={12} />
-                      {session.location}
-                    </span>
-                    <span className="info-item">
-                      <FaUser size={12} />
-                      Max {session.maxParticipants}
-                    </span>
-                  </div>
-                  
-                  {session.reports && session.reports.count > 0 && (
-                    <div className="reports-info">
-                      <FaExclamationTriangle className="flag-icon" />
-                      <span>{session.reports.count} report{session.reports.count !== 1 ? 's' : ''}</span>
-                    </div>
-                  )}
-                </div>
-
-                <div className="session-tags">
-                  {session.tags.slice(0, 3).map(tag => (
-                    <span key={tag} className="tag">{tag}</span>
-                  ))}
-                  {session.tags.length > 3 && (
-                    <span className="tag more">+{session.tags.length - 3} more</span>
-                  )}
-                </div>
-
-                <div className="item-actions">
-                  <button
-                    className="action-btn view-btn"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      navigate(`/dashboard/moderation/session/details/${session.id}`);
-                    }}
-                    title="View session details"
-                  >
-                    <FaEye />
-                  </button>
-                  {session.status === 'pending' && (
-                    <>
-                      <button
-                        className="action-btn approve-btn"
-                        title="Approve session"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleApprove(session.id);
-                        }}
-                      >
-                        <FaCheck />
-                      </button>
-                      <button
-                        className="action-btn revision-btn"
-                        title="Request revision"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleRequestRevision(session.id);
-                        }}
-                      >
-                        <FaExclamationTriangle />
-                      </button>
-                      <button
-                        className="action-btn reject-btn"
-                        title="Reject session"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleReject(session.id);
-                        }}
-                      >
-                        <FaTimes />
-                      </button>
-                    </>
-                  )}
-                </div>
+        {loading ? (
+          <div className="loading-state">
+            <p>Loading sessions...</p>
+          </div>
+        ) : error ? (
+          <div className="error-state">
+            <p>Error: {error}</p>
+            <Button onClick={loadSessions}>Retry</Button>
+          </div>
+        ) : (
+          <div className="sessions-list">
+            {filteredSessions.length === 0 ? (
+              <div className="empty-state">
+                <p>No session proposals found for your filter/search.</p>
               </div>
-            ))
-          )}
-        </div>
+            ) : (
+              filteredSessions.map(session => (
+                <div
+                  key={session.id}
+                  className={`session-item status-${session.status?.replace('_', '-') || 'pending'}`}
+                  onClick={() => navigate(`/dashboard/moderation/session/details/${session.id}`)}
+                >
+                  <div className="item-header">
+                    <div className="session-type">
+                      <span className="type-icon">{getSessionTypeIcon(session.session_type)}</span>
+                      <span className="type-label">{session.session_type?.replace('_', ' ')}</span>
+                    </div>
+                    <div className={`status-indicator status-${session.status?.replace('_', '-') || 'pending'}`}>
+                      {session.status?.replace('_', ' ') || 'pending'}
+                    </div>
+                  </div>
+
+                  <div className="item-content">
+                    <h3 className="session-title">{session.title}</h3>
+                    <p className="session-description">{session.description?.substring(0, 150)}...</p>
+                    <div className="item-meta">
+                      <span className="proposer">by {session.creator?.display_name || 'Unknown'}</span>
+                      <span className="date">{formatDateTime(session.session_date)}</span>
+                    </div>
+                  </div>
+
+                  <div className="session-details">
+                    <div className="session-info">
+                      <span className="info-item">
+                        <FaClock size={12} />
+                        {session.duration || 60} min
+                      </span>
+                      <span className="info-item">
+                        <FaMapMarkerAlt size={12} />
+                        {session.session_type === 'live' ? 'Online' : 'Recorded'}
+                      </span>
+                      <span className="info-item">
+                        <FaUser size={12} />
+                        Max {session.max_participants || 'N/A'}
+                      </span>
+                      {session.price && (
+                        <span className="info-item">
+                          <FaDollarSign size={12} />
+                          ${session.price}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="item-actions">
+                    <button
+                      className="action-btn view-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/dashboard/moderation/session/details/${session.id}`);
+                      }}
+                      title="View session details"
+                    >
+                      <FaEye />
+                    </button>
+                    {session.status === 'pending' && (
+                      <>
+                        <button
+                          className="action-btn approve-btn"
+                          title="Approve session"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleApprove(session.id);
+                          }}
+                        >
+                          <FaCheck />
+                        </button>
+                        <button
+                          className="action-btn reject-btn"
+                          title="Reject session"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRejectClick(session.id);
+                          }}
+                        >
+                          <FaTimes />
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="pagination">
+            <Button 
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </Button>
+            <span>Page {currentPage} of {totalPages}</span>
+            <Button 
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </Button>
+          </div>
+        )}
       </div>
+
+      {/* Reject Modal */}
+      {showRejectModal && (
+        <div className="modal-overlay" onClick={() => setShowRejectModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h3>Reject Session</h3>
+            <p>Please provide a reason for rejecting this session:</p>
+            <textarea
+              value={rejectionReason}
+              onChange={(e) => setRejectionReason(e.target.value)}
+              placeholder="Enter rejection reason..."
+              rows={5}
+            />
+            <div className="modal-actions">
+              <Button 
+                variant="ghost" 
+                onClick={() => {
+                  setShowRejectModal(false);
+                  setRejectionReason('');
+                }}
+              >
+                Cancel
+              </Button>
+              <Button 
+                variant="primary" 
+                onClick={handleRejectSubmit}
+                disabled={!rejectionReason.trim()}
+              >
+                Reject Session
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

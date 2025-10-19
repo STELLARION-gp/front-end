@@ -13,201 +13,97 @@ import {
   Eye,
 } from 'lucide-react';
 import '../../styles/pages/admin/ProviderPayments.scss';
+import * as ProviderPaymentsService from '../../services/providerPayments.service';
+import type { 
+  ProviderPayment, 
+  PaymentStats 
+} from '../../services/providerPayments.service';
 
-// Interfaces
-interface ProviderPayment {
-  id: number;
-  providerId: number;
-  providerName: string;
-  providerEmail: string;
-  providerType: 'guide' | 'influencer';
-  month: string;
-  year: number;
-  totalRevenue: number;
-  platformFee: number;
-  providerEarnings: number;
-  servicesRevenue: number;
-  sessionsRevenue: number;
-  servicesCount: number;
-  sessionsCount: number;
-  paymentStatus: 'pending' | 'paid' | 'processing' | 'failed';
-  paymentMethod?: string;
-  paymentDate?: string;
-  transactionId?: string;
-  notes?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface PaymentStats {
-  totalPending: number;
-  totalPaid: number;
-  totalProviders: number;
-  currentMonthTotal: number;
-}
-
-// Dummy Data
-const generateDummyData = (): ProviderPayment[] => {
-  const providers = [
-    { id: 1, name: 'Dr. Samantha Perera', email: 'samantha.perera@stellar.com', type: 'guide' as const },
-    { id: 2, name: 'Prof. Kamal Fernando', email: 'kamal.fernando@stellar.com', type: 'guide' as const },
-    { id: 3, name: 'Sarah Johnson', email: 'sarah.j@stellar.com', type: 'influencer' as const },
-    { id: 4, name: 'Nimal Jayasinghe', email: 'nimal.j@stellar.com', type: 'guide' as const },
-    { id: 5, name: 'Emily Watson', email: 'emily.w@stellar.com', type: 'influencer' as const },
-    { id: 6, name: 'Rajitha Silva', email: 'rajitha.s@stellar.com', type: 'guide' as const },
-    { id: 7, name: 'Michael Chen', email: 'michael.c@stellar.com', type: 'influencer' as const },
-    { id: 8, name: 'Priya Wickramasinghe', email: 'priya.w@stellar.com', type: 'guide' as const },
-  ];
-
-  const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October'];
-  const statuses: Array<'pending' | 'paid' | 'processing' | 'failed'> = ['pending', 'paid', 'processing', 'failed'];
-  
-  const payments: ProviderPayment[] = [];
-  let id = 1;
-
-  providers.forEach(provider => {
-    // Generate payments for last 3 months
-    for (let i = 0; i < 3; i++) {
-      const monthIndex = 9 - i; // October backwards
-      const servicesRevenue = Math.floor(Math.random() * 150000) + 50000;
-      const sessionsRevenue = Math.floor(Math.random() * 100000) + 30000;
-      const totalRevenue = servicesRevenue + sessionsRevenue;
-      const platformFee = totalRevenue * 0.1; // 10% platform fee
-      const providerEarnings = totalRevenue * 0.9; // 90% to provider
-
-      const status = i === 0 ? 'pending' : statuses[Math.floor(Math.random() * statuses.length)];
-      
-      payments.push({
-        id: id++,
-        providerId: provider.id,
-        providerName: provider.name,
-        providerEmail: provider.email,
-        providerType: provider.type,
-        month: months[monthIndex],
-        year: 2025,
-        totalRevenue,
-        platformFee,
-        providerEarnings,
-        servicesRevenue,
-        sessionsRevenue,
-        servicesCount: Math.floor(Math.random() * 20) + 5,
-        sessionsCount: Math.floor(Math.random() * 15) + 3,
-        paymentStatus: status,
-        paymentMethod: status === 'paid' ? 'bank_transfer' : undefined,
-        paymentDate: status === 'paid' ? new Date(2025, monthIndex, 28).toISOString() : undefined,
-        transactionId: status === 'paid' ? `TXN${Math.random().toString(36).substr(2, 9).toUpperCase()}` : undefined,
-        notes: status === 'failed' ? 'Bank details verification failed' : undefined,
-        createdAt: new Date(2025, monthIndex, 1).toISOString(),
-        updatedAt: new Date().toISOString(),
-      });
-    }
-  });
-
-  return payments.sort((a, b) => {
-    const monthOrder = ['October', 'September', 'August', 'July', 'June', 'May', 'April', 'March', 'February', 'January'];
-    return monthOrder.indexOf(a.month) - monthOrder.indexOf(b.month);
-  });
+// Helper function to get month name
+const getMonthName = (monthNum: number): string => {
+  const months = ['January', 'February', 'March', 'April', 'May', 'June',
+                  'July', 'August', 'September', 'October', 'November', 'December'];
+  return months[monthNum - 1] || '';
 };
 
 const ProviderPayments: React.FC = () => {
   const [payments, setPayments] = useState<ProviderPayment[]>([]);
   const [filteredPayments, setFilteredPayments] = useState<ProviderPayment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const [monthFilter, setMonthFilter] = useState<string>('all');
+  const [yearFilter, setYearFilter] = useState<string>('all');
   const [selectedPayment, setSelectedPayment] = useState<ProviderPayment | null>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [stats, setStats] = useState<PaymentStats>({
-    totalPending: 0,
-    totalPaid: 0,
-    totalProviders: 0,
-    currentMonthTotal: 0,
+    pending_amount: 0,
+    pending_count: 0,
+    paid_this_month: 0,
+    paid_count_this_month: 0,
+    active_providers: 0,
+    current_month_total: 0,
+    current_month_count: 0,
   });
 
-  useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      const dummyData = generateDummyData();
-      setPayments(dummyData);
-      setFilteredPayments(dummyData);
-      calculateStats(dummyData);
+  // Fetch payments from API
+  const fetchPayments = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const filters = {
+        status: statusFilter !== 'all' ? statusFilter : undefined,
+        provider_type: typeFilter !== 'all' ? typeFilter as 'guide' | 'influencer' : undefined,
+        month: monthFilter !== 'all' ? parseInt(monthFilter) : undefined,
+        year: yearFilter !== 'all' ? parseInt(yearFilter) : undefined,
+        search: searchTerm || undefined,
+      };
+
+      const data = await ProviderPaymentsService.getProviderPayments(filters);
+      setPayments(data);
+      setFilteredPayments(data);
+    } catch (err) {
+      console.error('Error fetching payments:', err);
+      setError('Failed to load payments. Please try again.');
+    } finally {
       setLoading(false);
-    }, 1000);
-  }, []);
+    }
+  };
 
+  // Fetch statistics from API
+  const fetchStats = async () => {
+    try {
+      const data = await ProviderPaymentsService.getPaymentStats();
+      setStats(data);
+    } catch (err) {
+      console.error('Error fetching stats:', err);
+    }
+  };
+
+  // Update payment status
+  const handleUpdateStatus = async (id: number, newStatus: string) => {
+    try {
+      await ProviderPaymentsService.updatePaymentStatus(id, newStatus);
+      
+      // Refresh data
+      await Promise.all([fetchPayments(), fetchStats()]);
+      
+      setSelectedPayment(null);
+      setShowDetailsModal(false);
+      alert(`Payment status updated to ${newStatus}`);
+    } catch (err) {
+      console.error('Error updating payment status:', err);
+      alert('Failed to update payment status. Please try again.');
+    }
+  };
+
+  // Fetch data on component mount and when filters change
   useEffect(() => {
-    filterPayments();
-  }, [searchTerm, statusFilter, typeFilter, monthFilter, payments]);
-
-  const calculateStats = (data: ProviderPayment[]) => {
-    const pending = data.filter(p => p.paymentStatus === 'pending').reduce((sum, p) => sum + p.providerEarnings, 0);
-    const paid = data.filter(p => p.paymentStatus === 'paid').reduce((sum, p) => sum + p.providerEarnings, 0);
-    const providers = new Set(data.map(p => p.providerId)).size;
-    const currentMonth = data.filter(p => p.month === 'October' && p.year === 2025).reduce((sum, p) => sum + p.providerEarnings, 0);
-
-    setStats({
-      totalPending: pending,
-      totalPaid: paid,
-      totalProviders: providers,
-      currentMonthTotal: currentMonth,
-    });
-  };
-
-  const filterPayments = () => {
-    let filtered = [...payments];
-
-    // Search filter
-    if (searchTerm) {
-      filtered = filtered.filter(p =>
-        p.providerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        p.providerEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        p.transactionId?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    // Status filter
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(p => p.paymentStatus === statusFilter);
-    }
-
-    // Type filter
-    if (typeFilter !== 'all') {
-      filtered = filtered.filter(p => p.providerType === typeFilter);
-    }
-
-    // Month filter
-    if (monthFilter !== 'all') {
-      filtered = filtered.filter(p => p.month === monthFilter);
-    }
-
-    setFilteredPayments(filtered);
-  };
-
-  const handleUpdateStatus = (paymentId: number, newStatus: 'pending' | 'paid' | 'processing' | 'failed') => {
-    const updatedPayments = payments.map(p => {
-      if (p.id === paymentId) {
-        return {
-          ...p,
-          paymentStatus: newStatus,
-          paymentDate: newStatus === 'paid' ? new Date().toISOString() : p.paymentDate,
-          paymentMethod: newStatus === 'paid' ? 'bank_transfer' : p.paymentMethod,
-          transactionId: newStatus === 'paid' ? `TXN${Math.random().toString(36).substr(2, 9).toUpperCase()}` : p.transactionId,
-          updatedAt: new Date().toISOString(),
-        };
-      }
-      return p;
-    });
-
-    setPayments(updatedPayments);
-    calculateStats(updatedPayments);
-
-    // Close modal if open
-    if (selectedPayment?.id === paymentId) {
-      setSelectedPayment(updatedPayments.find(p => p.id === paymentId) || null);
-    }
-  };
+    fetchPayments();
+    fetchStats();
+  }, [statusFilter, typeFilter, monthFilter, yearFilter, searchTerm]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-LK', {
@@ -218,7 +114,8 @@ const ProviderPayments: React.FC = () => {
     }).format(amount);
   };
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | Date | null | undefined) => {
+    if (!dateString) return 'N/A';
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
@@ -251,31 +148,30 @@ const ProviderPayments: React.FC = () => {
     );
   };
 
-  const exportToCSV = () => {
-    const headers = ['Provider Name', 'Email', 'Type', 'Month', 'Year', 'Total Revenue', 'Platform Fee', 'Provider Earnings', 'Services', 'Sessions', 'Status', 'Payment Date', 'Transaction ID'];
-    const csvData = filteredPayments.map(p => [
-      p.providerName,
-      p.providerEmail,
-      p.providerType,
-      p.month,
-      p.year,
-      p.totalRevenue,
-      p.platformFee,
-      p.providerEarnings,
-      p.servicesCount,
-      p.sessionsCount,
-      p.paymentStatus,
-      p.paymentDate ? formatDate(p.paymentDate) : 'N/A',
-      p.transactionId || 'N/A',
-    ]);
+  const exportToCSV = async () => {
+    try {
+      const filters = {
+        status: statusFilter !== 'all' ? statusFilter : undefined,
+        provider_type: typeFilter !== 'all' ? typeFilter as 'guide' | 'influencer' : undefined,
+        month: monthFilter !== 'all' ? parseInt(monthFilter) : undefined,
+        year: yearFilter !== 'all' ? parseInt(yearFilter) : undefined,
+      };
 
-    const csv = [headers, ...csvData].map(row => row.join(',')).join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `provider-payments-${new Date().toISOString().split('T')[0]}.csv`;
-    a.click();
+      const csvBlob = await ProviderPaymentsService.exportPayments(filters);
+      
+      // Create download link
+      const url = window.URL.createObjectURL(csvBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `provider_payments_${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Error exporting CSV:', err);
+      alert('Failed to export CSV. Please try again.');
+    }
   };
 
   if (loading) {
@@ -283,6 +179,18 @@ const ProviderPayments: React.FC = () => {
       <div className="provider-payments loading">
         <div className="spinner"></div>
         <p>Loading payment data...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="provider-payments error">
+        <div className="error-message">
+          <XCircle size={48} />
+          <h2>{error}</h2>
+          <button onClick={() => fetchPayments()}>Retry</button>
+        </div>
       </div>
     );
   }
@@ -309,8 +217,8 @@ const ProviderPayments: React.FC = () => {
           </div>
           <div className="stat-content">
             <h3>Pending Payments</h3>
-            <p className="stat-value">{formatCurrency(stats.totalPending)}</p>
-            <span className="stat-label">Awaiting processing</span>
+            <p className="stat-value">{formatCurrency(stats.pending_amount)}</p>
+            <span className="stat-label">Awaiting processing ({stats.pending_count} payments)</span>
           </div>
         </div>
 
@@ -320,8 +228,8 @@ const ProviderPayments: React.FC = () => {
           </div>
           <div className="stat-content">
             <h3>Paid This Month</h3>
-            <p className="stat-value">{formatCurrency(stats.totalPaid)}</p>
-            <span className="stat-label">Successfully transferred</span>
+            <p className="stat-value">{formatCurrency(stats.paid_this_month)}</p>
+            <span className="stat-label">Successfully transferred ({stats.paid_count_this_month} payments)</span>
           </div>
         </div>
 
@@ -331,7 +239,7 @@ const ProviderPayments: React.FC = () => {
           </div>
           <div className="stat-content">
             <h3>Active Providers</h3>
-            <p className="stat-value">{stats.totalProviders}</p>
+            <p className="stat-value">{stats.active_providers}</p>
             <span className="stat-label">Guides & Influencers</span>
           </div>
         </div>
@@ -342,8 +250,8 @@ const ProviderPayments: React.FC = () => {
           </div>
           <div className="stat-content">
             <h3>Current Month Total</h3>
-            <p className="stat-value">{formatCurrency(stats.currentMonthTotal)}</p>
-            <span className="stat-label">October 2025</span>
+            <p className="stat-value">{formatCurrency(stats.current_month_total)}</p>
+            <span className="stat-label">{getMonthName(new Date().getMonth() + 1)} {new Date().getFullYear()} ({stats.current_month_count} payments)</span>
           </div>
         </div>
       </div>
@@ -385,9 +293,28 @@ const ProviderPayments: React.FC = () => {
             <Calendar size={18} />
             <select value={monthFilter} onChange={(e) => setMonthFilter(e.target.value)}>
               <option value="all">All Months</option>
-              <option value="October">October 2025</option>
-              <option value="September">September 2025</option>
-              <option value="August">August 2025</option>
+              <option value="1">January</option>
+              <option value="2">February</option>
+              <option value="3">March</option>
+              <option value="4">April</option>
+              <option value="5">May</option>
+              <option value="6">June</option>
+              <option value="7">July</option>
+              <option value="8">August</option>
+              <option value="9">September</option>
+              <option value="10">October</option>
+              <option value="11">November</option>
+              <option value="12">December</option>
+            </select>
+          </div>
+
+          <div className="filter-group">
+            <Calendar size={18} />
+            <select value={yearFilter} onChange={(e) => setYearFilter(e.target.value)}>
+              <option value="all">All Years</option>
+              <option value="2025">2025</option>
+              <option value="2024">2024</option>
+              <option value="2023">2023</option>
             </select>
           </div>
         </div>
@@ -419,21 +346,21 @@ const ProviderPayments: React.FC = () => {
                 <tr key={payment.id}>
                   <td>
                     <div className="provider-info">
-                      <div className="provider-name">{payment.providerName}</div>
-                      <div className="provider-email">{payment.providerEmail}</div>
+                      <div className="provider-name">{payment.provider_name}</div>
+                      <div className="provider-email">{payment.provider_email}</div>
                     </div>
                   </td>
-                  <td>{getProviderTypeBadge(payment.providerType)}</td>
+                  <td>{getProviderTypeBadge(payment.provider_type)}</td>
                   <td>
                     <div className="period-info">
-                      <div className="month">{payment.month} {payment.year}</div>
-                      <div className="date-created">Created: {formatDate(payment.createdAt)}</div>
+                      <div className="month">{getMonthName(payment.month)} {payment.year}</div>
+                      <div className="date-created">Created: {formatDate(payment.created_at)}</div>
                     </div>
                   </td>
-                  <td className="amount-cell">{formatCurrency(payment.totalRevenue)}</td>
-                  <td className="amount-cell fee">{formatCurrency(payment.platformFee)}</td>
-                  <td className="amount-cell earnings">{formatCurrency(payment.providerEarnings)}</td>
-                  <td>{getStatusBadge(payment.paymentStatus)}</td>
+                  <td className="amount-cell">{formatCurrency(payment.total_revenue)}</td>
+                  <td className="amount-cell fee">{formatCurrency(payment.platform_fee)}</td>
+                  <td className="amount-cell earnings">{formatCurrency(payment.provider_earnings)}</td>
+                  <td>{getStatusBadge(payment.payment_status)}</td>
                   <td>
                     <div className="action-buttons">
                       <button
@@ -446,7 +373,7 @@ const ProviderPayments: React.FC = () => {
                       >
                         <Eye size={18} />
                       </button>
-                      {payment.paymentStatus === 'pending' && (
+                      {payment.payment_status === 'pending' && (
                         <button
                           className="btn-mark-paid"
                           onClick={() => handleUpdateStatus(payment.id, 'paid')}
@@ -485,19 +412,19 @@ const ProviderPayments: React.FC = () => {
                 <div className="detail-grid">
                   <div className="detail-item">
                     <label>Name:</label>
-                    <span>{selectedPayment.providerName}</span>
+                    <span>{selectedPayment.provider_name}</span>
                   </div>
                   <div className="detail-item">
                     <label>Email:</label>
-                    <span>{selectedPayment.providerEmail}</span>
+                    <span>{selectedPayment.provider_email}</span>
                   </div>
                   <div className="detail-item">
                     <label>Type:</label>
-                    <span>{getProviderTypeBadge(selectedPayment.providerType)}</span>
+                    <span>{getProviderTypeBadge(selectedPayment.provider_type)}</span>
                   </div>
                   <div className="detail-item">
                     <label>Provider ID:</label>
-                    <span>#{selectedPayment.providerId}</span>
+                    <span>#{selectedPayment.provider_id}</span>
                   </div>
                 </div>
               </div>
@@ -507,15 +434,15 @@ const ProviderPayments: React.FC = () => {
                 <div className="detail-grid">
                   <div className="detail-item">
                     <label>Month:</label>
-                    <span>{selectedPayment.month} {selectedPayment.year}</span>
+                    <span>{getMonthName(selectedPayment.month)} {selectedPayment.year}</span>
                   </div>
                   <div className="detail-item">
                     <label>Created:</label>
-                    <span>{formatDate(selectedPayment.createdAt)}</span>
+                    <span>{formatDate(selectedPayment.created_at)}</span>
                   </div>
                   <div className="detail-item">
                     <label>Last Updated:</label>
-                    <span>{formatDate(selectedPayment.updatedAt)}</span>
+                    <span>{formatDate(selectedPayment.updated_at)}</span>
                   </div>
                 </div>
               </div>
@@ -525,25 +452,25 @@ const ProviderPayments: React.FC = () => {
                 <div className="revenue-breakdown">
                   <div className="breakdown-item">
                     <label>Services Revenue:</label>
-                    <span className="value">{formatCurrency(selectedPayment.servicesRevenue)}</span>
-                    <span className="meta">({selectedPayment.servicesCount} bookings)</span>
+                    <span className="value">{formatCurrency(selectedPayment.services_revenue)}</span>
+                    <span className="meta">({selectedPayment.services_count} bookings)</span>
                   </div>
                   <div className="breakdown-item">
                     <label>Sessions Revenue:</label>
-                    <span className="value">{formatCurrency(selectedPayment.sessionsRevenue)}</span>
-                    <span className="meta">({selectedPayment.sessionsCount} enrollments)</span>
+                    <span className="value">{formatCurrency(selectedPayment.sessions_revenue)}</span>
+                    <span className="meta">({selectedPayment.sessions_count} enrollments)</span>
                   </div>
                   <div className="breakdown-item total">
                     <label>Total Revenue:</label>
-                    <span className="value">{formatCurrency(selectedPayment.totalRevenue)}</span>
+                    <span className="value">{formatCurrency(selectedPayment.total_revenue)}</span>
                   </div>
                   <div className="breakdown-item fee">
                     <label>Platform Fee (10%):</label>
-                    <span className="value">- {formatCurrency(selectedPayment.platformFee)}</span>
+                    <span className="value">- {formatCurrency(selectedPayment.platform_fee)}</span>
                   </div>
                   <div className="breakdown-item earnings">
                     <label>Provider Earnings (90%):</label>
-                    <span className="value">{formatCurrency(selectedPayment.providerEarnings)}</span>
+                    <span className="value">{formatCurrency(selectedPayment.provider_earnings)}</span>
                   </div>
                 </div>
               </div>
@@ -553,24 +480,24 @@ const ProviderPayments: React.FC = () => {
                 <div className="detail-grid">
                   <div className="detail-item">
                     <label>Status:</label>
-                    <span>{getStatusBadge(selectedPayment.paymentStatus)}</span>
+                    <span>{getStatusBadge(selectedPayment.payment_status)}</span>
                   </div>
-                  {selectedPayment.paymentMethod && (
+                  {selectedPayment.payment_method && (
                     <div className="detail-item">
                       <label>Payment Method:</label>
-                      <span className="payment-method">{selectedPayment.paymentMethod.replace('_', ' ').toUpperCase()}</span>
+                      <span className="payment-method">{selectedPayment.payment_method.replace('_', ' ').toUpperCase()}</span>
                     </div>
                   )}
-                  {selectedPayment.paymentDate && (
+                  {selectedPayment.payment_date && (
                     <div className="detail-item">
                       <label>Payment Date:</label>
-                      <span>{formatDate(selectedPayment.paymentDate)}</span>
+                      <span>{formatDate(selectedPayment.payment_date)}</span>
                     </div>
                   )}
-                  {selectedPayment.transactionId && (
+                  {selectedPayment.transaction_id && (
                     <div className="detail-item">
                       <label>Transaction ID:</label>
-                      <span className="transaction-id">{selectedPayment.transactionId}</span>
+                      <span className="transaction-id">{selectedPayment.transaction_id}</span>
                     </div>
                   )}
                   {selectedPayment.notes && (
@@ -584,7 +511,7 @@ const ProviderPayments: React.FC = () => {
             </div>
 
             <div className="modal-footer">
-              {selectedPayment.paymentStatus === 'pending' && (
+              {selectedPayment.payment_status === 'pending' && (
                 <>
                   <button
                     className="btn btn-processing"
@@ -598,7 +525,6 @@ const ProviderPayments: React.FC = () => {
                     className="btn btn-paid"
                     onClick={() => {
                       handleUpdateStatus(selectedPayment.id, 'paid');
-                      setShowDetailsModal(false);
                     }}
                   >
                     <CheckCircle size={18} />
@@ -606,7 +532,7 @@ const ProviderPayments: React.FC = () => {
                   </button>
                 </>
               )}
-              {selectedPayment.paymentStatus === 'processing' && (
+              {selectedPayment.payment_status === 'processing' && (
                 <>
                   <button
                     className="btn btn-failed"
@@ -621,7 +547,6 @@ const ProviderPayments: React.FC = () => {
                     className="btn btn-paid"
                     onClick={() => {
                       handleUpdateStatus(selectedPayment.id, 'paid');
-                      setShowDetailsModal(false);
                     }}
                   >
                     <CheckCircle size={18} />
@@ -629,7 +554,7 @@ const ProviderPayments: React.FC = () => {
                   </button>
                 </>
               )}
-              {selectedPayment.paymentStatus === 'failed' && (
+              {selectedPayment.payment_status === 'failed' && (
                 <button
                   className="btn btn-processing"
                   onClick={() => {

@@ -12,6 +12,7 @@ interface Quiz {
   time: number;
   questionCount: number;
   participantsCount: number;
+  status?: 'pending' | 'approved' | 'rejected' | string;
   isMyQuiz?: boolean;
 }
 
@@ -21,16 +22,23 @@ interface QuizCardProps {
   onParticipate: () => void;
   onEdit: () => void;
   isMyQuiz?: boolean;
+  onDelete?: () => void;
 }
 
-const QuizCard: React.FC<QuizCardProps> = ({ quiz, onParticipate, onEdit, isMyQuiz = false }) => {
+const QuizCard: React.FC<QuizCardProps> = ({ quiz, onParticipate, onEdit, isMyQuiz = false, onDelete }) => {
   return (
     <div className="quiz-card">
       <div className="card-content">
         <div className="card-header">
           <h3 className="quiz-title">{quiz.name}</h3>
-          <span className={`level-badge ${quiz.level.toLowerCase()}`}>{quiz.level}</span>
-        </div>
+           </div>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <span className={`level-badge ${quiz.level.toLowerCase()}`}>{quiz.level}</span>
+            {quiz.status && (
+              <span className={`status-badge ${quiz.status.toLowerCase()}`}>{quiz.status}</span>
+            )}
+          </div>
+       
 
         <p className="quiz-description">{quiz.description}</p>
 
@@ -51,9 +59,14 @@ const QuizCard: React.FC<QuizCardProps> = ({ quiz, onParticipate, onEdit, isMyQu
 
         <div className="quiz-actions">
           {isMyQuiz ? (
-            <Button variant="secondary" onClick={onEdit}>
-              Edit Quiz
-            </Button>
+            <>
+              <Button variant="secondary" onClick={onEdit}>
+                Edit Quiz
+              </Button>
+              <Button variant="secondary" onClick={onDelete}>
+                Delete
+              </Button>
+            </>
           ) : (
             <Button variant="primary" onClick={onParticipate}>
               Participate

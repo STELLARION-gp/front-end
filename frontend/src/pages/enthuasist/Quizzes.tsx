@@ -3,10 +3,9 @@ import '../../styles/pages/enthusiast/Quizzes.scss'
 import '../../styles/pages/enthusiast/Leaderboard.scss'
 import Button from '../../components/Button'
 import ConfirmDialog from '../../components/ConfirmDialog'
-import TimeIcon from '../../assets/svg/TimeIcon'
-import QuestionIcon from '../../assets/svg/QuestionIcon'
-import ParticipantsIcon from '../../assets/svg/ParticipantsIcon'
+// Stats icons moved into QuizCard component
 import * as quizService from '../../services/quizService'
+import QuizCard from '../../components/Learner/QuizCard'
 import { useToast } from '../../contexts/ToastContext'
 import { getErrorMessage } from '../../utils/errorHandler'
 
@@ -637,7 +636,7 @@ const Quizzes = () => {
               {createQuizForm.questions.map((q, index) => (
                 <div key={index} className="question-item">
                   <div className="question-header">
-                    <span className="question-number">Q{index + 1}</span>
+                    <span className="question-number">{index + 1}. </span>
                     <span className="question-text">{q.question}</span>
                   </div>
                   <div className="question-answers">
@@ -827,104 +826,24 @@ const Quizzes = () => {
     )
   }
 
-  const renderQuizCard = (quiz: quizService.Quiz, isMyQuiz: boolean = false) => (
-    <div key={quiz.id} className="quiz-card">
-      <div className="card-content">
-        <div className="card-header">
-          <h3 className="quiz-title">{quiz.name}</h3>
-          <span className={`level-badge ${quiz.level.toLowerCase()}`}>
-            {quiz.level}
-          </span>
-        </div>
-        
-        {isMyQuiz && (
-          <div style={{ marginBottom: '0.75rem' }}>
-            <span style={{
-              padding: '0.35rem 0.75rem',
-              borderRadius: '20px',
-              fontSize: '0.7rem',
-              fontWeight: 600,
-              textTransform: 'uppercase',
-              letterSpacing: '0.05em',
-              background: quiz.status === 'pending' ? 'rgba(251, 191, 36, 0.2)' : 
-                         quiz.status === 'approved' ? 'rgba(34, 197, 94, 0.2)' : 
-                         quiz.status === 'rejected' ? 'rgba(239, 68, 68, 0.2)' : 
-                         'rgba(107, 114, 128, 0.2)',
-              color: quiz.status === 'pending' ? '#fbbf24' : 
-                    quiz.status === 'approved' ? '#22c55e' : 
-                    quiz.status === 'rejected' ? '#ef4444' : 
-                    '#9ca3af',
-              border: quiz.status === 'pending' ? '1px solid rgba(251, 191, 36, 0.3)' : 
-                     quiz.status === 'approved' ? '1px solid rgba(34, 197, 94, 0.3)' : 
-                     quiz.status === 'rejected' ? '1px solid rgba(239, 68, 68, 0.3)' : 
-                     '1px solid rgba(107, 114, 128, 0.3)',
-              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
-            }}>
-              {quiz.status}
-            </span>
-          </div>
-        )}
-        
-        <p className="quiz-description">{quiz.description}</p>
-        
-        <div className="quiz-stats">
-          <div className="stat-item">
-            <TimeIcon className="stat-icon" size={16} />
-            <span>{quiz.time_limit} min</span>
-          </div>
-          
-          <div className="stat-item">
-            <QuestionIcon className="stat-icon" size={16} />
-            <span>{quiz.question_count} questions</span>
-          </div>
-          
-          <div className="stat-item">
-            <ParticipantsIcon className="stat-icon" size={16} />
-            <span>{quiz.participants_count} participants</span>
-          </div>
-        </div>
-        
-        <div className="event-actions">
-          {!isMyQuiz ? (
-            <Button
-              onClick={() => handleParticipate(quiz)}
-              variant="primary"
-              size="small"
-              disabled={quiz.hasParticipated}
-            >
-              {quiz.hasParticipated ? 'Completed' : 'Take Quiz'}
-            </Button>
-          ) : (
-            <>
-              {quiz.status === 'pending' && (
-                <span style={{ color: '#fbbf24', fontSize: '0.875rem', marginRight: '0.5rem' }}>
-                  Awaiting Approval
-                </span>
-              )}
-              {quiz.status === 'rejected' && (
-                <span style={{ color: '#ef4444', fontSize: '0.875rem', marginRight: '0.5rem' }}>
-                  Rejected
-                </span>
-              )}
-              <Button
-                onClick={() => handleEditQuiz(quiz)}
-                variant="secondary"
-                size="small"
-              >
-                Edit
-              </Button>
-              <Button
-                onClick={() => handleDeleteQuiz(quiz.id, quiz.name)}
-                variant="secondary"
-                size="small"
-              >
-                Delete
-              </Button>
-            </>
-          )}
-        </div>
-      </div>
-    </div>
+  const renderQuizCard = (quiz: any, isMyQuiz: boolean = false) => (
+    <QuizCard
+      key={quiz.id}
+      quiz={{
+        id: quiz.id,
+        name: quiz.name,
+        description: quiz.description,
+        level: quiz.level,
+        time: quiz.time ?? quiz.time_limit ?? 0,
+        questionCount: quiz.questionCount ?? quiz.question_count ?? (quiz.questions ? quiz.questions.length : 0),
+        participantsCount: quiz.participantsCount ?? quiz.participants_count ?? 0,
+        status: quiz.status
+      }}
+      onParticipate={() => handleParticipate(quiz)}
+      onEdit={() => handleEditQuiz(quiz)}
+      isMyQuiz={isMyQuiz}
+      onDelete={() => handleDeleteQuiz(quiz.id, quiz.name)}
+    />
   )
 
   return (

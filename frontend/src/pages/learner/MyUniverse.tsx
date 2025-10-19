@@ -1,8 +1,8 @@
 // pages/learner/MyUniverse.tsx
-import  { useState, useEffect } from 'react';
-import Calendar from 'react-calendar';
-import 'react-calendar/dist/Calendar.css';
-import '../../styles/pages/learner/MyUniverse.scss';
+import { useState, useEffect, useCallback } from "react";
+import Calendar from "react-calendar";
+import "react-calendar/dist/Calendar.css";
+import "../../styles/pages/learner/MyUniverse.scss";
 import {
   Star,
   BookOpen,
@@ -10,32 +10,34 @@ import {
   Users,
   User,
   Trophy,
-  ShoppingCart
-} from 'lucide-react';
-import QuizCard from '../../components/Learner/QuizCard';
-import Button from '../../components/Button';
-import QuizModal from '../../components/Learner/QuizModal';
-import AstronomyBlogCard from '../../components/Learner/blogcard';
-import { useNavigate } from 'react-router-dom';
-import AstronomyCompetitionCard from '../../components/Learner/AstronomyCompetitionCard';
-import MentorCard from '../../components/Learner/mentor/MentorCard';
-import InfluencerCard from '../../components/Learner/InfluencerCard';
-import ServicesTab from './ServicesTab';
-import { getMyApplications, type MenteeApplication } from '../../services/menteeApplicationApi';
-import * as quizService from '../../services/quizService';
-import { useToast } from '../../contexts/ToastContext';
-import { getErrorMessage } from '../../utils/errorHandler';
-import FullScreenLoader from '../../components/FullScreenLoader';
-
+  ShoppingCart,
+} from "lucide-react";
+import QuizCard from "../../components/Learner/QuizCard";
+import Button from "../../components/Button";
+import QuizModal from "../../components/Learner/QuizModal";
+import AstronomyBlogCard from "../../components/Learner/blogcard";
+import { useNavigate } from "react-router-dom";
+import AstronomyCompetitionCard from "../../components/Learner/AstronomyCompetitionCard";
+import MentorCard from "../../components/Learner/mentor/MentorCard";
+import InfluencerCard from "../../components/Learner/InfluencerCard";
+import ServicesTab from "./ServicesTab";
+import * as quizService from "../../services/quizService";
+import { useToast } from "../../contexts/ToastContext";
+import { getErrorMessage } from "../../utils/errorHandler";
+import FullScreenLoader from "../../components/FullScreenLoader";
+import {
+  getMyApplications,
+  type MenteeApplication,
+} from "../../services/menteeApplicationApi";
 
 const tabs = [
-  { name: 'Quizzes', icon: <BookOpen size={16} /> },
-  { name: 'Favorites', icon: <Star size={16} /> },
-  { name: 'Competitions', icon: <Trophy size={16} /> },
-  { name: 'Services', icon: <CalendarDays size={16} /> },
-  { name: 'Mentors', icon: <User size={16} /> },
-  { name: 'Influencers', icon: <Users size={16} /> },
-  { name: 'Sessions', icon: <ShoppingCart size={16} /> }
+  { name: "Quizzes", icon: <BookOpen size={16} /> },
+  { name: "Favorites", icon: <Star size={16} /> },
+  { name: "Competitions", icon: <Trophy size={16} /> },
+  { name: "Services", icon: <CalendarDays size={16} /> },
+  { name: "Mentors", icon: <User size={16} /> },
+  { name: "Influencers", icon: <Users size={16} /> },
+  { name: "Sessions", icon: <ShoppingCart size={16} /> },
 ];
 
 interface Quiz {
@@ -67,7 +69,7 @@ interface Competition {
   id: number;
   name: string;
   date: string;
-  status: 'Registered' | 'Pending' | 'Completed';
+  status: "Registered" | "Pending" | "Completed";
   score?: number;
   rank?: number;
 }
@@ -82,43 +84,73 @@ interface Competition {
 const favourite_blogs = [
   {
     id: 1,
-    image: "https://kielderobservatory.org/images/stories/virtuemart/product/Orion%20Nebula%20-%20AS%20-%20med.jpg",
+    image:
+      "https://kielderobservatory.org/images/stories/virtuemart/product/Orion%20Nebula%20-%20AS%20-%20med.jpg",
     title: "The Orion Nebula: A Stellar Nursery",
     author: "Dr. Jane Skywalker",
     createdAt: "2025-06-20",
     rating: 4.7,
-    content: "The Orion Nebula is one of the brightest nebulae visible to the naked eye. Located around 1,344 light-years away, it is a region where new stars are born. In this article, we explore its structure, the Trapezium cluster, and how the nebula helps astronomers understand stellar evolution."
+    content:
+      "The Orion Nebula is one of the brightest nebulae visible to the naked eye. Located around 1,344 light-years away, it is a region where new stars are born. In this article, we explore its structure, the Trapezium cluster, and how the nebula helps astronomers understand stellar evolution.",
   },
   {
     id: 2,
-    image: "https://cdn.arstechnica.net/wp-content/uploads/2024/03/cosmology-astronomy-discoveries.jpg",
+    image:
+      "https://cdn.arstechnica.net/wp-content/uploads/2024/03/cosmology-astronomy-discoveries.jpg",
     title: "Exploring the Expanding Universe",
     author: "Prof. John Cosmos",
     createdAt: "2025-06-18",
     rating: 4.9,
-    content: "Ever since Edwin Hubble’s discovery, the expanding universe has intrigued cosmologists. This blog delves into redshift, the cosmic microwave background radiation, and the implications of dark energy in accelerating the expansion of our universe."
+    content:
+      "Ever since Edwin Hubble’s discovery, the expanding universe has intrigued cosmologists. This blog delves into redshift, the cosmic microwave background radiation, and the implications of dark energy in accelerating the expansion of our universe.",
   },
   {
     id: 3,
-    image: "https://static.vecteezy.com/system/resources/previews/027/100/104/large_2x/the-starry-night-sky-with-the-milky-way-galaxy-space-dust-and-a-planet-in-the-background-all-free-photo.jpg",
+    image:
+      "https://static.vecteezy.com/system/resources/previews/027/100/104/large_2x/the-starry-night-sky-with-the-milky-way-galaxy-space-dust-and-a-planet-in-the-background-all-free-photo.jpg",
     title: "The Magic of Solar Eclipses",
     author: "Luna Rivera",
     createdAt: "2025-06-15",
     rating: 4.6,
-    content: "Solar eclipses offer a rare chance to study the Sun's corona and impact public interest in astronomy. This article covers the types of solar eclipses, historical significance, safety tips, and upcoming eclipse dates visible from Earth."
+    content:
+      "Solar eclipses offer a rare chance to study the Sun's corona and impact public interest in astronomy. This article covers the types of solar eclipses, historical significance, safety tips, and upcoming eclipse dates visible from Earth.",
   },
-
-]
+];
 const userCompetitions: Competition[] = [
-  { id: 1, name: 'Astronomy Olympiad', date: '2025-07-20', status: 'Registered' },
-  { id: 2, name: 'Galaxy Challenge', date: '2025-06-10', status: 'Completed', score: 85, rank: 3 },
-  { id: 3, name: 'Nebula Sketch Contest', date: '2025-07-18', status: 'Pending' },
-  { id: 4, name: 'Astro Coding Jam', date: '2025-05-22', status: 'Completed', score: 92, rank: 1 }
+  {
+    id: 1,
+    name: "Astronomy Olympiad",
+    date: "2025-07-20",
+    status: "Registered",
+  },
+  {
+    id: 2,
+    name: "Galaxy Challenge",
+    date: "2025-06-10",
+    status: "Completed",
+    score: 85,
+    rank: 3,
+  },
+  {
+    id: 3,
+    name: "Nebula Sketch Contest",
+    date: "2025-07-18",
+    status: "Pending",
+  },
+  {
+    id: 4,
+    name: "Astro Coding Jam",
+    date: "2025-05-22",
+    status: "Completed",
+    score: 92,
+    rank: 1,
+  },
 ];
 const registeredCompetitions = [
   {
     id: 1,
-    coverImage: "https://png.pngtree.com/png-vector/20221020/ourmid/pngtree-happy-children-with-medals-on-school-competition-on-contest-png-image_6331904.png",
+    coverImage:
+      "https://png.pngtree.com/png-vector/20221020/ourmid/pngtree-happy-children-with-medals-on-school-competition-on-contest-png-image_6331904.png",
     name: "Galactic Quiz",
     date: "2025-07-20",
     description: "Test your astronomy knowledge!",
@@ -126,7 +158,8 @@ const registeredCompetitions = [
   },
   {
     id: 2,
-    coverImage: "https://w7.pngwing.com/pngs/731/996/png-transparent-competition-winners-hand-table-tree-thumbnail.png",
+    coverImage:
+      "https://w7.pngwing.com/pngs/731/996/png-transparent-competition-winners-hand-table-tree-thumbnail.png",
     name: "Star Mapping Challenge",
     date: "2025-08-02",
     description: "Map constellations with precision.",
@@ -150,56 +183,62 @@ const registeredCompetitions = [
 //   },
 // ];
 const MyUniverse = () => {
-  const navigate = useNavigate();
-  
   // Connected mentors state
-  const [connectedMentors, setConnectedMentors] = useState<MenteeApplication[]>([]);
+  const [connectedMentors, setConnectedMentors] = useState<MenteeApplication[]>(
+    []
+  );
   const [loadingMentors, setLoadingMentors] = useState(false);
-  
+
   // Sample connected influencers
   const [connectedInfluencers] = useState([
     {
       id: 1,
-      name: 'Dr. Jane Skywalker',
-      expertise: 'Astronomy Communication',
-      description: 'Sharing cosmic discoveries and science news with the world.',
-      image: 'https://randomuser.me/api/portraits/women/50.jpg',
-      isFollowed: true
+      name: "Dr. Jane Skywalker",
+      expertise: "Astronomy Communication",
+      description:
+        "Sharing cosmic discoveries and science news with the world.",
+      image: "https://randomuser.me/api/portraits/women/50.jpg",
+      isFollowed: true,
     },
     {
       id: 2,
-      name: 'Prof. John Cosmos',
-      expertise: 'Space Exploration',
-      description: 'Updates on missions, telescopes, and the future of space travel.',
-      image: 'https://randomuser.me/api/portraits/men/45.jpg',
-      isFollowed: true
-    }
+      name: "Prof. John Cosmos",
+      expertise: "Space Exploration",
+      description:
+        "Updates on missions, telescopes, and the future of space travel.",
+      image: "https://randomuser.me/api/portraits/men/45.jpg",
+      isFollowed: true,
+    },
   ]);
 
   const navigate = useNavigate();
-  
+
   const handleOpenInfluencer = (name: string) => {
     const encodedName = encodeURIComponent(name);
     navigate(`/dashboard/author/${encodedName}`);
   };
 
   const { showError } = useToast();
-  
-  const [activeTab, setActiveTab] = useState('Quizzes');
+
+  const [activeTab, setActiveTab] = useState("Quizzes");
   const [showQuizModal, setShowQuizModal] = useState(false);
-  const [selectedQuiz, setSelectedQuiz] = useState<quizService.Quiz | null>(null);
+  const [selectedQuiz, setSelectedQuiz] = useState<quizService.Quiz | null>(
+    null
+  );
   const [availableQuizzes, setAvailableQuizzes] = useState<Quiz[]>([]);
-  const [participatedQuizzes, setParticipatedQuizzes] = useState<ParticipatedQuiz[]>([]);
+  const [participatedQuizzes, setParticipatedQuizzes] = useState<
+    ParticipatedQuiz[]
+  >([]);
   const [loading, setLoading] = useState(false);
 
   // Fetch available quizzes
-  const fetchAvailableQuizzes = async () => {
+  const fetchAvailableQuizzes = useCallback(async () => {
     try {
       setLoading(true);
       const quizzes = await quizService.getAllQuizzes();
-      
+
       // Transform to match local Quiz interface
-      const transformedQuizzes: Quiz[] = quizzes.map(q => ({
+      const transformedQuizzes: Quiz[] = quizzes.map((q) => ({
         id: q.id,
         name: q.name,
         description: q.description,
@@ -208,23 +247,23 @@ const MyUniverse = () => {
         question_count: q.question_count,
         participants_count: q.participants_count,
         hasParticipated: q.hasParticipated,
-        userScore: q.userScore
+        userScore: q.userScore,
       }));
-      
+
       setAvailableQuizzes(transformedQuizzes);
     } catch (error) {
-      showError(getErrorMessage(error, 'Failed to load quizzes'));
+      showError(getErrorMessage(error, "Failed to load quizzes"));
     } finally {
       setLoading(false);
     }
-  };
+  }, [showError]);
 
   // Fetch participated quizzes
   const fetchParticipatedQuizzes = async () => {
     try {
       const myQuizzes = await quizService.getAllQuizzes();
-      const participated = myQuizzes.filter(q => q.hasParticipated);
-      
+      const participated = myQuizzes.filter((q) => q.hasParticipated);
+
       // Fetch results for each participated quiz
       const resultsPromises = participated.map(async (quiz) => {
         try {
@@ -240,7 +279,7 @@ const MyUniverse = () => {
             correct_answers: result.correct_answers,
             total_questions: result.total_questions,
             percentage: result.percentage,
-            completed_at: new Date().toISOString()
+            completed_at: new Date().toISOString(),
           };
         } catch (error) {
           console.error(`Failed to fetch result for quiz ${quiz.id}:`, error);
@@ -249,23 +288,45 @@ const MyUniverse = () => {
       });
 
       const results = await Promise.all(resultsPromises);
-      const validResults = results.filter(r => r !== null) as ParticipatedQuiz[];
+      const validResults = results.filter(
+        (r) => r !== null
+      ) as ParticipatedQuiz[];
       setParticipatedQuizzes(validResults);
     } catch (error) {
-      console.error('Error fetching participated quizzes:', error);
+      console.error("Error fetching participated quizzes:", error);
     }
   };
 
+  // Fetch connected mentors
+  const fetchConnectedMentors = useCallback(async () => {
+    try {
+      setLoadingMentors(true);
+      const applications = await getMyApplications();
+      // Filter only accepted applications
+      const accepted = applications.filter(
+        (app) => app.application_status === "accepted"
+      );
+      setConnectedMentors(accepted);
+    } catch (error) {
+      console.error("Error fetching connected mentors:", error);
+      showError(getErrorMessage(error, "Failed to load connected mentors"));
+    } finally {
+      setLoadingMentors(false);
+    }
+  }, [showError]);
+
   // Load data on component mount and tab change
   useEffect(() => {
-    if (activeTab === 'Quizzes') {
+    if (activeTab === "Quizzes") {
       fetchAvailableQuizzes();
       fetchParticipatedQuizzes();
+    } else if (activeTab === "Mentors") {
+      fetchConnectedMentors();
     }
-  }, [activeTab]);
+  }, [activeTab, fetchAvailableQuizzes, fetchConnectedMentors]);
 
   const handleParticipate = (quiz: Quiz) => {
-    const fullQuiz = availableQuizzes.find(q => q.id === quiz.id);
+    const fullQuiz = availableQuizzes.find((q) => q.id === quiz.id);
     if (fullQuiz) {
       setSelectedQuiz({
         id: fullQuiz.id,
@@ -275,15 +336,15 @@ const MyUniverse = () => {
         time_limit: fullQuiz.time_limit,
         question_count: fullQuiz.question_count,
         participants_count: fullQuiz.participants_count,
-        category: '',
+        category: "",
         time: null,
         user_id: 0,
-        created_at: '',
-        modified_at: '',
-        status: 'approved',
+        created_at: "",
+        modified_at: "",
+        status: "approved",
         creator: { id: 0 },
         questions: [],
-        participants: []
+        participants: [],
       } as quizService.Quiz);
       setShowQuizModal(true);
     }
@@ -302,16 +363,16 @@ const MyUniverse = () => {
   };
 
   // Sample session data
-  const [sessionFilter, setSessionFilter] = useState('All Sessions');
+  const [sessionFilter, setSessionFilter] = useState("All Sessions");
   const [sessions] = useState([
     {
       id: 1,
-      name: 'Exploring Exoplanets',
-      date: '2025-07-20',
-      time: '18:00',
-      host: 'Dr. Stella Orion',
-      type: 'Live',
-      status: 'Upcoming',
+      name: "Exploring Exoplanets",
+      date: "2025-07-20",
+      time: "18:00",
+      host: "Dr. Stella Orion",
+      type: "Live",
+      status: "Upcoming",
       isRegistered: true,
       isBought: false,
       isCompleted: false,
@@ -319,12 +380,12 @@ const MyUniverse = () => {
     },
     {
       id: 2,
-      name: 'Cosmic Mysteries Revealed',
-      date: '2025-07-22',
-      time: '20:00',
-      host: 'Prof. Leo Pulsar',
-      type: 'Recorded',
-      status: 'Completed',
+      name: "Cosmic Mysteries Revealed",
+      date: "2025-07-22",
+      time: "20:00",
+      host: "Prof. Leo Pulsar",
+      type: "Recorded",
+      status: "Completed",
       isRegistered: false,
       isBought: true,
       isCompleted: true,
@@ -332,12 +393,12 @@ const MyUniverse = () => {
     },
     {
       id: 3,
-      name: 'Live Q&A: Black Holes',
-      date: '2025-07-19',
-      time: '17:00',
-      host: 'Dr. Jane Skywalker',
-      type: 'Live',
-      status: 'Active',
+      name: "Live Q&A: Black Holes",
+      date: "2025-07-19",
+      time: "17:00",
+      host: "Dr. Jane Skywalker",
+      type: "Live",
+      status: "Active",
       isRegistered: true,
       isBought: false,
       isCompleted: false,
@@ -345,12 +406,12 @@ const MyUniverse = () => {
     },
     {
       id: 4,
-      name: 'Recorded: Solar System Tour',
-      date: '2025-07-10',
-      time: '15:00',
-      host: 'Prof. John Cosmos',
-      type: 'Recorded',
-      status: 'Completed',
+      name: "Recorded: Solar System Tour",
+      date: "2025-07-10",
+      time: "15:00",
+      host: "Prof. John Cosmos",
+      type: "Recorded",
+      status: "Completed",
       isRegistered: false,
       isBought: true,
       isCompleted: true,
@@ -358,12 +419,12 @@ const MyUniverse = () => {
     },
     {
       id: 5,
-      name: 'Upcoming: Meteor Showers',
-      date: '2025-07-21',
-      time: '19:00',
-      host: 'Dr. Nova Stellar',
-      type: 'Live',
-      status: 'Upcoming',
+      name: "Upcoming: Meteor Showers",
+      date: "2025-07-21",
+      time: "19:00",
+      host: "Dr. Nova Stellar",
+      type: "Live",
+      status: "Upcoming",
       isRegistered: true,
       isBought: false,
       isCompleted: false,
@@ -373,22 +434,25 @@ const MyUniverse = () => {
 
   // Helper: get filtered sessions
   const filteredSessions = sessions.filter((session) => {
-    if (sessionFilter === 'All Sessions') return true;
-    if (sessionFilter === 'Live') return session.type === 'Live';
-    if (sessionFilter === 'Recorded') return session.type === 'Recorded';
-    if (sessionFilter === 'Completed') return session.isCompleted;
+    if (sessionFilter === "All Sessions") return true;
+    if (sessionFilter === "Live") return session.type === "Live";
+    if (sessionFilter === "Recorded") return session.type === "Recorded";
+    if (sessionFilter === "Completed") return session.isCompleted;
     return true;
   });
 
-
   // Calendar logic for sessions
-  const sessionDates = sessions.filter(s => s.status === 'Upcoming' || s.status === 'Active');
+  const sessionDates = sessions.filter(
+    (s) => s.status === "Upcoming" || s.status === "Active"
+  );
   const dateSessionMap: { [date: string]: string } = Object.fromEntries(
-    sessionDates.map(s => [s.date, s.name])
+    sessionDates.map((s) => [s.date, s.name])
   );
 
   // Tooltip for session name
-  const [hoveredSessionDate, setHoveredSessionDate] = useState<string | null>(null);
+  const [hoveredSessionDate, setHoveredSessionDate] = useState<string | null>(
+    null
+  );
   const handleSessionDateMouseOver = (date: Date) => {
     const dateStr = date.toISOString().slice(0, 10);
     if (dateSessionMap[dateStr]) {
@@ -400,7 +464,7 @@ const MyUniverse = () => {
   const handleSessionDateMouseOut = () => setHoveredSessionDate(null);
 
   const sessionTileContent = ({ date, view }: { date: Date; view: string }) => {
-    if (view === 'month') {
+    if (view === "month") {
       const dateStr = date.toISOString().slice(0, 10);
       if (dateSessionMap[dateStr]) {
         return (
@@ -414,28 +478,34 @@ const MyUniverse = () => {
     }
     return null;
   };
-  const sessionTileClassName = ({ date, view }: { date: Date; view: string }) => {
-    if (view === 'month') {
+  const sessionTileClassName = ({
+    date,
+    view,
+  }: {
+    date: Date;
+    view: string;
+  }) => {
+    if (view === "month") {
       const dateStr = date.toISOString().slice(0, 10);
       if (dateSessionMap[dateStr]) {
-        return 'calendar-booked';
+        return "calendar-booked";
       }
     }
-    return '';
+    return "";
   };
 
   // Helper: countdown for sessions within 24h
-const getCountdown = (dateStr: string, timeStr: string): string | null => {
-  const sessionDate = new Date(`${dateStr}T${timeStr}:00`);
-  const now = new Date();
-  const diffMs = sessionDate.getTime() - now.getTime();
-  if (diffMs > 0 && diffMs <= 24 * 60 * 60 * 1000) {
-    const hours = Math.floor(diffMs / (1000 * 60 * 60));
-    const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-    return `${hours}h ${minutes}m`;
-  }
-  return null;
-};
+  const getCountdown = (dateStr: string, timeStr: string): string | null => {
+    const sessionDate = new Date(`${dateStr}T${timeStr}:00`);
+    const now = new Date();
+    const diffMs = sessionDate.getTime() - now.getTime();
+    if (diffMs > 0 && diffMs <= 24 * 60 * 60 * 1000) {
+      const hours = Math.floor(diffMs / (1000 * 60 * 60));
+      const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+      return `${hours}h ${minutes}m`;
+    }
+    return null;
+  };
 
   // Use react-calendar for sessions
 
@@ -444,7 +514,8 @@ const getCountdown = (dateStr: string, timeStr: string): string | null => {
       <div className="juniverse-summary-card">
         <h2>My Universe</h2>
         <div>
-          ⭐ Favorites: 6 &nbsp;| 🎯 Competitions: 3 &nbsp;| 📚 Mentor Courses: 1 &nbsp;| 🪐 Services: 2
+          ⭐ Favorites: 6 &nbsp;| 🎯 Competitions: 3 &nbsp;| 📚 Mentor Courses:
+          1 &nbsp;| 🪐 Services: 2
         </div>
       </div>
 
@@ -453,7 +524,7 @@ const getCountdown = (dateStr: string, timeStr: string): string | null => {
         {tabs.map((tab) => (
           <Button
             key={tab.name}
-            variant={activeTab === tab.name ? 'primary' : 'secondary'}
+            variant={activeTab === tab.name ? "primary" : "secondary"}
             className="flex items-center gap-2 text-sm font-semibold"
             onClick={() => setActiveTab(tab.name)}
           >
@@ -465,7 +536,7 @@ const getCountdown = (dateStr: string, timeStr: string): string | null => {
 
       {/* Content Container */}
       <div className="universe-tab-content">
-        {activeTab === 'Quizzes' && (
+        {activeTab === "Quizzes" && (
           <>
             {loading ? (
               <div className="loading-message">
@@ -473,7 +544,14 @@ const getCountdown = (dateStr: string, timeStr: string): string | null => {
               </div>
             ) : (
               <>
-                <div className="universe-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
+                <div
+                  className="universe-grid"
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+                    gap: "1rem",
+                  }}
+                >
                   {availableQuizzes.length > 0 ? (
                     availableQuizzes.map((quiz) => (
                       <QuizCard
@@ -485,7 +563,7 @@ const getCountdown = (dateStr: string, timeStr: string): string | null => {
                           level: quiz.level,
                           time: quiz.time_limit,
                           questionCount: quiz.question_count,
-                          participantsCount: quiz.participants_count
+                          participantsCount: quiz.participants_count,
                         }}
                         onParticipate={() => handleParticipate(quiz)}
                         onEdit={() => handleEdit(quiz)}
@@ -494,7 +572,10 @@ const getCountdown = (dateStr: string, timeStr: string): string | null => {
                     ))
                   ) : (
                     <div className="no-quizzes-message">
-                      <p>No approved quizzes available at the moment. Check back later!</p>
+                      <p>
+                        No approved quizzes available at the moment. Check back
+                        later!
+                      </p>
                     </div>
                   )}
                 </div>
@@ -502,35 +583,95 @@ const getCountdown = (dateStr: string, timeStr: string): string | null => {
                 {/* Participated Quizzes Table */}
                 {participatedQuizzes.length > 0 && (
                   <div className="participated-quizzes-table mt-12">
-                    <h2 className='participated-quizzes-table-h3'>My Participated Quizzes</h2>
-                    <table className='participated-quizzes-table-table'>
-                      <thead className='participated-quizzes-table-thead'>
-                        <tr className='participated-quizzes-table-tr'>
-                          <th className='participated-quizzes-table-th'>Quiz Name</th>
-                          <th className='participated-quizzes-table-th'>Level</th>
-                          <th className='participated-quizzes-table-th'>Score</th>
-                          <th className='participated-quizzes-table-th'>Correct Answers</th>
-                          <th className='participated-quizzes-table-th'>Total Questions</th>
-                          <th className='participated-quizzes-table-th'>Percentage</th>
-                          <th className='participated-quizzes-table-th'>Completed At</th>
+                    <h2 className="participated-quizzes-table-h3">
+                      My Participated Quizzes
+                    </h2>
+                    <table className="participated-quizzes-table-table">
+                      <thead className="participated-quizzes-table-thead">
+                        <tr className="participated-quizzes-table-tr">
+                          <th className="participated-quizzes-table-th">
+                            Quiz Name
+                          </th>
+                          <th className="participated-quizzes-table-th">
+                            Level
+                          </th>
+                          <th className="participated-quizzes-table-th">
+                            Score
+                          </th>
+                          <th className="participated-quizzes-table-th">
+                            Correct Answers
+                          </th>
+                          <th className="participated-quizzes-table-th">
+                            Total Questions
+                          </th>
+                          <th className="participated-quizzes-table-th">
+                            Percentage
+                          </th>
+                          <th className="participated-quizzes-table-th">
+                            Completed At
+                          </th>
                         </tr>
                       </thead>
-                      <tbody className='participated-quizzes-table-tbody'>
+                      <tbody className="participated-quizzes-table-tbody">
                         {participatedQuizzes.map((quiz) => (
-                          <tr key={quiz.quiz_id} className='participated-quizzes-table-tr'>
-                            <td data-label="Quiz Name" className='participated-quizzes-table-td'>{quiz.quiz_name}</td>
-                            <td data-label="Level" className='participated-quizzes-table-td'>
-                              <span className={`level-badge ${quiz.quiz_level.toLowerCase()}`}>{quiz.quiz_level}</span>
+                          <tr
+                            key={quiz.quiz_id}
+                            className="participated-quizzes-table-tr"
+                          >
+                            <td
+                              data-label="Quiz Name"
+                              className="participated-quizzes-table-td"
+                            >
+                              {quiz.quiz_name}
                             </td>
-                            <td data-label="Score" className='participated-quizzes-table-td'><strong>{quiz.score}</strong></td>
-                            <td data-label="Correct Answers" className='participated-quizzes-table-td'>{quiz.correct_answers}</td>
-                            <td data-label="Total Questions" className='participated-quizzes-table-td'>{quiz.total_questions}</td>
-                            <td data-label="Percentage" className='participated-quizzes-table-td'>
-                              <span className={quiz.percentage >= 70 ? 'text-green' : quiz.percentage >= 50 ? 'text-yellow' : 'text-red'}>
+                            <td
+                              data-label="Level"
+                              className="participated-quizzes-table-td"
+                            >
+                              <span
+                                className={`level-badge ${quiz.quiz_level.toLowerCase()}`}
+                              >
+                                {quiz.quiz_level}
+                              </span>
+                            </td>
+                            <td
+                              data-label="Score"
+                              className="participated-quizzes-table-td"
+                            >
+                              <strong>{quiz.score}</strong>
+                            </td>
+                            <td
+                              data-label="Correct Answers"
+                              className="participated-quizzes-table-td"
+                            >
+                              {quiz.correct_answers}
+                            </td>
+                            <td
+                              data-label="Total Questions"
+                              className="participated-quizzes-table-td"
+                            >
+                              {quiz.total_questions}
+                            </td>
+                            <td
+                              data-label="Percentage"
+                              className="participated-quizzes-table-td"
+                            >
+                              <span
+                                className={
+                                  quiz.percentage >= 70
+                                    ? "text-green"
+                                    : quiz.percentage >= 50
+                                    ? "text-yellow"
+                                    : "text-red"
+                                }
+                              >
                                 {quiz.percentage.toFixed(1)}%
                               </span>
                             </td>
-                            <td data-label="Completed At" className='participated-quizzes-table-td'>
+                            <td
+                              data-label="Completed At"
+                              className="participated-quizzes-table-td"
+                            >
                               {new Date(quiz.completed_at).toLocaleDateString()}
                             </td>
                           </tr>
@@ -544,12 +685,12 @@ const getCountdown = (dateStr: string, timeStr: string): string | null => {
           </>
         )}
 
-        {activeTab === 'Favorites' && (
+        {activeTab === "Favorites" && (
           <>
             <h2>Favorite Blogs</h2>
             <div className="astronomy-card-container">
               {favourite_blogs.map((blog) => (
-                  <AstronomyBlogCard
+                <AstronomyBlogCard
                   key={blog.id}
                   image={blog.image}
                   title={blog.title}
@@ -561,12 +702,9 @@ const getCountdown = (dateStr: string, timeStr: string): string | null => {
                 />
               ))}
             </div>
-
-            
-            
           </>
         )}
-        {activeTab === 'Competitions' && (
+        {activeTab === "Competitions" && (
           <>
             <div className="competitions-section">
               <div className="registered-competitions-section">
@@ -586,13 +724,14 @@ const getCountdown = (dateStr: string, timeStr: string): string | null => {
                         }
                       />
                       {comp.status === "ongoing" && (
-                        <span className="competition-status-badge">Ongoing</span>
+                        <span className="competition-status-badge">
+                          Ongoing
+                        </span>
                       )}
                     </div>
                   ))}
                 </div>
               </div>
-
 
               <h3 className="mb-4">My Competitions</h3>
               <table className="my-competitions-table">
@@ -613,50 +752,66 @@ const getCountdown = (dateStr: string, timeStr: string): string | null => {
                       <td>
                         <span
                           className={`my-competition-status-badge ${
-                            comp.status === 'Completed' ? 'completed' : comp.status === 'Registered' ? 'registered' : 'pending'
+                            comp.status === "Completed"
+                              ? "completed"
+                              : comp.status === "Registered"
+                              ? "registered"
+                              : "pending"
                           }`}
                         >
                           {comp.status}
                         </span>
                       </td>
-                      <td>{comp.status === 'Completed' ? comp.score : '-'}</td>
-                      <td>{comp.status === 'Completed' ? `#${comp.rank}` : '-'}</td>
+                      <td>{comp.status === "Completed" ? comp.score : "-"}</td>
+                      <td>
+                        {comp.status === "Completed" ? `#${comp.rank}` : "-"}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
-            
           </>
-          
         )}
-        {activeTab === 'Services' && (
+        {activeTab === "Services" && (
           <div>
             <ServicesTab />
           </div>
         )}
 
-        {activeTab === 'Mentors' && (
+        {activeTab === "Mentors" && (
           <>
             <h2>Connected Mentors</h2>
             {loadingMentors ? (
-              <div style={{ textAlign: 'center', padding: '3rem', color: '#c7d0e6' }}>
+              <div
+                style={{
+                  textAlign: "center",
+                  padding: "3rem",
+                  color: "#c7d0e6",
+                }}
+              >
                 Loading your connected mentors...
               </div>
             ) : connectedMentors.length === 0 ? (
-              <div style={{ 
-                textAlign: 'center', 
-                padding: '3rem', 
-                color: '#8b93ab',
-                background: '#19223a',
-                borderRadius: '12px',
-                border: '2px dashed #2e3a5e'
-              }}>
-                <p style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>📚 No mentors connected yet</p>
-                <p style={{ marginBottom: '1.5rem' }}>Apply to mentors to start your learning journey!</p>
-                <Button 
+              <div
+                style={{
+                  textAlign: "center",
+                  padding: "3rem",
+                  color: "#8b93ab",
+                  background: "#19223a",
+                  borderRadius: "12px",
+                  border: "2px dashed #2e3a5e",
+                }}
+              >
+                <p style={{ fontSize: "1.2rem", marginBottom: "1rem" }}>
+                  📚 No mentors connected yet
+                </p>
+                <p style={{ marginBottom: "1.5rem" }}>
+                  Apply to mentors to start your learning journey!
+                </p>
+                <Button
                   variant="primary"
-                  onClick={() => navigate('/dashboard/mentors')}
+                  onClick={() => navigate("/dashboard/mentors")}
                 >
                   Explore Mentors
                 </Button>
@@ -665,40 +820,52 @@ const getCountdown = (dateStr: string, timeStr: string): string | null => {
               <div className="mentor-card-list">
                 {connectedMentors.map((application) => {
                   const mentor = application.mentor;
-                  const displayName = mentor?.display_name || 
-                                     `${mentor?.first_name || ''} ${mentor?.last_name || ''}`.trim() || 
-                                     'Mentor';
-                  
+                  const displayName =
+                    mentor?.display_name ||
+                    `${mentor?.first_name || ""} ${
+                      mentor?.last_name || ""
+                    }`.trim() ||
+                    "Mentor";
+
                   // Get profile picture from mentor's profile_data or use default
-                  const profileData = mentor?.profile_data as any;
-                  console.log('🖼️ Mentor profile data:', {
+                  const profileData = mentor?.profile_data as
+                    | Record<string, unknown>
+                    | undefined;
+                  console.log("🖼️ Mentor profile data:", {
                     mentorName: displayName,
                     profileData: profileData,
                     hasAvatarUrl: !!profileData?.avatarUrl,
                     hasProfilePicture: !!profileData?.profilePicture,
-                    hasAvatar: !!profileData?.avatar
+                    hasAvatar: !!profileData?.avatar,
                   });
-                  
-                  const profilePicture = profileData?.avatarUrl || 
-                                        profileData?.profilePicture || 
-                                        profileData?.avatar || 
-                                        `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=4f8cff&color=fff&size=200`;
-                  
-                  console.log('🖼️ Using profile picture:', profilePicture);
-                  
+
+                  const profilePicture =
+                    (profileData?.avatarUrl as string) ||
+                    (profileData?.profilePicture as string) ||
+                    (profileData?.avatar as string) ||
+                    `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                      displayName
+                    )}&background=4f8cff&color=fff&size=200`;
+
+                  console.log("🖼️ Using profile picture:", profilePicture);
+
                   return (
                     <MentorCard
                       key={application.application_id}
                       mentor={{
                         id: application.application_id,
                         name: displayName,
-                        expertise: 'Mentor',
-                        description: `Connected since ${new Date(application.reviewed_at || application.submitted_at).toLocaleDateString()}`,
+                        expertise: "Mentor",
+                        description: `Connected since ${new Date(
+                          application.reviewed_at || application.submitted_at
+                        ).toLocaleDateString()}`,
                         availableSlots: 1,
                         image: profilePicture,
-                        accepting: true
+                        accepting: true,
                       }}
-                      onOpen={(id: number) => navigate(`/dashboard/mentor-connection/${id}`)}
+                      onOpen={(id: number) =>
+                        navigate(`/dashboard/mentor-connection/${id}`)
+                      }
                     />
                   );
                 })}
@@ -707,30 +874,30 @@ const getCountdown = (dateStr: string, timeStr: string): string | null => {
           </>
         )}
 
-        {activeTab === 'Influencers' && (
+        {activeTab === "Influencers" && (
           <>
             <h2>Connected Influencers</h2>
-            <div className="influencer-card-list" style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
-            {connectedInfluencers.map((influencer) => (
-              <InfluencerCard
-                key={influencer.id}
-                influencer={influencer}
-                onFollow={() => {}}
-                onOpen={handleOpenInfluencer}
-              />
-            ))}
+            <div
+              className="influencer-card-list"
+              style={{ display: "flex", flexWrap: "wrap", gap: "1rem" }}
+            >
+              {connectedInfluencers.map((influencer) => (
+                <InfluencerCard
+                  key={influencer.id}
+                  influencer={influencer}
+                  onFollow={() => {}}
+                  onOpen={handleOpenInfluencer}
+                />
+              ))}
             </div>
           </>
         )}
-
-
-
 
         {showQuizModal && selectedQuiz && (
           <QuizModal quiz={selectedQuiz} onClose={handleCloseModal} />
         )}
 
-        {activeTab === 'Sessions' && (
+        {activeTab === "Sessions" && (
           <div className="sessions-tab-content">
             <div className="sessions-header">
               <h2>My Sessions</h2>
@@ -762,7 +929,9 @@ const getCountdown = (dateStr: string, timeStr: string): string | null => {
             </div>
             <div className="session-card-list">
               {filteredSessions.length === 0 ? (
-                <div className="no-sessions">No sessions found for this filter.</div>
+                <div className="no-sessions">
+                  No sessions found for this filter.
+                </div>
               ) : (
                 filteredSessions.map((session) => {
                   const countdown = getCountdown(session.date, session.time);
@@ -774,29 +943,52 @@ const getCountdown = (dateStr: string, timeStr: string): string | null => {
                       <div className="session-card-main">
                         <div className="session-card-header">
                           <span className="session-name">{session.name}</span>
-                          <span className="session-type-badge">{session.type}</span>
+                          <span className="session-type-badge">
+                            {session.type}
+                          </span>
                         </div>
                         <div className="session-card-details">
                           <span className="session-date">{session.date}</span>
                           <span className="session-time">{session.time}</span>
-                          <span className="session-host">Host: {session.host}</span>
-                          <span className="session-status">Status: {session.status}</span>
+                          <span className="session-host">
+                            Host: {session.host}
+                          </span>
+                          <span className="session-status">
+                            Status: {session.status}
+                          </span>
                         </div>
                         {countdown && (
                           <div className="session-countdown">
-                            Starts in <span className="countdown-timer">{countdown}</span>
+                            Starts in{" "}
+                            <span className="countdown-timer">{countdown}</span>
                           </div>
                         )}
                       </div>
                       <div>
-                        {session.status === 'Active' && session.type === 'Live' && (
-                          <Button variant="primary" onClick={() => alert('Joining live session...')}>Join Live</Button>
-                        )}
+                        {session.status === "Active" &&
+                          session.type === "Live" && (
+                            <Button
+                              variant="primary"
+                              onClick={() => alert("Joining live session...")}
+                            >
+                              Join Live
+                            </Button>
+                          )}
                         {session.isCompleted && session.isRecorded && (
-                          <Button variant="secondary" onClick={() => alert('Watching again...')}>Watch Again</Button>
+                          <Button
+                            variant="secondary"
+                            onClick={() => alert("Watching again...")}
+                          >
+                            Watch Again
+                          </Button>
                         )}
                         {session.isCompleted && !session.isRecorded && (
-                          <Button variant="secondary" onClick={() => alert('Reviewing session...')}>Review</Button>
+                          <Button
+                            variant="secondary"
+                            onClick={() => alert("Reviewing session...")}
+                          >
+                            Review
+                          </Button>
                         )}
                       </div>
                     </div>

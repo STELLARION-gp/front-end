@@ -91,33 +91,46 @@ const PreviousTours: React.FC = () => {
   }, []);
 
   const transformToTour = async (booking: Booking): Promise<CompletedTour> => {
-    const userName = booking.user
-      ? `${booking.user.first_name || ''} ${booking.user.last_name || ''}`.trim() || booking.user.email
+    // support both shapes: booking.user || booking.users, booking.service || booking.services
+    const userObj = (booking as any).user || (booking as any).users || null;
+    const userName = userObj
+      ? `${userObj.first_name || ''} ${userObj.last_name || ''}`.trim() || userObj.email || 'Unknown User'
       : 'Unknown User';
-    
-    const serviceName = booking.service?.title || 'Unknown Service';
-    const date = typeof booking.booking_date === 'string'
-      ? booking.booking_date.split('T')[0]
-      : new Date(booking.booking_date).toISOString().split('T')[0];
-    
-    const startTime = booking.booking_time
-      ? typeof booking.booking_time === 'string'
-        ? booking.booking_time.substring(11, 16)
-        : new Date(booking.booking_time).toTimeString().substring(0, 5)
-      : '00:00';
-    
-    const duration = booking.service?.duration
-      ? parseDuration(booking.service.duration)
-      : 0;
-    
+
+    const serviceObj = (booking as any).service || (booking as any).services || null;
+    const serviceName = serviceObj?.title || `Service #${booking.service_id}` || 'Unknown Service';
+
+    // booking_date -> Date
+    const dateObj = typeof booking.booking_date === 'string' ? new Date(booking.booking_date) : booking.booking_date;
+    const date = dateObj && !isNaN(new Date(dateObj).getTime()) ? new Date(dateObj).toISOString().split('T')[0] : '1970-01-01';
+
+    // parse booking_time safely
+    let startTime = '00:00';
+    if (booking.booking_time) {
+      let timeObj: Date | null = null;
+      if (typeof booking.booking_time === 'string') {
+        if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(booking.booking_time)) {
+          timeObj = new Date(booking.booking_time);
+        } else if (/^\d{2}:\d{2}/.test(booking.booking_time)) {
+          timeObj = new Date(`1970-01-01T${booking.booking_time}`);
+        }
+      } else if (typeof booking.booking_time === 'object' && booking.booking_time !== null && 'getTime' in booking.booking_time) {
+        timeObj = booking.booking_time as Date;
+      }
+      if (timeObj && !isNaN(timeObj.getTime())) {
+        startTime = timeObj.toISOString().substring(11, 16);
+      }
+    }
+
+    const duration = serviceObj?.duration ? parseDuration(serviceObj.duration) : 0;
     const endTime = calculateEndTime(startTime, duration);
     
     // Fetch reviews for this service
     let reviews: Review[] = [];
     let averageRating = 0;
     try {
-      if (booking.service_id) {
-        const reviewsResponse = await getServiceReviews(booking.service_id);
+  if (booking.service_id) {
+  const reviewsResponse = await getServiceReviews(booking.service_id);
         reviews = reviewsResponse.reviews.map((r: ServiceReview) => ({
           id: r.id.toString(),
           userName: r.user?.display_name || `${r.user?.first_name} ${r.user?.last_name}` || 'Anonymous',
@@ -152,7 +165,7 @@ const PreviousTours: React.FC = () => {
       totalReviews: reviews.length,
       earnings: booking.total_amount,
       reviews,
-      photos: booking.service?.image_url ? [booking.service.image_url] : [],
+  photos: serviceObj?.image_url ? [serviceObj.image_url] : (booking.service_id ? [] : []),
       weatherConditions: 'N/A',
       equipmentUsed: [],
       highlights: [],
@@ -495,7 +508,7 @@ const PreviousTours: React.FC = () => {
 
                 <div className="tour-actions">
                   <Button
-                    variant="ghost"
+                    variant="primary"
                     size="small"
                     icon={<Eye className="w-4 h-4" />}
                     onClick={() => handleViewDetails(tour)}
@@ -503,7 +516,7 @@ const PreviousTours: React.FC = () => {
                     View
                   </Button>
                   <Button
-                    variant="ghost"
+                    variant="primary"
                     size="small"
                     icon={<MessageCircle className="w-4 h-4" />}
                     onClick={() => handleViewReviews(tour)}
@@ -511,7 +524,7 @@ const PreviousTours: React.FC = () => {
                     Reviews
                   </Button>
                   <Button
-                    variant="ghost"
+                    variant="primary"
                     size="small"
                     icon={<Share2 className="w-4 h-4" />}
                   >

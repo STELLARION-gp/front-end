@@ -23,9 +23,10 @@ const SessionModeration: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await sessionsService.getPendingSessions({
+      const response = await sessionsService.getModerationSessions({
         page: currentPage,
         limit: 20,
+        status: selectedFilter as "all" | "pending" | "approved" | "rejected",
         sort_by: 'created_at',
         sort_order: 'desc',
       });
@@ -41,7 +42,7 @@ const SessionModeration: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [currentPage]);
+  }, [currentPage, selectedFilter]);
 
   useEffect(() => {
     loadSessions();
@@ -86,17 +87,16 @@ const SessionModeration: React.FC = () => {
     }
   };
 
+  // Client-side search filtering (status filtering is handled by API)
   const filteredSessions = sessions.filter(session => {
+    if (!searchTerm) return true;
+    
     const matchesSearch = 
       session.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       session.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
       session.creator?.display_name?.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesFilter = 
-      selectedFilter === 'all' || 
-      session.status === selectedFilter;
-    
-    return matchesSearch && matchesFilter;
+    return matchesSearch;
   });
 
   const getSessionTypeIcon = (type: string) => {

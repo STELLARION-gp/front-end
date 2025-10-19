@@ -67,16 +67,36 @@ const Quizzes = () => {
     try {
       if (activeTab === 'my') {
         const quizzes = await quizService.getMyQuizzes()
-        setMyQuizzes(quizzes)
+
+        // Normalize shape so UI stat items exist immediately
+        const normalized = quizzes.map((q: any) => ({
+          ...q,
+          // prefer explicit time field, fall back to known variants
+          time: q.time || q.time_limit || (q.duration ? Number(q.duration) : undefined) || 0,
+          // number of questions
+          questionCount: q.question_count ?? (q.questions ? q.questions.length : 0),
+          // participants count
+          participantsCount: q.participants_count ?? q.participants_count ?? 0
+        }))
+
+        setMyQuizzes(normalized)
       } else if (activeTab === 'analytics') {
-        const quizzes = await quizService.getMyQuizzes()
+        const quizzesRaw = await quizService.getMyQuizzes()
+        // Normalize quizzes so analytics calculations are consistent
+        const quizzes = quizzesRaw.map((q: any) => ({
+          ...q,
+          time: q.time || q.time_limit || (q.duration ? Number(q.duration) : undefined) || 0,
+          questionCount: q.question_count ?? (q.questions ? q.questions.length : 0),
+          participantsCount: q.participants_count ?? 0,
+        }))
+
         // Calculate analytics from quizzes
         const totalQuizzes = quizzes.length
         const approvedQuizzes = quizzes.filter(q => q.status === 'approved').length
         const pendingQuizzes = quizzes.filter(q => q.status === 'pending').length
         const rejectedQuizzes = quizzes.filter(q => q.status === 'rejected').length
-        const totalParticipants = quizzes.reduce((sum, q) => sum + (q.participants_count || 0), 0)
-        const totalQuestions = quizzes.reduce((sum, q) => sum + (q.question_count || 0), 0)
+        const totalParticipants = quizzes.reduce((sum, q) => sum + (q.participantsCount || 0), 0)
+        const totalQuestions = quizzes.reduce((sum, q) => sum + (q.questionCount || 0), 0)
         const avgQuestionsPerQuiz = totalQuizzes > 0 ? (totalQuestions / totalQuizzes).toFixed(1) : 0
         const avgParticipantsPerQuiz = totalQuizzes > 0 ? (totalParticipants / totalQuizzes).toFixed(1) : 0
         

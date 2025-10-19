@@ -21,6 +21,7 @@ import AstronomyCompetitionCard from '../../components/Learner/AstronomyCompetit
 import MentorCard from '../../components/Learner/mentor/MentorCard';
 import InfluencerCard from '../../components/Learner/InfluencerCard';
 import ServicesTab from './ServicesTab';
+import { getMyApplications, type MenteeApplication } from '../../services/menteeApplicationApi';
 import * as quizService from '../../services/quizService';
 import { useToast } from '../../contexts/ToastContext';
 import { getErrorMessage } from '../../utils/errorHandler';
@@ -149,6 +150,12 @@ const registeredCompetitions = [
 //   },
 // ];
 const MyUniverse = () => {
+  const navigate = useNavigate();
+  
+  // Connected mentors state
+  const [connectedMentors, setConnectedMentors] = useState<MenteeApplication[]>([]);
+  const [loadingMentors, setLoadingMentors] = useState(false);
+  
   // Sample connected influencers
   const [connectedInfluencers] = useState([
     {
@@ -632,31 +639,71 @@ const getCountdown = (dateStr: string, timeStr: string): string | null => {
         {activeTab === 'Mentors' && (
           <>
             <h2>Connected Mentors</h2>
-            <div className="mentor-card-list">
-              {[{
-                id: 1,
-                name: 'Dr. Stella Orion',
-                expertise: 'Astrophysics & Space Science',
-                description: 'Expert in stellar evolution, black holes, and cosmic phenomena.',
-                availableSlots: 2,
-                image: 'https://randomuser.me/api/portraits/women/44.jpg',
-                accepting: true
-              }, {
-                id: 2,
-                name: 'Prof. Leo Pulsar',
-                expertise: 'Exoplanets & Cosmology',
-                description: 'Specializes in exoplanet discovery and cosmological simulations.',
-                availableSlots: 1,
-                image: 'https://randomuser.me/api/portraits/men/32.jpg',
-                accepting: true
-              }].map((mentor) => (
-                <MentorCard
-                  key={mentor.id}
-                  mentor={mentor}
-                  onOpen={(id: number) => navigate(`/dashboard/mentor-connection/${id}`)}
-                />
-              ))}
-            </div>
+            {loadingMentors ? (
+              <div style={{ textAlign: 'center', padding: '3rem', color: '#c7d0e6' }}>
+                Loading your connected mentors...
+              </div>
+            ) : connectedMentors.length === 0 ? (
+              <div style={{ 
+                textAlign: 'center', 
+                padding: '3rem', 
+                color: '#8b93ab',
+                background: '#19223a',
+                borderRadius: '12px',
+                border: '2px dashed #2e3a5e'
+              }}>
+                <p style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>📚 No mentors connected yet</p>
+                <p style={{ marginBottom: '1.5rem' }}>Apply to mentors to start your learning journey!</p>
+                <Button 
+                  variant="primary"
+                  onClick={() => navigate('/dashboard/mentors')}
+                >
+                  Explore Mentors
+                </Button>
+              </div>
+            ) : (
+              <div className="mentor-card-list">
+                {connectedMentors.map((application) => {
+                  const mentor = application.mentor;
+                  const displayName = mentor?.display_name || 
+                                     `${mentor?.first_name || ''} ${mentor?.last_name || ''}`.trim() || 
+                                     'Mentor';
+                  
+                  // Get profile picture from mentor's profile_data or use default
+                  const profileData = mentor?.profile_data as any;
+                  console.log('🖼️ Mentor profile data:', {
+                    mentorName: displayName,
+                    profileData: profileData,
+                    hasAvatarUrl: !!profileData?.avatarUrl,
+                    hasProfilePicture: !!profileData?.profilePicture,
+                    hasAvatar: !!profileData?.avatar
+                  });
+                  
+                  const profilePicture = profileData?.avatarUrl || 
+                                        profileData?.profilePicture || 
+                                        profileData?.avatar || 
+                                        `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=4f8cff&color=fff&size=200`;
+                  
+                  console.log('🖼️ Using profile picture:', profilePicture);
+                  
+                  return (
+                    <MentorCard
+                      key={application.application_id}
+                      mentor={{
+                        id: application.application_id,
+                        name: displayName,
+                        expertise: 'Mentor',
+                        description: `Connected since ${new Date(application.reviewed_at || application.submitted_at).toLocaleDateString()}`,
+                        availableSlots: 1,
+                        image: profilePicture,
+                        accepting: true
+                      }}
+                      onOpen={(id: number) => navigate(`/dashboard/mentor-connection/${id}`)}
+                    />
+                  );
+                })}
+              </div>
+            )}
           </>
         )}
 

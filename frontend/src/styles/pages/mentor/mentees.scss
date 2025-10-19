@@ -1,53 +1,66 @@
-/* Enhanced Header Styles */
-.mentees-header {
-  margin-bottom: 2.5rem;
-  position: relative;
-  z-index: 1;
-}
+// ===================================================
+// Modern Mentees Page - Mentor-Mentee Connections
+// Learning Platform Design System
+// ===================================================
 
-.mentees-header-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-  gap: 1.5rem;
-  flex-wrap: wrap;
-}
+@use '../../abstracts/variables' as *;
 
-.mentees-title {
-  font-size: 2.1rem;
-  font-weight: 700;
-  color: #fdfdfe;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+// ===================================================
+// Page Container
+// ===================================================
+.mentees-page-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem;
+  min-height: 100vh;
+  animation: fadeInUp 0.5s ease-out;
 
-  .mentees-count {
-    font-size: 1.2rem;
-    font-weight: 500;
-    color: #94a3b8;
-    background: rgba(59, 130, 246, 0.2);
-    padding: 0.2rem 0.8rem;
-    border-radius: 20px;
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 }
 
-/* View Toggle Buttons */
-.mentees-view-toggle {
-  display: flex;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  padding: 0.2rem;
-  gap: 0.2rem;
+// ===================================================
+// Header Section
+// ===================================================
+.mentees-header {
+  margin-bottom: 3rem;
+  
+  .mentees-header-content {
+    margin-bottom: 2rem;
+    
+    h1 {
+      font-size: 2.75rem;
+      font-weight: 800;
+      color: $text-light;
+      margin: 0 0 0.75rem 0;
+      background: linear-gradient(135deg, #4f8cff 0%, #7dd3fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.02em;
+      
+      @media (max-width: 768px) {
+        font-size: 2rem;
+      }
+    }
+    
+    .mentees-subtitle {
+      font-size: 1.15rem;
+      color: $text-color-secondary;
+      font-weight: 400;
+      line-height: 1.6;
+      max-width: 600px;
+    }
+  }
 }
-
-.view-toggle-btn {
-  background: transparent;
-  border: none;
-  padding: 0.5rem;
-  border-radius: 6px;
-  cursor: pointer;
   transition: all 0.2s ease;
   color: #94a3b8;
   display: flex;

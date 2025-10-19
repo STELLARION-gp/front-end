@@ -1,0 +1,528 @@
+@use '../../abstracts/variables' as *;
+@use '../../abstracts/colors' as *;
+
+// === SELF CONTENT PAGE - MENTOR PROFILE EDITOR ===
+.selfcontent-page {
+  min-height: 100vh;
+//   background: linear-gradient(180deg, $theme1, $theme2, #0d1b2a);
+  padding: $spacing-xl;
+  color: $text-light;
+  font-family: $font-outfit;
+
+  // === HEADER ===
+  .selfcontent-header {
+    max-width: 1000px;
+    margin: 0 auto $spacing-xl;
+    text-align: center;
+    .selfcontent-header-top {
+      display: flex;
+      align-items: center;
+      gap: $spacing-md;
+      justify-content: space-between;
+      margin-bottom: $spacing-md;
+    }
+
+    .selfcontent-back-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: $galaxy-cyan;
+      padding: $spacing-sm $spacing-lg;
+      border-radius: $radius-full;
+      font-size: $font-size-base;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all $transition-medium;
+      margin-bottom: $spacing-lg;
+      display: inline-flex;
+      align-items: center;
+      gap: $spacing-xs;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: $galaxy-cyan;
+        transform: translateX(-4px);
+      }
+    }
+
+    .selfcontent-title {
+      font-size: $font-size-3xl;
+      font-weight: 700;
+      margin: 0 0 $spacing-sm 0;
+      background: linear-gradient(135deg, $galaxy-cyan, $galaxy-purple);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .selfcontent-subtitle {
+      font-size: $font-size-lg;
+      color: $text-color-secondary;
+      margin: 0;
+    }
+  }
+
+  // === FORM ===
+  .selfcontent-form {
+    max-width: 1000px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xl;
+  }
+
+  // === SECTION ===
+  .selfcontent-section {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: $radius-lg;
+    padding: $spacing-xl;
+    backdrop-filter: blur(10px);
+
+    .selfcontent-section-title {
+      font-size: $font-size-xl;
+      font-weight: 700;
+      margin: 0 0 $spacing-lg 0;
+      color: $text-light;
+      display: flex;
+      align-items: center;
+      gap: $spacing-sm;
+      padding-bottom: $spacing-md;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+      .section-icon {
+        font-size: 1.5rem;
+        filter: drop-shadow(0 2px 8px rgba(255, 255, 255, 0.2));
+      }
+    }
+  }
+
+  // === FORM GRID ===
+  .selfcontent-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: $spacing-lg;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  // === FORM GROUP ===
+  .selfcontent-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xs;
+
+    &.full-width {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-size: $font-size-base;
+      font-weight: 600;
+      color: $galaxy-cyan;
+    }
+
+    input,
+    textarea {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: $radius-md;
+      padding: $spacing-sm $spacing-md;
+      color: $text-light;
+      font-size: $font-size-base;
+      font-family: $font-outfit;
+      transition: all $transition-medium;
+
+      &::placeholder {
+        color: $text-color-secondary;
+      }
+
+      &:focus {
+        outline: none;
+        border-color: $galaxy-cyan;
+        background: rgba(255, 255, 255, 0.08);
+        box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.1);
+      }
+
+      &:hover {
+        border-color: rgba(255, 255, 255, 0.2);
+      }
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+      line-height: 1.6;
+    }
+
+    .form-hint {
+      font-size: $font-size-sm;
+      color: $text-color-secondary;
+      font-style: italic;
+    }
+  }
+
+  // === SELECT DROPDOWN ===
+  .selfcontent-select {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: $radius-md;
+    padding: $spacing-sm $spacing-md;
+    color: $text-light;
+    font-size: $font-size-base;
+    font-family: $font-outfit;
+    font-weight: 600;
+    transition: all $transition-medium;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2300E5FF' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right $spacing-md center;
+    padding-right: calc($spacing-md + 24px);
+
+    option {
+      background: $theme2;
+      color: $text-light;
+      padding: $spacing-sm;
+      font-weight: 600;
+
+      &[value="available"] {
+        color: $color-success;
+      }
+
+      &[value="unavailable"] {
+        color: $color-error;
+      }
+    }
+
+    &:hover {
+      border-color: rgba(255, 255, 255, 0.2);
+      background-color: rgba(255, 255, 255, 0.08);
+    }
+
+    &:focus {
+      outline: none;
+      border-color: $galaxy-cyan;
+      background-color: rgba(255, 255, 255, 0.08);
+      box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.1);
+    }
+
+    // Special styling for the selected option
+    &[value="available"] {
+      border-color: rgba(16, 185, 129, 0.5);
+      background-color: rgba(16, 185, 129, 0.1);
+      color: $color-success;
+    }
+
+    &[value="unavailable"] {
+      border-color: rgba(239, 68, 68, 0.5);
+      background-color: rgba(239, 68, 68, 0.1);
+      color: $color-error;
+    }
+  }
+
+  // === TAGS INPUT (Specialties) ===
+  .selfcontent-tags-input {
+    .tags-input-wrapper {
+      display: flex;
+      gap: $spacing-sm;
+      margin-bottom: $spacing-md;
+
+      input {
+        flex: 1;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: $radius-md;
+        padding: $spacing-sm $spacing-md;
+        color: $text-light;
+        font-size: $font-size-base;
+        font-family: $font-outfit;
+        transition: all $transition-medium;
+
+        &::placeholder {
+          color: $text-color-secondary;
+        }
+
+        &:focus {
+          outline: none;
+          border-color: $galaxy-cyan;
+          background: rgba(255, 255, 255, 0.08);
+          box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.1);
+        }
+      }
+
+      .add-tag-btn {
+        background: linear-gradient(135deg, $galaxy-purple, $galaxy-pink);
+        border: none;
+        color: white;
+        padding: $spacing-sm $spacing-lg;
+        border-radius: $radius-md;
+        font-size: $font-size-base;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all $transition-medium;
+        white-space: nowrap;
+
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 15px rgba(123, 75, 255, 0.4);
+        }
+      }
+    }
+
+    .tags-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: $spacing-sm;
+
+      .tag {
+        background: linear-gradient(135deg, rgba(123, 75, 255, 0.2), rgba(255, 97, 246, 0.2));
+        border: 1px solid rgba(123, 75, 255, 0.4);
+        border-radius: $radius-full;
+        padding: $spacing-xs $spacing-md;
+        font-size: $font-size-sm;
+        font-weight: 600;
+        color: $galaxy-purple;
+        display: inline-flex;
+        align-items: center;
+        gap: $spacing-xs;
+        transition: all $transition-fast;
+
+        &:hover {
+          background: linear-gradient(135deg, rgba(123, 75, 255, 0.3), rgba(255, 97, 246, 0.3));
+          border-color: rgba(123, 75, 255, 0.6);
+        }
+
+        .remove-tag {
+          background: none;
+          border: none;
+          color: $galaxy-pink;
+          font-size: 1.2rem;
+          font-weight: 700;
+          cursor: pointer;
+          padding: 0;
+          width: 20px;
+          height: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: $radius-full;
+          transition: all $transition-fast;
+
+          &:hover {
+            background: rgba(255, 97, 246, 0.3);
+            transform: rotate(90deg);
+          }
+        }
+      }
+    }
+  }
+
+  // === LIST INPUT (Qualifications) ===
+  .selfcontent-list-input {
+    .list-input-wrapper {
+      display: flex;
+      gap: $spacing-sm;
+      margin-bottom: $spacing-md;
+
+      input {
+        flex: 1;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: $radius-md;
+        padding: $spacing-sm $spacing-md;
+        color: $text-light;
+        font-size: $font-size-base;
+        font-family: $font-outfit;
+        transition: all $transition-medium;
+
+        &::placeholder {
+          color: $text-color-secondary;
+        }
+
+        &:focus {
+          outline: none;
+          border-color: $galaxy-cyan;
+          background: rgba(255, 255, 255, 0.08);
+          box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.1);
+        }
+      }
+
+      .add-item-btn {
+        background: linear-gradient(135deg, $galaxy-cyan, $galaxy-purple);
+        border: none;
+        color: white;
+        padding: $spacing-sm $spacing-lg;
+        border-radius: $radius-md;
+        font-size: $font-size-base;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all $transition-medium;
+        white-space: nowrap;
+
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 15px rgba(0, 229, 255, 0.4);
+        }
+      }
+    }
+
+    .items-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-sm;
+
+      .list-item {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: $radius-md;
+        padding: $spacing-sm $spacing-md;
+        display: flex;
+        align-items: center;
+        gap: $spacing-sm;
+        transition: all $transition-medium;
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.05);
+          border-color: rgba(255, 255, 255, 0.15);
+          transform: translateX(4px);
+        }
+
+        .item-icon {
+          color: $color-success;
+          font-weight: 700;
+          font-size: 1.2rem;
+          flex-shrink: 0;
+        }
+
+        .item-text {
+          flex: 1;
+          color: $text-light;
+          font-size: $font-size-base;
+        }
+
+        .remove-item {
+          background: rgba(239, 68, 68, 0.2);
+          border: 1px solid rgba(239, 68, 68, 0.4);
+          color: $color-error;
+          font-size: 1.2rem;
+          font-weight: 700;
+          cursor: pointer;
+          padding: 0;
+          width: 24px;
+          height: 24px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: $radius-full;
+          transition: all $transition-fast;
+          flex-shrink: 0;
+
+          &:hover {
+            background: rgba(239, 68, 68, 0.4);
+            transform: rotate(90deg) scale(1.1);
+          }
+        }
+      }
+    }
+  }
+
+  // === ACTION BUTTONS ===
+  .selfcontent-actions {
+    display: flex;
+    justify-content: center;
+    gap: $spacing-lg;
+    padding-top: $spacing-lg;
+
+    .selfcontent-btn {
+      padding: $spacing-md $spacing-2xl;
+      border-radius: $radius-md;
+      font-size: $font-size-lg;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all $transition-medium;
+      border: none;
+      display: flex;
+      align-items: center;
+      gap: $spacing-xs;
+      min-width: 150px;
+      justify-content: center;
+
+      &.selfcontent-btn-primary {
+        background: linear-gradient(135deg, $galaxy-purple, $galaxy-pink);
+        color: white;
+
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 25px rgba(123, 75, 255, 0.5);
+        }
+      }
+
+      &.selfcontent-btn-secondary {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: $text-light;
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.08);
+          border-color: rgba(255, 255, 255, 0.3);
+        }
+      }
+    }
+  }
+
+  // === RESPONSIVE ===
+  @media (max-width: 768px) {
+    padding: $spacing-md;
+
+    .selfcontent-header {
+      .selfcontent-title {
+        font-size: $font-size-2xl;
+      }
+
+      .selfcontent-subtitle {
+        font-size: $font-size-base;
+      }
+    }
+
+    .selfcontent-section {
+      padding: $spacing-lg;
+    }
+
+    .selfcontent-actions {
+      flex-direction: column;
+
+      .selfcontent-btn {
+        width: 100%;
+      }
+    }
+
+    .tags-input-wrapper,
+    .list-input-wrapper {
+      flex-direction: column;
+
+      .add-tag-btn,
+      .add-item-btn {
+        width: 100%;
+      }
+    }
+
+    .selfcontent-toggle-container {
+      .selfcontent-toggle {
+        width: 100%;
+      }
+    }
+  }
+
+  @media (max-width: 480px) {
+    padding: $spacing-sm;
+
+    .selfcontent-section {
+      padding: $spacing-md;
+    }
+  }
+}

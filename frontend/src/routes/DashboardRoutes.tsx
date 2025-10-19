@@ -114,6 +114,8 @@ import RecommendedContents from "../pages/mentor/RecommendedContents";
 import PrivateChat from "../pages/mentor/PrivateChat";
 import GroupChatPage from "../pages/mentor/GroupChatPage";
 import { RecommendedEventsProvider } from "../contexts/mentor/RecommendedEventsContext";
+import SelfContent from "../pages/mentor/SelfContent";
+import MenteeApplications from "../pages/mentor/MenteeApplications";
 
 // Create placeholder components for different pages - all memoized
 // const BlogsPage = memo(() => (
@@ -742,7 +744,7 @@ const DashboardRoutes = () => {
       />
 
       <Route
-        path="mentee-profile"
+        path="mentee-profile/:id"
         element={
           <RoleGuard allowedRoles={["mentor", "moderator", "admin"]}>
             <MenteeProfile />
@@ -757,7 +759,22 @@ const DashboardRoutes = () => {
           </RoleGuard>
         }
       />
-
+      <Route
+        path="mentor-selfcontent"
+        element={
+          <RoleGuard allowedRoles={["mentor"]}>
+            <SelfContent />
+          </RoleGuard>
+        }
+      />
+      <Route
+        path="mentee-requests"
+        element={
+          <RoleGuard allowedRoles={["mentor"]}>
+            <MenteeApplications />
+          </RoleGuard>
+        }
+      />
       <Route
         path="learnpath"
         element={
@@ -858,7 +875,7 @@ const DashboardRoutes = () => {
       <Route
         path="stargazing"
         element={
-          <RoleGuard allowedRoles={["enthusiast", "influencer", "learner"]}>
+          <RoleGuard allowedRoles={["enthusiast", "influencer", "learner","mentor","guide"]}>
             <Stargazing />
           </RoleGuard>
         }
@@ -883,6 +900,7 @@ const DashboardRoutes = () => {
               "learner",
               "guide",
               "moderator",
+              "mentor"
             ]}
           >
             <AstroHub />

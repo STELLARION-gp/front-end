@@ -1,4 +1,5 @@
 //import { href } from 'react-router-dom';
+import { icon } from "leaflet";
 import { type UserRole } from "../AuthContext";
 
 // Define permission types
@@ -301,15 +302,18 @@ export const ROLE_BASED_MENU_ITEMS = {
     { label: "Overview", icon: "HomeIcon", href: "/dashboard/mentordashboard" },
     //{ label: 'Profile', icon: 'UserCircleIcon', href: '/dashboard/mentorprofile' },
     { label: "Blogs", icon: "BookOpenIcon", href: "/dashboard/blogs" },
-    { label: "Mentor", icon: "AcademicCapIcon", href: "/dashboard/mentor" },
-    { label: "Events", icon: "CalendarDaysIcon", href: "/dashboard/events" },
+    // { label: "Mentor", icon: "AcademicCapIcon", href: "/dashboard/mentor" },
+    // { label: "Events", icon: "CalendarDaysIcon", href: "/dashboard/events" },
     {
       label: "Stargazing Spot",
       icon: "StarIcon",
       href: "/dashboard/stargazing",
     },
-    { label: "Chat", icon: "ChatBubbleLeftRightIcon", href: "/dashboard/chat" },
-    { label: "Sessions", icon: "UsersIcon", href: "/dashboard/sessions" },
+    { label: "Astro Hub", icon: "ChatBubbleLeftRightIcon", href: "/dashboard/astrohub" },
+    { label: "Mentee Requests", icon: "HandRaisedIcon", href: "/dashboard/mentee-requests" },
+    { label: "Mentees", icon: "UsersIcon", href: "/dashboard/mentees" },
+    // { label: "Chat", icon: "ChatBubbleLeftRightIcon", href: "/dashboard/chat" },
+    // { label: "Sessions", icon: "UsersIcon", href: "/dashboard/sessions" },
     //{ label: 'Settings', icon: 'Cog6ToothIcon', href: '/dashboard/settings' },
   ],
   moderator: [

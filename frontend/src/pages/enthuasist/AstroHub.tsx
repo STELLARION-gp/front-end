@@ -914,6 +914,63 @@ const AstroHub: React.FC = () => {
 
   // Helper function to transform backend discussion to frontend format
   const transformBackendDiscussion = (backendDiscussion: any): Discussion => {
+    // Map backend comments (space_discussion_comments) to frontend shape with replies
+    const mapBackendComment = (c: any) => ({
+      id: c.id,
+      discussion_id: c.discussion_id,
+      user_id: c.user_id,
+      parent_id: c.parent_id ?? null,
+      content: c.content,
+      is_edited: !!c.is_edited,
+      created_at: c.created_at,
+      updated_at: c.updated_at,
+      user: c.user,
+      // Normalize counts to expected keys
+      _count: {
+        likes:
+          c._count?.space_discussion_comment_likes ??
+          c._count?.likes ??
+          0,
+        replies:
+          c._count?.other_space_discussion_comments ??
+          c._count?.replies ??
+          (Array.isArray(c.other_space_discussion_comments)
+            ? c.other_space_discussion_comments.length
+            : 0),
+      },
+      // Map child comments (replies)
+      replies: Array.isArray(c.other_space_discussion_comments)
+        ? c.other_space_discussion_comments.map((r: any) => ({
+            id: r.id,
+            discussion_id: r.discussion_id,
+            user_id: r.user_id,
+            parent_id: r.parent_id ?? c.id,
+            content: r.content,
+            is_edited: !!r.is_edited,
+            created_at: r.created_at,
+            updated_at: r.updated_at,
+            user: r.user,
+            _count: {
+              likes:
+                r._count?.space_discussion_comment_likes ??
+                r._count?.likes ??
+                0,
+              replies: 0,
+            },
+          }))
+        : [],
+    });
+
+    const backendComments =
+      backendDiscussion.space_discussion_comments || backendDiscussion.comments || [];
+    const mappedComments = backendComments.map(mapBackendComment);
+
+    const repliesCount =
+      backendDiscussion._count?.space_discussion_comments ??
+      backendDiscussion._count?.comments ??
+      backendDiscussion.replies_count ??
+      mappedComments.length;
+
     return {
       id: backendDiscussion.id,
       title: backendDiscussion.title,
@@ -925,14 +982,8 @@ const AstroHub: React.FC = () => {
           }`
         : "Unknown",
       author_id: backendDiscussion.author_id,
-      replies:
-        backendDiscussion._count?.comments ||
-        backendDiscussion.replies_count ||
-        0,
-      replies_count:
-        backendDiscussion._count?.comments ||
-        backendDiscussion.replies_count ||
-        0,
+      replies: repliesCount,
+      replies_count: repliesCount,
       lastActivity: backendDiscussion.last_activity
         ? new Date(backendDiscussion.last_activity).toLocaleString()
         : "Unknown",
@@ -946,10 +997,20 @@ const AstroHub: React.FC = () => {
       created_at: backendDiscussion.created_at,
       updated_at: backendDiscussion.updated_at,
       authorInfo: backendDiscussion.author,
-      _count: backendDiscussion._count,
+      // Expose normalized counts shape for consumers that expect it
+      _count: {
+        comments:
+          backendDiscussion._count?.space_discussion_comments ??
+          backendDiscussion._count?.comments ??
+          mappedComments.length,
+        likes:
+          backendDiscussion._count?.space_discussion_likes ??
+          backendDiscussion._count?.likes ??
+          0,
+      },
       isLiked: backendDiscussion.isLiked || false,
-      comments: backendDiscussion.comments,
-      discussions: backendDiscussion.comments, // For backward compatibility
+      comments: mappedComments,
+      discussions: mappedComments, // For backward compatibility
     };
   };
 
@@ -3556,7 +3617,7 @@ const AstroHub: React.FC = () => {
             </div>
             <div className="events-grid">
               {astronomyEventsLoading ? (
-                <div className="loading-message">
+                <div>
                   Loading astronomy events...
                 </div>
               ) : astronomyEventsError ? (
@@ -3733,7 +3794,7 @@ const AstroHub: React.FC = () => {
             </div>
             <div className="news-grid">
               {spaceNewsLoading ? (
-                <div className="loading-message">Loading space news...</div>
+                <div>Loading space news...</div>
               ) : spaceNewsError ? (
                 <div className="error-message">{spaceNewsError}</div>
               ) : filteredRealNews.length > 0 ? (

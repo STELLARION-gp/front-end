@@ -113,6 +113,7 @@ export const PAGE_ACCESS_CONTROL = {
   "/dashboard/media": ["guide"] as UserRole[],
   "/dashboard/admin": ["admin"] as UserRole[],
   "/dashboard/admin-overview": ["admin"] as UserRole[],
+  "/dashboard/revenue-analytics": ["admin"] as UserRole[],
   "/dashboard/moderation": ["moderator", "admin"] as UserRole[],
   "/dashboard/night-camps": [
     "enthusiast",
@@ -349,6 +350,7 @@ export const ROLE_BASED_MENU_ITEMS = {
   ],
   admin: [
     { label: 'Overview', icon: 'HomeIcon', href: '/dashboard/admin-overview' },
+    { label: 'Revenue Analytics', icon: 'CurrencyDollarIcon', href: '/dashboard/revenue-analytics' },
     //{ label: 'Profile', icon: 'UserCircleIcon', href: '/dashboard/profile' },
     //{ label: 'Blogs', icon: 'BookOpenIcon', href: '/dashboard/blogs' },
     //{ label: 'Night Camps', icon: 'MoonIcon', href: '/dashboard/night-camps' },
@@ -371,9 +373,9 @@ export const ROLE_BASED_MENU_ITEMS = {
       href: "/dashboard/moderators",
     },
     {
-      label: "Revenue",
+      label: "Revenue Analytics",
       icon: "CurrencyDollarIcon",
-      href: "/dashboard/financial-analytics",
+      href: "/dashboard/revenue-analytics",
     },
   ],
 } as const;

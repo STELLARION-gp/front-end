@@ -97,6 +97,7 @@ import MentorMenteeConnectionPage from "../pages/learner/MentorMenteeConnectionP
 import Followers from "../pages/influencer/Followers";
 import AdminModeratorsPage from "../pages/admin/AdminModeratorsPage";
 import AdminOverview from "../pages/admin/AdminOverview";
+import RevenueAnalytics from "../pages/admin/RevenueAnalytics";
 import InfluencerApplication from "../pages/learner/InfluencerApplication";
 import Mentor from "../pages/admin/Mentor";
 import MentorApplication from "../pages/admin/MentorApplication";
@@ -690,6 +691,15 @@ const DashboardRoutes = () => {
       />
 
       <Route
+        path="revenue-analytics"
+        element={
+          <RoleGuard allowedRoles={["admin"]}>
+            <RevenueAnalytics />
+          </RoleGuard>
+        }
+      />
+
+      <Route
         path="author/:authorName"
         element={
           <RoleGuard
@@ -1047,7 +1057,7 @@ const DashboardRoutes = () => {
         path="financial-analytics"
         element={
           <RoleGuard allowedRoles={["admin"]}>
-            <FinanceAnalytics />
+            <RevenueAnalytics />
           </RoleGuard>
         }
       />

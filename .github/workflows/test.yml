@@ -28,9 +28,6 @@ jobs:
         with:
           node-version: "18"
           cache: "npm"
-          cache-dependency-path: frontend/package-lock.json
-
-      - name: Install dependencies
         run: npm ci
 
       - name: Run ESLint
@@ -53,7 +50,6 @@ jobs:
         with:
           node-version: "18"
           cache: "npm"
-          cache-dependency-path: frontend/package-lock.json
 
       - name: Install dependencies
         run: npm ci
@@ -78,7 +74,6 @@ jobs:
         with:
           node-version: "18"
           cache: "npm"
-          cache-dependency-path: frontend/package-lock.json
 
       - name: Install dependencies
         run: npm ci

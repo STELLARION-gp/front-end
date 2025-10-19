@@ -1393,7 +1393,7 @@ const Sessions = () => {
               <span className="trend">Enrolled & paid students</span>
             </div>
           </div>
-          <div className="summary-card completion-rate">
+          {/* <div className="summary-card completion-rate">
             <div className="card-icon">
               <svg
                 width="32"
@@ -1406,12 +1406,12 @@ const Sessions = () => {
                 <polyline points="20 6 9 17 4 12"></polyline>
               </svg>
             </div>
-            <div className="card-content">
+            { <div className="card-content">
               <h4>Completion Rate</h4>
               <p className="amount">{overview.completionRate}%</p>
               <span className="trend">Of enrolled students</span>
-            </div>
-          </div>
+            </div> }
+          </div> */}
         </div>
 
         <div className="analytics-sections">

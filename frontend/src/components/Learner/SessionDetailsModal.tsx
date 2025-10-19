@@ -7,7 +7,6 @@ import DateIcon from "../../assets/svg/DateIcon";
 import TimeIcon from "../../assets/svg/TimeIcon";
 import DurationIcon from "../../assets/svg/DurationIcon";
 import ParticipantsIcon from "../../assets/svg/ParticipantsIcon";
-import PriceIcon from "../../assets/svg/PriceIcon";
 import FreeIcon from "../../assets/svg/FreeIcon";
 import DifficultyIcon from "../../assets/svg/DifficultyIcon";
 import SessionPaymentModal from "./SessionPaymentModal";

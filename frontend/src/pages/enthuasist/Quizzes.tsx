@@ -824,7 +824,7 @@ const Quizzes = () => {
           <div className="analytics-table">
             <div className="table-header">
               <div className="col-name">Quiz Name</div>
-              <div className="col-status">Status</div>
+              {/* <div className="col-status">Status</div> */}
               <div className="col-level">Level</div>
               <div className="col-participants">Participants</div>
               <div className="col-questions">Questions</div>
@@ -834,11 +834,11 @@ const Quizzes = () => {
               analytics.quizzes.map((quiz: any) => (
                 <div key={quiz.id} className="table-row">
                   <div className="col-name">{quiz.name}</div>
-                  <div className="col-status">
+                  {/* <div className="col-status">
                     <span className={`status-badge status-${quiz.status}`}>
                       {quiz.status}
                     </span>
-                  </div>
+                  </div> */}
                   <div className="col-level">
                     <span className={`level-badge ${quiz.level.toLowerCase()}`}>
                       {quiz.level}
@@ -873,7 +873,7 @@ const Quizzes = () => {
         time: quiz.time ?? quiz.time_limit ?? 0,
         questionCount: quiz.questionCount ?? quiz.question_count ?? (quiz.questions ? quiz.questions.length : 0),
         participantsCount: quiz.participantsCount ?? quiz.participants_count ?? 0,
-        status: quiz.status
+        
       }}
       onParticipate={() => handleParticipate(quiz)}
       onEdit={() => handleEditQuiz(quiz)}

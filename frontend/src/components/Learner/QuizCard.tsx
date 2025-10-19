@@ -12,7 +12,6 @@ interface Quiz {
   time: number;
   questionCount: number;
   participantsCount: number;
-  status?: 'pending' | 'approved' | 'rejected' | string;
   isMyQuiz?: boolean;
 }
 
@@ -34,9 +33,9 @@ const QuizCard: React.FC<QuizCardProps> = ({ quiz, onParticipate, onEdit, isMyQu
            </div>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             <span className={`level-badge ${quiz.level.toLowerCase()}`}>{quiz.level}</span>
-            {quiz.status && (
+            {/* {quiz.status && (
               <span className={`status-badge ${quiz.status.toLowerCase()}`}>{quiz.status}</span>
-            )}
+            )} */}
           </div>
        
 

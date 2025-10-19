@@ -23,7 +23,6 @@ export interface UpdateQuizData {
   description?: string;
   level?: 'Beginner' | 'Intermediate' | 'Hard';
   time_limit?: number;
-  status?: 'pending' | 'approved' | 'rejected' | 'closed';
   questions?: {
     question: string;
     answers: string[];
@@ -44,7 +43,6 @@ export interface Quiz {
   user_id: number;
   created_at: string;
   modified_at: string;
-  status: 'pending' | 'approved' | 'rejected' | 'closed';
   level: 'Beginner' | 'Intermediate' | 'Hard';
   creator: {
     id: number;
@@ -266,26 +264,3 @@ export const getMyQuizResult = async (quizId: number): Promise<QuizResult> => {
   }
 };
 
-// Admin: Get all pending quizzes
-export const getPendingQuizzes = async (): Promise<Quiz[]> => {
-  try {
-    const headers = await getAuthHeaders();
-    const response = await axios.get(`${API_URL}/api/quizzes/pending`, headers);
-    return response.data.data.quizzes;
-  } catch (error) {
-    console.error('Error fetching pending quizzes:', error);
-    throw error;
-  }
-};
-
-// Admin: Approve or reject a quiz
-export const updateQuizStatus = async (quizId: number, status: 'approved' | 'rejected', reviewNotes?: string): Promise<Quiz> => {
-  try {
-    const headers = await getAuthHeaders();
-    const response = await axios.patch(`${API_URL}/api/quizzes/${quizId}/status`, { status, reviewNotes }, headers);
-    return response.data.data;
-  } catch (error) {
-    console.error('Error updating quiz status:', error);
-    throw error;
-  }
-};

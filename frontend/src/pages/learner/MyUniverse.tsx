@@ -50,6 +50,7 @@ interface Quiz {
   participants_count: number;
   hasParticipated?: boolean;
   userScore?: number | null;
+  // status removed
 }
 
 export interface ParticipatedQuiz {
@@ -248,7 +249,7 @@ const MyUniverse = () => {
       setLoading(true);
       const quizzes = await quizService.getAllQuizzes();
 
-      // Transform to match local Quiz interface
+      // Transform to match local Quiz interface (status removed)
       const transformedQuizzes: Quiz[] = quizzes.map((q) => ({
         id: q.id,
         name: q.name,
@@ -259,6 +260,7 @@ const MyUniverse = () => {
         participants_count: q.participants_count,
         hasParticipated: q.hasParticipated,
         userScore: q.userScore,
+        // status: q.status, // REMOVED
       }));
 
       setAvailableQuizzes(transformedQuizzes);

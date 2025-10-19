@@ -14,7 +14,7 @@ interface ServiceCardProps {
   duration: string;
   tags: string[];
   price: number;
-  onCardClick?: () => void;
+  onBookClick?: (e: React.MouseEvent) => void;
 }
 
 const ServiceCard: React.FC<ServiceCardProps> = ({
@@ -28,7 +28,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   duration,
   tags,
   price,
-  onCardClick
+  onBookClick
 }) => {
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, i) => (
@@ -36,7 +36,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
     ));
   };
   return (
-    <div className="service-card" tabIndex={0} role="button" onClick={onCardClick} style={{ cursor: onCardClick ? 'pointer' : 'default' }}>
+    <div className="service-card">
       {image && (
         <div className="service-card__image">
           <img src={image} alt={title} />
@@ -44,7 +44,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
       )}
       <div className="service-card__content">
         <h3 className="service-card__title">{title}</h3>
-        <div className="service-card__price">${price}</div>
+        <div className="service-card__price">Rs. {price.toLocaleString()}</div>
         <div className="service-card__rating">{renderStars(rating)} <span className="rating-value">{rating.toFixed(1)}</span></div>
         <p className="service-card__desc">{description}</p>
         <div className="service-card__details">
@@ -61,6 +61,15 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
           <img src={guideImage} alt={guideName} className="service-card__guide-img" />
           <span className="service-card__guide-name">{guideName}</span>
         </div>
+        <button 
+          className="service-card__book-btn"
+          onClick={(e) => {
+            e.stopPropagation();
+            onBookClick?.(e);
+          }}
+        >
+          Book Now
+        </button>
       </div>
     </div>
   );

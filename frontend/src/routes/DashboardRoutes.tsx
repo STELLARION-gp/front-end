@@ -34,6 +34,7 @@ import NasaImagesPage from "../pages/learner/NasaImagesPage";
 import NightCamps from "../pages/enthuasist/NightCamps";
 import VolunteerManagement from "../pages/enthuasist/VolunteerManagement";
 import Stargazing from "../pages/enthuasist/Stargazing";
+import SpotDetails from "../pages/enthuasist/SpotDetails";
 
 import ServiceListing from "../pages/guide/ServiceListing";
 import CreateService from "../pages/guide/CreateService";
@@ -68,6 +69,7 @@ import Mentors from "../pages/learner/Mentors";
 import ApplyMentor from "../pages/learner/ApplyMentor";
 import AstronomyServices from "../pages/learner/AstronomyServices";
 import AstronomyServiceDetails from "../pages/learner/AstronomyServiceDetails";
+import MyBookings from "../pages/learner/MyBookings";
 import GuideDetails from "../pages/learner/GuideDetails";
 import CompetitionPage from "../pages/learner/CompetitionPage";
 //import Competitions from '../pages/influencer/competitions';
@@ -359,6 +361,14 @@ const DashboardRoutes = () => {
         element={
           <RoleGuard allowedRoles={["learner", "enthusiast"]}>
             <AstronomyServiceDetails />
+          </RoleGuard>
+        }
+      />
+      <Route
+        path="my-bookings"
+        element={
+          <RoleGuard allowedRoles={["learner", "enthusiast"]}>
+            <MyBookings />
           </RoleGuard>
         }
       />
@@ -867,6 +877,15 @@ const DashboardRoutes = () => {
         element={
           <RoleGuard allowedRoles={["enthusiast", "influencer", "learner","mentor","guide"]}>
             <Stargazing />
+          </RoleGuard>
+        }
+      />
+
+      <Route
+        path="enthusiast/stargazing/:id"
+        element={
+          <RoleGuard allowedRoles={["enthusiast", "influencer", "learner"]}>
+            <SpotDetails />
           </RoleGuard>
         }
       />

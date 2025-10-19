@@ -1,23 +1,27 @@
-// Set Availability Page Styles
-// ============================
+// Set Availability Page Styles - Night Camps Style
+// =================================================
 
 @use 'sass:color';
 @use '../../abstracts/variables' as *;
 
 .set-availability {
   min-height: 100vh;
-  padding: 1.5rem 1.5rem 3rem 1.5rem;
+  //background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  color: white;
+  padding: 0;
   
   .set-availability-container {
-    max-width: none;
-    margin: 0;
+    max-width: 1400px;
+    margin: 0 auto;
     width: 100%;
-    padding-bottom: 2rem;
+    padding: 2rem;
   }
   
   // Header Section
   &__header {
-    margin-bottom: 3rem;
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     
     .header-content {
       .header-navigation {
@@ -30,21 +34,17 @@
         text-align: center;
         
         .page-title {
-          font-family: $font-orbitron;
-          font-size: 2.75rem;
+          font-size: 2rem;
           font-weight: 700;
-          color: $theme5;
-          margin: 0 0 0.75rem 0;
-          text-shadow: 0 0 20px rgba(232, 249, 255, 0.4);
-          letter-spacing: -0.02em;
+          margin: 0 0 0.5rem 0;
+          color: #e2e8f0;
         }
         
         .page-subtitle {
-          font-size: 1.2rem;
-          color: $theme4;
+          font-size: 1rem;
+          color: #e2e8f0;
           margin: 0;
-          font-weight: 300;
-          opacity: 0.9;
+          font-weight: 400;
         }
       }
     }
@@ -59,25 +59,22 @@
       text-align: center;
       
       h2 {
-        font-family: $font-orbitron;
-        font-size: 1.75rem;
+        font-size: 1.5rem;
         font-weight: 600;
-        color: $theme5;
+        color: white;
         margin: 0 0 0.5rem 0;
       }
       
       p {
-        color: $theme4;
-        font-size: 1.1rem;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 1rem;
         margin: 0;
-        opacity: 0.8;
       }
     }
     
     .services-grid {
       display: grid;
-      // use auto-fit to collapse empty columns and let cards fill available width
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
       gap: 1.5rem;
       margin-top: 2rem;
     }
@@ -85,28 +82,29 @@
     .service-card {
       position: relative;
       padding: 1.5rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
       transition: all 0.3s ease;
-      border: 2px solid transparent;
+      cursor: pointer;
       
       &.selected {
-        border-color: $theme2;
-        background: linear-gradient(135deg, 
-          rgba($theme2, 0.05) 0%, 
-          rgba($theme3, 0.02) 100%);
-        box-shadow: 0 0 30px rgba($theme2, 0.2);
+        border-color: #4f46e5;
+        background: rgba(79, 70, 229, 0.1);
+        box-shadow: 0 0 20px rgba(79, 70, 229, 0.3);
       }
       
       &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba($theme1, 0.15);
+        transform: translateY(-4px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        border-color: rgba(79, 70, 229, 0.5);
       }
       
       .service-info {
         .service-title {
-          font-family: $font-orbitron;
           font-size: 1.25rem;
           font-weight: 600;
-          color: $theme5;
+          color: white;
           margin: 0 0 1rem 0;
           line-height: 1.3;
         }
@@ -118,27 +116,27 @@
           margin-bottom: 1rem;
           
           span {
-            padding: 0.25rem 0.75rem;
+            padding: 0.4rem 0.875rem;
             border-radius: 20px;
             font-size: 0.875rem;
             font-weight: 500;
             
             &.service-category {
-              background: color.adjust($theme2, $alpha: -0.9);
-              color: $theme2;
-              border: 1px solid color.adjust($theme2, $alpha: -0.8);
+              background: rgba(79, 70, 229, 0.2);
+              color: #a78bfa;
+              border: 1px solid rgba(79, 70, 229, 0.3);
             }
             
             &.service-duration {
-              background: color.adjust($theme3, $alpha: -0.9);
-              color: $theme3;
-              border: 1px solid color.adjust($theme3, $alpha: -0.8);
+              background: rgba(59, 130, 246, 0.2);
+              color: #60a5fa;
+              border: 1px solid rgba(59, 130, 246, 0.3);
             }
             
             &.service-price {
-              background: color.adjust($theme4, $alpha: -0.9);
-              color: $theme4;
-              border: 1px solid color.adjust($theme4, $alpha: -0.8);
+              background: rgba(16, 185, 129, 0.2);
+              color: #34d399;
+              border: 1px solid rgba(16, 185, 129, 0.3);
               font-weight: 600;
             }
           }
@@ -148,7 +146,7 @@
           display: flex;
           align-items: center;
           gap: 0.5rem;
-          color: $theme4;
+          color: rgba(255, 255, 255, 0.7);
           font-size: 0.95rem;
           
           .capacity-icon {
@@ -177,16 +175,20 @@
   
   // Calendar and Form Layout
   .availability-management {
-    display: block;
     width: 100%;
     margin-bottom: 2rem;
     
-    // Removed grid layout to make full width components
-    .calendar-card,
-    .availability-form-card {
-      width: 100% !important;
-      max-width: 100% !important;
-      margin-bottom: 2rem;
+    .form-calendar-layout {
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 2rem;
+      
+      @media (max-width: 1200px) {
+        grid-template-columns: 1fr;
+        .calendar-card-compact {
+          order: -1; // Show calendar on top in mobile
+        }
+      }
     }
   }
 
@@ -208,7 +210,170 @@
     width: 100% !important;
   }
   
-  // Calendar Section
+  // Compact Calendar (Right Side)
+  .calendar-card-compact {
+    padding: 1.5rem;
+    position: sticky;
+    top: 2rem;
+    max-height: calc(100vh - 4rem);
+    overflow-y: auto;
+    
+    .calendar-section-compact {
+      .calendar-header-compact {
+        margin-bottom: 1rem;
+        
+        h3 {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          font-family: $font-orbitron;
+          font-size: 1.25rem;
+          font-weight: 600;
+          color: $theme5;
+          margin: 0 0 1rem 0;
+          
+          .calendar-header-icon {
+            color: $theme2;
+            width: 20px;
+            height: 20px;
+          }
+        }
+        
+        .calendar-navigation {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 0.5rem;
+          
+          .current-month {
+            font-weight: 600;
+            color: $theme4;
+            font-size: 0.95rem;
+            text-align: center;
+            flex: 1;
+          }
+        }
+      }
+      
+      .calendar {
+        .calendar-weekdays {
+          display: grid;
+          grid-template-columns: repeat(7, 1fr);
+          gap: 2px;
+          margin-bottom: 2px;
+          
+          .weekday {
+            padding: 0.5rem;
+            text-align: center;
+            font-weight: 600;
+            color: $theme5;
+            background: color.adjust($theme1, $alpha: -0.9);
+            font-size: 0.75rem;
+            border: 1px solid color.adjust($theme1, $alpha: -0.85);
+          }
+        }
+        
+        .calendar-days {
+          display: grid;
+          grid-template-columns: repeat(7, 1fr);
+          gap: 2px;
+          background: color.adjust($theme1, $alpha: -0.9);
+          
+          .calendar-day {
+            position: relative;
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: color.adjust($theme1, $alpha: -0.98);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid color.adjust($theme1, $alpha: -0.9);
+            font-size: 0.875rem;
+            
+            &:not(.empty):not(.disabled):hover {
+              background: color.adjust($theme2, $alpha: -0.8);
+              color: $text-light;
+              transform: scale(1.05);
+            }
+            
+            &.empty {
+              background: color.adjust($theme1, $alpha: -0.98);
+              cursor: default;
+            }
+            
+            &.disabled {
+              background: color.adjust($theme1, $alpha: -0.97);
+              color: color.adjust($theme1, $alpha: -0.6);
+              cursor: not-allowed;
+            }
+            
+            &.has-availability {
+              background: $text-light;
+              border: 2px solid $theme2;
+              color: $theme2;
+              font-weight: 600;
+              .availability-indicator {
+                position: absolute;
+                bottom: 2px;
+                right: 2px;
+                width: 4px;
+                height: 4px;
+                background: $theme2;
+                border-radius: 50%;
+              }
+            }
+            
+            &.selected {
+              background: $theme2;
+              color: white;
+              font-weight: 600;
+              transform: scale(1.05);
+              box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.3);
+            }
+            
+            .day-number {
+              font-size: 0.875rem;
+            }
+          }
+        }
+      }
+      
+      .calendar-legend {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid color.adjust($theme1, $alpha: -0.9);
+        flex-wrap: wrap;
+        
+        .legend-item {
+          display: flex;
+          align-items: center;
+          gap: 0.4rem;
+          font-size: 0.8rem;
+          color: $theme4;
+          
+          .legend-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            
+            &.available {
+              background: $theme2;
+            }
+            
+            &.disabled {
+              background: color.adjust($theme1, $alpha: -0.6);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Calendar Section (Legacy - keep for compatibility)
   .calendar-section {
     .calendar-card {
       padding: 1.5rem;
@@ -374,10 +539,9 @@
     padding: 1.5rem;
     
     .form-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
       margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid color.adjust($theme1, $alpha: -0.9);
       
       h3 {
         font-family: $font-orbitron;
@@ -398,13 +562,9 @@
     .availability-form {
       .form-grid {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: 1fr;
         gap: 1rem;
-        margin-bottom: 2rem;
-        
-        @media (max-width: 768px) {
-          grid-template-columns: 1fr;
-        }
+        margin-bottom: 1.5rem;
         
         .form-group {
           &.full-width {
@@ -513,6 +673,9 @@
       .form-actions {
         display: flex;
         justify-content: flex-end;
+        gap: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid color.adjust($theme1, $alpha: -0.9);
       }
     }
   }

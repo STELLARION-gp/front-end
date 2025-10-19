@@ -132,29 +132,24 @@ const MentorDashboard: React.FC = () => {
         </div>
       )}
 
-      {/* Welcome message for new mentors */}
-      {mentor && !mentor.bio && (
-        <div className="info-banner" style={{
-          background: 'rgba(59, 130, 246, 0.1)',
-          border: '1px solid rgba(59, 130, 246, 0.5)',
-          padding: '1rem',
-          borderRadius: '8px',
-          marginBottom: '1rem',
-          color: '#3b82f6'
-        }}>
-          <span>💡 Welcome to your Mentor Dashboard! Click "Add and Change Profile" to complete your mentor profile.</span>
-        </div>
-      )}
-
-      
-      {/* Stats Grid */}
-      <div className="stats-grid">
-        <div className="stat-card">
-          <div className="stat-icon">👥</div>
-          <div className="stat-content">
-            <h3>Active Mentees</h3>
-            <div className="stat-value">{(stats?.activeMentees ?? mentor.menteeCount ?? 0)}/{mentor.maxMentees || MOCK_MENTOR.maxMentees}</div>
-            <div className="stat-change positive">+3 this month</div>
+        {/* Main Content Row */}
+        <div className="main-content-row">
+          {/* Left Column - Controls */}
+          <div className="controls-column">
+            <div className="controls-section_1">
+              <h3 className="section-title">Mentorship Controls</h3>
+              <AvailabilityToggle
+                isAccepting={isAccepting}
+                onToggle={setIsAccepting}
+                isPaused={isPaused}
+                onPauseToggle={setIsPaused}
+              />
+              <MenteeCounter
+                maxMentees={maxMentees}
+                onIncrease={handleIncreaseMaxMentees}
+                onDecrease={handleDecreaseMaxMentees}
+              />
+            </div>
           </div>
         </div>
 

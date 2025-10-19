@@ -8,7 +8,7 @@ interface Quiz {
   id: number;
   name: string;
   description: string;
-  level: "Beginner" | "Intermediate" | "Advanced" | string;
+  level: "Beginner" | "Intermediate" | "Hard" | "Advanced" | string;
   time: number;
   questionCount: number;
   participantsCount: number;
@@ -18,8 +18,8 @@ interface Quiz {
 // Props interface
 interface QuizCardProps {
   quiz: Quiz;
-  onParticipate: (quiz: Quiz) => void;
-  onEdit: (quiz: Quiz) => void;
+  onParticipate: () => void;
+  onEdit: () => void;
   isMyQuiz?: boolean;
 }
 
@@ -51,11 +51,11 @@ const QuizCard: React.FC<QuizCardProps> = ({ quiz, onParticipate, onEdit, isMyQu
 
         <div className="quiz-actions">
           {isMyQuiz ? (
-            <Button variant="secondary" onClick={() => onEdit(quiz)}>
+            <Button variant="secondary" onClick={onEdit}>
               Edit Quiz
             </Button>
           ) : (
-            <Button variant="primary" onClick={() => onParticipate(quiz)}>
+            <Button variant="primary" onClick={onParticipate}>
               Participate
             </Button>
           )}

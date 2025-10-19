@@ -9,6 +9,8 @@ import StatsSection from '../components/HomeComponents/StatsSection';
 import AboutSection from '../components/HomeComponents/AboutSection';
 import FeaturesSection from '../components/HomeComponents/FeatureSection';
 import CTASection from '../components/HomeComponents/CTASection';
+import VirtualIslands from '../components/HomeComponents/VirtualIslands';
+import TeamSection from '../components/HomeComponents/TeamSection';
 import astro from '../assets/astro.webp';
 import astro2 from '../assets/astro3.webp';
 //import ActorsCarousel from '../components/HomeComponents/ActorsCarousel';
@@ -60,6 +62,12 @@ const NewHome = () => {
             <div id="features">
               <FeaturesSection />
             </div>
+            {/* Three Virtual Islands - Interactive Experiences */}
+            <VirtualIslands />
+            
+            {/* Team Section - Meet Our Team */}
+            <TeamSection />
+            
             {/* <ActorsCarousel /> */}
             <CTASection />
           </div>

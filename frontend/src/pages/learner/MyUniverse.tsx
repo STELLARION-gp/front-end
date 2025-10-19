@@ -22,6 +22,10 @@ import MentorCard from '../../components/Learner/mentor/MentorCard';
 import InfluencerCard from '../../components/Learner/InfluencerCard';
 import ServicesTab from './ServicesTab';
 import { getMyApplications, type MenteeApplication } from '../../services/menteeApplicationApi';
+import * as quizService from '../../services/quizService';
+import { useToast } from '../../contexts/ToastContext';
+import { getErrorMessage } from '../../utils/errorHandler';
+import FullScreenLoader from '../../components/FullScreenLoader';
 
 
 const tabs = [
@@ -39,22 +43,25 @@ interface Quiz {
   name: string;
   description: string;
   level: string;
-  time: number;
-  questionCount: number;
-  participantsCount: number;
+  time_limit: number;
+  question_count: number;
+  participants_count: number;
+  hasParticipated?: boolean;
+  userScore?: number | null;
 }
 
 export interface ParticipatedQuiz {
-  id: number;
-  name: string;
-  description: string;
-  level: string;
-  time: number;          // total allowed time for quiz
-  questionCount: number;
-  total: number;         // total score possible (max)
-  date: string;          // date completed
-  timeTaken: number;     // time user took to finish quiz (minutes)
-  score: number;         // user's score
+  quiz_id: number;
+  quiz_name: string;
+  quiz_description: string;
+  quiz_level: string;
+  time_limit: number;
+  question_count: number;
+  score: number;
+  correct_answers: number;
+  total_questions: number;
+  percentage: number;
+  completed_at: string;
 }
 interface Competition {
   id: number;
@@ -71,95 +78,7 @@ interface Competition {
 //   date: string;
 //   status: 'Confirmed' | 'Pending';
 // }
-const sampleQuizzes: Quiz[] = [
-  {
-    id: 1,
-    name: 'Galaxies & Clusters',
-    description: 'Test your knowledge about galaxies and star clusters.',
-    level: 'Intermediate',
-    time: 20,
-    questionCount: 15,
-    participantsCount: 1234
-  },
-  {
-    id: 2,
-    name: 'Astrobiology Basics',
-    description: 'Explore the basics of life beyond Earth.',
-    level: 'Beginner',
-    time: 15,
-    questionCount: 10,
-    participantsCount: 890
-  },
-  {
-    id: 3,
-    name: 'Black Holes Quiz',
-    description: 'Dive into the mysteries of black holes.',
-    level: 'Advanced',
-    time: 25,
-    questionCount: 20,
-    participantsCount: 456
-  }
-];
 
-const sampleLeaderboard = [
-  {
-    id: 1,
-    username: 'Alice',
-    avatar: '🧑‍🚀',
-    rank: 1,
-    totalScore: 9800,
-    quizzesCompleted: 45,
-    averageScore: 92,
-    badges: ['Galaxy Master', 'Quiz Streak']
-  },
-  {
-    id: 2,
-    username: 'Bob',
-    avatar: '👨‍🔬',
-    rank: 2,
-    totalScore: 9000,
-    quizzesCompleted: 40,
-    averageScore: 88,
-    badges: ['Stellar Student']
-  },
-  {
-    id: 3,
-    username: 'You',
-    avatar: '🧑‍💻',
-    rank: 3,
-    totalScore: 8700,
-    quizzesCompleted: 38,
-    averageScore: 90,
-    badges: ['Quiz Warrior', 'Time Challenger', 'Fast Learner']
-  }
-];
-// Sample participated quizzes data
-const participatedQuizzes: ParticipatedQuiz[] = [
-  {
-    id: 101,
-    name: 'Solar System Exploration',
-    description: 'Learn the basics of our solar system.',
-    level: 'Beginner',
-    time: 15,                 // max allowed time
-    questionCount: 12,
-    total: 100,               // max points possible
-    date: '2025-07-10',       // date completed
-    timeTaken: 14,            // minutes actually taken
-    score: 85                 // user score
-  },
-  {
-    id: 102,
-    name: 'Star Formation',
-    description: 'Understand how stars are born and evolve.',
-    level: 'Intermediate',
-    time: 20,
-    questionCount: 18,
-    total: 100,
-    date: '2025-07-08',
-    timeTaken: 19,
-    score: 92
-  }
-];
 const favourite_blogs = [
   {
     id: 1,
@@ -257,43 +176,125 @@ const MyUniverse = () => {
     }
   ]);
 
+  const navigate = useNavigate();
+  
   const handleOpenInfluencer = (name: string) => {
     const encodedName = encodeURIComponent(name);
     navigate(`/dashboard/author/${encodedName}`);
   };
+
+  const { showError } = useToast();
+  
   const [activeTab, setActiveTab] = useState('Quizzes');
   const [showQuizModal, setShowQuizModal] = useState(false);
-  const [selectedQuiz, setSelectedQuiz] = useState<Quiz | null>(null);
+  const [selectedQuiz, setSelectedQuiz] = useState<quizService.Quiz | null>(null);
+  const [availableQuizzes, setAvailableQuizzes] = useState<Quiz[]>([]);
+  const [participatedQuizzes, setParticipatedQuizzes] = useState<ParticipatedQuiz[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  // Fetch connected mentors
+  // Fetch available quizzes
+  const fetchAvailableQuizzes = async () => {
+    try {
+      setLoading(true);
+      const quizzes = await quizService.getAllQuizzes();
+      
+      // Transform to match local Quiz interface
+      const transformedQuizzes: Quiz[] = quizzes.map(q => ({
+        id: q.id,
+        name: q.name,
+        description: q.description,
+        level: q.level,
+        time_limit: q.time_limit,
+        question_count: q.question_count,
+        participants_count: q.participants_count,
+        hasParticipated: q.hasParticipated,
+        userScore: q.userScore
+      }));
+      
+      setAvailableQuizzes(transformedQuizzes);
+    } catch (error) {
+      showError(getErrorMessage(error, 'Failed to load quizzes'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch participated quizzes
+  const fetchParticipatedQuizzes = async () => {
+    try {
+      const myQuizzes = await quizService.getAllQuizzes();
+      const participated = myQuizzes.filter(q => q.hasParticipated);
+      
+      // Fetch results for each participated quiz
+      const resultsPromises = participated.map(async (quiz) => {
+        try {
+          const result = await quizService.getMyQuizResult(quiz.id);
+          return {
+            quiz_id: quiz.id,
+            quiz_name: quiz.name,
+            quiz_description: quiz.description,
+            quiz_level: quiz.level,
+            time_limit: quiz.time_limit,
+            question_count: quiz.question_count,
+            score: result.score,
+            correct_answers: result.correct_answers,
+            total_questions: result.total_questions,
+            percentage: result.percentage,
+            completed_at: new Date().toISOString()
+          };
+        } catch (error) {
+          console.error(`Failed to fetch result for quiz ${quiz.id}:`, error);
+          return null;
+        }
+      });
+
+      const results = await Promise.all(resultsPromises);
+      const validResults = results.filter(r => r !== null) as ParticipatedQuiz[];
+      setParticipatedQuizzes(validResults);
+    } catch (error) {
+      console.error('Error fetching participated quizzes:', error);
+    }
+  };
+
+  // Load data on component mount and tab change
   useEffect(() => {
-    const fetchConnectedMentors = async () => {
-      try {
-        setLoadingMentors(true);
-        const applications = await getMyApplications();
-        // Filter only accepted applications (connected mentors)
-        const accepted = applications.filter(app => app.application_status === 'accepted');
-        setConnectedMentors(accepted);
-      } catch (error) {
-        console.error('Error fetching connected mentors:', error);
-      } finally {
-        setLoadingMentors(false);
-      }
-    };
-
-    if (activeTab === 'Mentors') {
-      fetchConnectedMentors();
+    if (activeTab === 'Quizzes') {
+      fetchAvailableQuizzes();
+      fetchParticipatedQuizzes();
     }
   }, [activeTab]);
 
   const handleParticipate = (quiz: Quiz) => {
-    setSelectedQuiz(quiz);
-    setShowQuizModal(true);
+    const fullQuiz = availableQuizzes.find(q => q.id === quiz.id);
+    if (fullQuiz) {
+      setSelectedQuiz({
+        id: fullQuiz.id,
+        name: fullQuiz.name,
+        description: fullQuiz.description,
+        level: fullQuiz.level,
+        time_limit: fullQuiz.time_limit,
+        question_count: fullQuiz.question_count,
+        participants_count: fullQuiz.participants_count,
+        category: '',
+        time: null,
+        user_id: 0,
+        created_at: '',
+        modified_at: '',
+        status: 'approved',
+        creator: { id: 0 },
+        questions: [],
+        participants: []
+      } as quizService.Quiz);
+      setShowQuizModal(true);
+    }
   };
 
   const handleCloseModal = () => {
     setShowQuizModal(false);
     setSelectedQuiz(null);
+    // Refresh the quizzes list to update participation status
+    fetchAvailableQuizzes();
+    fetchParticipatedQuizzes();
   };
 
   const handleEdit = (quiz: Quiz) => {
@@ -466,137 +467,80 @@ const getCountdown = (dateStr: string, timeStr: string): string | null => {
       <div className="universe-tab-content">
         {activeTab === 'Quizzes' && (
           <>
-            <div className="universe-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
-              {sampleQuizzes.map((quiz) => (
-                <QuizCard
-                  key={quiz.id}
-                  quiz={quiz}
-                  onParticipate={handleParticipate}
-                  onEdit={handleEdit}
-                  isMyQuiz={false}
-                />
-              ))}
-            </div>
-
-            {/* Participated Quizzes Table */}
-            <div className="participated-quizzes-table mt-12">
-              <h2 className='participated-quizzes-table-h3'>Participated Quizzes</h2>
-              <table className='participated-quizzes-table-table'>
-                <thead className='participated-quizzes-table-thead'>
-                  <tr className='participated-quizzes-table-tr'>
-                    <th className='participated-quizzes-table-th'>Name</th>
-                    <th className='participated-quizzes-table-th'>Level</th>
-                    <th className='participated-quizzes-table-th'>Score</th>
-                    <th className='participated-quizzes-table-th'>Total</th>
-                    <th className='participated-quizzes-table-th'>Time Taken (min)</th>
-                    <th className='participated-quizzes-table-th'>Date Completed</th>
-                  </tr>
-                </thead>
-                <tbody className='participated-quizzes-table-tbody'>
-                  {participatedQuizzes.map((quiz) => (
-                    <tr key={quiz.id} className='participated-quizzes-table-tr'>
-                      <td data-label="Name" className='participated-quizzes-table-td'>{quiz.name}</td>
-                      <td data-label="Level" className='participated-quizzes-table-td'>{quiz.level}</td>
-                      <td data-label="Score" className='participated-quizzes-table-td'>{quiz.score}</td>
-                      <td data-label="Total" className='participated-quizzes-table-td'>{quiz.total}</td>
-                      <td data-label="Time Taken" className='participated-quizzes-table-td'>{quiz.timeTaken}</td>
-                      <td data-label="Date Completed" className='participated-quizzes-table-td'>{quiz.date}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            <div className="leaderboard-section">
-              <div className="leaderboard-header">
-                <h2>Leaderboard</h2>
-                <p style={{marginLeft:'400px'}}>Top performers in astronomy quizzes</p>
+            {loading ? (
+              <div className="loading-message">
+                <FullScreenLoader isVisible={true} />
               </div>
-
-              <div className="leaderboard-table">
-                <div className="leaderboard-table-header">
-                  <div>Rank</div>
-                  <div>User</div>
-                  <div>Total Score</div>
-                  <div>Quizzes</div>
-                  <div>Average</div>
-                  <div>Badges</div>
-                </div>
-
-                <div className="leaderboard-entries">
-                  {sampleLeaderboard.map((entry) => (
-                    <div
-                      key={entry.id}
-                      className={`leaderboard-entry ${entry.username === "You" ? "current-user" : ""}`}
-                    >
-                      <div className="rank-col">
-                        <div className={`rank-badge ${entry.rank <= 3 ? `rank-${entry.rank}` : ""}`}>
-                          {entry.rank <= 3 && (
-                            <svg className="trophy-icon" fill="currentColor" viewBox="0 0 24 24">
-                              <path d="M6 2h12v3h2a1 1 0 011 1v6a3 3 0 01-3 3h-2.17l1.79 4.47A1 1 0 0116.82 21H7.18a1 1 0 01-.89-1.53L8.17 15H6a3 3 0 01-3-3V6a1 1 0 011-1h2V2zm2 3v10h8V5H8zm6 11H10l-.5 1.25h4l-.5-1.25z" />
-                            </svg>
-                          )}
-                          #{entry.rank}
-                        </div>
-                      </div>
-
-                      <div className="user-col">
-                        <div className="user-info">
-                          <span className="user-avatar">{entry.avatar}</span>
-                          <div className="user-details">
-                            <span className="username">{entry.username}</span>
-                            {entry.username === "You" && (
-                              <span className="current-user-badge">You</span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="score-col">
-                        <span className="score-number">{entry.totalScore.toLocaleString()}</span>
-                      </div>
-
-                      <div className="quizzes-col">
-                        <span className="quiz-count">{entry.quizzesCompleted}</span>
-                      </div>
-
-                      <div className="average-col">
-                        <span className="average-score">{entry.averageScore}%</span>
-                      </div>
-
-                      <div className="badges-col">
-                        <div className="badges-list">
-                          {entry.badges.length > 0 ? (
-                            entry.badges.slice(0, 2).map((badge, index) => (
-                              <span key={index} className="badge">{badge}</span>
-                            ))
-                          ) : (
-                            <span className="no-badges">-</span>
-                          )}
-                          {entry.badges.length > 2 && (
-                            <span className="more-badges">+{entry.badges.length - 2}</span>
-                          )}
-                        </div>
-                      </div>
+            ) : (
+              <>
+                <div className="universe-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
+                  {availableQuizzes.length > 0 ? (
+                    availableQuizzes.map((quiz) => (
+                      <QuizCard
+                        key={quiz.id}
+                        quiz={{
+                          id: quiz.id,
+                          name: quiz.name,
+                          description: quiz.description,
+                          level: quiz.level,
+                          time: quiz.time_limit,
+                          questionCount: quiz.question_count,
+                          participantsCount: quiz.participants_count
+                        }}
+                        onParticipate={() => handleParticipate(quiz)}
+                        onEdit={() => handleEdit(quiz)}
+                        isMyQuiz={false}
+                      />
+                    ))
+                  ) : (
+                    <div className="no-quizzes-message">
+                      <p>No approved quizzes available at the moment. Check back later!</p>
                     </div>
-                  ))}
+                  )}
                 </div>
-              </div>
 
-              <div className="leaderboard-footer">
-                <div className="ranking-info">
-                  <h4>How Rankings Work</h4>
-                  <ul>
-                    <li>Rankings are based on total points earned across all completed quizzes</li>
-                    <li>Points are awarded based on quiz difficulty and completion time</li>
-                    <li>Badges are earned for various achievements and milestones</li>
-                    <li>Rankings are updated in real-time as new quizzes are completed</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-
-
+                {/* Participated Quizzes Table */}
+                {participatedQuizzes.length > 0 && (
+                  <div className="participated-quizzes-table mt-12">
+                    <h2 className='participated-quizzes-table-h3'>My Participated Quizzes</h2>
+                    <table className='participated-quizzes-table-table'>
+                      <thead className='participated-quizzes-table-thead'>
+                        <tr className='participated-quizzes-table-tr'>
+                          <th className='participated-quizzes-table-th'>Quiz Name</th>
+                          <th className='participated-quizzes-table-th'>Level</th>
+                          <th className='participated-quizzes-table-th'>Score</th>
+                          <th className='participated-quizzes-table-th'>Correct Answers</th>
+                          <th className='participated-quizzes-table-th'>Total Questions</th>
+                          <th className='participated-quizzes-table-th'>Percentage</th>
+                          <th className='participated-quizzes-table-th'>Completed At</th>
+                        </tr>
+                      </thead>
+                      <tbody className='participated-quizzes-table-tbody'>
+                        {participatedQuizzes.map((quiz) => (
+                          <tr key={quiz.quiz_id} className='participated-quizzes-table-tr'>
+                            <td data-label="Quiz Name" className='participated-quizzes-table-td'>{quiz.quiz_name}</td>
+                            <td data-label="Level" className='participated-quizzes-table-td'>
+                              <span className={`level-badge ${quiz.quiz_level.toLowerCase()}`}>{quiz.quiz_level}</span>
+                            </td>
+                            <td data-label="Score" className='participated-quizzes-table-td'><strong>{quiz.score}</strong></td>
+                            <td data-label="Correct Answers" className='participated-quizzes-table-td'>{quiz.correct_answers}</td>
+                            <td data-label="Total Questions" className='participated-quizzes-table-td'>{quiz.total_questions}</td>
+                            <td data-label="Percentage" className='participated-quizzes-table-td'>
+                              <span className={quiz.percentage >= 70 ? 'text-green' : quiz.percentage >= 50 ? 'text-yellow' : 'text-red'}>
+                                {quiz.percentage.toFixed(1)}%
+                              </span>
+                            </td>
+                            <td data-label="Completed At" className='participated-quizzes-table-td'>
+                              {new Date(quiz.completed_at).toLocaleDateString()}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </>
+            )}
           </>
         )}
 

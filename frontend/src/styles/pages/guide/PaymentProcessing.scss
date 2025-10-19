@@ -9,19 +9,17 @@
     margin-bottom: 2rem;
     
     h1 {
-      font-size: 2.5rem;
+      font-size: 2rem;
       font-weight: 700;
-      color: var(--accent-color, #38bdf8);
+      color: #f1f5f9;
       margin-bottom: 0.5rem;
-      background: linear-gradient(135deg, #38bdf8, #7dd3fc);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      text-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
     }
 
     p {
-      color: var(--text-secondary, #64748b);
-      font-size: 1.1rem;
+      color: #94a3b8;
+      font-size: 1rem;
+      font-weight: 500;
     }
   }
 
@@ -34,8 +32,8 @@
     gap: 1rem;
 
     p {
-      color: var(--text-secondary, #64748b);
-      font-size: 1.1rem;
+      color: #94a3b8;
+      font-size: 1rem;
     }
   }
 
@@ -45,211 +43,88 @@
 
     .payment-stats-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 2rem;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
 
       .payment-stat-card {
-        background: linear-gradient(135deg, rgba(56, 189, 248, 0.1), rgba(125, 211, 252, 0.05));
-        border: 1px solid rgba(56, 189, 248, 0.2);
-        padding: 1.5rem;
-        border-radius: 1rem;
-        display: flex;
-        align-items: center;
-        gap: 1rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 1rem;
+        border-radius: 12px;
         transition: all 0.3s ease;
 
         &:hover {
           transform: translateY(-2px);
-          box-shadow: 0 8px 25px rgba(56, 189, 248, 0.15);
-        }
-
-        .payment-stat-icon {
-          font-size: 2.5rem;
-          width: 60px;
-          height: 60px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background: rgba(56, 189, 248, 0.1);
-          border-radius: 50%;
-          border: 2px solid rgba(56, 189, 248, 0.3);
+          border-color: rgba(255, 255, 255, 0.2);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
 
         .payment-stat-content {
-          flex: 1;
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
 
-          h3 {
-            font-size: 0.9rem;
-            color: var(--text-secondary, #64748b);
-            margin-bottom: 0.5rem;
+          .payment-stat-label {
+            font-size: 0.75rem;
+            color: #94a3b8;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            font-weight: 600;
           }
 
           .payment-stat-value {
-            font-size: 2rem;
+            font-size: 1.5rem;
             font-weight: 700;
-            color: var(--text-primary, #e2e8f0);
-            margin-bottom: 0.25rem;
+            color: #e2e8f0;
           }
 
           .payment-stat-change {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             padding: 0.25rem 0.5rem;
             border-radius: 0.5rem;
             font-weight: 500;
+            width: fit-content;
 
             &.positive {
-              background: rgba(34, 197, 94, 0.1);
-              color: #22c55e;
+              background: rgba(34, 197, 94, 0.15);
+              color: #4ade80;
             }
 
             &.negative {
-              background: rgba(239, 68, 68, 0.1);
-              color: #ef4444;
+              background: rgba(239, 68, 68, 0.15);
+              color: #f87171;
             }
 
             &.neutral {
-              background: rgba(156, 163, 175, 0.1);
-              color: #9ca3af;
+              background: rgba(156, 163, 175, 0.15);
+              color: #d1d5db;
             }
           }
         }
 
         // Specific card styling
         &.payment-revenue {
-          background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(34, 197, 94, 0.05));
-          border-color: rgba(34, 197, 94, 0.2);
+          border-left: 3px solid #22c55e;
         }
 
         &.payment-transactions {
-          background: linear-gradient(135deg, rgba(147, 51, 234, 0.1), rgba(147, 51, 234, 0.05));
-          border-color: rgba(147, 51, 234, 0.2);
-        }
-
-        &.payment-success-rate {
-          background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(59, 130, 246, 0.05));
-          border-color: rgba(59, 130, 246, 0.2);
+          border-left: 3px solid #3b82f6;
         }
 
         &.payment-pending {
-          background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(245, 158, 11, 0.05));
-          border-color: rgba(245, 158, 11, 0.2);
+          border-left: 3px solid #f59e0b;
         }
       }
     }
 
-    .payment-charts-section {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 1.5rem;
-
-      @media (max-width: 1024px) {
-        grid-template-columns: 1fr;
-      }
-
-      .payment-chart-card {
-        background: rgba(30, 41, 59, 0.8);
-        border: 1px solid rgba(56, 189, 248, 0.2);
-        padding: 1.5rem;
-        border-radius: 1rem;
-
-        h3 {
-          margin-bottom: 1.5rem;
-          color: var(--text-primary, #e2e8f0);
-          font-size: 1.2rem;
-          font-weight: 600;
-        }
-
-        .payment-chart-placeholder {
-          height: 200px;
-          background: rgba(15, 23, 42, 0.5);
-          border-radius: 0.5rem;
-          padding: 1rem;
-          display: flex;
-          align-items: end;
-
-          .payment-chart-bars {
-            display: flex;
-            align-items: end;
-            gap: 4px;
-            height: 100%;
-            width: 100%;
-
-            .payment-chart-bar {
-              flex: 1;
-              background: linear-gradient(to top, #38bdf8, #7dd3fc);
-              min-height: 10px;
-              border-radius: 2px 2px 0 0;
-              opacity: 0.8;
-              transition: opacity 0.3s ease;
-
-              &:hover {
-                opacity: 1;
-              }
-
-              // Dynamic height classes for chart bars
-              &.payment-chart-bar-1 { height: 20%; }
-              &.payment-chart-bar-2 { height: 45%; }
-              &.payment-chart-bar-3 { height: 70%; }
-              &.payment-chart-bar-4 { height: 85%; }
-              &.payment-chart-bar-5 { height: 100%; }
-            }
-          }
-        }
-
-        .payment-pie-chart-placeholder {
-          height: 200px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-
-          .payment-gateway-stats {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-
-            .payment-gateway-item {
-              display: flex;
-              align-items: center;
-              gap: 0.75rem;
-              font-size: 0.9rem;
-
-              .payment-gateway-color {
-                width: 16px;
-                height: 16px;
-                border-radius: 50%;
-
-                &.stripe {
-                  background: #635bff;
-                }
-
-                &.paypal {
-                  background: #0070ba;
-                }
-
-                &.razorpay {
-                  background: #528ff0;
-                }
-
-                &.square {
-                  background: #3e4348;
-                }
-              }
-            }
-          }
-        }
-      }
-    }
   }
 
   // Filters Section
   .payment-filters-section {
-    background: rgba(30, 41, 59, 0.8);
-    border: 1px solid rgba(56, 189, 248, 0.2);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     padding: 1.5rem;
-    border-radius: 1rem;
+    border-radius: 12px;
     margin-bottom: 2rem;
 
     .payment-filters-header {
@@ -259,8 +134,8 @@
       margin-bottom: 1.5rem;
 
       h3 {
-        color: var(--text-primary, #e2e8f0);
-        font-size: 1.2rem;
+        color: #f1f5f9;
+        font-size: 1.1rem;
         font-weight: 600;
       }
     }
@@ -268,7 +143,7 @@
     .payment-filters-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1.5rem;
+      gap: 1rem;
 
       .payment-filter-group {
         display: flex;
@@ -276,31 +151,31 @@
         gap: 0.5rem;
 
         label {
-          font-size: 0.9rem;
-          color: var(--text-secondary, #64748b);
-          font-weight: 500;
+          font-size: 0.75rem;
+          color: #cbd5e1;
+          font-weight: 600;
           text-transform: uppercase;
           letter-spacing: 0.5px;
         }
 
         .payment-filter-select {
-          background: rgba(15, 23, 42, 0.8);
-          border: 1px solid rgba(56, 189, 248, 0.3);
-          color: var(--text-primary, #e2e8f0);
+          background: rgba(15, 23, 42, 0.6);
+          border: 1px solid rgba(255, 255, 255, 0.15);
+          color: #f1f5f9;
           padding: 0.75rem;
-          border-radius: 0.5rem;
+          border-radius: 8px;
           font-size: 0.9rem;
           transition: all 0.3s ease;
 
           &:focus {
             outline: none;
-            border-color: var(--accent-color, #38bdf8);
-            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.1);
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
           }
 
           option {
-            background: var(--bg-secondary, #1e293b);
-            color: var(--text-primary, #e2e8f0);
+            background: #1e293b;
+            color: #f1f5f9;
           }
         }
       }
@@ -328,8 +203,8 @@
       }
 
       h3 {
-        color: var(--text-primary, #e2e8f0);
-        font-size: 1.2rem;
+        color: #f1f5f9;
+        font-size: 1.1rem;
         font-weight: 600;
       }
 
@@ -344,26 +219,27 @@
           gap: 0.5rem;
 
           label {
-            font-size: 0.9rem;
-            color: var(--text-secondary, #64748b);
+            font-size: 0.85rem;
+            color: #cbd5e1;
+            font-weight: 600;
           }
 
           .payment-sort-select {
-            background: rgba(15, 23, 42, 0.8);
-            border: 1px solid rgba(56, 189, 248, 0.3);
-            color: var(--text-primary, #e2e8f0);
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #f1f5f9;
             padding: 0.5rem;
-            border-radius: 0.5rem;
-            font-size: 0.9rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
 
             &:focus {
               outline: none;
-              border-color: var(--accent-color, #38bdf8);
+              border-color: #3b82f6;
             }
 
             option {
-              background: var(--bg-secondary, #1e293b);
-              color: var(--text-primary, #e2e8f0);
+              background: #1e293b;
+              color: #f1f5f9;
             }
           }
         }
@@ -372,53 +248,54 @@
 
     .payment-table-container {
       overflow-x: auto;
-      border-radius: 0.5rem;
-      border: 1px solid rgba(56, 189, 248, 0.2);
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
 
       .payment-transactions-table {
         width: 100%;
         border-collapse: collapse;
-        background: rgba(15, 23, 42, 0.5);
+        background: rgba(15, 23, 42, 0.4);
 
         thead {
-          background: rgba(56, 189, 248, 0.1);
+          background: rgba(15, 23, 42, 0.6);
 
           th {
             padding: 1rem;
             text-align: left;
-            font-weight: 600;
-            color: var(--text-primary, #e2e8f0);
-            border-bottom: 1px solid rgba(56, 189, 248, 0.2);
-            font-size: 0.9rem;
+            font-weight: 700;
+            color: #cbd5e1;
+            border-bottom: 2px solid rgba(59, 130, 246, 0.3);
+            font-size: 0.75rem;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.05em;
           }
         }
 
         tbody {
           tr {
-            border-bottom: 1px solid rgba(56, 189, 248, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             transition: background-color 0.2s ease;
 
             &:hover {
-              background: rgba(56, 189, 248, 0.05);
+              background: rgba(59, 130, 246, 0.08);
             }
 
             td {
               padding: 1rem;
-              color: var(--text-primary, #e2e8f0);
+              color: #e2e8f0;
               font-size: 0.9rem;
               vertical-align: middle;
 
               &.payment-transaction-id {
                 font-family: 'Courier New', monospace;
                 font-weight: 600;
-                color: var(--accent-color, #38bdf8);
+                color: #60a5fa;
               }
 
               &.payment-amount {
                 font-weight: 600;
                 text-align: right;
+                color: #f1f5f9;
               }
 
               &.payment-transaction-type {
@@ -427,80 +304,80 @@
 
               .payment-customer-info {
                 .payment-customer-name {
-                  font-weight: 500;
-                  color: var(--text-primary, #e2e8f0);
+                  font-weight: 600;
+                  color: #f1f5f9;
                 }
 
                 .payment-customer-email {
                   font-size: 0.8rem;
-                  color: var(--text-secondary, #64748b);
+                  color: #94a3b8;
                   margin-top: 0.25rem;
                 }
               }
 
               .payment-gateway-badge {
-                padding: 0.25rem 0.75rem;
-                border-radius: 1rem;
-                font-size: 0.8rem;
-                font-weight: 500;
+                padding: 0.3rem 0.8rem;
+                border-radius: 9999px;
+                font-size: 0.75rem;
+                font-weight: 700;
                 text-transform: uppercase;
-                letter-spacing: 0.5px;
+                letter-spacing: 0.05em;
 
                 &.stripe {
-                  background: rgba(99, 91, 255, 0.2);
-                  color: #635bff;
-                  border: 1px solid rgba(99, 91, 255, 0.3);
+                  background: rgba(139, 92, 246, 0.15);
+                  color: #a78bfa;
+                  border: 1px solid rgba(167, 139, 250, 0.3);
                 }
 
                 &.paypal {
-                  background: rgba(0, 112, 186, 0.2);
-                  color: #0070ba;
-                  border: 1px solid rgba(0, 112, 186, 0.3);
+                  background: rgba(59, 130, 246, 0.15);
+                  color: #60a5fa;
+                  border: 1px solid rgba(96, 165, 250, 0.3);
                 }
 
-                &.razorpay {
-                  background: rgba(82, 143, 240, 0.2);
-                  color: #528ff0;
-                  border: 1px solid rgba(82, 143, 240, 0.3);
+                &.payhere {
+                  background: rgba(34, 197, 94, 0.15);
+                  color: #4ade80;
+                  border: 1px solid rgba(74, 222, 128, 0.3);
                 }
 
                 &.square {
-                  background: rgba(62, 67, 72, 0.2);
-                  color: #9ca3af;
-                  border: 1px solid rgba(62, 67, 72, 0.3);
+                  background: rgba(156, 163, 175, 0.15);
+                  color: #cbd5e1;
+                  border: 1px solid rgba(203, 213, 225, 0.3);
                 }
               }
 
               .payment-status-badge {
-                padding: 0.25rem 0.75rem;
-                border-radius: 1rem;
-                font-size: 0.8rem;
-                font-weight: 500;
+                padding: 0.3rem 0.8rem;
+                border-radius: 9999px;
+                font-size: 0.75rem;
+                font-weight: 700;
                 text-transform: uppercase;
-                letter-spacing: 0.5px;
+                letter-spacing: 0.05em;
 
                 &.status-completed {
-                  background: rgba(34, 197, 94, 0.2);
-                  color: #22c55e;
-                  border: 1px solid rgba(34, 197, 94, 0.3);
+                  background: rgba(34, 197, 94, 0.15);
+                  color: #4ade80;
+                  border: 1px solid rgba(74, 222, 128, 0.3);
                 }
 
                 &.status-pending {
-                  background: rgba(245, 158, 11, 0.2);
-                  color: #f59e0b;
-                  border: 1px solid rgba(245, 158, 11, 0.3);
+                  background: rgba(251, 146, 60, 0.15);
+                  color: #fb923c;
+                  border: 1px solid rgba(251, 146, 60, 0.3);
                 }
 
                 &.status-failed {
-                  background: rgba(239, 68, 68, 0.2);
-                  color: #ef4444;
-                  border: 1px solid rgba(239, 68, 68, 0.3);
+                  background: rgba(239, 68, 68, 0.15);
+                  color: #f87171;
+                  border: 1px solid rgba(248, 113, 113, 0.3);
                 }
 
                 &.status-refunded {
-                  background: rgba(156, 163, 175, 0.2);
-                  color: #9ca3af;
-                  border: 1px solid rgba(156, 163, 175, 0.3);
+                  background: rgba(156, 163, 175, 0.15);
+                  color: #cbd5e1;
+                  border: 1px solid rgba(203, 213, 225, 0.3);
                 }
               }
 
@@ -520,7 +397,7 @@
       align-items: center;
       margin-top: 1.5rem;
       padding-top: 1.5rem;
-      border-top: 1px solid rgba(56, 189, 248, 0.2);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
 
       @media (max-width: 768px) {
         flex-direction: column;
@@ -528,8 +405,9 @@
       }
 
       .payment-pagination-info {
-        color: var(--text-secondary, #64748b);
+        color: #94a3b8;
         font-size: 0.9rem;
+        font-weight: 500;
       }
 
       .payment-pagination-controls {
@@ -542,15 +420,15 @@
 
   // Quick Actions Section
   .payment-quick-actions-section {
-    background: rgba(30, 41, 59, 0.8);
-    border: 1px solid rgba(56, 189, 248, 0.2);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     padding: 1.5rem;
-    border-radius: 1rem;
+    border-radius: 12px;
 
     h3 {
       margin-bottom: 1.5rem;
-      color: var(--text-primary, #e2e8f0);
-      font-size: 1.2rem;
+      color: #f1f5f9;
+      font-size: 1.1rem;
       font-weight: 600;
     }
 

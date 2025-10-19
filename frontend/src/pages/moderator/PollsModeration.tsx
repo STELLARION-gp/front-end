@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { FaArrowLeft, FaSearch, FaTimes, FaCheck, FaExclamationTriangle, FaThumbsUp, FaComments, FaPoll, FaEye, FaFlag } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import '../../styles/pages/moderator/PollsModeration.scss';
 import Button from '../../components/Button';
 import { pollService, type Poll } from '../../services/pollService';
 
 const PollsModeration: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
   const [polls, setPolls] = useState<Poll[]>([]);
@@ -17,6 +18,7 @@ const PollsModeration: React.FC = () => {
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [selectedPollId, setSelectedPollId] = useState<number | null>(null);
   const [rejectionReason, setRejectionReason] = useState('');
+  const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   // Fetch polls on component mount and when filters change
   const loadPolls = useCallback(async () => {
@@ -48,6 +50,27 @@ const PollsModeration: React.FC = () => {
     loadPolls();
   }, [loadPolls]);
 
+  // Handle notification from navigation state
+  useEffect(() => {
+    const state = location.state as { message?: string; type?: 'success' | 'error' } | null;
+    if (state?.message) {
+      setNotification({
+        message: state.message,
+        type: state.type || 'success'
+      });
+
+      // Clear notification after 5 seconds
+      const timer = setTimeout(() => {
+        setNotification(null);
+      }, 5000);
+
+      // Clear navigation state
+      window.history.replaceState({}, document.title);
+
+      return () => clearTimeout(timer);
+    }
+  }, [location.state]);
+
   const handleApprove = async (pollId: number) => {
     if (!confirm('Are you sure you want to approve this poll?')) {
       return;
@@ -55,11 +78,21 @@ const PollsModeration: React.FC = () => {
 
     try {
       await pollService.approvePoll(pollId);
-      alert('Poll approved successfully!');
+      setNotification({
+        message: 'Poll approved successfully!',
+        type: 'success'
+      });
       loadPolls(); // Reload the list
+
+      // Auto-hide notification after 5 seconds
+      setTimeout(() => setNotification(null), 5000);
     } catch (err) {
       console.error('Error approving poll:', err);
-      alert((err as Error).message || 'Failed to approve poll');
+      setNotification({
+        message: (err as Error).message || 'Failed to approve poll',
+        type: 'error'
+      });
+      setTimeout(() => setNotification(null), 5000);
     }
   };
 
@@ -70,20 +103,36 @@ const PollsModeration: React.FC = () => {
 
   const handleRejectSubmit = async () => {
     if (!selectedPollId) {
-      alert('No poll selected');
+      setNotification({
+        message: 'No poll selected',
+        type: 'error'
+      });
+      setTimeout(() => setNotification(null), 5000);
       return;
     }
 
     try {
       await pollService.rejectPoll(selectedPollId, rejectionReason || undefined);
-      alert('Poll rejected successfully!');
+      setNotification({
+        message: rejectionReason 
+          ? `Poll rejected: ${rejectionReason}` 
+          : 'Poll rejected successfully!',
+        type: 'success'
+      });
       setShowRejectModal(false);
       setRejectionReason('');
       setSelectedPollId(null);
       loadPolls(); // Reload the list
+
+      // Auto-hide notification after 5 seconds
+      setTimeout(() => setNotification(null), 5000);
     } catch (err) {
       console.error('Error rejecting poll:', err);
-      alert((err as Error).message || 'Failed to reject poll');
+      setNotification({
+        message: (err as Error).message || 'Failed to reject poll',
+        type: 'error'
+      });
+      setTimeout(() => setNotification(null), 5000);
     }
   };
 
@@ -142,6 +191,25 @@ const PollsModeration: React.FC = () => {
 
   return (
     <div className="polls-moderation">
+      {/* Success Notification */}
+      {notification && (
+        <div className={`notification-banner ${notification.type}`}>
+          <div className="notification-content">
+            <span className="notification-icon">
+              {notification.type === 'success' ? '✅' : '❌'}
+            </span>
+            <span className="notification-message">{notification.message}</span>
+            <button 
+              className="notification-close"
+              onClick={() => setNotification(null)}
+              aria-label="Close notification"
+            >
+              <FaTimes />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <header className="moderation-header">
         <div className="header-content">

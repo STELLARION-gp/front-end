@@ -3,6 +3,109 @@
   min-height: 100vh;
   color: #ffffff;
   font-family: 'Inter', 'Segoe UI', sans-serif;
+  position: relative;
+
+  // Notification Banner
+  .notification-banner {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    min-width: 400px;
+    max-width: 600px;
+    animation: slideDown 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+    }
+
+    .notification-content {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1.25rem 1.5rem;
+      border-radius: 12px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid;
+
+      .notification-icon {
+        font-size: 1.5rem;
+        flex-shrink: 0;
+      }
+
+      .notification-message {
+        flex: 1;
+        font-size: 1rem;
+        font-weight: 600;
+        color: white;
+      }
+
+      .notification-close {
+        background: none;
+        border: none;
+        color: white;
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0.7;
+
+        &:hover {
+          opacity: 1;
+          background: rgba(255, 255, 255, 0.1);
+        }
+      }
+    }
+
+    &.success {
+      .notification-content {
+        background: linear-gradient(135deg, rgba(46, 213, 115, 0.9) 0%, rgba(45, 181, 181, 0.9) 100%);
+        border-color: rgba(46, 213, 115, 0.5);
+        box-shadow: 0 0 30px rgba(46, 213, 115, 0.4);
+      }
+    }
+
+    &.error {
+      .notification-content {
+        background: linear-gradient(135deg, rgba(255, 71, 87, 0.9) 0%, rgba(255, 118, 117, 0.9) 100%);
+        border-color: rgba(255, 71, 87, 0.5);
+        box-shadow: 0 0 30px rgba(255, 71, 87, 0.4);
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    .notification-banner {
+      min-width: auto;
+      left: 1rem;
+      right: 1rem;
+      transform: none;
+
+      @keyframes slideDown {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    }
+  }
 
   .moderation-header {
     padding: 2rem 0;

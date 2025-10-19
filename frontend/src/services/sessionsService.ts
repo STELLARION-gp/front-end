@@ -27,9 +27,12 @@ export interface Session {
   session_notes?: string | null;
   created_by: number;
   is_enabled: boolean;
-  status?: SessionStatus; // Session approval status (optional - requires DB migration)
+  status?: SessionStatus; // Session approval status
   moderated_by?: number | null;
   moderated_at?: Date | string | null;
+  approved_at?: Date | string | null;
+  rejected_at?: Date | string | null;
+  rejection_reason?: string | null;
   created_at: Date | string;
   updated_at: Date | string;
   // Creator info when included
@@ -448,7 +451,64 @@ export const sessionsService = {
    * Get analytics for user's sessions
    */
   async getMySessionsAnalytics(): Promise<any> {
-    return makeRequest("/sessions/user/analytics", {}, true);
+    return makeRequest("/sessions/analytics", {}, true);
+  },
+
+  /**
+   * Get all pending sessions (moderator only)
+   */
+  async getPendingSessions(
+    filters: {
+      page?: number;
+      limit?: number;
+      sort_by?: "created_at" | "session_date" | "title";
+      sort_order?: "asc" | "desc";
+    } = {}
+  ): Promise<SessionsListResponse> {
+    const queryParams = new URLSearchParams();
+
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        queryParams.append(key, value.toString());
+      }
+    });
+
+    const queryString = queryParams.toString();
+    return makeRequest(
+      `/sessions/admin/pending${queryString ? `?${queryString}` : ""}`,
+      {},
+      true
+    );
+  },
+
+  /**
+   * Approve a session (moderator only)
+   */
+  async approveSession(id: number): Promise<SessionResponse> {
+    return makeRequest(
+      `/sessions/${id}/approve`,
+      {
+        method: "PATCH",
+      },
+      true
+    );
+  },
+
+  /**
+   * Reject a session with reason (moderator only)
+   */
+  async rejectSession(
+    id: number,
+    rejectionReason: string
+  ): Promise<SessionResponse> {
+    return makeRequest(
+      `/sessions/${id}/reject`,
+      {
+        method: "PATCH",
+        body: JSON.stringify({ rejection_reason: rejectionReason }),
+      },
+      true
+    );
   },
 
   /**

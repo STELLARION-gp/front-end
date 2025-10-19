@@ -316,10 +316,10 @@ const PollsDetails: React.FC = () => {
             </div>
             <div className="card-content">
               <div className="action-buttons">
-                {poll.status === 'pending' && (
+                {poll.status !== 'approved' && (
                   <>
                     <Button
-                      variant="primary"
+                      variant="success"
                       size="medium"
                       onClick={handleApprove}
                       disabled={actionLoading === 'approve'}
@@ -341,19 +341,40 @@ const PollsDetails: React.FC = () => {
                   </>
                 )}
                 {poll.status === 'approved' && (
-                  <div className="moderation-info">
-                    <p className="success-message">✅ This poll has been approved</p>
-                    {poll.moderated_at && (
-                      <p className="moderation-date">Approved on {formatDate(poll.moderated_at)}</p>
-                    )}
+                  <div className="moderation-info approved-status">
+                    <div className="status-icon">
+                      <FaCheck />
+                    </div>
+                    <div className="status-text">
+                      <p className="success-message">This poll has been approved</p>
+                      {poll.moderated_at && (
+                        <p className="moderation-date">Approved on {formatDate(poll.moderated_at)}</p>
+                      )}
+                    </div>
                   </div>
                 )}
                 {poll.status === 'rejected' && (
-                  <div className="moderation-info">
-                    <p className="error-message">❌ This poll has been rejected</p>
-                    {poll.moderated_at && (
-                      <p className="moderation-date">Rejected on {formatDate(poll.moderated_at)}</p>
-                    )}
+                  <div className="moderation-info rejected-status">
+                    <div className="status-icon">
+                      <FaTimes />
+                    </div>
+                    <div className="status-text">
+                      <p className="error-message">This poll was rejected</p>
+                      {poll.moderated_at && (
+                        <p className="moderation-date">Rejected on {formatDate(poll.moderated_at)}</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+                {poll.status === 'pending' && (
+                  <div className="moderation-info pending-status">
+                    <div className="status-icon">
+                      ⏳
+                    </div>
+                    <div className="status-text">
+                      <p className="pending-message">Awaiting moderation</p>
+                      <p className="moderation-date">Created {formatDate(poll.created_at)}</p>
+                    </div>
                   </div>
                 )}
                 <Button

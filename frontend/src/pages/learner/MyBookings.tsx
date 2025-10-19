@@ -209,12 +209,15 @@ const MyBookings: React.FC = () => {
             <div key={booking.id} className="booking-card">
               <div className="booking-details">
                 <div className="booking-main">
-                  <h3 
-                    className="service-title"
-                    onClick={() => navigate(`/dashboard/astronomy-services/${booking.service_id}`)}
-                  >
-                    {booking.service?.title ? booking.service.title : ''}
-                  </h3>
+                  <span className={getStatusClass(booking.booking_status)} style={{marginBottom: 8, display: 'inline-block'}}>
+                    {booking.booking_status}
+                  </span>
+                    <h3 
+                      className="service-title"
+                      onClick={() => navigate(`/dashboard/astronomy-services/${booking.service_id}`)}
+                    >
+                      {booking.service?.title || 'Service'}
+                    </h3>
                   
                   {booking.service?.creator && (
                     <p className="guide-name">

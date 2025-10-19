@@ -169,7 +169,6 @@ export const services = [
 const filterOptions = [
   { label: "Service Name", value: "title" },
   { label: "Guide Name", value: "guideName" },
-  { label: "Location", value: "location" },
 ];
 const priceOrderOptions = [
   { label: "Price: Low to High", value: "asc" },
@@ -177,7 +176,7 @@ const priceOrderOptions = [
 ];
 
 
-type FilterKey = "title" | "guideName" | "location";
+type FilterKey = "title" | "guideName";
 
 // Transform API service to match ServiceCard props
 interface ServiceCardData {
@@ -520,13 +519,13 @@ const AstronomyServices: React.FC = () => {
               {bookings.map((booking) => (
                 <div key={booking.id} className="booking-card">
                   <div className="booking-header">
-                    <img 
+                    {/* <img 
                       src={booking.service?.image_url || 'https://via.placeholder.com/150'} 
                       alt={booking.service?.title}
                       className="booking-service-image"
-                    />
+                    /> */}
                     <div className="booking-info">
-                      <h3>{booking.service?.title || 'Service'}</h3>
+                      <h3>{booking.service?.title ? booking.service.title : ''}</h3>
                       <p className="service-category">{booking.service?.category}</p>
                       <span className={getStatusClass(booking.booking_status)}>
                         {booking.booking_status}
@@ -535,6 +534,7 @@ const AstronomyServices: React.FC = () => {
                   </div>
 
                   <div className="booking-details">
+                      
                     <div className="detail-row">
                       <span className="label">📅 Date:</span>
                       <span>{formatDate(booking.booking_date)}</span>
@@ -557,10 +557,10 @@ const AstronomyServices: React.FC = () => {
                         {booking.payment_status}
                       </span>
                     </div>
-                    <div className="detail-row">
+                    {/* <div className="detail-row">
                       <span className="label">📍 Location:</span>
-                      <span>{booking.service?.location}</span>
-                    </div>
+                      <span>{booking.service?.title ? booking.service.title : booking.service?.location}</span>
+                    </div> */}
                     {booking.special_requests && (
                       <div className="detail-row">
                         <span className="label">📝 Special Requests:</span>

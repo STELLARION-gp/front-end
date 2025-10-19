@@ -72,7 +72,8 @@ jobs:
             echo "📊 Current disk usage: ${DISK_USAGE}%"
             if [ $DISK_USAGE -gt 80 ]; then
               echo "⚠️  Disk usage high, running cleanup..."
-              docker system prune -f --volumes --filter "until=168h"
+              docker system prune -f --filter "until=168h"
+              docker volume prune -f
               apt-get clean 2>/dev/null || true
             fi
 
@@ -105,13 +106,13 @@ jobs:
             # Build frontend
             echo "🔨 Building frontend..."
             docker-compose build --no-cache frontend
-            
+
             # Start frontend (with retry if backend is unhealthy)
             echo "🚀 Starting frontend..."
             MAX_RETRIES=3
             RETRY_COUNT=0
             STARTED=false
-            
+
             while [ $RETRY_COUNT -lt $MAX_RETRIES ] && [ "$STARTED" = false ]; do
               if docker-compose up -d frontend 2>&1; then
                 STARTED=true
@@ -130,7 +131,7 @@ jobs:
                 fi
               fi
             done
-            
+
             if [ "$STARTED" = false ]; then
               echo "❌ Failed to start frontend after $MAX_RETRIES attempts"
               exit 1

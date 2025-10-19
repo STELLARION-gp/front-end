@@ -1,49 +1,15 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import AstronomyCompetitionCard from "../../components/Learner/AstronomyCompetitionCard";
 import AstronomyBlogCard from "../../components/Learner/blogcard";
 import NasaImageCard from "../../components/Learner/NasaImageCard";
 import '../../styles/pages/learner/preview.scss'
 import UpcomingSpaceEventCard from "../../components/Learner/UpcomingSpaceEventCard";
 import OrganizedEventCard from "../../components/Learner/OrganizedEventCard";
+import { blogService } from "../../services/blogService";
+import type { Blog } from "../../services/blogService";
 
-const blogs = [
-  {
-    id: 1,
-    image: "https://kielderobservatory.org/images/stories/virtuemart/product/Orion%20Nebula%20-%20AS%20-%20med.jpg",
-    title: "The Orion Nebula: A Stellar Nursery",
-    author: "Dr. Jane Skywalker",
-    createdAt: "2025-06-20",
-    rating: 4.7,
-    content: "The Orion Nebula is one of the brightest nebulae visible to the naked eye. Located around 1,344 light-years away, it is a region where new stars are born. In this article, we explore its structure, the Trapezium cluster, and how the nebula helps astronomers understand stellar evolution."
-  },
-  {
-    id: 2,
-    image: "https://cdn.arstechnica.net/wp-content/uploads/2024/03/cosmology-astronomy-discoveries.jpg",
-    title: "Exploring the Expanding Universe",
-    author: "Prof. John Cosmos",
-    createdAt: "2025-06-18",
-    rating: 4.9,
-    content: "Ever since Edwin Hubble’s discovery, the expanding universe has intrigued cosmologists. This blog delves into redshift, the cosmic microwave background radiation, and the implications of dark energy in accelerating the expansion of our universe."
-  },
-  {
-    id: 3,
-    image: "https://static.vecteezy.com/system/resources/previews/027/100/104/large_2x/the-starry-night-sky-with-the-milky-way-galaxy-space-dust-and-a-planet-in-the-background-all-free-photo.jpg",
-    title: "The Magic of Solar Eclipses",
-    author: "Luna Rivera",
-    createdAt: "2025-06-15",
-    rating: 4.6,
-    content: "Solar eclipses offer a rare chance to study the Sun's corona and impact public interest in astronomy. This article covers the types of solar eclipses, historical significance, safety tips, and upcoming eclipse dates visible from Earth."
-  },
-  {
-    id: 4,
-    image: "https://previews.123rf.com/images/maximusnd/maximusnd1706/maximusnd170600545/81084871-universe-scene-with-planets-stars-and-galaxies-in-outer-space-showing-the-beauty-of-space.jpg",
-    title: "Our Galactic Home: The Milky Way",
-    author: "Neil V. Galaxy",
-    createdAt: "2025-06-10",
-    rating: 4.8,
-    content: "The Milky Way galaxy is a vast, barred spiral galaxy containing over 100 billion stars. Discover its structure, including the galactic center, spiral arms, and our Solar System’s position within this enormous stellar city."
-  },
-]
+
 
 const nasaImages = [
   {
@@ -194,24 +160,55 @@ const organizedEvents = [
 ];
 const Preview = () => {
   const navigate = useNavigate();
+  const [blogs, setBlogs] = useState<Blog[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setLoading(true);
+    blogService.getBlogs({ status: 'published', sort_by: 'created_at', sort_order: 'desc', limit: 4 })
+      .then((data) => {
+        if (data && data.success && data.data && data.data.blogs) {
+          setBlogs(data.data.blogs);
+        } else if (data && data.blogs) {
+          setBlogs(data.blogs);
+        } else {
+          setBlogs([]);
+        }
+        setError(null);
+      })
+      .catch((err) => {
+        setError(err.message || 'Failed to fetch blogs');
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
   return (
     <div className="preview-content">
       <h2>Recent Blog Preview</h2>
       <p className="section-subtitle">Stay informed with our newest blog posts. </p>
       <div className="astronomy-card-container">
-        {blogs.map((blog) => (
-          <AstronomyBlogCard
-          key={blog.id}
-          image={blog.image}
-          title={blog.title}
-          author={blog.author}
-          createdAt={blog.createdAt}
-          rating={blog.rating}
-          content={blog.content}
-          onClick={() => navigate(`/dashboard/blogs/${blog.id}`)}
-        />
-      ))}
-    </div>
+        {loading ? (
+          <div>Loading blogs...</div>
+        ) : error ? (
+          <div style={{ color: 'red' }}>{error}</div>
+        ) : blogs.length === 0 ? (
+          <div>No blogs found.</div>
+        ) : (
+          blogs.slice(0, 4).map((blog) => (
+            <AstronomyBlogCard
+              key={blog.id}
+              image={blog.featured_image || blog.image_url || ''}
+              title={blog.title}
+              author={blog.author_name || 'Unknown'}
+              createdAt={blog.created_at}
+              rating={blog.like_count}
+              content={blog.content}
+              onClick={() => navigate(`/dashboard/blogs/${blog.id}`)}
+            />
+          ))
+        )}
+      </div>
 
     
     <h2 style={{ marginTop: "4rem" }}>Most Rated NASA Images</h2>

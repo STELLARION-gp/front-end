@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
+import { useToast } from '../../contexts/ToastContext';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FaMapMarkerAlt, FaStar, FaClock, FaArrowLeft } from 'react-icons/fa';
 import Button from '../../components/Button';
@@ -15,6 +16,7 @@ const SpotDetails: React.FC = () => {
   const navigate = useNavigate();
   const authContext = useContext(AuthContext);
   const user = authContext?.user;
+  const { showSuccess, showError } = useToast();
 
   const [spot, setSpot] = useState<ApiStargazingSpot | null>(null);
   const [loading, setLoading] = useState(true);
@@ -39,7 +41,12 @@ const SpotDetails: React.FC = () => {
       const response = await stargazingSpotService.getStargazingSpotById(Number(id));
       
       if (response.success && response.data) {
-        setSpot(response.data);
+        // Map backend 'stargazing_spot_reviews' to 'reviews' for FE compatibility
+        const spotData = {
+          ...response.data,
+          reviews: (response.data as any).stargazing_spot_reviews || response.data.reviews || []
+        };
+        setSpot(spotData);
       } else {
         setError('Failed to load spot details');
       }
@@ -55,7 +62,7 @@ const SpotDetails: React.FC = () => {
     e.preventDefault();
     
     if (!user) {
-      alert('You must be logged in to submit a review.');
+      showError('You must be logged in to submit a review.');
       return;
     }
     
@@ -63,25 +70,25 @@ const SpotDetails: React.FC = () => {
 
     try {
       setSubmittingReview(true);
-      
+
       const reviewData: CreateReviewRequest = {
         rating: reviewForm.rating,
         review_text: reviewForm.reviewText.trim()
       };
 
       const response = await stargazingSpotService.addReview(spot.id, reviewData);
-      
+
       if (response.success) {
         setReviewForm({ rating: 5, reviewText: '' });
         setShowReviewForm(false);
         await fetchSpotDetails();
-        alert('Thank you for your review!');
+        showSuccess('Thank you for your review!');
       } else {
-        alert(response.message || 'Failed to submit review');
+        showError(response.message || 'Failed to submit review');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error submitting review:', error);
-      alert('Failed to submit review');
+      showError(error?.message || 'Failed to submit review');
     } finally {
       setSubmittingReview(false);
     }

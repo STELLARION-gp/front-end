@@ -621,7 +621,7 @@ const Sessions = () => {
                           )}
                         </div>
                       </div>
-                      <div className="session-details">
+                      <div className="session-details_1">
                         <p>
                           <span className="icon">
                             <DateIcon size={16} />

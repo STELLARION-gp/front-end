@@ -1,10 +1,11 @@
 // services/bookingService.ts
-import { auth } from '../firebase';
+import { auth } from "../firebase";
+import { API_CONFIG } from "../config/api.config";
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = API_CONFIG.API_BASE_URL;
 
-export type BookingStatus = 'pending' | 'confirmed' | 'cancelled' | 'completed';
-export type PaymentStatus = 'pending' | 'completed' | 'failed' | 'refunded';
+export type BookingStatus = "pending" | "confirmed" | "cancelled" | "completed";
+export type PaymentStatus = "pending" | "completed" | "failed" | "refunded";
 
 export interface Booking {
   id: number;
@@ -89,7 +90,7 @@ export interface CreateReviewRequest {
 const getAuthToken = async (): Promise<string> => {
   const user = auth.currentUser;
   if (!user) {
-    throw new Error('User not authenticated');
+    throw new Error("User not authenticated");
   }
   return await user.getIdToken();
 };
@@ -100,23 +101,25 @@ const apiCall = async <T>(
   options: RequestInit = {}
 ): Promise<T> => {
   const token = await getAuthToken();
-  
+
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     ...options,
     headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
       ...options.headers,
     },
   });
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'Request failed' }));
+    const error = await response
+      .json()
+      .catch(() => ({ message: "Request failed" }));
     throw new Error(error.message || `HTTP error! status: ${response.status}`);
   }
 
   const jsonResponse = await response.json();
-  
+
   // Extract data from the response wrapper
   // Backend returns: { success: true, message: string, data: T }
   return jsonResponse.data || jsonResponse;
@@ -129,9 +132,11 @@ const apiCall = async <T>(
 /**
  * Create a new booking
  */
-export const createBooking = async (data: CreateBookingRequest): Promise<Booking> => {
-  return apiCall<Booking>('/bookings', {
-    method: 'POST',
+export const createBooking = async (
+  data: CreateBookingRequest
+): Promise<Booking> => {
+  return apiCall<Booking>("/bookings", {
+    method: "POST",
     body: JSON.stringify(data),
   });
 };
@@ -150,7 +155,7 @@ export const getMyBookings = async (params?: {
   totalPages: number;
 }> => {
   const queryParams = new URLSearchParams();
-  
+
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
@@ -158,9 +163,11 @@ export const getMyBookings = async (params?: {
       }
     });
   }
-  
+
   const queryString = queryParams.toString();
-  return apiCall(`/bookings/my-bookings${queryString ? `?${queryString}` : ''}`);
+  return apiCall(
+    `/bookings/my-bookings${queryString ? `?${queryString}` : ""}`
+  );
 };
 
 /**
@@ -177,7 +184,7 @@ export const getGuideBookings = async (params?: {
   totalPages: number;
 }> => {
   const queryParams = new URLSearchParams();
-  
+
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
@@ -185,9 +192,11 @@ export const getGuideBookings = async (params?: {
       }
     });
   }
-  
+
   const queryString = queryParams.toString();
-  return apiCall(`/bookings/guide-bookings${queryString ? `?${queryString}` : ''}`);
+  return apiCall(
+    `/bookings/guide-bookings${queryString ? `?${queryString}` : ""}`
+  );
 };
 
 /**
@@ -200,9 +209,12 @@ export const getBookingById = async (bookingId: number): Promise<Booking> => {
 /**
  * Cancel a booking
  */
-export const cancelBooking = async (bookingId: number, reason?: string): Promise<Booking> => {
+export const cancelBooking = async (
+  bookingId: number,
+  reason?: string
+): Promise<Booking> => {
   return apiCall<Booking>(`/bookings/${bookingId}/cancel`, {
-    method: 'PATCH',
+    method: "PATCH",
     body: JSON.stringify({ reason }),
   });
 };
@@ -212,16 +224,19 @@ export const cancelBooking = async (bookingId: number, reason?: string): Promise
  */
 export const confirmBooking = async (bookingId: number): Promise<Booking> => {
   return apiCall<Booking>(`/bookings/${bookingId}/confirm`, {
-    method: 'PATCH',
+    method: "PATCH",
   });
 };
 
 /**
  * Reject a booking (guide rejects)
  */
-export const rejectBooking = async (bookingId: number, reason?: string): Promise<Booking> => {
+export const rejectBooking = async (
+  bookingId: number,
+  reason?: string
+): Promise<Booking> => {
   return apiCall<Booking>(`/bookings/${bookingId}/reject`, {
-    method: 'PATCH',
+    method: "PATCH",
     body: JSON.stringify({ reason }),
   });
 };
@@ -238,7 +253,7 @@ export const createReview = async (
   data: CreateReviewRequest
 ): Promise<Review> => {
   return apiCall<Review>(`/bookings/${bookingId}/review`, {
-    method: 'POST',
+    method: "POST",
     body: JSON.stringify(data),
   });
 };
@@ -259,7 +274,7 @@ export const getServiceReviews = async (
   totalPages: number;
 }> => {
   const queryParams = new URLSearchParams();
-  
+
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
@@ -267,9 +282,13 @@ export const getServiceReviews = async (
       }
     });
   }
-  
+
   const queryString = queryParams.toString();
-  return apiCall(`/bookings/services/${serviceId}/reviews${queryString ? `?${queryString}` : ''}`);
+  return apiCall(
+    `/bookings/services/${serviceId}/reviews${
+      queryString ? `?${queryString}` : ""
+    }`
+  );
 };
 
 export default {

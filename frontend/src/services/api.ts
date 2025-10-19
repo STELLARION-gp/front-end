@@ -305,6 +305,62 @@ class ApiService {
 
     return doUpload(false);
   }
+
+  /* ============== Guide Applications ============== */
+  /**
+   * Submit a guide application
+   * @param applicationData - The form data from the guide application form
+   * @returns Response with success status and application data
+   */
+  async submitGuideApplication(applicationData: any) {
+    return this.makeRequest('/guide-applications', {
+      method: 'POST',
+      body: JSON.stringify(applicationData)
+    });
+  }
+
+  /**
+   * Get all guide applications (for admin/user)
+   */
+  async getGuideApplications() {
+    return this.makeRequest('/guide-applications');
+  }
+
+  /**
+   * Get a specific guide application by ID
+   */
+  async getGuideApplication(id: number) {
+    return this.makeRequest(`/guide-applications/${id}`);
+  }
+
+  /**
+   * Update a guide application (only if status is pending)
+   */
+  async updateGuideApplication(id: number, applicationData: any) {
+    return this.makeRequest(`/guide-applications/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(applicationData)
+    });
+  }
+
+  /**
+   * Delete a guide application (soft delete)
+   */
+  async deleteGuideApplication(id: number) {
+    return this.makeRequest(`/guide-applications/${id}`, {
+      method: 'DELETE'
+    });
+  }
+
+  /**
+   * Change guide application status (admin only)
+   */
+  async changeGuideApplicationStatus(id: number, status: 'pending' | 'accepted' | 'rejected') {
+    return this.makeRequest(`/guide-applications/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status })
+    });
+  }
 }
 
 export const apiService = new ApiService();

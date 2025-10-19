@@ -1,5 +1,5 @@
 //import { href } from 'react-router-dom';
-import { icon } from "leaflet";
+//import { icon } from "leaflet";
 import { type UserRole } from "../AuthContext";
 
 // Define permission types
@@ -112,6 +112,8 @@ export const PAGE_ACCESS_CONTROL = {
   "/dashboard/sessions": ["mentor", "moderator", "admin"] as UserRole[],
   "/dashboard/media": ["guide"] as UserRole[],
   "/dashboard/admin": ["admin"] as UserRole[],
+  "/dashboard/admin-overview": ["admin"] as UserRole[],
+  "/dashboard/revenue-analytics": ["admin"] as UserRole[],
   "/dashboard/moderation": ["moderator", "admin"] as UserRole[],
   "/dashboard/night-camps": [
     "enthusiast",
@@ -310,8 +312,16 @@ export const ROLE_BASED_MENU_ITEMS = {
       icon: "StarIcon",
       href: "/dashboard/stargazing",
     },
-    { label: "Astro Hub", icon: "ChatBubbleLeftRightIcon", href: "/dashboard/astrohub" },
-    { label: "Mentee Requests", icon: "HandRaisedIcon", href: "/dashboard/mentee-requests" },
+    {
+      label: "Astro Hub",
+      icon: "ChatBubbleLeftRightIcon",
+      href: "/dashboard/astrohub",
+    },
+    {
+      label: "Mentee Requests",
+      icon: "HandRaisedIcon",
+      href: "/dashboard/mentee-requests",
+    },
     { label: "Mentees", icon: "UsersIcon", href: "/dashboard/mentees" },
     // { label: "Chat", icon: "ChatBubbleLeftRightIcon", href: "/dashboard/chat" },
     // { label: "Sessions", icon: "UsersIcon", href: "/dashboard/sessions" },
@@ -348,33 +358,34 @@ export const ROLE_BASED_MENU_ITEMS = {
     //{ label: 'Settings', icon: 'Cog6ToothIcon', href: '/dashboard/settings' },
   ],
   admin: [
-    //{ label: 'Overview', icon: 'HomeIcon', href: '/dashboard/overview' },
+    { label: 'Overview', icon: 'HomeIcon', href: '/dashboard/admin-overview' },
+    { label: 'Revenue Analytics', icon: 'CurrencyDollarIcon', href: '/dashboard/revenue-analytics' },
     //{ label: 'Profile', icon: 'UserCircleIcon', href: '/dashboard/profile' },
     //{ label: 'Blogs', icon: 'BookOpenIcon', href: '/dashboard/blogs' },
     //{ label: 'Night Camps', icon: 'MoonIcon', href: '/dashboard/night-camps' },
     //{ label: 'Stargazing Spot', icon: 'StarIcon', href: '/dashboard/stargazing' },
-    {
-      label: "Requests",
-      icon: "ChatBubbleLeftRightIcon",
-      href: "/dashboard/booking-requests",
-    },
-    {
-      label: "Mentors",
-      icon: "AcademicCapIcon",
-      href: "/dashboard/system-mentors",
-    },
+    // {
+    //   label: "Requests",
+    //   icon: "ChatBubbleLeftRightIcon",
+    //   href: "/dashboard/booking-requests",
+    // },
+    // {
+    //   label: "Mentors",
+    //   icon: "AcademicCapIcon",
+    //   href: "/dashboard/system-mentors",
+    // },
     //{ label: 'Events', icon: 'CalendarDaysIcon', href: '/dashboard/events' },
     //{ label: 'Chat', icon: 'ChatBubbleLeftRightIcon', href: '/dashboard/chat' },
     {
-      label: "Moderators",
-      icon: "ShieldCheckIcon",
-      href: "/dashboard/moderators",
-    },
-    {
-      label: "Revenue",
-      icon: "CurrencyDollarIcon",
-      href: "/dashboard/financial-analytics",
-    },
+      label: "Payments",
+     icon: "ShieldCheckIcon",
+      href: "/dashboard/provider-payments",
+     },
+    // {
+    //   label: "Revenue Analytics",
+    //   icon: "CurrencyDollarIcon",
+    //   href: "/dashboard/revenue-analytics",
+    // },
   ],
 } as const;
 

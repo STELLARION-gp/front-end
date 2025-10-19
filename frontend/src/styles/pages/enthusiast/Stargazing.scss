@@ -1856,6 +1856,10 @@
   gap: 1rem;
   margin-bottom: 1rem;
   
+  .image-upload-input {
+    display: none;
+  }
+  
   .upload-button {
     display: inline-flex;
     align-items: center;

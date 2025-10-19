@@ -16,6 +16,8 @@ import QuizCard from "../../components/Learner/QuizCard";
 import Button from "../../components/Button";
 import QuizModal from "../../components/Learner/QuizModal";
 import AstronomyBlogCard from "../../components/Learner/blogcard";
+import { blogService } from '../../services/blogService';
+import type { Blog } from '../../services/blogService';
 import { useNavigate } from "react-router-dom";
 import AstronomyCompetitionCard from "../../components/Learner/AstronomyCompetitionCard";
 import MentorCard from "../../components/Learner/mentor/MentorCard";
@@ -82,41 +84,8 @@ interface Competition {
 //   status: 'Confirmed' | 'Pending';
 // }
 
-const favourite_blogs = [
-  {
-    id: 1,
-    image:
-      "https://kielderobservatory.org/images/stories/virtuemart/product/Orion%20Nebula%20-%20AS%20-%20med.jpg",
-    title: "The Orion Nebula: A Stellar Nursery",
-    author: "Dr. Jane Skywalker",
-    createdAt: "2025-06-20",
-    rating: 4.7,
-    content:
-      "The Orion Nebula is one of the brightest nebulae visible to the naked eye. Located around 1,344 light-years away, it is a region where new stars are born. In this article, we explore its structure, the Trapezium cluster, and how the nebula helps astronomers understand stellar evolution.",
-  },
-  {
-    id: 2,
-    image:
-      "https://cdn.arstechnica.net/wp-content/uploads/2024/03/cosmology-astronomy-discoveries.jpg",
-    title: "Exploring the Expanding Universe",
-    author: "Prof. John Cosmos",
-    createdAt: "2025-06-18",
-    rating: 4.9,
-    content:
-      "Ever since Edwin Hubble’s discovery, the expanding universe has intrigued cosmologists. This blog delves into redshift, the cosmic microwave background radiation, and the implications of dark energy in accelerating the expansion of our universe.",
-  },
-  {
-    id: 3,
-    image:
-      "https://static.vecteezy.com/system/resources/previews/027/100/104/large_2x/the-starry-night-sky-with-the-milky-way-galaxy-space-dust-and-a-planet-in-the-background-all-free-photo.jpg",
-    title: "The Magic of Solar Eclipses",
-    author: "Luna Rivera",
-    createdAt: "2025-06-15",
-    rating: 4.6,
-    content:
-      "Solar eclipses offer a rare chance to study the Sun's corona and impact public interest in astronomy. This article covers the types of solar eclipses, historical significance, safety tips, and upcoming eclipse dates visible from Earth.",
-  },
-];
+
+// (Removed duplicate function MyUniverse)
 const userCompetitions: Competition[] = [
   {
     id: 1,
@@ -184,6 +153,7 @@ const registeredCompetitions = [
 //   },
 // ];
 const MyUniverse = () => {
+  const { showError } = useToast();
   // Connected mentors state
   const [connectedMentors, setConnectedMentors] = useState<MenteeApplication[]>(
     []
@@ -219,7 +189,27 @@ const MyUniverse = () => {
     navigate(`/dashboard/author/${encodedName}`);
   };
 
-  const { showError } = useToast();
+
+  // Favourites (blogs liked by user)
+  const [favouriteBlogs, setFavouriteBlogs] = useState<Blog[]>([]);
+  const [blogsLoading, setBlogsLoading] = useState(false);
+  useEffect(() => {
+    // Fetch only blogs liked by the user
+    const fetchLikedBlogs = async () => {
+      setBlogsLoading(true);
+      try {
+        const res = await blogService.getLikedBlogs();
+        // API shape: { success, data: { blogs: Blog[], pagination } }
+        const blogs = res?.data?.blogs || [];
+        setFavouriteBlogs(blogs);
+      } catch (err: any) {
+        showError('Failed to load favourite blogs');
+      } finally {
+        setBlogsLoading(false);
+      }
+    };
+    fetchLikedBlogs();
+  }, [showError]);
 
   const [activeTab, setActiveTab] = useState("Quizzes");
   const [showQuizModal, setShowQuizModal] = useState(false);
@@ -720,20 +710,26 @@ const MyUniverse = () => {
         {activeTab === "Favorites" && (
           <>
             <h2>Favorite Blogs</h2>
-            <div className="astronomy-card-container">
-              {favourite_blogs.map((blog) => (
-                <AstronomyBlogCard
-                  key={blog.id}
-                  image={blog.image}
-                  title={blog.title}
-                  author={blog.author}
-                  createdAt={blog.createdAt}
-                  rating={blog.rating}
-                  content={blog.content}
-                  onClick={() => navigate(`/dashboard/blogs/${blog.id}`)}
-                />
-              ))}
-            </div>
+            {blogsLoading ? (
+              <div style={{ textAlign: 'center', padding: '2rem' }}>Loading...</div>
+            ) : favouriteBlogs.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '2rem', color: '#8b93ab' }}>No favorite blogs found.</div>
+            ) : (
+              <div className="astronomy-card-container">
+                {favouriteBlogs.map((blog) => (
+                  <AstronomyBlogCard
+                    key={blog.id}
+                    image={blog.featured_image || blog.image_url || ''}
+                    title={blog.title}
+                    author={blog.author_display_name || blog.author_name || 'Unknown'}
+                    createdAt={blog.created_at}
+                    rating={typeof blog.like_count === 'number' ? blog.like_count / 2 : 4.5}
+                    content={blog.content}
+                    onClick={() => navigate(`/dashboard/blogs/${blog.id}`)}
+                  />
+                ))}
+              </div>
+            )}
           </>
         )}
         {activeTab === "Competitions" && (

@@ -62,6 +62,7 @@ export const NotificationDropdown = ({
     }
   };
 
+  // Show all notification types (no filter by type)
   const unreadNotifications = notifications.filter((n) => !n.read);
   const readNotifications = notifications.filter((n) => n.read);
 
@@ -147,6 +148,24 @@ interface NotificationItemProps {
   onClick: () => void;
 }
 
+const NotificationTypeBadge = ({ type }: { type: string }) => {
+  const typeMap: Record<string, string> = {
+    event: 'Event',
+    system: 'System',
+    success: 'Success',
+    info: 'Info',
+    warning: 'Warning',
+    error: 'Error',
+    social: 'Social',
+    payment: 'Payment',
+    message: 'Message',
+    booking: 'Booking',
+  };
+  return (
+    <span className={`notification-type-badge type-${type}`}>{typeMap[type] || type}</span>
+  );
+};
+
 const NotificationItem = ({
   notification,
   isExpanded,
@@ -171,6 +190,7 @@ const NotificationItem = ({
         <div className="notification-header">
           <h5 className="notification-title">{notification.title}</h5>
           <span className="notification-time">{timeAgo}</span>
+          <NotificationTypeBadge type={notification.type} />
         </div>
 
         <p className={`notification-message ${isExpanded ? "expanded" : ""}`}>

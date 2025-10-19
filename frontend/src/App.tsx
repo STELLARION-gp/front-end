@@ -23,6 +23,8 @@ const NewHome = lazy(() => import("./pages/NewHome"));
 const SubscriptionPlans = lazy(() => import("./pages/SubscriptionPlans"));
 const PaymentSuccess = lazy(() => import("./pages/payment/PaymentSuccess"));
 const PaymentCancel = lazy(() => import("./pages/payment/PaymentCancel"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const TermsAndConditions = lazy(() => import("./pages/TermsAndConditions"));
 
 const App: React.FC = () => {
   return (
@@ -67,6 +69,28 @@ const App: React.FC = () => {
                         element={<PaymentSuccess />}
                       />
                       <Route path="/payment/cancel" element={<PaymentCancel />} />
+
+                      {/* Legal Pages Routes */}
+                      <Route
+                        path="/privacy-policy"
+                        element={
+                          <LazyPageWrapper
+                            skeletonProps={{ title: true, paragraphs: 8 }}
+                          >
+                            <PrivacyPolicy />
+                          </LazyPageWrapper>
+                        }
+                      />
+                      <Route
+                        path="/terms-and-conditions"
+                        element={
+                          <LazyPageWrapper
+                            skeletonProps={{ title: true, paragraphs: 8 }}
+                          >
+                            <TermsAndConditions />
+                          </LazyPageWrapper>
+                        }
+                      />
 
                       {/* 404 Not Found Route */}
                       <Route path="*" element={<NotFound />} />

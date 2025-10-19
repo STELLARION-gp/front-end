@@ -101,15 +101,15 @@ const Footer: React.FC = () => {
                                 </a>
                             </li>
                             <li>
-                                <a href="#" className="text-theme4 hover:text-theme3 transition-colors duration-200">
+                                <a href="/privacy-policy" className="text-theme4 hover:text-theme3 transition-colors duration-200">
                                     {t('footer.support.privacyPolicy')}
                                 </a>
                             </li>
-                            {/* <li>
-                                <a href="#" className="text-theme4 hover:text-theme3 transition-colors duration-200">
+                            <li>
+                                <a href="/terms-and-conditions" className="text-theme4 hover:text-theme3 transition-colors duration-200">
                                     {t('footer.support.termsOfService')}
                                 </a>
-                            </li> */}
+                            </li>
                         </ul>
                     </div>
                 </div>
@@ -121,10 +121,10 @@ const Footer: React.FC = () => {
                             {t('footer.legal.copyright', { year: currentYear })}
                         </p>
                         <div className="flex space-x-6 mt-4 md:mt-0">
-                            <a href="#" className="text-theme4 hover:text-theme3 transition-colors duration-200 text-sm">
+                            <a href="/privacy-policy" className="text-theme4 hover:text-theme3 transition-colors duration-200 text-sm">
                                 {t('footer.legal.privacy')}
                             </a>
-                            <a href="#" className="text-theme4 hover:text-theme3 transition-colors duration-200 text-sm">
+                            <a href="/terms-and-conditions" className="text-theme4 hover:text-theme3 transition-colors duration-200 text-sm">
                                 {t('footer.legal.terms')}
                             </a>
                             {/* <a href="#" className="text-theme4 hover:text-theme3 transition-colors duration-200 text-sm">

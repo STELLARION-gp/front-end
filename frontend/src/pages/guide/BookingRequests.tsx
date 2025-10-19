@@ -193,6 +193,8 @@ const BookingRequests: React.FC = () => {
       setRequests(prev => prev.filter(req => req.id !== String(selectedDetails.bookingId)));
       alert('Booking confirmed successfully!');
       setModalOpen(false);
+        // Notify other pages (e.g., PaymentProcessing) to refresh
+        try { window.dispatchEvent(new Event('payments-updated')); } catch(e) {}
     } catch (err) {
       console.error('Error confirming booking:', err);
       alert(err instanceof Error ? err.message : 'Failed to confirm booking');

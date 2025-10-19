@@ -8,7 +8,6 @@ import RefundDialog from '../../components/RefundDialog';
 import '../../styles/pages/guide/PaymentProcessing.scss';
 import { 
   getBookingPaymentStats, 
-  getBookingPaymentTransactions,
   getBookingPaymentTransactionsForGuide,
   getBookingPaymentDetails,
   processBookingRefund,
@@ -17,9 +16,12 @@ import {
 } from '../../services/paymentService';
 
 // Types for payment data
-interface Transaction extends ImportedTransaction {
+type TransactionStatus = ImportedTransaction['status'] | 'approved' | 'rejected';
+
+interface Transaction extends Omit<ImportedTransaction, 'status'> {
   bookingId?: number;
   serviceId?: number;
+  status: TransactionStatus;
 }
 
 interface PaymentStats {
@@ -37,7 +39,8 @@ const PaymentProcessing: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedGateway, setSelectedGateway] = useState<string>('all');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
+  // default to showing only confirmed (approved) booking payments for this guide
+  const [statusFilter, setStatusFilter] = useState<string>('approved');
   const [dateRange, setDateRange] = useState<string>('30');
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -95,6 +98,17 @@ const PaymentProcessing: React.FC = () => {
     };
 
     fetchTransactions();
+    // Listen for cross-window updates (e.g., booking accepted/rejected)
+    const onPaymentsUpdated = () => {
+      fetchTransactions();
+      // Also refresh stats
+      getBookingPaymentStats(parseInt(dateRange)).then(setPaymentStats).catch((err) => console.error('Failed to refresh stats after payments-updated', err));
+    };
+    window.addEventListener('payments-updated', onPaymentsUpdated);
+
+    return () => {
+      window.removeEventListener('payments-updated', onPaymentsUpdated);
+    };
   }, [statusFilter, dateRange, currentPage, sortBy, sortOrder]);
 
   // Filter transactions by search term and gateway (client-side filtering)
@@ -114,9 +128,11 @@ const PaymentProcessing: React.FC = () => {
   const getStatusBadgeClass = (status: Transaction['status']) => {
     switch (status) {
       case 'completed': return 'status-completed';
+      case 'approved': return 'status-approved';
       case 'pending': return 'status-pending';
       case 'failed': return 'status-failed';
       case 'refunded': return 'status-refunded';
+      case 'rejected': return 'status-rejected';
       default: return '';
     }
   };
@@ -288,10 +304,12 @@ const PaymentProcessing: React.FC = () => {
               aria-label="Status Filter"
             >
               <option value="all">All Statuses</option>
+              <option value="approved">Approved</option>
               <option value="completed">Completed</option>
               <option value="pending">Pending</option>
               <option value="failed">Failed</option>
               <option value="refunded">Refunded</option>
+              <option value="rejected">Rejected</option>
             </select>
           </div>
 
@@ -328,7 +346,7 @@ const PaymentProcessing: React.FC = () => {
       {/* Transactions Table */}
       <div className="payment-transactions-table-section">
         <div className="payment-table-header">
-          <h3>Recent Transactions ({filteredTransactions.length} results)</h3>
+          <h3>Confirmed Booking Payments ({filteredTransactions.length} results)</h3>
           <div className="payment-table-controls">
             <div className="payment-sort-controls">
               <label>Sort by:</label>

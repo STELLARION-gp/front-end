@@ -218,7 +218,7 @@ const SessionModeration: React.FC = () => {
                       <span className="type-icon">{getSessionTypeIcon(session.session_type)}</span>
                       <span className="type-label">{session.session_type?.replace('_', ' ')}</span>
                     </div>
-                    <div className={`status-indicator status-${session.status?.replace('_', '-') || 'pending'}`}>
+                    <div className={`status-indicator_1 status-${session.status?.replace('_', '-') || 'pending'}`}>
                       {session.status?.replace('_', ' ') || 'pending'}
                     </div>
                   </div>

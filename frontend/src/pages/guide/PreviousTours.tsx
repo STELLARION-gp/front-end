@@ -26,7 +26,7 @@ interface CompletedTour {
   date: string;
   startTime: string;
   endTime: string;
-  duration: number;
+  // duration removed — UI will show time range instead
   participants: string[];
   participantCount: number;
   location: string;
@@ -38,7 +38,7 @@ interface CompletedTour {
   photos: string[];
   weatherConditions: string;
   equipmentUsed: string[];
-  highlights: string[];
+  requirements: string[];
   category: 'observation' | 'photography' | 'workshop' | 'expedition';
 }
 
@@ -122,8 +122,8 @@ const PreviousTours: React.FC = () => {
       }
     }
 
-    const duration = serviceObj?.duration ? parseDuration(serviceObj.duration) : 0;
-    const endTime = calculateEndTime(startTime, duration);
+  const duration = serviceObj?.duration ? parseDuration(serviceObj.duration) : 0;
+  const endTime = calculateEndTime(startTime, duration);
     
     // Fetch reviews for this service
     let reviews: Review[] = [];
@@ -150,6 +150,28 @@ const PreviousTours: React.FC = () => {
     
     // Determine category based on service category or title
     const category = determineCategory(booking.service?.category || booking.service?.title || '');
+
+    // equipment from serviceObj (JSON) - can be array or JSON string
+    let equipmentUsed: string[] = [];
+    if (serviceObj?.equipment) {
+      try {
+        if (typeof serviceObj.equipment === 'string') {
+          equipmentUsed = JSON.parse(serviceObj.equipment);
+        } else if (Array.isArray(serviceObj.equipment)) {
+          equipmentUsed = serviceObj.equipment;
+        } else {
+          // object -> try to stringify values
+          equipmentUsed = Object.values(serviceObj.equipment).map((v: any) => String(v));
+        }
+      } catch (e) {
+        equipmentUsed = [];
+      }
+    }
+
+    // requirements from serviceObj (string) -> split into array
+    const requirements: string[] = serviceObj?.requirements
+      ? String(serviceObj.requirements).split(/\r?\n|;/).map(s => s.trim()).filter(Boolean)
+      : [];
     
     return {
       id: booking.id.toString(),
@@ -157,18 +179,18 @@ const PreviousTours: React.FC = () => {
       date,
       startTime,
       endTime,
-      duration,
+  // duration field removed from CompletedTour; keep startTime/endTime
       participants: [userName], // Single participant name for now
       participantCount: booking.participants_count,
-      location: booking.service?.location || 'Unknown Location',
+      location: serviceObj?.location || booking.service?.location || 'Unknown Location',
       averageRating,
       totalReviews: reviews.length,
       earnings: booking.total_amount,
       reviews,
   photos: serviceObj?.image_url ? [serviceObj.image_url] : (booking.service_id ? [] : []),
       weatherConditions: 'N/A',
-      equipmentUsed: [],
-      highlights: [],
+      equipmentUsed: equipmentUsed,
+      requirements: requirements,
       category,
     };
   };
@@ -240,6 +262,7 @@ const PreviousTours: React.FC = () => {
   const totalTours = tours.length;
 
   const handleViewDetails = (tour: CompletedTour) => {
+    console.log('[PreviousTours] handleViewDetails ->', tour?.id, tour?.serviceName);
     setSelectedTour(tour);
   };
 
@@ -475,16 +498,16 @@ const PreviousTours: React.FC = () => {
                     </div>
                     <div className="detail-item">
                       <Clock className="detail-icon" />
-                      <span>{tour.duration}h</span>
+                      <span>{tour.startTime} - {tour.endTime}</span>
                     </div>
                     <div className="detail-item">
                       <Users className="detail-icon" />
                       <span>{tour.participantCount} participants</span>
                     </div>
-                    <div className="detail-item">
+                    {/* <div className="detail-item">
                       <MapPin className="detail-icon" />
                       <span>{tour.location}</span>
-                    </div>
+                    </div> */}
                   </div>
 
                   <div className="tour-earnings">
@@ -493,14 +516,14 @@ const PreviousTours: React.FC = () => {
                   </div>
 
                   <div className="tour-highlights">
-                    {tour.highlights.slice(0, 2).map((highlight, i) => (
+                    {tour.requirements.slice(0, 4).map((req, i) => (
                       <span key={i} className="highlight-tag">
-                        {highlight}
+                        {req}
                       </span>
                     ))}
-                    {tour.highlights.length > 2 && (
+                    {tour.requirements.length > 4 && (
                       <span className="highlight-more">
-                        +{tour.highlights.length - 2} more
+                        +{tour.requirements.length - 4} more
                       </span>
                     )}
                   </div>
@@ -583,17 +606,17 @@ const PreviousTours: React.FC = () => {
                           <span className="value">{new Date(selectedTour.date).toLocaleDateString()}</span>
                         </div>
                         <div className="info-item">
-                          <span className="label">Duration:</span>
-                          <span className="value">{selectedTour.duration} hours</span>
+                          <span className="label">Time:</span>
+                          <span className="value">{selectedTour.startTime} - {selectedTour.endTime}</span>
                         </div>
-                        <div className="info-item">
+                        {/* <div className="info-item">
                           <span className="label">Location:</span>
                           <span className="value">{selectedTour.location}</span>
                         </div>
                         <div className="info-item">
                           <span className="label">Weather:</span>
                           <span className="value">{selectedTour.weatherConditions}</span>
-                        </div>
+                        </div> */}
                       </div>
                     </div>
 
@@ -620,11 +643,11 @@ const PreviousTours: React.FC = () => {
                     </div>
 
                     <div className="info-section">
-                      <h4>Highlights</h4>
+                      <h4>Requirements</h4>
                       <div className="highlights-list">
-                        {selectedTour.highlights.map((highlight, index) => (
+                        {selectedTour.requirements.map((req: string, index: number) => (
                           <div key={index} className="highlight-item">
-                            • {highlight}
+                            • {req}
                           </div>
                         ))}
                       </div>
@@ -634,7 +657,7 @@ const PreviousTours: React.FC = () => {
               </div>
 
               <div className="modal-footer">
-                <Button variant="ghost" onClick={handleCloseModal}>
+                <Button variant="primary" onClick={handleCloseModal}>
                   Close
                 </Button>
                 <Button 

@@ -96,6 +96,7 @@ import MentorMenteeConnectionPage from "../pages/learner/MentorMenteeConnectionP
 
 import Followers from "../pages/influencer/Followers";
 import AdminModeratorsPage from "../pages/admin/AdminModeratorsPage";
+import AdminOverview from "../pages/admin/AdminOverview";
 import InfluencerApplication from "../pages/learner/InfluencerApplication";
 import Mentor from "../pages/admin/Mentor";
 import MentorApplication from "../pages/admin/MentorApplication";
@@ -675,6 +676,15 @@ const DashboardRoutes = () => {
         element={
           <RoleGuard allowedRoles={["admin"]}>
             <AdminPage />
+          </RoleGuard>
+        }
+      />
+
+      <Route
+        path="admin-overview"
+        element={
+          <RoleGuard allowedRoles={["admin"]}>
+            <AdminOverview />
           </RoleGuard>
         }
       />

@@ -1,5 +1,5 @@
 //import { href } from 'react-router-dom';
-import { icon } from "leaflet";
+//import { icon } from "leaflet";
 import { type UserRole } from "../AuthContext";
 
 // Define permission types
@@ -112,6 +112,7 @@ export const PAGE_ACCESS_CONTROL = {
   "/dashboard/sessions": ["mentor", "moderator", "admin"] as UserRole[],
   "/dashboard/media": ["guide"] as UserRole[],
   "/dashboard/admin": ["admin"] as UserRole[],
+  "/dashboard/admin-overview": ["admin"] as UserRole[],
   "/dashboard/moderation": ["moderator", "admin"] as UserRole[],
   "/dashboard/night-camps": [
     "enthusiast",
@@ -347,7 +348,7 @@ export const ROLE_BASED_MENU_ITEMS = {
     //{ label: 'Settings', icon: 'Cog6ToothIcon', href: '/dashboard/settings' },
   ],
   admin: [
-    //{ label: 'Overview', icon: 'HomeIcon', href: '/dashboard/overview' },
+    { label: 'Overview', icon: 'HomeIcon', href: '/dashboard/admin-overview' },
     //{ label: 'Profile', icon: 'UserCircleIcon', href: '/dashboard/profile' },
     //{ label: 'Blogs', icon: 'BookOpenIcon', href: '/dashboard/blogs' },
     //{ label: 'Night Camps', icon: 'MoonIcon', href: '/dashboard/night-camps' },

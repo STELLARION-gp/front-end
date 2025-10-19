@@ -215,310 +215,311 @@ const Stargazing = () => {
 
   const closeModal = () => {
     setSelectedSpot(null);
+  };
 
-    const handleAddReview = () => {
-      setShowAddReview(true);
-    };
+  const handleAddReview = () => {
+    setShowAddReview(true);
+  };
 
-    const handleSubmitReview = async (e: React.FormEvent) => {
-      e.preventDefault();
+  const handleSubmitReview = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-      // Check if user is authenticated
-      if (!user) {
-        showSuccessAlert("You must be logged in to submit a review.");
-        return;
-      }
+    // Check if user is authenticated
+    if (!user) {
+      showSuccessAlert("You must be logged in to submit a review.");
+      return;
+    }
 
-      if (selectedSpot && reviewForm.reviewText.trim()) {
-        try {
-          setSubmittingReview(true);
+    if (selectedSpot && reviewForm.reviewText.trim()) {
+      try {
+        setSubmittingReview(true);
 
-          const reviewData: CreateReviewRequest = {
-            rating: reviewForm.rating,
-            review_text: reviewForm.reviewText.trim(),
-          };
-
-          const response = await stargazingSpotService.addReview(
-            selectedSpot.id,
-            reviewData
-          );
-
-          if (response.success) {
-            // Reset form and close
-            setReviewForm({ userName: "", rating: 5, reviewText: "" });
-            setShowAddReview(false);
-
-            // Refresh the selected spot to show the new review
-            await refreshSelectedSpot();
-
-            showSuccessAlert(
-              "Thank you for your review! It has been submitted successfully."
-            );
-          } else {
-            showSuccessAlert(
-              response.message || "Failed to submit review. Please try again."
-            );
-          }
-        } catch (error) {
-          console.error("Error submitting review:", error);
-          showSuccessAlert("Failed to submit review. Please try again.");
-        } finally {
-          setSubmittingReview(false);
-        }
-      }
-    };
-
-    const refreshSelectedSpot = async () => {
-      if (selectedSpot) {
-        try {
-          const response = await stargazingSpotService.getStargazingSpotById(
-            selectedSpot.id
-          );
-          if (response.success && response.data) {
-            const updatedSpot = transformApiSpotToFrontend(response.data);
-            setSelectedSpot(updatedSpot);
-
-            // Also update the spot in the main list
-            setStargazingSpots((prev) =>
-              prev.map((spot) =>
-                spot.id === updatedSpot.id ? updatedSpot : spot
-              )
-            );
-          }
-        } catch (error) {
-          console.error("Error refreshing spot:", error);
-        }
-      }
-    };
-
-    const handleCancelReview = () => {
-      setShowAddReview(false);
-      setReviewForm({ userName: "", rating: 5, reviewText: "" });
-    };
-
-    const handleAddSpotFormChange = (field: string, value: string) => {
-      setAddSpotForm((prev) => ({
-        ...prev,
-        [field]: value,
-      }));
-    };
-
-    const handleFacilityChange = (index: number, value: string) => {
-      const newFacilities = [...addSpotForm.facilities];
-      newFacilities[index] = value;
-      setAddSpotForm((prev) => ({
-        ...prev,
-        facilities: newFacilities,
-      }));
-    };
-
-    const addFacility = () => {
-      setAddSpotForm((prev) => ({
-        ...prev,
-        facilities: [...prev.facilities, ""],
-      }));
-    };
-
-    const removeFacility = (index: number) => {
-      const newFacilities = addSpotForm.facilities.filter(
-        (_, i) => i !== index
-      );
-      setAddSpotForm((prev) => ({
-        ...prev,
-        facilities: newFacilities.length > 0 ? newFacilities : [""],
-      }));
-    };
-
-    // NEW: Image selection handler
-    const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const files = Array.from(e.target.files || []);
-
-      // Limit to 10 images
-      if (files.length + selectedImages.length > 10) {
-        showSuccessAlert("Maximum 10 images allowed");
-        return;
-      }
-
-      // Validate file types
-      const validFiles = files.filter((file) => file.type.startsWith("image/"));
-      if (validFiles.length !== files.length) {
-        showSuccessAlert("Only image files are allowed");
-      }
-
-      // Create previews
-      const newPreviews: string[] = [];
-      validFiles.forEach((file) => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          newPreviews.push(reader.result as string);
-          if (newPreviews.length === validFiles.length) {
-            setImagePreviews([...imagePreviews, ...newPreviews]);
-          }
+        const reviewData: CreateReviewRequest = {
+          rating: reviewForm.rating,
+          review_text: reviewForm.reviewText.trim(),
         };
-        reader.readAsDataURL(file);
-      });
 
-      setSelectedImages([...selectedImages, ...validFiles]);
-    };
+        const response = await stargazingSpotService.addReview(
+          selectedSpot.id,
+          reviewData
+        );
 
-    // NEW: Remove image handler
-    const handleRemoveImage = (index: number) => {
-      const newImages = selectedImages.filter((_, i) => i !== index);
-      const newPreviews = imagePreviews.filter((_, i) => i !== index);
-      setSelectedImages(newImages);
-      setImagePreviews(newPreviews);
-    };
+        if (response.success) {
+          // Reset form and close
+          setReviewForm({ userName: "", rating: 5, reviewText: "" });
+          setShowAddReview(false);
 
-    const handleSubmitAddSpot = async (e: React.FormEvent) => {
-      e.preventDefault();
+          // Refresh the selected spot to show the new review
+          await refreshSelectedSpot();
 
-      // Check if user is authenticated
-      if (!user) {
-        showSuccessAlert("You must be logged in to create a stargazing spot.");
-        return;
-      }
-
-      if (
-        addSpotForm.name.trim() &&
-        addSpotForm.location.trim() &&
-        addSpotForm.description.trim()
-      ) {
-        try {
-          setSubmittingSpot(true);
-          setUploadingSpot(true);
-
-          const spotData: CreateStargazingSpotRequest = {
-            name: addSpotForm.name.trim(),
-            location: addSpotForm.location.trim(),
-            description: addSpotForm.description.trim(),
-            best_time: addSpotForm.bestTime.trim() || undefined,
-            image_url: addSpotForm.image.trim() || undefined,
-            facilities: addSpotForm.facilities.filter((f) => f.trim()),
-          };
-
-          // Only include rating if it's a valid number between 1-5
-          if (
-            addSpotForm.rating !== undefined &&
-            addSpotForm.rating >= 1 &&
-            addSpotForm.rating <= 5
-          ) {
-            spotData.rating = addSpotForm.rating;
-          }
-
-          // Only include images if any are selected
-          if (selectedImages.length > 0) {
-            spotData.images = selectedImages;
-          }
-
-          console.log("Submitting spot data:", {
-            ...spotData,
-            images: spotData.images
-              ? `${spotData.images.length} images`
-              : "no images",
-          });
-
-          const response = await stargazingSpotService.createStargazingSpot(
-            spotData
-          );
-
-          if (response.success && response.data) {
-            // Reset form and close modal
-            setAddSpotForm({
-              name: "",
-              location: "",
-              bestTime: "",
-              description: "",
-              image: "",
-              facilities: [""],
-              rating: undefined,
-            });
-            setSelectedImages([]);
-            setImagePreviews([]);
-            setShowAddSpotModal(false);
-
-            // Refresh the spots list to include the new spot
-            await fetchStargazingSpots();
-
-            showSuccessAlert(
-              "Stargazing spot created successfully and submitted for moderation!"
-            );
-          } else {
-            showSuccessAlert(
-              response.message ||
-                "Failed to create stargazing spot. Please try again."
-            );
-          }
-        } catch (error) {
-          console.error("Error creating stargazing spot:", error);
           showSuccessAlert(
-            "Failed to create stargazing spot. Please try again."
+            "Thank you for your review! It has been submitted successfully."
           );
-        } finally {
-          setSubmittingSpot(false);
-          setUploadingSpot(false);
-        }
-      }
-    };
-
-    const handleCancelAddSpot = () => {
-      setShowAddSpotModal(false);
-      setAddSpotForm({
-        name: "",
-        location: "",
-        bestTime: "",
-        description: "",
-        image: "",
-        facilities: [""],
-        rating: undefined,
-      });
-      setSelectedImages([]);
-      setImagePreviews([]);
-    };
-
-    // const clearFilters = () => {
-    //   setFilters({
-    //     location: '',
-    //     rating: 0
-    //   });
-    // };
-
-    // const hasActiveFilters = () => {
-    //   return filters.location || filters.rating > 0;
-    // };
-
-    // Handle filter changes and trigger API calls
-    useEffect(() => {
-      const timeoutId = setTimeout(() => {
-        if (!loading) {
-          fetchStargazingSpots();
-        }
-      }, 500); // Debounce filter changes
-
-      return () => clearTimeout(timeoutId);
-    }, [filters.location]);
-
-    const filteredSpots = stargazingSpots; // Filtering is now handled by the API
-
-    const renderStars = (rating: number) => {
-      const totalStars = 5;
-      const filledStars = Math.floor(rating);
-      const hasHalfStar = rating % 1 !== 0;
-      const stars = [];
-
-      for (let i = 0; i < totalStars; i++) {
-        if (i < filledStars) {
-          stars.push("★");
-        } else if (i === filledStars && hasHalfStar) {
-          stars.push("☆");
         } else {
-          stars.push("☆");
+          showSuccessAlert(
+            response.message || "Failed to submit review. Please try again."
+          );
         }
+      } catch (error) {
+        console.error("Error submitting review:", error);
+        showSuccessAlert("Failed to submit review. Please try again.");
+      } finally {
+        setSubmittingReview(false);
       }
+    }
+  };
 
-      return stars.join("");
-    };
+  const refreshSelectedSpot = async () => {
+    if (selectedSpot) {
+      try {
+        const response = await stargazingSpotService.getStargazingSpotById(
+          selectedSpot.id
+        );
+        if (response.success && response.data) {
+          const updatedSpot = transformApiSpotToFrontend(response.data);
+          setSelectedSpot(updatedSpot);
 
-    return (
+          // Also update the spot in the main list
+          setStargazingSpots((prev) =>
+            prev.map((spot) =>
+              spot.id === updatedSpot.id ? updatedSpot : spot
+            )
+          );
+        }
+      } catch (error) {
+        console.error("Error refreshing spot:", error);
+      }
+    }
+  };
+
+  const handleCancelReview = () => {
+    setShowAddReview(false);
+    setReviewForm({ userName: "", rating: 5, reviewText: "" });
+  };
+
+  const handleAddSpotFormChange = (field: string, value: string) => {
+    setAddSpotForm((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleFacilityChange = (index: number, value: string) => {
+    const newFacilities = [...addSpotForm.facilities];
+    newFacilities[index] = value;
+    setAddSpotForm((prev) => ({
+      ...prev,
+      facilities: newFacilities,
+    }));
+  };
+
+  const addFacility = () => {
+    setAddSpotForm((prev) => ({
+      ...prev,
+      facilities: [...prev.facilities, ""],
+    }));
+  };
+
+  const removeFacility = (index: number) => {
+    const newFacilities = addSpotForm.facilities.filter(
+      (_, i) => i !== index
+    );
+    setAddSpotForm((prev) => ({
+      ...prev,
+      facilities: newFacilities.length > 0 ? newFacilities : [""],
+    }));
+  };
+
+  // NEW: Image selection handler
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+
+    // Limit to 10 images
+    if (files.length + selectedImages.length > 10) {
+      showSuccessAlert("Maximum 10 images allowed");
+      return;
+    }
+
+    // Validate file types
+    const validFiles = files.filter((file) => file.type.startsWith("image/"));
+    if (validFiles.length !== files.length) {
+      showSuccessAlert("Only image files are allowed");
+    }
+
+    // Create previews
+    const newPreviews: string[] = [];
+    validFiles.forEach((file) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        newPreviews.push(reader.result as string);
+        if (newPreviews.length === validFiles.length) {
+          setImagePreviews([...imagePreviews, ...newPreviews]);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+
+    setSelectedImages([...selectedImages, ...validFiles]);
+  };
+
+  // NEW: Remove image handler
+  const handleRemoveImage = (index: number) => {
+    const newImages = selectedImages.filter((_, i) => i !== index);
+    const newPreviews = imagePreviews.filter((_, i) => i !== index);
+    setSelectedImages(newImages);
+    setImagePreviews(newPreviews);
+  };
+
+  const handleSubmitAddSpot = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Check if user is authenticated
+    if (!user) {
+      showSuccessAlert("You must be logged in to create a stargazing spot.");
+      return;
+    }
+
+    if (
+      addSpotForm.name.trim() &&
+      addSpotForm.location.trim() &&
+      addSpotForm.description.trim()
+    ) {
+      try {
+        setSubmittingSpot(true);
+        setUploadingSpot(true);
+
+        const spotData: CreateStargazingSpotRequest = {
+          name: addSpotForm.name.trim(),
+          location: addSpotForm.location.trim(),
+          description: addSpotForm.description.trim(),
+          best_time: addSpotForm.bestTime.trim() || undefined,
+          image_url: addSpotForm.image.trim() || undefined,
+          facilities: addSpotForm.facilities.filter((f) => f.trim()),
+        };
+
+        // Only include rating if it's a valid number between 1-5
+        if (
+          addSpotForm.rating !== undefined &&
+          addSpotForm.rating >= 1 &&
+          addSpotForm.rating <= 5
+        ) {
+          spotData.rating = addSpotForm.rating;
+        }
+
+        // Only include images if any are selected
+        if (selectedImages.length > 0) {
+          spotData.images = selectedImages;
+        }
+
+        console.log("Submitting spot data:", {
+          ...spotData,
+          images: spotData.images
+            ? `${spotData.images.length} images`
+            : "no images",
+        });
+
+        const response = await stargazingSpotService.createStargazingSpot(
+          spotData
+        );
+
+        if (response.success && response.data) {
+          // Reset form and close modal
+          setAddSpotForm({
+            name: "",
+            location: "",
+            bestTime: "",
+            description: "",
+            image: "",
+            facilities: [""],
+            rating: undefined,
+          });
+          setSelectedImages([]);
+          setImagePreviews([]);
+          setShowAddSpotModal(false);
+
+          // Refresh the spots list to include the new spot
+          await fetchStargazingSpots();
+
+          showSuccessAlert(
+            "Stargazing spot created successfully and submitted for moderation!"
+          );
+        } else {
+          showSuccessAlert(
+            response.message ||
+              "Failed to create stargazing spot. Please try again."
+          );
+        }
+      } catch (error) {
+        console.error("Error creating stargazing spot:", error);
+        showSuccessAlert(
+          "Failed to create stargazing spot. Please try again."
+        );
+      } finally {
+        setSubmittingSpot(false);
+        setUploadingSpot(false);
+      }
+    }
+  };
+
+  const handleCancelAddSpot = () => {
+    setShowAddSpotModal(false);
+    setAddSpotForm({
+      name: "",
+      location: "",
+      bestTime: "",
+      description: "",
+      image: "",
+      facilities: [""],
+      rating: undefined,
+    });
+    setSelectedImages([]);
+    setImagePreviews([]);
+  };
+
+  // const clearFilters = () => {
+  //   setFilters({
+  //     location: '',
+  //     rating: 0
+  //   });
+  // };
+
+  // const hasActiveFilters = () => {
+  //   return filters.location || filters.rating > 0;
+  // };
+
+  // Handle filter changes and trigger API calls
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (!loading) {
+        fetchStargazingSpots();
+      }
+    }, 500); // Debounce filter changes
+
+    return () => clearTimeout(timeoutId);
+  }, [filters.location]);
+
+  const filteredSpots = stargazingSpots; // Filtering is now handled by the API
+
+  const renderStars = (rating: number) => {
+    const totalStars = 5;
+    const filledStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 !== 0;
+    const stars = [];
+
+    for (let i = 0; i < totalStars; i++) {
+      if (i < filledStars) {
+        stars.push("★");
+      } else if (i === filledStars && hasHalfStar) {
+        stars.push("☆");
+      } else {
+        stars.push("☆");
+      }
+    }
+
+    return stars.join("");
+  };
+
+  return (
       <div className="stargazing">
         <div className="stargazing__header">
           <div className="stargazing__header-top">
@@ -1070,7 +1071,6 @@ const Stargazing = () => {
         )}
       </div>
     );
-  };
 };
 
 export default Stargazing;

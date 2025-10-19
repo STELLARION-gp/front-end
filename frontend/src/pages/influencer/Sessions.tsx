@@ -37,6 +37,7 @@ const Sessions = () => {
     difficulty_level: string;
     session_date: string;
     session_time: string;
+    session_link?: string;
   }>({
     title: "",
     price: 0,
@@ -44,6 +45,7 @@ const Sessions = () => {
     difficulty_level: "Beginner",
     session_date: "",
     session_time: "",
+    session_link: "",
   });
 
   // API state
@@ -463,6 +465,7 @@ const Sessions = () => {
       difficulty_level: session.difficulty_level,
       session_date: sessionDateStr,
       session_time: sessionTimeStr,
+      session_link: "session_link" in session ? (session.session_link as string) : "",
     });
     setShowEditModal(true);
   };
@@ -2373,6 +2376,7 @@ const Sessions = () => {
         | "advanced",
       session_date: editForm.session_date,
       session_time: editForm.session_time,
+      session_link: editForm.session_link || undefined,
     };
 
     await handleUpdateSession(selectedSession.id, updates);
@@ -2442,6 +2446,17 @@ const Sessions = () => {
                       setEditForm({ ...editForm, session_time: e.target.value })
                     }
                     required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Session Link</label>
+                  <input
+                    type="text"
+                    value={editForm.session_link}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, session_link: e.target.value })
+                    }
+                    placeholder="https://your-session-link.example"
                   />
                 </div>
                 <div className="form-group full-width">

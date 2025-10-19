@@ -48,7 +48,7 @@ const SessionDetails: React.FC = () => {
       
       if (response.success) {
         alert('Session approved successfully!');
-        navigate('/dashboard/moderation/sessions');
+        navigate('/dashboard/moderation/session');
       } else {
         alert('Failed to approve session');
       }
@@ -77,7 +77,7 @@ const SessionDetails: React.FC = () => {
       
       if (response.success) {
         alert('Session rejected successfully!');
-        navigate('/dashboard/moderation/sessions');
+        navigate('/dashboard/moderation/session');
       } else {
         alert('Failed to reject session');
       }
@@ -129,7 +129,7 @@ const SessionDetails: React.FC = () => {
           <FaExclamationTriangle className="error-icon" />
           <h2>Error Loading Session</h2>
           <p>{error || 'Session not found'}</p>
-          <Button onClick={() => navigate('/dashboard/moderation/sessions')}>
+          <Button onClick={() => navigate('/dashboard/moderation/session')}>
             <FaArrowLeft /> Back to Sessions
           </Button>
         </div>
@@ -143,7 +143,7 @@ const SessionDetails: React.FC = () => {
       <div className="details-header">
         <Button
           variant="ghost"
-          onClick={() => navigate('/dashboard/moderation/sessions')}
+          onClick={() => navigate('/dashboard/moderation/session')}
           className="back-button"
         >
           <FaArrowLeft /> Back to Sessions

@@ -1,5 +1,5 @@
 // pages/learner/MyUniverse.tsx
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import "../../styles/pages/learner/MyUniverse.scss";
@@ -230,6 +230,17 @@ const MyUniverse = () => {
     ParticipatedQuiz[]
   >([]);
   const [loading, setLoading] = useState(false);
+
+  // Derived stats computed from fetched quizzes so we can display stat cards immediately
+  const derivedStats = useMemo(() => {
+    const quizzes = availableQuizzes || []
+    const totalQuizzes = quizzes.length
+    const totalParticipants = quizzes.reduce((sum, q) => sum + (q.participants_count ?? 0), 0)
+    const totalQuestions = quizzes.reduce((sum, q) => sum + (q.question_count ?? 0), 0)
+    const avgQuestionsPerQuiz = totalQuizzes > 0 ? (totalQuestions / totalQuizzes).toFixed(1) : '0'
+    const participatedCount = participatedQuizzes.length
+    return { totalQuizzes, totalParticipants, totalQuestions, avgQuestionsPerQuiz, participatedCount }
+  }, [availableQuizzes, participatedQuizzes])
 
   // Fetch available quizzes
   const fetchAvailableQuizzes = useCallback(async () => {
@@ -552,6 +563,25 @@ const MyUniverse = () => {
                     gap: "1rem",
                   }}
                 >
+                  {/* Quick overview stats so users see metrics without refresh */}
+                  <div className="universe-stats" style={{ gridColumn: '1/-1', marginBottom: '0.75rem', display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                    <div className="stat-card" style={{ padding: '0.5rem 0.75rem', minWidth: 120, textAlign: 'center' }}>
+                      <div style={{ fontSize: '0.9rem', fontWeight: 700 }}>{derivedStats.totalQuizzes}</div>
+                      <div style={{ fontSize: '0.75rem', color: '#93a0bf' }}>Total Quizzes</div>
+                    </div>
+                    <div className="stat-card" style={{ padding: '0.5rem 0.75rem', minWidth: 120, textAlign: 'center' }}>
+                      <div style={{ fontSize: '0.9rem', fontWeight: 700 }}>{derivedStats.participatedCount}</div>
+                      <div style={{ fontSize: '0.75rem', color: '#93a0bf' }}>Participated</div>
+                    </div>
+                    <div className="stat-card" style={{ padding: '0.5rem 0.75rem', minWidth: 120, textAlign: 'center' }}>
+                      <div style={{ fontSize: '0.9rem', fontWeight: 700 }}>{derivedStats.totalQuestions}</div>
+                      <div style={{ fontSize: '0.75rem', color: '#93a0bf' }}>Total Questions</div>
+                    </div>
+                    <div className="stat-card" style={{ padding: '0.5rem 0.75rem', minWidth: 120, textAlign: 'center' }}>
+                      <div style={{ fontSize: '0.9rem', fontWeight: 700 }}>{derivedStats.avgQuestionsPerQuiz}</div>
+                      <div style={{ fontSize: '0.75rem', color: '#93a0bf' }}>Avg Questions/Quiz</div>
+                    </div>
+                  </div>
                   {availableQuizzes.length > 0 ? (
                     availableQuizzes.map((quiz) => (
                       <QuizCard

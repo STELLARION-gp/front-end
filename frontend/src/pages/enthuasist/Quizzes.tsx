@@ -92,9 +92,7 @@ const Quizzes = () => {
 
         // Calculate analytics from quizzes
         const totalQuizzes = quizzes.length
-        const approvedQuizzes = quizzes.filter(q => q.status === 'approved').length
-        const pendingQuizzes = quizzes.filter(q => q.status === 'pending').length
-        const rejectedQuizzes = quizzes.filter(q => q.status === 'rejected').length
+        
         const totalParticipants = quizzes.reduce((sum, q) => sum + (q.participantsCount || 0), 0)
         const totalQuestions = quizzes.reduce((sum, q) => sum + (q.questionCount || 0), 0)
         const avgQuestionsPerQuiz = totalQuizzes > 0 ? (totalQuestions / totalQuizzes).toFixed(1) : 0
@@ -102,9 +100,9 @@ const Quizzes = () => {
         
         setAnalytics({
           totalQuizzes,
-          approvedQuizzes,
-          pendingQuizzes,
-          rejectedQuizzes,
+          // approvedQuizzes,
+          // pendingQuizzes,
+          // rejectedQuizzes,
           totalParticipants,
           totalQuestions,
           avgQuestionsPerQuiz,
@@ -718,7 +716,7 @@ const Quizzes = () => {
             <div className="stat-label">Total Quizzes</div>
           </div>
 
-          <div className={`stat-card ${activeStat === 'approvedQuizzes' ? 'stat-card--active' : ''} stat-card--with-icon`}>
+          {/* <div className={`stat-card ${activeStat === 'approvedQuizzes' ? 'stat-card--active' : ''} stat-card--with-icon`}>
             <div className="stat-icon-wrapper approved">
               <button
                 className="stat-icon-btn"
@@ -767,7 +765,7 @@ const Quizzes = () => {
             </div>
             <div className="stat-value">{analytics.rejectedQuizzes}</div>
             <div className="stat-label">Rejected</div>
-          </div>
+          </div> */}
 
           <div className={`stat-card ${activeStat === 'totalParticipants' ? 'stat-card--active' : ''} stat-card--with-icon`}>
             <div className="stat-icon-wrapper participants">

@@ -1,213 +1,145 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { FaArrowLeft, FaUser, FaBan, FaCheck, FaExclamationTriangle, FaClock, FaFlag, FaEnvelope, FaIdCard, FaUserGraduate, FaUserTie } from 'react-icons/fa';
+import { FaArrowLeft, FaBan, FaCheck, FaExclamationTriangle, FaClock, FaEnvelope, FaIdCard, FaUserGraduate, FaUserTie, FaGlobe } from 'react-icons/fa';
 import '../../styles/pages/moderator/ProfileDetails.scss';
 import Button from '../../components/Button';
+import applicationModerationService from '../../services/applicationModerationService';
 
-interface ProfileReport {
-  id: string;
-  userId: string;
-  username: string;
-  email: string;
-  profileImage?: string;
-  reportedBy?: string[];
-  reportReason?: string[];
-  reportDetails?: string;
-  requestType?: 'role-upgrade' | 'learner-to-guide' | 'learner-to-influencer';
-  status: 'reported' | 'pending' | 'approved' | 'banned' | 'warned';
-  accountCreated: Date;
-  lastActive: Date;
-  priority: 'low' | 'medium' | 'high' | 'critical';
-  violations?: number;
-  currentRole?: string;
-  requestedRole?: string;
-  totalPosts?: number;
-  totalComments?: number;
-  joinedCommunities?: string[];
-  reputation?: number;
+interface ApplicationData {
+  application_id: number;
+  type: 'guide' | 'influencer';
+  approve_application_status: 'pending' | 'accepted' | 'rejected';
+  users: {
+    user_id: number;
+    first_name: string;
+    last_name: string;
+    email: string;
+    role: string;
+    firebase_uid: string;
+  };
+  expertise_areas?: string[];
+  experience_years?: number;
+  bio?: string;
+  social_media_links?: Record<string, string>;
+  followers_count?: number;
+  submitted_at: string;
 }
-
-const mockProfiles: ProfileReport[] = [
-  // Reported accounts
-  {
-    id: '1',
-    userId: 'usr_123',
-    username: 'SpamBot42',
-    email: 'spam@example.com',
-    reportedBy: ['User789', 'StarGazer01'],
-    reportReason: ['Spam', 'Fake account'],
-    reportDetails: 'This account has been posting spam comments and appears to be automated.',
-    status: 'reported',
-    accountCreated: new Date('2024-01-10T08:00:00'),
-    lastActive: new Date('2024-01-15T14:30:00'),
-    priority: 'high',
-    violations: 3,
-    totalPosts: 42,
-    totalComments: 156,
-    joinedCommunities: ['Astronomy Lovers', 'Space Explorers'],
-    reputation: -15
-  },
-  {
-    id: '2',
-    userId: 'usr_456',
-    username: 'ToxicCommenter',
-    email: 'toxic@example.com',
-    reportedBy: ['CommunityMod', 'NightWatcher'],
-    reportReason: ['Harassment', 'Inappropriate behavior'],
-    reportDetails: 'User has been harassing other members in astronomy discussions.',
-    status: 'reported',
-    accountCreated: new Date('2023-12-15T10:00:00'),
-    lastActive: new Date('2024-01-15T16:45:00'),
-    priority: 'critical',
-    violations: 7,
-    totalPosts: 12,
-    totalComments: 89,
-    joinedCommunities: ['Cosmic Discussions', 'Telescope Enthusiasts'],
-    reputation: -32
-  },
-  // Role upgrade requests
-  {
-    id: '3',
-    userId: 'usr_789',
-    username: 'AstroLearner',
-    email: 'learner@example.com',
-    status: 'pending',
-    accountCreated: new Date('2024-01-05T12:00:00'),
-    lastActive: new Date('2024-01-14T20:15:00'),
-    priority: 'low',
-    requestType: 'learner-to-guide',
-    currentRole: 'Learner',
-    requestedRole: 'Guide',
-    totalPosts: 24,
-    totalComments: 112,
-    joinedCommunities: ['Beginner Astronomers', 'Stargazing 101'],
-    reputation: 45
-  },
-  {
-    id: '4',
-    userId: 'usr_101',
-    username: 'CosmicExplorer',
-    email: 'explorer@example.com',
-    status: 'pending',
-    accountCreated: new Date('2023-11-20T09:00:00'),
-    lastActive: new Date('2024-01-16T11:20:00'),
-    priority: 'medium',
-    requestType: 'learner-to-influencer',
-    currentRole: 'Learner',
-    requestedRole: 'Influencer',
-    totalPosts: 56,
-    totalComments: 203,
-    joinedCommunities: ['Deep Space', 'Astrophotography'],
-    reputation: 78
-  },
-  // Previously handled cases
-  {
-    id: '5',
-    userId: 'usr_202',
-    username: 'ApprovedUser',
-    email: 'approved@example.com',
-    status: 'approved',
-    accountCreated: new Date('2023-10-15T14:00:00'),
-    lastActive: new Date('2024-01-16T18:30:00'),
-    priority: 'low',
-    totalPosts: 32,
-    totalComments: 145,
-    joinedCommunities: ['Space Photography', 'Telescope Reviews'],
-    reputation: 56
-  },
-  {
-    id: '6',
-    userId: 'usr_303',
-    username: 'WarnedUser',
-    email: 'warned@example.com',
-    status: 'warned',
-    accountCreated: new Date('2023-09-10T11:00:00'),
-    lastActive: new Date('2024-01-15T22:15:00'),
-    priority: 'medium',
-    totalPosts: 18,
-    totalComments: 67,
-    joinedCommunities: ['Amateur Astronomers', 'Night Sky'],
-    reputation: 12
-  },
-  {
-    id: '7',
-    userId: 'usr_404',
-    username: 'BannedUser',
-    email: 'banned@example.com',
-    status: 'banned',
-    accountCreated: new Date('2023-08-05T16:00:00'),
-    lastActive: new Date('2024-01-10T19:45:00'),
-    priority: 'high',
-    totalPosts: 5,
-    totalComments: 23,
-    joinedCommunities: ['Space Debates', 'Cosmic Theories'],
-    reputation: -8
-  }
-];
 
 export default function ProfileDetails() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [profile, setProfile] = useState<ProfileReport | null>(null);
+  const [application, setApplication] = useState<ApplicationData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      const foundProfile = mockProfiles.find(item => item.id === id);
-      setProfile(foundProfile || null);
-      setLoading(false);
-    }, 500);
+    const fetchApplication = async () => {
+      if (!id) {
+        setError('No application ID provided');
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const [type, idStr] = id.split('-');
+        const applicationId = parseInt(idStr);
+
+        if (!type || !applicationId || (type !== 'guide' && type !== 'influencer')) {
+          setError('Invalid application ID format');
+          setLoading(false);
+          return;
+        }
+
+        const app = await applicationModerationService.getApplicationById(
+          applicationId,
+          type as 'guide' | 'influencer'
+        );
+
+        setApplication(app as unknown as ApplicationData);
+      } catch (err) {
+        console.error('Error fetching application:', err);
+        setError((err as Error).message || 'Failed to load application');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchApplication();
   }, [id]);
 
-  const handleApprove = () => {
-    if (profile) {
-      setProfile({ ...profile, status: 'approved' });
-      // In real app, would make API call here
+  const handleApprove = async () => {
+    if (!application) return;
+
+    const confirmMessage = `Are you sure you want to approve this ${application.type} application?\n\nThis will upgrade the user's role to ${application.type === 'guide' ? 'Guide' : 'Influencer'}.`;
+    
+    if (!confirm(confirmMessage)) return;
+
+    try {
+      if (application.type === 'guide') {
+        await applicationModerationService.approveGuideApplication(application.application_id);
+      } else {
+        await applicationModerationService.approveInfluencerApplication(application.application_id);
+      }
+
+      navigate('/dashboard/moderation/profile', {
+        state: {
+          message: `${application.type === 'guide' ? 'Guide' : 'Influencer'} application approved successfully! User role has been updated.`,
+          type: 'success'
+        }
+      });
+    } catch (err) {
+      alert((err as Error).message || 'Failed to approve application');
     }
   };
 
-  const handleWarn = () => {
-    if (profile) {
-      setProfile({ ...profile, status: 'warned' });
-      // In real app, would make API call here
+  const handleReject = async () => {
+    if (!application) return;
+
+    const reason = prompt(`Enter rejection reason (optional):\n\nThis message will be sent to the user.`);
+    if (reason === null) return;
+
+    try {
+      if (application.type === 'guide') {
+        await applicationModerationService.rejectGuideApplication(
+          application.application_id,
+          reason || undefined
+        );
+      } else {
+        await applicationModerationService.rejectInfluencerApplication(
+          application.application_id,
+          reason || undefined
+        );
+      }
+
+      const message = reason 
+        ? `Application rejected: ${reason}`
+        : `${application.type === 'guide' ? 'Guide' : 'Influencer'} application rejected`;
+
+      navigate('/dashboard/moderation/profile', {
+        state: {
+          message,
+          type: 'success'
+        }
+      });
+    } catch (err) {
+      alert((err as Error).message || 'Failed to reject application');
     }
   };
 
-  const handleBan = () => {
-    if (profile) {
-      setProfile({ ...profile, status: 'banned' });
-      // In real app, would make API call here
-    }
+  const getRequestTypeLabel = (type: 'guide' | 'influencer') => {
+    return type === 'guide' ? 'Guide Application' : 'Influencer Application';
   };
 
-  const handleApproveRequest = () => {
-    if (profile) {
-      setProfile({ ...profile, status: 'approved' });
-      // In real app, would make API call here
-    }
-  };
-
-  const handleRejectRequest = () => {
-    if (profile) {
-      setProfile({ ...profile, status: 'warned' });
-      // In real app, would make API call here
-    }
-  };
-
-  const getRiskLevel = (violations: number = 0) => {
-    if (violations >= 5) return { level: 'Critical Risk', class: 'critical' };
-    if (violations >= 3) return { level: 'High Risk', class: 'high-risk' };
-    if (violations >= 1) return { level: 'Medium Risk', class: 'medium-risk' };
-    return { level: 'Clean', class: 'clean' };
-  };
-
-  const getRequestTypeLabel = (requestType?: string) => {
-    switch(requestType) {
-      case 'learner-to-guide': return 'Guide Request';
-      case 'learner-to-influencer': return 'Influencer Request';
-      default: return 'Role Upgrade';
-    }
+  const getPriorityFromDate = (submittedAt: string) => {
+    const daysSinceSubmission = Math.floor(
+      (Date.now() - new Date(submittedAt).getTime()) / (1000 * 60 * 60 * 24)
+    );
+    
+    if (daysSinceSubmission > 14) return 'critical';
+    if (daysSinceSubmission > 7) return 'high';
+    if (daysSinceSubmission > 3) return 'medium';
+    return 'low';
   };
 
   if (loading) {
@@ -215,37 +147,36 @@ export default function ProfileDetails() {
       <div className="profile-details">
         <div className="loading-state">
           <div className="loading-spinner"></div>
-          <p>Loading profile details...</p>
+          <p>Loading application details...</p>
         </div>
       </div>
     );
   }
 
-  if (!profile) {
+  if (error || !application) {
     return (
       <div className="profile-details">
         <div className="error-state">
           <FaExclamationTriangle className="error-icon" />
-          <h2>Profile Not Found</h2>
-          <p>The requested profile could not be found.</p>
+          <h2>Application Not Found</h2>
+          <p>{error || 'The requested application could not be found.'}</p>
           <Button
             variant="primary"
             onClick={() => navigate('/dashboard/moderation/profile')}
           >
-            Back to Profile Moderation
+            Back to Application List
           </Button>
         </div>
       </div>
     );
   }
 
-  const riskLevel = getRiskLevel(profile.violations);
-  const isReported = profile.status === 'reported';
-  const isRequest = profile.status === 'pending';
+  const isPending = application.approve_application_status === 'pending';
+  const isGuide = application.type === 'guide';
+  const priority = getPriorityFromDate(application.submitted_at);
 
   return (
     <div className="profile-details">
-      {/* Header */}
       <header className="details-header">
         <div className="header-content">
           <div className="header-left">
@@ -256,20 +187,16 @@ export default function ProfileDetails() {
               iconPosition="left"
               onClick={() => navigate('/dashboard/moderation/profile')}
             >
-              Back to Profile List
+              Back to Application List
             </Button>
             <div className="title-section">
-              <h1>
-                {isRequest ? 'Role Upgrade Request' : 'Profile Report Details'}
-              </h1>
-              <p>
-                {isRequest ? 'Review and process this role request' : 'Review and moderate this user profile'}
-              </p>
+              <h1>{getRequestTypeLabel(application.type)}</h1>
+              <p>Review and process this application</p>
             </div>
           </div>
           
           <div className="header-actions">
-            {isReported && (
+            {isPending && (
               <>
                 <Button
                   variant="success"
@@ -281,300 +208,199 @@ export default function ProfileDetails() {
                   Approve
                 </Button>
                 <Button
-                  variant="warning"
-                  size="medium"
-                  icon={<FaExclamationTriangle />}
-                  iconPosition="left"
-                  onClick={handleWarn}
-                >
-                  Warn
-                </Button>
-                <Button
                   variant="danger"
                   size="medium"
                   icon={<FaBan />}
                   iconPosition="left"
-                  onClick={handleBan}
+                  onClick={handleReject}
                 >
-                  Ban
+                  Reject
                 </Button>
               </>
             )}
-            {isRequest && (
-              <>
-                <Button
-                  variant="success"
-                  size="medium"
-                  icon={<FaCheck />}
-                  iconPosition="left"
-                  onClick={handleApproveRequest}
-                >
-                  Approve Request
-                </Button>
-                <Button
-                  variant="danger"
-                  size="medium"
-                  icon={<FaBan />}
-                  iconPosition="left"
-                  onClick={handleRejectRequest}
-                >
-                  Reject Request
-                </Button>
-              </>
+            {!isPending && (
+              <div className={`status-badge status-${application.approve_application_status}`}>
+                {application.approve_application_status === 'accepted' ? 'Approved' : 'Rejected'}
+              </div>
             )}
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
       <div className="details-content">
-        <div className={`profile-card ${isRequest ? 'request-card' : ''}`}>
-          {/* Profile Header */}
-          <div className="profile-header">
-            <div className="user-section">
-              <div className="avatar-large">
-                {isRequest ? (
-                  profile.requestType === 'learner-to-influencer' ? <FaUserTie /> : <FaUserGraduate />
-                ) : <FaUser />}
+        <div className="info-card user-info-card">
+          <div className="card-header">
+            <div className="header-icon">
+              {isGuide ? <FaUserGraduate /> : <FaUserTie />}
+            </div>
+            <h2>User Information</h2>
+          </div>
+          <div className="card-content">
+            <div className="user-header">
+              <div className={`avatar ${application.type}`}>
+                {isGuide ? <FaUserGraduate /> : <FaUserTie />}
               </div>
-              <div className="user-info">
-                <h2 className="username">{profile.username}</h2>
+              <div className="user-details">
+                <h3>{application.users.first_name} {application.users.last_name}</h3>
                 <div className="user-meta">
                   <span className="email">
-                    <FaEnvelope className="meta-icon" />
-                    {profile.email}
+                    <FaEnvelope /> {application.users.email}
                   </span>
                   <span className="user-id">
-                    <FaIdCard className="meta-icon" />
-                    ID: {profile.userId}
+                    <FaIdCard /> ID: {application.users.user_id}
                   </span>
-                  {isRequest && (
-                    <div className="request-info">
-                      <span className="current-role">{profile.currentRole}</span>
-                      <span className="arrow">→</span>
-                      <span className="requested-role">{profile.requestedRole}</span>
-                    </div>
-                  )}
                 </div>
               </div>
             </div>
-            <div className="status-section">
-              <div className={`priority-badge priority-${profile.priority}`}>
-                {profile.priority} priority
-              </div>
-              {isReported && (
-                <div className={`risk-badge ${riskLevel.class}`}>
-                  {riskLevel.level}
-                </div>
-              )}
-              {isRequest && (
-                <div className="request-type-badge">
-                  {getRequestTypeLabel(profile.requestType)}
-                </div>
-              )}
-              <div className={`status-badge status-${profile.status}`}>
-                {profile.status}
-              </div>
-            </div>
-          </div>
 
-          {/* Account Information */}
-          <div className="info-section">
-            <h3>Account Information</h3>
             <div className="info-grid">
               <div className="info-item">
-                <div className="info-label">Account Created</div>
-                <div className="info-value">
-                  <FaClock className="info-icon" />
-                  {profile.accountCreated.toLocaleString()}
-                </div>
+                <span className="label">Current Role:</span>
+                <span className="value">{application.users.role || 'User'}</span>
               </div>
               <div className="info-item">
-                <div className="info-label">Last Active</div>
-                <div className="info-value">
-                  <FaClock className="info-icon" />
-                  {profile.lastActive.toLocaleString()}
-                </div>
+                <span className="label">Requested Role:</span>
+                <span className="value requested-role">{application.type === 'guide' ? 'Guide' : 'Influencer'}</span>
               </div>
-              {isReported && (
-                <div className="info-item">
-                  <div className="info-label">Total Violations</div>
-                  <div className={`info-value violations-count ${riskLevel.class}`}>
-                    <FaExclamationTriangle className="info-icon" />
-                    {profile.violations} ({riskLevel.level})
-                  </div>
-                </div>
-              )}
-              {profile.reputation !== undefined && (
-                <div className="info-item">
-                  <div className="info-label">Reputation Score</div>
-                  <div className={`info-value reputation ${profile.reputation < 0 ? 'negative' : 'positive'}`}>
-                    {profile.reputation}
-                  </div>
-                </div>
-              )}
-              {isRequest && (
-                <div className="info-item">
-                  <div className="info-label">Request Type</div>
-                  <div className="info-value">
-                    {getRequestTypeLabel(profile.requestType)}
-                  </div>
-                </div>
-              )}
+              <div className="info-item">
+                <span className="label">Submitted:</span>
+                <span className="value">
+                  <FaClock /> {new Date(application.submitted_at).toLocaleDateString()}
+                </span>
+              </div>
+              <div className="info-item">
+                <span className="label">Priority:</span>
+                <span className={`priority-badge priority-${priority}`}>
+                  {priority.toUpperCase()}
+                </span>
+              </div>
             </div>
           </div>
+        </div>
 
-          {/* Activity Statistics */}
-          <div className="activity-section">
-            <h3>Activity Statistics</h3>
-            <div className="activity-grid">
-              <div className="activity-stat">
-                <span className="stat-number">{profile.totalPosts || 0}</span>
-                <span className="stat-label">Posts</span>
-              </div>
-              <div className="activity-stat">
-                <span className="stat-number">{profile.totalComments || 0}</span>
-                <span className="stat-label">Comments</span>
-              </div>
-              <div className="activity-stat">
-                <span className="stat-number">{profile.joinedCommunities?.length || 0}</span>
-                <span className="stat-label">Communities</span>
-              </div>
-            </div>
-            {profile.joinedCommunities && profile.joinedCommunities.length > 0 && (
-              <div className="communities-list">
-                <h4>Joined Communities</h4>
-                <div className="community-tags">
-                  {profile.joinedCommunities.map((community, index) => (
-                    <span key={index} className="community-tag">{community}</span>
-                  ))}
-                </div>
-              </div>
-            )}
+        <div className="info-card application-details-card">
+          <div className="card-header">
+            <h2>{isGuide ? 'Guide' : 'Influencer'} Application Details</h2>
           </div>
-
-          {/* Reports Section - Only for reported profiles */}
-          {isReported && (
-            <div className="reports-section">
-              <h3>
-                <FaFlag className="section-icon" />
-                Report Details ({profile.reportedBy?.length || 0} reports)
-              </h3>
-              
-              <div className="report-content">
-                <div className="reporters-section">
-                  <h4>Reported by:</h4>
-                  <div className="reporters-list">
-                    {profile.reportedBy?.map((reporter, index) => (
-                      <span key={index} className="reporter-tag">{reporter}</span>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="reasons-section">
-                  <h4>Report reasons:</h4>
-                  <div className="reason-tags">
-                    {profile.reportReason?.map((reason, index) => (
-                      <span key={index} className="reason-tag">{reason}</span>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="details-section">
-                  <h4>Report details:</h4>
-                  <div className="report-text">{profile.reportDetails}</div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Request Details - Only for role requests */}
-          {isRequest && (
-            <div className="request-section">
-              <h3>
-                <FaUser className="section-icon" />
-                Role Upgrade Request Details
-              </h3>
-              <div className="request-content">
-                <div className="request-info-item">
-                  <h4>Current Role:</h4>
-                  <p>{profile.currentRole}</p>
-                </div>
-                <div className="request-info-item">
-                  <h4>Requested Role:</h4>
-                  <p>{profile.requestedRole}</p>
-                </div>
-                <div className="request-info-item">
-                  <h4>Request Type:</h4>
-                  <p>{getRequestTypeLabel(profile.requestType)}</p>
-                </div>
-                <div className="request-info-item">
-                  <h4>Request Justification:</h4>
-                  <div className="request-text">
-                    This user has demonstrated consistent positive contributions to the community and meets all requirements for the requested role.
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Action Buttons */}
-          <div className="action-section">
-            {isReported && (
+          <div className="card-content">
+            {isGuide && (
               <>
-                <Button
-                  variant="success"
-                  size="large"
-                  icon={<FaCheck />}
-                  iconPosition="left"
-                  onClick={handleApprove}
-                >
-                  Approve Profile
-                </Button>
-                <Button
-                  variant="warning"
-                  size="large"
-                  icon={<FaExclamationTriangle />}
-                  iconPosition="left"
-                  onClick={handleWarn}
-                >
-                  Issue Warning
-                </Button>
-                <Button
-                  variant="danger"
-                  size="large"
-                  icon={<FaBan />}
-                  iconPosition="left"
-                  onClick={handleBan}
-                >
-                  Ban User
-                </Button>
+                {application.expertise_areas && application.expertise_areas.length > 0 && (
+                  <div className="detail-section">
+                    <h3>Areas of Expertise</h3>
+                    <div className="tags-container">
+                      {application.expertise_areas.map((area, index) => (
+                        <span key={index} className="tag expertise-tag">{area}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {application.experience_years !== undefined && (
+                  <div className="detail-section">
+                    <h3>Years of Experience</h3>
+                    <p className="experience-value">{application.experience_years} years</p>
+                  </div>
+                )}
+
+                {application.bio && (
+                  <div className="detail-section">
+                    <h3>Bio</h3>
+                    <p className="bio-text">{application.bio}</p>
+                  </div>
+                )}
               </>
             )}
-            {isRequest && (
+
+            {!isGuide && (
               <>
-                <Button
-                  variant="success"
-                  size="large"
-                  icon={<FaCheck />}
-                  iconPosition="left"
-                  onClick={handleApproveRequest}
-                >
-                  Approve Request
-                </Button>
-                <Button
-                  variant="danger"
-                  size="large"
-                  icon={<FaBan />}
-                  iconPosition="left"
-                  onClick={handleRejectRequest}
-                >
-                  Reject Request
-                </Button>
+                {application.followers_count !== undefined && (
+                  <div className="detail-section">
+                    <h3>Total Followers</h3>
+                    <p className="followers-value">{application.followers_count.toLocaleString()}</p>
+                  </div>
+                )}
+
+                {application.social_media_links && Object.keys(application.social_media_links).length > 0 && (
+                  <div className="detail-section">
+                    <h3>Social Media Profiles</h3>
+                    <div className="social-links">
+                      {Object.entries(application.social_media_links).map(([platform, link]) => (
+                        <a
+                          key={platform}
+                          href={link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="social-link"
+                        >
+                          <FaGlobe />
+                          <span className="platform-name">{platform}:</span>
+                          <span className="platform-link">{link}</span>
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </>
             )}
           </div>
         </div>
+
+        <div className="info-card status-card">
+          <div className="card-header">
+            <h2>Application Status</h2>
+          </div>
+          <div className="card-content">
+            <div className="status-info">
+              <div className="status-item">
+                <span className="label">Current Status:</span>
+                <span className={`status-badge status-${application.approve_application_status}`}>
+                  {application.approve_application_status === 'pending' && 'Pending Review'}
+                  {application.approve_application_status === 'accepted' && 'Approved'}
+                  {application.approve_application_status === 'rejected' && 'Rejected'}
+                </span>
+              </div>
+              <div className="status-item">
+                <span className="label">Application Type:</span>
+                <span className="value">{getRequestTypeLabel(application.type)}</span>
+              </div>
+              <div className="status-item">
+                <span className="label">Submission Date:</span>
+                <span className="value">{new Date(application.submitted_at).toLocaleString()}</span>
+              </div>
+            </div>
+
+            {isPending && (
+              <div className="action-reminder">
+                <FaExclamationTriangle className="reminder-icon" />
+                <p>This application requires your review. Please approve or reject.</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {isPending && (
+          <div className="details-actions">
+            <Button
+              variant="success"
+              size="large"
+              icon={<FaCheck />}
+              iconPosition="left"
+              onClick={handleApprove}
+            >
+              Approve Application
+            </Button>
+            <Button
+              variant="danger"
+              size="large"
+              icon={<FaBan />}
+              iconPosition="left"
+              onClick={handleReject}
+            >
+              Reject Application
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

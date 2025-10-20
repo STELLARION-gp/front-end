@@ -273,26 +273,34 @@ const ServiceDetail: React.FC = () => {
           </h2>
           {availability.length > 0 ? (
             <div className="availability-grid">
-              {availability.map((slot) => (
-                <div key={slot.id} className="availability-card">
-                  <div className="slot-date">{formatDate(slot.available_date)}</div>
-                  <div className="slot-time">
-                    {formatTime(slot.start_time)} - {formatTime(slot.end_time)}
+              {availability.map((slot) => {
+                const availableSpots = slot.slots_available - slot.slots_booked;
+                const exceededMax = service.max_participants !== undefined && slot.slots_booked >= service.max_participants;
+
+                return (
+                  <div key={slot.id} className="availability-card">
+                    <div className="slot-date">{formatDate(slot.available_date)}</div>
+                    <div className="slot-time">
+                      {formatTime(slot.start_time)} - {formatTime(slot.end_time)}
+                    </div>
+                    <div className="slot-info">
+                      <span className="slots-available">{availableSpots} spots left</span>
+                    </div>
+
+                    {availableSpots <= 0 ? (
+                      <Button variant="primary" disabled>
+                        Fully Booked
+                      </Button>
+                    ) : exceededMax ? (
+                      <div className="cannot-register">Cannot register</div>
+                    ) : (
+                      <Button variant="primary" onClick={() => handleBooking(slot)}>
+                        Book Now
+                      </Button>
+                    )}
                   </div>
-                  <div className="slot-info">
-                    <span className="slots-available">
-                      {slot.slots_available - slot.slots_booked} spots left
-                    </span>
-                  </div>
-                  <Button
-                    variant="primary"
-                    onClick={() => handleBooking(slot)}
-                    disabled={slot.slots_available - slot.slots_booked === 0}
-                  >
-                    {slot.slots_available - slot.slots_booked === 0 ? 'Fully Booked' : 'Book Now'}
-                  </Button>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <div className="no-availability">
@@ -357,9 +365,25 @@ const BookingModal: React.FC<BookingModalProps> = ({ service, slot, onClose, onS
         total_price: totalPrice
       });
 
+      // Validate capacity before booking
+      if (availableSpots <= 0) {
+        setError('This slot is fully booked. Please choose another date.');
+        return;
+      }
+
+      if (participants > availableSpots) {
+        setError(`Only ${availableSpots} spots remaining for this slot.`);
+        return;
+      }
+
+      if (service.max_participants && participants > service.max_participants) {
+        setError(`Maximum ${service.max_participants} participants allowed for this service.`);
+        return;
+      }
+
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1500));
-      
+
       alert('Booking successful! Payment will be processed.');
       onSuccess();
     } catch (err) {
@@ -420,7 +444,7 @@ const BookingModal: React.FC<BookingModalProps> = ({ service, slot, onClose, onS
             </div>
           </div>
 
-          <div className="participants-selector">
+            <div className="participants-selector">
             <label>Number of Participants</label>
             <div className="counter">
               <button
@@ -431,8 +455,11 @@ const BookingModal: React.FC<BookingModalProps> = ({ service, slot, onClose, onS
               </button>
               <span>{participants}</span>
               <button
-                onClick={() => setParticipants(Math.min(availableSpots, participants + 1))}
-                disabled={participants >= availableSpots}
+                onClick={() => setParticipants((prev) => {
+                  const maxAllowed = Math.min(availableSpots, service.max_participants || availableSpots);
+                  return Math.min(maxAllowed, prev + 1);
+                })}
+                disabled={participants >= Math.min(availableSpots, service.max_participants || availableSpots)}
               >
                 +
               </button>
@@ -458,11 +485,21 @@ const BookingModal: React.FC<BookingModalProps> = ({ service, slot, onClose, onS
           {error && <div className="error-message">{error}</div>}
         </div>
 
-        <div className="modal-footer">
+          <div className="modal-footer">
           <Button variant="secondary" onClick={onClose} disabled={loading}>
             Cancel
           </Button>
-          <Button variant="primary" onClick={handleBooking} disabled={loading}>
+          <Button
+            variant="primary"
+            onClick={handleBooking}
+            disabled={Boolean(
+              loading ||
+              availableSpots <= 0 ||
+              participants < 1 ||
+              participants > availableSpots ||
+              (service.max_participants && participants > service.max_participants)
+            )}
+          >
             {loading ? 'Processing...' : `Pay Rs. ${Math.round(totalPrice).toLocaleString()} & Book`}
           </Button>
         </div>

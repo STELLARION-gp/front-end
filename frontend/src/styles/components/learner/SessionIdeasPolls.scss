@@ -7,9 +7,10 @@
 }
 
 .poll-list {
-    margin-top: 1rem;
-    display: flex;
-  flex-wrap: wrap;
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: repeat(3, 340px);
+  justify-content: center;
   gap: 1.2rem;
 }
 .poll-item {
@@ -24,7 +25,8 @@
   border: 2px solid #334155;
   transition: border-color 0.2s, box-shadow 0.2s;
   max-width: 370px;
-  width: 100%;
+  width: 340px;
+  box-sizing: border-box;
   overflow: hidden;
   background-clip: padding-box;
   &.poll-item-trending {
@@ -60,6 +62,27 @@
     box-shadow: 0 8px 32px 0 rgba(59,130,246,0.18), 0 4px 24px rgba(37,99,235,0.18);
     transform: translateY(-2px) scale(1.015);
     transition: box-shadow 0.3s, border-color 0.3s, transform 0.2s;
+  }
+}
+
+/* Responsive grid: 2 columns on tablet, 1 column on mobile */
+@media (max-width: 1024px) {
+  .poll-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .poll-item {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .poll-list {
+    grid-template-columns: 1fr;
+  }
+  .poll-item {
+    width: 100%;
+    max-width: 100%;
   }
 }
 .poll-card {

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import SessionCard from "./SessionCard";
 import SessionDetailsModal from "./SessionDetailsModal";
 import { sessionsService, type Session } from "../../services/sessionsService";
+import { useToast } from "../../contexts/ToastContext";
 import "../../styles/pages/learner/AstronomySessionsPage.scss";
 
 const UpcomingSessions: React.FC = () => {
@@ -57,6 +58,28 @@ const UpcomingSessions: React.FC = () => {
   const handleViewDetails = (session: Session) => {
     setSelectedSession(session);
     setModalOpen(true);
+  };
+
+  const { showSuccess, showError } = useToast();
+
+  const handleRegister = async (sessionId: number) => {
+    try {
+      // Call free enrollment endpoint
+      await sessionsService.enrollInFreeSession(sessionId);
+      showSuccess('Registered successfully! You now have access to the session.');
+      setModalOpen(false);
+      // Refresh list to reflect possible disablement when full
+      await fetchUpcomingSessions();
+    } catch (err: any) {
+      console.error('Registration error:', err);
+      const msg = err?.message || (err && err.toString()) || 'Failed to register for session';
+      showError(msg);
+      // If session is full, refresh the list so it disappears or shows disabled state
+      if (typeof msg === 'string' && msg.toLowerCase().includes('full')) {
+        await fetchUpcomingSessions();
+        setModalOpen(false);
+      }
+    }
   };
 
   if (loading) {
@@ -145,10 +168,7 @@ const UpcomingSessions: React.FC = () => {
         session={selectedSession}
         open={modalOpen}
         onClose={() => setModalOpen(false)}
-        onRegister={(sessionId) => {
-          console.log('Register for session:', sessionId);
-          // TODO: Implement registration logic
-        }}
+        onRegister={(sessionId) => handleRegister(sessionId)}
         onEnrollmentSuccess={fetchUpcomingSessions}
       />
     </div>

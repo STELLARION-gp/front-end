@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Button from '../../components/Button';
 import Card from '../../components/Card';
 import { Calendar, CheckCircle, XCircle, Users } from 'lucide-react';
+import SuccessMessage from '../../components/SuccessMessage';
 import '../../styles/pages/guide/_bookingRequests.scss';
 import { getGuideBookings, confirmBooking, rejectBooking, type Booking } from '../../services/bookingService';
 import PaymentDetailsModal from '../../components/PaymentDetailsModal';
@@ -14,7 +15,7 @@ interface BookingRequest {
   serviceName: string;
   date: string;
   startTime: string;
-  endTime: string;
+  endTime?: string;
   participants: number;
   totalAmount: number;
   paymentStatus?: string;
@@ -27,8 +28,14 @@ const BookingRequests: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [acceptedCount, setAcceptedCount] = useState(0);
   const [rejectedCount, setRejectedCount] = useState(0);
+  const [completedCount, setCompletedCount] = useState(0);
   const [selectedDetails, setSelectedDetails] = useState<any | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+  // Local toasts
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [successMessageText, setSuccessMessageText] = useState('');
+  const [showErrorMessage, setShowErrorMessage] = useState(false);
+  const [errorMessageText, setErrorMessageText] = useState('');
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -44,12 +51,18 @@ const BookingRequests: React.FC = () => {
           .filter(b => b.booking_status === 'pending')
           .map(transformBooking);
         
-        const confirmedCount = response.bookings.filter(b => b.booking_status === 'confirmed').length;
-        const cancelledCount = response.bookings.filter(b => b.booking_status === 'cancelled').length;
+  const confirmedCount = response.bookings.filter(b => b.booking_status === 'confirmed').length;
+  const cancelledCount = response.bookings.filter(b => b.booking_status === 'cancelled').length;
+  const compCount = response.bookings.filter(b => b.booking_status === 'completed').length;
         
         setRequests(pendingBookings);
         setAcceptedCount(confirmedCount);
         setRejectedCount(cancelledCount);
+        setCompletedCount(compCount);
+        // Debug logs to help confirm values during development
+        try {
+          console.debug('Bookings counts:', { pending: pendingBookings.length, confirmedCount, cancelledCount, completed: compCount });
+        } catch (e) {}
       } catch (err) {
         console.error('Error fetching bookings:', err);
         setError(err instanceof Error ? err.message : 'Failed to load bookings');
@@ -71,38 +84,19 @@ const BookingRequests: React.FC = () => {
     const serviceObj = (booking as any).service || (booking as any).services || null;
     const serviceName = serviceObj?.title || 'Unknown Service';
 
-    // booking_date is Date or string
-    const dateObj = typeof booking.booking_date === 'string'
-      ? new Date(booking.booking_date)
-      : booking.booking_date;
-    const date = dateObj.toISOString().split('T')[0];
+    // Use booking created_at timestamp for table date/time
+    const createdAtObj = booking.created_at
+      ? (typeof booking.created_at === 'string' ? new Date(booking.created_at) : booking.created_at)
+      : new Date();
 
-    // booking_time is Date or string or undefined
-    let startTime = '00:00';
-    if (booking.booking_time) {
-      let timeObj: Date | null = null;
-      if (typeof booking.booking_time === 'string') {
-        // Try to parse as ISO or time string
-        if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(booking.booking_time)) {
-          timeObj = new Date(booking.booking_time);
-        } else if (/^\d{2}:\d{2}/.test(booking.booking_time)) {
-          timeObj = new Date(`1970-01-01T${booking.booking_time}`);
-        }
-      } else if (
-        typeof booking.booking_time === 'object' &&
-        booking.booking_time !== null &&
-        'getTime' in booking.booking_time
-      ) {
-        timeObj = booking.booking_time as Date;
-      }
-      if (timeObj && !isNaN(timeObj.getTime())) {
-        startTime = timeObj.toISOString().substring(11, 16);
-      }
-    }
+    // Format date as 'DD MMM YYYY' (e.g., 20 Oct 2025)
+    const date = createdAtObj.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
 
-    const endTime = serviceObj?.duration
-      ? calculateEndTime(startTime, serviceObj.duration)
-      : '00:00';
+    // Format time as 'h:mm AM/PM' (e.g., 2:34 PM)
+    const formattedTime = createdAtObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+
+  // For table, provide a single formatted time string
+  const startTime = formattedTime;
 
     return {
       id: booking.id.toString(),
@@ -110,26 +104,13 @@ const BookingRequests: React.FC = () => {
       serviceName,
       date,
       startTime,
-      endTime,
       participants: booking.participants_count,
       totalAmount: booking.total_amount,
       paymentStatus: (booking as any).payment_status || (booking as any).paymentStatus || 'not_paid',
     };
   };
 
-  const calculateEndTime = (startTime: string, duration: string): string => {
-    // Parse duration (e.g., "3 hours", "2 days")
-    const match = duration.match(/(\d+)\s*(hour|day)/i);
-    if (!match) return startTime;
-    
-    const [, amount, unit] = match;
-    const hours = unit.toLowerCase() === 'day' ? parseInt(amount) * 24 : parseInt(amount);
-    
-    const [startHour, startMin] = startTime.split(':').map(Number);
-    const endHour = (startHour + hours) % 24;
-    
-    return `${String(endHour).padStart(2, '0')}:${String(startMin).padStart(2, '0')}`;
-  };
+  // Note: end time calculation removed because we use booking created_at for both date and time
 
   // modal state handlers below
 
@@ -208,14 +189,24 @@ const BookingRequests: React.FC = () => {
     try {
       await confirmBooking(selectedDetails.bookingId);
       setAcceptedCount(prev => prev + 1);
-      setRequests(prev => prev.filter(req => req.id !== String(selectedDetails.bookingId)));
-      alert('Booking confirmed successfully!');
-      setModalOpen(false);
+  setRequests(prev => prev.filter(req => req.id !== String(selectedDetails.bookingId)));
+  // When a booking is confirmed it moves from pending -> confirmed; completed remains backend-driven
+  setSuccessMessageText('Booking confirmed successfully!');
+  setShowSuccessMessage(true);
+  setModalOpen(false);
         // Notify other pages (e.g., PaymentProcessing) to refresh
         try { window.dispatchEvent(new Event('payments-updated')); } catch(e) {}
+        // Refresh services listing to update participant counts (if ServiceListing is mounted)
+        try {
+          const refreshFn = (window as any).__refreshGuideServices;
+          if (typeof refreshFn === 'function') await refreshFn();
+        } catch (refreshErr) {
+          console.warn('Failed to refresh services after confirm:', refreshErr);
+        }
     } catch (err) {
       console.error('Error confirming booking:', err);
-      alert(err instanceof Error ? err.message : 'Failed to confirm booking');
+      setErrorMessageText(err instanceof Error ? err.message : 'Failed to confirm booking');
+      setShowErrorMessage(true);
     }
   };
 
@@ -244,23 +235,26 @@ const BookingRequests: React.FC = () => {
       await rejectBooking(selectedDetails.bookingId, reason || undefined);
       setRejectedCount(prev => prev + 1);
       setRequests(prev => prev.filter(req => req.id !== String(selectedDetails.bookingId)));
-      alert('Booking rejected and (if applicable) refunded successfully.');
-      setModalOpen(false);
+  setSuccessMessageText('Booking rejected and (if applicable) refunded successfully.');
+  setShowSuccessMessage(true);
+  setModalOpen(false);
       // Notify other pages (e.g., PaymentProcessing) to refresh
       try { window.dispatchEvent(new Event('payments-updated')); } catch(e) {}
     } catch (err) {
       console.error('Error rejecting booking:', err);
       const message = err instanceof Error ? err.message : String(err);
       if (message.includes('Payment for booking not found') || message.includes('404')) {
-        alert('No payment record found for this booking.');
+        setErrorMessageText('No payment record found for this booking.');
       } else {
-        alert(message || 'Failed to reject booking');
+        setErrorMessageText(message || 'Failed to reject booking');
       }
+      setShowErrorMessage(true);
     }
   };
 
   const pendingCount = requests.length;
-  const totalCount = acceptedCount + rejectedCount + pendingCount;
+  // User asked: total count should be completed count
+  const totalCount = completedCount + acceptedCount + rejectedCount + pendingCount;
 
   if (loading) {
     return (
@@ -311,6 +305,7 @@ const BookingRequests: React.FC = () => {
             View Confirmed Bookings
           </Button>
         </div>
+        
       </div>
       {/* Statistics */}
       <div className="stats-grid">
@@ -350,6 +345,18 @@ const BookingRequests: React.FC = () => {
           </div>
         </Card>
         
+        {/* <Card className="stat-card completed" variant="outlined">
+          <div className="stat-content">
+            <div className="stat-icon1">
+              <Calendar className="w-6 h-6" />
+            </div>
+            <div className="stat-info">
+              <span className="stat-label">Completed</span>
+              <strong className="stat-value">{completedCount}</strong>
+            </div>
+          </div>
+        </Card> */}
+
         <Card className="stat-card rejected" variant="outlined">
           <div className="stat-content">
             <div className="stat-icon1">
@@ -385,7 +392,7 @@ const BookingRequests: React.FC = () => {
                   <div className="text-sm text-gray-400">{req.participants} participants • Rs. {req.totalAmount.toLocaleString()}</div>
                 </td>
                 <td>{new Date(req.date).toLocaleDateString()}</td>
-                <td>{req.startTime} - {req.endTime}</td>
+                <td>{req.startTime}</td>
                 <td className="actions-cell">
                   <Button variant="primary" size="small" onClick={() => handleViewBooking(req.id)}>View</Button>
                 </td>
@@ -424,6 +431,23 @@ const BookingRequests: React.FC = () => {
         }}
         showRefundButton={true}
       />
+        {/* Success Message Toast */}
+        <SuccessMessage
+          isOpen={showSuccessMessage}
+          title="Success!"
+          message={successMessageText}
+          type="success"
+          onClose={() => setShowSuccessMessage(false)}
+        />
+
+        {/* Error Message Toast (used for future error flows) */}
+        <SuccessMessage
+          isOpen={showErrorMessage}
+          title="Error"
+          message={errorMessageText}
+          type="error"
+          onClose={() => setShowErrorMessage(false)}
+        />
     </div>
   );
 };

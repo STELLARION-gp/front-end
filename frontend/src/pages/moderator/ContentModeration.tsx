@@ -195,7 +195,7 @@ export default function ContentModeration() {
             filteredPosts.map(post => (
               <div
                 key={post.id}
-                className={`content-item priority-${post.priority} status-${post.status}`}
+                className={`content-item_1 priority-${post.priority} status-${post.status}`}
               >
                 <div className="item-header">
                   <div className="header-left">

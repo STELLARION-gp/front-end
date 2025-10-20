@@ -89,8 +89,11 @@ export default function ProfileModeration() {
           id: `${app.type}-${app.application_id}`,
           applicationId: app.application_id,
           userId: app.user_id || app.users?.id || 0,
-          username: app.users ? `${app.users.first_name || ''} ${app.users.last_name || ''}`.trim() : 'Unknown',
-          email: app.users?.email || 'No email',
+          // Handle both joined users table and direct fields
+          username: app.users 
+            ? `${app.users.first_name || ''} ${app.users.last_name || ''}`.trim()
+            : `${app.first_name || ''} ${app.last_name || ''}`.trim() || 'Unknown',
+          email: app.users?.email || app.email || 'No email',
           requestType: app.type,
           status: app.approve_application_status,
           accountCreated: new Date(app.submitted_at || Date.now()),

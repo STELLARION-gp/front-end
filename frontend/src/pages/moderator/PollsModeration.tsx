@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { FaArrowLeft, FaSearch, FaTimes, FaCheck, FaExclamationTriangle, FaThumbsUp, FaComments, FaPoll, FaEye, FaFlag } from 'react-icons/fa';
+import { FaArrowLeft, FaSearch, FaTimes, FaCheck, /* FaExclamationTriangle, */ FaThumbsUp, FaComments, FaPoll, FaEye, /* FaFlag */ } from 'react-icons/fa';
 import { useNavigate, useLocation } from 'react-router-dom';
 import '../../styles/pages/moderator/PollsModeration.scss';
 import Button from '../../components/Button';
@@ -136,20 +136,21 @@ const PollsModeration: React.FC = () => {
     }
   };
 
-  const handleDelete = async (pollId: number) => {
-    if (!confirm('Are you sure you want to permanently delete this poll?')) {
-      return;
-    }
+  // Unused handler - kept for future use
+  // const handleDelete = async (pollId: number) => {
+  //   if (!confirm('Are you sure you want to permanently delete this poll?')) {
+  //     return;
+  //   }
 
-    try {
-      await pollService.deletePoll(pollId);
-      alert('Poll deleted successfully!');
-      loadPolls(); // Reload the list
-    } catch (err) {
-      console.error('Error deleting poll:', err);
-      alert((err as Error).message || 'Failed to delete poll');
-    }
-  };
+  //   try {
+  //     await pollService.deletePoll(pollId);
+  //     alert('Poll deleted successfully!');
+  //     loadPolls(); // Reload the list
+  //   } catch (err) {
+  //     console.error('Error deleting poll:', err);
+  //     alert((err as Error).message || 'Failed to delete poll');
+  //   }
+  // };
 
   // Client-side search filtering (status filtering is handled by API)
   const filteredPolls = polls.filter(poll => {

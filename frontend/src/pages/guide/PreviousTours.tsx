@@ -12,9 +12,9 @@ import {
   ArrowLeft, 
   Search,
   Eye,
-  Share2,
+  // Share2,
   Trophy,
-  MapPin,
+  // MapPin,
   Camera
 } from 'lucide-react';
 import '../../styles/pages/guide/_previousTours.scss';

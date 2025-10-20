@@ -17,6 +17,8 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
+import * as ProviderPaymentsService from '../../services/providerPayments.service';
+import type { ProviderPayment } from '../../services/providerPayments.service';
 import '../../styles/pages/admin/RevenueAnalytics.scss';
 
 interface RevenueOverview {
@@ -29,14 +31,6 @@ interface RevenueOverview {
 
 interface RevenueTrend {
   date: string;
-  subscriptions: number;
-  services: number;
-  sessions: number;
-  total: number;
-}
-
-interface PaymentMethodStat {
-  method: string;
   subscriptions: number;
   services: number;
   sessions: number;
@@ -60,22 +54,15 @@ interface MRRTrend {
   churned_subscribers: number;
 }
 
-interface PaymentStatusDistribution {
-  subscriptions: Record<string, number>;
-  services: Record<string, number>;
-  sessions: Record<string, number>;
-}
-
 const COLORS = ['#8b5cf6', '#ec4899', '#3b82f6', '#10b981', '#f59e0b', '#ef4444'];
 
 const RevenueAnalytics: React.FC = () => {
   const [overview, setOverview] = useState<RevenueOverview | null>(null);
   const [trends, setTrends] = useState<RevenueTrend[]>([]);
-  const [paymentMethods, setPaymentMethods] = useState<PaymentMethodStat[]>([]);
   // @ts-ignore - topUsers is set but used in commented section
   const [topUsers, setTopUsers] = useState<TopUser[]>([]);
   const [mrrTrends, setMRRTrends] = useState<MRRTrend[]>([]);
-  const [paymentStatus, setPaymentStatus] = useState<PaymentStatusDistribution | null>(null);
+  const [providerPayments, setProviderPayments] = useState<ProviderPayment[]>([]);
   const [loading, setLoading] = useState(true);
   const [timeRange, setTimeRange] = useState('30d');
   const [trendGroupBy, setTrendGroupBy] = useState<'day' | 'week' | 'month'>('day');
@@ -92,10 +79,8 @@ const RevenueAnalytics: React.FC = () => {
       const [
         overviewRes,
         trendsRes,
-        methodsRes,
         usersRes,
         mrrRes,
-        statusRes,
       ] = await Promise.all([
         axios.get(`${API_BASE_URL}/api/finance/overview`).catch(err => {
           console.error('Error fetching overview:', err);
@@ -105,10 +90,6 @@ const RevenueAnalytics: React.FC = () => {
           params: { timeRange, groupBy: trendGroupBy },
         }).catch(err => {
           console.error('Error fetching trends:', err);
-          return { data: { data: [] } };
-        }),
-        axios.get(`${API_BASE_URL}/api/finance/payment-methods`).catch(err => {
-          console.error('Error fetching payment methods:', err);
           return { data: { data: [] } };
         }),
         axios.get(`${API_BASE_URL}/api/finance/top-users`, {
@@ -123,18 +104,20 @@ const RevenueAnalytics: React.FC = () => {
           console.error('Error fetching MRR trends:', err);
           return { data: { data: [] } };
         }),
-        axios.get(`${API_BASE_URL}/api/finance/payment-status`).catch(err => {
-          console.error('Error fetching payment status:', err);
-          return { data: { data: { subscriptions: {}, services: {}, sessions: {} } } };
-        }),
       ]);
 
       setOverview(overviewRes.data.data);
       setTrends(trendsRes.data.data || []);
-      setPaymentMethods(methodsRes.data.data || []);
       setTopUsers(usersRes.data.data || []);
       setMRRTrends(mrrRes.data.data || []);
-      setPaymentStatus(statusRes.data.data);
+
+      // Fetch provider payments data
+      try {
+        const payments = await ProviderPaymentsService.getProviderPayments();
+        setProviderPayments(payments);
+      } catch (err) {
+        console.error('Error fetching provider payments:', err);
+      }
     } catch (error) {
       console.error('Error fetching finance data:', error);
     } finally {
@@ -160,37 +143,51 @@ const RevenueAnalytics: React.FC = () => {
       ]
     : [];
 
-  // Prepare data for payment methods pie chart
-  const paymentMethodChartData = paymentMethods.map((method) => ({
-    name: method.method || 'Unknown',
-    value: method.total,
-  }));
-
-  // Prepare payment status data for stacked bar chart
-  const prepareStatusData = () => {
-    if (!paymentStatus) return [];
+  // Prepare provider payments data for pie chart (payment status distribution)
+  const prepareProviderPaymentsPieData = () => {
+    const statusCount: Record<string, number> = {};
     
+    providerPayments.forEach(payment => {
+      const status = payment.payment_status || 'unknown';
+      statusCount[status] = (statusCount[status] || 0) + 1;
+    });
+
+    return Object.entries(statusCount).map(([status, count]) => ({
+      name: status.charAt(0).toUpperCase() + status.slice(1),
+      value: count,
+    }));
+  };
+
+  // Prepare provider payments data for bar chart (by provider type and status)
+  const prepareProviderPaymentsBarData = () => {
+    const guideData: Record<string, number> = { pending: 0, paid: 0, processing: 0, failed: 0 };
+    const influencerData: Record<string, number> = { pending: 0, paid: 0, processing: 0, failed: 0 };
+    
+    providerPayments.forEach(payment => {
+      const status = payment.payment_status || 'pending';
+      const type = payment.provider_type;
+      
+      if (type === 'guide') {
+        guideData[status] = (guideData[status] || 0) + 1;
+      } else if (type === 'influencer') {
+        influencerData[status] = (influencerData[status] || 0) + 1;
+      }
+    });
+
     return [
       {
-        source: 'Subscriptions',
-        completed: paymentStatus.subscriptions?.completed || 0,
-        pending: paymentStatus.subscriptions?.pending || 0,
-        failed: paymentStatus.subscriptions?.failed || 0,
-        refunded: paymentStatus.subscriptions?.refunded || 0,
+        type: 'Guide',
+        pending: guideData.pending,
+        paid: guideData.paid,
+        processing: guideData.processing || 0,
+        failed: guideData.failed || 0,
       },
       {
-        source: 'Services',
-        completed: paymentStatus.services?.completed || 0,
-        pending: paymentStatus.services?.pending || 0,
-        failed: paymentStatus.services?.failed || 0,
-        refunded: paymentStatus.services?.refunded || 0,
-      },
-      {
-        source: 'Sessions',
-        completed: paymentStatus.sessions?.completed || 0,
-        pending: paymentStatus.sessions?.pending || 0,
-        failed: paymentStatus.sessions?.failed || 0,
-        refunded: paymentStatus.sessions?.refunded || 0,
+        type: 'Influencer',
+        pending: influencerData.pending,
+        paid: influencerData.paid,
+        processing: influencerData.processing || 0,
+        failed: influencerData.failed || 0,
       },
     ];
   };
@@ -351,11 +348,11 @@ const RevenueAnalytics: React.FC = () => {
         </div>
 
         <div className="chart-card half-width">
-          <h2>Payment Methods</h2>
+          <h2>Provider Payments Status</h2>
           <ResponsiveContainer width="100%" height={260}>
             <PieChart>
               <Pie
-                data={paymentMethodChartData}
+                data={prepareProviderPaymentsPieData()}
                 cx="50%"
                 cy="50%"
                 labelLine={false}
@@ -364,11 +361,11 @@ const RevenueAnalytics: React.FC = () => {
                 fill="#8884d8"
                 dataKey="value"
               >
-                {paymentMethodChartData.map((_, index) => (
+                {prepareProviderPaymentsPieData().map((_, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip formatter={(value: number) => formatCurrency(value)} />
+              <Tooltip />
             </PieChart>
           </ResponsiveContainer>
         </div>
@@ -417,14 +414,14 @@ const RevenueAnalytics: React.FC = () => {
         </div>
       </div>
 
-      {/* Payment Status Distribution */}
+      {/* Provider Payments Status Distribution by Type */}
       <div className="chart-section">
         <div className="chart-card">
-          <h2>Payment Status Distribution</h2>
+          <h2>Provider Payments Distribution by Type</h2>
           <ResponsiveContainer width="100%" height={280}>
-            <BarChart data={prepareStatusData()}>
+            <BarChart data={prepareProviderPaymentsBarData()}>
               <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-              <XAxis dataKey="source" stroke="#9ca3af" />
+              <XAxis dataKey="type" stroke="#9ca3af" />
               <YAxis stroke="#9ca3af" />
               <Tooltip
                 contentStyle={{
@@ -434,10 +431,10 @@ const RevenueAnalytics: React.FC = () => {
                 }}
               />
               <Legend />
-              <Bar dataKey="completed" stackId="a" fill="#10b981" />
-              <Bar dataKey="pending" stackId="a" fill="#f59e0b" />
-              <Bar dataKey="failed" stackId="a" fill="#ef4444" />
-              <Bar dataKey="refunded" stackId="a" fill="#6b7280" />
+              <Bar dataKey="paid" stackId="a" fill="#10b981" name="Paid" />
+              <Bar dataKey="pending" stackId="a" fill="#f59e0b" name="Pending" />
+              <Bar dataKey="processing" stackId="a" fill="#3b82f6" name="Processing" />
+              <Bar dataKey="failed" stackId="a" fill="#ef4444" name="Failed" />
             </BarChart>
           </ResponsiveContainer>
         </div>

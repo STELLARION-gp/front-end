@@ -146,29 +146,49 @@ const ProviderPayments: React.FC = () => {
     );
   };
 
-  const exportToCSV = async () => {
+  const downloadSummaryPDF = async () => {
     try {
       const filters = {
         status: statusFilter !== 'all' ? statusFilter : undefined,
         provider_type: typeFilter !== 'all' ? typeFilter as 'guide' | 'influencer' : undefined,
         month: monthFilter !== 'all' ? parseInt(monthFilter) : undefined,
         year: yearFilter !== 'all' ? parseInt(yearFilter) : undefined,
+        search: searchTerm || undefined,
       };
 
-      const csvBlob = await ProviderPaymentsService.exportPayments(filters);
+      const pdfBlob = await ProviderPaymentsService.downloadPaymentsSummaryPDF(filters);
       
       // Create download link
-      const url = window.URL.createObjectURL(csvBlob);
+      const url = window.URL.createObjectURL(pdfBlob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `provider_payments_${new Date().toISOString().split('T')[0]}.csv`;
+      link.download = `provider_payments_summary_${new Date().toISOString().split('T')[0]}.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (err) {
-      console.error('Error exporting CSV:', err);
-      alert('Failed to export CSV. Please try again.');
+      console.error('Error downloading summary PDF:', err);
+      alert('Failed to download PDF. Please try again.');
+    }
+  };
+
+  const downloadSinglePaymentPDF = async (paymentId: number, providerName: string, month: number, year: number) => {
+    try {
+      const pdfBlob = await ProviderPaymentsService.downloadPaymentPDF(paymentId);
+      
+      // Create download link
+      const url = window.URL.createObjectURL(pdfBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `Payment_${providerName.replace(/\s+/g, '_')}_${month}_${year}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Error downloading payment PDF:', err);
+      alert('Failed to download PDF. Please try again.');
     }
   };
 
@@ -201,9 +221,9 @@ const ProviderPayments: React.FC = () => {
           <h1>Provider Payments</h1>
           <p className="subtitle">Manage payments to guides and influencers (90% revenue share)</p>
         </div>
-        <button className="export-btn" onClick={exportToCSV}>
+        <button className="export-btn" onClick={downloadSummaryPDF}>
           <Download size={20} />
-          Export PDF
+          Download Summary PDF
         </button>
       </div>
 
@@ -362,6 +382,13 @@ const ProviderPayments: React.FC = () => {
                   <td>
                     <div className="action-buttons">
                       <button
+                        className="btn-download-pdf"
+                        onClick={() => downloadSinglePaymentPDF(payment.id, payment.provider_name, payment.month, payment.year)}
+                        title="Download PDF"
+                      >
+                        <Download size={18} />
+                      </button>
+                      <button
                         className="btn-view"
                         onClick={() => {
                           setSelectedPayment(payment);
@@ -509,6 +536,20 @@ const ProviderPayments: React.FC = () => {
             </div>
 
             <div className="modal-footer">
+              <button
+                className="btn btn-download"
+                onClick={() => {
+                  downloadSinglePaymentPDF(
+                    selectedPayment.id,
+                    selectedPayment.provider_name,
+                    selectedPayment.month,
+                    selectedPayment.year
+                  );
+                }}
+              >
+                <Download size={18} />
+                Download PDF
+              </button>
               {selectedPayment.payment_status === 'pending' && (
                 <>
                   <button

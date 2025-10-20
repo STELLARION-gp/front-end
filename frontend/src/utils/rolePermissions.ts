@@ -290,14 +290,15 @@ export const ROLE_BASED_MENU_ITEMS = {
     { label: "Blogs", icon: "BookOpenIcon", href: "/dashboard/blogs" },
     
     // { label: 'Stargazing', icon: 'StarIcon', href: '/dashboard/stargazing' },
-    {
-      label: "Events",
-      icon: "ClipboardDocumentListIcon",
-      href: "/dashboard/camp-guide-application",
-    },
+    // {
+    //   label: "Events",
+    //   icon: "ClipboardDocumentListIcon",
+    //   href: "/dashboard/camp-guide-application",
+    // },
+    { label: "My profile", icon: "UserCircleIcon", href: "/dashboard/guide-profile" },
     // { label: 'Events', icon: 'CalendarDaysIcon', href: '/dashboard/events' },
     { label: "Media", icon: "PhotoIcon", href: "/dashboard/media" },
-    { label: "Chat", icon: "ChatBubbleLeftRightIcon", href: "/dashboard/chat" },
+    // { label: "Chat", icon: "ChatBubbleLeftRightIcon", href: "/dashboard/chat" },
     //{ label: 'Settings', icon: 'Cog6ToothIcon', href: '/dashboard/settings' },
   ],
   mentor: [

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import MentorCard from "../../components/Learner/MentorCard";
-import InfluencerCard from "../../components/Learner/InfluencerCard";
 import { getAllMentors } from "../../services/mentorApi";
 import type { MentorProfile } from "../../services/mentorApi";
 
@@ -61,48 +60,19 @@ const Mentors: React.FC = () => {
   const handleApply = (mentorId: number) => {
     navigate(`/dashboard/apply-mentor/${mentorId}`);
   };
-  // Influencer data
-  const [influencers, setInfluencers] = React.useState([
-    {
-      id: 1,
-      name: "Dr. Nova Star",
-      expertise: "Astronomy Communication",
-      description: "Sharing cosmic discoveries and science news with the world.",
-      image: "https://randomuser.me/api/portraits/women/50.jpg",
-      isFollowed: false
-    },
-    {
-      id: 2,
-      name: "Prof. Leo Galaxy",
-      expertise: "Space Exploration",
-      description: "Updates on missions, telescopes, and the future of space travel.",
-      image: "https://randomuser.me/api/portraits/men/45.jpg",
-      isFollowed: false
-    },
-    {
-      id: 3,
-      name: "Prof. Celeste Nebula",
-      expertise: "Space Exploration",
-      description: "Updates on missions, telescopes, and the future of space travel.",
-      image: "https://randomuser.me/api/portraits/women/46.jpg",
-      isFollowed: false
-    }
-  ]);
+  
+  
 
-  const handleFollow = (id: number) => {
-    setInfluencers(prev => prev.map(inf => inf.id === id ? { ...inf, isFollowed: !inf.isFollowed } : inf));
-  };
+  
 
   return (
-    <div className="mentors-page" style={{ padding: "20px", margin: "0 auto" }}>
-      <h1>Mentors & Influences</h1>
-      <p>Find the right mentor or follow astronomy influencers for inspiration and updates.</p>
-      
-      <h2 style={{ marginTop: '1.5rem', color: '#6366f1' }}>Mentors</h2>
+    <div className="preview-content" style={{ padding: "20px", margin: "0", textAlign: "left" }}>
+      <h2 style={{ textAlign: "left", marginBottom: "0.5rem" }}>Mentors</h2>
+      <p style={{ textAlign: "left", marginBottom: "1.5rem" }}>Find the right mentor for your astronomy journey.</p>
       
       {/* Loading State */}
       {loading && (
-        <div style={{ padding: '2rem', textAlign: 'center', color: '#6b7280' }}>
+        <div style={{ padding: '2rem', textAlign: 'left', color: '#6b7280' }}>
           <p>🔍 Loading mentors...</p>
         </div>
       )}
@@ -115,7 +85,8 @@ const Mentors: React.FC = () => {
           border: '1px solid rgba(239, 68, 68, 0.5)', 
           borderRadius: '8px',
           color: '#ef4444',
-          marginBottom: '1rem'
+          marginBottom: '1rem',
+          textAlign: 'left'
         }}>
           <p>⚠️ {error}</p>
         </div>
@@ -123,24 +94,18 @@ const Mentors: React.FC = () => {
       
       {/* Mentors List */}
       {!loading && !error && mentors.length === 0 && (
-        <div style={{ padding: '2rem', textAlign: 'center', color: '#6b7280' }}>
+        <div style={{ padding: '2rem', textAlign: 'left', color: '#6b7280' }}>
           <p>No mentors available at the moment. Check back later!</p>
         </div>
       )}
       
       {!loading && mentors.length > 0 && (
-        <div className="mentors-list" style={{ display: "flex", flexWrap: "wrap", gap: "10px", marginBottom: '2rem' }}>
+        <div className="mentors-list" style={{ display: "flex", flexWrap: "wrap", gap: "10px", marginBottom: '2rem', justifyContent: "flex-start" }}>
           {mentors.map((mentor) => (
             <MentorCard key={mentor.id} mentor={mentor} onApply={handleApply} />
           ))}
         </div>
       )}
-      <h2 style={{ marginTop: '1.5rem', marginBottom: '1rem', color: '#6366f1' }}>Influencers</h2>
-      <div className="influencers-list" style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
-        {influencers.map((influencer) => (
-          <InfluencerCard key={influencer.id} influencer={influencer} onFollow={handleFollow} />
-        ))}
-      </div>
     </div>
   );
 };

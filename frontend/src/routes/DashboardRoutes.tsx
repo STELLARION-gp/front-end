@@ -70,7 +70,6 @@ import ApplyMentor from "../pages/learner/ApplyMentor";
 import AstronomyServices from "../pages/learner/AstronomyServices";
 import AstronomyServiceDetails from "../pages/learner/AstronomyServiceDetails";
 import MyBookings from "../pages/learner/MyBookings";
-import GuideDetails from "../pages/learner/GuideDetails";
 import CompetitionPage from "../pages/learner/CompetitionPage";
 //import Competitions from '../pages/influencer/competitions';
 //import MyBlogs from '../pages/influencer/myblogs';
@@ -118,6 +117,7 @@ import GroupChatPage from "../pages/mentor/GroupChatPage";
 import { RecommendedEventsProvider } from "../contexts/mentor/RecommendedEventsContext";
 import SelfContent from "../pages/mentor/SelfContent";
 import MenteeApplications from "../pages/mentor/MenteeApplications";
+import GuideProfile from "../pages/guide/GuideProfile";
 
 // Create placeholder components for different pages - all memoized
 // const BlogsPage = memo(() => (
@@ -374,14 +374,14 @@ const DashboardRoutes = () => {
           </RoleGuard>
         }
       />
-      <Route
+      {/* <Route
         path="guide-profile"
         element={
           <RoleGuard allowedRoles={["learner", "enthusiast"]}>
             <GuideDetails />
           </RoleGuard>
         }
-      />
+      /> */}
       <Route
         path="competition"
         element={
@@ -913,7 +913,6 @@ const DashboardRoutes = () => {
               "guide",
             ]}
           >
-            {/* @ts-expect-error - This component needs fixing */}
             <Stargazing />
           </RoleGuard>
         }
@@ -1076,6 +1075,22 @@ const DashboardRoutes = () => {
         element={
           <RoleGuard allowedRoles={["admin"]}>
             <RevenueAnalytics />
+          </RoleGuard>
+        }
+      />
+      <Route
+        path="guide-profile"
+        element={
+          <RoleGuard allowedRoles={["guide", "admin", "moderator","learner","enthusiast"]}>
+            <GuideProfile />
+          </RoleGuard>
+        }
+      />
+      <Route
+        path="guide-profile/:guideId"
+        element={
+          <RoleGuard allowedRoles={["guide", "admin", "moderator","learner","enthusiast"]}>
+            <GuideProfile />
           </RoleGuard>
         }
       />

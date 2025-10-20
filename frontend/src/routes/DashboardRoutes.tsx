@@ -1086,6 +1086,14 @@ const DashboardRoutes = () => {
           </RoleGuard>
         }
       />
+      <Route
+        path="guide-profile/:guideId"
+        element={
+          <RoleGuard allowedRoles={["guide", "admin", "moderator","learner","enthusiast"]}>
+            <GuideProfile />
+          </RoleGuard>
+        }
+      />
 
       {/* Default redirect to overview */}
       <Route path="" element={<Navigate to="overview" replace />} />

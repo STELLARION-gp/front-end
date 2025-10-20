@@ -35,10 +35,10 @@ import {
 const tabs = [
   { name: "Quizzes", icon: <BookOpen size={16} /> },
   { name: "Favorites", icon: <Star size={16} /> },
-  { name: "Competitions", icon: <Trophy size={16} /> },
+  // { name: "Competitions", icon: <Trophy size={16} /> },
   { name: "Services", icon: <CalendarDays size={16} /> },
   { name: "Mentors", icon: <User size={16} /> },
-  { name: "Influencers", icon: <Users size={16} /> },
+  // { name: "Influencers", icon: <Users size={16} /> },
   { name: "Sessions", icon: <ShoppingCart size={16} /> },
 ];
 
@@ -86,56 +86,56 @@ interface Competition {
 
 
 // (Removed duplicate function MyUniverse)
-const userCompetitions: Competition[] = [
-  {
-    id: 1,
-    name: "Astronomy Olympiad",
-    date: "2025-07-20",
-    status: "Registered",
-  },
-  {
-    id: 2,
-    name: "Galaxy Challenge",
-    date: "2025-06-10",
-    status: "Completed",
-    score: 85,
-    rank: 3,
-  },
-  {
-    id: 3,
-    name: "Nebula Sketch Contest",
-    date: "2025-07-18",
-    status: "Pending",
-  },
-  {
-    id: 4,
-    name: "Astro Coding Jam",
-    date: "2025-05-22",
-    status: "Completed",
-    score: 92,
-    rank: 1,
-  },
-];
-const registeredCompetitions = [
-  {
-    id: 1,
-    coverImage:
-      "https://png.pngtree.com/png-vector/20221020/ourmid/pngtree-happy-children-with-medals-on-school-competition-on-contest-png-image_6331904.png",
-    name: "Galactic Quiz",
-    date: "2025-07-20",
-    description: "Test your astronomy knowledge!",
-    status: "ongoing", // could also be "completed", etc.
-  },
-  {
-    id: 2,
-    coverImage:
-      "https://w7.pngwing.com/pngs/731/996/png-transparent-competition-winners-hand-table-tree-thumbnail.png",
-    name: "Star Mapping Challenge",
-    date: "2025-08-02",
-    description: "Map constellations with precision.",
-    status: "upcoming",
-  },
-];
+// const userCompetitions: Competition[] = [
+//   {
+//     id: 1,
+//     name: "Astronomy Olympiad",
+//     date: "2025-07-20",
+//     status: "Registered",
+//   },
+//   {
+//     id: 2,
+//     name: "Galaxy Challenge",
+//     date: "2025-06-10",
+//     status: "Completed",
+//     score: 85,
+//     rank: 3,
+//   },
+//   {
+//     id: 3,
+//     name: "Nebula Sketch Contest",
+//     date: "2025-07-18",
+//     status: "Pending",
+//   },
+//   {
+//     id: 4,
+//     name: "Astro Coding Jam",
+//     date: "2025-05-22",
+//     status: "Completed",
+//     score: 92,
+//     rank: 1,
+//   },
+// ];
+// const registeredCompetitions = [
+//   {
+//     id: 1,
+//     coverImage:
+//       "https://png.pngtree.com/png-vector/20221020/ourmid/pngtree-happy-children-with-medals-on-school-competition-on-contest-png-image_6331904.png",
+//     name: "Galactic Quiz",
+//     date: "2025-07-20",
+//     description: "Test your astronomy knowledge!",
+//     status: "ongoing", // could also be "completed", etc.
+//   },
+//   {
+//     id: 2,
+//     coverImage:
+//       "https://w7.pngwing.com/pngs/731/996/png-transparent-competition-winners-hand-table-tree-thumbnail.png",
+//     name: "Star Mapping Challenge",
+//     date: "2025-08-02",
+//     description: "Map constellations with precision.",
+//     status: "upcoming",
+//   },
+// ];
 // const bookedServices: ServiceBooking[] = [
 //   {
 //     id: 1,
@@ -160,34 +160,9 @@ const MyUniverse = () => {
   );
   const [loadingMentors, setLoadingMentors] = useState(false);
 
-  // Sample connected influencers
-  const [connectedInfluencers] = useState([
-    {
-      id: 1,
-      name: "Dr. Jane Skywalker",
-      expertise: "Astronomy Communication",
-      description:
-        "Sharing cosmic discoveries and science news with the world.",
-      image: "https://randomuser.me/api/portraits/women/50.jpg",
-      isFollowed: true,
-    },
-    {
-      id: 2,
-      name: "Prof. John Cosmos",
-      expertise: "Space Exploration",
-      description:
-        "Updates on missions, telescopes, and the future of space travel.",
-      image: "https://randomuser.me/api/portraits/men/45.jpg",
-      isFollowed: true,
-    },
-  ]);
-
   const navigate = useNavigate();
 
-  const handleOpenInfluencer = (name: string) => {
-    const encodedName = encodeURIComponent(name);
-    navigate(`/dashboard/author/${encodedName}`);
-  };
+ 
 
 
   // Favourites (blogs liked by user)
@@ -517,7 +492,7 @@ const MyUniverse = () => {
       <div className="juniverse-summary-card">
         <h2>My Universe</h2>
         <div>
-          ⭐ Favorites: 6 &nbsp;| 🎯 Competitions: 3 &nbsp;| 📚 Mentor Courses:
+          ⭐ Favorites: 6 &nbsp;| 📚 Mentor Courses:
           1 &nbsp;| 🪐 Services: 2
         </div>
       </div>
@@ -732,75 +707,6 @@ const MyUniverse = () => {
             )}
           </>
         )}
-        {activeTab === "Competitions" && (
-          <>
-            <div className="competitions-section">
-              <div className="registered-competitions-section">
-                <h2>Your Registered Competitions</h2>
-                <div className="competition-cards-wrapper">
-                  {registeredCompetitions.map((comp) => (
-                    <div className="card-with-status-badge" key={comp.id}>
-                      <AstronomyCompetitionCard
-                        coverImage={comp.coverImage}
-                        name={comp.name}
-                        date={comp.date}
-                        description={comp.description}
-                        onClick={() =>
-                          comp.status === "ongoing"
-                            ? navigate("/dashboard/ongoingcompetition")
-                            : navigate("/dashboard/competition")
-                        }
-                      />
-                      {comp.status === "ongoing" && (
-                        <span className="competition-status-badge">
-                          Ongoing
-                        </span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <h3 className="mb-4">My Competitions</h3>
-              <table className="my-competitions-table">
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Date</th>
-                    <th>Status</th>
-                    <th>Score</th>
-                    <th>Rank</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {userCompetitions.map((comp) => (
-                    <tr key={comp.id}>
-                      <td>{comp.name}</td>
-                      <td>{comp.date}</td>
-                      <td>
-                        <span
-                          className={`my-competition-status-badge ${
-                            comp.status === "Completed"
-                              ? "completed"
-                              : comp.status === "Registered"
-                              ? "registered"
-                              : "pending"
-                          }`}
-                        >
-                          {comp.status}
-                        </span>
-                      </td>
-                      <td>{comp.status === "Completed" ? comp.score : "-"}</td>
-                      <td>
-                        {comp.status === "Completed" ? `#${comp.rank}` : "-"}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </>
-        )}
         {activeTab === "Services" && (
           <div>
             <ServicesTab />
@@ -902,24 +808,7 @@ const MyUniverse = () => {
           </>
         )}
 
-        {activeTab === "Influencers" && (
-          <>
-            <h2>Connected Influencers</h2>
-            <div
-              className="influencer-card-list"
-              style={{ display: "flex", flexWrap: "wrap", gap: "1rem" }}
-            >
-              {connectedInfluencers.map((influencer) => (
-                <InfluencerCard
-                  key={influencer.id}
-                  influencer={influencer}
-                  onFollow={() => {}}
-                  onOpen={handleOpenInfluencer}
-                />
-              ))}
-            </div>
-          </>
-        )}
+        
 
         {showQuizModal && selectedQuiz && (
           <QuizModal quiz={selectedQuiz} onClose={handleCloseModal} />

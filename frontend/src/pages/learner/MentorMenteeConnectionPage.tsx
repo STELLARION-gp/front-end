@@ -2,7 +2,7 @@ import '../../styles/pages/learner/MentorMenteeConnectionPage.scss';
 
 import Button from '../../components/Button';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   getConnectionDetails, 
   getNotes,
@@ -15,6 +15,10 @@ import {
   type Goal
 } from '../../services/mentorMenteeConnectionApi';
 import { type MenteeApplication } from '../../services/menteeApplicationApi';
+import {
+  mentorMenteeChatService,
+  type MentorMenteeMessage
+} from '../../services/mentorMenteeChatApi';
 
 const MentorMenteeConnectionPage: React.FC = () => {
   const navigate = useNavigate();
@@ -33,6 +37,15 @@ const MentorMenteeConnectionPage: React.FC = () => {
   const [shortNoteEmoji, setShortNoteEmoji] = useState('👍');
   const [editingShortNoteId, setEditingShortNoteId] = useState<number | null>(null);
   const [editingShortNoteText, setEditingShortNoteText] = useState('');
+  
+  // Chat state
+  const [messages, setMessages] = useState<MentorMenteeMessage[]>([]);
+  const [newMessage, setNewMessage] = useState('');
+  const [connectionId, setConnectionId] = useState<number | null>(null);
+  const [loadingMessages, setLoadingMessages] = useState(false);
+  const [sendingMessage, setSendingMessage] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
   
   // Note form states
   // Learner view: note creation is managed by the mentor; learners can view/pin/delete notes
@@ -55,6 +68,17 @@ const MentorMenteeConnectionPage: React.FC = () => {
         ]);
 
         setApplication(connectionData.application);
+        
+        // Set connection ID if available (for chat functionality)
+        const connId = connectionData?.connection?.connection_id || connectionData?.connection?.id;
+        if (connId) {
+          console.log('✅ Connection found:', connId);
+          setConnectionId(connId);
+        } else {
+          console.warn('❌ No connection available for application:', id, 'Response:', connectionData);
+          setConnectionId(null);
+        }
+        
         setNotes(notesData);
         setGoals(goalsData);
     // fetch sessions separately
@@ -281,6 +305,96 @@ const MentorMenteeConnectionPage: React.FC = () => {
     }
   };
 
+  // Scroll to bottom helper
+  const scrollToBottom = useCallback(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, []);
+
+  // Load messages function
+  const loadMessages = useCallback(async (connId: number, isInitialLoad = false) => {
+    try {
+      // Only show loading state on initial load, not on polling refreshes
+      if (isInitialLoad) {
+        setLoadingMessages(true);
+      }
+      
+      const result = await mentorMenteeChatService.getMessages(connId, { limit: 50 });
+      setMessages(result.messages || []);
+      
+      // Mark messages as read
+      await mentorMenteeChatService.markAsRead(connId);
+      
+      // Only scroll to bottom on initial load
+      if (isInitialLoad) {
+        setTimeout(() => scrollToBottom(), 100);
+      }
+    } catch (err) {
+      console.error('Error loading messages:', err);
+    } finally {
+      if (isInitialLoad) {
+        setLoadingMessages(false);
+      }
+    }
+  }, [scrollToBottom]);
+
+  // Chat functionality - setup polling when connectionId is available
+  useEffect(() => {
+    if (!connectionId) {
+      // No connection yet - wait for connection data to load
+      return;
+    }
+
+    // Load initial messages (with loading state)
+    loadMessages(connectionId, true);
+
+    // Setup polling for new messages (every 5 seconds, without loading state)
+    pollIntervalRef.current = setInterval(() => {
+      loadMessages(connectionId, false);
+    }, 5000);
+
+    return () => {
+      // Clear polling interval
+      if (pollIntervalRef.current) {
+        clearInterval(pollIntervalRef.current);
+        pollIntervalRef.current = null;
+      }
+    };
+  }, [connectionId, loadMessages]);
+
+  // Handle send message
+  const handleSendMessage = async () => {
+    if (!newMessage.trim() || sendingMessage) return;
+
+    if (!connectionId) {
+      // No connection available yet — inform the user
+      alert('Cannot send message: no active mentorship connection was found.');
+      return;
+    }
+
+    const messageContent = newMessage.trim();
+    setNewMessage('');
+    setSendingMessage(true);
+
+    try {
+      await mentorMenteeChatService.sendMessage(connectionId, {
+        content: messageContent,
+        type: 'text'
+      });
+
+      // Reload messages immediately (without loading state to avoid flicker)
+      await loadMessages(connectionId, false);
+      
+      // Scroll to bottom after sending message
+      setTimeout(() => scrollToBottom(), 100);
+    } catch (err) {
+      console.error('Error sending message:', err);
+      alert('Failed to send message. Please try again.');
+      setNewMessage(messageContent); // Restore message
+    } finally {
+      setSendingMessage(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="mentor-connection-page">
@@ -360,28 +474,65 @@ const MentorMenteeConnectionPage: React.FC = () => {
 
       {/* Chat Section */}
       <section className="mentor-section mentor-chat-section">
-        <h2>Chat Section</h2>
+        <h2>Chat with {displayName}</h2>
         <div className="chat-ui">
           <div className="chat-messages">
-            <div className="chat-date-separator">July 18, 2025</div>
-            {/* Mentor message left */}
-            <div className="chat-message mentor left">
-              <span className="chat-avatar">🧑‍🚀</span>
-              <div className="chat-bubble">Welcome to our session! <span className="chat-read-receipt">✓✓</span></div>
-              <span className="chat-time">10:00</span>
-            </div>
-            {/* Mentee message right */}
-            <div className="chat-message mentee right">
-              <span className="chat-avatar">🧑‍💻</span>
-              <div className="chat-bubble">Thank you, mentor! <span className="chat-read-receipt">✓✓</span></div>
-              <span className="chat-time">10:01</span>
-            </div>
-            <div className="chat-typing-indicator">Mentor is typing...</div>
+            {loadingMessages ? (
+              <div style={{ textAlign: 'center', padding: '2rem', color: '#8b93ab' }}>
+                Loading messages...
+              </div>
+            ) : messages.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '2rem', color: '#8b93ab' }}>
+                No messages yet. Start the conversation!
+              </div>
+            ) : (
+              messages.map((msg) => {
+                const isOwn = msg.is_own_message;
+                const messageDate = new Date(msg.created_at);
+                const timeString = messageDate.toLocaleTimeString('en-US', { 
+                  hour: 'numeric', 
+                  minute: '2-digit', 
+                  hour12: true 
+                });
+
+                return (
+                  <div key={msg.message_id} className={`chat-message ${isOwn ? 'own-message right' : 'other-message left'}`}>
+                    <span className="chat-avatar">
+                      {msg.sender.avatarUrl ? (
+                        <img src={msg.sender.avatarUrl} alt={msg.sender.name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+                      ) : (
+                        isOwn ? '🧑‍💻' : '🧑‍🚀'
+                      )}
+                    </span>
+                    <div className="chat-bubble">
+                      {msg.message_text}
+                      {msg.is_edited && <span style={{ fontSize: '0.7rem', color: '#8b93ab', marginLeft: '0.5rem' }}>(edited)</span>}
+                      <span className="chat-read-receipt">{msg.is_read ? '✓✓' : '✓'}</span>
+                    </div>
+                    <span className="chat-time">{timeString}</span>
+                  </div>
+                );
+              })
+            )}
+            <div ref={messagesEndRef} />
           </div>
           <div className="chat-input-row">
-            <input type="text" className="chat-input" placeholder="Type your message..." />
-            <input type="file" className="chat-file-input" title="Attach file" />
-            <button className="chat-send-btn">Send</button>
+            <input 
+              type="text" 
+              className="chat-input" 
+              placeholder="Type your message..." 
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && !sendingMessage && handleSendMessage()}
+              disabled={sendingMessage}
+            />
+            <button 
+              className="chat-send-btn" 
+              onClick={handleSendMessage}
+              disabled={!newMessage.trim() || sendingMessage}
+            >
+              {sendingMessage ? 'Sending...' : 'Send'}
+            </button>
           </div>
         </div>
       </section>

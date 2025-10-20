@@ -260,7 +260,7 @@
         text-align: center;
       }
 
-      .content-item {
+      .content-item_1 {
         background: rgba(255, 255, 255, 0.03);
         border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 12px;
@@ -535,7 +535,7 @@
       }
 
       // Type-specific colors
-      .content-item {
+      .content-item_1 {
         .item-type[style*="color: #667eea"] { // post
           .type-label { background: rgba(102, 126, 234, 0.2); }
         }
@@ -760,7 +760,7 @@
       }
     }
 
-    .content-item {
+    .content-item_1 {
       .item-header {
         flex-wrap: wrap;
         gap: 0.5rem;
@@ -792,7 +792,7 @@
   }
 
   @media (min-width: 769px) {
-    .content-item {
+    .content-item_1 {
       .item-actions {
         .action-btn {
           span {

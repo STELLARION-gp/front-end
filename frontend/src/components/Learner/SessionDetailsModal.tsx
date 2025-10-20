@@ -11,6 +11,7 @@ import FreeIcon from "../../assets/svg/FreeIcon";
 import DifficultyIcon from "../../assets/svg/DifficultyIcon";
 import SessionPaymentModal from "./SessionPaymentModal";
 import type { CardDetails } from "./SessionPaymentModal";
+import { useToast } from "../../contexts/ToastContext";
 
 interface SessionDetailsModalProps {
   session: Session | null;
@@ -31,6 +32,7 @@ const SessionDetailsModal: React.FC<SessionDetailsModalProps> = ({
 }) => {
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [paymentLoading, setPaymentLoading] = useState(false);
+  const { showSuccess, showError } = useToast();
 
   if (!open || !session) return null;
 

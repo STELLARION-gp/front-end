@@ -20,6 +20,7 @@ interface ConfirmedBooking {
   notes?: string;
   participantCount: number;
   totalAmount: number;
+  paymentStatus?: string;
 }
 
 const ConfirmedBookings: React.FC = () => {
@@ -61,40 +62,62 @@ const ConfirmedBookings: React.FC = () => {
   }, []);
 
   const transformBooking = (booking: Booking): ConfirmedBooking => {
-    const userName = booking.user
-      ? `${booking.user.first_name || ''} ${booking.user.last_name || ''}`.trim() || booking.user.email
+    // Support backend shapes: booking.user or booking.users, booking.service or booking.services
+    const userObj = (booking as any).user || (booking as any).users || null;
+    const userName = userObj
+      ? `${userObj.first_name || ''} ${userObj.last_name || ''}`.trim() || userObj.email || 'Unknown User'
       : 'Unknown User';
-    
-    const serviceName = booking.service?.title || 'Unknown Service';
-    const date = typeof booking.booking_date === 'string'
-      ? booking.booking_date.split('T')[0]
-      : new Date(booking.booking_date).toISOString().split('T')[0];
-    
-    const startTime = booking.booking_time
-      ? typeof booking.booking_time === 'string'
-        ? booking.booking_time.substring(11, 16)
-        : new Date(booking.booking_time).toTimeString().substring(0, 5)
-      : '00:00';
-    
-    const duration = booking.service?.duration
-      ? parseDuration(booking.service.duration)
+
+    const serviceObj = (booking as any).service || (booking as any).services || null;
+    const serviceName = serviceObj?.title || 'Unknown Service';
+
+    // booking_date is Date or string
+    const dateObj = typeof booking.booking_date === 'string'
+      ? new Date(booking.booking_date)
+      : booking.booking_date;
+    const date = dateObj.toISOString().split('T')[0];
+
+    // booking_time is Date or string or undefined
+    let startTime = '00:00';
+    if (booking.booking_time) {
+      let timeObj: Date | null = null;
+      if (typeof booking.booking_time === 'string') {
+        // Try to parse as ISO or time string
+        if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(booking.booking_time)) {
+          timeObj = new Date(booking.booking_time);
+        } else if (/^\d{2}:\d{2}/.test(booking.booking_time)) {
+          timeObj = new Date(`1970-01-01T${booking.booking_time}`);
+        }
+      } else if (
+        typeof booking.booking_time === 'object' &&
+        booking.booking_time !== null &&
+        'getTime' in booking.booking_time
+      ) {
+        timeObj = booking.booking_time as Date;
+      }
+      if (timeObj && !isNaN(timeObj.getTime())) {
+        startTime = timeObj.toISOString().substring(11, 16);
+      }
+    }
+
+    const duration = serviceObj?.duration
+      ? parseDuration(serviceObj.duration)
       : 0;
-    
     const endTime = calculateEndTime(startTime, duration);
-    
+
     // Determine status based on date
     const bookingDate = new Date(date);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     bookingDate.setHours(0, 0, 0, 0);
-    
+
     let status: 'upcoming' | 'in-progress' | 'completed' = 'upcoming';
     if (bookingDate < today) {
       status = booking.booking_status === 'completed' ? 'completed' : 'completed';
     } else if (bookingDate.getTime() === today.getTime()) {
       status = 'in-progress';
     }
-    
+
     return {
       id: booking.id.toString(),
       userName,
@@ -107,6 +130,7 @@ const ConfirmedBookings: React.FC = () => {
       participantCount: booking.participants_count,
       totalAmount: booking.total_amount,
       notes: booking.special_requests,
+      paymentStatus: (booking as any).payment_status || (booking as any).paymentStatus || 'not_paid',
     };
   };
 
@@ -380,7 +404,7 @@ const ConfirmedBookings: React.FC = () => {
                   <th>Participant</th>
                   <th>Service</th>
                   <th>Date & Time</th>
-                  <th>Duration</th>
+                  {/* <th>Duration</th> */}
                   <th>Participants</th>
                   <th>Amount</th>
           
@@ -420,7 +444,7 @@ const ConfirmedBookings: React.FC = () => {
                           <span className="time">{booking.startTime} - {booking.endTime}</span>
                         </div>
                       </td>
-                      <td className="duration-cell">{booking.duration}h</td>
+                      {/* <td className="duration-cell">{booking.duration}h</td> */}
                       <td className="participants-cell">
                         <div className="participants-badge">
                           <Users className="w-4 h-4" />

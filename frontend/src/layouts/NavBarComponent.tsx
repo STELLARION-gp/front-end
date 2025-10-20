@@ -185,7 +185,16 @@ const NavBarComponent = () => {
                 <p className="profile-role">{userProfile?.role || "User"}</p>
               </div>
               <div className="profile-actions">
-                <Link to="/dashboard/overview" className="dropdown-link">
+                <Link 
+                  to={
+                    userProfile?.role === 'admin' 
+                      ? '/dashboard/admin-overview' 
+                      : userProfile?.role === 'mentor'
+                      ? '/dashboard/mentordashboard'
+                      : '/dashboard/overview'
+                  } 
+                  className="dropdown-link"
+                >
                   {t("navbar.dashboard")}
                 </Link>
                 <Link to="/dashboard/profile" className="dropdown-link">

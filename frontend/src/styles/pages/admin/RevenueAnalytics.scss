@@ -218,6 +218,92 @@
     margin-bottom: 1.5rem;
   }
 
+  // Section Header for Provider Payments
+  .section-header {
+    margin: 2rem 0 1.5rem 0;
+    padding: 1.5rem;
+    background: rgba(139, 92, 246, 0.1);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+
+    h2 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin: 0 0 1rem 0;
+      background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stats-summary {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+
+      .stat-badge {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.25rem;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease;
+
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .label {
+          font-size: 0.85rem;
+          color: #9ca3af;
+          font-weight: 500;
+        }
+
+        .value {
+          font-size: 1.1rem;
+          font-weight: 700;
+          color: #fff;
+        }
+
+        .count {
+          font-size: 0.85rem;
+          color: #6b7280;
+        }
+
+        &.pending {
+          border-color: rgba(251, 191, 36, 0.3);
+          background: rgba(251, 191, 36, 0.1);
+
+          .value {
+            color: #fbbf24;
+          }
+        }
+
+        &.paid {
+          border-color: rgba(16, 185, 129, 0.3);
+          background: rgba(16, 185, 129, 0.1);
+
+          .value {
+            color: #10b981;
+          }
+        }
+
+        &.active {
+          border-color: rgba(59, 130, 246, 0.3);
+          background: rgba(59, 130, 246, 0.1);
+
+          .value {
+            color: #3b82f6;
+          }
+        }
+      }
+    }
+  }
+
   // Table Section
   .table-section {
     margin-bottom: 1.5rem;

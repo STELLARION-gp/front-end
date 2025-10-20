@@ -20,6 +20,7 @@ export interface Session {
   session_date: Date | string;
   session_time: Date | string;
   max_participants?: number | null;
+  participants_count?: number; // number of confirmed/registered participants
   difficulty_level: DifficultyLevel;
   session_link?: string | null;
   description: string;

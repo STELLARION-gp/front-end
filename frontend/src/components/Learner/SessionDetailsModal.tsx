@@ -53,7 +53,7 @@ const SessionDetailsModal: React.FC<SessionDetailsModalProps> = ({
       setPaymentModalOpen(false);
       setPaymentLoading(false);
 
-      alert(`Payment successful! You are now enrolled in "${session.title}".`);
+      showSuccess(`Payment successful! You are now enrolled in "${session.title}".`);
 
       // Trigger refresh of sessions list
       if (onEnrollmentSuccess) {
@@ -64,7 +64,7 @@ const SessionDetailsModal: React.FC<SessionDetailsModalProps> = ({
     } catch (error: any) {
       setPaymentLoading(false);
       console.error("Payment failed:", error);
-      alert(error.message || "Payment failed. Please try again.");
+      showError(error.message || "Payment failed. Please try again.");
     }
   };
 

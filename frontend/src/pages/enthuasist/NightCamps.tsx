@@ -299,7 +299,7 @@ const NightCamps = () => {
               <Button 
                 size="small"
                 onClick={() => handleViewDetails(camp.id)}
-                className="btn--view-details"
+                 className="btn--view-details"
               
               >
                 <svg 

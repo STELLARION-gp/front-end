@@ -156,3 +156,47 @@ export const exportPayments = async (filters?: PaymentFilters): Promise<Blob> =>
     throw error;
   }
 };
+
+/**
+ * Download single payment PDF
+ */
+export const downloadPaymentPDF = async (paymentId: number): Promise<Blob> => {
+  try {
+    const response = await axios.get(
+      `${API_BASE_URL}/provider-payments/${paymentId}/download-pdf`,
+      {
+        responseType: 'blob',
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error downloading payment PDF:', error);
+    throw error;
+  }
+};
+
+/**
+ * Download payments summary PDF with filters
+ */
+export const downloadPaymentsSummaryPDF = async (filters?: PaymentFilters): Promise<Blob> => {
+  try {
+    const params = new URLSearchParams();
+    
+    if (filters?.status) params.append('status', filters.status);
+    if (filters?.provider_type) params.append('provider_type', filters.provider_type);
+    if (filters?.month) params.append('month', filters.month.toString());
+    if (filters?.year) params.append('year', filters.year.toString());
+    if (filters?.search) params.append('search', filters.search);
+
+    const response = await axios.get(
+      `${API_BASE_URL}/provider-payments/download-summary-pdf?${params.toString()}`,
+      {
+        responseType: 'blob',
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error downloading payments summary PDF:', error);
+    throw error;
+  }
+};

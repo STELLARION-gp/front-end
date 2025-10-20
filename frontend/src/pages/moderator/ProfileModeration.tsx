@@ -391,7 +391,7 @@ export default function ProfileModeration() {
                         <div className={`request-type-badge ${application.requestType}`}>
                           {getRequestTypeLabel(application.requestType)}
                         </div>
-                        <div className={`status-indicator status-${application.status}`}>
+                        <div className={`status-indicator_1 status-${application.status}`}>
                           {application.status.charAt(0).toUpperCase() + application.status.slice(1)}
                         </div>
                       </div>

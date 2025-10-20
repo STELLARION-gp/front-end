@@ -34,12 +34,17 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   price,
   spotsLeft,
   cannotRegister,
-  onBookClick
-  onGuideClick
+  onBookClick,
+  onGuideClick,
 }) => {
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, i) => (
-      <span key={i} className={`star-icon${i < Math.floor(rating) ? ' filled' : ''}`}>★</span>
+      <span
+        key={i}
+        className={`star-icon${i < Math.floor(rating) ? " filled" : ""}`}
+      >
+        ★
+      </span>
     ));
   };
   return (
@@ -52,38 +57,49 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
       <div className="service-card__content">
         <h3 className="service-card__title">{title}</h3>
         <div className="service-card__price">Rs. {price.toLocaleString()}</div>
-        {typeof spotsLeft === 'number' && (
+        {typeof spotsLeft === "number" && (
           <div className="service-card__spots">{spotsLeft} spots left</div>
         )}
         {cannotRegister && (
           <div className="service-card__cannot">Cannot register</div>
         )}
-        <div className="service-card__rating">{renderStars(rating)} <span className="rating-value">{rating.toFixed(1)}</span></div>
+        <div className="service-card__rating">
+          {renderStars(rating)}{" "}
+          <span className="rating-value">{rating.toFixed(1)}</span>
+        </div>
         <p className="service-card__desc">{description}</p>
         <div className="service-card__details">
           <span className="service-card__location">{location}</span>
           <span className="service-card__duration">{duration}</span>
         </div>
         <div className="service-card__tags">
-          {tags.slice(0, 3).map(tag => (
-            <span key={tag} className="tag">{tag}</span>
+          {tags.slice(0, 3).map((tag) => (
+            <span key={tag} className="tag">
+              {tag}
+            </span>
           ))}
-          {tags.length > 3 && <span className="tag tag-more">+{tags.length - 3}</span>}
+          {tags.length > 3 && (
+            <span className="tag tag-more">+{tags.length - 3}</span>
+          )}
         </div>
         <div className="service-card__guide">
-          <img src={guideImage} alt={guideName} className="service-card__guide-img" />
-          <span 
+          <img
+            src={guideImage}
+            alt={guideName}
+            className="service-card__guide-img"
+          />
+          <span
             className="service-card__guide-name"
             onClick={(e) => {
               e.stopPropagation();
               onGuideClick?.();
             }}
-            style={{ cursor: onGuideClick ? 'pointer' : 'default' }}
+            style={{ cursor: onGuideClick ? "pointer" : "default" }}
           >
             {guideName}
           </span>
         </div>
-        <button 
+        <button
           className="service-card__book-btn"
           onClick={(e) => {
             e.stopPropagation();
@@ -91,7 +107,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
           }}
           disabled={Boolean(cannotRegister)}
         >
-          {cannotRegister ? 'Cannot register' : 'Book Now'}
+          {cannotRegister ? "Cannot register" : "Book Now"}
         </button>
       </div>
     </div>

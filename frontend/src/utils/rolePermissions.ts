@@ -218,21 +218,21 @@ export const ROLE_BASED_MENU_ITEMS = {
       icon: "ChatBubbleLeftRightIcon",
       href: "/dashboard/astrohub",
     },
-    {
-      label: "Volunteering",
-      icon: "HandRaisedIcon",
-      href: "/dashboard/volunteering",
-    },
-    {
-      label: "Sponsorships",
-      icon: "CurrencyDollarIcon",
-      href: "/dashboard/sponsorships",
-    },
-    {
-      label: "Influencers",
-      icon: "MegaphoneIcon",
-      href: "/dashboard/influencers",
-    },
+    // {
+    //   label: "Volunteering",
+    //   icon: "HandRaisedIcon",
+    //   href: "/dashboard/volunteering",
+    // },
+    // {
+    //   label: "Sponsorships",
+    //   icon: "CurrencyDollarIcon",
+    //   href: "/dashboard/sponsorships",
+    // },
+    // {
+    //   label: "Influencers",
+    //   icon: "MegaphoneIcon",
+    //   href: "/dashboard/influencers",
+    // },
     { label: "Mentors", icon: "AcademicCapIcon", href: "/dashboard/mentors" },
     { label: "Quizzes", icon: "DocumentTextIcon", href: "/dashboard/quizzes" },
     {

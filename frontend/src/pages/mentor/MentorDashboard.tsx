@@ -176,7 +176,7 @@ const MentorDashboard: React.FC = () => {
       {/* Main Content Row */}
       <div className="main-content-row">
         {/* Left Column - Controls */}
-        <div className="controls-column">
+        {/* <div className="controls-column">
           <div className="controls-section_1">
             <h3 className="section-title">Mentorship Controls</h3>
             <AvailabilityToggle
@@ -191,7 +191,7 @@ const MentorDashboard: React.FC = () => {
               onDecrease={handleDecreaseMaxMentees}
             />
           </div>
-        </div>
+        </div> */}
 
         {/* Stats Section */}
         <div className="stats-grid">

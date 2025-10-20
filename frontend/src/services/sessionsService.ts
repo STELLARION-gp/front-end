@@ -452,7 +452,7 @@ export const sessionsService = {
    * Get analytics for user's sessions
    */
   async getMySessionsAnalytics(): Promise<any> {
-    return makeRequest("/sessions/analytics", {}, true);
+    return makeRequest("/sessions/user/analytics", {}, true);
   },
 
   /**

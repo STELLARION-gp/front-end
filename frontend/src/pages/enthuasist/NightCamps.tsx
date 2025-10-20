@@ -228,7 +228,7 @@ const NightCamps = () => {
 
   if (approvedCamps.length === 0) {
     return (
-      <div className="upcoming-camps">
+      <div>
         <h2 className="upcoming-camps__title">Upcoming Camps</h2>
         <div className="no-camps-message">
           No approved upcoming night camps available at the moment.
@@ -238,7 +238,7 @@ const NightCamps = () => {
   }
 
   return (
-    <div className="upcoming-camps">
+    <div>
       <h2 className="upcoming-camps__title">Upcoming Camps</h2>
       <div className="card-grid card-grid--small">
         {approvedCamps.map((camp, index) => (

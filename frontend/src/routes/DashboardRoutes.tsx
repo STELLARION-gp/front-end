@@ -77,6 +77,7 @@ import Vlogs from "../pages/influencer/Vlogs";
 import Quizzes from "../pages/enthuasist/Quizzes";
 import Polls from "../pages/influencer/Polls";
 import Sessions from "../pages/influencer/Sessions";
+// import Performance from "../pages/influencer/Performance";
 import MentorshipRequest from "../pages/mentor/MentorshipRequest";
 import Mentees from "../pages/mentor/Mentees";
 import MenteeProfile from "../pages/mentor/MenteeProfile";
@@ -92,6 +93,7 @@ import Competitions from "../pages/influencer/competitions";
 import MyBlogs from "../pages/influencer/myblogs";
 import LearnPath from "../pages/mentor/LearnPath";
 import MentorMenteeConnectionPage from "../pages/learner/MentorMenteeConnectionPage";
+import Performance from "../pages/influencer/Performance";
 
 import Followers from "../pages/influencer/Followers";
 import AdminModeratorsPage from "../pages/admin/AdminModeratorsPage";
@@ -1004,6 +1006,15 @@ const DashboardRoutes = () => {
         element={
           <RoleGuard allowedRoles={["influencer"]}>
             <Sessions />
+          </RoleGuard>
+        }
+      />
+
+      <Route
+        path="performance"
+        element={
+          <RoleGuard allowedRoles={["influencer"]}>
+            <Performance />
           </RoleGuard>
         }
       />

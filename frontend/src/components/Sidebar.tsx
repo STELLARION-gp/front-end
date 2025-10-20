@@ -33,6 +33,7 @@ import {
   FilmIcon,
   ClipboardDocumentListIcon,
   GlobeAltIcon,
+  ChartBarIcon,
   
 
 } from '@heroicons/react/24/outline';
@@ -75,6 +76,7 @@ const iconMap = {
   FilmIcon,
   ClipboardDocumentListIcon,
   GlobeAltIcon,
+  ChartBarIcon,
   
 };
 

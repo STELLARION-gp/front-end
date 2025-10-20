@@ -443,6 +443,16 @@
                   align-items: center;
                   justify-content: center;
 
+                  &.btn-download-pdf {
+                    background: rgba(139, 92, 246, 0.2);
+                    color: #a78bfa;
+
+                    &:hover {
+                      background: rgba(139, 92, 246, 0.3);
+                      transform: translateY(-2px);
+                    }
+                  }
+
                   &.btn-view {
                     background: rgba(59, 130, 246, 0.2);
                     color: #60a5fa;
@@ -723,6 +733,17 @@
             &:hover {
               transform: translateY(-2px);
               box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+            }
+          }
+
+          &.btn-download {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            color: #fff;
+            gap: 0.5rem;
+
+            &:hover {
+              transform: translateY(-2px);
+              box-shadow: 0 8px 20px rgba(139, 92, 246, 0.4);
             }
           }
 

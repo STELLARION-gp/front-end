@@ -48,8 +48,8 @@ const moderationModules: ModerationModule[] = [
   },
   {
     id: 'polls',
-    title: 'Polls, Votes & Threads Moderation',
-    description: 'Moderate community polls, voting, and discussion threads',
+    title: 'Polls Moderation',
+    description: 'Moderate community polls and voting',
     icon: <FaComments />,
     route: '/dashboard/moderation/polls',
     stats: { pending: 15, total: 234, recent: 9 },
@@ -204,9 +204,9 @@ export default function Moderation() {
         <div className="footer-content">
           <p>Last system update: {new Date().toLocaleString()}</p>
           <div className="quick-actions">
-            <button className="quick-action-btn">Generate Report</button>
+            {/* <button className="quick-action-btn">Generate Report</button>
             <button className="quick-action-btn">System Status</button>
-            <button className="quick-action-btn">Emergency Protocol</button>
+            <button className="quick-action-btn">Emergency Protocol</button> */}
           </div>
         </div>
       </footer>

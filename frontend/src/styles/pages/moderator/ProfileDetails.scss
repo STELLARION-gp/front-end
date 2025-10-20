@@ -406,6 +406,17 @@
           font-size: 1rem;
         }
 
+        .no-data {
+          color: rgba(255, 255, 255, 0.5);
+          font-style: italic;
+          padding: 1rem 1.5rem;
+          background: rgba(255, 255, 255, 0.03);
+          border-radius: 8px;
+          border: 1px dashed rgba(255, 255, 255, 0.1);
+          text-align: center;
+          margin: 0;
+        }
+
         .social-links {
           display: flex;
           flex-direction: column;

@@ -283,47 +283,53 @@ export default function ProfileDetails() {
             <h2>{isGuide ? 'Guide' : 'Influencer'} Application Details</h2>
           </div>
           <div className="card-content">
-            {isGuide && (
+            {isGuide ? (
               <>
-                {application.expertise_areas && application.expertise_areas.length > 0 && (
-                  <div className="detail-section">
-                    <h3>Areas of Expertise</h3>
+                <div className="detail-section">
+                  <h3>Areas of Expertise</h3>
+                  {application.expertise_areas && application.expertise_areas.length > 0 ? (
                     <div className="tags-container">
                       {application.expertise_areas.map((area, index) => (
                         <span key={index} className="tag expertise-tag">{area}</span>
                       ))}
                     </div>
-                  </div>
-                )}
+                  ) : (
+                    <p className="no-data">No expertise areas provided</p>
+                  )}
+                </div>
 
-                {application.experience_years !== undefined && (
-                  <div className="detail-section">
-                    <h3>Years of Experience</h3>
+                <div className="detail-section">
+                  <h3>Years of Experience</h3>
+                  {application.experience_years !== undefined ? (
                     <p className="experience-value">{application.experience_years} years</p>
-                  </div>
-                )}
+                  ) : (
+                    <p className="no-data">No experience information provided</p>
+                  )}
+                </div>
 
-                {application.bio && (
-                  <div className="detail-section">
-                    <h3>Bio</h3>
+                <div className="detail-section">
+                  <h3>Bio</h3>
+                  {application.bio ? (
                     <p className="bio-text">{application.bio}</p>
-                  </div>
-                )}
+                  ) : (
+                    <p className="no-data">No bio provided</p>
+                  )}
+                </div>
               </>
-            )}
-
-            {!isGuide && (
+            ) : (
               <>
-                {application.followers_count !== undefined && (
-                  <div className="detail-section">
-                    <h3>Total Followers</h3>
+                <div className="detail-section">
+                  <h3>Total Followers</h3>
+                  {application.followers_count !== undefined ? (
                     <p className="followers-value">{application.followers_count.toLocaleString()}</p>
-                  </div>
-                )}
+                  ) : (
+                    <p className="no-data">No follower count provided</p>
+                  )}
+                </div>
 
-                {application.social_media_links && Object.keys(application.social_media_links).length > 0 && (
-                  <div className="detail-section">
-                    <h3>Social Media Profiles</h3>
+                <div className="detail-section">
+                  <h3>Social Media Profiles</h3>
+                  {application.social_media_links && Object.keys(application.social_media_links).length > 0 ? (
                     <div className="social-links">
                       {Object.entries(application.social_media_links).map(([platform, link]) => (
                         <a
@@ -339,8 +345,10 @@ export default function ProfileDetails() {
                         </a>
                       ))}
                     </div>
-                  </div>
-                )}
+                  ) : (
+                    <p className="no-data">No social media links provided</p>
+                  )}
+                </div>
               </>
             )}
           </div>

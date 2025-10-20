@@ -379,6 +379,72 @@
                 box-shadow: 0 4px 12px rgba(46, 213, 115, 0.3);
               }
             }
+
+            &.certification-tag {
+              background: linear-gradient(135deg, rgba(255, 177, 66, 0.2), rgba(255, 118, 117, 0.2));
+              color: #ffb142;
+              border-color: rgba(255, 177, 66, 0.3);
+
+              &:hover {
+                background: linear-gradient(135deg, rgba(255, 177, 66, 0.3), rgba(255, 118, 117, 0.3));
+                box-shadow: 0 4px 12px rgba(255, 177, 66, 0.3);
+              }
+            }
+
+            &.language-tag {
+              background: linear-gradient(135deg, rgba(94, 114, 228, 0.2), rgba(130, 88, 205, 0.2));
+              color: #5e72e4;
+              border-color: rgba(94, 114, 228, 0.3);
+
+              &:hover {
+                background: linear-gradient(135deg, rgba(94, 114, 228, 0.3), rgba(130, 88, 205, 0.3));
+                box-shadow: 0 4px 12px rgba(94, 114, 228, 0.3);
+              }
+            }
+
+            &.preference-tag {
+              background: linear-gradient(135deg, rgba(240, 147, 251, 0.2), rgba(245, 87, 108, 0.2));
+              color: #f093fb;
+              border-color: rgba(240, 147, 251, 0.3);
+
+              &:hover {
+                background: linear-gradient(135deg, rgba(240, 147, 251, 0.3), rgba(245, 87, 108, 0.3));
+                box-shadow: 0 4px 12px rgba(240, 147, 251, 0.3);
+              }
+            }
+
+            &.skill-tag {
+              background: linear-gradient(135deg, rgba(52, 211, 153, 0.2), rgba(16, 185, 129, 0.2));
+              color: #34d399;
+              border-color: rgba(52, 211, 153, 0.3);
+
+              &:hover {
+                background: linear-gradient(135deg, rgba(52, 211, 153, 0.3), rgba(16, 185, 129, 0.3));
+                box-shadow: 0 4px 12px rgba(52, 211, 153, 0.3);
+              }
+            }
+
+            &.location-tag {
+              background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(37, 99, 235, 0.2));
+              color: #3b82f6;
+              border-color: rgba(59, 130, 246, 0.3);
+
+              &:hover {
+                background: linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(37, 99, 235, 0.3));
+                box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+              }
+            }
+
+            &.accommodation-tag {
+              background: linear-gradient(135deg, rgba(236, 72, 153, 0.2), rgba(219, 39, 119, 0.2));
+              color: #ec4899;
+              border-color: rgba(236, 72, 153, 0.3);
+
+              &:hover {
+                background: linear-gradient(135deg, rgba(236, 72, 153, 0.3), rgba(219, 39, 119, 0.3));
+                box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3);
+              }
+            }
           }
         }
 

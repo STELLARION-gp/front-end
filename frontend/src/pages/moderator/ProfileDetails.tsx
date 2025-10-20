@@ -9,7 +9,10 @@ interface ApplicationData {
   application_id: number;
   type: 'guide' | 'influencer';
   approve_application_status: 'pending' | 'accepted' | 'rejected';
-  users: {
+  user_id?: number;
+  
+  // Optional users table join
+  users?: {
     user_id: number;
     first_name: string;
     last_name: string;
@@ -17,11 +20,60 @@ interface ApplicationData {
     role: string;
     firebase_uid: string;
   };
+  
+  // Direct user fields (when users table not joined)
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  phone?: string;
+  
+  // Guide/Influencer common fields
   expertise_areas?: string[];
   experience_years?: number;
   bio?: string;
+  
+  // Influencer specific
   social_media_links?: Record<string, string>;
   followers_count?: number;
+  
+  // Guide specific - comprehensive fields
+  date_of_birth?: string;
+  address?: string;
+  city?: string;
+  current_occupation?: string;
+  education_level?: string;
+  astronomy_education?: string;
+  guiding_experience?: string;
+  certifications?: string[];
+  languages_spoken?: string[];
+  available_weekdays?: boolean;
+  available_weekends?: boolean;
+  preferred_camp_types?: string[];
+  preferred_group_sizes?: string[];
+  equipment_proficiency?: string[];
+  camping_experience?: string;
+  special_accommodations?: string[];
+  preferred_locations?: string[];
+  accommodation_needs?: string;
+  transportation_needs?: string;
+  additional_skills?: string;
+  emergency_contact?: {
+    name: string;
+    phone: string;
+    relationship: string;
+  };
+  uploaded_documents?: {
+    resume?: string;
+    portfolio?: string;
+    references?: string;
+    certifications?: string;
+  };
+  custom_availability?: unknown[];
+  verification_status?: string;
+  background_check_completed?: boolean;
+  terms_accepted?: boolean;
+  data_consent?: boolean;
+  
   submitted_at: string;
 }
 
@@ -241,13 +293,16 @@ export default function ProfileDetails() {
                 {isGuide ? <FaUserGraduate /> : <FaUserTie />}
               </div>
               <div className="user-details">
-                <h3>{application.users.first_name} {application.users.last_name}</h3>
+                <h3>
+                  {application.users?.first_name || application.first_name || 'Unknown'} {' '}
+                  {application.users?.last_name || application.last_name || ''}
+                </h3>
                 <div className="user-meta">
                   <span className="email">
-                    <FaEnvelope /> {application.users.email}
+                    <FaEnvelope /> {application.users?.email || application.email || 'No email'}
                   </span>
                   <span className="user-id">
-                    <FaIdCard /> ID: {application.users.user_id}
+                    <FaIdCard /> ID: {application.users?.user_id || application.user_id || 0}
                   </span>
                 </div>
               </div>
@@ -256,7 +311,7 @@ export default function ProfileDetails() {
             <div className="info-grid">
               <div className="info-item">
                 <span className="label">Current Role:</span>
-                <span className="value">{application.users.role || 'User'}</span>
+                <span className="value">{application.users?.role || 'User'}</span>
               </div>
               <div className="info-item">
                 <span className="label">Requested Role:</span>
@@ -285,6 +340,57 @@ export default function ProfileDetails() {
           <div className="card-content">
             {isGuide ? (
               <>
+                {/* Personal Information */}
+                <div className="detail-section">
+                  <h3>Contact Information</h3>
+                  <div className="info-grid">
+                    <div className="info-item">
+                      <span className="label">Phone:</span>
+                      <span className="value">{application.phone || 'Not provided'}</span>
+                    </div>
+                    <div className="info-item">
+                      <span className="label">Date of Birth:</span>
+                      <span className="value">
+                        {application.date_of_birth 
+                          ? new Date(application.date_of_birth).toLocaleDateString() 
+                          : 'Not provided'}
+                      </span>
+                    </div>
+                    <div className="info-item">
+                      <span className="label">Address:</span>
+                      <span className="value">{application.address || 'Not provided'}</span>
+                    </div>
+                    <div className="info-item">
+                      <span className="label">City:</span>
+                      <span className="value">{application.city || 'Not provided'}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Professional Background */}
+                <div className="detail-section">
+                  <h3>Professional Background</h3>
+                  <div className="info-grid">
+                    <div className="info-item">
+                      <span className="label">Current Occupation:</span>
+                      <span className="value">{application.current_occupation || 'Not provided'}</span>
+                    </div>
+                    <div className="info-item">
+                      <span className="label">Education Level:</span>
+                      <span className="value">{application.education_level || 'Not provided'}</span>
+                    </div>
+                    <div className="info-item">
+                      <span className="label">Astronomy Education:</span>
+                      <span className="value">{application.astronomy_education || 'Not provided'}</span>
+                    </div>
+                    <div className="info-item">
+                      <span className="label">Guiding Experience:</span>
+                      <span className="value">{application.guiding_experience || 'Not provided'}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Experience & Expertise */}
                 <div className="detail-section">
                   <h3>Areas of Expertise</h3>
                   {application.expertise_areas && application.expertise_areas.length > 0 ? (
@@ -307,13 +413,197 @@ export default function ProfileDetails() {
                   )}
                 </div>
 
+                {/* Certifications */}
                 <div className="detail-section">
-                  <h3>Bio</h3>
+                  <h3>Certifications</h3>
+                  {application.certifications && application.certifications.length > 0 ? (
+                    <div className="tags-container">
+                      {application.certifications.map((cert, index) => (
+                        <span key={index} className="tag certification-tag">{cert}</span>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="no-data">No certifications provided</p>
+                  )}
+                </div>
+
+                {/* Languages */}
+                <div className="detail-section">
+                  <h3>Languages Spoken</h3>
+                  {application.languages_spoken && application.languages_spoken.length > 0 ? (
+                    <div className="tags-container">
+                      {application.languages_spoken.map((lang, index) => (
+                        <span key={index} className="tag language-tag">{lang}</span>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="no-data">No languages provided</p>
+                  )}
+                </div>
+
+                {/* Availability */}
+                <div className="detail-section">
+                  <h3>Availability</h3>
+                  <div className="info-grid">
+                    <div className="info-item">
+                      <span className="label">Weekdays Available:</span>
+                      <span className="value">{application.available_weekdays ? 'Yes' : 'No'}</span>
+                    </div>
+                    <div className="info-item">
+                      <span className="label">Weekends Available:</span>
+                      <span className="value">{application.available_weekends ? 'Yes' : 'No'}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Preferences */}
+                <div className="detail-section">
+                  <h3>Preferred Camp Types</h3>
+                  {application.preferred_camp_types && application.preferred_camp_types.length > 0 ? (
+                    <div className="tags-container">
+                      {application.preferred_camp_types.map((type, index) => (
+                        <span key={index} className="tag preference-tag">{type}</span>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="no-data">No camp type preferences provided</p>
+                  )}
+                </div>
+
+                <div className="detail-section">
+                  <h3>Preferred Group Sizes</h3>
+                  {application.preferred_group_sizes && application.preferred_group_sizes.length > 0 ? (
+                    <div className="tags-container">
+                      {application.preferred_group_sizes.map((size, index) => (
+                        <span key={index} className="tag preference-tag">{size}</span>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="no-data">No group size preferences provided</p>
+                  )}
+                </div>
+
+                <div className="detail-section">
+                  <h3>Equipment Proficiency</h3>
+                  {application.equipment_proficiency && application.equipment_proficiency.length > 0 ? (
+                    <div className="tags-container">
+                      {application.equipment_proficiency.map((equip, index) => (
+                        <span key={index} className="tag skill-tag">{equip}</span>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="no-data">No equipment proficiency provided</p>
+                  )}
+                </div>
+
+                {/* Logistics */}
+                <div className="detail-section">
+                  <h3>Logistics & Experience</h3>
+                  <div className="info-grid">
+                    <div className="info-item">
+                      <span className="label">Camping Experience:</span>
+                      <span className="value">{application.camping_experience || 'Not provided'}</span>
+                    </div>
+                    <div className="info-item">
+                      <span className="label">Accommodation Needs:</span>
+                      <span className="value">{application.accommodation_needs || 'Not provided'}</span>
+                    </div>
+                    <div className="info-item">
+                      <span className="label">Transportation Needs:</span>
+                      <span className="value">{application.transportation_needs || 'Not provided'}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="detail-section">
+                  <h3>Preferred Locations</h3>
+                  {application.preferred_locations && application.preferred_locations.length > 0 ? (
+                    <div className="tags-container">
+                      {application.preferred_locations.map((loc, index) => (
+                        <span key={index} className="tag location-tag">{loc}</span>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="no-data">No location preferences provided</p>
+                  )}
+                </div>
+
+                <div className="detail-section">
+                  <h3>Special Accommodations</h3>
+                  {application.special_accommodations && application.special_accommodations.length > 0 ? (
+                    <div className="tags-container">
+                      {application.special_accommodations.map((acc, index) => (
+                        <span key={index} className="tag accommodation-tag">{acc}</span>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="no-data">No special accommodations needed</p>
+                  )}
+                </div>
+
+                {/* Bio & Skills */}
+                <div className="detail-section">
+                  <h3>Motivation / Bio</h3>
                   {application.bio ? (
                     <p className="bio-text">{application.bio}</p>
                   ) : (
                     <p className="no-data">No bio provided</p>
                   )}
+                </div>
+
+                <div className="detail-section">
+                  <h3>Additional Skills</h3>
+                  {application.additional_skills ? (
+                    <p className="bio-text">{application.additional_skills}</p>
+                  ) : (
+                    <p className="no-data">No additional skills provided</p>
+                  )}
+                </div>
+
+                {/* Emergency Contact */}
+                {application.emergency_contact && (
+                  <div className="detail-section">
+                    <h3>Emergency Contact</h3>
+                    <div className="info-grid">
+                      <div className="info-item">
+                        <span className="label">Name:</span>
+                        <span className="value">{application.emergency_contact.name || 'Not provided'}</span>
+                      </div>
+                      <div className="info-item">
+                        <span className="label">Phone:</span>
+                        <span className="value">{application.emergency_contact.phone || 'Not provided'}</span>
+                      </div>
+                      <div className="info-item">
+                        <span className="label">Relationship:</span>
+                        <span className="value">{application.emergency_contact.relationship || 'Not provided'}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Status & Verification */}
+                <div className="detail-section">
+                  <h3>Verification Status</h3>
+                  <div className="info-grid">
+                    <div className="info-item">
+                      <span className="label">Verification Status:</span>
+                      <span className="value">{application.verification_status || 'Pending'}</span>
+                    </div>
+                    <div className="info-item">
+                      <span className="label">Background Check:</span>
+                      <span className="value">
+                        {application.background_check_completed ? 'Completed' : 'Not completed'}
+                      </span>
+                    </div>
+                    <div className="info-item">
+                      <span className="label">Terms Accepted:</span>
+                      <span className="value">{application.terms_accepted ? 'Yes' : 'No'}</span>
+                    </div>
+                    <div className="info-item">
+                      <span className="label">Data Consent:</span>
+                      <span className="value">{application.data_consent ? 'Yes' : 'No'}</span>
+                    </div>
+                  </div>
                 </div>
               </>
             ) : (

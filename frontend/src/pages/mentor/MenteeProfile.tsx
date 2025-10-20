@@ -1,5 +1,5 @@
 // pages/mentor/MenteeProfile.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getReceivedApplications, type MenteeApplication } from '../../services/menteeApplicationApi';
 import {
@@ -17,6 +17,10 @@ import {
   type Note,
   type Goal
 } from '../../services/mentorMenteeConnectionApi';
+import {
+  mentorMenteeChatService,
+  type MentorMenteeMessage
+} from '../../services/mentorMenteeChatApi';
 import Button from '../../components/Button';
 import '../../styles/pages/mentor/MenteeProfileModern.scss';
 
@@ -52,6 +56,15 @@ const MenteeProfile: React.FC = () => {
   const [scheduling, setScheduling] = useState(false);
   const [copiedSessionId, setCopiedSessionId] = useState<number | null>(null);
   const [resources, setResources] = useState<any[]>([]);
+
+  // Chat state
+  const [messages, setMessages] = useState<MentorMenteeMessage[]>([]);
+  const [newMessage, setNewMessage] = useState('');
+  const [connectionId, setConnectionId] = useState<number | null>(null);
+  const [loadingMessages, setLoadingMessages] = useState(false);
+  const [sendingMessage, setSendingMessage] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     fetchMenteeProfile();
@@ -179,10 +192,19 @@ const MenteeProfile: React.FC = () => {
 
   const fetchConnectionDetails = async (applicationId: number) => {
     try {
-      await getConnectionDetails(applicationId);
-      // Connection details fetched successfully (auto-creates if needed)
+      const data = await getConnectionDetails(applicationId);
+      // Connection details fetched successfully (auto-creates if needed for accepted applications)
+      const connId = data?.connection?.connection_id || data?.connection?.id;
+      if (connId) {
+        console.log('✅ Connection found:', connId);
+        setConnectionId(connId);
+      } else {
+        console.warn('❌ No connection created for application:', applicationId, 'Response:', data);
+        setConnectionId(null);
+      }
     } catch (err: any) {
       console.error('Error fetching connection:', err);
+      setConnectionId(null);
     }
   };
 
@@ -315,6 +337,96 @@ const MenteeProfile: React.FC = () => {
       alert(err.message || 'Failed to end connection');
     } finally {
       setEndingConnection(false);
+    }
+  };
+
+  // Scroll to bottom helper
+  const scrollToBottom = useCallback(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, []);
+
+  // Load messages function
+  const loadMessages = useCallback(async (connId: number, isInitialLoad = false) => {
+    try {
+      // Only show loading state on initial load, not on polling refreshes
+      if (isInitialLoad) {
+        setLoadingMessages(true);
+      }
+      
+      const result = await mentorMenteeChatService.getMessages(connId, { limit: 50 });
+      setMessages(result.messages || []);
+      
+      // Mark messages as read
+      await mentorMenteeChatService.markAsRead(connId);
+      
+      // Only scroll to bottom on initial load
+      if (isInitialLoad) {
+        setTimeout(() => scrollToBottom(), 100);
+      }
+    } catch (err) {
+      console.error('Error loading messages:', err);
+    } finally {
+      if (isInitialLoad) {
+        setLoadingMessages(false);
+      }
+    }
+  }, [scrollToBottom]);
+
+  // Chat functionality - setup polling when connectionId is available
+  useEffect(() => {
+    if (!connectionId) {
+      // No connection yet - wait for fetchConnectionDetails to complete
+      return;
+    }
+
+    // Load initial messages (with loading state)
+    loadMessages(connectionId, true);
+
+    // Setup polling for new messages (every 5 seconds, without loading state)
+    pollIntervalRef.current = setInterval(() => {
+      loadMessages(connectionId, false);
+    }, 5000);
+
+    return () => {
+      // Clear polling interval
+      if (pollIntervalRef.current) {
+        clearInterval(pollIntervalRef.current);
+        pollIntervalRef.current = null;
+      }
+    };
+  }, [connectionId, loadMessages]);
+
+  // Handle send message
+  const handleSendMessage = async () => {
+    if (!newMessage.trim() || sendingMessage) return;
+
+    if (!connectionId) {
+      // No connection available yet — inform the user
+      alert('Cannot send message: no active mentorship connection was found.');
+      return;
+    }
+
+    const messageContent = newMessage.trim();
+    setNewMessage('');
+    setSendingMessage(true);
+
+    try {
+      await mentorMenteeChatService.sendMessage(connectionId, {
+        content: messageContent,
+        type: 'text'
+      });
+
+      // Reload messages immediately (without loading state to avoid flicker)
+      await loadMessages(connectionId, false);
+      
+      // Scroll to bottom after sending message
+      setTimeout(() => scrollToBottom(), 100);
+    } catch (err) {
+      console.error('Error sending message:', err);
+      alert('Failed to send message. Please try again.');
+      setNewMessage(messageContent); // Restore message
+    } finally {
+      setSendingMessage(false);
     }
   };
 
@@ -451,14 +563,65 @@ const MenteeProfile: React.FC = () => {
 
       {/* Chat Section */}
       <section className="mentor-section mentor-chat-section">
-        <h2>Chat Section</h2>
+        <h2>Chat with {displayName}</h2>
         <div className="chat-ui">
           <div className="chat-messages">
-            <div className="chat-date-separator">Coming Soon</div>
-            <div style={{ textAlign: 'center', padding: '2rem', color: '#8b93ab' }}>
-              <p>Chat functionality will be available soon.</p>
-              <p>You'll be able to communicate with your mentee here.</p>
-            </div>
+            {loadingMessages ? (
+              <div style={{ textAlign: 'center', padding: '2rem', color: '#8b93ab' }}>
+                Loading messages...
+              </div>
+            ) : messages.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '2rem', color: '#8b93ab' }}>
+                No messages yet. Start the conversation!
+              </div>
+            ) : (
+              messages.map((msg) => {
+                const isOwn = msg.is_own_message;
+                const messageDate = new Date(msg.created_at);
+                const timeString = messageDate.toLocaleTimeString('en-US', { 
+                  hour: 'numeric', 
+                  minute: '2-digit', 
+                  hour12: true 
+                });
+
+                return (
+                  <div key={msg.message_id} className={`chat-message ${isOwn ? 'own-message right' : 'other-message left'}`}>
+                    <span className="chat-avatar">
+                      {msg.sender.avatarUrl ? (
+                        <img src={msg.sender.avatarUrl} alt={msg.sender.name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+                      ) : (
+                        isOwn ? '🧑‍🚀' : '🧑‍💻'
+                      )}
+                    </span>
+                    <div className="chat-bubble">
+                      {msg.message_text}
+                      {msg.is_edited && <span style={{ fontSize: '0.7rem', color: '#8b93ab', marginLeft: '0.5rem' }}>(edited)</span>}
+                      <span className="chat-read-receipt">{msg.is_read ? '✓✓' : '✓'}</span>
+                    </div>
+                    <span className="chat-time">{timeString}</span>
+                  </div>
+                );
+              })
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+          <div className="chat-input-row">
+            <input 
+              type="text" 
+              className="chat-input" 
+              placeholder="Type your message..." 
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && !sendingMessage && handleSendMessage()}
+              disabled={sendingMessage}
+            />
+            <button 
+              className="chat-send-btn" 
+              onClick={handleSendMessage}
+              disabled={!newMessage.trim() || sendingMessage}
+            >
+              {sendingMessage ? 'Sending...' : 'Send'}
+            </button>
           </div>
         </div>
       </section>

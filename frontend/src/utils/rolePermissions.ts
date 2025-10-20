@@ -156,6 +156,7 @@ export const PAGE_ACCESS_CONTROL = {
   "/dashboard/vlogs": ["influencer"] as UserRole[],
   "/dashboard/polls": ["influencer"] as UserRole[],
   "/dashboard/followers": ["influencer"] as UserRole[],
+  "/dashboard/performance": ["influencer"] as UserRole[],
   "/dashboard/financial-analytics": ["admin"] as UserRole[],
 };
 
@@ -245,7 +246,7 @@ export const ROLE_BASED_MENU_ITEMS = {
     { label: "Overview", icon: "HomeIcon", href: "/dashboard/overview" },
     //{ label: 'Profile', icon: 'UserCircleIcon', href: '/dashboard/profile' },
     // { label: 'Blogs', icon: 'BookOpenIcon', href: '/dashboard/blogs' },
-    { label: "Blogs & Vlogs", icon: "PencilIcon", href: "/dashboard/myblogs" },
+    { label: "Blogs", icon: "PencilIcon", href: "/dashboard/myblogs" },
     { label: "Night Camps", icon: "MoonIcon", href: "/dashboard/night-camps" },
     {
       label: "Sessions",
@@ -253,15 +254,20 @@ export const ROLE_BASED_MENU_ITEMS = {
       href: "/dashboard/sessions-making",
     },
     {
+      label: "Performance",
+      icon: "ChartBarIcon",
+      href: "/dashboard/performance",
+    },
+    {
       label: "Stargazing Spot",
       icon: "StarIcon",
       href: "/dashboard/stargazing",
     },
-    {
-      label: "Competitions",
-      icon: "TrophyIcon",
-      href: "/dashboard/competitions",
-    },
+    // {
+    //   label: "Competitions",
+    //   icon: "TrophyIcon",
+    //   href: "/dashboard/competitions",
+    // },
     //{ label: "Polls", icon: "DocumentTextIcon", href: "/dashboard/polls" },
     {
       label: "Astro Hub",
@@ -269,7 +275,7 @@ export const ROLE_BASED_MENU_ITEMS = {
       href: "/dashboard/astrohub",
     },
     // { label: 'Sponsorships', icon: 'CurrencyDollarIcon', href: '/dashboard/sponsorships' },
-    { label: "Followers", icon: "UsersIcon", href: "/dashboard/followers" },
+    // { label: "Followers", icon: "UsersIcon", href: "/dashboard/followers" },
 
     //{ label: 'Settings', icon: 'Cog6ToothIcon', href: '/dashboard/settings' },
   ],

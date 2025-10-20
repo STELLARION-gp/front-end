@@ -913,7 +913,6 @@ const DashboardRoutes = () => {
               "guide",
             ]}
           >
-            {/* @ts-expect-error - This component needs fixing */}
             <Stargazing />
           </RoleGuard>
         }

@@ -26,14 +26,25 @@ interface ApplicationData {
   last_name?: string;
   email?: string;
   phone?: string;
+  phone_number?: string; // Influencer uses phone_number instead of phone
+  country?: string;
   
   // Guide/Influencer common fields
   expertise_areas?: string[];
   experience_years?: number;
   bio?: string;
+  application_status?: string;
+  deletion_status?: string;
   
-  // Influencer specific
-  social_media_links?: Record<string, string>;
+  // Influencer specific - comprehensive fields
+  willing_to_host_sessions?: boolean;
+  tools_used?: string[];
+  specialization_tags?: string[];
+  social_links?: Record<string, string>;
+  social_media_links?: Record<string, string>; // Legacy field
+  sample_content_links?: string[];
+  preferred_session_format?: string[];
+  intro_video_url?: string;
   followers_count?: number;
   
   // Guide specific - comprehensive fields
@@ -76,6 +87,21 @@ interface ApplicationData {
   
   submitted_at: string;
 }
+
+// Helper function to safely parse array fields that might be JSON strings
+const parseArrayField = (field: unknown): string[] => {
+  if (!field) return [];
+  if (Array.isArray(field)) return field;
+  if (typeof field === 'string') {
+    try {
+      const parsed = JSON.parse(field);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+  return [];
+};
 
 export default function ProfileDetails() {
   const { id } = useParams<{ id: string }>();
@@ -393,15 +419,18 @@ export default function ProfileDetails() {
                 {/* Experience & Expertise */}
                 <div className="detail-section">
                   <h3>Areas of Expertise</h3>
-                  {application.expertise_areas && application.expertise_areas.length > 0 ? (
-                    <div className="tags-container">
-                      {application.expertise_areas.map((area, index) => (
-                        <span key={index} className="tag expertise-tag">{area}</span>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="no-data">No expertise areas provided</p>
-                  )}
+                  {(() => {
+                    const areas = parseArrayField(application.expertise_areas);
+                    return areas.length > 0 ? (
+                      <div className="tags-container">
+                        {areas.map((area, index) => (
+                          <span key={index} className="tag expertise-tag">{area}</span>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="no-data">No expertise areas provided</p>
+                    );
+                  })()}
                 </div>
 
                 <div className="detail-section">
@@ -416,29 +445,35 @@ export default function ProfileDetails() {
                 {/* Certifications */}
                 <div className="detail-section">
                   <h3>Certifications</h3>
-                  {application.certifications && application.certifications.length > 0 ? (
-                    <div className="tags-container">
-                      {application.certifications.map((cert, index) => (
-                        <span key={index} className="tag certification-tag">{cert}</span>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="no-data">No certifications provided</p>
-                  )}
+                  {(() => {
+                    const certs = parseArrayField(application.certifications);
+                    return certs.length > 0 ? (
+                      <div className="tags-container">
+                        {certs.map((cert, index) => (
+                          <span key={index} className="tag certification-tag">{cert}</span>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="no-data">No certifications provided</p>
+                    );
+                  })()}
                 </div>
 
                 {/* Languages */}
                 <div className="detail-section">
                   <h3>Languages Spoken</h3>
-                  {application.languages_spoken && application.languages_spoken.length > 0 ? (
-                    <div className="tags-container">
-                      {application.languages_spoken.map((lang, index) => (
-                        <span key={index} className="tag language-tag">{lang}</span>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="no-data">No languages provided</p>
-                  )}
+                  {(() => {
+                    const languages = parseArrayField(application.languages_spoken);
+                    return languages.length > 0 ? (
+                      <div className="tags-container">
+                        {languages.map((lang, index) => (
+                          <span key={index} className="tag language-tag">{lang}</span>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="no-data">No languages provided</p>
+                    );
+                  })()}
                 </div>
 
                 {/* Availability */}
@@ -459,41 +494,50 @@ export default function ProfileDetails() {
                 {/* Preferences */}
                 <div className="detail-section">
                   <h3>Preferred Camp Types</h3>
-                  {application.preferred_camp_types && application.preferred_camp_types.length > 0 ? (
-                    <div className="tags-container">
-                      {application.preferred_camp_types.map((type, index) => (
-                        <span key={index} className="tag preference-tag">{type}</span>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="no-data">No camp type preferences provided</p>
-                  )}
+                  {(() => {
+                    const types = parseArrayField(application.preferred_camp_types);
+                    return types.length > 0 ? (
+                      <div className="tags-container">
+                        {types.map((type, index) => (
+                          <span key={index} className="tag preference-tag">{type}</span>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="no-data">No camp type preferences provided</p>
+                    );
+                  })()}
                 </div>
 
                 <div className="detail-section">
                   <h3>Preferred Group Sizes</h3>
-                  {application.preferred_group_sizes && application.preferred_group_sizes.length > 0 ? (
-                    <div className="tags-container">
-                      {application.preferred_group_sizes.map((size, index) => (
-                        <span key={index} className="tag preference-tag">{size}</span>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="no-data">No group size preferences provided</p>
-                  )}
+                  {(() => {
+                    const sizes = parseArrayField(application.preferred_group_sizes);
+                    return sizes.length > 0 ? (
+                      <div className="tags-container">
+                        {sizes.map((size, index) => (
+                          <span key={index} className="tag preference-tag">{size}</span>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="no-data">No group size preferences provided</p>
+                    );
+                  })()}
                 </div>
 
                 <div className="detail-section">
                   <h3>Equipment Proficiency</h3>
-                  {application.equipment_proficiency && application.equipment_proficiency.length > 0 ? (
-                    <div className="tags-container">
-                      {application.equipment_proficiency.map((equip, index) => (
-                        <span key={index} className="tag skill-tag">{equip}</span>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="no-data">No equipment proficiency provided</p>
-                  )}
+                  {(() => {
+                    const equipment = parseArrayField(application.equipment_proficiency);
+                    return equipment.length > 0 ? (
+                      <div className="tags-container">
+                        {equipment.map((equip, index) => (
+                          <span key={index} className="tag skill-tag">{equip}</span>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="no-data">No equipment proficiency provided</p>
+                    );
+                  })()}
                 </div>
 
                 {/* Logistics */}
@@ -517,28 +561,34 @@ export default function ProfileDetails() {
 
                 <div className="detail-section">
                   <h3>Preferred Locations</h3>
-                  {application.preferred_locations && application.preferred_locations.length > 0 ? (
-                    <div className="tags-container">
-                      {application.preferred_locations.map((loc, index) => (
-                        <span key={index} className="tag location-tag">{loc}</span>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="no-data">No location preferences provided</p>
-                  )}
+                  {(() => {
+                    const locations = parseArrayField(application.preferred_locations);
+                    return locations.length > 0 ? (
+                      <div className="tags-container">
+                        {locations.map((loc, index) => (
+                          <span key={index} className="tag location-tag">{loc}</span>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="no-data">No location preferences provided</p>
+                    );
+                  })()}
                 </div>
 
                 <div className="detail-section">
                   <h3>Special Accommodations</h3>
-                  {application.special_accommodations && application.special_accommodations.length > 0 ? (
-                    <div className="tags-container">
-                      {application.special_accommodations.map((acc, index) => (
-                        <span key={index} className="tag accommodation-tag">{acc}</span>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="no-data">No special accommodations needed</p>
-                  )}
+                  {(() => {
+                    const accommodations = parseArrayField(application.special_accommodations);
+                    return accommodations.length > 0 ? (
+                      <div className="tags-container">
+                        {accommodations.map((acc, index) => (
+                          <span key={index} className="tag accommodation-tag">{acc}</span>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="no-data">No special accommodations needed</p>
+                    );
+                  })()}
                 </div>
 
                 {/* Bio & Skills */}
@@ -608,6 +658,113 @@ export default function ProfileDetails() {
               </>
             ) : (
               <>
+                {/* Contact Information */}
+                <div className="detail-section">
+                  <h3>Contact Information</h3>
+                  <div className="info-grid">
+                    <div className="info-item">
+                      <span className="label">Phone:</span>
+                      <span className="value">{application.phone_number || application.phone || 'Not provided'}</span>
+                    </div>
+                    <div className="info-item">
+                      <span className="label">Country:</span>
+                      <span className="value">{application.country || 'Not provided'}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bio & Introduction */}
+                <div className="detail-section">
+                  <h3>Bio</h3>
+                  {application.bio ? (
+                    <p className="bio-text">{application.bio}</p>
+                  ) : (
+                    <p className="no-data">No bio provided</p>
+                  )}
+                </div>
+
+                {/* Introduction Video */}
+                {application.intro_video_url && (
+                  <div className="detail-section">
+                    <h3>Introduction Video</h3>
+                    <div className="video-container">
+                      <a 
+                        href={application.intro_video_url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="video-link"
+                      >
+                        <FaGlobe /> View Introduction Video
+                      </a>
+                    </div>
+                  </div>
+                )}
+
+                {/* Specialization Tags */}
+                <div className="detail-section">
+                  <h3>Specialization Tags</h3>
+                  {(() => {
+                    const tags = parseArrayField(application.specialization_tags);
+                    return tags.length > 0 ? (
+                      <div className="tags-container">
+                        {tags.map((tag, index) => (
+                          <span key={index} className="tag expertise-tag">{tag}</span>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="no-data">No specialization tags provided</p>
+                    );
+                  })()}
+                </div>
+
+                {/* Tools Used */}
+                <div className="detail-section">
+                  <h3>Tools Used</h3>
+                  {(() => {
+                    const tools = parseArrayField(application.tools_used);
+                    return tools.length > 0 ? (
+                      <div className="tags-container">
+                        {tools.map((tool, index) => (
+                          <span key={index} className="tag skill-tag">{tool}</span>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="no-data">No tools specified</p>
+                    );
+                  })()}
+                </div>
+
+                {/* Preferred Session Format */}
+                <div className="detail-section">
+                  <h3>Preferred Session Format</h3>
+                  {(() => {
+                    const formats = parseArrayField(application.preferred_session_format);
+                    return formats.length > 0 ? (
+                      <div className="tags-container">
+                        {formats.map((format, index) => (
+                          <span key={index} className="tag preference-tag">{format}</span>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="no-data">No session format preferences provided</p>
+                    );
+                  })()}
+                </div>
+
+                {/* Willing to Host Sessions */}
+                <div className="detail-section">
+                  <h3>Session Hosting</h3>
+                  <div className="info-grid">
+                    <div className="info-item">
+                      <span className="label">Willing to Host Sessions:</span>
+                      <span className="value">
+                        {application.willing_to_host_sessions ? 'Yes' : 'No'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Total Followers */}
                 <div className="detail-section">
                   <h3>Total Followers</h3>
                   {application.followers_count !== undefined ? (
@@ -617,11 +774,13 @@ export default function ProfileDetails() {
                   )}
                 </div>
 
+                {/* Social Media Profiles */}
                 <div className="detail-section">
                   <h3>Social Media Profiles</h3>
-                  {application.social_media_links && Object.keys(application.social_media_links).length > 0 ? (
+                  {((application.social_links && Object.keys(application.social_links).length > 0) ||
+                    (application.social_media_links && Object.keys(application.social_media_links).length > 0)) ? (
                     <div className="social-links">
-                      {Object.entries(application.social_media_links).map(([platform, link]) => (
+                      {Object.entries(application.social_links || application.social_media_links || {}).map(([platform, link]) => (
                         <a
                           key={platform}
                           href={link}
@@ -639,6 +798,51 @@ export default function ProfileDetails() {
                     <p className="no-data">No social media links provided</p>
                   )}
                 </div>
+
+                {/* Sample Content Links */}
+                <div className="detail-section">
+                  <h3>Sample Content Links</h3>
+                  {(() => {
+                    const links = parseArrayField(application.sample_content_links);
+                    return links.length > 0 ? (
+                      <div className="social-links">
+                        {links.map((link, index) => (
+                          <a
+                            key={index}
+                            href={link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="social-link"
+                          >
+                            <FaGlobe />
+                            <span className="platform-link">{link}</span>
+                          </a>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="no-data">No sample content links provided</p>
+                    );
+                  })()}
+                </div>
+
+                {/* Application Status Details */}
+                {application.application_status && (
+                  <div className="detail-section">
+                    <h3>Application Status Details</h3>
+                    <div className="info-grid">
+                      <div className="info-item">
+                        <span className="label">Status:</span>
+                        <span className="value">{application.application_status}</span>
+                      </div>
+                      {application.deletion_status && (
+                        <div className="info-item">
+                          <span className="label">Deletion Status:</span>
+                          <span className="value">{application.deletion_status}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </>
             )}
           </div>

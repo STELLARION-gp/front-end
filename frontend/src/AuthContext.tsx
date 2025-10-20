@@ -31,6 +31,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   // Convert backend user to frontend user profile
   const convertBackendUser = (backendUser: BackendUser): UserProfile => {
     return {
+      id: backendUser.id, // Include database ID
       uid: backendUser.firebase_uid,
       email: backendUser.email,
       displayName: backendUser.display_name || "",

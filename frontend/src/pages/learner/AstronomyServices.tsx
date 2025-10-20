@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import ServiceCard from "../../components/Learner/ServiceCard";
 import BookingModal from "../../components/Learner/BookingModal";
 import { getServices } from "../../services/servicesService";
@@ -188,6 +189,7 @@ interface ServiceCardData {
   image: string;
   guideName: string;
   guideImage: string;
+  creatorId: number;
   rating: number;
   location: string;
   duration: string;
@@ -208,6 +210,7 @@ const transformService = (service: Service): ServiceCardData => {
     image: service.image_url,
     guideName,
     guideImage: "https://randomuser.me/api/portraits/men/32.jpg", // Default avatar
+    creatorId: service.creator?.id || service.created_by,
     rating: service.rating || 0,
     location: service.location,
     duration: service.duration,
@@ -217,6 +220,8 @@ const transformService = (service: Service): ServiceCardData => {
 };
 
 const AstronomyServices: React.FC = () => {
+  const navigate = useNavigate();
+  
   // Tab state
   const [activeTab, setActiveTab] = useState<'services' | 'bookings'>('services');
   
@@ -303,6 +308,10 @@ const AstronomyServices: React.FC = () => {
   const handleBookClick = (id: number) => {
     setSelectedServiceId(id);
     setBookingModalOpen(true);
+  };
+
+  const handleGuideClick = (creatorId: number) => {
+    navigate(`/dashboard/guide-profile/${creatorId}`);
   };
 
   const handleBookingSuccess = () => {
@@ -472,6 +481,7 @@ const AstronomyServices: React.FC = () => {
                       key={idx} 
                       {...service} 
                       onBookClick={() => handleBookClick(service.id)}
+                      onGuideClick={() => handleGuideClick(service.creatorId)}
                     />
                   ))
                 ) : (

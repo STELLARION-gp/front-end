@@ -13,8 +13,8 @@ import type {
   MentorStats,
 } from "../../services/mentorApi";
 import { auth } from "../../firebase";
-import AvailabilityToggle from "../../components/mentor/AvailabilityToggle";
-import MenteeCounter from "../../components/mentor/MenteeCounter";
+// import AvailabilityToggle from "../../components/mentor/AvailabilityToggle";
+// import MenteeCounter from "../../components/mentor/MenteeCounter";
 
 // Mock data — replace with real context/API
 const MOCK_MENTOR: MentorProfile = {
@@ -46,19 +46,19 @@ const MentorDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // State for mentor controls
-  const [isAccepting, setIsAccepting] = useState(true);
-  const [isPaused, setIsPaused] = useState(false);
-  const [maxMentees, setMaxMentees] = useState(15);
+  // State for mentor controls (unused - commented out)
+  // const [isAccepting, setIsAccepting] = useState(true);
+  // const [isPaused, setIsPaused] = useState(false);
+  // const [maxMentees, setMaxMentees] = useState(15);
 
-  // Handlers for mentee count
-  const handleIncreaseMaxMentees = () => {
-    setMaxMentees((prev) => Math.min(prev + 1, 50)); // Max 50 mentees
-  };
+  // Handlers for mentee count (unused - commented out)
+  // const handleIncreaseMaxMentees = () => {
+  //   setMaxMentees((prev) => Math.min(prev + 1, 50)); // Max 50 mentees
+  // };
 
-  const handleDecreaseMaxMentees = () => {
-    setMaxMentees((prev) => Math.max(prev - 1, 1)); // Min 1 mentee
-  };
+  // const handleDecreaseMaxMentees = () => {
+  //   setMaxMentees((prev) => Math.max(prev - 1, 1)); // Min 1 mentee
+  // };
 
   useEffect(() => {
     const fetchMentorProfile = async () => {
@@ -176,7 +176,7 @@ const MentorDashboard: React.FC = () => {
       {/* Main Content Row */}
       <div className="main-content-row">
         {/* Left Column - Controls */}
-        <div className="controls-column">
+        {/* <div className="controls-column">
           <div className="controls-section_1">
             <h3 className="section-title">Mentorship Controls</h3>
             <AvailabilityToggle
@@ -191,7 +191,7 @@ const MentorDashboard: React.FC = () => {
               onDecrease={handleDecreaseMaxMentees}
             />
           </div>
-        </div>
+        </div> */}
 
         {/* Stats Section */}
         <div className="stats-grid">

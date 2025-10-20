@@ -20,6 +20,7 @@
   align-items: flex-end;
   gap: 0.7rem;
   margin-bottom: 0.5rem;
+  max-width: 75%;
 }
 .chat-message.left {
   flex-direction: row;
@@ -28,20 +29,22 @@
 .chat-message.right {
   flex-direction: row-reverse;
   justify-content: flex-end;
+  margin-left: auto;
 }
 
 .chat-message.mentor .chat-bubble {
-  background: linear-gradient(90deg, #6366f1 0%, #2563eb 100%);
+  // background: linear-gradient(90deg, #6366f1 0%, #2563eb 100%);
   color: #fff;
+  background: transparent;
 }
 .chat-message.mentee .chat-bubble {
-  background: #fff;
-  color: #181f2a;
+  background: transparent;
+  color: #fff;
 }
 .chat-bubble {
   border-radius: 1rem;
   padding: 0.7rem 1.2rem;
-  box-shadow: 0 2px 8px rgba(59,130,246,0.10);
+  // box-shadow: 0 2px 8px rgba(59,130,246,0.10);
   font-size: 1rem;
   position: relative;
 }

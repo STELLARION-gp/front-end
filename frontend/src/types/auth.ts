@@ -17,6 +17,7 @@ export interface BackendUser {
 
 // Frontend user profile interface
 export interface UserProfile {
+  id?: number; // Database user ID
   uid: string;
   email: string;
   displayName: string;

@@ -9,12 +9,14 @@
   padding: 1rem;
   overflow-y: auto;
   box-sizing: border-box;
+  background: transparent;
 
   &__container {
     max-width: 80rem;
     margin: 0 auto;
     padding-bottom: 4rem; // Extra bottom padding to ensure content is visible
     min-height: calc(100vh - 200px); // Ensure minimum height accounting for dashboard layout
+    background: transparent;
   }
 
   &__header {

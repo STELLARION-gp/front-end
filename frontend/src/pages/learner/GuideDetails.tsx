@@ -111,7 +111,7 @@ const GuideDetails: React.FC = () => {
 					<div className="guide-services-grid">
 						{guideServices.length > 0 ? (
 							guideServices.map((service) => (
-								<ServiceCard key={service.id} {...service} />
+								<ServiceCard key={service.id} {...service} creatorId={1} />
 							))
 						) : (
 							<div>No services found for this guide.</div>

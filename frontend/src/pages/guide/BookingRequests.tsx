@@ -15,7 +15,7 @@ interface BookingRequest {
   serviceName: string;
   date: string;
   startTime: string;
-  endTime: string;
+  endTime?: string;
   participants: number;
   totalAmount: number;
   paymentStatus?: string;
@@ -84,38 +84,19 @@ const BookingRequests: React.FC = () => {
     const serviceObj = (booking as any).service || (booking as any).services || null;
     const serviceName = serviceObj?.title || 'Unknown Service';
 
-    // booking_date is Date or string
-    const dateObj = typeof booking.booking_date === 'string'
-      ? new Date(booking.booking_date)
-      : booking.booking_date;
-    const date = dateObj.toISOString().split('T')[0];
+    // Use booking created_at timestamp for table date/time
+    const createdAtObj = booking.created_at
+      ? (typeof booking.created_at === 'string' ? new Date(booking.created_at) : booking.created_at)
+      : new Date();
 
-    // booking_time is Date or string or undefined
-    let startTime = '00:00';
-    if (booking.booking_time) {
-      let timeObj: Date | null = null;
-      if (typeof booking.booking_time === 'string') {
-        // Try to parse as ISO or time string
-        if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(booking.booking_time)) {
-          timeObj = new Date(booking.booking_time);
-        } else if (/^\d{2}:\d{2}/.test(booking.booking_time)) {
-          timeObj = new Date(`1970-01-01T${booking.booking_time}`);
-        }
-      } else if (
-        typeof booking.booking_time === 'object' &&
-        booking.booking_time !== null &&
-        'getTime' in booking.booking_time
-      ) {
-        timeObj = booking.booking_time as Date;
-      }
-      if (timeObj && !isNaN(timeObj.getTime())) {
-        startTime = timeObj.toISOString().substring(11, 16);
-      }
-    }
+    // Format date as 'DD MMM YYYY' (e.g., 20 Oct 2025)
+    const date = createdAtObj.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
 
-    const endTime = serviceObj?.duration
-      ? calculateEndTime(startTime, serviceObj.duration)
-      : '00:00';
+    // Format time as 'h:mm AM/PM' (e.g., 2:34 PM)
+    const formattedTime = createdAtObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+
+  // For table, provide a single formatted time string
+  const startTime = formattedTime;
 
     return {
       id: booking.id.toString(),
@@ -123,26 +104,13 @@ const BookingRequests: React.FC = () => {
       serviceName,
       date,
       startTime,
-      endTime,
       participants: booking.participants_count,
       totalAmount: booking.total_amount,
       paymentStatus: (booking as any).payment_status || (booking as any).paymentStatus || 'not_paid',
     };
   };
 
-  const calculateEndTime = (startTime: string, duration: string): string => {
-    // Parse duration (e.g., "3 hours", "2 days")
-    const match = duration.match(/(\d+)\s*(hour|day)/i);
-    if (!match) return startTime;
-    
-    const [, amount, unit] = match;
-    const hours = unit.toLowerCase() === 'day' ? parseInt(amount) * 24 : parseInt(amount);
-    
-    const [startHour, startMin] = startTime.split(':').map(Number);
-    const endHour = (startHour + hours) % 24;
-    
-    return `${String(endHour).padStart(2, '0')}:${String(startMin).padStart(2, '0')}`;
-  };
+  // Note: end time calculation removed because we use booking created_at for both date and time
 
   // modal state handlers below
 
@@ -424,7 +392,7 @@ const BookingRequests: React.FC = () => {
                   <div className="text-sm text-gray-400">{req.participants} participants • Rs. {req.totalAmount.toLocaleString()}</div>
                 </td>
                 <td>{new Date(req.date).toLocaleDateString()}</td>
-                <td>{req.startTime} - {req.endTime}</td>
+                <td>{req.startTime}</td>
                 <td className="actions-cell">
                   <Button variant="primary" size="small" onClick={() => handleViewBooking(req.id)}>View</Button>
                 </td>

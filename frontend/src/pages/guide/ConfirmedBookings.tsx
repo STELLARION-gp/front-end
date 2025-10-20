@@ -75,6 +75,7 @@ const ConfirmedBookings: React.FC = () => {
     const dateObj = typeof booking.booking_date === 'string'
       ? new Date(booking.booking_date)
       : booking.booking_date;
+    // Normalize to YYYY-MM-DD for storage, we'll format for display later
     const date = dateObj.toISOString().split('T')[0];
 
     // booking_time is Date or string or undefined
@@ -132,6 +133,30 @@ const ConfirmedBookings: React.FC = () => {
       notes: booking.special_requests,
       paymentStatus: (booking as any).payment_status || (booking as any).paymentStatus || 'not_paid',
     };
+  };
+
+  // Format helpers for display
+  const formatDate = (dateStr: string) => {
+    if (!dateStr) return '-';
+    try {
+      // Ensure the string is parsed as local date by providing explicit time
+      const d = new Date(dateStr.includes('T') ? dateStr : `${dateStr}T00:00:00`);
+      return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    } catch (e) {
+      return dateStr;
+    }
+  };
+
+  const formatTime = (time24: string) => {
+    if (!time24) return '-';
+    const parts = time24.split(':');
+    if (parts.length < 2) return time24;
+    const hh = parseInt(parts[0], 10);
+    const mm = parseInt(parts[1], 10);
+    if (isNaN(hh) || isNaN(mm)) return time24;
+    const d = new Date();
+    d.setHours(hh, mm, 0, 0);
+    return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
   };
 
   const parseDuration = (duration: string): number => {
@@ -440,8 +465,12 @@ const ConfirmedBookings: React.FC = () => {
                       <td className="service-cell">{booking.serviceName}</td>
                       <td className="datetime-cell">
                         <div className="datetime-info">
-                          <span className="date">{new Date(booking.date).toLocaleDateString()}</span>
-                          <span className="time">{booking.startTime} - {booking.endTime}</span>
+                          <span className="date">{formatDate(booking.date)}</span>
+                          <span className="time">
+                            {booking.startTime && booking.endTime && booking.startTime !== booking.endTime
+                              ? `${formatTime(booking.startTime)} - ${formatTime(booking.endTime)}`
+                              : formatTime(booking.startTime)}
+                          </span>
                         </div>
                       </td>
                       {/* <td className="duration-cell">{booking.duration}h</td> */}

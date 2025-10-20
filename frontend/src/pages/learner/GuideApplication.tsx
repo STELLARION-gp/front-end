@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import '../../styles/pages/guide/_campGuideApplication.scss';
 import { apiService } from '../../services/api';
+import { useToast } from '../../contexts/ToastContext';
 
 interface ApplicationForm {
   // Personal Information
@@ -75,6 +76,7 @@ interface ApplicationForm {
 
 const CampGuideApplication: React.FC = () => {
   const navigate = useNavigate();
+  const { showError } = useToast();
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<ApplicationForm>({
     fullName: '',
@@ -343,7 +345,7 @@ const CampGuideApplication: React.FC = () => {
     } catch (error) {
       console.error('Submission error:', error);
       const errorMessage = error instanceof Error ? error.message : 'There was an error submitting your application. Please try again.';
-      alert(errorMessage);
+      showError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }

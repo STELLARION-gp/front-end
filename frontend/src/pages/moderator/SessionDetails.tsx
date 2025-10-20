@@ -4,10 +4,12 @@ import { FaArrowLeft, FaCheck, FaTimes, FaCalendarAlt, FaClock, FaUsers, FaDolla
 import '../../styles/pages/moderator/SessionDetails.scss';
 import Button from '../../components/Button';
 import { sessionsService, type Session } from '../../services/sessionsService';
+import { useToast } from '../../contexts/ToastContext';
 
 const SessionDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { showSuccess, showError, showWarning } = useToast();
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -47,14 +49,14 @@ const SessionDetails: React.FC = () => {
       const response = await sessionsService.approveSession(session.id);
       
       if (response.success) {
-        alert('Session approved successfully!');
+        showSuccess('Session approved successfully!');
         navigate('/dashboard/moderation/session');
       } else {
-        alert('Failed to approve session');
+        showError('Failed to approve session');
       }
     } catch (err) {
       console.error('Error approving session:', err);
-      alert((err as Error).message || 'Failed to approve session');
+      showError((err as Error).message || 'Failed to approve session');
     } finally {
       setActionLoading(false);
     }
@@ -67,7 +69,7 @@ const SessionDetails: React.FC = () => {
 
   const handleRejectSubmit = async () => {
     if (!session || !rejectionReason.trim()) {
-      alert('Please provide a rejection reason');
+      showWarning('Please provide a rejection reason');
       return;
     }
 
@@ -76,14 +78,14 @@ const SessionDetails: React.FC = () => {
       const response = await sessionsService.rejectSession(session.id, rejectionReason);
       
       if (response.success) {
-        alert('Session rejected successfully!');
+        showSuccess('Session rejected successfully!');
         navigate('/dashboard/moderation/session');
       } else {
-        alert('Failed to reject session');
+        showError('Failed to reject session');
       }
     } catch (err) {
       console.error('Error rejecting session:', err);
-      alert((err as Error).message || 'Failed to reject session');
+      showError((err as Error).message || 'Failed to reject session');
     } finally {
       setActionLoading(false);
       setShowRejectModal(false);

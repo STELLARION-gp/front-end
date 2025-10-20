@@ -5,6 +5,7 @@ import { useAuth } from "../hooks/useAuth";
 import LoadingSpinner from "../components/LoadingSpinner";
 import Button from "../components/Button";
 import { useI18n } from "../i18n/useI18n";
+import { useToast } from "../contexts/ToastContext";
 import {
   profileService,
   type ProfileData as ApiProfileData,
@@ -85,6 +86,7 @@ const Profile: React.FC = () => {
   const { user, userProfile } = useAuth();
   const { t, getCurrentLanguage, changeLanguage, isLanguageReady } = useI18n();
   const currentLang = getCurrentLanguage().code;
+  const { showSuccess, showError } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [activeTab, setActiveTab] = useState<"profile" | "settings">("profile");
@@ -516,7 +518,7 @@ const Profile: React.FC = () => {
           confirmPassword: "",
         });
         // Show success message
-        alert("Password changed successfully");
+        showSuccess("Password changed successfully");
       } else {
         setErrors({
           password: response.message || "Failed to change password",
@@ -547,9 +549,11 @@ const Profile: React.FC = () => {
 
       if (response.success) {
         // Account deletion successful - redirect to logout
-        alert("Account deleted successfully");
+        showSuccess("Account deleted successfully");
         // Add logout logic here if needed
-        window.location.href = "/";
+        setTimeout(() => {
+          window.location.href = "/";
+        }, 2000); // Delay to show the notification
       } else {
         setErrors({ account: response.message || "Failed to delete account" });
       }
@@ -610,16 +614,17 @@ const Profile: React.FC = () => {
       if (response.success && response.data) {
         // Open download URL in new tab
         window.open(response.data.download_url, "_blank");
+        showSuccess("Data export started successfully");
       } else {
         setErrors({ export: response.message || "Failed to export data" });
-        alert(
+        showError(
           "Failed to export data: " + (response.message || "Unknown error")
         );
       }
     } catch (error) {
       console.error("Error exporting data:", error);
       setErrors({ export: "Failed to export data" });
-      alert("Failed to export data. Please try again.");
+      showError("Failed to export data. Please try again.");
     } finally {
       setLoading(false);
     }

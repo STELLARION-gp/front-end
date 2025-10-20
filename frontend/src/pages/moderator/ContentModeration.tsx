@@ -5,6 +5,7 @@ import '../../styles/pages/moderator/ContentModeration.scss';
 import Button from '../../components/Button';
 import { blogService } from '../../services/blogService';
 import type { Blog } from '../../services/blogService';
+import { useToast } from '../../contexts/ToastContext';
 
 type PriorityLevel = 'low' | 'medium' | 'high' | 'critical';
 
@@ -16,6 +17,7 @@ interface BlogPost extends Blog {
 
 export default function ContentModeration() {
   const navigate = useNavigate();
+  const { showError } = useToast();
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
     const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'published' | 'rejected'>('pending');
   const [searchTerm, setSearchTerm] = useState('');
@@ -79,7 +81,7 @@ export default function ContentModeration() {
       );
     } catch (err) {
       console.error('Error approving blog:', err);
-      alert('Failed to approve blog. Please try again.');
+      showError('Failed to approve blog. Please try again.');
     }
   };
 
@@ -93,7 +95,7 @@ export default function ContentModeration() {
       );
     } catch (err) {
       console.error('Error rejecting blog:', err);
-      alert('Failed to reject blog. Please try again.');
+      showError('Failed to reject blog. Please try again.');
     }
   };
 

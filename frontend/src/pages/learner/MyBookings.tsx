@@ -2,9 +2,11 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getMyBookings, cancelBooking, createReview, type Booking } from "../../services/bookingService";
 import "../../styles/pages/learner/MyBookings.scss";
+import { useToast } from "../../contexts/ToastContext";
 
 const MyBookings: React.FC = () => {
   const navigate = useNavigate();
+  const { showSuccess, showError } = useToast();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -48,11 +50,11 @@ const MyBookings: React.FC = () => {
     try {
       const reason = prompt('Please provide a reason for cancellation (optional):');
       await cancelBooking(bookingId, reason || undefined);
-      alert('Booking cancelled successfully');
+      showSuccess('Booking cancelled successfully');
       fetchBookings();
     } catch (err) {
       console.error('Error cancelling booking:', err);
-      alert(err instanceof Error ? err.message : 'Failed to cancel booking');
+      showError(err instanceof Error ? err.message : 'Failed to cancel booking');
     }
   };
 
@@ -66,7 +68,7 @@ const MyBookings: React.FC = () => {
         comment: reviewText,
       });
       
-      alert('Review submitted successfully!');
+      showSuccess('Review submitted successfully!');
       setShowReviewModal(false);
       setSelectedBooking(null);
       setRating(5);
@@ -74,7 +76,7 @@ const MyBookings: React.FC = () => {
       fetchBookings();
     } catch (err) {
       console.error('Error submitting review:', err);
-      alert(err instanceof Error ? err.message : 'Failed to submit review');
+      showError(err instanceof Error ? err.message : 'Failed to submit review');
     } finally {
       setReviewLoading(false);
     }

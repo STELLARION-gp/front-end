@@ -524,6 +524,33 @@
             }
           }
         }
+
+        .video-container {
+          .video-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.5rem;
+            background: linear-gradient(135deg, rgba(240, 147, 251, 0.15), rgba(245, 87, 108, 0.15));
+            border: 1px solid rgba(240, 147, 251, 0.3);
+            border-radius: 12px;
+            color: #f093fb;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+
+            &:hover {
+              background: linear-gradient(135deg, rgba(240, 147, 251, 0.25), rgba(245, 87, 108, 0.25));
+              border-color: rgba(240, 147, 251, 0.5);
+              transform: translateY(-2px);
+              box-shadow: 0 4px 12px rgba(240, 147, 251, 0.3);
+            }
+
+            svg {
+              font-size: 1.2rem;
+            }
+          }
+        }
       }
     }
 

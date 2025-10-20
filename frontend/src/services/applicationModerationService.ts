@@ -81,14 +81,40 @@ export interface GuideApplicationData {
 export interface InfluencerApplicationData {
   application_id: number;
   user_id: number;
-  social_media_links: Record<string, string>;
-  followers_count: number;
+  
+  // Personal Information
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  phone_number?: string;
+  country?: string;
+  
+  // Application Details
+  bio?: string;
+  intro_video_url?: string;
+  willing_to_host_sessions?: boolean;
+  
+  // Skills & Specialization
+  tools_used?: string[];
+  specialization_tags?: string[];
+  preferred_session_format?: string[];
+  
+  // Social & Content
+  social_links?: Record<string, string>;
+  social_media_links?: Record<string, string>; // Legacy field
+  sample_content_links?: string[];
+  followers_count?: number;
+  
+  // Status
+  application_status?: string;
   approve_application_status: 'pending' | 'accepted' | 'rejected';
-  application_status: string;
+  deletion_status?: string;
+  
   submitted_at: string;
-  created_at: string;
+  created_at?: string;
   updated_at: string;
-  users: {
+  
+  users?: {
     id: number;
     first_name: string;
     last_name: string;
@@ -120,11 +146,17 @@ export interface UnifiedApplication {
   last_name?: string;
   email?: string;
   phone?: string;
+  phone_number?: string;
+  country?: string;
+  
+  // Common fields
+  bio?: string;
+  application_status?: string;
+  deletion_status?: string;
   
   // Guide-specific fields
   expertise_areas?: string[];
   experience_years?: number;
-  bio?: string;
   current_occupation?: string;
   education_level?: string;
   astronomy_education?: string;
@@ -138,7 +170,14 @@ export interface UnifiedApplication {
   preferred_locations?: string[];
   
   // Influencer-specific fields
+  willing_to_host_sessions?: boolean;
+  tools_used?: string[];
+  specialization_tags?: string[];
+  social_links?: Record<string, string>;
   social_media_links?: Record<string, string>;
+  sample_content_links?: string[];
+  preferred_session_format?: string[];
+  intro_video_url?: string;
   followers_count?: number;
 }
 

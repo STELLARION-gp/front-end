@@ -15,7 +15,8 @@ const getAuthToken = async (): Promise<string | null> => {
 export interface ConnectionDetails {
   application: any;
   connection: {
-    id: number;
+    connection_id: number; // Primary key from database
+    id: number; // Alias for connection_id
     mentor_id: number;
     mentee_id: number;
     status: string;

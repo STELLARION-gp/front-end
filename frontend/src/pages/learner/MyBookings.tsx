@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getMyBookings, cancelBooking, createReview, type Booking } from "../../services/bookingService";
+import { useToast } from "../../contexts/ToastContext";
 import "../../styles/pages/learner/MyBookings.scss";
 
 const MyBookings: React.FC = () => {
@@ -16,6 +17,7 @@ const MyBookings: React.FC = () => {
   const [rating, setRating] = useState(5);
   const [reviewText, setReviewText] = useState('');
   const [reviewLoading, setReviewLoading] = useState(false);
+  const { showSuccess, showError } = useToast();
 
   useEffect(() => {
     fetchBookings();
@@ -47,12 +49,12 @@ const MyBookings: React.FC = () => {
 
     try {
       const reason = prompt('Please provide a reason for cancellation (optional):');
-      await cancelBooking(bookingId, reason || undefined);
-      alert('Booking cancelled successfully');
+  await cancelBooking(bookingId, reason || undefined);
+  showSuccess('Booking cancelled successfully');
       fetchBookings();
     } catch (err) {
       console.error('Error cancelling booking:', err);
-      alert(err instanceof Error ? err.message : 'Failed to cancel booking');
+  showError(err instanceof Error ? err.message : 'Failed to cancel booking');
     }
   };
 
@@ -66,7 +68,7 @@ const MyBookings: React.FC = () => {
         comment: reviewText,
       });
       
-      alert('Review submitted successfully!');
+      showSuccess('Review submitted successfully!');
       setShowReviewModal(false);
       setSelectedBooking(null);
       setRating(5);
@@ -74,7 +76,7 @@ const MyBookings: React.FC = () => {
       fetchBookings();
     } catch (err) {
       console.error('Error submitting review:', err);
-      alert(err instanceof Error ? err.message : 'Failed to submit review');
+  showError(err instanceof Error ? err.message : 'Failed to submit review');
     } finally {
       setReviewLoading(false);
     }
@@ -265,14 +267,12 @@ const MyBookings: React.FC = () => {
                       </button>
                     )}
                     
-                    {booking.booking_status === 'completed' && (
-                      <button
-                        className="action-button review-button"
-                        onClick={() => openReviewModal(booking)}
-                      >
-                        Write a Review
-                      </button>
-                    )}
+                    <button
+                      className="action-button review-button"
+                      onClick={() => openReviewModal(booking)}
+                    >
+                      Write a Review
+                    </button>
                     
                     <button
                       className="action-button view-button"

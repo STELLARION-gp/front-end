@@ -193,6 +193,28 @@ const ServiceListing: React.FC = () => {
     }
   };
 
+  // Helper function to refresh services list (use after booking confirm to update participant counts)
+  const refreshServices = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const servicesResponse = await getMyServices({});
+      const transformedServices = servicesResponse.services.map(transformApiService);
+      setServices(transformedServices);
+    } catch (err) {
+      console.error('Error refreshing services:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load services');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Expose helper on window for other modules to call after booking confirmation if needed
+  // Example: window.__refreshGuideServices && window.__refreshGuideServices()
+  // (This is a minimal integration; consumers should call refreshServices directly where available.)
+  // @ts-ignore - augmenting window for quick access
+  (window as any).__refreshGuideServices = refreshServices;
+
   // Fetch services and stats on mount
   useEffect(() => {
     const fetchData = async () => {

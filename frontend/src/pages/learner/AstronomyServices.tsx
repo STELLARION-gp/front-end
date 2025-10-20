@@ -4,6 +4,7 @@ import ServiceCard from "../../components/Learner/ServiceCard";
 import BookingModal from "../../components/Learner/BookingModal";
 import { getServices } from "../../services/servicesService";
 import { getMyBookings, cancelBooking, createReview, type Booking } from "../../services/bookingService";
+import { useToast } from "../../contexts/ToastContext";
 import type { Service } from "../../services/servicesService";
 import "../../styles/pages/learner/AstronomyServices.scss";
 
@@ -246,6 +247,7 @@ const AstronomyServices: React.FC = () => {
   const [rating, setRating] = useState(5);
   const [reviewText, setReviewText] = useState('');
   const [reviewLoading, setReviewLoading] = useState(false);
+  const { showSuccess, showError } = useToast();
 
   // Fetch services from API
   useEffect(() => {
@@ -325,12 +327,12 @@ const AstronomyServices: React.FC = () => {
 
     try {
       const reason = prompt('Please provide a reason for cancellation (optional):');
-      await cancelBooking(bookingId, reason || undefined);
-      alert('Booking cancelled successfully');
+  await cancelBooking(bookingId, reason || undefined);
+  showSuccess('Booking cancelled successfully');
       fetchBookings();
     } catch (err) {
       console.error('Error cancelling booking:', err);
-      alert(err instanceof Error ? err.message : 'Failed to cancel booking');
+  showError(err instanceof Error ? err.message : 'Failed to cancel booking');
     }
   };
 
@@ -351,7 +353,7 @@ const AstronomyServices: React.FC = () => {
         comment: reviewText,
       });
       
-      alert('Review submitted successfully!');
+      showSuccess('Review submitted successfully!');
       setShowReviewModal(false);
       setSelectedBooking(null);
       setRating(5);
@@ -359,7 +361,7 @@ const AstronomyServices: React.FC = () => {
       fetchBookings();
     } catch (err) {
       console.error('Error submitting review:', err);
-      alert(err instanceof Error ? err.message : 'Failed to submit review');
+  showError(err instanceof Error ? err.message : 'Failed to submit review');
     } finally {
       setReviewLoading(false);
     }

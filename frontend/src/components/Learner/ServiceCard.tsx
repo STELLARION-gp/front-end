@@ -15,6 +15,8 @@ interface ServiceCardProps {
   duration: string;
   tags: string[];
   price: number;
+  spotsLeft?: number;
+  cannotRegister?: boolean;
   onBookClick?: (e: React.MouseEvent) => void;
   onGuideClick?: () => void;
 }
@@ -30,7 +32,9 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   duration,
   tags,
   price,
-  onBookClick,
+  spotsLeft,
+  cannotRegister,
+  onBookClick
   onGuideClick
 }) => {
   const renderStars = (rating: number) => {
@@ -48,6 +52,12 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
       <div className="service-card__content">
         <h3 className="service-card__title">{title}</h3>
         <div className="service-card__price">Rs. {price.toLocaleString()}</div>
+        {typeof spotsLeft === 'number' && (
+          <div className="service-card__spots">{spotsLeft} spots left</div>
+        )}
+        {cannotRegister && (
+          <div className="service-card__cannot">Cannot register</div>
+        )}
         <div className="service-card__rating">{renderStars(rating)} <span className="rating-value">{rating.toFixed(1)}</span></div>
         <p className="service-card__desc">{description}</p>
         <div className="service-card__details">
@@ -77,10 +87,11 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
           className="service-card__book-btn"
           onClick={(e) => {
             e.stopPropagation();
-            onBookClick?.(e);
+            if (!cannotRegister) onBookClick?.(e);
           }}
+          disabled={Boolean(cannotRegister)}
         >
-          Book Now
+          {cannotRegister ? 'Cannot register' : 'Book Now'}
         </button>
       </div>
     </div>

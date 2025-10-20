@@ -644,8 +644,11 @@ const Sessions = () => {
                           <span className="icon">
                             <ParticipantsIcon size={16} />
                           </span>
-                          Max {session.max_participants || "Unlimited"}{" "}
-                          participants
+                          {/* Max {session.max_participants || "Unlimited"}{" "}
+                          participants */}
+                          {typeof session.participants_count === 'number' && (
+                            <span className="registered-count"> Registered: {session.participants_count}{session.max_participants ? ` / ${session.max_participants}` : ''}</span>
+                          )}
                         </p>
                         <p>
                           <span className="icon">

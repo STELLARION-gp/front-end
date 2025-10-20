@@ -73,23 +73,33 @@ export default function ProfileModeration() {
         limit: 10
       });
 
+      console.log('API Response:', response); // Debug log
+
+      // Validate response structure
+      if (!response || !response.data) {
+        throw new Error('Invalid response structure from server');
+      }
+
       if (response.success) {
+        // Ensure applications array exists
+        const applicationsArray = response.data.applications || [];
+        
         // Transform API data to component format
-        const transformedApplications: ProfileReport[] = response.data.applications.map(app => ({
+        const transformedApplications: ProfileReport[] = applicationsArray.map(app => ({
           id: `${app.type}-${app.application_id}`,
           applicationId: app.application_id,
-          userId: app.user_id,
-          username: `${app.users.first_name} ${app.users.last_name}`,
-          email: app.users.email,
+          userId: app.user_id || app.users?.id || 0,
+          username: app.users ? `${app.users.first_name || ''} ${app.users.last_name || ''}`.trim() : 'Unknown',
+          email: app.users?.email || 'No email',
           requestType: app.type,
           status: app.approve_application_status,
-          accountCreated: new Date(app.submitted_at),
-          lastActive: new Date(app.submitted_at),
-          priority: getPriorityFromDate(app.submitted_at),
-          currentRole: app.users.role,
+          accountCreated: new Date(app.submitted_at || Date.now()),
+          lastActive: new Date(app.submitted_at || Date.now()),
+          priority: getPriorityFromDate(app.submitted_at || new Date().toISOString()),
+          currentRole: app.users?.role || 'user',
           requestedRole: app.type === 'guide' ? 'Guide' : 'Influencer',
           // Guide-specific
-          expertiseAreas: app.expertise_areas,
+          expertiseAreas: app.expertise_areas || [],
           experienceYears: app.experience_years,
           bio: app.bio,
           // Influencer-specific
@@ -98,8 +108,10 @@ export default function ProfileModeration() {
         }));
 
         setApplications(transformedApplications);
-        setStats(response.data.stats);
-        setTotalPages(response.data.pagination.totalPages);
+        setStats(response.data.stats || { guideCount: 0, influencerCount: 0, total: 0 });
+        setTotalPages(response.data.pagination?.totalPages || 1);
+      } else {
+        throw new Error(response.message || 'Failed to fetch applications');
       }
     } catch (err) {
       console.error('Error fetching applications:', err);

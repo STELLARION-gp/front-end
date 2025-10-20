@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import {
   LineChart,
   Line,
@@ -16,10 +16,10 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-} from 'recharts';
-import * as ProviderPaymentsService from '../../services/providerPayments.service';
-import type { ProviderPayment } from '../../services/providerPayments.service';
-import '../../styles/pages/admin/RevenueAnalytics.scss';
+} from "recharts";
+import * as ProviderPaymentsService from "../../services/providerPayments.service";
+import type { ProviderPayment } from "../../services/providerPayments.service";
+import "../../styles/pages/admin/RevenueAnalytics.scss";
 
 interface RevenueOverview {
   total: number;
@@ -54,7 +54,14 @@ interface MRRTrend {
   churned_subscribers: number;
 }
 
-const COLORS = ['#8b5cf6', '#ec4899', '#3b82f6', '#10b981', '#f59e0b', '#ef4444'];
+const COLORS = [
+  "#8b5cf6",
+  "#ec4899",
+  "#3b82f6",
+  "#10b981",
+  "#f59e0b",
+  "#ef4444",
+];
 
 const RevenueAnalytics: React.FC = () => {
   const [overview, setOverview] = useState<RevenueOverview | null>(null);
@@ -62,12 +69,17 @@ const RevenueAnalytics: React.FC = () => {
   // @ts-ignore - topUsers is set but used in commented section
   const [topUsers, setTopUsers] = useState<TopUser[]>([]);
   const [mrrTrends, setMRRTrends] = useState<MRRTrend[]>([]);
-  const [providerPayments, setProviderPayments] = useState<ProviderPayment[]>([]);
+  const [providerPayments, setProviderPayments] = useState<ProviderPayment[]>(
+    []
+  );
   const [loading, setLoading] = useState(true);
-  const [timeRange, setTimeRange] = useState('30d');
-  const [trendGroupBy, setTrendGroupBy] = useState<'day' | 'week' | 'month'>('day');
+  const [timeRange, setTimeRange] = useState("30d");
+  const [trendGroupBy, setTrendGroupBy] = useState<"day" | "week" | "month">(
+    "day"
+  );
 
-  const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+  const API_BASE_URL =
+    import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
   useEffect(() => {
     fetchAllData();
@@ -76,34 +88,35 @@ const RevenueAnalytics: React.FC = () => {
   const fetchAllData = async () => {
     setLoading(true);
     try {
-      const [
-        overviewRes,
-        trendsRes,
-        usersRes,
-        mrrRes,
-      ] = await Promise.all([
-        axios.get(`${API_BASE_URL}/api/finance/overview`).catch(err => {
-          console.error('Error fetching overview:', err);
+      const [overviewRes, trendsRes, usersRes, mrrRes] = await Promise.all([
+        axios.get(`${API_BASE_URL}/api/finance/overview`).catch((err) => {
+          console.error("Error fetching overview:", err);
           return { data: { data: null } };
         }),
-        axios.get(`${API_BASE_URL}/api/finance/revenue-trends`, {
-          params: { timeRange, groupBy: trendGroupBy },
-        }).catch(err => {
-          console.error('Error fetching trends:', err);
-          return { data: { data: [] } };
-        }),
-        axios.get(`${API_BASE_URL}/api/finance/top-users`, {
-          params: { limit: 10 },
-        }).catch(err => {
-          console.error('Error fetching top users:', err);
-          return { data: { data: [] } };
-        }),
-        axios.get(`${API_BASE_URL}/api/finance/mrr-trends`, {
-          params: { months: 12 },
-        }).catch(err => {
-          console.error('Error fetching MRR trends:', err);
-          return { data: { data: [] } };
-        }),
+        axios
+          .get(`${API_BASE_URL}/api/finance/revenue-trends`, {
+            params: { timeRange, groupBy: trendGroupBy },
+          })
+          .catch((err) => {
+            console.error("Error fetching trends:", err);
+            return { data: { data: [] } };
+          }),
+        axios
+          .get(`${API_BASE_URL}/api/finance/top-users`, {
+            params: { limit: 10 },
+          })
+          .catch((err) => {
+            console.error("Error fetching top users:", err);
+            return { data: { data: [] } };
+          }),
+        axios
+          .get(`${API_BASE_URL}/api/finance/mrr-trends`, {
+            params: { months: 12 },
+          })
+          .catch((err) => {
+            console.error("Error fetching MRR trends:", err);
+            return { data: { data: [] } };
+          }),
       ]);
 
       setOverview(overviewRes.data.data);
@@ -116,19 +129,19 @@ const RevenueAnalytics: React.FC = () => {
         const payments = await ProviderPaymentsService.getProviderPayments();
         setProviderPayments(payments);
       } catch (err) {
-        console.error('Error fetching provider payments:', err);
+        console.error("Error fetching provider payments:", err);
       }
     } catch (error) {
-      console.error('Error fetching finance data:', error);
+      console.error("Error fetching finance data:", error);
     } finally {
       setLoading(false);
     }
   };
 
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-LK', {
-      style: 'currency',
-      currency: 'LKR',
+    return new Intl.NumberFormat("en-LK", {
+      style: "currency",
+      currency: "LKR",
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(value);
@@ -137,18 +150,18 @@ const RevenueAnalytics: React.FC = () => {
   // Prepare data for revenue sources pie chart
   const revenueSourceData = overview
     ? [
-        { name: 'Subscriptions', value: overview.subscriptions.amount },
-        { name: 'Services', value: overview.services.amount },
-        { name: 'Sessions', value: overview.sessions.amount },
+        { name: "Subscriptions", value: overview.subscriptions.amount },
+        { name: "Services", value: overview.services.amount },
+        { name: "Sessions", value: overview.sessions.amount },
       ]
     : [];
 
   // Prepare provider payments data for pie chart (payment status distribution)
   const prepareProviderPaymentsPieData = () => {
     const statusCount: Record<string, number> = {};
-    
-    providerPayments.forEach(payment => {
-      const status = payment.payment_status || 'unknown';
+
+    providerPayments.forEach((payment) => {
+      const status = payment.payment_status || "unknown";
       statusCount[status] = (statusCount[status] || 0) + 1;
     });
 
@@ -160,30 +173,40 @@ const RevenueAnalytics: React.FC = () => {
 
   // Prepare provider payments data for bar chart (by provider type and status)
   const prepareProviderPaymentsBarData = () => {
-    const guideData: Record<string, number> = { pending: 0, paid: 0, processing: 0, failed: 0 };
-    const influencerData: Record<string, number> = { pending: 0, paid: 0, processing: 0, failed: 0 };
-    
-    providerPayments.forEach(payment => {
-      const status = payment.payment_status || 'pending';
+    const guideData: Record<string, number> = {
+      pending: 0,
+      paid: 0,
+      processing: 0,
+      failed: 0,
+    };
+    const influencerData: Record<string, number> = {
+      pending: 0,
+      paid: 0,
+      processing: 0,
+      failed: 0,
+    };
+
+    providerPayments.forEach((payment) => {
+      const status = payment.payment_status || "pending";
       const type = payment.provider_type;
-      
-      if (type === 'guide') {
+
+      if (type === "guide") {
         guideData[status] = (guideData[status] || 0) + 1;
-      } else if (type === 'influencer') {
+      } else if (type === "influencer") {
         influencerData[status] = (influencerData[status] || 0) + 1;
       }
     });
 
     return [
       {
-        type: 'Guide',
+        type: "Guide",
         pending: guideData.pending,
         paid: guideData.paid,
         processing: guideData.processing || 0,
         failed: guideData.failed || 0,
       },
       {
-        type: 'Influencer',
+        type: "Influencer",
         pending: influencerData.pending,
         paid: influencerData.paid,
         processing: influencerData.processing || 0,
@@ -218,7 +241,9 @@ const RevenueAnalytics: React.FC = () => {
           </select>
           <select
             value={trendGroupBy}
-            onChange={(e) => setTrendGroupBy(e.target.value as 'day' | 'week' | 'month')}
+            onChange={(e) =>
+              setTrendGroupBy(e.target.value as "day" | "week" | "month")
+            }
             className="time-select"
           >
             <option value="day">Daily</option>
@@ -242,24 +267,36 @@ const RevenueAnalytics: React.FC = () => {
           <div className="card-icon">🔄</div>
           <div className="card-content">
             <h3>Subscriptions</h3>
-            <p className="amount">{formatCurrency(overview?.subscriptions.amount || 0)}</p>
-            <span className="count">{overview?.subscriptions.count || 0} transactions</span>
+            <p className="amount">
+              {formatCurrency(overview?.subscriptions.amount || 0)}
+            </p>
+            <span className="count">
+              {overview?.subscriptions.count || 0} transactions
+            </span>
           </div>
         </div>
         <div className="stat-card services">
           <div className="card-icon">🛠️</div>
           <div className="card-content">
             <h3>Services</h3>
-            <p className="amount">{formatCurrency(overview?.services.amount || 0)}</p>
-            <span className="count">{overview?.services.count || 0} bookings</span>
+            <p className="amount">
+              {formatCurrency(overview?.services.amount || 0)}
+            </p>
+            <span className="count">
+              {overview?.services.count || 0} bookings
+            </span>
           </div>
         </div>
         <div className="stat-card sessions">
           <div className="card-icon">📚</div>
           <div className="card-content">
             <h3>Sessions</h3>
-            <p className="amount">{formatCurrency(overview?.sessions.amount || 0)}</p>
-            <span className="count">{overview?.sessions.count || 0} enrollments</span>
+            <p className="amount">
+              {formatCurrency(overview?.sessions.amount || 0)}
+            </p>
+            <span className="count">
+              {overview?.sessions.count || 0} enrollments
+            </span>
           </div>
         </div>
       </div>
@@ -271,17 +308,23 @@ const RevenueAnalytics: React.FC = () => {
           <ResponsiveContainer width="100%" height={320}>
             <AreaChart data={trends}>
               <defs>
-                <linearGradient id="colorSubscriptions" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8}/>
-                  <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
+                <linearGradient
+                  id="colorSubscriptions"
+                  x1="0"
+                  y1="0"
+                  x2="0"
+                  y2="1"
+                >
+                  <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8} />
+                  <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
                 </linearGradient>
                 <linearGradient id="colorServices" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#ec4899" stopOpacity={0.8}/>
-                  <stop offset="95%" stopColor="#ec4899" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="#ec4899" stopOpacity={0.8} />
+                  <stop offset="95%" stopColor="#ec4899" stopOpacity={0} />
                 </linearGradient>
                 <linearGradient id="colorSessions" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
-                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8} />
+                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
@@ -289,9 +332,9 @@ const RevenueAnalytics: React.FC = () => {
               <YAxis stroke="#9ca3af" tickFormatter={(value) => `$${value}`} />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: '#1f2937',
-                  border: '1px solid #374151',
-                  borderRadius: '8px',
+                  backgroundColor: "#1f2937",
+                  border: "1px solid #374151",
+                  borderRadius: "8px",
                 }}
                 formatter={(value: number) => formatCurrency(value)}
               />
@@ -333,13 +376,19 @@ const RevenueAnalytics: React.FC = () => {
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                label={({ name, percent }) => `${name}: ${((percent || 0) * 100).toFixed(0)}%`}
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                label={(entry: any) =>
+                  `${entry.name}: ${((entry.percent || 0) * 100).toFixed(0)}%`
+                }
                 outerRadius={85}
                 fill="#8884d8"
                 dataKey="value"
               >
                 {revenueSourceData.map((_, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[index % COLORS.length]}
+                  />
                 ))}
               </Pie>
               <Tooltip formatter={(value: number) => formatCurrency(value)} />
@@ -356,13 +405,19 @@ const RevenueAnalytics: React.FC = () => {
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                label={({ name, percent }) => `${name}: ${((percent || 0) * 100).toFixed(0)}%`}
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                label={(entry: any) =>
+                  `${entry.name}: ${((entry.percent || 0) * 100).toFixed(0)}%`
+                }
                 outerRadius={85}
                 fill="#8884d8"
                 dataKey="value"
               >
                 {prepareProviderPaymentsPieData().map((_, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[index % COLORS.length]}
+                  />
                 ))}
               </Pie>
               <Tooltip />
@@ -382,9 +437,9 @@ const RevenueAnalytics: React.FC = () => {
               <YAxis stroke="#9ca3af" tickFormatter={(value) => `$${value}`} />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: '#1f2937',
-                  border: '1px solid #374151',
-                  borderRadius: '8px',
+                  backgroundColor: "#1f2937",
+                  border: "1px solid #374151",
+                  borderRadius: "8px",
                 }}
                 formatter={(value: number) => formatCurrency(value)}
               />
@@ -425,15 +480,25 @@ const RevenueAnalytics: React.FC = () => {
               <YAxis stroke="#9ca3af" />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: '#1f2937',
-                  border: '1px solid #374151',
-                  borderRadius: '8px',
+                  backgroundColor: "#1f2937",
+                  border: "1px solid #374151",
+                  borderRadius: "8px",
                 }}
               />
               <Legend />
               <Bar dataKey="paid" stackId="a" fill="#10b981" name="Paid" />
-              <Bar dataKey="pending" stackId="a" fill="#f59e0b" name="Pending" />
-              <Bar dataKey="processing" stackId="a" fill="#3b82f6" name="Processing" />
+              <Bar
+                dataKey="pending"
+                stackId="a"
+                fill="#f59e0b"
+                name="Pending"
+              />
+              <Bar
+                dataKey="processing"
+                stackId="a"
+                fill="#3b82f6"
+                name="Processing"
+              />
               <Bar dataKey="failed" stackId="a" fill="#ef4444" name="Failed" />
             </BarChart>
           </ResponsiveContainer>

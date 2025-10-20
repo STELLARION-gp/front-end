@@ -121,7 +121,10 @@ class ApplicationModerationService {
   ): Promise<T> {
     const token = await this.getAuthToken();
     
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const fullUrl = `${API_BASE_URL}${endpoint}`;
+    console.log('Making request to:', fullUrl); // Debug log
+    
+    const response = await fetch(fullUrl, {
       ...options,
       headers: {
         'Content-Type': 'application/json',
@@ -130,6 +133,8 @@ class ApplicationModerationService {
       },
     });
 
+    console.log('Response status:', response.status); // Debug log
+
     if (!response.ok) {
       const error = await response.json().catch(() => ({
         message: `HTTP error! status: ${response.status}`,
@@ -137,7 +142,9 @@ class ApplicationModerationService {
       throw new Error(error.message || 'Request failed');
     }
 
-    return response.json();
+    const data = await response.json();
+    console.log('Response data:', data); // Debug log
+    return data;
   }
 
   /**

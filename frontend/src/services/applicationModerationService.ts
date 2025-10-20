@@ -6,15 +6,69 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000
 export interface GuideApplicationData {
   application_id: number;
   user_id: number;
-  expertise_areas: string[];
+  
+  // Personal Information
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  phone?: string;
+  date_of_birth?: string;
+  address?: string;
+  city?: string;
+  
+  // Professional Background
+  current_occupation?: string;
+  education_level?: string;
+  astronomy_education?: string;
+  guiding_experience?: string;
   experience_years: number;
+  
+  // Certifications and Skills
+  certifications?: string[];
+  expertise_areas: string[];
+  languages_spoken?: string[];
+  
+  // Availability
+  available_weekdays?: boolean;
+  available_weekends?: boolean;
+  
+  // Preferences
+  preferred_camp_types?: string[];
+  preferred_group_sizes?: string[];
+  equipment_proficiency?: string[];
+  camping_experience?: string;
+  
+  // Additional Info
+  special_accommodations?: string[];
+  preferred_locations?: string[];
+  accommodation_needs?: string;
+  transportation_needs?: string;
+  
+  // Motivation
   bio: string;
+  additional_skills?: string;
+  
+  // Emergency Contact
+  emergency_contact?: Record<string, string>;
+  
+  // Documents
+  uploaded_documents?: Record<string, string>;
+  
+  // Status
+  custom_availability?: unknown[];
+  verification_status?: string;
   approve_application_status: 'pending' | 'accepted' | 'rejected';
-  application_status: string;
+  application_status?: string;
   submitted_at: string;
   created_at: string;
   updated_at: string;
-  users: {
+  
+  // Background Check
+  background_check_completed?: boolean;
+  terms_accepted?: boolean;
+  data_consent?: boolean;
+  
+  users?: {
     id: number;
     first_name: string;
     last_name: string;
@@ -50,7 +104,9 @@ export interface UnifiedApplication {
   type: 'guide' | 'influencer';
   approve_application_status: 'pending' | 'accepted' | 'rejected';
   submitted_at: string;
-  users: {
+  
+  // User data (can come from joined users table or directly)
+  users?: {
     id: number;
     first_name: string;
     last_name: string;
@@ -58,10 +114,29 @@ export interface UnifiedApplication {
     role: string;
     firebase_uid: string;
   };
+  
+  // Direct fields (when users table not joined)
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  phone?: string;
+  
   // Guide-specific fields
   expertise_areas?: string[];
   experience_years?: number;
   bio?: string;
+  current_occupation?: string;
+  education_level?: string;
+  astronomy_education?: string;
+  guiding_experience?: string;
+  certifications?: string[];
+  languages_spoken?: string[];
+  preferred_camp_types?: string[];
+  preferred_group_sizes?: string[];
+  equipment_proficiency?: string[];
+  camping_experience?: string;
+  preferred_locations?: string[];
+  
   // Influencer-specific fields
   social_media_links?: Record<string, string>;
   followers_count?: number;

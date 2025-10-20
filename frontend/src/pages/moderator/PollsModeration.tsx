@@ -1,212 +1,173 @@
-import React, { useState } from 'react';
-import { FaArrowLeft, FaSearch, FaTimes, FaExclamationTriangle, FaThumbsUp, FaComments, FaPoll, FaEye, FaFlag } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+import { FaArrowLeft, FaSearch, FaTimes, FaCheck, /* FaExclamationTriangle, */ FaThumbsUp, FaComments, FaPoll, FaEye, /* FaFlag */ } from 'react-icons/fa';
+import { useNavigate, useLocation } from 'react-router-dom';
 import '../../styles/pages/moderator/PollsModeration.scss';
 import Button from '../../components/Button';
-
-interface Poll {
-  id: string;
-  title: string;
-  description: string;
-  createdBy: {
-    id: string;
-    username: string;
-    email: string;
-    avatar: string;
-  };
-  type: 'poll' | 'vote' | 'thread';
-  category: string;
-  options?: string[];
-  votes?: { [option: string]: number };
-  totalVotes: number;
-  comments: number;
-  status: 'active' | 'closed' | 'reported' | 'suspended';
-  priority: 'low' | 'medium' | 'high';
-  createdAt: string;
-  endsAt?: string;
-  isAnonymous: boolean;
-  allowMultipleVotes: boolean;
-  reports?: {
-    count: number;
-    reasons: string[];
-    details: string;
-  };
-  moderatorNotes?: string;
-  tags: string[];
-  engagement: {
-    views: number;
-    interactions: number;
-    shares: number;
-  };
-}
+import { pollService, type Poll } from '../../services/pollService';
 
 const PollsModeration: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedFilter, setSelectedFilter] = useState('all');
+  const [selectedFilter, setSelectedFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
+  const [polls, setPolls] = useState<Poll[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [selectedPollId, setSelectedPollId] = useState<number | null>(null);
+  const [rejectionReason, setRejectionReason] = useState('');
+  const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
-  // Mock data for polls, votes, and threads
-  const [polls] = useState<Poll[]>([
-    {
-      id: 'poll_001',
-      title: 'Best Programming Language for Beginners',
-      description: 'What programming language would you recommend for someone just starting their coding journey?',
-      createdBy: {
-        id: 'user_001',
-        username: 'CodeTeacher',
-        email: 'codeteacher@example.com',
-        avatar: 'CT'
-      },
-      type: 'poll',
-      category: 'Education',
-      options: ['Python', 'JavaScript', 'Java', 'C++'],
-      votes: { 'Python': 45, 'JavaScript': 32, 'Java': 18, 'C++': 12 },
-      totalVotes: 107,
-      comments: 23,
-      status: 'active',
-      priority: 'medium',
-      createdAt: '2024-01-10T14:30:00Z',
-      endsAt: '2024-01-17T14:30:00Z',
-      isAnonymous: false,
-      allowMultipleVotes: false,
-      tags: ['Programming', 'Education', 'Beginners'],
-      engagement: {
-        views: 245,
-        interactions: 130,
-        shares: 8
+  // Fetch polls on component mount and when filters change
+  const loadPolls = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await pollService.getModerationPolls({
+        page: currentPage,
+        limit: 20,
+        status: selectedFilter,
+        sort_by: 'created_at',
+        sort_order: 'desc',
+      });
+
+      if (response.success) {
+        setPolls(response.data);
+        setTotalPages(response.pagination.totalPages);
       }
-    },
-    {
-      id: 'thread_001',
-      title: 'Inappropriate Political Discussion',
-      description: 'Discussion thread that has deviated into inappropriate political content and personal attacks.',
-      createdBy: {
-        id: 'user_002',
-        username: 'DebateUser',
-        email: 'debateuser@example.com',
-        avatar: 'DU'
-      },
-      type: 'thread',
-      category: 'General Discussion',
-      totalVotes: 0,
-      comments: 89,
-      status: 'reported',
-      priority: 'high',
-      createdAt: '2024-01-08T09:15:00Z',
-      isAnonymous: false,
-      allowMultipleVotes: false,
-      reports: {
-        count: 12,
-        reasons: ['Political content', 'Personal attacks', 'Off-topic'],
-        details: 'Thread started as astronomy discussion but devolved into political arguments with personal attacks on members.'
-      },
-      tags: ['Discussion', 'Astronomy'],
-      engagement: {
-        views: 456,
-        interactions: 101,
-        shares: 2
-      }
-    },
-    {
-      id: 'vote_001',
-      title: 'Community Event Venue Selection',
-      description: 'Vote for the preferred venue for our upcoming stargazing meetup.',
-      createdBy: {
-        id: 'user_003',
-        username: 'EventOrganizer',
-        email: 'events@example.com',
-        avatar: 'EO'
-      },
-      type: 'vote',
-      category: 'Events',
-      options: ['City Observatory', 'Mountain Peak', 'Desert Location', 'Beach Area'],
-      votes: { 'City Observatory': 23, 'Mountain Peak': 31, 'Desert Location': 15, 'Beach Area': 19 },
-      totalVotes: 88,
-      comments: 15,
-      status: 'active',
-      priority: 'low',
-      createdAt: '2024-01-12T11:00:00Z',
-      endsAt: '2024-01-15T23:59:00Z',
-      isAnonymous: true,
-      allowMultipleVotes: false,
-      tags: ['Events', 'Stargazing', 'Community'],
-      engagement: {
-        views: 178,
-        interactions: 103,
-        shares: 5
-      }
-    },
-    {
-      id: 'poll_002',
-      title: 'Spam Poll About Cryptocurrency',
-      description: 'Promotional poll trying to advertise cryptocurrency trading platform.',
-      createdBy: {
-        id: 'user_004',
-        username: 'CryptoSpammer',
-        email: 'spammer@fake.com',
-        avatar: 'CS'
-      },
-      type: 'poll',
-      category: 'Finance',
-      options: ['Buy now', 'Invest more', 'Join platform', 'Get rich quick'],
-      votes: { 'Buy now': 2, 'Invest more': 1, 'Join platform': 0, 'Get rich quick': 1 },
-      totalVotes: 4,
-      comments: 0,
-      status: 'suspended',
-      priority: 'high',
-      createdAt: '2024-01-13T16:45:00Z',
-      isAnonymous: false,
-      allowMultipleVotes: true,
-      reports: {
-        count: 8,
-        reasons: ['Spam', 'Commercial promotion', 'Inappropriate content'],
-        details: 'Clear spam attempting to promote cryptocurrency trading platform.'
-      },
-      moderatorNotes: 'Suspended for spam. User flagged for review.',
-      tags: ['Cryptocurrency', 'Trading'],
-      engagement: {
-        views: 67,
-        interactions: 12,
-        shares: 0
-      }
+    } catch (err) {
+      console.error('Error loading polls:', err);
+      const errorMessage = (err as Error).message || 'Failed to load polls';
+      setError(`${errorMessage}. Please check: 1) Backend is running, 2) You have moderator permissions.`);
+    } finally {
+      setLoading(false);
     }
-  ]);
+  }, [currentPage, selectedFilter]);
 
-  const handleSuspend = (pollId: string) => {
-    console.log('Suspending poll:', pollId);
-    // Implementation would update poll status
+  useEffect(() => {
+    loadPolls();
+  }, [loadPolls]);
+
+  // Handle notification from navigation state
+  useEffect(() => {
+    const state = location.state as { message?: string; type?: 'success' | 'error' } | null;
+    if (state?.message) {
+      setNotification({
+        message: state.message,
+        type: state.type || 'success'
+      });
+
+      // Clear notification after 5 seconds
+      const timer = setTimeout(() => {
+        setNotification(null);
+      }, 5000);
+
+      // Clear navigation state
+      window.history.replaceState({}, document.title);
+
+      return () => clearTimeout(timer);
+    }
+  }, [location.state]);
+
+  const handleApprove = async (pollId: number) => {
+    if (!confirm('Are you sure you want to approve this poll?')) {
+      return;
+    }
+
+    try {
+      await pollService.approvePoll(pollId);
+      setNotification({
+        message: 'Poll approved successfully!',
+        type: 'success'
+      });
+      loadPolls(); // Reload the list
+
+      // Auto-hide notification after 5 seconds
+      setTimeout(() => setNotification(null), 5000);
+    } catch (err) {
+      console.error('Error approving poll:', err);
+      setNotification({
+        message: (err as Error).message || 'Failed to approve poll',
+        type: 'error'
+      });
+      setTimeout(() => setNotification(null), 5000);
+    }
   };
 
-  const handleDelete = (pollId: string) => {
-    console.log('Deleting poll:', pollId);
-    // Implementation would delete poll
+  const handleRejectClick = (pollId: number) => {
+    setSelectedPollId(pollId);
+    setShowRejectModal(true);
   };
 
+  const handleRejectSubmit = async () => {
+    if (!selectedPollId) {
+      setNotification({
+        message: 'No poll selected',
+        type: 'error'
+      });
+      setTimeout(() => setNotification(null), 5000);
+      return;
+    }
+
+    try {
+      await pollService.rejectPoll(selectedPollId, rejectionReason || undefined);
+      setNotification({
+        message: rejectionReason 
+          ? `Poll rejected: ${rejectionReason}` 
+          : 'Poll rejected successfully!',
+        type: 'success'
+      });
+      setShowRejectModal(false);
+      setRejectionReason('');
+      setSelectedPollId(null);
+      loadPolls(); // Reload the list
+
+      // Auto-hide notification after 5 seconds
+      setTimeout(() => setNotification(null), 5000);
+    } catch (err) {
+      console.error('Error rejecting poll:', err);
+      setNotification({
+        message: (err as Error).message || 'Failed to reject poll',
+        type: 'error'
+      });
+      setTimeout(() => setNotification(null), 5000);
+    }
+  };
+
+  // Unused handler - kept for future use
+  // const handleDelete = async (pollId: number) => {
+  //   if (!confirm('Are you sure you want to permanently delete this poll?')) {
+  //     return;
+  //   }
+
+  //   try {
+  //     await pollService.deletePoll(pollId);
+  //     alert('Poll deleted successfully!');
+  //     loadPolls(); // Reload the list
+  //   } catch (err) {
+  //     console.error('Error deleting poll:', err);
+  //     alert((err as Error).message || 'Failed to delete poll');
+  //   }
+  // };
+
+  // Client-side search filtering (status filtering is handled by API)
   const filteredPolls = polls.filter(poll => {
-    const matchesSearch = poll.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         poll.createdBy.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         poll.category.toLowerCase().includes(searchTerm.toLowerCase());
+    if (!searchTerm) return true;
     
-    const matchesFilter = selectedFilter === 'all' || 
-                         (selectedFilter === 'polls' && poll.type === 'poll') ||
-                         (selectedFilter === 'votes' && poll.type === 'vote') ||
-                         (selectedFilter === 'threads' && poll.type === 'thread') ||
-                         poll.status === selectedFilter;
+    const matchesSearch = 
+      poll.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      poll.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      poll.creator?.display_name?.toLowerCase().includes(searchTerm.toLowerCase());
     
-    return matchesSearch && matchesFilter;
+    return matchesSearch;
   });
 
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case 'poll': return <FaPoll />;
-      case 'vote': return <FaThumbsUp />;
-      case 'thread': return <FaComments />;
-      default: return <FaPoll />;
-    }
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+  const formatDate = (dateString: string | Date) => {
+    if (!dateString) return 'Unknown';
+    const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
+    return date.toLocaleString('en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
@@ -216,14 +177,40 @@ const PollsModeration: React.FC = () => {
     });
   };
 
-  const getEngagementRate = (poll: Poll) => {
-    return poll.engagement.views > 0 
-      ? Math.round((poll.engagement.interactions / poll.engagement.views) * 100)
-      : 0;
+  const getStatusBadge = (status?: 'pending' | 'approved' | 'rejected') => {
+    switch (status) {
+      case 'pending':
+        return <span className="status-badge status-pending">⏳ Pending</span>;
+      case 'approved':
+        return <span className="status-badge status-approved">✅ Approved</span>;
+      case 'rejected':
+        return <span className="status-badge status-rejected">❌ Rejected</span>;
+      default:
+        return <span className="status-badge status-pending">⏳ Pending</span>;
+    }
   };
 
   return (
     <div className="polls-moderation">
+      {/* Success Notification */}
+      {notification && (
+        <div className={`notification-banner ${notification.type}`}>
+          <div className="notification-content">
+            <span className="notification-icon">
+              {notification.type === 'success' ? '✅' : '❌'}
+            </span>
+            <span className="notification-message">{notification.message}</span>
+            <button 
+              className="notification-close"
+              onClick={() => setNotification(null)}
+              aria-label="Close notification"
+            >
+              <FaTimes />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <header className="moderation-header">
         <div className="header-content">
@@ -238,23 +225,22 @@ const PollsModeration: React.FC = () => {
               Go back
             </Button>
             <div className="title-section">
-              <h1>Polls, Votes & Threads</h1>
-              <h1>Moderation</h1>
-              <p>Manage community polls, voting, and discussion threads</p>
+              <h1>Poll Moderation</h1>
+              <p>Review and manage community polls</p>
             </div>
           </div>
           <div className="header-stats">
             <div className="stat-card">
-              <span className="stat-number">{polls.filter(p => p.status === 'reported').length}</span>
-              <span className="stat-label">Reported</span>
+              <span className="stat-number">{polls.filter(p => p.status === 'pending').length}</span>
+              <span className="stat-label">Pending</span>
             </div>
             <div className="stat-card">
-              <span className="stat-number">{polls.filter(p => p.status === 'active').length}</span>
-              <span className="stat-label">Active</span>
+              <span className="stat-number">{polls.filter(p => p.status === 'approved').length}</span>
+              <span className="stat-label">Approved</span>
             </div>
             <div className="stat-card">
-              <span className="stat-number">{polls.filter(p => p.priority === 'high').length}</span>
-              <span className="stat-label">High Priority</span>
+              <span className="stat-number">{polls.filter(p => p.status === 'rejected').length}</span>
+              <span className="stat-label">Rejected</span>
             </div>
           </div>
         </div>
@@ -266,21 +252,24 @@ const PollsModeration: React.FC = () => {
           <FaSearch className="search-icon" />
           <input
             type="text"
-            placeholder="Search polls, votes, threads..."
+            placeholder="Search polls, creators..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
         <div className="filter-tabs">
-          {['all', 'polls', 'votes', 'threads', 'reported', 'suspended'].map(filter => (
+          {(['all', 'pending', 'approved', 'rejected'] as const).map(filter => (
             <Button
-              variant={selectedFilter === filter ? 'primary' : 'ghost'}
-              size='medium'
+              variant='primary'
+              size='large'
               key={filter}
               className={`filter-tab ${selectedFilter === filter ? 'active' : ''}`}
-              onClick={() => setSelectedFilter(filter)}
+              onClick={() => {
+                setSelectedFilter(filter);
+                setCurrentPage(1); // Reset to first page when filter changes
+              }}
             >
-              {filter.replace('_', ' ').charAt(0).toUpperCase() + filter.replace('_', ' ').slice(1)}
+              {filter.charAt(0).toUpperCase() + filter.slice(1)}
             </Button>
           ))}
         </div>
@@ -288,115 +277,164 @@ const PollsModeration: React.FC = () => {
 
       {/* Main Content */}
       <div className="polls-moderation-content">
-        <div className="polls-moderation-list">
-          {filteredPolls.length === 0 ? (
-            <div className="polls-empty-state">
-              <p>No polls found for your filter/search.</p>
-            </div>
-          ) : (
-            filteredPolls.map(poll => (
-              <div
-                key={poll.id}
-                className={`polls-item priority-${poll.priority} status-${poll.status.replace('_', '-')}`}
-                onClick={() => navigate(`/dashboard/moderation/polls/details/${poll.id}`)}
-              >
-                <div className="polls-item-header">
-                  <div className="polls-type">
-                    <span className="polls-type-icon">{getTypeIcon(poll.type)}</span>
-                    <span className="polls-type-label">{poll.type.charAt(0).toUpperCase() + poll.type.slice(1)}</span>
-                  </div>
-                  <div className={`polls-priority-badge priority-${poll.priority}`}>
-                    {poll.priority}
-                  </div>
-                  <div className={`polls-status-indicator status-${poll.status.replace('_', '-')}`}>
-                    {poll.status.replace('_', ' ')}
-                  </div>
-                </div>
-
-                <div className="polls-item-content">
-                  <h3 className="polls-title">{poll.title}</h3>
-                  <p className="polls-description">{poll.description.substring(0, 120)}{poll.description.length > 120 ? '...' : ''}</p>
-                  <div className="polls-item-meta">
-                    <span className="creator">by {poll.createdBy.username}</span>
-                    <span className="separator">•</span>
-                    <span className="category">{poll.category}</span>
-                    <span className="separator">•</span>
-                    <span className="date">{formatDate(poll.createdAt)}</span>
-                  </div>
-                </div>
-
-                <div className="polls-stats">
-                  <div className="polls-stat-item">
-                    <span className="polls-stat-label">Votes:</span>
-                    <span className="polls-stat-value">{poll.totalVotes}</span>
-                  </div>
-                  <div className="polls-stat-item">
-                    <span className="polls-stat-label">Comments:</span>
-                    <span className="polls-stat-value">{poll.comments}</span>
-                  </div>
-                  <div className="polls-stat-item">
-                    <span className="polls-stat-label">Engagement:</span>
-                    <span className="polls-stat-value">{getEngagementRate(poll)}%</span>
-                  </div>
-                </div>
-
-                {poll.reports && poll.reports.count > 0 && (
-                  <div className="polls-reports-info">
-                    <FaFlag className="polls-flag-icon" />
-                    <span>{poll.reports.count} report{poll.reports.count !== 1 ? 's' : ''}</span>
-                  </div>
-                )}
-
-                <div className="polls-tags">
-                  {poll.tags.slice(0, 3).map(tag => (
-                    <span key={tag} className="polls-tag">{tag}</span>
-                  ))}
-                  {poll.tags.length > 3 && (
-                    <span className="polls-tag polls-tag-more">+{poll.tags.length - 3} more</span>
-                  )}
-                </div>
-
-                <div className="polls-item-actions">
-                  <button
-                    className="polls-action-btn polls-view-btn"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      navigate(`/dashboard/moderation/polls/details/${poll.id}`);
-                    }}
-                    title="View poll details"
-                  >
-                    <FaEye />
-                  </button>
-                  {poll.status === 'active' && (
-                    <>
-                      <button
-                        className="polls-action-btn polls-suspend-btn"
-                        title="Suspend poll"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleSuspend(poll.id);
-                        }}
-                      >
-                        <FaExclamationTriangle />
-                      </button>
-                      <button
-                        className="polls-action-btn polls-delete-btn"
-                        title="Delete poll"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDelete(poll.id);
-                        }}
-                      >
-                        <FaTimes />
-                      </button>
-                    </>
-                  )}
-                </div>
+        {loading ? (
+          <div className="loading-state">
+            <p>Loading polls...</p>
+          </div>
+        ) : error ? (
+          <div className="error-state">
+            <p>Error: {error}</p>
+            <Button onClick={loadPolls}>Retry</Button>
+          </div>
+        ) : (
+          <div className="polls-moderation-list">
+            {filteredPolls.length === 0 ? (
+              <div className="empty-state">
+                <p>No polls found for your filter/search.</p>
               </div>
-            ))
-          )}
-        </div>
+            ) : (
+              filteredPolls.map(poll => (
+                <div
+                  key={poll.id}
+                  className={`polls-item status-${poll.status || 'pending'}`}
+                  onClick={() => navigate(`/dashboard/moderation/polls/details/${poll.id}`)}
+                >
+                  <div className="polls-item-header">
+                    <div className="poll-type">
+                      <FaPoll className="type-icon" />
+                      <span className="type-label">Poll</span>
+                    </div>
+                    {getStatusBadge(poll.status)}
+                  </div>
+
+                  <div className="polls-item-content">
+                    <h3 className="poll-title">{poll.title}</h3>
+                    <p className="poll-description">
+                      {poll.description?.substring(0, 150)}
+                      {poll.description && poll.description.length > 150 ? '...' : ''}
+                    </p>
+                    <div className="poll-meta">
+                      <span className="creator">
+                        by {poll.creator?.display_name || poll.creator?.first_name || 'Unknown'}
+                      </span>
+                      <span className="date">{formatDate(poll.created_at)}</span>
+                    </div>
+                  </div>
+
+                  <div className="polls-item-stats">
+                    <span className="stat-item">
+                      <FaThumbsUp size={12} />
+                      {poll.total_votes} votes
+                    </span>
+                    <span className="stat-item">
+                      <FaComments size={12} />
+                      {poll.comment_count} comments
+                    </span>
+                    {poll.is_active ? (
+                      <span className="stat-item active">
+                        ● Active
+                      </span>
+                    ) : (
+                      <span className="stat-item inactive">
+                        ○ Closed
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="polls-item-actions">
+                    <button
+                      className="polls-action-btn polls-view-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/dashboard/moderation/polls/details/${poll.id}`);
+                      }}
+                      title="View poll details"
+                    >
+                      <FaEye />
+                    </button>
+                    {poll.status !== 'approved' && (
+                      <>
+                        <button
+                          className="polls-action-btn polls-approve-btn"
+                          title="Approve poll"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleApprove(poll.id);
+                          }}
+                        >
+                          <FaCheck />
+                        </button>
+                        <button
+                          className="polls-action-btn polls-reject-btn"
+                          title="Reject poll"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRejectClick(poll.id);
+                          }}
+                        >
+                          <FaTimes />
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="pagination">
+            <Button 
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </Button>
+            <span>Page {currentPage} of {totalPages}</span>
+            <Button 
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </Button>
+          </div>
+        )}
       </div>
+
+      {/* Reject Modal */}
+      {showRejectModal && (
+        <div className="modal-overlay" onClick={() => setShowRejectModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h3>Reject Poll</h3>
+            <p>Please provide a reason for rejecting this poll (optional):</p>
+            <textarea
+              value={rejectionReason}
+              onChange={(e) => setRejectionReason(e.target.value)}
+              placeholder="Enter rejection reason..."
+              rows={5}
+            />
+            <div className="modal-actions">
+              <Button 
+                variant="ghost" 
+                onClick={() => {
+                  setShowRejectModal(false);
+                  setRejectionReason('');
+                }}
+              >
+                Cancel
+              </Button>
+              <Button 
+                variant="primary" 
+                onClick={handleRejectSubmit}
+              >
+                Reject Poll
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

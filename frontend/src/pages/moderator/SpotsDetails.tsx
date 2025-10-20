@@ -8,12 +8,14 @@ import { stargazingSpotService } from '../../services/stargazingSpotService';
 import type { StargazingSpot } from '../../services/stargazingSpotService';
 import { factCheckService } from '../../services/factCheckService';
 import type { FactCheckReport } from '../../services/factCheckService';
+import { useToast } from '../../contexts/ToastContext';
 
 type SpotDetails = StargazingSpot;
 
 const SpotsDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { showSuccess, showError } = useToast();
   const [spot, setSpot] = useState<SpotDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
@@ -77,13 +79,13 @@ const SpotsDetails: React.FC = () => {
       if (response.success && response.data) {
         console.log(`✅ Spot ${action}ed successfully`);
         setSpot(response.data);
-        alert(`Spot ${action}ed successfully!`);
+        showSuccess(`Spot ${action}ed successfully!`);
       } else {
         throw new Error(response.message || `Failed to ${action} spot`);
       }
     } catch (error) {
       console.error(`❌ Error ${action}ing spot:`, error);
-      alert(`Error ${action}ing spot. Please try again.`);
+      showError(`Error ${action}ing spot. Please try again.`);
     } finally {
       setActionLoading(null);
     }
@@ -102,7 +104,7 @@ const SpotsDetails: React.FC = () => {
       setFactCheckReport(report);
     } catch (error) {
       console.error('❌ Error during fact check:', error);
-      alert('Error running fact check. Please try again.');
+      showError('Error running fact check. Please try again.');
       setShowFactCheckModal(false); // Close modal on error
     } finally {
       setCheckingFacts(false);

@@ -3,6 +3,7 @@ import type React from "react";
 import "../../styles/pages/influencer/Sessions.scss";
 import "../../styles/pages/influencer/SessionsNotification.scss";
 import Button from "../../components/Button";
+import ConfirmDialog from "../../components/ConfirmDialog";
 import { sessionsService } from "../../services/sessionsService";
 import pollService, { type Poll } from "../../services/pollService";
 import { auth } from "../../firebase";
@@ -36,6 +37,7 @@ const Sessions = () => {
     difficulty_level: string;
     session_date: string;
     session_time: string;
+    session_link?: string;
   }>({
     title: "",
     price: 0,
@@ -43,6 +45,7 @@ const Sessions = () => {
     difficulty_level: "Beginner",
     session_date: "",
     session_time: "",
+    session_link: "",
   });
 
   // API state
@@ -168,6 +171,13 @@ const Sessions = () => {
   const [loadingComments, setLoadingComments] = useState(false);
   const [newComment, setNewComment] = useState("");
   const [postingComment, setPostingComment] = useState(false);
+
+  // Session delete confirmation state (separate from poll delete)
+  const [sessionDelete, setSessionDelete] = useState<{
+    show: boolean;
+    sessionId: number | null;
+    title?: string | null;
+  }>({ show: false, sessionId: null, title: null });
 
   // Show notification helper
   const showNotification = (
@@ -386,24 +396,23 @@ const Sessions = () => {
     }
   };
 
-  // Delete a session
-  const handleDeleteSession = async (sessionId: number) => {
-    if (
-      !confirm(
-        "Are you sure you want to permanently delete this session? This action cannot be undone."
-      )
-    )
-      return;
+  // Delete a session (open confirm dialog)
+  const handleDeleteSession = (sessionId: number, title?: string) => {
+    setSessionDelete({ show: true, sessionId, title: title || null });
+  };
+
+  const confirmDeleteSession = async () => {
+    if (!sessionDelete.sessionId) return;
+    // Optimistic UI: close the dialog immediately
+    setSessionDelete({ show: false, sessionId: sessionDelete.sessionId, title: sessionDelete.title });
 
     setLoading(true);
     setError(null);
 
     try {
-      await sessionsService.deleteSession(sessionId);
-
+      await sessionsService.deleteSession(sessionDelete.sessionId);
       // Reload sessions
       loadMySessions();
-
       showNotification("success", "🗑️ Session deleted successfully!");
     } catch (err) {
       console.error("Error deleting session:", err);
@@ -415,6 +424,7 @@ const Sessions = () => {
       );
     } finally {
       setLoading(false);
+      setSessionDelete({ show: false, sessionId: null, title: null });
     }
   };
 
@@ -455,6 +465,7 @@ const Sessions = () => {
       difficulty_level: session.difficulty_level,
       session_date: sessionDateStr,
       session_time: sessionTimeStr,
+      session_link: "session_link" in session ? (session.session_link as string) : "",
     });
     setShowEditModal(true);
   };
@@ -610,7 +621,7 @@ const Sessions = () => {
                           )}
                         </div>
                       </div>
-                      <div className="session-details">
+                      <div className="session-details_1">
                         <p>
                           <span className="icon">
                             <DateIcon size={16} />
@@ -633,8 +644,11 @@ const Sessions = () => {
                           <span className="icon">
                             <ParticipantsIcon size={16} />
                           </span>
-                          Max {session.max_participants || "Unlimited"}{" "}
-                          participants
+                          {/* Max {session.max_participants || "Unlimited"}{" "}
+                          participants */}
+                          {typeof session.participants_count === 'number' && (
+                            <span className="registered-count"> Registered: {session.participants_count}{session.max_participants ? ` / ${session.max_participants}` : ''}</span>
+                          )}
                         </p>
                         <p>
                           <span className="icon">
@@ -676,7 +690,7 @@ const Sessions = () => {
                           Analytics
                         </Button>
                         <Button
-                          onClick={() => handleDeleteSession(session.id)}
+                          onClick={() => handleDeleteSession(session.id, session.title)}
                           variant="secondary"
                         >
                           Delete
@@ -783,7 +797,7 @@ const Sessions = () => {
                           Analytics
                         </Button>
                         <Button
-                          onClick={() => handleDeleteSession(session.id)}
+                          onClick={() => handleDeleteSession(session.id, session.title)}
                           variant="secondary"
                         >
                           Delete
@@ -1382,7 +1396,7 @@ const Sessions = () => {
               <span className="trend">Enrolled & paid students</span>
             </div>
           </div>
-          <div className="summary-card completion-rate">
+          {/* <div className="summary-card completion-rate">
             <div className="card-icon">
               <svg
                 width="32"
@@ -1395,12 +1409,12 @@ const Sessions = () => {
                 <polyline points="20 6 9 17 4 12"></polyline>
               </svg>
             </div>
-            <div className="card-content">
+            { <div className="card-content">
               <h4>Completion Rate</h4>
               <p className="amount">{overview.completionRate}%</p>
               <span className="trend">Of enrolled students</span>
-            </div>
-          </div>
+            </div> }
+          </div> */}
         </div>
 
         <div className="analytics-sections">
@@ -2365,6 +2379,7 @@ const Sessions = () => {
         | "advanced",
       session_date: editForm.session_date,
       session_time: editForm.session_time,
+      session_link: editForm.session_link || undefined,
     };
 
     await handleUpdateSession(selectedSession.id, updates);
@@ -2434,6 +2449,17 @@ const Sessions = () => {
                       setEditForm({ ...editForm, session_time: e.target.value })
                     }
                     required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Session Link</label>
+                  <input
+                    type="text"
+                    value={editForm.session_link}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, session_link: e.target.value })
+                    }
+                    placeholder="https://your-session-link.example"
                   />
                 </div>
                 <div className="form-group full-width">
@@ -2564,7 +2590,7 @@ const Sessions = () => {
                     )}
                   </span>
                   <div className="detail-content">
-                    <span className="detail-label">Session Type</span>
+                    <span className="detail-label">Session Type -</span>
                     <span className="detail-value">
                       {isLiveSession ? "Live Session" : "Recorded Session"}
                     </span>
@@ -2576,7 +2602,7 @@ const Sessions = () => {
                     <PriceIcon size={20} />
                   </span>
                   <div className="detail-content">
-                    <span className="detail-label">Payment Type</span>
+                    <span className="detail-label">Payment Type -</span>
                     <span className="detail-value">
                       {selectedSession.payment_type === "paid"
                         ? `Paid - LKR ${sessionPrice}`
@@ -2590,7 +2616,7 @@ const Sessions = () => {
                     <DurationIcon size={20} />
                   </span>
                   <div className="detail-content">
-                    <span className="detail-label">Duration</span>
+                    <span className="detail-label">Duration -</span>
                     <span className="detail-value">
                       {selectedSession.duration} minutes
                     </span>
@@ -2602,7 +2628,7 @@ const Sessions = () => {
                     <DifficultyIcon size={20} />
                   </span>
                   <div className="detail-content">
-                    <span className="detail-label">Difficulty Level</span>
+                    <span className="detail-label">Difficulty Level -</span>
                     <span className="detail-value">
                       {selectedSession.difficulty_level
                         .charAt(0)
@@ -2618,7 +2644,7 @@ const Sessions = () => {
                       <ParticipantsIcon size={20} />
                     </span>
                     <div className="detail-content">
-                      <span className="detail-label">Max Participants</span>
+                      <span className="detail-label">Max Participants -</span>
                       <span className="detail-value">
                         {selectedSession.max_participants || "Unlimited"}
                       </span>
@@ -2631,7 +2657,7 @@ const Sessions = () => {
                     <DateIcon size={20} />
                   </span>
                   <div className="detail-content">
-                    <span className="detail-label">Session Date</span>
+                    <span className="detail-label">Session Date -</span>
                     <span className="detail-value">
                       {sessionDate.toLocaleDateString("en-US", {
                         year: "numeric",
@@ -2648,7 +2674,7 @@ const Sessions = () => {
                       <TimeIcon size={20} />
                     </span>
                     <div className="detail-content">
-                      <span className="detail-label">Days Until Session</span>
+                      <span className="detail-label">Days Until Session - </span>
                       <span className="detail-value">
                         {daysUntilSession} days
                       </span>
@@ -2686,7 +2712,7 @@ const Sessions = () => {
                     )}
                   </span>
                   <div className="detail-content">
-                    <span className="detail-label">Status</span>
+                    <span className="detail-label">Status -</span>
                     <span className="detail-value">
                       {selectedSession.is_enabled ? "Active" : "Disabled"}
                     </span>
@@ -2806,7 +2832,7 @@ const Sessions = () => {
             )}
 
             {/* Revenue Information */}
-            {selectedSession.payment_type === "paid" && (
+            {/* {selectedSession.payment_type === "paid" && (
               <div className="revenue-info-section">
                 <div className="section-title-bar">
                   <h4>
@@ -2845,7 +2871,7 @@ const Sessions = () => {
                   </div>
                 </div>
               </div>
-            )}
+            )} */}
           </div>
 
           <div className="modal-footer">
@@ -2905,6 +2931,20 @@ const Sessions = () => {
       {renderDetailsModal()}
       {renderEditModal()}
       {renderAnalyticsModal()}
+
+      {/* Confirm delete dialog for sessions */}
+      <ConfirmDialog
+        isOpen={sessionDelete.show}
+        title={sessionDelete.title ? `Delete session: ${sessionDelete.title}` : 'Delete session'}
+        message={
+          'Are you sure you want to permanently delete this session? This action cannot be undone.'
+        }
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+        onConfirm={confirmDeleteSession}
+        onCancel={() => setSessionDelete({ show: false, sessionId: null, title: null })}
+      />
 
       {/* Notification Toast */}
       {notification.show && (

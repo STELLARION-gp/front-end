@@ -3,8 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import Button from '../../components/Button';
 import Card from '../../components/Card';
 import { Calendar, CheckCircle, XCircle, Users } from 'lucide-react';
+import SuccessMessage from '../../components/SuccessMessage';
 import '../../styles/pages/guide/_bookingRequests.scss';
 import { getGuideBookings, confirmBooking, rejectBooking, type Booking } from '../../services/bookingService';
+import PaymentDetailsModal from '../../components/PaymentDetailsModal';
+import { getBookingPaymentDetails, processBookingRefund } from '../../services/paymentService';
 
 interface BookingRequest {
   id: string;
@@ -12,9 +15,10 @@ interface BookingRequest {
   serviceName: string;
   date: string;
   startTime: string;
-  endTime: string;
+  endTime?: string;
   participants: number;
   totalAmount: number;
+  paymentStatus?: string;
 }
 
 const BookingRequests: React.FC = () => {
@@ -24,6 +28,14 @@ const BookingRequests: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [acceptedCount, setAcceptedCount] = useState(0);
   const [rejectedCount, setRejectedCount] = useState(0);
+  const [completedCount, setCompletedCount] = useState(0);
+  const [selectedDetails, setSelectedDetails] = useState<any | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  // Local toasts
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [successMessageText, setSuccessMessageText] = useState('');
+  const [showErrorMessage, setShowErrorMessage] = useState(false);
+  const [errorMessageText, setErrorMessageText] = useState('');
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -39,12 +51,18 @@ const BookingRequests: React.FC = () => {
           .filter(b => b.booking_status === 'pending')
           .map(transformBooking);
         
-        const confirmedCount = response.bookings.filter(b => b.booking_status === 'confirmed').length;
-        const cancelledCount = response.bookings.filter(b => b.booking_status === 'cancelled').length;
+  const confirmedCount = response.bookings.filter(b => b.booking_status === 'confirmed').length;
+  const cancelledCount = response.bookings.filter(b => b.booking_status === 'cancelled').length;
+  const compCount = response.bookings.filter(b => b.booking_status === 'completed').length;
         
         setRequests(pendingBookings);
         setAcceptedCount(confirmedCount);
         setRejectedCount(cancelledCount);
+        setCompletedCount(compCount);
+        // Debug logs to help confirm values during development
+        try {
+          console.debug('Bookings counts:', { pending: pendingBookings.length, confirmedCount, cancelledCount, completed: compCount });
+        } catch (e) {}
       } catch (err) {
         console.error('Error fetching bookings:', err);
         setError(err instanceof Error ? err.message : 'Failed to load bookings');
@@ -57,81 +75,186 @@ const BookingRequests: React.FC = () => {
   }, []);
 
   const transformBooking = (booking: Booking): BookingRequest => {
-    const userName = booking.user
-      ? `${booking.user.first_name || ''} ${booking.user.last_name || ''}`.trim() || booking.user.email
+    // Support backend shapes: booking.user or booking.users, booking.service or booking.services
+    const userObj = (booking as any).user || (booking as any).users || null;
+    const userName = userObj
+      ? `${userObj.first_name || ''} ${userObj.last_name || ''}`.trim() || userObj.email || 'Unknown User'
       : 'Unknown User';
-    
-    const serviceName = booking.service?.title || 'Unknown Service';
-    const date = typeof booking.booking_date === 'string' 
-      ? booking.booking_date.split('T')[0]
-      : new Date(booking.booking_date).toISOString().split('T')[0];
-    
-    const startTime = booking.booking_time 
-      ? typeof booking.booking_time === 'string' 
-        ? booking.booking_time.substring(11, 16)
-        : new Date(booking.booking_time).toTimeString().substring(0, 5)
-      : '00:00';
-    
-    const endTime = booking.service?.duration 
-      ? calculateEndTime(startTime, booking.service.duration)
-      : '00:00';
-    
+
+    const serviceObj = (booking as any).service || (booking as any).services || null;
+    const serviceName = serviceObj?.title || 'Unknown Service';
+
+    // Use booking created_at timestamp for table date/time
+    const createdAtObj = booking.created_at
+      ? (typeof booking.created_at === 'string' ? new Date(booking.created_at) : booking.created_at)
+      : new Date();
+
+    // Format date as 'DD MMM YYYY' (e.g., 20 Oct 2025)
+    const date = createdAtObj.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+
+    // Format time as 'h:mm AM/PM' (e.g., 2:34 PM)
+    const formattedTime = createdAtObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+
+  // For table, provide a single formatted time string
+  const startTime = formattedTime;
+
     return {
       id: booking.id.toString(),
       userName,
       serviceName,
       date,
       startTime,
-      endTime,
       participants: booking.participants_count,
       totalAmount: booking.total_amount,
+      paymentStatus: (booking as any).payment_status || (booking as any).paymentStatus || 'not_paid',
     };
   };
 
-  const calculateEndTime = (startTime: string, duration: string): string => {
-    // Parse duration (e.g., "3 hours", "2 days")
-    const match = duration.match(/(\d+)\s*(hour|day)/i);
-    if (!match) return startTime;
-    
-    const [, amount, unit] = match;
-    const hours = unit.toLowerCase() === 'day' ? parseInt(amount) * 24 : parseInt(amount);
-    
-    const [startHour, startMin] = startTime.split(':').map(Number);
-    const endHour = (startHour + hours) % 24;
-    
-    return `${String(endHour).padStart(2, '0')}:${String(startMin).padStart(2, '0')}`;
-  };
+  // Note: end time calculation removed because we use booking created_at for both date and time
 
-  const handleAccept = async (id: string) => {
+  // modal state handlers below
+
+  const handleViewBooking = async (id: string) => {
+    setSelectedDetails(null);
+    setModalOpen(true);
     try {
-      await confirmBooking(parseInt(id));
-      setAcceptedCount(prev => prev + 1);
-      setRequests(prev => prev.filter(req => req.id !== id));
-      // Show success message
-      alert('Booking confirmed successfully! The learner has been notified.');
+      const details = await getBookingPaymentDetails(parseInt(id));
+      setSelectedDetails(details);
     } catch (err) {
-      console.error('Error accepting booking:', err);
-      alert(err instanceof Error ? err.message : 'Failed to accept booking');
+      console.error('Failed to load booking details:', err);
+      const message = err instanceof Error ? err.message : String(err);
+      // If payment not found for the booking, show a fallback details object built from the booking row
+      if (message.includes('Payment for booking not found') || message.includes('404')) {
+        const row = requests.find(r => r.id === id);
+        if (row) {
+          const fallback = {
+            bookingId: parseInt(id),
+            orderId: `BOOKING-${id}`,
+            amount: row.totalAmount,
+            currency: 'LKR',
+              paymentStatus: row.paymentStatus || 'not_paid',
+            paymentMethod: '',
+            transactionId: null,
+            customer: {
+              id: 0,
+              name: row.userName,
+              email: '',
+            },
+            service: {
+              id: 0,
+              title: row.serviceName,
+              description: '',
+            },
+            bookingDetails: {
+              date: row.date,
+              time: row.startTime,
+              participants: row.participants,
+              specialRequests: null,
+            },
+            canRefund: false,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          } as any;
+
+          setSelectedDetails(fallback);
+          return;
+        }
+      }
+
+      // If we couldn't find a specific payment or booking row, keep the modal open and show an error state
+      const errorDetail = {
+        bookingId: parseInt(id),
+        orderId: `BOOKING-${id}`,
+        amount: 0,
+        currency: 'LKR',
+        paymentStatus: 'not_found',
+        paymentMethod: '',
+        transactionId: null,
+        customer: { id: 0, name: 'Unknown', email: '' },
+        service: { id: 0, title: 'Unknown Service', description: '' },
+        bookingDetails: { date: '', time: '', participants: 0, specialRequests: null },
+        canRefund: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        _errorMessage: message || 'Failed to load booking details',
+      } as any;
+
+      setSelectedDetails(errorDetail);
+      // keep modalOpen true so the modal loads and shows the error
     }
   };
 
-  const handleReject = async (id: string) => {
-    const reason = prompt('Please provide a reason for rejection (optional):');
-    
+  const handleModalAccept = async () => {
+    if (!selectedDetails) return;
     try {
-      await rejectBooking(parseInt(id), reason || undefined);
+      await confirmBooking(selectedDetails.bookingId);
+      setAcceptedCount(prev => prev + 1);
+  setRequests(prev => prev.filter(req => req.id !== String(selectedDetails.bookingId)));
+  // When a booking is confirmed it moves from pending -> confirmed; completed remains backend-driven
+  setSuccessMessageText('Booking confirmed successfully!');
+  setShowSuccessMessage(true);
+  setModalOpen(false);
+        // Notify other pages (e.g., PaymentProcessing) to refresh
+        try { window.dispatchEvent(new Event('payments-updated')); } catch(e) {}
+        // Refresh services listing to update participant counts (if ServiceListing is mounted)
+        try {
+          const refreshFn = (window as any).__refreshGuideServices;
+          if (typeof refreshFn === 'function') await refreshFn();
+        } catch (refreshErr) {
+          console.warn('Failed to refresh services after confirm:', refreshErr);
+        }
+    } catch (err) {
+      console.error('Error confirming booking:', err);
+      setErrorMessageText(err instanceof Error ? err.message : 'Failed to confirm booking');
+      setShowErrorMessage(true);
+    }
+  };
+
+  const handleModalReject = async () => {
+    if (!selectedDetails) return;
+    const reason = prompt('Please provide a reason for rejection (optional):');
+    try {
+      // If payment completed, attempt refund through payment API first
+      if (selectedDetails.paymentStatus && selectedDetails.paymentStatus.toLowerCase() === 'completed') {
+        try {
+          await processBookingRefund(selectedDetails.bookingId, { reason: reason || undefined, refundType: 'full' });
+        } catch (refundErr) {
+          console.error('Refund failed during reject flow:', refundErr);
+          const refundMsg = refundErr instanceof Error ? refundErr.message : String(refundErr);
+          if (refundMsg.includes('Payment for booking not found') || refundMsg.includes('404')) {
+            alert('No payment record found to refund for this booking. Proceeding to reject the booking.');
+          } else if (refundMsg.includes('Only completed')) {
+            alert('Refund cannot be processed because the payment is not completed. Proceeding to reject the booking.');
+          } else {
+            alert(refundMsg || 'Refund failed during rejection.');
+          }
+        }
+      }
+
+      // Then mark booking as rejected in booking service
+      await rejectBooking(selectedDetails.bookingId, reason || undefined);
       setRejectedCount(prev => prev + 1);
-      setRequests(prev => prev.filter(req => req.id !== id));
-      // Show success message
-      alert('Booking rejected successfully. The learner has been notified.');
+      setRequests(prev => prev.filter(req => req.id !== String(selectedDetails.bookingId)));
+  setSuccessMessageText('Booking rejected and (if applicable) refunded successfully.');
+  setShowSuccessMessage(true);
+  setModalOpen(false);
+      // Notify other pages (e.g., PaymentProcessing) to refresh
+      try { window.dispatchEvent(new Event('payments-updated')); } catch(e) {}
     } catch (err) {
       console.error('Error rejecting booking:', err);
-      alert(err instanceof Error ? err.message : 'Failed to reject booking');
+      const message = err instanceof Error ? err.message : String(err);
+      if (message.includes('Payment for booking not found') || message.includes('404')) {
+        setErrorMessageText('No payment record found for this booking.');
+      } else {
+        setErrorMessageText(message || 'Failed to reject booking');
+      }
+      setShowErrorMessage(true);
     }
   };
 
   const pendingCount = requests.length;
-  const totalCount = acceptedCount + rejectedCount + pendingCount;
+  // User asked: total count should be completed count
+  const totalCount = completedCount + acceptedCount + rejectedCount + pendingCount;
 
   if (loading) {
     return (
@@ -182,6 +305,7 @@ const BookingRequests: React.FC = () => {
             View Confirmed Bookings
           </Button>
         </div>
+        
       </div>
       {/* Statistics */}
       <div className="stats-grid">
@@ -221,6 +345,18 @@ const BookingRequests: React.FC = () => {
           </div>
         </Card>
         
+        {/* <Card className="stat-card completed" variant="outlined">
+          <div className="stat-content">
+            <div className="stat-icon1">
+              <Calendar className="w-6 h-6" />
+            </div>
+            <div className="stat-info">
+              <span className="stat-label">Completed</span>
+              <strong className="stat-value">{completedCount}</strong>
+            </div>
+          </div>
+        </Card> */}
+
         <Card className="stat-card rejected" variant="outlined">
           <div className="stat-content">
             <div className="stat-icon1">
@@ -256,16 +392,62 @@ const BookingRequests: React.FC = () => {
                   <div className="text-sm text-gray-400">{req.participants} participants • Rs. {req.totalAmount.toLocaleString()}</div>
                 </td>
                 <td>{new Date(req.date).toLocaleDateString()}</td>
-                <td>{req.startTime} - {req.endTime}</td>
+                <td>{req.startTime}</td>
                 <td className="actions-cell">
-                  <Button variant="success" size="small" onClick={() => handleAccept(req.id)}>Accept</Button>
-                  <Button variant="danger" size="small" onClick={() => handleReject(req.id)}>Reject</Button>
+                  <Button variant="primary" size="small" onClick={() => handleViewBooking(req.id)}>View</Button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       )}
+      {/* Payment details modal */}
+      <PaymentDetailsModal
+        isOpen={modalOpen}
+        details={selectedDetails}
+        onClose={() => { setModalOpen(false); setSelectedDetails(null); }}
+        onAccept={handleModalAccept}
+        onReject={handleModalReject}
+        onRefund={async () => {
+          if (!selectedDetails) return;
+          // Only allow refund if payment is completed or backend marked canRefund
+          const paymentStatus = (selectedDetails.paymentStatus || '').toString().toLowerCase();
+          const canRefund = !!selectedDetails.canRefund;
+          if (paymentStatus !== 'completed' && !canRefund) {
+            // Friendly message — prevent calling refund endpoint which would return 404
+            alert('No completed payment found for this booking to refund.');
+            return;
+          }
+
+          try {
+            await processBookingRefund(selectedDetails.bookingId, { refundType: 'full' });
+            alert('Refund processed');
+            // Notify other pages to refresh
+            try { window.dispatchEvent(new Event('payments-updated')); } catch(e) {}
+          } catch (err) {
+            console.error('Refund failed:', err);
+            alert(err instanceof Error ? err.message : 'Refund failed');
+          }
+        }}
+        showRefundButton={true}
+      />
+        {/* Success Message Toast */}
+        <SuccessMessage
+          isOpen={showSuccessMessage}
+          title="Success!"
+          message={successMessageText}
+          type="success"
+          onClose={() => setShowSuccessMessage(false)}
+        />
+
+        {/* Error Message Toast (used for future error flows) */}
+        <SuccessMessage
+          isOpen={showErrorMessage}
+          title="Error"
+          message={errorMessageText}
+          type="error"
+          onClose={() => setShowErrorMessage(false)}
+        />
     </div>
   );
 };

@@ -9,12 +9,14 @@
   padding: 1rem;
   overflow-y: auto;
   box-sizing: border-box;
+  background: transparent;
 
   &__container {
     max-width: 80rem;
     margin: 0 auto;
     padding-bottom: 4rem; // Extra bottom padding to ensure content is visible
     min-height: calc(100vh - 200px); // Ensure minimum height accounting for dashboard layout
+    background: transparent;
   }
 
   &__header {
@@ -1568,8 +1570,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(99, 102, 241, 0.1);
-  border: 1px solid rgba(99, 102, 241, 0.3);
+  // background: rgba(99, 102, 241, 0.1);
+  // border: 1px solid rgba(99, 102, 241, 0.3);
   color: #6366f1;
   margin-right: 40px;
   

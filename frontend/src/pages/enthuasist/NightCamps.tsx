@@ -8,6 +8,7 @@ import DateIcon from '../../assets/svg/DateIcon'
 import TimeIcon from '../../assets/svg/TimeIcon'
 import LocationIcon from '../../assets/svg/LocationIcon'
 import ParticipantsIcon from '../../assets/svg/ParticipantsIcon'
+import { useToast } from '../../contexts/ToastContext'
 import '../../styles/pages/enthusiast/NightCamps.scss'
 import { useRoleAccess } from '../../hooks/useRoleAccess';
 import { nightCampService, type NightCampWithDetails, type VolunteeringApplication, type NightCampRegistration } from '../../services/nightCampService';
@@ -17,6 +18,7 @@ type ActiveSection = 'upcoming' | 'organizing' | 'registered' | 'volunteers'
 const NightCamps = () => {
   const { userRole } = useRoleAccess();
   const navigate = useNavigate();
+  const { showSuccess, showError } = useToast();
 
   // State for real data
   const [realNightCamps, setRealNightCamps] = useState<NightCampWithDetails[]>([]);
@@ -103,7 +105,7 @@ const NightCamps = () => {
   const handleRegisterForCamp = async (campId: number) => {
     try {
       await nightCampService.registerForNightCamp(campId);
-      alert('Registration submitted successfully! Your registration is pending approval.');
+      showSuccess('Registration submitted successfully! Your registration is pending approval.');
       // Refresh the registrations list
       loadUserRegistrations();
       // Refresh approved counts for all camps
@@ -113,7 +115,7 @@ const NightCamps = () => {
       setIsModalOpen(false);
     } catch (err: any) {
       console.error('Failed to register for camp:', err);
-      alert(err.response?.data?.message || 'Failed to register for camp. Please try again.');
+      showError(err.response?.data?.message || 'Failed to register for camp. Please try again.');
     }
   };
 
@@ -130,11 +132,11 @@ const NightCamps = () => {
         setSelectedCampForDetails(campDetails);
         setIsDetailsModalOpen(true);
       } else {
-        alert('Camp not found.');
+        showError('Camp not found.');
       }
     } catch (error) {
       console.error('Failed to load camp details:', error);
-      alert('Failed to load camp details. Please try again.');
+      showError('Failed to load camp details. Please try again.');
     }
   };
 
@@ -155,7 +157,7 @@ const NightCamps = () => {
         ...applicationData
       });
       
-      alert('Application submitted successfully!');
+      showSuccess('Application submitted successfully!');
       setIsModalOpen(false);
       setSelectedCamp(null);
     } catch (error) {
@@ -173,10 +175,10 @@ const NightCamps = () => {
       // Refresh applications
       await loadUserApplications();
       setEditingApplication(null);
-      alert('Role updated successfully!');
+      showSuccess('Role updated successfully!');
     } catch (error) {
       console.error('Failed to update role:', error);
-      alert('Failed to update role. Please try again.');
+      showError('Failed to update role. Please try again.');
     }
   };
 
@@ -186,10 +188,10 @@ const NightCamps = () => {
         // Since we don't have a delete endpoint for user's own applications,
         // we could either implement one or handle this differently
         console.log(`Would cancel application ID: ${applicationId}`);
-        alert('Cancel functionality would be implemented here');
+        showSuccess('Cancel functionality would be implemented here');
       } catch (error) {
         console.error('Failed to cancel application:', error);
-        alert('Failed to cancel application. Please try again.');
+        showError('Failed to cancel application. Please try again.');
       }
     }
   };
@@ -228,7 +230,7 @@ const NightCamps = () => {
 
   if (approvedCamps.length === 0) {
     return (
-      <div className="upcoming-camps">
+      <div>
         <h2 className="upcoming-camps__title">Upcoming Camps</h2>
         <div className="no-camps-message">
           No approved upcoming night camps available at the moment.
@@ -238,7 +240,7 @@ const NightCamps = () => {
   }
 
   return (
-    <div className="upcoming-camps">
+    <div>
       <h2 className="upcoming-camps__title">Upcoming Camps</h2>
       <div className="card-grid card-grid--small">
         {approvedCamps.map((camp, index) => (
@@ -297,7 +299,7 @@ const NightCamps = () => {
               <Button 
                 size="small"
                 onClick={() => handleViewDetails(camp.id)}
-                className="btn--view-details"
+                 className="btn--view-details"
               
               >
                 <svg 
@@ -457,7 +459,7 @@ const NightCamps = () => {
               loadUserRegistrations();
             } catch (err) {
               console.error('Failed to cancel registration:', err);
-              alert('Failed to cancel registration. Please try again.');
+              showError('Failed to cancel registration. Please try again.');
             }
           }
         };

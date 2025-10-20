@@ -522,6 +522,62 @@ export const pollService = {
     // Return only the requested limit
     return sortedPolls.slice(0, limit);
   },
+
+  /**
+   * Get polls for moderation dashboard (Moderator/Admin only)
+   */
+  async getModerationPolls(filters: {
+    status?: PollStatus | "all";
+    page?: number;
+    limit?: number;
+    sort_by?: "created_at" | "updated_at" | "title" | "status";
+    sort_order?: "asc" | "desc";
+  } = {}): Promise<PollsListResponse> {
+    const queryParams = new URLSearchParams();
+
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== "all") {
+        queryParams.append(key, value.toString());
+      }
+    });
+
+    const queryString = queryParams.toString();
+    console.log("📋 Fetching moderation polls:", queryString);
+    return makeRequest(
+      `/polls/admin/moderation${queryString ? `?${queryString}` : ""}`,
+      {},
+      true
+    ); // Requires moderator/admin authentication
+  },
+
+  /**
+   * Approve a poll (Moderator/Admin only)
+   */
+  async approvePoll(pollId: number): Promise<PollResponse> {
+    console.log(`✅ Approving poll ${pollId}`);
+    return makeRequest(
+      `/polls/${pollId}/approve`,
+      {
+        method: "PUT",
+      },
+      true
+    ); // Requires moderator/admin authentication
+  },
+
+  /**
+   * Reject a poll with optional reason (Moderator/Admin only)
+   */
+  async rejectPoll(pollId: number, reason?: string): Promise<PollResponse> {
+    console.log(`❌ Rejecting poll ${pollId}`, reason ? `with reason: ${reason}` : '');
+    return makeRequest(
+      `/polls/${pollId}/reject`,
+      {
+        method: "PUT",
+        body: JSON.stringify(reason ? { reason } : {}),
+      },
+      true
+    ); // Requires moderator/admin authentication
+  },
 };
 
 export default pollService;

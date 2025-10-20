@@ -290,7 +290,7 @@
     }
   }
 
-  .session-details {
+  .session-details_1 {
     flex-shrink: 0;
 
     p {
@@ -305,6 +305,9 @@
       .icon {
         font-size: 1rem;
         flex-shrink: 0;
+        background-color: #33787e;
+        padding: 5px;
+        border-radius: 5px;
       }
     }
 
@@ -312,12 +315,16 @@
       margin: 0.5rem 0;
 
       .payment-label {
-        font-size: 0.75rem;
-        padding: 0.2rem 0.6rem;
-        border-radius: 12px;
+        font-size: 0.85rem;
+        padding: 0.2rem 0.8rem;
+        border-radius: 17px;
         font-weight: 600;
         display: inline-block;
-        
+        //indicate red glow animation
+        animation: glow 1s infinite alternate;
+        margin-top: 5px;
+        margin-bottom: 5px;
+
         &.paid {
           background: #fee2e2;
           color: #b91c1c;
@@ -342,7 +349,7 @@
   }
 
   .session-link {
-    margin-top: -500px;
+    margin-top: 1rem;
     flex-shrink: 0;
     padding: 0.75rem;
     background: rgba(255, 255, 255, 0.03);
@@ -463,7 +470,7 @@
       }
     }
 
-    .session-details p {
+    .session-details_1 p {
       font-size: 0.85rem;
     }
 
@@ -739,8 +746,26 @@
   }
 }
 
-.session-details {
+.session-details_1 {
   margin-bottom: 1.5rem;
+
+  p {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin: 0.5rem 0;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    .icon {
+      font-size: 1rem;
+      flex-shrink: 0;
+      background-color: #33787e;
+      padding: 5px;
+      border-radius: 5px;
+    }
+  }
 
   .session-payment-type {
     margin: 0.5rem 0;
@@ -765,6 +790,75 @@
       }
     }
   }
+
+  .registration-note {
+    color: #f59e0b !important;
+    font-weight: 500;
+    background: rgba(245, 158, 11, 0.1);
+    padding: 0.5rem;
+    border-radius: 8px;
+    border-left: 3px solid #f59e0b;
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+  }
+}
+
+// Add styling for .session-details used by recorded sessions
+.session-details {
+  margin-bottom: 1.5rem;
+
+  p {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin: 0.5rem 0;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    .icon {
+      font-size: 1rem;
+      flex-shrink: 0;
+      background-color: #33787e;
+      padding: 5px;
+      border-radius: 5px;
+    }
+  }
+
+  .session-payment-type {
+    margin: 0.5rem 0;
+
+    .payment-label {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      background: #e0e7ff;
+      color: #6366f1;
+
+      &.paid {
+        background: #fee2e2;
+        color: #b91c1c;
+      }
+
+      &.free {
+        background: #d1fae5;
+        color: #059669;
+      }
+    }
+  }
+
+  .registration-note {
+    color: #f59e0b !important;
+    font-weight: 500;
+    background: rgba(245, 158, 11, 0.1);
+    padding: 0.5rem;
+    border-radius: 8px;
+    border-left: 3px solid #f59e0b;
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+  }
 }
 
 .session-actions {
@@ -772,6 +866,25 @@
   gap: 0.75rem;
   flex-wrap: wrap;
   justify-content: flex-end;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+
+  button {
+    flex: 1;
+    min-width: 120px;
+    font-size: 0.85rem;
+    padding: 0.6rem 1rem;
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    
+    button {
+      flex: none;
+      width: 100%;
+    }
+  }
 }
 
 .btn-primary, .btn-secondary {
@@ -2430,7 +2543,7 @@ input:checked + .toggle-slider:before {
 }
 
 // Add styles for paid/free label and ensure radio input is clickable
-.session-details {
+.session-details_1 {
   // ...existing code...
 
   .session-payment-type {

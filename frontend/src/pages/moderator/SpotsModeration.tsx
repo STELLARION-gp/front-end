@@ -4,10 +4,12 @@ import { useNavigate } from 'react-router-dom';
 import Button from '../../components/Button';
 import stargazingSpotService from '../../services/stargazingSpotService';
 import type { StargazingSpot as ApiStargazingSpot } from '../../services/stargazingSpotService';
+import { useToast } from '../../contexts/ToastContext';
 import '../../styles/pages/moderator/SpotsModeration.scss';
 
 const SpotsModeration: React.FC = () => {
   const navigate = useNavigate();
+  const { showSuccess, showError } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('pending');
   const [spots, setSpots] = useState<ApiStargazingSpot[]>([]);
@@ -50,11 +52,11 @@ const SpotsModeration: React.FC = () => {
       if (response.success) {
         // Refresh the spots list
         await fetchSpots();
-        alert(`Spot ${action}d successfully!`);
+        showSuccess(`Spot ${action}d successfully!`);
       }
     } catch (error) {
       console.error(`Error ${action}ing spot:`, error);
-      alert(`Error ${action}ing spot. Please try again.`);
+      showError(`Error ${action}ing spot. Please try again.`);
     } finally {
       setActionLoading(null);
     }

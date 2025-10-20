@@ -70,7 +70,6 @@ import ApplyMentor from "../pages/learner/ApplyMentor";
 import AstronomyServices from "../pages/learner/AstronomyServices";
 import AstronomyServiceDetails from "../pages/learner/AstronomyServiceDetails";
 import MyBookings from "../pages/learner/MyBookings";
-import GuideDetails from "../pages/learner/GuideDetails";
 import CompetitionPage from "../pages/learner/CompetitionPage";
 //import Competitions from '../pages/influencer/competitions';
 //import MyBlogs from '../pages/influencer/myblogs';
@@ -78,6 +77,7 @@ import Vlogs from "../pages/influencer/Vlogs";
 import Quizzes from "../pages/enthuasist/Quizzes";
 import Polls from "../pages/influencer/Polls";
 import Sessions from "../pages/influencer/Sessions";
+// import Performance from "../pages/influencer/Performance";
 import MentorshipRequest from "../pages/mentor/MentorshipRequest";
 import Mentees from "../pages/mentor/Mentees";
 import MenteeProfile from "../pages/mentor/MenteeProfile";
@@ -93,15 +93,18 @@ import Competitions from "../pages/influencer/competitions";
 import MyBlogs from "../pages/influencer/myblogs";
 import LearnPath from "../pages/mentor/LearnPath";
 import MentorMenteeConnectionPage from "../pages/learner/MentorMenteeConnectionPage";
+import Performance from "../pages/influencer/Performance";
 
 import Followers from "../pages/influencer/Followers";
 import AdminModeratorsPage from "../pages/admin/AdminModeratorsPage";
+import AdminOverview from "../pages/admin/AdminOverview";
+import RevenueAnalytics from "../pages/admin/RevenueAnalytics";
+import ProviderPayments from "../pages/admin/ProviderPayments";
 import InfluencerApplication from "../pages/learner/InfluencerApplication";
 import Mentor from "../pages/admin/Mentor";
 import MentorApplication from "../pages/admin/MentorApplication";
 import MentorProfiles from "../pages/admin/MentorProfiles";
 import MentorProfileDetail from "../pages/admin/MentorProfileDetail";
-import FinanceAnalytics from "../pages/admin/FinanceAnalytics";
 import SubscriptionDashboard from "../pages/SubscriptionDashboard";
 import NightCampDetailsModerator from "../pages/moderator/NightCampDetails";
 import EditNightCamp from "../pages/moderator/EditNightCamp";
@@ -116,6 +119,7 @@ import GroupChatPage from "../pages/mentor/GroupChatPage";
 import { RecommendedEventsProvider } from "../contexts/mentor/RecommendedEventsContext";
 import SelfContent from "../pages/mentor/SelfContent";
 import MenteeApplications from "../pages/mentor/MenteeApplications";
+import GuideProfile from "../pages/guide/GuideProfile";
 
 // Create placeholder components for different pages - all memoized
 // const BlogsPage = memo(() => (
@@ -372,14 +376,14 @@ const DashboardRoutes = () => {
           </RoleGuard>
         }
       />
-      <Route
+      {/* <Route
         path="guide-profile"
         element={
           <RoleGuard allowedRoles={["learner", "enthusiast"]}>
             <GuideDetails />
           </RoleGuard>
         }
-      />
+      /> */}
       <Route
         path="competition"
         element={
@@ -680,6 +684,33 @@ const DashboardRoutes = () => {
       />
 
       <Route
+        path="admin-overview"
+        element={
+          <RoleGuard allowedRoles={["admin"]}>
+            <AdminOverview />
+          </RoleGuard>
+        }
+      />
+
+      <Route
+        path="revenue-analytics"
+        element={
+          <RoleGuard allowedRoles={["admin"]}>
+            <RevenueAnalytics />
+          </RoleGuard>
+        }
+      />
+
+      <Route
+        path="provider-payments"
+        element={
+          <RoleGuard allowedRoles={["admin"]}>
+            <ProviderPayments />
+          </RoleGuard>
+        }
+      />
+
+      <Route
         path="author/:authorName"
         element={
           <RoleGuard
@@ -875,7 +906,15 @@ const DashboardRoutes = () => {
       <Route
         path="stargazing"
         element={
-          <RoleGuard allowedRoles={["enthusiast", "influencer", "learner","mentor","guide"]}>
+          <RoleGuard
+            allowedRoles={[
+              "enthusiast",
+              "influencer",
+              "learner",
+              "mentor",
+              "guide",
+            ]}
+          >
             <Stargazing />
           </RoleGuard>
         }
@@ -900,7 +939,7 @@ const DashboardRoutes = () => {
               "learner",
               "guide",
               "moderator",
-              "mentor"
+              "mentor",
             ]}
           >
             <AstroHub />
@@ -972,6 +1011,15 @@ const DashboardRoutes = () => {
       />
 
       <Route
+        path="performance"
+        element={
+          <RoleGuard allowedRoles={["influencer"]}>
+            <Performance />
+          </RoleGuard>
+        }
+      />
+
+      <Route
         path="vlogs"
         element={
           <RoleGuard allowedRoles={["influencer"]}>
@@ -1037,7 +1085,23 @@ const DashboardRoutes = () => {
         path="financial-analytics"
         element={
           <RoleGuard allowedRoles={["admin"]}>
-            <FinanceAnalytics />
+            <RevenueAnalytics />
+          </RoleGuard>
+        }
+      />
+      <Route
+        path="guide-profile"
+        element={
+          <RoleGuard allowedRoles={["guide", "admin", "moderator","learner","enthusiast"]}>
+            <GuideProfile />
+          </RoleGuard>
+        }
+      />
+      <Route
+        path="guide-profile/:guideId"
+        element={
+          <RoleGuard allowedRoles={["guide", "admin", "moderator","learner","enthusiast"]}>
+            <GuideProfile />
           </RoleGuard>
         }
       />

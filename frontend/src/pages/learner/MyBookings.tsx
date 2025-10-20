@@ -2,9 +2,11 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getMyBookings, cancelBooking, createReview, type Booking } from "../../services/bookingService";
 import "../../styles/pages/learner/MyBookings.scss";
+import { useToast } from "../../contexts/ToastContext";
 
 const MyBookings: React.FC = () => {
   const navigate = useNavigate();
+
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -16,6 +18,7 @@ const MyBookings: React.FC = () => {
   const [rating, setRating] = useState(5);
   const [reviewText, setReviewText] = useState('');
   const [reviewLoading, setReviewLoading] = useState(false);
+  const { showSuccess, showError } = useToast();
 
   useEffect(() => {
     fetchBookings();
@@ -47,12 +50,12 @@ const MyBookings: React.FC = () => {
 
     try {
       const reason = prompt('Please provide a reason for cancellation (optional):');
-      await cancelBooking(bookingId, reason || undefined);
-      alert('Booking cancelled successfully');
+  await cancelBooking(bookingId, reason || undefined);
+  showSuccess('Booking cancelled successfully');
       fetchBookings();
     } catch (err) {
       console.error('Error cancelling booking:', err);
-      alert(err instanceof Error ? err.message : 'Failed to cancel booking');
+  showError(err instanceof Error ? err.message : 'Failed to cancel booking');
     }
   };
 
@@ -66,7 +69,7 @@ const MyBookings: React.FC = () => {
         comment: reviewText,
       });
       
-      alert('Review submitted successfully!');
+      showSuccess('Review submitted successfully!');
       setShowReviewModal(false);
       setSelectedBooking(null);
       setRating(5);
@@ -74,7 +77,7 @@ const MyBookings: React.FC = () => {
       fetchBookings();
     } catch (err) {
       console.error('Error submitting review:', err);
-      alert(err instanceof Error ? err.message : 'Failed to submit review');
+  showError(err instanceof Error ? err.message : 'Failed to submit review');
     } finally {
       setReviewLoading(false);
     }
@@ -207,24 +210,17 @@ const MyBookings: React.FC = () => {
         <div className="bookings-list">
           {bookings.map((booking) => (
             <div key={booking.id} className="booking-card">
-              <div className="booking-image">
-                <img 
-                  src={booking.service?.image_url || 'https://via.placeholder.com/300x200'} 
-                  alt={booking.service?.title || 'Service'}
-                />
-                <span className={getStatusClass(booking.booking_status)}>
-                  {booking.booking_status}
-                </span>
-              </div>
-
               <div className="booking-details">
                 <div className="booking-main">
-                  <h3 
-                    className="service-title"
-                    onClick={() => navigate(`/dashboard/astronomy-services/${booking.service_id}`)}
-                  >
-                    {booking.service?.title || 'Service'}
-                  </h3>
+                  <span className={getStatusClass(booking.booking_status)} style={{marginBottom: 8, display: 'inline-block'}}>
+                    {booking.booking_status}
+                  </span>
+                    <h3 
+                      className="service-title"
+                      onClick={() => navigate(`/dashboard/astronomy-services/${booking.service_id}`)}
+                    >
+                      {booking.service?.title || 'Service'}
+                    </h3>
                   
                   {booking.service?.creator && (
                     <p className="guide-name">
@@ -246,10 +242,10 @@ const MyBookings: React.FC = () => {
                       <span className="label">👥 Participants:</span>
                       <span>{booking.participants_count}</span>
                     </div>
-                    <div className="info-row">
+                    {/* <div className="info-row">
                       <span className="label">📍 Location:</span>
                       <span>{booking.service?.location || 'N/A'}</span>
-                    </div>
+                    </div> */}
                     <div className="info-row">
                       <span className="label">💰 Total:</span>
                       <span className="price">Rs. {booking.total_amount.toLocaleString()}</span>
@@ -272,14 +268,12 @@ const MyBookings: React.FC = () => {
                       </button>
                     )}
                     
-                    {booking.booking_status === 'completed' && (
-                      <button
-                        className="action-button review-button"
-                        onClick={() => openReviewModal(booking)}
-                      >
-                        Write a Review
-                      </button>
-                    )}
+                    <button
+                      className="action-button review-button"
+                      onClick={() => openReviewModal(booking)}
+                    >
+                      Write a Review
+                    </button>
                     
                     <button
                       className="action-button view-button"

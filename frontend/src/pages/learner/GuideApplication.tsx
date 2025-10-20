@@ -1,23 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import Button from '../../components/Button';
 import { 
   User, 
   MapPin, 
-  Calendar, 
-  Clock, 
   Award, 
-  Users, 
   BookOpen, 
   Telescope, 
-  Check,
   Shield,
   AlertCircle,
   // FileText,
   ArrowLeft
 } from 'lucide-react';
 import '../../styles/pages/guide/_campGuideApplication.scss';
+import { apiService } from '../../services/api';
+import { useToast } from '../../contexts/ToastContext';
 
 interface ApplicationForm {
   // Personal Information
@@ -76,20 +74,9 @@ interface ApplicationForm {
   backgroundCheckConsent: boolean;
 }
 
-interface CampEvent {
-  id: string;
-  title: string;
-  date: string;
-  location: string;
-  duration: string;
-  participants: number;
-  type: 'stargazing' | 'astrophotography' | 'workshop' | 'expedition';
-  description: string;
-  requirements: string[];
-}
-
 const CampGuideApplication: React.FC = () => {
   const navigate = useNavigate();
+  const { showError } = useToast();
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<ApplicationForm>({
     fullName: '',
@@ -133,70 +120,16 @@ const CampGuideApplication: React.FC = () => {
     backgroundCheckConsent: false
   });
 
-  const [availableCamps, setAvailableCamps] = useState<CampEvent[]>([]);
-  const [selectedCamps, setSelectedCamps] = useState<string[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    // Simulate fetching available camps
-    const camps: CampEvent[] = [
-      {
-        id: '1',
-        title: 'Stargazing Night Camp - Colombo',
-        date: '2025-08-15',
-        location: 'Colombo Observatory',
-        duration: '2 days',
-        participants: 50,
-        type: 'stargazing',
-        description: 'A magical night under the stars with telescope observations',
-        requirements: ['Basic astronomy knowledge', 'Night vision experience', 'Group management']
-      },
-      {
-        id: '2',
-        title: 'Astrophotography Workshop Camp',
-        date: '2025-09-10',
-        location: 'Dark Sky Reserve - Nuwara Eliya',
-        duration: '3 days',
-        participants: 30,
-        type: 'astrophotography',
-        description: 'Learn advanced astrophotography techniques in perfect dark skies',
-        requirements: ['Photography experience', 'Camera equipment knowledge', 'Technical teaching ability']
-      },
-      {
-        id: '3',
-        title: 'Family Astronomy Adventure',
-        date: '2025-08-25',
-        location: 'Kandy Science Center',
-        duration: '1 day',
-        participants: 40,
-        type: 'workshop',
-        description: 'Family-friendly introduction to astronomy and space science',
-        requirements: ['Child-friendly teaching', 'Interactive presentation skills', 'Safety awareness']
-      },
-      {
-        id: '4',
-        title: 'Deep Space Expedition',
-        date: '2025-10-05',
-        location: 'Haputale Mountains',
-        duration: '4 days',
-        participants: 20,
-        type: 'expedition',
-        description: 'Advanced astronomy expedition with camping and deep-sky observations',
-        requirements: ['Advanced astronomy', 'Camping experience', 'Leadership skills', 'First aid']
-      }
-    ];
-    setAvailableCamps(camps);
-  }, []);
-
-  const totalSteps = 6;
+  const totalSteps = 5;
 //   const stepNames = [
 //     'Personal Info',
 //     'Background', 
 //     'Skills',
 //     'Experience',
-//     'Preferences',
-//     'Review'
+//     'Preferences'
 //   ];
 
   const predefinedOptions = {
@@ -323,24 +256,6 @@ const CampGuideApplication: React.FC = () => {
     });
   };
 
-  const handleFileUpload = (field: string, file: File | null) => {
-    setFormData(prev => ({
-      ...prev,
-      documents: {
-        ...prev.documents,
-        [field]: file
-      }
-    }));
-  };
-
-  const handleCampSelection = (campId: string) => {
-    setSelectedCamps(prev => 
-      prev.includes(campId) 
-        ? prev.filter(id => id !== campId)
-        : [...prev, campId]
-    );
-  };
-
   const validateStep = (step: number): boolean => {
     const newErrors: Record<string, string> = {};
 
@@ -377,12 +292,8 @@ const CampGuideApplication: React.FC = () => {
         if (!formData.motivation) newErrors.motivation = 'Motivation is required';
         if (!formData.emergencyContact.name) newErrors.emergencyContactName = 'Emergency contact name is required';
         if (!formData.emergencyContact.phone) newErrors.emergencyContactPhone = 'Emergency contact phone is required';
-        break;
-      
-      case 6:
         if (!formData.termsAccepted) newErrors.termsAccepted = 'You must accept the terms and conditions';
         if (!formData.backgroundCheckConsent) newErrors.backgroundCheckConsent = 'Background check consent is required';
-        if (selectedCamps.length === 0) newErrors.selectedCamps = 'Select at least one camp to apply for';
         break;
     }
 
@@ -406,38 +317,35 @@ const CampGuideApplication: React.FC = () => {
     setIsSubmitting(true);
     
     try {
-      // Simulate API submission
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Submit the application to the backend
+      console.log('Submitting application:', formData);
       
-      // In a real app, you would submit the form data to your backend
-      console.log('Submitting application:', {
-        ...formData,
-        selectedCamps
-      });
+      const response = await apiService.submitGuideApplication(formData) as any;
       
-      // Show success message and redirect
-      const submissionSuccess = () => {
+      if (response.success) {
+        // Show success message and redirect
         const successDiv = document.createElement('div');
         successDiv.className = 'camp-guide-application__submission fade-in';
         successDiv.innerHTML = `
           <div class="success-icon">✅</div>
           <h3 class="success-title">Application Submitted Successfully!</h3>
-          <p class="success-message">We will review your application and contact you within 5-7 business days.</p>
-          <div class="reference-number">Reference: CGA-${Date.now().toString().slice(-6)}</div>
+          <p class="success-message">Your application is now <strong>pending review</strong>. We will contact you within 5-7 business days.</p>
+          <div class="reference-number">Reference: CGA-${response.data?.application_id || Date.now().toString().slice(-6)}</div>
         `;
         
         document.querySelector('.camp-guide-application__content')?.appendChild(successDiv);
         
         setTimeout(() => {
-          navigate('/dashboard');
+          navigate('/dashboard/overview');
         }, 3000);
-      };
-      
-      submissionSuccess();
+      } else {
+        throw new Error(response.error || 'Failed to submit application');
+      }
       
     } catch (error) {
       console.error('Submission error:', error);
-      alert('There was an error submitting your application. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'There was an error submitting your application. Please try again.';
+      showError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -931,130 +839,6 @@ const CampGuideApplication: React.FC = () => {
                       placeholder="+94 71 234 5678"
                     />
                     {errors.emergencyContactPhone && <span className="error-message">{errors.emergencyContactPhone}</span>}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-
-      case 6:
-        return (
-          <div className="step-content">
-            <div className="camp-guide-application__step-header">
-              <div className="step-icon">
-                <Check className="w-8 h-8" />
-              </div>
-              <div className="step-info">
-                <h2>Review & Submit</h2>
-                <p>Review your application and select camps to apply for</p>
-              </div>
-            </div>
-
-            <div className="form-sections">
-              <div className="form-section">
-                <h4>Available Camps</h4>
-                <p className="section-description">Select the camps you'd like to guide:</p>
-                <div className="camp-guide-application__camp-grid">
-                  {availableCamps.map(camp => (
-                    <div 
-                      key={camp.id} 
-                      className={`camp-guide-application__camp-card ${selectedCamps.includes(camp.id) ? 'camp-guide-application__camp-card--selected' : ''}`}
-                      onClick={() => handleCampSelection(camp.id)}
-                    >
-                      <div className="camp-header">
-                        <div className="camp-title">
-                          <h3>{camp.title}</h3>
-                          <span className={`camp-type camp-type--${camp.type}`}>
-                            {camp.type}
-                          </span>
-                        </div>
-                        <div className={`selection-indicator ${selectedCamps.includes(camp.id) ? 'selection-indicator--visible' : ''}`}>
-                          <Check className="check-icon" />
-                        </div>
-                      </div>
-                      
-                      <div className="camp-meta">
-                        <div className="meta-item">
-                          <Calendar className="icon" />
-                          <span>{new Date(camp.date).toLocaleDateString()}</span>
-                        </div>
-                        <div className="meta-item">
-                          <MapPin className="icon" />
-                          <span>{camp.location}</span>
-                        </div>
-                        <div className="meta-item">
-                          <Clock className="icon" />
-                          <span>{camp.duration}</span>
-                        </div>
-                        <div className="meta-item">
-                          <Users className="icon" />
-                          <span>{camp.participants} participants</span>
-                        </div>
-                      </div>
-                      
-                      <p className="camp-description">{camp.description}</p>
-                      
-                      <div className="camp-requirements">
-                        <div className="requirements-title">Requirements:</div>
-                        <div className="requirements-list">
-                          {camp.requirements.map((req, index) => (
-                            <span key={index} className="requirement-tag">{req}</span>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                {errors.selectedCamps && <span className="error-message">{errors.selectedCamps}</span>}
-              </div>
-
-              <div className="form-section">
-                <h4>Document Upload (Optional)</h4>
-                <div className="upload-grid">
-                  <div className="camp-guide-application__file-upload">
-                    <div className="upload-icon">📄</div>
-                    <div className="upload-text">Resume/CV</div>
-                    <div className="upload-hint">Upload your resume or CV</div>
-                    <input
-                      type="file"
-                      accept=".pdf,.doc,.docx"
-                      title="Upload your resume or CV"
-                      onChange={(e) => handleFileUpload('resume', e.target.files?.[0] || null)}
-                    />
-                  </div>
-                  <div className="camp-guide-application__file-upload">
-                    <div className="upload-icon">🏆</div>
-                    <div className="upload-text">Certifications</div>
-                    <div className="upload-hint">Upload your certifications</div>
-                    <input
-                      type="file"
-                      accept=".pdf,.jpg,.jpeg,.png"
-                      title="Upload your certifications"
-                      onChange={(e) => handleFileUpload('certifications', e.target.files?.[0] || null)}
-                    />
-                  </div>
-                  <div className="camp-guide-application__file-upload">
-                    <div className="upload-icon">📷</div>
-                    <div className="upload-text">Portfolio/Photos</div>
-                    <div className="upload-hint">Upload your portfolio or sample photos</div>
-                    <input
-                      type="file"
-                      accept=".pdf,.jpg,.jpeg,.png"
-                      title="Upload your portfolio or sample photos"
-                      onChange={(e) => handleFileUpload('portfolio', e.target.files?.[0] || null)}
-                    />
-                  </div>
-                  <div className="camp-guide-application__file-upload">
-                    <div className="upload-icon">📋</div>
-                    <div className="upload-text">References</div>
-                    <div className="upload-hint">Upload your references</div>
-                    <input
-                      type="file"
-                      accept=".pdf,.doc,.docx"
-                      title="Upload your references"
-                      onChange={(e) => handleFileUpload('references', e.target.files?.[0] || null)}
-                    />
                   </div>
                 </div>
               </div>

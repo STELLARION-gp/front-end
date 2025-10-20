@@ -20,6 +20,7 @@ export interface Session {
   session_date: Date | string;
   session_time: Date | string;
   max_participants?: number | null;
+  participants_count?: number; // number of confirmed/registered participants
   difficulty_level: DifficultyLevel;
   session_link?: string | null;
   description: string;
@@ -27,9 +28,12 @@ export interface Session {
   session_notes?: string | null;
   created_by: number;
   is_enabled: boolean;
-  status?: SessionStatus; // Session approval status (optional - requires DB migration)
+  status?: SessionStatus; // Session approval status
   moderated_by?: number | null;
   moderated_at?: Date | string | null;
+  approved_at?: Date | string | null;
+  rejected_at?: Date | string | null;
+  rejection_reason?: string | null;
   created_at: Date | string;
   updated_at: Date | string;
   // Creator info when included
@@ -452,6 +456,91 @@ export const sessionsService = {
   },
 
   /**
+   * Get all pending sessions (moderator only)
+   */
+  async getPendingSessions(
+    filters: {
+      page?: number;
+      limit?: number;
+      sort_by?: "created_at" | "session_date" | "title";
+      sort_order?: "asc" | "desc";
+    } = {}
+  ): Promise<SessionsListResponse> {
+    const queryParams = new URLSearchParams();
+
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        queryParams.append(key, value.toString());
+      }
+    });
+
+    const queryString = queryParams.toString();
+    return makeRequest(
+      `/sessions/admin/pending${queryString ? `?${queryString}` : ""}`,
+      {},
+      true
+    );
+  },
+
+  /**
+   * Get sessions for moderation with optional status filter (moderator only)
+   */
+  async getModerationSessions(
+    filters: {
+      page?: number;
+      limit?: number;
+      status?: SessionStatus | "all";
+      sort_by?: "created_at" | "session_date" | "title";
+      sort_order?: "asc" | "desc";
+    } = {}
+  ): Promise<SessionsListResponse> {
+    const queryParams = new URLSearchParams();
+
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== "all") {
+        queryParams.append(key, value.toString());
+      }
+    });
+
+    const queryString = queryParams.toString();
+    return makeRequest(
+      `/sessions/admin/moderation${queryString ? `?${queryString}` : ""}`,
+      {},
+      true
+    );
+  },
+
+  /**
+   * Approve a session (moderator only)
+   */
+  async approveSession(id: number): Promise<SessionResponse> {
+    return makeRequest(
+      `/sessions/${id}/approve`,
+      {
+        method: "PATCH",
+      },
+      true
+    );
+  },
+
+  /**
+   * Reject a session with reason (moderator only)
+   */
+  async rejectSession(
+    id: number,
+    rejectionReason: string
+  ): Promise<SessionResponse> {
+    return makeRequest(
+      `/sessions/${id}/reject`,
+      {
+        method: "PATCH",
+        body: JSON.stringify({ rejection_reason: rejectionReason }),
+      },
+      true
+    );
+  },
+
+  /**
    * Search sessions by keyword
    */
   async searchSessions(
@@ -524,5 +613,30 @@ export const sessionsService = {
       },
       true
     );
+  },
+
+  /**
+   * Get enrollments for a specific session (creator only)
+   */
+  async getSessionEnrollments(sessionId: number): Promise<{
+    success: boolean;
+    data: {
+      session_id: number;
+      session_title: string;
+      total_enrollments: number;
+      enrollments: Array<{
+        id: number;
+        session_id: number;
+        user_id: number;
+        enrolled_at: string;
+        payment_status: string;
+        amount_paid: number;
+        user_name?: string;
+        user_email?: string;
+      }>;
+    };
+    message: string;
+  }> {
+    return makeRequest(`/sessions/${sessionId}/enrollments`, {}, true);
   },
 };

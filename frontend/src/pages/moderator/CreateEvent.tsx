@@ -4,6 +4,7 @@ import { FaCalendarAlt, FaUser, FaSave, FaImage } from 'react-icons/fa';
 import Button from '../../components/Button';
 import '../../styles/pages/moderator/CreateEvent.scss';
 import { createEvent, type EventPayload } from '../../services/eventsService';
+import { useToast } from '../../contexts/ToastContext';
 
 interface CreateEventForm {
   eventName: string;
@@ -25,6 +26,7 @@ interface CreateEventForm {
 
 const CreateEvent: React.FC = () => {
   const navigate = useNavigate();
+  const { showWarning } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<CreateEventForm>({
     eventName: '',
@@ -57,18 +59,18 @@ const CreateEvent: React.FC = () => {
       
       // Limit to 10 images
       if (fileArr.length + formData.images.length > 10) {
-        alert('Maximum 10 images allowed');
+        showWarning('Maximum 10 images allowed');
         return;
       }
       
       // Validate file types and size
       const validFiles = fileArr.filter(file => {
         if (!file.type.startsWith('image/')) {
-          alert(`${file.name} is not an image file`);
+          showWarning(`${file.name} is not an image file`);
           return false;
         }
         if (file.size > 10 * 1024 * 1024) { // 10MB limit
-          alert(`${file.name} is too large (max 10MB)`);
+          showWarning(`${file.name} is too large (max 10MB)`);
           return false;
         }
         return true;

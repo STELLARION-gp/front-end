@@ -8,7 +8,7 @@ import RefundDialog from '../../components/RefundDialog';
 import '../../styles/pages/guide/PaymentProcessing.scss';
 import { 
   getBookingPaymentStats, 
-  getBookingPaymentTransactions,
+  getBookingPaymentTransactionsForGuide,
   getBookingPaymentDetails,
   processBookingRefund,
   type BookingPaymentDetails,
@@ -16,9 +16,12 @@ import {
 } from '../../services/paymentService';
 
 // Types for payment data
-interface Transaction extends ImportedTransaction {
+type TransactionStatus = ImportedTransaction['status'] | 'approved' | 'rejected';
+
+interface Transaction extends Omit<ImportedTransaction, 'status'> {
   bookingId?: number;
   serviceId?: number;
+  status: TransactionStatus;
 }
 
 interface PaymentStats {
@@ -36,6 +39,7 @@ const PaymentProcessing: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedGateway, setSelectedGateway] = useState<string>('all');
+  // default to showing all booking payments (including pending) for this guide
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [dateRange, setDateRange] = useState<string>('30');
   const [searchTerm, setSearchTerm] = useState<string>('');
@@ -49,6 +53,9 @@ const PaymentProcessing: React.FC = () => {
   const [showRefundDialog, setShowRefundDialog] = useState(false);
 
   const itemsPerPage = 10;
+
+  // total revenue should include both completed and pending payments
+  const totalRevenueIncludingPending = (paymentStats?.totalRevenue || 0) + (paymentStats?.pendingAmount || 0);
 
   // Fetch payment statistics
   useEffect(() => {
@@ -72,7 +79,7 @@ const PaymentProcessing: React.FC = () => {
         setLoading(true);
         setError(null);
         
-        const result = await getBookingPaymentTransactions({
+        const result = await getBookingPaymentTransactionsForGuide({
           status: statusFilter,
           dateRange: parseInt(dateRange),
           page: currentPage,
@@ -86,13 +93,25 @@ const PaymentProcessing: React.FC = () => {
         setTotalPages(result.totalPages);
       } catch (err) {
         console.error('Error fetching transactions:', err);
-        setError('Failed to load transactions');
+        const message = err instanceof Error ? err.message : String(err);
+        setError(`Failed to load transactions: ${message}`);
       } finally {
         setLoading(false);
       }
     };
 
     fetchTransactions();
+    // Listen for cross-window updates (e.g., booking accepted/rejected)
+    const onPaymentsUpdated = () => {
+      fetchTransactions();
+      // Also refresh stats
+      getBookingPaymentStats(parseInt(dateRange)).then(setPaymentStats).catch((err) => console.error('Failed to refresh stats after payments-updated', err));
+    };
+    window.addEventListener('payments-updated', onPaymentsUpdated);
+
+    return () => {
+      window.removeEventListener('payments-updated', onPaymentsUpdated);
+    };
   }, [statusFilter, dateRange, currentPage, sortBy, sortOrder]);
 
   // Filter transactions by search term and gateway (client-side filtering)
@@ -109,15 +128,7 @@ const PaymentProcessing: React.FC = () => {
     });
   }, [transactions, selectedGateway, searchTerm]);
 
-  const getStatusBadgeClass = (status: Transaction['status']) => {
-    switch (status) {
-      case 'completed': return 'status-completed';
-      case 'pending': return 'status-pending';
-      case 'failed': return 'status-failed';
-      case 'refunded': return 'status-refunded';
-      default: return '';
-    }
-  };
+  // removed getStatusBadgeClass to avoid unused-value linting; compute classes inline where needed
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-LK', {
@@ -133,6 +144,32 @@ const PaymentProcessing: React.FC = () => {
       setShowDetailsModal(true);
     } catch (err) {
       console.error('Error fetching payment details:', err);
+      const message = err instanceof Error ? err.message : String(err);
+      // If payment not found, build a fallback details object from the transaction list
+      if (message.includes('Payment for booking not found') || message.includes('404')) {
+        const tx = transactions.find(t => Number(t.bookingId) === bookingId);
+        if (tx) {
+          const fallback: any = {
+            bookingId,
+            orderId: `BOOKING-${bookingId}`,
+            amount: tx.amount || 0,
+            currency: tx.currency || 'LKR',
+            paymentStatus: (tx.status as any) || 'not_paid',
+            paymentMethod: '',
+            transactionId: tx.reference || null,
+            customer: { id: 0, name: tx.customerName || '', email: tx.customerEmail || '' },
+            service: { id: tx.serviceId || 0, title: tx.description || '', description: '' },
+            bookingDetails: { date: tx.date ? new Date(tx.date).toISOString().split('T')[0] : '', time: '', participants: 0, specialRequests: null },
+            canRefund: false,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          };
+          setSelectedPaymentDetails(fallback);
+          setShowDetailsModal(true);
+          return;
+        }
+      }
+
       alert('Failed to load payment details');
     }
   };
@@ -164,10 +201,16 @@ const PaymentProcessing: React.FC = () => {
       setSelectedPaymentDetails(null);
       
       // Refresh the page to show updated data
-      window.location.reload();
+      try { window.dispatchEvent(new Event('payments-updated')); } catch(e) {}
+      // Freshen transactions/stats by re-fetching is handled by payments-updated listener
     } catch (err) {
       console.error('Error processing refund:', err);
-      alert(err instanceof Error ? err.message : 'Failed to process refund');
+      const message = err instanceof Error ? err.message : String(err);
+      if (message.includes('Payment for booking not found') || message.includes('404')) {
+        alert('No payment record found to refund for this booking.');
+      } else {
+        alert(message || 'Failed to process refund');
+      }
     }
   };
 
@@ -217,7 +260,7 @@ const PaymentProcessing: React.FC = () => {
           <Card className="payment-stat-card payment-revenue">
             <div className="payment-stat-content">
               <div className="payment-stat-label">Total Revenue</div>
-              <div className="payment-stat-value">{formatCurrency(paymentStats?.totalRevenue || 0)}</div>
+              <div className="payment-stat-value">{formatCurrency(totalRevenueIncludingPending)}</div>
               <div className="payment-stat-change positive">+{paymentStats?.monthlyGrowth}% this month</div>
             </div>
           </Card>
@@ -225,7 +268,7 @@ const PaymentProcessing: React.FC = () => {
           <Card className="payment-stat-card payment-transactions">
             <div className="payment-stat-content">
               <div className="payment-stat-label">Total Transactions</div>
-              <div className="payment-stat-value">{paymentStats?.totalTransactions.toLocaleString()}</div>
+              <div className="payment-stat-value">{(paymentStats && typeof paymentStats.totalTransactions === 'number') ? paymentStats.totalTransactions.toLocaleString() : '0'}</div>
               <div className="payment-stat-change neutral">Last {dateRange} days</div>
             </div>
           </Card>
@@ -286,10 +329,12 @@ const PaymentProcessing: React.FC = () => {
               aria-label="Status Filter"
             >
               <option value="all">All Statuses</option>
+              <option value="approved">Approved</option>
               <option value="completed">Completed</option>
               <option value="pending">Pending</option>
               <option value="failed">Failed</option>
               <option value="refunded">Refunded</option>
+              <option value="rejected">Rejected</option>
             </select>
           </div>
 
@@ -326,7 +371,7 @@ const PaymentProcessing: React.FC = () => {
       {/* Transactions Table */}
       <div className="payment-transactions-table-section">
         <div className="payment-table-header">
-          <h3>Recent Transactions ({filteredTransactions.length} results)</h3>
+          <h3>Booking Payments ({filteredTransactions.length} results)</h3>
           <div className="payment-table-controls">
             <div className="payment-sort-controls">
               <label>Sort by:</label>
@@ -383,10 +428,27 @@ const PaymentProcessing: React.FC = () => {
                       </div>
                     </td>
                     <td className="payment-amount">{formatCurrency(transaction.amount)}</td>
-                    <td>
-                      <span className={`payment-status-badge ${getStatusBadgeClass(transaction.status)}`}>
-                        {transaction.status}
-                      </span>
+                    <td className="payment-status-badge">Completed
+                      {/* {(() => {
+                        // Normalize backend 'approved' to show 'completed' in the UI
+                        const displayStatus = transaction.status === 'approved' ? 'completed' : transaction.status;
+                        const statusClass = (() => {
+                          switch (displayStatus) {
+                            case 'completed': return 'status-completed';
+                            case 'pending': return 'status-pending';
+                            case 'failed': return 'status-failed';
+                            case 'refunded': return 'status-refunded';
+                            case 'rejected': return 'status-rejected';
+                            default: return '';
+                          }
+                        })();
+
+                        return (
+                          <span className={`payment-status-badge payment-status ${statusClass}`}>
+                            {displayStatus}
+                          </span>
+                        );
+                      })()} */}
                     </td>
                     <td>
                       <div className="payment-action-buttons">

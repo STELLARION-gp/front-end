@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { FaPlus, FaEdit, FaTrash, FaEye, FaCalendarAlt, FaMapMarkerAlt, FaUsers } from 'react-icons/fa';
 import Button from '../../components/Button';
 import { AuthContext } from '../../contexts/AuthContext';
+import { useToast } from '../../contexts/ToastContext';
 import '../../styles/pages/moderator/NightCamps.scss';
 
 interface NightCamp {
@@ -28,6 +29,7 @@ interface NightCamp {
 const NightCamps: React.FC = () => {
   const navigate = useNavigate();
   const authContext = useContext(AuthContext);
+  const { showSuccess, showError } = useToast();
   const [nightCamps, setNightCamps] = useState<NightCamp[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -103,8 +105,8 @@ const NightCamps: React.FC = () => {
 
       console.log('✅ Night camp deleted successfully');
       
-      // Show success message (you could add a toast notification here)
-      alert(`"${campName}" has been deleted successfully.`);
+      // Show success message
+      showSuccess(`"${campName}" has been deleted successfully.`);
       
       // Refresh the list
       fetchNightCamps();
@@ -114,10 +116,10 @@ const NightCamps: React.FC = () => {
       
       // Show error to user
       if (error instanceof Error && error.message.includes('authentication')) {
-        alert('Authentication error. Please log in again.');
+        showError('Authentication error. Please log in again.');
         navigate('/login');
       } else {
-        alert(`Error deleting "${campName}". Please try again.`);
+        showError(`Error deleting "${campName}". Please try again.`);
       }
     }
   };

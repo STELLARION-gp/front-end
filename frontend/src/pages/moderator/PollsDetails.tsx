@@ -1,126 +1,32 @@
 import React, { useState, useEffect } from 'react';
+import { FaArrowLeft, FaThumbsUp, FaComments, FaEye, FaCheck, FaTimes, FaTrash } from 'react-icons/fa';
 import { useParams, useNavigate } from 'react-router-dom';
-import Button from '../../components/Button';
-import {  FaArrowLeft, FaEye, FaThumbsUp, FaClock, FaFlag, FaCalendarAlt, FaUsers } from 'react-icons/fa';
 import '../../styles/pages/moderator/PollsDetails.scss';
-
-interface PollDetails {
-  id: string;
-  title: string;
-  description: string;
-  creator: {
-    id: string;
-    username: string;
-    avatar: string;
-    verified: boolean;
-  };
-  type: string;
-  category: string;
-  options: Array<{
-    id: string;
-    text: string;
-    votes: number;
-    percentage: number;
-  }>;
-  totalVotes: number;
-  createdAt: string;
-  expiresAt: string;
-  status: 'active' | 'suspended' | 'expired';
-  visibility: 'public' | 'private' | 'community';
-  reports: Array<{
-    id: string;
-    reporterId: string;
-    reporterUsername: string;
-    reason: string;
-    description: string;
-    timestamp: string;
-    status: 'pending' | 'reviewed' | 'dismissed';
-  }>;
-  threads: number;
-  shares: number;
-  engagement: {
-    views: number;
-    interactions: number;
-    comments: number;
-  };
-  tags: string[];
-  moderationHistory: Array<{
-    id: string;
-    action: string;
-    moderator: string;
-    timestamp: string;
-    reason: string;
-  }>;
-}
+import Button from '../../components/Button';
+import { pollService, type Poll as PollType } from '../../services/pollService';
+import { useToast } from '../../contexts/ToastContext';
 
 const PollsDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [poll, setPoll] = useState<PollDetails | null>(null);
+  const { showSuccess, showError } = useToast();
+  const [poll, setPoll] = useState<PollType | null>(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState('');
 
-  // Mock data - replace with actual API call
   useEffect(() => {
     const fetchPollDetails = async () => {
+      if (!id) return;
+      
       setLoading(true);
       try {
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        const response = await pollService.getPollById(parseInt(id));
         
-        const mockPoll: PollDetails = {
-          id: id || '1',
-          title: 'What\'s the best time for stargazing this weekend?',
-          description: 'Planning a community stargazing event and want to know when most people would prefer to meet. Consider factors like moon phase, weather predictions, and personal schedules.',
-          creator: {
-            id: 'user123',
-            username: 'AstroEnthusiast',
-            avatar: '/default-avatar.png',
-            verified: true
-          },
-          type: 'Multiple Choice',
-          category: 'Community Events',
-          options: [
-            { id: 'opt1', text: 'Friday Evening (8-11 PM)', votes: 47, percentage: 35.3 },
-            { id: 'opt2', text: 'Saturday Night (9 PM-12 AM)', votes: 62, percentage: 46.6 },
-            { id: 'opt3', text: 'Sunday Early Morning (5-7 AM)', votes: 24, percentage: 18.1 }
-          ],
-          totalVotes: 133,
-          createdAt: '2024-01-15T10:30:00Z',
-          expiresAt: '2024-01-22T23:59:59Z',
-          status: 'active',
-          visibility: 'public',
-          reports: [
-            {
-              id: 'rep1',
-              reporterId: 'user456',
-              reporterUsername: 'StarWatcher',
-              reason: 'Inappropriate Content',
-              description: 'The poll description contains misleading information about weather conditions.',
-              timestamp: '2024-01-16T14:22:00Z',
-              status: 'pending'
-            }
-          ],
-          threads: 8,
-          shares: 15,
-          engagement: {
-            views: 234,
-            interactions: 156,
-            comments: 23
-          },
-          tags: ['stargazing', 'community', 'weekend', 'astronomy'],
-          moderationHistory: [
-            {
-              id: 'mod1',
-              action: 'Reviewed',
-              moderator: 'ModeratorAlpha',
-              timestamp: '2024-01-16T09:15:00Z',
-              reason: 'Routine content review'
-            }
-          ]
-        };
-
-        setPoll(mockPoll);
+        if (response.success) {
+          setPoll(response.data);
+        }
       } catch (error) {
         console.error('Error fetching poll details:', error);
       } finally {
@@ -128,39 +34,97 @@ const PollsDetails: React.FC = () => {
       }
     };
 
-    if (id) {
-      fetchPollDetails();
-    }
+    fetchPollDetails();
   }, [id]);
 
-  const handleAction = async (action: string) => {
+  const handleApprove = async () => {
+    if (!poll || !confirm('Are you sure you want to approve this poll?')) return;
+    
+    setActionLoading('approve');
+    try {
+      await pollService.approvePoll(poll.id);
+      
+      // Redirect to polls moderation with success message
+      navigate('/dashboard/moderation/polls', { 
+        state: { 
+          message: 'Poll approved successfully!',
+          type: 'success'
+        } 
+      });
+    } catch (error) {
+      console.error('Error approving poll:', error);
+      showError((error as Error).message || 'Error approving poll. Please try again.');
+      setActionLoading(null);
+    }
+  };
+
+  const handleRejectClick = () => {
+    setShowRejectModal(true);
+  };
+
+  const handleRejectSubmit = async () => {
     if (!poll) return;
     
-    setActionLoading(action);
+    setActionLoading('reject');
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await pollService.rejectPoll(poll.id, rejectionReason || undefined);
       
-      console.log(`${action} poll:`, poll.id);
-      
-      // Update poll status based on action
-      if (action === 'suspend') {
-        setPoll(prev => prev ? { ...prev, status: 'suspended' } : null);
-      }
-      
-      // Show success message
-      alert(`Poll ${action}ed successfully!`);
-      
+      // Redirect to polls moderation with success message
+      navigate('/dashboard/moderation/polls', { 
+        state: { 
+          message: rejectionReason 
+            ? `Poll rejected: ${rejectionReason}` 
+            : 'Poll rejected successfully!',
+          type: 'success'
+        } 
+      });
     } catch (error) {
-      console.error(`Error ${action}ing poll:`, error);
-      alert(`Error ${action}ing poll. Please try again.`);
+      console.error('Error rejecting poll:', error);
+      showError((error as Error).message || 'Error rejecting poll. Please try again.');
+      setActionLoading(null);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!poll || !confirm('Are you sure you want to permanently delete this poll?')) return;
+    
+    setActionLoading('delete');
+    try {
+      await pollService.deletePoll(poll.id);
+      showSuccess('Poll deleted successfully!');
+      navigate('/dashboard/moderation/polls');
+    } catch (error) {
+      console.error('Error deleting poll:', error);
+      showError((error as Error).message || 'Error deleting poll. Please try again.');
     } finally {
       setActionLoading(null);
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString();
+  const formatDate = (dateString: string | Date) => {
+    if (!dateString) return 'Unknown';
+    const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
+    return date.toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+  };
+
+  const getStatusBadge = (status?: 'pending' | 'approved' | 'rejected') => {
+    switch (status) {
+      case 'pending':
+        return <span className="status-badge status-pending">⏳ Pending</span>;
+      case 'approved':
+        return <span className="status-badge status-approved">✅ Approved</span>;
+      case 'rejected':
+        return <span className="status-badge status-rejected">❌ Rejected</span>;
+      default:
+        return <span className="status-badge status-pending">⏳ Pending</span>;
+    }
   };
 
   if (loading) {
@@ -205,28 +169,6 @@ const PollsDetails: React.FC = () => {
 
   return (
     <div className="polls-details">
-      {/* <header>
-        <div className="details-header">
-        <div>
-          <Button
-            variant="ghost"
-            size="medium"
-            onClick={() => navigate(-1)}
-          >
-            ← Back
-          </Button>
-          <h1>Poll Details</h1>
-          <div className="header-actions">
-            <Button
-              variant="border"
-              size="small"
-            >
-              👁 {poll.engagement.views} Views
-            </Button>
-        </div>
-        </div>
-      </div>
-      </header> */}
       <header className="details-header">
         <div className="header-content">
           <div className="header-left">
@@ -235,29 +177,24 @@ const PollsDetails: React.FC = () => {
               size="medium"
               icon={<FaArrowLeft />}
               iconPosition="left"
-            onClick={() => navigate(-1)}
+              onClick={() => navigate(-1)}
             >
               Back to Polls
             </Button>
             <div className="title-section">
               <h1>Poll Details</h1>
-              <p>Review and moderate poll details</p>
+              <p>Review and moderate poll content</p>
             </div>
           </div>
           
           <div className="header-actions">
-            <div className="header-actions">
-            <Button
-              variant="ghost"
-              size="large"
-            >
-              👁 {poll.engagement.views} Views
-            </Button>
+            {getStatusBadge(poll.status)}
+            <div className="view-count">
+              <FaEye /> {poll.total_votes} votes
             </div>
           </div>
         </div>
       </header>
-
 
       <div className="details-content">
         <div className="main-content">
@@ -265,86 +202,76 @@ const PollsDetails: React.FC = () => {
           <div className="detail-card poll-info">
             <div className="card-header">
               <h2>Poll Information</h2>
-              <div className={`poll-status ${poll.status}`}>
-                {poll.status.charAt(0).toUpperCase() + poll.status.slice(1)}
-              </div>
             </div>
             <div className="card-content">
-              <div className="poll-title">
-                <h3>{poll.title}</h3>
+              <div className="info-row">
+                <label>Title:</label>
+                <p>{poll.title}</p>
               </div>
-              <div className="poll-description">
-                <p>{poll.description}</p>
-              </div>
-              
-              <div className="poll-meta">
-                <div className="meta-item">
-                  <FaCalendarAlt />
-                  <span>Created: {formatDate(poll.createdAt)}</span>
+              {poll.description && (
+                <div className="info-row">
+                  <label>Description:</label>
+                  <p>{poll.description}</p>
                 </div>
-                <div className="meta-item">
-                  <FaClock />
-                  <span>Expires: {formatDate(poll.expiresAt)}</span>
-                </div>
-                <div className="meta-item">
-                  <FaUsers />
-                  <span>Total Votes: {poll.totalVotes}</span>
-                </div>
+              )}
+              <div className="info-row">
+                <label>Created:</label>
+                <p>{formatDate(poll.created_at)}</p>
               </div>
-
-              <div className="poll-tags">
-                {poll.tags.map(tag => (
-                  <span key={tag} className="tag">#{tag}</span>
-                ))}
+              <div className="info-row">
+                <label>Last Updated:</label>
+                <p>{formatDate(poll.updated_at)}</p>
               </div>
+              <div className="info-row">
+                <label>Status:</label>
+                <p>{poll.is_active ? '● Active' : '○ Closed'}</p>
+              </div>
+              {poll.moderated_at && (
+                <div className="info-row">
+                  <label>Moderated At:</label>
+                  <p>{formatDate(poll.moderated_at)}</p>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Poll Options & Results */}
+          {/* Poll Options */}
           <div className="detail-card poll-options">
             <div className="card-header">
               <h2>Poll Options & Results</h2>
+              <span className="total-votes">{poll.total_votes} total votes</span>
             </div>
             <div className="card-content">
-              <div className="options-list">
-                {poll.options.map((option, index) => (
-                  <div key={option.id} className="option-item">
-                    <div className="option-header">
-                      <span className="option-number">{index + 1}</span>
-                      <span className="option-text">{option.text}</span>
-                      <span className="option-percentage">{option.percentage}%</span>
-                    </div>
-                    <div className="option-bar">
-                      <div 
-                        className={`option-fill option-fill-${index}`}
-                        style={{ '--percentage': `${option.percentage}%` } as React.CSSProperties}
-                      >
-                        <span className="option-votes">{option.votes} votes</span>
-                      </div>
-                    </div>
-                    <div className="option-votes">{option.votes} votes</div>
+              {poll.choices.map((choice, index) => (
+                <div key={index} className="poll-option">
+                  <div className="option-header">
+                    <span className="option-text">{choice.choice}</span>
+                    <span className="option-votes">{choice.vote_count} votes ({choice.percentage.toFixed(1)}%)</span>
                   </div>
-                ))}
-              </div>
+                  <div className="option-bar">
+                    <div 
+                      className="option-fill" 
+                      style={{ width: `${choice.percentage}%` }}
+                    ></div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 
-          {/* Creator Information */}
+          {/* Creator Info */}
           <div className="detail-card creator-info">
             <div className="card-header">
               <h2>Creator Information</h2>
             </div>
             <div className="card-content">
               <div className="creator-profile">
-                {/* <img src={poll.creator.avatar} alt={poll.creator.username} className="creator-avatar" /> */}
-                <img src={"https://www.svgrepo.com/show/384670/account-avatar-profile-user.svg"} className="creator-avatar" alt='img'/>
-
+                <div className="creator-avatar">
+                  {poll.creator?.display_name?.charAt(0) || poll.creator?.first_name?.charAt(0) || 'U'}
+                </div>
                 <div className="creator-details">
-                  <div className="creator-username">
-                    {poll.creator.username}
-                    {poll.creator.verified && <span className="verified-badge">✓</span>}
-                  </div>
-                  <div className="creator-id">ID: {poll.creator.id}</div>
+                  <h3>{poll.creator?.display_name || `${poll.creator?.first_name || ''} ${poll.creator?.last_name || ''}`.trim() || 'Unknown'}</h3>
+                  <p>Creator ID: {poll.creator?.id}</p>
                 </div>
               </div>
             </div>
@@ -358,24 +285,25 @@ const PollsDetails: React.FC = () => {
             <div className="card-content">
               <div className="stats-grid">
                 <div className="stat-item">
-                  <FaEye />
-                  <div className="stat-value">{poll.engagement.views}</div>
-                  <div className="stat-label">Views</div>
+                  <FaThumbsUp className="stat-icon" />
+                  <div className="stat-content">
+                    <span className="stat-value">{poll.total_votes}</span>
+                    <span className="stat-label">Total Votes</span>
+                  </div>
                 </div>
                 <div className="stat-item">
-                  <FaThumbsUp />
-                  <div className="stat-value">{poll.engagement.interactions}</div>
-                  <div className="stat-label">Interactions</div>
+                  <FaComments className="stat-icon" />
+                  <div className="stat-content">
+                    <span className="stat-value">{poll.comment_count}</span>
+                    <span className="stat-label">Comments</span>
+                  </div>
                 </div>
                 <div className="stat-item">
-                  <FaUsers />
-                  <div className="stat-value">{poll.totalVotes}</div>
-                  <div className="stat-label">Total Votes</div>
-                </div>
-                <div className="stat-item">
-                  <FaFlag />
-                  <div className="stat-value">{poll.threads}</div>
-                  <div className="stat-label">Threads</div>
+                  <FaEye className="stat-icon" />
+                  <div className="stat-content">
+                    <span className="stat-value">{poll.is_active ? 'Active' : 'Closed'}</span>
+                    <span className="stat-label">Status</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -390,75 +318,115 @@ const PollsDetails: React.FC = () => {
             </div>
             <div className="card-content">
               <div className="action-buttons">
-                <Button
-                  variant="warning"
-                  size="small"
-                  onClick={() => handleAction('suspend')}
-                  loading={actionLoading === 'suspend'}
-                  disabled={poll.status === 'suspended'}
-                >
-                  🚫 {poll.status === 'suspended' ? 'Suspended' : 'Suspend Poll'}
-                </Button>
+                {poll.status !== 'approved' && (
+                  <>
+                    <Button
+                      variant="success"
+                      size="medium"
+                      onClick={handleApprove}
+                      disabled={actionLoading === 'approve'}
+                      icon={<FaCheck />}
+                      iconPosition="left"
+                    >
+                      {actionLoading === 'approve' ? 'Approving...' : 'Approve Poll'}
+                    </Button>
+                    <Button
+                      variant="danger"
+                      size="medium"
+                      onClick={handleRejectClick}
+                      disabled={actionLoading === 'reject'}
+                      icon={<FaTimes />}
+                      iconPosition="left"
+                    >
+                      {actionLoading === 'reject' ? 'Rejecting...' : 'Reject Poll'}
+                    </Button>
+                  </>
+                )}
+                {poll.status === 'approved' && (
+                  <div className="moderation-info approved-status">
+                    <div className="status-icon">
+                      <FaCheck />
+                    </div>
+                    <div className="status-text">
+                      <p className="success-message">This poll has been approved</p>
+                      {poll.moderated_at && (
+                        <p className="moderation-date">Approved on {formatDate(poll.moderated_at)}</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+                {poll.status === 'rejected' && (
+                  <div className="moderation-info rejected-status">
+                    <div className="status-icon">
+                      <FaTimes />
+                    </div>
+                    <div className="status-text">
+                      <p className="error-message">This poll was rejected</p>
+                      {poll.moderated_at && (
+                        <p className="moderation-date">Rejected on {formatDate(poll.moderated_at)}</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+                {poll.status === 'pending' && (
+                  <div className="moderation-info pending-status">
+                    <div className="status-icon">
+                      ⏳
+                    </div>
+                    <div className="status-text">
+                      <p className="pending-message">Awaiting moderation</p>
+                      <p className="moderation-date">Created {formatDate(poll.created_at)}</p>
+                    </div>
+                  </div>
+                )}
                 <Button
                   variant="danger"
-                  size="small"
-                  onClick={() => handleAction('delete')}
-                  loading={actionLoading === 'delete'}
+                  size="medium"
+                  onClick={handleDelete}
+                  disabled={actionLoading === 'delete'}
+                  icon={<FaTrash />}
+                  iconPosition="left"
                 >
-                  🗑 Delete Poll
+                  {actionLoading === 'delete' ? 'Deleting...' : 'Delete Poll'}
                 </Button>
               </div>
             </div>
           </div>
-
-          {/* Reports */}
-          {poll.reports.length > 0 && (
-            <div className="detail-card reports-section">
-              <div className="card-header">
-                <h2>Reports ({poll.reports.length})</h2>
-              </div>
-              <div className="card-content">
-                <div className="reports-list">
-                  {poll.reports.map(report => (
-                    <div key={report.id} className="report-item">
-                      <div className="report-header">
-                        <span className="reporter">@{report.reporterUsername}</span>
-                        <span className={`report-status ${report.status}`}>
-                          {report.status}
-                        </span>
-                      </div>
-                      <div className="report-reason">{report.reason}</div>
-                      <div className="report-description">{report.description}</div>
-                      <div className="report-time">{formatDate(report.timestamp)}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Moderation History */}
-          {poll.moderationHistory.length > 0 && (
-            <div className="detail-card moderation-history">
-              <div className="card-header">
-                <h2>Moderation History</h2>
-              </div>
-              <div className="card-content">
-                <div className="history-list">
-                  {poll.moderationHistory.map(entry => (
-                    <div key={entry.id} className="history-item">
-                      <div className="history-action">{entry.action}</div>
-                      <div className="history-moderator">by {entry.moderator}</div>
-                      <div className="history-time">{formatDate(entry.timestamp)}</div>
-                      <div className="history-reason">{entry.reason}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       </div>
+
+      {/* Reject Modal */}
+      {showRejectModal && (
+        <div className="modal-overlay" onClick={() => setShowRejectModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h3>Reject Poll</h3>
+            <p>Please provide a reason for rejecting this poll (optional):</p>
+            <textarea
+              value={rejectionReason}
+              onChange={(e) => setRejectionReason(e.target.value)}
+              placeholder="Enter rejection reason..."
+              rows={5}
+            />
+            <div className="modal-actions">
+              <Button 
+                variant="ghost" 
+                onClick={() => {
+                  setShowRejectModal(false);
+                  setRejectionReason('');
+                }}
+              >
+                Cancel
+              </Button>
+              <Button 
+                variant="primary" 
+                onClick={handleRejectSubmit}
+              >
+                Reject Poll
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

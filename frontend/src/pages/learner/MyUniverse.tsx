@@ -1,5 +1,5 @@
 // pages/learner/MyUniverse.tsx
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import "../../styles/pages/learner/MyUniverse.scss";
@@ -7,19 +7,17 @@ import {
   Star,
   BookOpen,
   CalendarDays,
-  Users,
   User,
-  Trophy,
   ShoppingCart,
 } from "lucide-react";
 import QuizCard from "../../components/Learner/QuizCard";
 import Button from "../../components/Button";
 import QuizModal from "../../components/Learner/QuizModal";
 import AstronomyBlogCard from "../../components/Learner/blogcard";
+import { blogService } from '../../services/blogService';
+import type { Blog } from '../../services/blogService';
 import { useNavigate } from "react-router-dom";
-import AstronomyCompetitionCard from "../../components/Learner/AstronomyCompetitionCard";
 import MentorCard from "../../components/Learner/mentor/MentorCard";
-import InfluencerCard from "../../components/Learner/InfluencerCard";
 import ServicesTab from "./ServicesTab";
 import * as quizService from "../../services/quizService";
 import { useToast } from "../../contexts/ToastContext";
@@ -29,14 +27,17 @@ import {
   getMyApplications,
   type MenteeApplication,
 } from "../../services/menteeApplicationApi";
+import { sessionsService, type Session } from "../../services/sessionsService";
+import RecordedSessionCard from "../../components/Learner/RecordedSessionCard";
+import SessionDetailsModal from "../../components/Learner/SessionDetailsModal";
 
 const tabs = [
   { name: "Quizzes", icon: <BookOpen size={16} /> },
   { name: "Favorites", icon: <Star size={16} /> },
-  { name: "Competitions", icon: <Trophy size={16} /> },
+  // { name: "Competitions", icon: <Trophy size={16} /> },
   { name: "Services", icon: <CalendarDays size={16} /> },
   { name: "Mentors", icon: <User size={16} /> },
-  { name: "Influencers", icon: <Users size={16} /> },
+  // { name: "Influencers", icon: <Users size={16} /> },
   { name: "Sessions", icon: <ShoppingCart size={16} /> },
 ];
 
@@ -50,6 +51,7 @@ interface Quiz {
   participants_count: number;
   hasParticipated?: boolean;
   userScore?: number | null;
+  // status removed
 }
 
 export interface ParticipatedQuiz {
@@ -65,14 +67,7 @@ export interface ParticipatedQuiz {
   percentage: number;
   completed_at: string;
 }
-interface Competition {
-  id: number;
-  name: string;
-  date: string;
-  status: "Registered" | "Pending" | "Completed";
-  score?: number;
-  rank?: number;
-}
+
 // interface ServiceBooking {
 //   id: number;
 //   serviceType: string;
@@ -81,91 +76,58 @@ interface Competition {
 //   status: 'Confirmed' | 'Pending';
 // }
 
-const favourite_blogs = [
-  {
-    id: 1,
-    image:
-      "https://kielderobservatory.org/images/stories/virtuemart/product/Orion%20Nebula%20-%20AS%20-%20med.jpg",
-    title: "The Orion Nebula: A Stellar Nursery",
-    author: "Dr. Jane Skywalker",
-    createdAt: "2025-06-20",
-    rating: 4.7,
-    content:
-      "The Orion Nebula is one of the brightest nebulae visible to the naked eye. Located around 1,344 light-years away, it is a region where new stars are born. In this article, we explore its structure, the Trapezium cluster, and how the nebula helps astronomers understand stellar evolution.",
-  },
-  {
-    id: 2,
-    image:
-      "https://cdn.arstechnica.net/wp-content/uploads/2024/03/cosmology-astronomy-discoveries.jpg",
-    title: "Exploring the Expanding Universe",
-    author: "Prof. John Cosmos",
-    createdAt: "2025-06-18",
-    rating: 4.9,
-    content:
-      "Ever since Edwin Hubble’s discovery, the expanding universe has intrigued cosmologists. This blog delves into redshift, the cosmic microwave background radiation, and the implications of dark energy in accelerating the expansion of our universe.",
-  },
-  {
-    id: 3,
-    image:
-      "https://static.vecteezy.com/system/resources/previews/027/100/104/large_2x/the-starry-night-sky-with-the-milky-way-galaxy-space-dust-and-a-planet-in-the-background-all-free-photo.jpg",
-    title: "The Magic of Solar Eclipses",
-    author: "Luna Rivera",
-    createdAt: "2025-06-15",
-    rating: 4.6,
-    content:
-      "Solar eclipses offer a rare chance to study the Sun's corona and impact public interest in astronomy. This article covers the types of solar eclipses, historical significance, safety tips, and upcoming eclipse dates visible from Earth.",
-  },
-];
-const userCompetitions: Competition[] = [
-  {
-    id: 1,
-    name: "Astronomy Olympiad",
-    date: "2025-07-20",
-    status: "Registered",
-  },
-  {
-    id: 2,
-    name: "Galaxy Challenge",
-    date: "2025-06-10",
-    status: "Completed",
-    score: 85,
-    rank: 3,
-  },
-  {
-    id: 3,
-    name: "Nebula Sketch Contest",
-    date: "2025-07-18",
-    status: "Pending",
-  },
-  {
-    id: 4,
-    name: "Astro Coding Jam",
-    date: "2025-05-22",
-    status: "Completed",
-    score: 92,
-    rank: 1,
-  },
-];
-const registeredCompetitions = [
-  {
-    id: 1,
-    coverImage:
-      "https://png.pngtree.com/png-vector/20221020/ourmid/pngtree-happy-children-with-medals-on-school-competition-on-contest-png-image_6331904.png",
-    name: "Galactic Quiz",
-    date: "2025-07-20",
-    description: "Test your astronomy knowledge!",
-    status: "ongoing", // could also be "completed", etc.
-  },
-  {
-    id: 2,
-    coverImage:
-      "https://w7.pngwing.com/pngs/731/996/png-transparent-competition-winners-hand-table-tree-thumbnail.png",
-    name: "Star Mapping Challenge",
-    date: "2025-08-02",
-    description: "Map constellations with precision.",
-    status: "upcoming",
-  },
-];
+
+// (Removed duplicate function MyUniverse)
+// const userCompetitions: Competition[] = [
+//   {
+//     id: 1,
+//     name: "Astronomy Olympiad",
+//     date: "2025-07-20",
+//     status: "Registered",
+//   },
+//   {
+//     id: 2,
+//     name: "Galaxy Challenge",
+//     date: "2025-06-10",
+//     status: "Completed",
+//     score: 85,
+//     rank: 3,
+//   },
+//   {
+//     id: 3,
+//     name: "Nebula Sketch Contest",
+//     date: "2025-07-18",
+//     status: "Pending",
+//   },
+//   {
+//     id: 4,
+//     name: "Astro Coding Jam",
+//     date: "2025-05-22",
+//     status: "Completed",
+//     score: 92,
+//     rank: 1,
+//   },
+// ];
+// const registeredCompetitions = [
+//   {
+//     id: 1,
+//     coverImage:
+//       "https://png.pngtree.com/png-vector/20221020/ourmid/pngtree-happy-children-with-medals-on-school-competition-on-contest-png-image_6331904.png",
+//     name: "Galactic Quiz",
+//     date: "2025-07-20",
+//     description: "Test your astronomy knowledge!",
+//     status: "ongoing", // could also be "completed", etc.
+//   },
+//   {
+//     id: 2,
+//     coverImage:
+//       "https://w7.pngwing.com/pngs/731/996/png-transparent-competition-winners-hand-table-tree-thumbnail.png",
+//     name: "Star Mapping Challenge",
+//     date: "2025-08-02",
+//     description: "Map constellations with precision.",
+//     status: "upcoming",
+//   },
+// ];
 // const bookedServices: ServiceBooking[] = [
 //   {
 //     id: 1,
@@ -183,42 +145,38 @@ const registeredCompetitions = [
 //   },
 // ];
 const MyUniverse = () => {
+  const { showError } = useToast();
   // Connected mentors state
   const [connectedMentors, setConnectedMentors] = useState<MenteeApplication[]>(
     []
   );
   const [loadingMentors, setLoadingMentors] = useState(false);
 
-  // Sample connected influencers
-  const [connectedInfluencers] = useState([
-    {
-      id: 1,
-      name: "Dr. Jane Skywalker",
-      expertise: "Astronomy Communication",
-      description:
-        "Sharing cosmic discoveries and science news with the world.",
-      image: "https://randomuser.me/api/portraits/women/50.jpg",
-      isFollowed: true,
-    },
-    {
-      id: 2,
-      name: "Prof. John Cosmos",
-      expertise: "Space Exploration",
-      description:
-        "Updates on missions, telescopes, and the future of space travel.",
-      image: "https://randomuser.me/api/portraits/men/45.jpg",
-      isFollowed: true,
-    },
-  ]);
-
   const navigate = useNavigate();
 
-  const handleOpenInfluencer = (name: string) => {
-    const encodedName = encodeURIComponent(name);
-    navigate(`/dashboard/author/${encodedName}`);
-  };
+ 
 
-  const { showError } = useToast();
+
+  // Favourites (blogs liked by user)
+  const [favouriteBlogs, setFavouriteBlogs] = useState<Blog[]>([]);
+  const [blogsLoading, setBlogsLoading] = useState(false);
+  useEffect(() => {
+    // Fetch only blogs liked by the user
+    const fetchLikedBlogs = async () => {
+      setBlogsLoading(true);
+      try {
+        const res = await blogService.getLikedBlogs();
+        // API shape: { success, data: { blogs: Blog[], pagination } }
+        const blogs = res?.data?.blogs || [];
+        setFavouriteBlogs(blogs);
+      } catch (err: any) {
+        showError('Failed to load favourite blogs');
+      } finally {
+        setBlogsLoading(false);
+      }
+    };
+    fetchLikedBlogs();
+  }, [showError]);
 
   const [activeTab, setActiveTab] = useState("Quizzes");
   const [showQuizModal, setShowQuizModal] = useState(false);
@@ -231,13 +189,24 @@ const MyUniverse = () => {
   >([]);
   const [loading, setLoading] = useState(false);
 
+  // Derived stats computed from fetched quizzes so we can display stat cards immediately
+  const derivedStats = useMemo(() => {
+    const quizzes = availableQuizzes || []
+    const totalQuizzes = quizzes.length
+    const totalParticipants = quizzes.reduce((sum, q) => sum + (q.participants_count ?? 0), 0)
+    const totalQuestions = quizzes.reduce((sum, q) => sum + (q.question_count ?? 0), 0)
+    const avgQuestionsPerQuiz = totalQuizzes > 0 ? (totalQuestions / totalQuizzes).toFixed(1) : '0'
+    const participatedCount = participatedQuizzes.length
+    return { totalQuizzes, totalParticipants, totalQuestions, avgQuestionsPerQuiz, participatedCount }
+  }, [availableQuizzes, participatedQuizzes])
+
   // Fetch available quizzes
   const fetchAvailableQuizzes = useCallback(async () => {
     try {
       setLoading(true);
       const quizzes = await quizService.getAllQuizzes();
 
-      // Transform to match local Quiz interface
+      // Transform to match local Quiz interface (status removed)
       const transformedQuizzes: Quiz[] = quizzes.map((q) => ({
         id: q.id,
         name: q.name,
@@ -248,6 +217,7 @@ const MyUniverse = () => {
         participants_count: q.participants_count,
         hasParticipated: q.hasParticipated,
         userScore: q.userScore,
+        // status: q.status, // REMOVED
       }));
 
       setAvailableQuizzes(transformedQuizzes);
@@ -362,129 +332,57 @@ const MyUniverse = () => {
     alert(`Edit clicked for quiz: ${quiz.name}`);
   };
 
-  // Sample session data
+  // Sessions state and data
   const [sessionFilter, setSessionFilter] = useState("All Sessions");
-  const [sessions] = useState([
-    {
-      id: 1,
-      name: "Exploring Exoplanets",
-      date: "2025-07-20",
-      time: "18:00",
-      host: "Dr. Stella Orion",
-      type: "Live",
-      status: "Upcoming",
-      isRegistered: true,
-      isBought: false,
-      isCompleted: false,
-      isRecorded: false,
-    },
-    {
-      id: 2,
-      name: "Cosmic Mysteries Revealed",
-      date: "2025-07-22",
-      time: "20:00",
-      host: "Prof. Leo Pulsar",
-      type: "Recorded",
-      status: "Completed",
-      isRegistered: false,
-      isBought: true,
-      isCompleted: true,
-      isRecorded: true,
-    },
-    {
-      id: 3,
-      name: "Live Q&A: Black Holes",
-      date: "2025-07-19",
-      time: "17:00",
-      host: "Dr. Jane Skywalker",
-      type: "Live",
-      status: "Active",
-      isRegistered: true,
-      isBought: false,
-      isCompleted: false,
-      isRecorded: false,
-    },
-    {
-      id: 4,
-      name: "Recorded: Solar System Tour",
-      date: "2025-07-10",
-      time: "15:00",
-      host: "Prof. John Cosmos",
-      type: "Recorded",
-      status: "Completed",
-      isRegistered: false,
-      isBought: true,
-      isCompleted: true,
-      isRecorded: true,
-    },
-    {
-      id: 5,
-      name: "Upcoming: Meteor Showers",
-      date: "2025-07-21",
-      time: "19:00",
-      host: "Dr. Nova Stellar",
-      type: "Live",
-      status: "Upcoming",
-      isRegistered: true,
-      isBought: false,
-      isCompleted: false,
-      isRecorded: false,
-    },
-  ]);
+  const [sessions, setSessions] = useState<Session[]>([]);
+  const [loadingSessions, setLoadingSessions] = useState(false);
+  const [sessionsError, setSessionsError] = useState<string | null>(null);
+  const [selectedSession, setSelectedSession] = useState<Session | null>(null);
+  const [sessionModalOpen, setSessionModalOpen] = useState(false);
+
+  // Fetch enrolled sessions
+  useEffect(() => {
+    if (activeTab === "Sessions") {
+      fetchEnrolledSessions();
+    }
+  }, [activeTab]);
+
+  const fetchEnrolledSessions = async () => {
+    try {
+      setLoadingSessions(true);
+      setSessionsError(null);
+      const response = await sessionsService.getEnrolledSessions({
+        limit: 100,
+        sort_by: 'enrollment_date',
+        sort_order: 'desc'
+      });
+      setSessions(response.data);
+    } catch (err: any) {
+      console.error('Error fetching enrolled sessions:', err);
+      setSessionsError(err.message || 'Failed to load your enrolled sessions');
+    } finally {
+      setLoadingSessions(false);
+    }
+  };
 
   // Helper: get filtered sessions
   const filteredSessions = sessions.filter((session) => {
     if (sessionFilter === "All Sessions") return true;
-    if (sessionFilter === "Live") return session.type === "Live";
-    if (sessionFilter === "Recorded") return session.type === "Recorded";
-    if (sessionFilter === "Completed") return session.isCompleted;
+    if (sessionFilter === "Live") return session.session_type === "live";
+    if (sessionFilter === "Recorded") return session.session_type === "recorded";
     return true;
   });
 
   // Calendar logic for sessions
-  const sessionDates = sessions.filter(
-    (s) => s.status === "Upcoming" || s.status === "Active"
-  );
-  const dateSessionMap: { [date: string]: string } = Object.fromEntries(
-    sessionDates.map((s) => [s.date, s.name])
+  const dateSessionMap = Object.fromEntries(
+    sessions.map(s => {
+      const dateStr = new Date(s.session_date).toISOString().slice(0, 10);
+      return [dateStr, s.title];
+    })
   );
 
-  // Tooltip for session name
-  const [hoveredSessionDate, setHoveredSessionDate] = useState<string | null>(
-    null
-  );
-  const handleSessionDateMouseOver = (date: Date) => {
-    const dateStr = date.toISOString().slice(0, 10);
-    if (dateSessionMap[dateStr]) {
-      setHoveredSessionDate(dateStr);
-    } else {
-      setHoveredSessionDate(null);
-    }
-  };
-  const handleSessionDateMouseOut = () => setHoveredSessionDate(null);
-
-  const sessionTileContent = ({ date, view }: { date: Date; view: string }) => {
-    if (view === "month") {
-      const dateStr = date.toISOString().slice(0, 10);
-      if (dateSessionMap[dateStr]) {
-        return (
-          <div
-            className="calendar-dot"
-            onMouseEnter={() => handleSessionDateMouseOver(date)}
-            onMouseLeave={handleSessionDateMouseOut}
-          />
-        );
-      }
-    }
-    return null;
-  };
-  const sessionTileClassName = ({
-    date,
-    view,
-  }: {
-    date: Date;
-    view: string;
-  }) => {
+  // Calendar tile className
+  const sessionTileClassName = ({ date, view }: { date: Date; view: string }) => {
     if (view === "month") {
       const dateStr = date.toISOString().slice(0, 10);
       if (dateSessionMap[dateStr]) {
@@ -494,27 +392,26 @@ const MyUniverse = () => {
     return "";
   };
 
-  // Helper: countdown for sessions within 24h
-  const getCountdown = (dateStr: string, timeStr: string): string | null => {
-    const sessionDate = new Date(`${dateStr}T${timeStr}:00`);
-    const now = new Date();
-    const diffMs = sessionDate.getTime() - now.getTime();
-    if (diffMs > 0 && diffMs <= 24 * 60 * 60 * 1000) {
-      const hours = Math.floor(diffMs / (1000 * 60 * 60));
-      const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-      return `${hours}h ${minutes}m`;
-    }
-    return null;
-  };
+  // Tooltip for session name
+  const [hoveredSessionDate, setHoveredSessionDate] = useState<string | null>(null);
 
-  // Use react-calendar for sessions
+  const handleSessionDateMouseOver = (date: Date) => {
+    const dateStr = date.toISOString().slice(0, 10);
+    if (dateSessionMap[dateStr]) {
+      setHoveredSessionDate(dateStr);
+    } else {
+      setHoveredSessionDate(null);
+    }
+  };
+  
+  const handleSessionDateMouseOut = () => setHoveredSessionDate(null);
 
   return (
     <div className="universe-my-universe">
       <div className="juniverse-summary-card">
         <h2>My Universe</h2>
         <div>
-          ⭐ Favorites: 6 &nbsp;| 🎯 Competitions: 3 &nbsp;| 📚 Mentor Courses:
+          ⭐ Favorites: 6 &nbsp;| 📚 Mentor Courses:
           1 &nbsp;| 🪐 Services: 2
         </div>
       </div>
@@ -552,6 +449,25 @@ const MyUniverse = () => {
                     gap: "1rem",
                   }}
                 >
+                  {/* Quick overview stats so users see metrics without refresh */}
+                  <div className="universe-stats" style={{ gridColumn: '1/-1', marginBottom: '0.75rem', display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                    <div className="stat-card" style={{ padding: '0.5rem 0.75rem', minWidth: 120, textAlign: 'center' }}>
+                      <div style={{ fontSize: '0.9rem', fontWeight: 700 }}>{derivedStats.totalQuizzes}</div>
+                      <div style={{ fontSize: '0.75rem', color: '#93a0bf' }}>Total Quizzes</div>
+                    </div>
+                    <div className="stat-card" style={{ padding: '0.5rem 0.75rem', minWidth: 120, textAlign: 'center' }}>
+                      <div style={{ fontSize: '0.9rem', fontWeight: 700 }}>{derivedStats.participatedCount}</div>
+                      <div style={{ fontSize: '0.75rem', color: '#93a0bf' }}>Participated</div>
+                    </div>
+                    <div className="stat-card" style={{ padding: '0.5rem 0.75rem', minWidth: 120, textAlign: 'center' }}>
+                      <div style={{ fontSize: '0.9rem', fontWeight: 700 }}>{derivedStats.totalQuestions}</div>
+                      <div style={{ fontSize: '0.75rem', color: '#93a0bf' }}>Total Questions</div>
+                    </div>
+                    <div className="stat-card" style={{ padding: '0.5rem 0.75rem', minWidth: 120, textAlign: 'center' }}>
+                      <div style={{ fontSize: '0.9rem', fontWeight: 700 }}>{derivedStats.avgQuestionsPerQuiz}</div>
+                      <div style={{ fontSize: '0.75rem', color: '#93a0bf' }}>Avg Questions/Quiz</div>
+                    </div>
+                  </div>
                   {availableQuizzes.length > 0 ? (
                     availableQuizzes.map((quiz) => (
                       <QuizCard
@@ -688,89 +604,26 @@ const MyUniverse = () => {
         {activeTab === "Favorites" && (
           <>
             <h2>Favorite Blogs</h2>
-            <div className="astronomy-card-container">
-              {favourite_blogs.map((blog) => (
-                <AstronomyBlogCard
-                  key={blog.id}
-                  image={blog.image}
-                  title={blog.title}
-                  author={blog.author}
-                  createdAt={blog.createdAt}
-                  rating={blog.rating}
-                  content={blog.content}
-                  onClick={() => navigate(`/dashboard/blogs/${blog.id}`)}
-                />
-              ))}
-            </div>
-          </>
-        )}
-        {activeTab === "Competitions" && (
-          <>
-            <div className="competitions-section">
-              <div className="registered-competitions-section">
-                <h2>Your Registered Competitions</h2>
-                <div className="competition-cards-wrapper">
-                  {registeredCompetitions.map((comp) => (
-                    <div className="card-with-status-badge" key={comp.id}>
-                      <AstronomyCompetitionCard
-                        coverImage={comp.coverImage}
-                        name={comp.name}
-                        date={comp.date}
-                        description={comp.description}
-                        onClick={() =>
-                          comp.status === "ongoing"
-                            ? navigate("/dashboard/ongoingcompetition")
-                            : navigate("/dashboard/competition")
-                        }
-                      />
-                      {comp.status === "ongoing" && (
-                        <span className="competition-status-badge">
-                          Ongoing
-                        </span>
-                      )}
-                    </div>
-                  ))}
-                </div>
+            {blogsLoading ? (
+              <div style={{ textAlign: 'center', padding: '2rem' }}>Loading...</div>
+            ) : favouriteBlogs.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '2rem', color: '#8b93ab' }}>No favorite blogs found.</div>
+            ) : (
+              <div className="astronomy-card-container">
+                {favouriteBlogs.map((blog) => (
+                  <AstronomyBlogCard
+                    key={blog.id}
+                    image={blog.featured_image || blog.image_url || ''}
+                    title={blog.title}
+                    author={blog.author_display_name || blog.author_name || 'Unknown'}
+                    createdAt={blog.created_at}
+                    rating={typeof blog.like_count === 'number' ? blog.like_count / 2 : 4.5}
+                    content={blog.content}
+                    onClick={() => navigate(`/dashboard/blogs/${blog.id}`)}
+                  />
+                ))}
               </div>
-
-              <h3 className="mb-4">My Competitions</h3>
-              <table className="my-competitions-table">
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Date</th>
-                    <th>Status</th>
-                    <th>Score</th>
-                    <th>Rank</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {userCompetitions.map((comp) => (
-                    <tr key={comp.id}>
-                      <td>{comp.name}</td>
-                      <td>{comp.date}</td>
-                      <td>
-                        <span
-                          className={`my-competition-status-badge ${
-                            comp.status === "Completed"
-                              ? "completed"
-                              : comp.status === "Registered"
-                              ? "registered"
-                              : "pending"
-                          }`}
-                        >
-                          {comp.status}
-                        </span>
-                      </td>
-                      <td>{comp.status === "Completed" ? comp.score : "-"}</td>
-                      <td>
-                        {comp.status === "Completed" ? `#${comp.rank}` : "-"}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            )}
           </>
         )}
         {activeTab === "Services" && (
@@ -874,126 +727,159 @@ const MyUniverse = () => {
           </>
         )}
 
-        {activeTab === "Influencers" && (
-          <>
-            <h2>Connected Influencers</h2>
-            <div
-              className="influencer-card-list"
-              style={{ display: "flex", flexWrap: "wrap", gap: "1rem" }}
-            >
-              {connectedInfluencers.map((influencer) => (
-                <InfluencerCard
-                  key={influencer.id}
-                  influencer={influencer}
-                  onFollow={() => {}}
-                  onOpen={handleOpenInfluencer}
-                />
-              ))}
-            </div>
-          </>
-        )}
+        
 
         {showQuizModal && selectedQuiz && (
           <QuizModal quiz={selectedQuiz} onClose={handleCloseModal} />
         )}
 
         {activeTab === "Sessions" && (
-          <div className="sessions-tab-content">
-            <div className="sessions-header">
-              <h2>My Sessions</h2>
-              <div className="sessions-filter-dropdown">
-                <label htmlFor="session-filter">Filter:</label>
-                <select
-                  id="session-filter"
-                  value={sessionFilter}
-                  onChange={(e) => setSessionFilter(e.target.value)}
-                >
-                  <option>All Sessions</option>
-                  <option>Live</option>
-                  <option>Recorded</option>
-                  <option>Completed</option>
-                </select>
-              </div>
+          <div className="sessions-tab-main-layout">
+            <div className="sessions-tab-content">
+              {loadingSessions ? (
+                <div style={{ color: '#60a5fa', marginTop: '1.5rem', fontSize: '1.1rem', textAlign: 'center' }}>
+                  Loading your sessions...
+                </div>
+              ) : sessionsError ? (
+                <div>
+                  <div style={{ color: '#ef4444', marginTop: '1.5rem', fontSize: '1.1rem', textAlign: 'center' }}>
+                    {sessionsError}
+                  </div>
+                  <button 
+                    onClick={fetchEnrolledSessions}
+                    style={{
+                      display: 'block',
+                      margin: '1rem auto',
+                      padding: '0.5rem 1rem',
+                      background: '#3b82f6',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Retry
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div className="sessions-header">
+                    <h2>My Sessions</h2>
+                    <p className="sessions-subtitle">
+                      View and access all your enrolled sessions
+                    </p>
+                  </div>
+                  
+                  <div className="sessions-filters">
+                    <select
+                      value={sessionFilter}
+                      onChange={(e) => setSessionFilter(e.target.value)}
+                      className="filter-select"
+                    >
+                      <option value="All Sessions">All Sessions</option>
+                      <option value="Live">Live Sessions</option>
+                      <option value="Recorded">Recorded Sessions</option>
+                    </select>
+                  </div>
+
+                  {filteredSessions.length === 0 ? (
+                    <div className="no-sessions">
+                      {sessionFilter !== "All Sessions" ? (
+                        <div>
+                          <p>No sessions found matching your filters.</p>
+                          <button 
+                            onClick={() => setSessionFilter("All Sessions")}
+                            className="clear-filters-btn"
+                          >
+                            Clear Filters
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="empty-state">
+                          <div className="empty-icon">📚</div>
+                          <h4>No Enrolled Sessions Yet</h4>
+                          <p>You haven't enrolled in any sessions yet.</p>
+                          <p>Browse our live and recorded sessions to get started!</p>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <>
+                      <div className="sessions-count">
+                        Showing {filteredSessions.length} session{filteredSessions.length !== 1 ? 's' : ''}
+                      </div>
+                      <div className="my-sessions-list">
+                        {filteredSessions.map((session) => {
+                          const creatorName = session.creator?.display_name || 
+                            `${session.creator?.first_name || ''} ${session.creator?.last_name || ''}`.trim() || 
+                            'Unknown';
+                          
+                          const sessionDate = new Date(session.session_date);
+                          const formattedDate = sessionDate.toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric'
+                          });
+                          
+                          return (
+                            <RecordedSessionCard
+                              key={session.id}
+                              id={session.id}
+                              title={session.title}
+                              date={formattedDate}
+                              instructor={creatorName}
+                              category={session.payment_type}
+                              difficulty={session.difficulty_level}
+                              description={session.description}
+                              duration={session.duration}
+                              price={session.price}
+                              onViewDetails={() => {
+                                setSelectedSession(session);
+                                setSessionModalOpen(true);
+                              }}
+                            />
+                          );
+                        })}
+                      </div>
+                    </>
+                  )}
+
+                  <SessionDetailsModal
+                    session={selectedSession}
+                    open={sessionModalOpen}
+                    onClose={() => setSessionModalOpen(false)}
+                    onEnrollmentSuccess={fetchEnrolledSessions}
+                    isEnrolled={true}
+                  />
+                </>
+              )}
             </div>
-            <div className="session-calendar">
-              <h3>Upcoming Sessions Calendar</h3>
+
+            {/* Calendar Section */}
+            <div className="sessions-tab-calendar">
+              <h3>Sessions Calendar</h3>
               <Calendar
-                tileContent={sessionTileContent}
+                tileContent={({ date, view }: { date: Date; view: string }) => {
+                  if (view === "month") {
+                    const dateStr = date.toISOString().slice(0, 10);
+                    if (dateSessionMap[dateStr]) {
+                      return (
+                        <div
+                          className="calendar-dot"
+                          onMouseEnter={() => handleSessionDateMouseOver(date)}
+                          onMouseLeave={handleSessionDateMouseOut}
+                        />
+                      );
+                    }
+                  }
+                  return null;
+                }}
                 tileClassName={sessionTileClassName}
               />
               {hoveredSessionDate && (
                 <div className="calendar-tooltip">
                   {dateSessionMap[hoveredSessionDate]}
                 </div>
-              )}
-            </div>
-            <div className="session-card-list">
-              {filteredSessions.length === 0 ? (
-                <div className="no-sessions">
-                  No sessions found for this filter.
-                </div>
-              ) : (
-                filteredSessions.map((session) => {
-                  const countdown = getCountdown(session.date, session.time);
-                  return (
-                    <div
-                      key={session.id}
-                      className={`session-card session-type-${session.type.toLowerCase()} session-status-${session.status.toLowerCase()}`}
-                    >
-                      <div className="session-card-main">
-                        <div className="session-card-header">
-                          <span className="session-name">{session.name}</span>
-                          <span className="session-type-badge">
-                            {session.type}
-                          </span>
-                        </div>
-                        <div className="session-card-details">
-                          <span className="session-date">{session.date}</span>
-                          <span className="session-time">{session.time}</span>
-                          <span className="session-host">
-                            Host: {session.host}
-                          </span>
-                          <span className="session-status">
-                            Status: {session.status}
-                          </span>
-                        </div>
-                        {countdown && (
-                          <div className="session-countdown">
-                            Starts in{" "}
-                            <span className="countdown-timer">{countdown}</span>
-                          </div>
-                        )}
-                      </div>
-                      <div>
-                        {session.status === "Active" &&
-                          session.type === "Live" && (
-                            <Button
-                              variant="primary"
-                              onClick={() => alert("Joining live session...")}
-                            >
-                              Join Live
-                            </Button>
-                          )}
-                        {session.isCompleted && session.isRecorded && (
-                          <Button
-                            variant="secondary"
-                            onClick={() => alert("Watching again...")}
-                          >
-                            Watch Again
-                          </Button>
-                        )}
-                        {session.isCompleted && !session.isRecorded && (
-                          <Button
-                            variant="secondary"
-                            onClick={() => alert("Reviewing session...")}
-                          >
-                            Review
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })
               )}
             </div>
           </div>

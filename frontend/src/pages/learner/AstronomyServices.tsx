@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import ServiceCard from "../../components/Learner/ServiceCard";
 import BookingModal from "../../components/Learner/BookingModal";
 import { getServices } from "../../services/servicesService";
 import { getMyBookings, cancelBooking, createReview, type Booking } from "../../services/bookingService";
+import { useToast } from "../../contexts/ToastContext";
 import type { Service } from "../../services/servicesService";
 import "../../styles/pages/learner/AstronomyServices.scss";
 
@@ -169,7 +171,6 @@ export const services = [
 const filterOptions = [
   { label: "Service Name", value: "title" },
   { label: "Guide Name", value: "guideName" },
-  { label: "Location", value: "location" },
 ];
 const priceOrderOptions = [
   { label: "Price: Low to High", value: "asc" },
@@ -177,7 +178,7 @@ const priceOrderOptions = [
 ];
 
 
-type FilterKey = "title" | "guideName" | "location";
+type FilterKey = "title" | "guideName";
 
 // Transform API service to match ServiceCard props
 interface ServiceCardData {
@@ -188,6 +189,7 @@ interface ServiceCardData {
   image: string;
   guideName: string;
   guideImage: string;
+  creatorId: number;
   rating: number;
   location: string;
   duration: string;
@@ -208,6 +210,7 @@ const transformService = (service: Service): ServiceCardData => {
     image: service.image_url,
     guideName,
     guideImage: "https://randomuser.me/api/portraits/men/32.jpg", // Default avatar
+    creatorId: service.creator?.id || service.created_by,
     rating: service.rating || 0,
     location: service.location,
     duration: service.duration,
@@ -217,6 +220,8 @@ const transformService = (service: Service): ServiceCardData => {
 };
 
 const AstronomyServices: React.FC = () => {
+  const navigate = useNavigate();
+  
   // Tab state
   const [activeTab, setActiveTab] = useState<'services' | 'bookings'>('services');
   
@@ -242,6 +247,7 @@ const AstronomyServices: React.FC = () => {
   const [rating, setRating] = useState(5);
   const [reviewText, setReviewText] = useState('');
   const [reviewLoading, setReviewLoading] = useState(false);
+  const { showSuccess, showError } = useToast();
 
   // Fetch services from API
   useEffect(() => {
@@ -304,6 +310,10 @@ const AstronomyServices: React.FC = () => {
     setBookingModalOpen(true);
   };
 
+  const handleGuideClick = (creatorId: number) => {
+    navigate(`/dashboard/guide-profile/${creatorId}`);
+  };
+
   const handleBookingSuccess = () => {
     setBookingModalOpen(false);
     setActiveTab('bookings'); // Switch to bookings tab
@@ -317,12 +327,12 @@ const AstronomyServices: React.FC = () => {
 
     try {
       const reason = prompt('Please provide a reason for cancellation (optional):');
-      await cancelBooking(bookingId, reason || undefined);
-      alert('Booking cancelled successfully');
+  await cancelBooking(bookingId, reason || undefined);
+  showSuccess('Booking cancelled successfully');
       fetchBookings();
     } catch (err) {
       console.error('Error cancelling booking:', err);
-      alert(err instanceof Error ? err.message : 'Failed to cancel booking');
+  showError(err instanceof Error ? err.message : 'Failed to cancel booking');
     }
   };
 
@@ -343,7 +353,7 @@ const AstronomyServices: React.FC = () => {
         comment: reviewText,
       });
       
-      alert('Review submitted successfully!');
+      showSuccess('Review submitted successfully!');
       setShowReviewModal(false);
       setSelectedBooking(null);
       setRating(5);
@@ -351,7 +361,7 @@ const AstronomyServices: React.FC = () => {
       fetchBookings();
     } catch (err) {
       console.error('Error submitting review:', err);
-      alert(err instanceof Error ? err.message : 'Failed to submit review');
+  showError(err instanceof Error ? err.message : 'Failed to submit review');
     } finally {
       setReviewLoading(false);
     }
@@ -471,6 +481,7 @@ const AstronomyServices: React.FC = () => {
                       key={idx} 
                       {...service} 
                       onBookClick={() => handleBookClick(service.id)}
+                      onGuideClick={() => handleGuideClick(service.creatorId)}
                     />
                   ))
                 ) : (
@@ -520,13 +531,13 @@ const AstronomyServices: React.FC = () => {
               {bookings.map((booking) => (
                 <div key={booking.id} className="booking-card">
                   <div className="booking-header">
-                    <img 
+                    {/* <img 
                       src={booking.service?.image_url || 'https://via.placeholder.com/150'} 
                       alt={booking.service?.title}
                       className="booking-service-image"
-                    />
+                    /> */}
                     <div className="booking-info">
-                      <h3>{booking.service?.title || 'Service'}</h3>
+                      <h3>{booking.service?.title ? booking.service.title : ''}</h3>
                       <p className="service-category">{booking.service?.category}</p>
                       <span className={getStatusClass(booking.booking_status)}>
                         {booking.booking_status}
@@ -535,6 +546,7 @@ const AstronomyServices: React.FC = () => {
                   </div>
 
                   <div className="booking-details">
+                      
                     <div className="detail-row">
                       <span className="label">📅 Date:</span>
                       <span>{formatDate(booking.booking_date)}</span>
@@ -557,10 +569,10 @@ const AstronomyServices: React.FC = () => {
                         {booking.payment_status}
                       </span>
                     </div>
-                    <div className="detail-row">
+                    {/* <div className="detail-row">
                       <span className="label">📍 Location:</span>
-                      <span>{booking.service?.location}</span>
-                    </div>
+                      <span>{booking.service?.title ? booking.service.title : booking.service?.location}</span>
+                    </div> */}
                     {booking.special_requests && (
                       <div className="detail-row">
                         <span className="label">📝 Special Requests:</span>

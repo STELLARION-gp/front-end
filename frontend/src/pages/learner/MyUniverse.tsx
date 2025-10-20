@@ -7,9 +7,7 @@ import {
   Star,
   BookOpen,
   CalendarDays,
-  Users,
   User,
-  Trophy,
   ShoppingCart,
 } from "lucide-react";
 import QuizCard from "../../components/Learner/QuizCard";
@@ -19,9 +17,7 @@ import AstronomyBlogCard from "../../components/Learner/blogcard";
 import { blogService } from '../../services/blogService';
 import type { Blog } from '../../services/blogService';
 import { useNavigate } from "react-router-dom";
-import AstronomyCompetitionCard from "../../components/Learner/AstronomyCompetitionCard";
 import MentorCard from "../../components/Learner/mentor/MentorCard";
-import InfluencerCard from "../../components/Learner/InfluencerCard";
 import ServicesTab from "./ServicesTab";
 import * as quizService from "../../services/quizService";
 import { useToast } from "../../contexts/ToastContext";
@@ -68,14 +64,7 @@ export interface ParticipatedQuiz {
   percentage: number;
   completed_at: string;
 }
-interface Competition {
-  id: number;
-  name: string;
-  date: string;
-  status: "Registered" | "Pending" | "Completed";
-  score?: number;
-  rank?: number;
-}
+
 // interface ServiceBooking {
 //   id: number;
 //   serviceType: string;

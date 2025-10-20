@@ -94,7 +94,7 @@ export const PAGE_ACCESS_CONTROL = {
   ] as UserRole[],
   "/dashboard/mentors": [
     "mentor",
-    "moderator",
+    // "moderator",
     "admin",
     "enthusiast",
   ] as UserRole[],
@@ -332,25 +332,25 @@ export const ROLE_BASED_MENU_ITEMS = {
     { label: "Overview", icon: "HomeIcon", href: "/dashboard/overview" },
     //{ label: 'Profile', icon: 'UserCircleIcon', href: '/dashboard/profile' },
     { label: "Blogs", icon: "BookOpenIcon", href: "/dashboard/blogs" },
-    { label: "Night Camps", icon: "MoonIcon", href: "/dashboard/night-camps" },
-    {
-      label: "Stargazing Spot",
-      icon: "StarIcon",
-      href: "/dashboard/stargazing",
-    },
-    {
-      label: "Requests",
-      icon: "MoonIcon",
-      href: "/dashboard/booking-requests",
-    },
-    { label: "Mentor", icon: "AcademicCapIcon", href: "/dashboard/mentor" },
-    { label: "Events", icon: "CalendarDaysIcon", href: "/dashboard/events" },
+    // { label: "Night Camps", icon: "MoonIcon", href: "/dashboard/night-camps" },
+    // {
+    //   label: "Stargazing Spot",
+    //   icon: "StarIcon",
+    //   href: "/dashboard/stargazing",
+    // },
+    // {
+    //   label: "Requests",
+    //   icon: "MoonIcon",
+    //   href: "/dashboard/booking-requests",
+    // },
+    // { label: "Mentor", icon: "AcademicCapIcon", href: "/dashboard/mentor" },
+    // { label: "Events", icon: "CalendarDaysIcon", href: "/dashboard/events" },
     {
       label: "Astro Hub",
       icon: "ChatBubbleLeftRightIcon",
       href: "/dashboard/astrohub",
     },
-    { label: "Sessions", icon: "UsersIcon", href: "/dashboard/sessions" },
+    // { label: "Sessions", icon: "UsersIcon", href: "/dashboard/sessions" },
     {
       label: "Moderation",
       icon: "ShieldCheckIcon",

@@ -265,14 +265,12 @@ const MyBookings: React.FC = () => {
                       </button>
                     )}
                     
-                    {booking.booking_status === 'completed' && (
-                      <button
-                        className="action-button review-button"
-                        onClick={() => openReviewModal(booking)}
-                      >
-                        Write a Review
-                      </button>
-                    )}
+                    <button
+                      className="action-button review-button"
+                      onClick={() => openReviewModal(booking)}
+                    >
+                      Write a Review
+                    </button>
                     
                     <button
                       className="action-button view-button"

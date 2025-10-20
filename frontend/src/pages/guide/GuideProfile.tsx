@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   User,
@@ -30,6 +30,7 @@ import '../../styles/pages/guide/_guideProfile.scss';
 
 const GuideProfile: React.FC = () => {
   const navigate = useNavigate();
+  const { guideId } = useParams<{ guideId?: string }>();
   const { user, userProfile } = useAuth();
   const [guideData, setGuideData] = useState<GuideApplication | null>(null);
   const [loading, setLoading] = useState(true);
@@ -44,14 +45,22 @@ const GuideProfile: React.FC = () => {
           return;
         }
 
-        if (!userProfile?.id) {
-          setError('User profile not loaded. Please try refreshing the page.');
-          setLoading(false);
-          return;
+        const token = await user.getIdToken();
+        let apiUrl: string;
+
+        // If guideId is provided, fetch that guide's profile; otherwise, fetch current user's profile
+        if (guideId) {
+          apiUrl = `${API_CONFIG.API_BASE_URL}/guide-applications?user_id=${guideId}`;
+        } else {
+          if (!userProfile?.id) {
+            setError('User profile not loaded. Please try refreshing the page.');
+            setLoading(false);
+            return;
+          }
+          apiUrl = `${API_CONFIG.API_BASE_URL}/guide-applications?user_id=${userProfile.id}`;
         }
 
-        const token = await user.getIdToken();
-        const response = await fetch(`${API_CONFIG.API_BASE_URL}/guide-applications?user_id=${userProfile.id}`, {
+        const response = await fetch(apiUrl, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
@@ -67,7 +76,7 @@ const GuideProfile: React.FC = () => {
         if (result.success && result.data && result.data.length > 0) {
           setGuideData(result.data[0]);
         } else {
-          setError('No guide application found. Please apply to become a guide first.');
+          setError(guideId ? 'Guide profile not found.' : 'No guide application found. Please apply to become a guide first.');
         }
       } catch (err) {
         console.error('Error fetching guide profile:', err);
@@ -78,7 +87,7 @@ const GuideProfile: React.FC = () => {
     };
 
     fetchGuideProfile();
-  }, [navigate, user, userProfile]);
+  }, [navigate, user, userProfile, guideId]);
 
   const getStatusColor = (status: string) => {
     switch (status) {

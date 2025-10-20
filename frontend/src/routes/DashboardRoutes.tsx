@@ -70,7 +70,6 @@ import ApplyMentor from "../pages/learner/ApplyMentor";
 import AstronomyServices from "../pages/learner/AstronomyServices";
 import AstronomyServiceDetails from "../pages/learner/AstronomyServiceDetails";
 import MyBookings from "../pages/learner/MyBookings";
-import GuideDetails from "../pages/learner/GuideDetails";
 import CompetitionPage from "../pages/learner/CompetitionPage";
 //import Competitions from '../pages/influencer/competitions';
 //import MyBlogs from '../pages/influencer/myblogs';

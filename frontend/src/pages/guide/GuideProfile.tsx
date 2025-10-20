@@ -20,9 +20,7 @@ import {
   XCircle,
   Clock,
   Star,
-  Edit,
   Download,
-  Camera,
   Languages
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';

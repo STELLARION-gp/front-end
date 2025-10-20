@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import AstronomyCompetitionCard from "../../components/Learner/AstronomyCompetitionCard";
 import AstronomyBlogCard from "../../components/Learner/blogcard";
 import NasaImageCard from "../../components/Learner/NasaImageCard";
 import '../../styles/pages/learner/preview.scss'
@@ -43,31 +42,6 @@ const nasaImages = [
   
 ];
 
-
-const competitions = [
-  {
-    id: 1,
-    name: "Astro Quiz Challenge",
-    coverImage: "https://static.vecteezy.com/system/resources/previews/036/289/512/non_2x/competition-winners-concept-flat-illustration-template-1st-2nd-and-3rd-winners-of-the-competition-trophy-award-and-reward-success-achieving-goals-vector.jpg",
-    date: "2025-09-15",
-    description: "Test your astronomy knowledge and win prizes!",
-  },
-  {
-    id: 2,
-    name: "Deep Space Art Contest",
-    coverImage: "https://png.pngtree.com/png-vector/20221020/ourmid/pngtree-happy-children-with-medals-on-school-competition-on-contest-png-image_6331904.png",
-    date: "2025-10-05",
-    description: "Submit your best space-themed artwork.",
-  },
-  {
-    id: 3,
-    name: "Telescope Photography Battle",
-    coverImage: "https://w7.pngwing.com/pngs/731/996/png-transparent-competition-winners-hand-table-tree-thumbnail.png",
-    date: "2025-11-01",
-    description: "Capture the night sky and compete with others.",
-  },
-];
-// (moved inside Preview component)
 
 const Preview = () => {
   const navigate = useNavigate();

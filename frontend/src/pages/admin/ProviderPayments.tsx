@@ -18,6 +18,7 @@ import type {
   ProviderPayment, 
   PaymentStats 
 } from '../../services/providerPayments.service';
+import { useToast } from '../../contexts/ToastContext';
 
 // Helper function to get month name
 const getMonthName = (monthNum: number): string => {
@@ -27,6 +28,7 @@ const getMonthName = (monthNum: number): string => {
 };
 
 const ProviderPayments: React.FC = () => {
+  const { showSuccess, showError } = useToast();
   const [filteredPayments, setFilteredPayments] = useState<ProviderPayment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -90,10 +92,10 @@ const ProviderPayments: React.FC = () => {
       
       setSelectedPayment(null);
       setShowDetailsModal(false);
-      alert(`Payment status updated to ${newStatus}`);
+      showSuccess(`Payment status updated to ${newStatus}`);
     } catch (err) {
       console.error('Error updating payment status:', err);
-      alert('Failed to update payment status. Please try again.');
+      showError('Failed to update payment status. Please try again.');
     }
   };
 
@@ -167,9 +169,10 @@ const ProviderPayments: React.FC = () => {
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
+      showSuccess('PDF downloaded successfully');
     } catch (err) {
       console.error('Error downloading summary PDF:', err);
-      alert('Failed to download PDF. Please try again.');
+      showError('Failed to download PDF. Please try again.');
     }
   };
 
@@ -186,9 +189,10 @@ const ProviderPayments: React.FC = () => {
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
+      showSuccess('Payment PDF downloaded successfully');
     } catch (err) {
       console.error('Error downloading payment PDF:', err);
-      alert('Failed to download PDF. Please try again.');
+      showError('Failed to download PDF. Please try again.');
     }
   };
 

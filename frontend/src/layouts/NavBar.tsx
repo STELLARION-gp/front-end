@@ -220,7 +220,13 @@ const MobileNavBar = () => {
           </div>
           <div className="mobile-profile-links">
             <Link
-              to="/dashboard/overview"
+              to={
+                userProfile?.role === 'admin' 
+                  ? '/dashboard/admin-overview' 
+                  : userProfile?.role === 'mentor'
+                  ? '/dashboard/mentordashboard'
+                  : '/dashboard/overview'
+              }
               className="mobile-nav-link"
               onClick={handleMobileNavClick}
             >

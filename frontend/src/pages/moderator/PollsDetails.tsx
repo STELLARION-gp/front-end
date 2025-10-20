@@ -4,10 +4,12 @@ import { useParams, useNavigate } from 'react-router-dom';
 import '../../styles/pages/moderator/PollsDetails.scss';
 import Button from '../../components/Button';
 import { pollService, type Poll as PollType } from '../../services/pollService';
+import { useToast } from '../../contexts/ToastContext';
 
 const PollsDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { showSuccess, showError } = useToast();
   const [poll, setPoll] = useState<PollType | null>(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
@@ -51,7 +53,7 @@ const PollsDetails: React.FC = () => {
       });
     } catch (error) {
       console.error('Error approving poll:', error);
-      alert((error as Error).message || 'Error approving poll. Please try again.');
+      showError((error as Error).message || 'Error approving poll. Please try again.');
       setActionLoading(null);
     }
   };
@@ -78,7 +80,7 @@ const PollsDetails: React.FC = () => {
       });
     } catch (error) {
       console.error('Error rejecting poll:', error);
-      alert((error as Error).message || 'Error rejecting poll. Please try again.');
+      showError((error as Error).message || 'Error rejecting poll. Please try again.');
       setActionLoading(null);
     }
   };
@@ -89,11 +91,11 @@ const PollsDetails: React.FC = () => {
     setActionLoading('delete');
     try {
       await pollService.deletePoll(poll.id);
-      alert('Poll deleted successfully!');
+      showSuccess('Poll deleted successfully!');
       navigate('/dashboard/moderation/polls');
     } catch (error) {
       console.error('Error deleting poll:', error);
-      alert((error as Error).message || 'Error deleting poll. Please try again.');
+      showError((error as Error).message || 'Error deleting poll. Please try again.');
     } finally {
       setActionLoading(null);
     }

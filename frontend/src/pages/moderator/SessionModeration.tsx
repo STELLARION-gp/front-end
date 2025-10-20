@@ -4,9 +4,11 @@ import { useNavigate } from 'react-router-dom';
 import '../../styles/pages/moderator/SessionModeration.scss';
 import Button from '../../components/Button';
 import { sessionsService, type Session } from '../../services/sessionsService';
+import { useToast } from '../../contexts/ToastContext';
 
 const SessionModeration: React.FC = () => {
   const navigate = useNavigate();
+  const { showSuccess, showError, showWarning } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [sessions, setSessions] = useState<Session[]>([]);
@@ -55,11 +57,11 @@ const SessionModeration: React.FC = () => {
 
     try {
       await sessionsService.approveSession(sessionId);
-      alert('Session approved successfully!');
+      showSuccess('Session approved successfully!');
       loadSessions(); // Reload the list
     } catch (err) {
       console.error('Error approving session:', err);
-      alert((err as Error).message || 'Failed to approve session');
+      showError((err as Error).message || 'Failed to approve session');
     }
   };
 
@@ -70,20 +72,20 @@ const SessionModeration: React.FC = () => {
 
   const handleRejectSubmit = async () => {
     if (!selectedSessionId || !rejectionReason.trim()) {
-      alert('Please provide a rejection reason');
+      showWarning('Please provide a rejection reason');
       return;
     }
 
     try {
       await sessionsService.rejectSession(selectedSessionId, rejectionReason);
-      alert('Session rejected successfully!');
+      showSuccess('Session rejected successfully!');
       setShowRejectModal(false);
       setRejectionReason('');
       setSelectedSessionId(null);
       loadSessions(); // Reload the list
     } catch (err) {
       console.error('Error rejecting session:', err);
-      alert((err as Error).message || 'Failed to reject session');
+      showError((err as Error).message || 'Failed to reject session');
     }
   };
 

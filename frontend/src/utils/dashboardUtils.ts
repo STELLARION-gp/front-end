@@ -3,9 +3,23 @@ import type { UserProfile } from '../types/auth';
 export const getDashboardRoute = (userProfile: UserProfile | null): string => {
     console.log('🔍 getDashboardRoute called with:', userProfile);
 
-    // All users go to the same dashboard, but with role-based sidebar and content
-    console.log('🚀 Redirecting all users to: /dashboard');
-    return '/dashboard/overview';
+    if (!userProfile || !userProfile.role) {
+        console.log('⚠️ No userProfile or role, redirecting to default dashboard');
+        return '/dashboard/overview';
+    }
+
+    // Route users to role-specific dashboards
+    switch (userProfile.role) {
+        case 'admin':
+            console.log('🚀 Admin user, redirecting to: /dashboard/admin-overview');
+            return '/dashboard/admin-overview';
+        case 'mentor':
+            console.log('🚀 Mentor user, redirecting to: /dashboard/mentordashboard');
+            return '/dashboard/mentordashboard';
+        default:
+            console.log('🚀 Default dashboard for role:', userProfile.role);
+            return '/dashboard/overview';
+    }
 };
 
 export const getRoleName = (role: string): string => {

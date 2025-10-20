@@ -614,4 +614,29 @@ export const sessionsService = {
       true
     );
   },
+
+  /**
+   * Get enrollments for a specific session (creator only)
+   */
+  async getSessionEnrollments(sessionId: number): Promise<{
+    success: boolean;
+    data: {
+      session_id: number;
+      session_title: string;
+      total_enrollments: number;
+      enrollments: Array<{
+        id: number;
+        session_id: number;
+        user_id: number;
+        enrolled_at: string;
+        payment_status: string;
+        amount_paid: number;
+        user_name?: string;
+        user_email?: string;
+      }>;
+    };
+    message: string;
+  }> {
+    return makeRequest(`/sessions/${sessionId}/enrollments`, {}, true);
+  },
 };

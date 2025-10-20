@@ -211,7 +211,7 @@ const Preview = () => {
       </div>
 
     {/* upcoming competitions */}
-    <h2 style={{ marginTop: "4rem" }}>Upcoming Competitions</h2>
+    {/* <h2 style={{ marginTop: "4rem" }}>Upcoming Competitions</h2>
     <p className="section-subtitle">Show off your skills and shine among the stars.</p>
     <div className="competitions-container">
       {competitions.map(comp => (
@@ -223,7 +223,7 @@ const Preview = () => {
           description={comp.description}
         />
       ))}
-    </div>
+    </div> */}
 
 
   </div>
